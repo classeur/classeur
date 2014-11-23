@@ -1,0 +1,130 @@
+$ced-color: #555;
+$font-family-monospace: monospace;
+$ced-color-lighter: transparentize($ced-color, 0.6);
+$ced-color-light: transparentize($ced-color, 0.4);
+$ced-color-dark: opacify($ced-color, 0.15);
+$ced-color-darker: opacify($ced-color, 0.3);
+$code-bg: #eee;
+$border-radius-base: 4px;
+
+.editor {
+	.code,
+	.pre {
+		color: $ced-color-darker;
+		font: normal 0.9em $font-family-monospace;
+	}
+
+	.tag {
+		color: $ced-color-darker;
+		font: bold 0.9em $font-family-monospace;
+		.punctuation,
+		.attr-value,
+		.attr-name {
+			font-weight: normal;
+		}
+	}
+
+	.latex, .math {
+		color: $ced-color;
+	}
+
+	.entity {
+		font: italic 0.9em $font-family-monospace;
+		color: $ced-color;
+	}
+
+	.table {
+		font: normal 0.9em $font-family-monospace;
+		* {
+			font-size: 1em;
+		}
+	}
+
+	.comment {
+		font-size: 0.9em;
+		color: $ced-color-lighter;
+	}
+
+	.keyword {
+		color: $ced-color-dark;
+		font-weight: bold;
+	}
+
+	.code, .img, .imgref, .md-toc {
+		background-color: $code-bg;
+		border-radius: $border-radius-base;
+		padding: 0.15em 0;
+	}
+
+	.md-toc {
+		font-size: 2.5em;
+		padding: 0.2em;
+	}
+
+	.link, .linkref {
+		.md-underlined-text {
+			color: inherit;
+		}
+	}
+
+	.blockquote {
+		color: $ced-color;
+	}
+
+	.h1, .h2, .h3, .h4, .h5, .h6 {
+		font-weight: 600;
+	}
+
+	.h1, .h11 { font-size: 1.7em; }
+	.h2, .h22 { font-size: 1.4em; }
+	.h3 { font-size: 1.2em; }
+	.h4 { font-size: 1.1em; }
+	.h5 { font-size: 1em; }
+	.h6 { font-size: 0.9em; }
+
+	.md-hash {
+		color: $ced-color-lighter;
+	}
+
+	.md, .hr {
+		color: $ced-color-lighter;
+		font-style: normal;
+		font-weight: normal
+	}
+
+	.em,
+	.em .md {
+		font-style: italic;
+	}
+
+	.strong,
+	.strong .md {
+		font-weight: bold;
+	}
+
+	.md-strike-text {
+		text-decoration: line-through
+	}
+
+	.url,
+	.email,
+	.md-underlined-text {
+		text-decoration: underline;
+	}
+
+	.linkdef .url {
+		color: $ced-color-lighter;
+	}
+
+	.img,
+	.imgref {
+		padding: 0.2em 0.4em;
+		padding-right: 0;
+	}
+
+	.md-bang,
+	.md-alt,
+	.md-title {
+		color: $ced-color-lighter;
+	}
+}

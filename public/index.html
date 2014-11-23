@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>StackEdit
+	</title>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
+	<link rel="stylesheet" href="styles/main.css">
+
+	<script src="bower_components/angular/angular.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.js"></script>
+	<script src="bower_components/hammerjs/hammer.js"></script>
+	<script src="bower_components/angular-material/angular-material.js"></script>
+	<script src="bower_components/famous/dist/famous-global.js"></script>
+	<script src="bower_components/famous-angular/dist/famous-angular.js"></script>
+	<script src="bower_components/google-diff-match-patch-js/diff_match_patch.js"></script>
+	<script src="bower_components/rangy-official/rangy-core.js"></script>
+	<script src="bower_components/ced/scripts/cedCore.js"></script>
+	<script src="bower_components/ced/scripts/cedHighlighter.js"></script>
+	<script src="bower_components/ced/scripts/cedPrism.js"></script>
+	<script src="bower_components/ced/scripts/cedSelectionMgr.js"></script>
+	<script src="bower_components/ced/scripts/cedUndoMgr.js"></script>
+	<script src="bower_components/ced/scripts/cedUtils.js"></script>
+	<script src="bower_components/ced/scripts/cedWatcher.js"></script>
+	<script src="scripts/prism-markdown.js"></script>
+	<script src="scripts/main.js"></script>
+</head>
+<body ng-app="stackedit.main">
+<fa-app>
+
+	<!-- content -->
+	<fa-container-surface fa-options="{classes: ['background']}" ng-controller="PageLayoutCtrl">
+		<fa-modifier fa-size="[pageWidth + pageMargin, undefined]" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
+					 fa-translate="[-50, 0]">
+			<fa-container-surface fa-options="{classes: ['plastic', 'md-whiteframe-z2']}">
+				<ng-include ng-controller="EditBtnBarCtrl" src="'views/editBtnBar.html'"></ng-include>
+
+				<fa-modifier fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[pageWidth, undefined]">
+					<fa-container-surface fa-options="{classes: ['paper', 'md-whiteframe-z1']}">
+						<fa-modifier fa-size="[30, undefined]">
+							<fa-flexible-layout fa-options="{ratios: [1, 1], direction: 1}">
+								<fa-modifier fa-align="[1, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[20, 20]"
+											 ng-repeat="i in [0, 1]">
+									<fa-surface class="hole plastic">
+									</fa-surface>
+								</fa-modifier>
+							</fa-flexible-layout>
+						</fa-modifier>
+						<fa-modifier fa-size="[1, undefined]" fa-translate="[120, 0]">
+							<fa-surface class="margin">
+							</fa-surface>
+						</fa-modifier>
+						<fa-surface>
+							<pre ced class="editor">
+abc 12
+
+
+**abc**
+
+
+# abc
+
+
+## 123
+
+
+### xyz
+
+
+
+							</pre>
+						</fa-surface>
+					</fa-container-surface>
+				</fa-modifier>
+			</fa-container-surface>
+			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-translate="[2, 2]" fa-size="[42, 42]">
+				<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="previewBtn.scaleTrans.get()"
+							 fa-opacity="previewBtn.opacityTrans.get()">
+					<fa-surface class="btn btn-background" ng-mouseenter="previewBtn.hover(true)"
+								ng-mouseleave="previewBtn.hover(false)">
+						<md-button>
+							<i class="mdi-image-filter-none"></i>
+						</md-button>
+					</fa-surface>
+				</fa-modifier>
+			</fa-modifier>
+			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-size="[40, 130]" fa-translate="[0, 40]">
+				<fa-surface class="plastic label">
+
+				</fa-surface>
+			</fa-modifier>
+			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-size="[100, 40]" fa-translate="[45, -36]"
+						 fa-rotate="[0, 0, 1.57]">
+				<fa-surface class="btn btn-menu">
+					<md-button>
+						Menu
+					</md-button>
+				</fa-surface>
+			</fa-modifier>
+		</fa-modifier>
+	</fa-container-surface>
+
+</fa-app>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "stackedit",
+  "version": "4.99.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benoit Schweblin",
+  "license": "Apache",
+  "dependencies": {
+    "express": "^4.10.2",
+    "serve-static": "^1.7.1",
+    "gulp": "^3.8.10",
+    "gulp-sass": "^1.1.0",
+    "gulp-watch": "^1.1.0",
+    "gulp-minify-css": "^0.3.11"
+  }
+}

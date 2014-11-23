@@ -1,0 +1,101 @@
+@import '../../bower_components/angular-material/angular-material.css';
+@import '../../bower_components/famous-angular/dist/famous-angular.css';
+
+$material-font-path: "../../bower_components/bootstrap-material-design/fonts";
+@import '_icons-material-design.scss';
+@import '_ced.scss';
+$plastic-color: #64BDEB;
+$clip-color: #424140;
+
+fa-app {
+	position: fixed;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.background {
+	background-color: #FAF8F6;
+}
+
+.paper {
+	background-color: #fff;
+}
+
+.plastic {
+	background-color: $plastic-color;
+}
+
+.label {
+	box-shadow: 2px 4px 9px -4px rgba(0, 0, 0, 0.2);
+	border-top-right-radius: 12px;
+	border-bottom-right-radius: 12px;
+}
+
+.hole {
+	box-shadow: inset 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
+	border-radius: 10px;
+}
+
+.clip {
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	background-color: $clip-color;
+}
+
+.editor {
+	margin: 0;
+	position: absolute;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: {
+		top: 90px;
+		bottom: 200px;
+		left: 120px;
+		right: 20px;
+	}
+	font-family: inherit;
+	font-size: 18px;
+	line-height: 1.35;
+	overflow: auto;
+}
+
+.margin {
+	background-color: #FFE5E1;
+}
+
+.btn button {
+	line-height: 0;
+	&:hover, &:focus {
+		background-color: transparent !important;
+	}
+}
+
+.btn-clip button {
+	color: #fff;
+	i {
+		font-size: 25px;
+	}
+}
+
+.btn-background button {
+	i {
+		font-size: 24px;
+	}
+}
+
+.btn-menu button {
+	line-height: 23px;
+	font-size: 18px;
+	padding: {
+		left: 10px;
+		right: 10px;
+	};
+	color: mix(#fff, $plastic-color, 80%);
+	&:hover {
+		color: #fff;
+	}
+}

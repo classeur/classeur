@@ -1,0 +1,9 @@
+{
+    "undef": true,
+    "unused": true,
+    "browser": true,
+    "expr": true,
+    "predef": [
+        "angular"
+    ]
+}

@@ -1,0 +1,23 @@
+	<fa-modifier fa-align="[.5, 0]" fa-origin="[.5, 0]" fa-size="[btnBarWidth, btnBarHeight]">
+	<fa-modifier fa-translate="btnBarTrans.get()">
+		<fa-surface class="clip md-whiteframe-z1">
+		</fa-surface>
+		<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[btnWidth, btnHeight]"
+					 fa-translate="[btn.offset, -5]" ng-repeat="btn in btns">
+			<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="btn.scaleTrans.get()" fa-opacity="btn.opacityTrans.get()">
+				<fa-surface class="btn btn-clip"
+							ng-mouseenter="btn.hover(true)" ng-mouseleave="btn.hover(false)"
+							fa-click="click($index)">
+					<md-button>
+						<i ng-class="btn.icon"></i>
+					</md-button>
+
+				</fa-surface>
+			</fa-modifier>
+		</fa-modifier>
+		<fa-modifier fa-align="[0.5, 1]" fa-origin="[0.5, 1]" fa-size="[btnBarWidth-btnBarMargin*2, 4]" fa-translate="[0, -5]">
+			<fa-surface class="paper hole">
+			</fa-surface>
+		</fa-modifier>
+	</fa-modifier>
+</fa-modifier>
