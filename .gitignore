@@ -5,3 +5,4 @@ node_modules
 Thumbs.db
 .DS_Store
 bower_components
+public/styles/main.css

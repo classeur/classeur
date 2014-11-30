@@ -33,17 +33,17 @@
 	<!-- content -->
 	<fa-container-surface fa-options="{classes: ['background']}" ng-controller="PageLayoutCtrl">
 		<fa-modifier fa-size="[pageWidth + pageMargin, undefined]" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
-					 fa-translate="[-50, 0]">
+					 fa-translate="[-40, 0]">
 			<fa-container-surface fa-options="{classes: ['plastic', 'md-whiteframe-z2']}">
-				<ng-include ng-controller="EditBtnBarCtrl" src="'views/editBtnBar.html'"></ng-include>
 
-				<fa-modifier fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[pageWidth, undefined]">
+				<fa-modifier fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[pageWidth, undefined]" fa-translate="pageTrans.get()">
+					<ng-include ng-controller="EditBtnBarCtrl" src="'views/editBtnBar.html'"></ng-include>
 					<fa-container-surface fa-options="{classes: ['paper', 'md-whiteframe-z1']}">
 						<fa-modifier fa-size="[30, undefined]">
 							<fa-flexible-layout fa-options="{ratios: [1, 1], direction: 1}">
 								<fa-modifier fa-align="[1, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[20, 20]"
 											 ng-repeat="i in [0, 1]">
-									<fa-surface class="hole plastic">
+									<fa-surface class="hole" ng-class="menuBtn.isOpen ? 'background' : 'plastic'">
 									</fa-surface>
 								</fa-modifier>
 							</fa-flexible-layout>
@@ -93,7 +93,8 @@ abc 12
 			</fa-modifier>
 			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-size="[100, 40]" fa-translate="[45, -36]"
 						 fa-rotate="[0, 0, 1.57]">
-				<fa-surface class="btn btn-menu">
+				<fa-surface class="btn btn-menu"
+							fa-click="menuBtn.click()">
 					<md-button>
 						Menu
 					</md-button>

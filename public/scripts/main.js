@@ -16,19 +16,21 @@ angular.module('stackedit.main', [
 			return Math.pow(2,-10*t) * Math.sin((t-p/4)*(2*Math.PI)/p) + 1;
 		});
 	})
-	.directive('ced', function() {
+	.factory('cedService', function() {
+		return {};
+	})
+	.directive('ced', function(cedService) {
 		return {
 			link: function(scope, element) {
 				window.rangy.init();
-				window.ced(element[0], {
+				cedService.editor = window.ced(element[0], {
 					language: window.prismMd
 				});
 			}
 		};
 	})
-	.controller('EditBtnBarCtrl', function($scope, $famous) {
+	.controller('EditBtnBarCtrl', function($scope, $famous, cedService) {
 		var Transitionable  = $famous['famous/transitions/Transitionable'];
-		var Engine = $famous['famous/core/Engine'];
 		var Timer = $famous['famous/utilities/Timer'];
 
 		$scope.btnBarHeight = 70;
@@ -93,12 +95,18 @@ angular.module('stackedit.main', [
 				separator: true,
 				path: 'content/svg/ic_undo_24px.svg',
 				class: 'svg-ic_undo_24px',
-				icon: 'mdi-content-undo'
+				icon: 'mdi-content-undo',
+				click: function() {
+					cedService.editor.undoMgr.undo();
+				}
 			},
 			{
 				path: 'content/svg/ic_redo_24px.svg',
 				class: 'svg-ic_redo_24px',
-				icon: 'mdi-content-redo'
+				icon: 'mdi-content-redo',
+				click: function() {
+					cedService.editor.undoMgr.redo();
+				}
 			},
 
 		];
@@ -135,10 +143,19 @@ angular.module('stackedit.main', [
 		$scope.pageMargin = 25;
 		$scope.previewBtn = {
 			scaleTrans: new Transitionable([0.9, 0.9]),
-			opacityTrans: new Transitionable(0.2),
+			opacityTrans: new Transitionable(0.3),
 			hover: function(enable) {
 				this.scaleTrans.set([enable ? 1 : 0.9, enable ? 1 : 0.9], {duration: 200, curve: 'easeOut'});
-				this.opacityTrans.set(enable ? 0.25 : 0.2, {duration: 200, curve: 'easeOut'});
+				this.opacityTrans.set(enable ? 0.35 : 0.3, {duration: 200, curve: 'easeOut'});
+			}
+		};
+
+		var menuWidth = 320;
+		$scope.pageTrans = new Transitionable([0, 0]);
+		$scope.menuBtn = {
+			click: function() {
+				this.isOpen = !this.isOpen;
+				$scope.pageTrans.set([this.isOpen ? -menuWidth : 0, this.isOpen ? -48 : 0], {duration: 200, curve: 'easeOut'});
 			}
 		};
 	});

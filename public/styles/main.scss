@@ -72,6 +72,9 @@ fa-app {
 	&:hover, &:focus {
 		background-color: transparent !important;
 	}
+	.md-ripple-container {
+		background-color: transparent !important;
+	}
 }
 
 .btn-clip button {

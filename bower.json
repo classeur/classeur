@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "angular-material": "master",
-    "famous-angular": "20d7bef1877d9d6aa71734e7153c88127a51b6b5",
+    "famous-angular": "master",
     "bootstrap-material-design": "~0.1.5",
     "google-diff-match-patch-js": "~1.0.0",
     "rangy-official": "~1.3.0-alpha.20140921"
