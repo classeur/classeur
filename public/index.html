@@ -26,24 +26,26 @@
 	<script src="bower_components/ced/scripts/cedWatcher.js"></script>
 	<script src="scripts/Markdown.Converter.js"></script>
 	<script src="scripts/prism-markdown.js"></script>
+	<script src="scripts/services/cleditor.js"></script>
+	<script src="scripts/services/layout.js"></script>
+	<script src="scripts/services/scrollSync.js"></script>
+	<script src="scripts/services/settings.js"></script>
 	<script src="scripts/main.js"></script>
 </head>
-<body ng-app="stackedit.main">
+<body ng-app="classeur.main">
 <fa-app ng-controller="LayoutCtrl">
 
-	<fa-surface class="background" fa-click="menuSrv.toggle(false)">
-	</fa-surface>
-	<fa-modifier fa-size="layoutSrv.previewSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
-				 fa-translate="layoutSrv.previewTrans.get()">
-		<fa-surface>
-			<div class="preview-container" ng-class="layoutSrv.fontSizeClass">
-				<div preview class="preview" ng-class="layoutSrv.zoomClass"></div>
+	<fa-modifier fa-size="layout.previewSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
+				 fa-translate="layout.previewTrans.get()">
+		<fa-surface class="background" fa-click="menuSrv.toggle(false)">
+			<div class="preview-container" ng-class="layout.fontSizeClass">
+				<div preview class="preview" ng-class="layout.zoomClass"></div>
 			</div>
 		</fa-surface>
 	</fa-modifier>
 
-	<fa-modifier fa-size="layoutSrv.binderSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
-				 fa-translate="layoutSrv.binderTrans.get()">
+	<fa-modifier fa-size="layout.binderSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
+				 fa-translate="layout.binderTrans.get()">
 
 		<fa-modifier fa-translate="pageSrv.outerTrans.get()">
 			<fa-modifier fa-size="[undefined, 9999]"
@@ -60,7 +62,7 @@
 			<ng-include ng-controller="BtnBarCtrl" src="'views/btnBar.html'"></ng-include>
 
 			<fa-header-footer-layout
-				fa-options="{direction: 0, headerSize: layoutSrv.pageMargin/2, footerSize: layoutSrv.pageMargin/2}">
+				fa-options="{direction: 0, headerSize: layout.pageMargin/2, footerSize: layout.pageMargin/2}">
 
 				<fa-surface></fa-surface>
 
@@ -80,7 +82,7 @@
 							</fa-surface>
 						</fa-modifier>
 						<fa-surface>
-							<div class="editor-container" ng-class="layoutSrv.fontSizeClass">
+							<div class="editor-container" ng-class="layout.fontSizeClass">
 							<ng-include src="'views/editor.html'"></ng-include>
 							</div>
 						</fa-surface>
@@ -94,7 +96,7 @@
 							 fa-opacity="previewBtn.opacityTrans.get()">
 					<fa-surface class="btn btn-background" ng-mouseenter="previewBtn.hover(true)"
 								ng-mouseleave="previewBtn.hover(false)"
-								fa-click="layoutSrv.togglePreview()">
+								fa-click="layout.togglePreview()">
 						<md-button>
 							<i class="mdi-image-filter-none"></i>
 						</md-button>

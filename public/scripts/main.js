@@ -1,7 +1,11 @@
-angular.module('stackedit.main', [
+angular.module('classeur.main', [
 	'ngMaterial',
 	'ngAnimate',
-	'famous.angular'
+	'famous.angular',
+	'classeur.services.cleditor',
+	'classeur.services.layout',
+	'classeur.services.settings',
+	'classeur.services.scrollSync',
 ])
 	.config(function($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animate/);
@@ -16,129 +20,45 @@ angular.module('stackedit.main', [
 			return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
 		});
 	})
-	.factory('cedSrv', function() {
-		var converter = new window.Markdown.Converter();
-		return {
-			convert: function() {
-				this.html = converter.makeHtml(this.editor.getContent());
-			},
-			refreshPreview: function() {
-				this.previewElt.innerHTML = this.html;
-			}
-		};
-	})
-	.factory('layoutSrv', function($famous, $rootScope, settings) {
-		var Transitionable = $famous['famous/transitions/Transitionable'];
-		var layoutSrv = {};
-		var previewSizeAdjust = 130;
-		var pageWidth;
-		function getBinderSize() {
-			layoutSrv.fontSizeClass = '';
-			var factor = 1 + (settings.zoom - 3) * 0.1;
-			pageWidth = 960 * factor;
-			if(document.body.clientWidth < 1120 * factor) {
-				layoutSrv.fontSizeClass = 'font-size-2';
-				pageWidth = 880 * factor;
-			}
-			if(document.body.clientWidth < 1040 * factor) {
-				pageWidth = 800 * factor;
-			}
-			if(document.body.clientWidth - 50 < pageWidth) {
-				layoutSrv.fontSizeClass = 'font-size-1';
-				pageWidth = document.body.clientWidth - 50;
-			}
-			if(layoutSrv.isPreviewOpen && document.body.clientWidth/2 + 50 < pageWidth) {
-				pageWidth = document.body.clientWidth/2 + 50;
-			}
-			return [pageWidth, undefined];
-		}
-		function getPreviewSize() {
-			return [pageWidth - previewSizeAdjust, undefined];
-		}
-		function getBinderTrans() {
-			return [
-				(layoutSrv.isPreviewOpen ? -pageWidth/2 + 10: -20),
-				0
-			];
-		}
-		function getPreviewTrans() {
-			return [
-				layoutSrv.isPreviewOpen ? (pageWidth - previewSizeAdjust)/2 + 70: -20,
-				0
-			];
-		}
-		layoutSrv.pageMargin = 25;
-		layoutSrv.binderSize = new Transitionable(getBinderSize());
-		layoutSrv.binderTrans = new Transitionable(getBinderTrans());
-		layoutSrv.previewSize = new Transitionable(getPreviewSize());
-		layoutSrv.previewTrans = new Transitionable(getPreviewTrans());
-		layoutSrv.zoomClass = 'zoom-' + settings.zoom;
-
-		function setTransition() {
-			var binderSize = getBinderSize();
-			layoutSrv.binderTrans.set(getBinderTrans(), {duration: 180, curve: 'easeOut'}, function() {
-				$rootScope.$apply();
-				layoutSrv.binderSize.set(binderSize, {duration: 180, curve: 'custom'});
-			});
-			var previewSize = getPreviewSize();
-			layoutSrv.previewTrans.set(getPreviewTrans(), {duration: 180, curve: 'easeOut'}, function() {
-				layoutSrv.previewSize.set(previewSize, {duration: 180, curve: 'custom'});
-			});
-		}
-
-		window.addEventListener('resize', window.ced.Utils.debounce(setTransition, 180));
-
-		layoutSrv.togglePreview = function(isOpen) {
-			isOpen = isOpen === undefined ? !layoutSrv.isPreviewOpen : isOpen;
-			if(isOpen != layoutSrv.isPreviewOpen) {
-				layoutSrv.isPreviewOpen = isOpen;
-				setTransition();
-			}
-		};
-
-		layoutSrv.applyZoom = function() {
-			layoutSrv.zoomClass = 'zoom-' + settings.zoom;
-			setTransition();
-		};
-
-		return layoutSrv;
-	})
-	.directive('ced', function(cedSrv) {
+	.directive('ced', function(cleditor, scrollSync) {
 		return {
 			link: function(scope, element) {
 				window.rangy.init();
-				cedSrv.editor = window.ced(element[0], {
+				cleditor.editorElt = element[0];
+				cleditor.editor = window.ced(cleditor.editorElt, {
 					language: window.prismMd,
 					sectionDelimiter: '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+'
 				});
+				scrollSync.setEditorElt(cleditor.editorElt);
 
 				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
-					cedSrv.convert();
-					cedSrv.refreshPreview();
+					cleditor.convert();
+					cleditor.refreshPreview();
 				}, 500);
-				cedSrv.editor.onContentChanged(function(content, sectionList) {
-					console.log(sectionList)
+				cleditor.editor.onContentChanged(function(content, sectionList) {
+					cleditor.sectionList = sectionList;
 					debouncedRefreshPreview();
 				});
-				cedSrv.editor.init();
-				cedSrv.convert();
-				if(cedSrv.previewElt) {
-					cedSrv.refreshPreview();
+				cleditor.editor.init();
+				cleditor.convert();
+				if(cleditor.previewElt) {
+					cleditor.refreshPreview();
 				}
 			}
 		};
 	})
-	.directive('preview', function(cedSrv) {
+	.directive('preview', function(cleditor, scrollSync) {
 		return {
 			link: function(scope, element) {
-				cedSrv.previewElt = element[0];
-				if(cedSrv.content !== undefined) {
-					cedSrv.refresh();
+				cleditor.previewElt = element[0];
+				scrollSync.setPreviewElt(cleditor.previewElt);
+				if(cleditor.content !== undefined) {
+					cleditor.refresh();
 				}
 			}
 		};
 	})
-	.controller('BtnBarCtrl', function($scope, $famous, btnBarSrv, cedSrv) {
+	.controller('BtnBarCtrl', function($scope, $famous, btnBarSrv, cleditor) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
 
 		$scope.btnBarHeight = 70;
@@ -183,13 +103,13 @@ angular.module('stackedit.main', [
 				separator: true,
 				icon: 'mdi-content-undo',
 				click: function() {
-					cedSrv.editor.undoMgr.undo();
+					cleditor.editor.undoMgr.undo();
 				}
 			},
 			{
 				icon: 'mdi-content-redo',
 				click: function() {
-					cedSrv.editor.undoMgr.redo();
+					cleditor.editor.undoMgr.redo();
 				}
 			},
 
@@ -240,13 +160,13 @@ angular.module('stackedit.main', [
 			if(btnBarSrv.isOpen) {
 				$scope.btnBarTrans.delay(250);
 			}
-			$scope.btnBarTrans.set(getBtnBarTrans(), {duration: 500, curve: 'custom'});
+			$scope.btnBarTrans.set(getBtnBarTrans(), {duration: 120, curve: 'easeOutBounce'});
 		}
 
 		btnBarSrv.isOpen = true;
 		setTransition();
 	})
-	.controller('LayoutCtrl', function($scope, $famous, settings, menuSrv, pageSrv, layoutSrv) {
+	.controller('LayoutCtrl', function($scope, $famous, settings, menuSrv, pageSrv, layout) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
 		$scope.previewBtn = {
 			scaleTrans: new Transitionable([
@@ -264,19 +184,14 @@ angular.module('stackedit.main', [
 		};
 
 		$scope.settings = settings;
-		$scope.$watch('settings.zoom', layoutSrv.applyZoom);
+		$scope.$watch('settings.zoom', layout.applyZoom);
 
 		$scope.pageSrv = pageSrv;
 		$scope.menuSrv = menuSrv;
-		$scope.layoutSrv = layoutSrv;
+		$scope.layout = layout;
 	})
 	.factory('btnBarSrv', function() {
 		return {};
-	})
-	.factory('settings', function() {
-		return {
-			zoom: 3
-		};
 	})
 	.factory('pageSrv', function($famous) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
@@ -303,7 +218,7 @@ angular.module('stackedit.main', [
 		function setTransition() {
 			pageSrv.trans.set([
 				menuSrv.isOpen ? -menuWidth : 0,
-				menuSrv.isOpen ? -80 : 0
+				menuSrv.isOpen ? -60 : 0
 			], {duration: 180, curve: 'easeOutBounce'});
 			pageSrv.outerTrans.set([
 				menuSrv.isOpen ? 10 : 0,
