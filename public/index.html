@@ -24,26 +24,53 @@
 	<script src="bower_components/ced/scripts/cedUndoMgr.js"></script>
 	<script src="bower_components/ced/scripts/cedUtils.js"></script>
 	<script src="bower_components/ced/scripts/cedWatcher.js"></script>
+	<script src="scripts/Markdown.Converter.js"></script>
 	<script src="scripts/prism-markdown.js"></script>
 	<script src="scripts/main.js"></script>
 </head>
 <body ng-app="stackedit.main">
-<fa-app>
+<fa-app ng-controller="LayoutCtrl">
 
-	<!-- content -->
-	<fa-container-surface fa-options="{classes: ['background']}" ng-controller="PageLayoutCtrl">
-		<fa-modifier fa-size="[pageWidth + pageMargin, undefined]" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
-					 fa-translate="[-40, 0]">
-			<fa-container-surface fa-options="{classes: ['plastic', 'md-whiteframe-z2']}">
+	<fa-surface class="background" fa-click="menuSrv.toggle(false)">
+	</fa-surface>
+	<fa-modifier fa-size="layoutSrv.previewSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
+				 fa-translate="layoutSrv.previewTrans.get()">
+		<fa-surface>
+			<div class="preview-container" ng-class="layoutSrv.fontSizeClass">
+				<div preview class="preview" ng-class="layoutSrv.zoomClass"></div>
+			</div>
+		</fa-surface>
+	</fa-modifier>
 
-				<fa-modifier fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[pageWidth, undefined]" fa-translate="pageTrans.get()">
-					<ng-include ng-controller="EditBtnBarCtrl" src="'views/editBtnBar.html'"></ng-include>
+	<fa-modifier fa-size="layoutSrv.binderSize.get()" fa-align="[0.5, 0.5]" fa-origin="[0.5, 0.5]"
+				 fa-translate="layoutSrv.binderTrans.get()">
+
+		<fa-modifier fa-translate="pageSrv.outerTrans.get()">
+			<fa-modifier fa-size="[undefined, 9999]"
+						 fa-translate="[0, -10]">
+				<fa-surface class="plastic md-whiteframe-z2">
+					<div class="menu">
+						<div class="entry">Zoom</div>
+						<md-slider md-discrete ng-model="settings.zoom" step="1" min="1" max="5">
+						</md-slider>
+					</div>
+				</fa-surface>
+			</fa-modifier>
+
+			<ng-include ng-controller="BtnBarCtrl" src="'views/btnBar.html'"></ng-include>
+
+			<fa-header-footer-layout
+				fa-options="{direction: 0, headerSize: layoutSrv.pageMargin/2, footerSize: layoutSrv.pageMargin/2}">
+
+				<fa-surface></fa-surface>
+
+				<fa-modifier fa-translate="pageSrv.trans.get()" fa-rotate="pageSrv.rot.get()">
 					<fa-container-surface fa-options="{classes: ['paper', 'md-whiteframe-z1']}">
 						<fa-modifier fa-size="[30, undefined]">
 							<fa-flexible-layout fa-options="{ratios: [1, 1], direction: 1}">
 								<fa-modifier fa-align="[1, 0.5]" fa-origin="[0.5, 0.5]" fa-size="[20, 20]"
 											 ng-repeat="i in [0, 1]">
-									<fa-surface class="hole" ng-class="menuBtn.isOpen ? 'background' : 'plastic'">
+									<fa-surface class="hole" ng-class="menuSrv.isOpen ? 'background' : 'plastic'">
 									</fa-surface>
 								</fa-modifier>
 							</fa-flexible-layout>
@@ -53,33 +80,21 @@
 							</fa-surface>
 						</fa-modifier>
 						<fa-surface>
-							<pre ced class="editor">
-abc 12
-
-
-**abc**
-
-
-# abc
-
-
-## 123
-
-
-### xyz
-
-
-
-							</pre>
+							<div class="editor-container" ng-class="layoutSrv.fontSizeClass">
+							<ng-include src="'views/editor.html'"></ng-include>
+							</div>
 						</fa-surface>
-					</fa-container-surface>
 				</fa-modifier>
+
+			</fa-header-footer-layout>
+
 			</fa-container-surface>
-			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-translate="[2, 2]" fa-size="[42, 42]">
+			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-translate="[1, 1]" fa-size="[42, 42]">
 				<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="previewBtn.scaleTrans.get()"
 							 fa-opacity="previewBtn.opacityTrans.get()">
 					<fa-surface class="btn btn-background" ng-mouseenter="previewBtn.hover(true)"
-								ng-mouseleave="previewBtn.hover(false)">
+								ng-mouseleave="previewBtn.hover(false)"
+								fa-click="layoutSrv.togglePreview()">
 						<md-button>
 							<i class="mdi-image-filter-none"></i>
 						</md-button>
@@ -94,14 +109,14 @@ abc 12
 			<fa-modifier fa-align="[1,0]" fa-origin="[0,0]" fa-size="[100, 40]" fa-translate="[45, -36]"
 						 fa-rotate="[0, 0, 1.57]">
 				<fa-surface class="btn btn-menu"
-							fa-click="menuBtn.click()">
+							fa-click="menuSrv.toggle()">
 					<md-button>
 						Menu
 					</md-button>
 				</fa-surface>
 			</fa-modifier>
 		</fa-modifier>
-	</fa-container-surface>
+	</fa-modifier>
 
 </fa-app>
 </body>
