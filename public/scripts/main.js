@@ -168,6 +168,21 @@ angular.module('classeur.main', [
 	})
 	.controller('LayoutCtrl', function($scope, $famous, settings, menuSrv, pageSrv, layout) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
+		$scope.closeBtn = {
+			scaleTrans: new Transitionable([
+				0.9,
+				0.9
+			]),
+			opacityTrans: new Transitionable(0.3),
+			hover: function(enable) {
+				this.scaleTrans.set([
+					enable ? 1 : 0.9,
+					enable ? 1 : 0.9
+				], {duration: 180, curve: 'easeOut'});
+				this.opacityTrans.set(enable ? 0.35 : 0.3, {duration: 180, curve: 'easeOut'});
+			}
+		};
+
 		$scope.previewBtn = {
 			scaleTrans: new Transitionable([
 				0.9,

@@ -182,7 +182,8 @@ angular.module('classeur.services.scrollSync', [
 			doScrollSync();
 		}, 500);
 
-		var isPreviewVisible;
+		var isPreviewVisible = layout.isPreviewOpen;
+		var isEditorVisible = layout.isEditorOpen;
 		var isScrollEditor;
 		var isScrollPreview;
 		var isEditorMoving;
@@ -217,7 +218,8 @@ angular.module('classeur.services.scrollSync', [
 					return;
 				}
 
-				if(!isPreviewVisible) {
+				if(!isPreviewVisible || !isEditorVisible) {
+					// Don't animate if one panel is hidden
 					previewElt.scrollTop = destScrollTop;
 					lastPreviewScrollTop = destScrollTop;
 					return;
@@ -249,7 +251,8 @@ angular.module('classeur.services.scrollSync', [
 					return;
 				}
 
-				if(!isPreviewVisible) {
+				if(!isPreviewVisible || !isEditorVisible) {
+					// Don't animate if one panel is hidden
 					editorElt.scrollTop = destScrollTop;
 					lastEditorScrollTop = destScrollTop;
 					return;
@@ -266,6 +269,15 @@ angular.module('classeur.services.scrollSync', [
 
 		layout.onTogglePreview(function(isOpen) {
 			isPreviewVisible = isOpen;
+		});
+
+		layout.onToggleEditor(function(isOpen) {
+			isEditorVisible = isOpen;
+		});
+
+		layout.onLayoutResized(function() {
+			isScrollEditor = true;
+			buildSections();
 		});
 
 		// TODO

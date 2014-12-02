@@ -55,13 +55,6 @@ fa-app {
 
 .editor-container {
 	overflow: hidden;
-	font-size: 18px;
-	&.font-size-2 {
-		font-size: 17px;
-	}
-	&.font-size-1 {
-		font-size: 16px;
-	}
 }
 
 .editor {
@@ -77,16 +70,6 @@ fa-app {
 	white-space: pre-wrap;
 	word-wrap: break-word;
 	word-break: normal;
-}
-
-.preview-container {
-	font-size: 17px;
-	&.font-size-2 {
-		font-size: 16px;
-	}
-	&.font-size-1 {
-		font-size: 15px;
-	}
 }
 
 .preview {
@@ -131,19 +114,37 @@ fa-app {
 	}
 }
 
-.btn-background button {
+.btn-close button {
+	padding: 1px 3px;
+	i {
+		font-size: 30px;
+	}
+}
+
+.btn-preview button {
+	padding: 3px 6px;
 	i {
 		font-size: 26px;
 	}
 }
 
+.btn-edit button {
+	padding: 8px;
+	i {
+		font-size: 28px;
+	}
+}
+
 .btn-menu button {
-	line-height: 23px;
 	font-size: 18px;
+	height: 130px;
+	width: 40px;
 	padding: {
-		left: 10px;
-		right: 10px;
-	};
+		left: 0;
+		right: 5px;
+		top: 0;
+		bottom: 60px;
+	}
 	color: mix(#fff, $plastic-color, 80%);
 	&:hover {
 		color: #fff;
@@ -152,6 +153,18 @@ fa-app {
 
 .md-track-ticks {
 	display: none;
+}
+
+.font-size-3 {
+	font-size: 18px;
+}
+
+.font-size-2 {
+	font-size: 17px;
+}
+
+.font-size-1 {
+	font-size: 16px;
 }
 
 .zoom-1 {
@@ -168,4 +181,18 @@ fa-app {
 
 .zoom-5 {
 	font-size: 1.2em;
+}
+
+.rotate-90 {
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+}
+
+.rotate-270 {
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
 }
