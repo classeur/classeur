@@ -1,11 +1,12 @@
 angular.module('classeur.services.cleditor', [])
 	.factory('cleditor', function() {
 
-		var converter = new window.Markdown.Converter();
 		var oldSectionList, oldLinkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
 		var cleditor = {};
+
+		var converter = new window.Markdown.Converter();
 
 		var footnoteMap = {};
 		// Store one footnote elt in the footnote map

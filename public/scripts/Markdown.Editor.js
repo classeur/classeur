@@ -3,74 +3,47 @@
 (function () {
 
     var util = {},
-        position = {},
         ui = {},
-        doc = window.document,
         re = window.RegExp,
-        nav = window.navigator,
-        SETTINGS = { lineLength: 72 },
+        SETTINGS = { lineLength: 72 };
 
-    // Used to work around some browser bugs where we can't use feature testing.
-        uaSniffed = {
-            isIE: /msie/.test(nav.userAgent.toLowerCase()),
-            isIE_5or6: /msie 6/.test(nav.userAgent.toLowerCase()) || /msie 5/.test(nav.userAgent.toLowerCase()),
-            isOpera: /opera/.test(nav.userAgent.toLowerCase())
-        };
+	var defaultsStrings = {
+		bold: "Strong <strong> Ctrl/Cmd+B",
+		boldexample: "strong text",
 
-    var defaultsStrings = {
-        bold: "Strong <strong> Ctrl/Cmd+B",
-        boldexample: "strong text",
+		italic: "Emphasis <em> Ctrl/Cmd+I",
+		italicexample: "emphasized text",
 
-        italic: "Emphasis <em> Ctrl/Cmd+I",
-        italicexample: "emphasized text",
+		link: "Hyperlink <a> Ctrl/Cmd+L",
+		linkdescription: "enter link description here",
+		linkdialog: "<p><b>Insert Hyperlink</b></p><p>http://example.com/ \"optional title\"</p>",
 
-        link: "Hyperlink <a> Ctrl/Cmd+L",
-        linkdescription: "enter link description here",
-        linkdialog: "<p><b>Insert Hyperlink</b></p><p>http://example.com/ \"optional title\"</p>",
+		quote: "Blockquote <blockquote> Ctrl/Cmd+Q",
+		quoteexample: "Blockquote",
 
-        quote: "Blockquote <blockquote> Ctrl/Cmd+Q",
-        quoteexample: "Blockquote",
+		code: "Code Sample <pre><code> Ctrl/Cmd+K",
+		codeexample: "enter code here",
 
-        code: "Code Sample <pre><code> Ctrl/Cmd+K",
-        codeexample: "enter code here",
+		image: "Image <img> Ctrl/Cmd+G",
+		imagedescription: "enter image description here",
+		imagedialog: "<p><b>Insert Image</b></p><p>http://example.com/images/diagram.jpg \"optional title\"<br><br>Need <a href='http://www.google.com/search?q=free+image+hosting' target='_blank'>free image hosting?</a></p>",
 
-        image: "Image <img> Ctrl/Cmd+G",
-        imagedescription: "enter image description here",
-        imagedialog: "<p><b>Insert Image</b></p><p>http://example.com/images/diagram.jpg \"optional title\"<br><br>Need <a href='http://www.google.com/search?q=free+image+hosting' target='_blank'>free image hosting?</a></p>",
+		olist: "Numbered List <ol> Ctrl/Cmd+O",
+		ulist: "Bulleted List <ul> Ctrl/Cmd+U",
+		litem: "List item",
 
-        olist: "Numbered List <ol> Ctrl/Cmd+O",
-        ulist: "Bulleted List <ul> Ctrl/Cmd+U",
-        litem: "List item",
+		heading: "Heading <h1>/<h2> Ctrl/Cmd+H",
+		headingexample: "Heading",
 
-        heading: "Heading <h1>/<h2> Ctrl/Cmd+H",
-        headingexample: "Heading",
+		hr: "Horizontal Rule <hr> Ctrl/Cmd+R",
 
-        hr: "Horizontal Rule <hr> Ctrl/Cmd+R",
+		undo: "Undo - Ctrl/Cmd+Z",
+		redo: "Redo - Ctrl/Cmd+Y",
 
-        undo: "Undo - Ctrl/Cmd+Z",
-        redo: "Redo - Ctrl/Cmd+Y",
+		help: "Markdown Editing Help"
+	};
 
-        help: "Markdown Editing Help"
-    };
-
-
-    // -------------------------------------------------------------------
-    //  YOUR CHANGES GO HERE
-    //
-    // I've tried to localize the things you are likely to change to
-    // this area.
-    // -------------------------------------------------------------------
-
-    // The default text that appears in the dialog input box when entering
-    // links.
-    var imageDefaultText = "http://";
-    var linkDefaultText = "http://";
-
-    // -------------------------------------------------------------------
-    //  END OF YOUR CHANGES
-    // -------------------------------------------------------------------
-
-    // options, if given, can have the following properties:
+	// options, if given, can have the following properties:
     //   options.helpButton = { handler: yourEventHandler }
     //   options.strings = { italicexample: "slanted text" }
     // `yourEventHandler` is the click handler for the help button.
@@ -88,7 +61,7 @@
     // - getConverter() returns the markdown converter object that was passed to the constructor
     // - run() actually starts the editor; should be called after all necessary plugins are registered. Calling this more than once is a no-op.
     // - refreshPreview() forces the preview to be updated. This method is only available after run() was called.
-    Markdown.Editor = function (markdownConverter, idPostfix, options) {
+    window.Markdown.Editor = function (markdownConverter, options) {
 
         options = options || {};
 
@@ -96,14 +69,9 @@
             options = { helpButton: options };
         }
         options.strings = options.strings || {};
-        if (options.helpButton) {
-            options.strings.help = options.strings.help || options.helpButton.title;
-        }
-        var getString = function (identifier) { return options.strings[identifier] || defaultsStrings[identifier]; }
+		var getString = function (identifier) { return options.strings[identifier] || defaultsStrings[identifier]; }
 
-        idPostfix = idPostfix || "";
-
-        var hooks = this.hooks = new Markdown.HookCollection();
+        var hooks = this.hooks = new window.Markdown.HookCollection();
         hooks.addNoop("onPreviewRefresh");       // called with no arguments after the preview has been refreshed
         hooks.addNoop("postBlockquoteCreation"); // called with the user's selection *after* the blockquote was created; should return the actual to-be-inserted text
         hooks.addFalse("insertImageDialog");     /* called with one parameter: a callback to be called with the URL of the image. If the application creates
@@ -112,54 +80,25 @@
                                                   */
         hooks.addFalse("insertLinkDialog");
 
-        this.getConverter = function () { return markdownConverter; }
+        this.getConverter = function () { return markdownConverter; };
 
         var that = this,
-            panels;
+            input;
 
-        var undoManager;
         this.run = function () {
-            if (panels)
+            if (input)
                 return; // already initialized
 
-            panels = new PanelCollection(idPostfix);
+			input = options.input;
             var commandManager = new CommandManager(hooks, getString);
-            var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
             var uiManager;
 
-            if(options.undoManager) {
-                undoManager = options.undoManager;
-                undoManager.onButtonStateChange = function() {
-                    uiManager.setUndoRedoButtonStates();
-                };
-                if (uiManager) // not available on the first call
-                    uiManager.setUndoRedoButtonStates();
-            }
-            else if (!/\?noundo/.test(doc.location.href)) {
-                undoManager = new UndoManager(function () {
-                    previewManager.refresh();
-                    if (uiManager) // not available on the first call
-                        uiManager.setUndoRedoButtonStates();
-                }, panels);
-                this.textOperation = function (f) {
-                    undoManager.setCommandMode();
-                    f();
-                    that.refreshPreview();
-                }
-            }
+            uiManager = new UIManager(input, commandManager);
 
-            uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
-            uiManager.setUndoRedoButtonStates();
-
-            var forceRefresh = that.refreshPreview = function () { previewManager.refresh(true); };
-
-            //Not necessary
-            //forceRefresh();
-            that.undoManager = undoManager;
             that.uiManager = uiManager;
         };
 
-    }
+    };
 
     // before: contains all the text in the input box BEFORE the selection.
     // after: contains all the text in the input box AFTER the selection.
@@ -220,8 +159,8 @@
         if (remove) {
             beforeReplacer = afterReplacer = "";
         } else {
-            beforeReplacer = function (s) { that.before += s; return ""; }
-            afterReplacer = function (s) { that.after = s + that.after; return ""; }
+            beforeReplacer = function (s) { that.before += s; return ""; };
+            afterReplacer = function (s) { that.after = s + that.after; return ""; };
         }
 
         this.selection = this.selection.replace(/^(\s*)/, beforeReplacer).replace(/(\s*)$/, afterReplacer);
@@ -293,70 +232,6 @@
 
     // end of Chunks
 
-    // A collection of the important regions on the page.
-    // Cached so we don't have to keep traversing the DOM.
-    // Also holds ieCachedRange and ieCachedScrollTop, where necessary; working around
-    // this issue:
-    // Internet explorer has problems with CSS sprite buttons that use HTML
-    // lists.  When you click on the background image "button", IE will
-    // select the non-existent link text and discard the selection in the
-    // textarea.  The solution to this is to cache the textarea selection
-    // on the button's mousedown event and set a flag.  In the part of the
-    // code where we need to grab the selection, we check for the flag
-    // and, if it's set, use the cached area instead of querying the
-    // textarea.
-    //
-    // This ONLY affects Internet Explorer (tested on versions 6, 7
-    // and 8) and ONLY on button clicks.  Keyboard shortcuts work
-    // normally since the focus never leaves the textarea.
-    function PanelCollection(postfix) {
-        this.buttonBar = doc.getElementById("wmd-button-bar" + postfix);
-        this.preview = doc.getElementById("wmd-preview" + postfix);
-        this.input = doc.getElementById("wmd-input" + postfix);
-    };
-
-    // Returns true if the DOM element is visible, false if it's hidden.
-    // Checks if display is anything other than none.
-    util.isVisible = function (elem) {
-
-        if (window.getComputedStyle) {
-            // Most browsers
-            return window.getComputedStyle(elem, null).getPropertyValue("display") !== "none";
-        }
-        else if (elem.currentStyle) {
-            // IE
-            return elem.currentStyle["display"] !== "none";
-        }
-    };
-
-
-    // Adds a listener callback to a DOM element which is fired on a specified
-    // event.
-    util.addEvent = function (elem, event, listener) {
-        if (elem.attachEvent) {
-            // IE only.  The "on" is mandatory.
-            elem.attachEvent("on" + event, listener);
-        }
-        else {
-            // Other browsers.
-            elem.addEventListener(event, listener, false);
-        }
-    };
-
-
-    // Removes a listener callback from a DOM element which is fired on a specified
-    // event.
-    util.removeEvent = function (elem, event, listener) {
-        if (elem.detachEvent) {
-            // IE only.  The "on" is mandatory.
-            elem.detachEvent("on" + event, listener);
-        }
-        else {
-            // Other browsers.
-            elem.removeEventListener(event, listener, false);
-        }
-    };
-
     // Converts \r\n and \r to \n.
     util.fixEolChars = function (text) {
         text = text.replace(/\r\n/g, "\n");
@@ -395,432 +270,39 @@
         pattern = pre + pattern + post;
 
         return new re(pattern, flags);
-    }
-
-    // UNFINISHED
-    // The assignment in the while loop makes jslint cranky.
-    // I'll change it to a better loop later.
-    position.getTop = function (elem, isInner) {
-        var result = elem.offsetTop;
-        if (!isInner) {
-            while (elem = elem.offsetParent) {
-                result += elem.offsetTop;
-            }
-        }
-        return result;
     };
-
-    position.getHeight = function (elem) {
-        return elem.offsetHeight || elem.scrollHeight;
-    };
-
-    position.getWidth = function (elem) {
-        return elem.offsetWidth || elem.scrollWidth;
-    };
-
-    position.getPageSize = function () {
-
-        var scrollWidth, scrollHeight;
-        var innerWidth, innerHeight;
-
-        // It's not very clear which blocks work with which browsers.
-        if (self.innerHeight && self.scrollMaxY) {
-            scrollWidth = doc.body.scrollWidth;
-            scrollHeight = self.innerHeight + self.scrollMaxY;
-        }
-        else if (doc.body.scrollHeight > doc.body.offsetHeight) {
-            scrollWidth = doc.body.scrollWidth;
-            scrollHeight = doc.body.scrollHeight;
-        }
-        else {
-            scrollWidth = doc.body.offsetWidth;
-            scrollHeight = doc.body.offsetHeight;
-        }
-
-        if (self.innerHeight) {
-            // Non-IE browser
-            innerWidth = self.innerWidth;
-            innerHeight = self.innerHeight;
-        }
-        else if (doc.documentElement && doc.documentElement.clientHeight) {
-            // Some versions of IE (IE 6 w/ a DOCTYPE declaration)
-            innerWidth = doc.documentElement.clientWidth;
-            innerHeight = doc.documentElement.clientHeight;
-        }
-        else if (doc.body) {
-            // Other versions of IE
-            innerWidth = doc.body.clientWidth;
-            innerHeight = doc.body.clientHeight;
-        }
-
-        var maxWidth = Math.max(scrollWidth, innerWidth);
-        var maxHeight = Math.max(scrollHeight, innerHeight);
-        return [maxWidth, maxHeight, innerWidth, innerHeight];
-    };
-
-    // Handles pushing and popping TextareaStates for undo/redo commands.
-    // I should rename the stack variables to list.
-    function UndoManager(callback, panels) {
-
-        var undoObj = this;
-        var undoStack = []; // A stack of undo states
-        var stackPtr = 0; // The index of the current state
-        var mode = "none";
-        var lastState; // The last state
-        var timer; // The setTimeout handle for cancelling the timer
-        var inputStateObj;
-
-        // Set the mode for later logic steps.
-        var setMode = function (newMode, noSave) {
-            if (mode != newMode) {
-                mode = newMode;
-                if (!noSave) {
-                    saveState();
-                }
-            }
-
-            if (!uaSniffed.isIE || mode != "moving") {
-                timer = setTimeout(refreshState, 1);
-            }
-            else {
-                inputStateObj = null;
-            }
-        };
-
-        var refreshState = function (isInitialState) {
-            inputStateObj = new TextareaState(panels, isInitialState);
-            timer = undefined;
-        };
-
-        this.setCommandMode = function () {
-            mode = "command";
-            saveState();
-            timer = setTimeout(refreshState, 0);
-        };
-
-        this.canUndo = function () {
-            return stackPtr > 1;
-        };
-
-        this.canRedo = function () {
-            if (undoStack[stackPtr + 1]) {
-                return true;
-            }
-            return false;
-        };
-
-        // Removes the last state and restores it.
-        this.undo = function () {
-
-            if (undoObj.canUndo()) {
-                if (lastState) {
-                    // What about setting state -1 to null or checking for undefined?
-                    lastState.restore();
-                    lastState = null;
-                }
-                else {
-                    undoStack[stackPtr] = new TextareaState(panels);
-                    undoStack[--stackPtr].restore();
-
-                    if (callback) {
-                        callback();
-                    }
-                }
-            }
-
-            mode = "none";
-            panels.input.focus();
-            refreshState();
-        };
-
-        // Redo an action.
-        this.redo = function () {
-
-            if (undoObj.canRedo()) {
-
-                undoStack[++stackPtr].restore();
-
-                if (callback) {
-                    callback();
-                }
-            }
-
-            mode = "none";
-            panels.input.focus();
-            refreshState();
-        };
-
-        // Push the input area state to the stack.
-        var saveState = function () {
-            var currState = inputStateObj || new TextareaState(panels);
-
-            if (!currState) {
-                return false;
-            }
-            if (mode == "moving") {
-                if (!lastState) {
-                    lastState = currState;
-                }
-                return;
-            }
-            if (lastState) {
-                if (undoStack[stackPtr - 1].text != lastState.text) {
-                    undoStack[stackPtr++] = lastState;
-                }
-                lastState = null;
-            }
-            undoStack[stackPtr++] = currState;
-            undoStack[stackPtr + 1] = null;
-            if (callback) {
-                callback();
-            }
-        };
-
-        var handleCtrlYZ = function (event) {
-
-            var handled = false;
-
-            if ((event.ctrlKey || event.metaKey) && !event.altKey) {
-
-                // IE and Opera do not support charCode.
-                var keyCode = event.charCode || event.keyCode;
-                var keyCodeChar = String.fromCharCode(keyCode);
-
-                switch (keyCodeChar.toLowerCase()) {
-
-                    case "y":
-                        undoObj.redo();
-                        handled = true;
-                        break;
-
-                    case "z":
-                        if (!event.shiftKey) {
-                            undoObj.undo();
-                        }
-                        else {
-                            undoObj.redo();
-                        }
-                        handled = true;
-                        break;
-                }
-            }
-
-            if (handled) {
-                if (event.preventDefault) {
-                    event.preventDefault();
-                }
-                if (window.event) {
-                    window.event.returnValue = false;
-                }
-                return;
-            }
-        };
-
-        // Set the mode depending on what is going on in the input area.
-        var handleModeChange = function (event) {
-
-            if (!event.ctrlKey && !event.metaKey) {
-
-                var keyCode = event.keyCode;
-
-                if ((keyCode >= 33 && keyCode <= 40) || (keyCode >= 63232 && keyCode <= 63235)) {
-                    // 33 - 40: page up/dn and arrow keys
-                    // 63232 - 63235: page up/dn and arrow keys on safari
-                    setMode("moving");
-                }
-                else if (keyCode == 8 || keyCode == 46 || keyCode == 127) {
-                    // 8: backspace
-                    // 46: delete
-                    // 127: delete
-                    setMode("deleting");
-                }
-                else if (keyCode == 13) {
-                    // 13: Enter
-                    setMode("newlines");
-                }
-                else if (keyCode == 27) {
-                    // 27: escape
-                    setMode("escape");
-                }
-                else if ((keyCode < 16 || keyCode > 20) && keyCode != 91) {
-                    // 16-20 are shift, etc.
-                    // 91: left window key
-                    // I think this might be a little messed up since there are
-                    // a lot of nonprinting keys above 20.
-                    setMode("typing");
-                }
-            }
-        };
-
-        var setEventHandlers = function () {
-            util.addEvent(panels.input, "keypress", function (event) {
-                // keyCode 89: y
-                // keyCode 90: z
-                if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.keyCode == 89 || event.keyCode == 90)) {
-                    event.preventDefault();
-                }
-            });
-
-            var handlePaste = function () {
-                if (uaSniffed.isIE || (inputStateObj && inputStateObj.text != panels.input.value)) {
-                    if (timer == undefined) {
-                        mode = "paste";
-                        saveState();
-                        refreshState();
-                    }
-                }
-            };
-
-            //util.addEvent(panels.input, "keydown", handleCtrlYZ);
-            util.addEvent(panels.input, "keydown", handleModeChange);
-            util.addEvent(panels.input, "mousedown", function () {
-                setMode("moving");
-            });
-
-            panels.input.onpaste = handlePaste;
-            panels.input.ondrop = handlePaste;
-        };
-
-        var init = function () {
-            setEventHandlers();
-            refreshState(true);
-            //Not necessary
-            //saveState();
-        };
-
-        this.reinit = function(content, start, end, scrollTop) {
-            undoStack = [];
-            stackPtr = 0;
-            mode = "none";
-            lastState = undefined;
-            timer = undefined;
-            refreshState();
-            inputStateObj.text = content;
-            inputStateObj.start = start;
-            inputStateObj.end = end;
-            inputStateObj.scrollTop = scrollTop;
-            inputStateObj.setInputAreaSelection();
-            saveState();
-        };
-        this.setMode = setMode;
-
-        init();
-    }
-
-    // end of UndoManager
 
     // The input textarea state/contents.
     // This is used to implement undo/redo by the undo manager.
-    function TextareaState(panels, isInitialState) {
+    function TextareaState(input) {
 
         // Aliases
         var stateObj = this;
-        var inputArea = panels.input;
+        var inputArea = input;
         this.init = function () {
-            if (!util.isVisible(inputArea)) {
-                return;
-            }
-
             this.setInputAreaSelectionStartEnd();
-            this.scrollTop = inputArea.scrollTop;
-            if (!this.text && inputArea.selectionStart || inputArea.selectionStart === 0) {
-                this.text = inputArea.value;
-            }
-
-        }
+            this.text = inputArea.getContent();
+        };
 
         // Sets the selected text in the input box after we've performed an
         // operation.
         this.setInputAreaSelection = function () {
-
-            if (!util.isVisible(inputArea)) {
-                return;
-            }
-
-            //if (inputArea.selectionStart !== undefined && !uaSniffed.isOpera) {
-
-                inputArea.focus();
-                inputArea.selectionStart = stateObj.start;
-                inputArea.selectionEnd = stateObj.end;
-	        /*
-                inputArea.scrollTop = stateObj.scrollTop;
-
-            }
-            else if (doc.selection) {
-
-                inputArea.focus();
-                var range = inputArea.createTextRange();
-                range.moveStart("character", -inputArea.value.length);
-                range.moveEnd("character", -inputArea.value.length);
-                range.moveEnd("character", stateObj.end);
-                range.moveStart("character", stateObj.start);
-                range.select();
-            }
-            */
+			inputArea.focus();
+			inputArea.setSelection(stateObj.start, stateObj.end);
         };
 
         this.setInputAreaSelectionStartEnd = function () {
-
-            //if (!panels.ieCachedRange && (inputArea.selectionStart || inputArea.selectionStart === 0)) {
-
-                stateObj.start = inputArea.selectionStart;
-                stateObj.end = inputArea.selectionEnd;
-                /*
-            }
-            else if (doc.selection) {
-
-                stateObj.text = util.fixEolChars(inputArea.value);
-
-                // IE loses the selection in the textarea when buttons are
-                // clicked.  On IE we cache the selection. Here, if something is cached,
-                // we take it.
-                var range = panels.ieCachedRange || doc.selection.createRange();
-
-                var fixedRange = util.fixEolChars(range.text);
-                var marker = "\x07";
-                var markedRange = marker + fixedRange + marker;
-                range.text = markedRange;
-                var inputText = util.fixEolChars(inputArea.value);
-
-                range.moveStart("character", -markedRange.length);
-                range.text = fixedRange;
-
-                stateObj.start = inputText.indexOf(marker);
-                stateObj.end = inputText.lastIndexOf(marker) - marker.length;
-
-                var len = stateObj.text.length - util.fixEolChars(inputArea.value).length;
-
-                if (len) {
-                    range.moveStart("character", -fixedRange.length);
-                    while (len--) {
-                        fixedRange += "\n";
-                        stateObj.end += 1;
-                    }
-                    range.text = fixedRange;
-                }
-
-                if (panels.ieCachedRange)
-                    stateObj.scrollTop = panels.ieCachedScrollTop; // this is set alongside with ieCachedRange
-
-                panels.ieCachedRange = null;
-
-                this.setInputAreaSelection();
-            }
-            */
+			stateObj.start = inputArea.selectionMgr.selectionStart;
+			stateObj.end = inputArea.selectionMgr.selectionEnd;
         };
 
         // Restore this state into the input area.
         this.restore = function () {
 
-            if (stateObj.text != undefined && stateObj.text != inputArea.value) {
-                inputArea.value = stateObj.text;
+            if (stateObj.text != undefined && stateObj.text != inputArea.getContent()) {
+                inputArea.setContent(stateObj.text);
             }
             this.setInputAreaSelection();
-	        /*
-            setTimeout(function() {
-                inputArea.scrollTop = stateObj.scrollTop;
-            }, 0);
-            */
         };
 
         // Gets a collection of HTML chunks from the inptut textarea.
@@ -832,7 +314,6 @@
             chunk.selection = util.fixEolChars(stateObj.text.substring(stateObj.start, stateObj.end));
             chunk.endTag = "";
             chunk.after = util.fixEolChars(stateObj.text.substring(stateObj.end));
-            chunk.scrollTop = stateObj.scrollTop;
 
             return chunk;
         };
@@ -846,724 +327,101 @@
             this.start = chunk.before.length;
             this.end = chunk.before.length + chunk.selection.length;
             this.text = chunk.before + chunk.selection + chunk.after;
-            this.scrollTop = chunk.scrollTop;
         };
         this.init();
-    };
+    }
 
-    function PreviewManager(converter, panels, previewRefreshCallback) {
+    function UIManager(input, commandManager) {
 
-        var managerObj = this;
-        var timeout;
-        var elapsedTime;
-        var oldInputText;
-        var maxDelay = 3000;
-        var startType = "manual"; // The other legal value is "manual"
-
-        // Adds event listeners to elements
-        var setupEvents = function (inputElem, listener) {
-
-            util.addEvent(inputElem, "input", listener);
-            inputElem.onpaste = listener;
-            inputElem.ondrop = listener;
-
-            util.addEvent(inputElem, "keypress", listener);
-            util.addEvent(inputElem, "keydown", listener);
-        };
-
-        var getDocScrollTop = function () {
-
-            var result = 0;
-
-            if (window.innerHeight) {
-                result = window.pageYOffset;
-            }
-            else
-                if (doc.documentElement && doc.documentElement.scrollTop) {
-                    result = doc.documentElement.scrollTop;
-                }
-                else
-                    if (doc.body) {
-                        result = doc.body.scrollTop;
-                    }
-
-            return result;
-        };
-
-        var makePreviewHtml = function () {
-
-            // If there is no registered preview panel
-            // there is nothing to do.
-            if (!panels.preview)
-                return;
-
-
-            var text = panels.input.value;
-            if (text && text == oldInputText) {
-                return; // Input text hasn't changed.
-            }
-            else {
-                oldInputText = text;
-            }
-
-            var prevTime = new Date().getTime();
-
-            text = converter.makeHtml(text);
-
-            // Calculate the processing time of the HTML creation.
-            // It's used as the delay time in the event listener.
-            var currTime = new Date().getTime();
-            elapsedTime = currTime - prevTime;
-
-            pushPreviewHtml(text);
-        };
-
-        // setTimeout is already used.  Used as an event listener.
-        var applyTimeout = function () {
-
-            if (timeout) {
-                clearTimeout(timeout);
-                timeout = undefined;
-            }
-
-            if (startType !== "manual") {
-
-                var delay = 0;
-
-                if (startType === "delayed") {
-                    delay = elapsedTime;
-                }
-
-                if (delay > maxDelay) {
-                    delay = maxDelay;
-                }
-                timeout = setTimeout(makePreviewHtml, delay);
-            }
-        };
-
-        var getScaleFactor = function (panel) {
-            if (panel.scrollHeight <= panel.clientHeight) {
-                return 1;
-            }
-            return panel.scrollTop / (panel.scrollHeight - panel.clientHeight);
-        };
-
-        var setPanelScrollTops = function () {
-            if (panels.preview) {
-                panels.preview.scrollTop = (panels.preview.scrollHeight - panels.preview.clientHeight) * getScaleFactor(panels.preview);
-            }
-        };
-
-        this.refresh = function (requiresRefresh) {
-
-            if (requiresRefresh) {
-                oldInputText = "";
-                makePreviewHtml();
-            }
-            else {
-                applyTimeout();
-            }
-        };
-
-        this.processingTime = function () {
-            return elapsedTime;
-        };
-
-        var isFirstTimeFilled = true;
-
-        // IE doesn't let you use innerHTML if the element is contained somewhere in a table
-        // (which is the case for inline editing) -- in that case, detach the element, set the
-        // value, and reattach. Yes, that *is* ridiculous.
-        var ieSafePreviewSet = function (text) {
-            var preview = panels.preview;
-            var parent = preview.parentNode;
-            var sibling = preview.nextSibling;
-            parent.removeChild(preview);
-            preview.innerHTML = text;
-            if (!sibling)
-                parent.appendChild(preview);
-            else
-                parent.insertBefore(preview, sibling);
-        }
-
-        var nonSuckyBrowserPreviewSet = function (text) {
-            panels.preview.innerHTML = text;
-        }
-
-        var previewSetter;
-
-        var previewSet = function (text) {
-            if (previewSetter)
-                return previewSetter(text);
-
-            try {
-                nonSuckyBrowserPreviewSet(text);
-                previewSetter = nonSuckyBrowserPreviewSet;
-            } catch (e) {
-                previewSetter = ieSafePreviewSet;
-                previewSetter(text);
-            }
-        };
-
-        var pushPreviewHtml = function (text) {
-
-            //var emptyTop = position.getTop(panels.input) - getDocScrollTop();
-
-            if (panels.preview) {
-                previewSet(text);
-                previewRefreshCallback();
-            }
-            /*
-
-            setPanelScrollTops();
-
-            if (isFirstTimeFilled) {
-                isFirstTimeFilled = false;
-                return;
-            }
-
-            var fullTop = position.getTop(panels.input) - getDocScrollTop();
-
-            if (uaSniffed.isIE) {
-                setTimeout(function () {
-                    window.scrollBy(0, fullTop - emptyTop);
-                }, 0);
-            }
-            else {
-                window.scrollBy(0, fullTop - emptyTop);
-            }
-            */
-        };
-
-        var init = function () {
-
-            setupEvents(panels.input, applyTimeout);
-            //Not necessary
-            //makePreviewHtml();
-
-            if (panels.preview) {
-                panels.preview.scrollTop = 0;
-            }
-        };
-
-        init();
-    };
-
-    // Creates the background behind the hyperlink text entry box.
-    // And download dialog
-    // Most of this has been moved to CSS but the div creation and
-    // browser-specific hacks remain here.
-    ui.createBackground = function () {
-
-        var background = doc.createElement("div"),
-            style = background.style;
-
-        background.className = "wmd-prompt-background";
-
-        style.position = "absolute";
-        style.top = "0";
-
-        style.zIndex = "1000";
-
-        if (uaSniffed.isIE) {
-            style.filter = "alpha(opacity=50)";
-        }
-        else {
-            style.opacity = "0.5";
-        }
-
-        var pageSize = position.getPageSize();
-        style.height = pageSize[1] + "px";
-
-        if (uaSniffed.isIE) {
-            style.left = doc.documentElement.scrollLeft;
-            style.width = doc.documentElement.clientWidth;
-        }
-        else {
-            style.left = "0";
-            style.width = "100%";
-        }
-
-        doc.body.appendChild(background);
-        return background;
-    };
-
-    // This simulates a modal dialog box and asks for the URL when you
-    // click the hyperlink or image buttons.
-    //
-    // text: The html for the input box.
-    // defaultInputText: The default value that appears in the input box.
-    // callback: The function which is executed when the prompt is dismissed, either via OK or Cancel.
-    //      It receives a single argument; either the entered text (if OK was chosen) or null (if Cancel
-    //      was chosen).
-    ui.prompt = function (text, defaultInputText, callback) {
-
-        // These variables need to be declared at this level since they are used
-        // in multiple functions.
-        var dialog;         // The dialog box.
-        var input;         // The text box where you enter the hyperlink.
-
-
-        if (defaultInputText === undefined) {
-            defaultInputText = "";
-        }
-
-        // Used as a keydown event handler. Esc dismisses the prompt.
-        // Key code 27 is ESC.
-        var checkEscape = function (key) {
-            var code = (key.charCode || key.keyCode);
-            if (code === 27) {
-                close(true);
-            }
-        };
-
-        // Dismisses the hyperlink input box.
-        // isCancel is true if we don't care about the input text.
-        // isCancel is false if we are going to keep the text.
-        var close = function (isCancel) {
-            util.removeEvent(doc.body, "keydown", checkEscape);
-            var text = input.value;
-
-            if (isCancel) {
-                text = null;
-            }
-            else {
-                // Fixes common pasting errors.
-                text = text.replace(/^http:\/\/(https?|ftp):\/\//, '$1://');
-                if (!/^(?:https?|ftp):\/\//.test(text))
-                    text = 'http://' + text;
-            }
-
-            dialog.parentNode.removeChild(dialog);
-
-            callback(text);
-            return false;
-        };
-
-
-
-        // Create the text input box form/window.
-        var createDialog = function () {
-
-            // The main dialog box.
-            dialog = doc.createElement("div");
-            dialog.className = "wmd-prompt-dialog";
-            dialog.style.padding = "10px;";
-            dialog.style.position = "fixed";
-            dialog.style.width = "400px";
-            dialog.style.zIndex = "1001";
-
-            // The dialog text.
-            var question = doc.createElement("div");
-            question.innerHTML = text;
-            question.style.padding = "5px";
-            dialog.appendChild(question);
-
-            // The web form container for the text box and buttons.
-            var form = doc.createElement("form"),
-                style = form.style;
-            form.onsubmit = function () { return close(false); };
-            style.padding = "0";
-            style.margin = "0";
-            style.cssFloat = "left";
-            style.width = "100%";
-            style.textAlign = "center";
-            style.position = "relative";
-            dialog.appendChild(form);
-
-            // The input text box
-            input = doc.createElement("input");
-            input.type = "text";
-            input.value = defaultInputText;
-            style = input.style;
-            style.display = "block";
-            style.width = "80%";
-            style.marginLeft = style.marginRight = "auto";
-            form.appendChild(input);
-
-            // The ok button
-            var okButton = doc.createElement("input");
-            okButton.type = "button";
-            okButton.onclick = function () { return close(false); };
-            okButton.value = "OK";
-            style = okButton.style;
-            style.margin = "10px";
-            style.display = "inline";
-            style.width = "7em";
-
-
-            // The cancel button
-            var cancelButton = doc.createElement("input");
-            cancelButton.type = "button";
-            cancelButton.onclick = function () { return close(true); };
-            cancelButton.value = "Cancel";
-            style = cancelButton.style;
-            style.margin = "10px";
-            style.display = "inline";
-            style.width = "7em";
-
-            form.appendChild(okButton);
-            form.appendChild(cancelButton);
-
-            util.addEvent(doc.body, "keydown", checkEscape);
-            dialog.style.top = "50%";
-            dialog.style.left = "50%";
-            dialog.style.display = "block";
-            if (uaSniffed.isIE_5or6) {
-                dialog.style.position = "absolute";
-                dialog.style.top = doc.documentElement.scrollTop + 200 + "px";
-                dialog.style.left = "50%";
-            }
-            doc.body.appendChild(dialog);
-
-            // This has to be done AFTER adding the dialog to the form if you
-            // want it to be centered.
-            dialog.style.marginTop = -(position.getHeight(dialog) / 2) + "px";
-            dialog.style.marginLeft = -(position.getWidth(dialog) / 2) + "px";
-
-        };
-
-        // Why is this in a zero-length timeout?
-        // Is it working around a browser bug?
-        setTimeout(function () {
-
-            createDialog();
-
-            var defTextLen = defaultInputText.length;
-            if (input.selectionStart !== undefined) {
-                input.selectionStart = 0;
-                input.selectionEnd = defTextLen;
-            }
-            else if (input.createTextRange) {
-                var range = input.createTextRange();
-                range.collapse(false);
-                range.moveStart("character", -defTextLen);
-                range.moveEnd("character", defTextLen);
-                range.select();
-            }
-
-            input.focus();
-        }, 0);
-    };
-
-    function UIManager(postfix, panels, undoManager, previewManager, commandManager, helpOptions, getString) {
-
-        var inputBox = panels.input,
+        var inputBox = input,
             buttons = {}; // buttons.undo, buttons.link, etc. The actual DOM elements.
 
-        makeSpritedButtonRow();
+		makeSpritedButtonRow();
 
-        var keyEvent = "keydown";
-        if (uaSniffed.isOpera) {
-            keyEvent = "keypress";
-        }
-
-        /*
-        util.addEvent(inputBox, keyEvent, function (key) {
-
-            // Check to see if we have a button key and, if so execute the callback.
-            if ((key.ctrlKey || key.metaKey) && !key.altKey) {
-
-                var keyCode = key.charCode || key.keyCode;
-                var keyCodeStr = String.fromCharCode(keyCode).toLowerCase();
-
-                switch (keyCodeStr) {
-                    case "b":
-                        doClick(buttons.bold);
-                        break;
-                    case "i":
-                        doClick(buttons.italic);
-                        break;
-                    case "l":
-                        doClick(buttons.link);
-                        break;
-                    case "q":
-                        doClick(buttons.quote);
-                        break;
-                    case "k":
-                        doClick(buttons.code);
-                        break;
-                    case "g":
-                        doClick(buttons.image);
-                        break;
-                    case "o":
-                        doClick(buttons.olist);
-                        break;
-                    case "u":
-                        doClick(buttons.ulist);
-                        break;
-                    case "h":
-                        doClick(buttons.heading);
-                        break;
-                    case "r":
-                        doClick(buttons.hr);
-                        break;
-                    case "y":
-                        doClick(buttons.redo);
-                        break;
-                    case "z":
-                        if (key.shiftKey) {
-                            doClick(buttons.redo);
-                        }
-                        else {
-                            doClick(buttons.undo);
-                        }
-                        break;
-                    case "v":
-                        undoManager.setMode("typing");
-                        return;
-                    case "x":
-                        undoManager.setMode("deleting");
-                        return;
-                    default:
-                        return;
-                }
-
-
-                if (key.preventDefault) {
-                    key.preventDefault();
-                }
-
-                if (window.event) {
-                    window.event.returnValue = false;
-                }
-            }
-        });
-
-        // Auto-indent on shift-enter
-        util.addEvent(inputBox, "keyup", function (key) {
-            if (key.shiftKey && !key.ctrlKey && !key.metaKey) {
-                var keyCode = key.charCode || key.keyCode;
-                // Character 13 is Enter
-                if (keyCode === 13) {
-                    var fakeButton = {};
-                    fakeButton.textOp = bindCommand("doAutoindent");
-                    doClick(fakeButton);
-                }
-            }
-        });
-
-        // special handler because IE clears the context of the textbox on ESC
-        if (uaSniffed.isIE) {
-            util.addEvent(inputBox, "keydown", function (key) {
-                var code = key.keyCode;
-                if (code === 27) {
-                    return false;
-                }
-            });
-        }
-        */
-
-
-        // Perform the button's action.
-        function doClick(button) {
+		// Perform the button's action.
+        function doClick(buttonName) {
+			var button = buttons[buttonName];
+			if(!button) {
+				return;
+			}
 
             inputBox.focus();
-            var linkOrImage = button.id == "wmd-link-button" || button.id == "wmd-image-button";
+            var linkOrImage = button === buttons.link || button.id === buttons.image;
 
-            if (button.textOp) {
+			var state = new TextareaState(input);
 
-                if (undoManager && !linkOrImage) {
-                    undoManager.setCommandMode();
-                }
+			if (!state) {
+				return;
+			}
 
-                var state = new TextareaState(panels);
+			var chunks = state.getChunks();
 
-                if (!state) {
-                    return;
-                }
+			// Some commands launch a "modal" prompt dialog.  Javascript
+			// can't really make a modal dialog box and the WMD code
+			// will continue to execute while the dialog is displayed.
+			// This prevents the dialog pattern I'm used to and means
+			// I can't do something like this:
+			//
+			// var link = CreateLinkDialog();
+			// makeMarkdownLink(link);
+			//
+			// Instead of this straightforward method of handling a
+			// dialog I have to pass any code which would execute
+			// after the dialog is dismissed (e.g. link creation)
+			// in a function parameter.
+			//
+			// Yes this is awkward and I think it sucks, but there's
+			// no real workaround.  Only the image and link code
+			// create dialogs and require the function pointers.
+			var fixupInputArea = function () {
 
-                var chunks = state.getChunks();
+				inputBox.focus();
 
-                // Some commands launch a "modal" prompt dialog.  Javascript
-                // can't really make a modal dialog box and the WMD code
-                // will continue to execute while the dialog is displayed.
-                // This prevents the dialog pattern I'm used to and means
-                // I can't do something like this:
-                //
-                // var link = CreateLinkDialog();
-                // makeMarkdownLink(link);
-                //
-                // Instead of this straightforward method of handling a
-                // dialog I have to pass any code which would execute
-                // after the dialog is dismissed (e.g. link creation)
-                // in a function parameter.
-                //
-                // Yes this is awkward and I think it sucks, but there's
-                // no real workaround.  Only the image and link code
-                // create dialogs and require the function pointers.
-                var fixupInputArea = function () {
+				if (chunks) {
+					state.setChunks(chunks);
+				}
 
-                    inputBox.focus();
+				state.restore();
+			};
 
-                    if (chunks) {
-                        state.setChunks(chunks);
-                    }
+			var noCleanup = button(chunks, fixupInputArea);
 
-                    state.restore();
-                    previewManager.refresh();
-                };
-
-                var noCleanup = button.textOp(chunks, fixupInputArea);
-
-                if (!noCleanup) {
-                    fixupInputArea();
-                    if(!linkOrImage) {
-	                    inputBox.adjustCursorPosition();
-	                    //inputBox.dispatchEvent(new Event('keydown'));
-                    }
-                }
-
-            }
-
-            if (button.execute) {
-                button.execute(undoManager);
-            }
-        };
-
-        function setupButton(button, isEnabled) {
-
-            var normalYShift = "0px";
-            var disabledYShift = "-20px";
-            var highlightYShift = "-40px";
-            var image = button.getElementsByTagName("span")[0];
-            button.className = button.className.replace(/ disabled/g, "");
-            if (isEnabled) {
-                image.style.backgroundPosition = button.XShift + " " + normalYShift;
-                button.onmouseover = function () {
-                    image.style.backgroundPosition = this.XShift + " " + highlightYShift;
-                };
-
-                button.onmouseout = function () {
-                    image.style.backgroundPosition = this.XShift + " " + normalYShift;
-                };
-
-                // IE tries to select the background image "button" text (it's
-                // implemented in a list item) so we have to cache the selection
-                // on mousedown.
-                if (uaSniffed.isIE) {
-                    button.onmousedown = function () {
-                        panels.ieCachedRange = document.selection.createRange();
-                        panels.ieCachedScrollTop = panels.input.scrollTop;
-                    };
-                }
-
-                if (!button.isHelp) {
-                    button.onclick = function () {
-                        if (this.onmouseout) {
-                            this.onmouseout();
-                        }
-                        doClick(this);
-                        return false;
-                    }
-                }
-            }
-            else {
-                image.style.backgroundPosition = button.XShift + " " + disabledYShift;
-                button.onmouseover = button.onmouseout = button.onclick = function () { };
-                button.className += " disabled";
-            }
+			if (!noCleanup) {
+				fixupInputArea();
+				if(!linkOrImage) {
+					inputBox.adjustCursorPosition();
+				}
+			}
         }
 
         function bindCommand(method) {
             if (typeof method === "string")
                 method = commandManager[method];
-            return function () { method.apply(commandManager, arguments); }
+            return function () { method.apply(commandManager, arguments); };
         }
 
         function makeSpritedButtonRow() {
 
-            var buttonBar = panels.buttonBar;
-
-            var normalYShift = "0px";
-            var disabledYShift = "-20px";
-            var highlightYShift = "-40px";
-
-            var buttonRow = document.createElement("ul");
-            buttonRow.id = "wmd-button-row" + postfix;
-            buttonRow.className = 'wmd-button-row';
-            buttonRow = buttonBar.appendChild(buttonRow);
-            var xPosition = 0;
-            var makeButton = function (id, title, XShift, textOp) {
-                var button = document.createElement("li");
-                button.className = "wmd-button";
-                button.style.left = xPosition + "px";
-                xPosition += 25;
-                var buttonImage = document.createElement("span");
-                button.id = id + postfix;
-                button.appendChild(buttonImage);
-                button.title = title;
-                button.XShift = XShift;
-                if (textOp)
-                    button.textOp = textOp;
-                setupButton(button, true);
-                buttonRow.appendChild(button);
-                return button;
-            };
-            var makeSpacer = function (num) {
-                var spacer = document.createElement("li");
-                spacer.className = "wmd-spacer wmd-spacer" + num;
-                spacer.id = "wmd-spacer" + num + postfix;
-                buttonRow.appendChild(spacer);
-                xPosition += 25;
-            }
-
-            buttons.bold = makeButton("wmd-bold-button", getString("bold"), "0px", bindCommand("doBold"));
-            buttons.italic = makeButton("wmd-italic-button", getString("italic"), "-20px", bindCommand("doItalic"));
-            makeSpacer(1);
-            buttons.link = makeButton("wmd-link-button", getString("link"), "-40px", bindCommand(function (chunk, postProcessing) {
+            buttons.bold = bindCommand("doBold");
+            buttons.italic = bindCommand("doItalic");
+            buttons.link = bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, false);
-            }));
-            buttons.quote = makeButton("wmd-quote-button", getString("quote"), "-60px", bindCommand("doBlockquote"));
-            buttons.code = makeButton("wmd-code-button", getString("code"), "-80px", bindCommand("doCode"));
-            buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
+            });
+            buttons.quote = bindCommand("doBlockquote");
+            buttons.code = bindCommand("doCode");
+            buttons.image = bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, true);
-            }));
-            makeSpacer(2);
-            buttons.olist = makeButton("wmd-olist-button", getString("olist"), "-120px", bindCommand(function (chunk, postProcessing) {
+            });
+            buttons.olist = bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
-            }));
-            buttons.ulist = makeButton("wmd-ulist-button", getString("ulist"), "-140px", bindCommand(function (chunk, postProcessing) {
+            });
+            buttons.ulist = bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, false);
-            }));
-            buttons.heading = makeButton("wmd-heading-button", getString("heading"), "-160px", bindCommand("doHeading"));
-            buttons.hr = makeButton("wmd-hr-button", getString("hr"), "-180px", bindCommand("doHorizontalRule"));
-            makeSpacer(3);
-            buttons.undo = makeButton("wmd-undo-button", getString("undo"), "-200px", null);
-            buttons.undo.execute = function (manager) { if (manager) manager.undo(); };
-
-            buttons.redo = makeButton("wmd-redo-button", getString("redo"), "-220px", null);
-            buttons.redo.execute = function (manager) { if (manager) manager.redo(); };
-
-            if (helpOptions) {
-                var helpButton = document.createElement("li");
-                var helpButtonImage = document.createElement("span");
-                helpButton.appendChild(helpButtonImage);
-                helpButton.className = "wmd-button wmd-help-button";
-                helpButton.id = "wmd-help-button" + postfix;
-                helpButton.XShift = "-240px";
-                helpButton.isHelp = true;
-                helpButton.style.right = "0px";
-                helpButton.title = getString("help");
-                helpButton.onclick = helpOptions.handler;
-
-                setupButton(helpButton, true);
-                buttonRow.appendChild(helpButton);
-                buttons.help = helpButton;
-            }
-
-            setUndoRedoButtonStates();
+            });
+            buttons.heading = bindCommand("doHeading");
+            buttons.hr = bindCommand("doHorizontalRule");
         }
 
-        function setUndoRedoButtonStates() {
-            if (undoManager) {
-                setupButton(buttons.undo, undoManager.canUndo());
-                setupButton(buttons.redo, undoManager.canRedo());
-            }
-        };
-
-        this.setUndoRedoButtonStates = setUndoRedoButtonStates;
-        this.buttons = buttons;
         this.doClick = doClick;
 
     }
@@ -1822,15 +680,11 @@
                 postProcessing();
             };
 
-            background = ui.createBackground();
-
             if (isImage) {
-                if (!this.hooks.insertImageDialog(linkEnteredCallback))
-                    ui.prompt(this.getString("imagedialog"), imageDefaultText, linkEnteredCallback);
+                this.hooks.insertImageDialog(linkEnteredCallback);
             }
             else {
-                if (!this.hooks.insertLinkDialog(linkEnteredCallback))
-                	ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
+                this.hooks.insertLinkDialog(linkEnteredCallback);
             }
             return true;
         }
@@ -1838,7 +692,7 @@
 
     // When making a list, hitting shift-enter will put your cursor on the next line
     // at the current indent level.
-    commandProto.doAutoindent = function (chunk, postProcessing) {
+    commandProto.doAutoindent = function (chunk) {
 
         var commandMgr = this,
             fakeSelection = false;
@@ -1881,7 +735,7 @@
         }
     };
 
-    commandProto.doBlockquote = function (chunk, postProcessing) {
+    commandProto.doBlockquote = function (chunk) {
 
         chunk.selection = chunk.selection.replace(/^(\n*)([^\r]+?)(\n*)$/,
             function (totalMatch, newlinesBefore, text, newlinesAfter) {
@@ -2025,7 +879,7 @@
         }
     };
 
-    commandProto.doCode = function (chunk, postProcessing) {
+    commandProto.doCode = function (chunk) {
 
         var hasTextBefore = /\S[ ]*$/.test(chunk.before);
         var hasTextAfter = /^[ ]*\S/.test(chunk.after);
@@ -2193,7 +1047,7 @@
 
     };
 
-    commandProto.doHeading = function (chunk, postProcessing) {
+    commandProto.doHeading = function (chunk) {
 
         // Remove leading/trailing whitespace and reduce internal spaces to single spaces.
         chunk.selection = chunk.selection.replace(/\s+/g, " ");
@@ -2252,7 +1106,7 @@
         }
     };
 
-    commandProto.doHorizontalRule = function (chunk, postProcessing) {
+    commandProto.doHorizontalRule = function (chunk) {
         chunk.startTag = "----------\n";
         chunk.selection = "";
         chunk.skipLines(2, 1, true);

@@ -2,6 +2,7 @@
 @import '../../bower_components/famous-angular/dist/famous-angular.css';
 
 $material-font-path: "../../bower_components/bootstrap-material-design/fonts";
+@import '_roboto-draft.scss';
 @import '_icons-material-design.scss';
 @import '_ced.scss';
 $plastic-color: #64BDEB;
@@ -27,11 +28,17 @@ fa-app {
 	background-color: $plastic-color;
 }
 
-.label {
+.menu-label {
 	box-shadow: 2px 4px 9px -4px rgba(0, 0, 0, 0.2);
 	border-top-right-radius: 12px;
 	border-bottom-right-radius: 12px;
 }
+
+.edit-label {
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+
 
 .hole {
 	box-shadow: inset 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
@@ -80,6 +87,7 @@ fa-app {
 		right: 4020px;
 	}
 	overflow: auto;
+	text-align: justify;
 }
 
 .menu {
@@ -128,6 +136,13 @@ fa-app {
 	}
 }
 
+.btn-minimize button {
+	padding: 1px 3px;
+	i {
+		font-size: 30px;
+	}
+}
+
 .btn-edit button {
 	padding: 8px;
 	i {
@@ -135,20 +150,30 @@ fa-app {
 	}
 }
 
+.btn-menu button,
+.btn-edit button {
+	font-size: 20px;
+	color: mix(#fff, $plastic-color, 80%);
+	&:hover {
+		color: #fff;
+	}
+}
+
 .btn-menu button {
-	font-size: 18px;
 	height: 130px;
 	width: 40px;
 	padding: {
 		left: 0;
 		right: 5px;
 		top: 0;
-		bottom: 60px;
+		bottom: 25px;
 	}
-	color: mix(#fff, $plastic-color, 80%);
-	&:hover {
-		color: #fff;
-	}
+}
+
+.btn-edit button {
+	height: 40px;
+	width: 100px;
+	padding: 0;
 }
 
 .md-track-ticks {

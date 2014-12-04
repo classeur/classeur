@@ -1,10 +1,10 @@
-	<fa-modifier fa-align="[.5, 0]" fa-origin="[.5, 0]" fa-size="[btnBarWidth, btnBarHeight]">
-	<fa-modifier fa-translate="btnBarTrans.get()">
+<fa-modifier fa-align="[.5, 0]" fa-origin="[.5, 0]" fa-size="[btnBar.width, btnBar.height]">
+	<fa-modifier fa-translate="btnBar.trans.get()">
 		<fa-surface class="clip md-whiteframe-z1">
 		</fa-surface>
-		<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[btnWidth, btnHeight]"
-					 fa-translate="[btn.offset, -15]" ng-repeat="btn in btns">
-			<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="btn.scaleTrans.get()" fa-opacity="btn.opacityTrans.get()">
+		<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[btnBar.btnWidth, btnBar.btnHeight]"
+					 fa-translate="[btn.offset, -15]" ng-repeat="btn in btnBar.btns">
+			<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="btn.scaling.get()" fa-opacity="btn.opacity.get()">
 				<fa-surface class="btn btn-clip"
 							ng-mouseenter="btn.hover(true)" ng-mouseleave="btn.hover(false)"
 							fa-click="btn.click()">
@@ -15,7 +15,7 @@
 				</fa-surface>
 			</fa-modifier>
 		</fa-modifier>
-		<fa-modifier fa-align="[0.5, 1]" fa-origin="[0.5, 1]" fa-size="[btnBarWidth-btnBarMargin*2, 4]" fa-translate="[0, -5]">
+		<fa-modifier fa-align="[0.5, 1]" fa-origin="[0.5, 1]" fa-size="[btnBar.width-btnBar.margin*2, 4]" fa-translate="[0, -5]">
 			<fa-surface class="paper hole">
 			</fa-surface>
 		</fa-modifier>

@@ -46,7 +46,12 @@ angular.module('classeur.services.scrollSync', [
 			}
 			currentEndCb = endCb;
 			var diff = endValue - startValue;
-			var startTime = Date.now();
+			var startTime = 0;
+
+			// Animation only if both panels are visible
+			if(isPreviewVisible && isEditorVisible) {
+				startTime = Date.now();
+			}
 
 			function tick() {
 				var currentTime = Date.now();
@@ -176,7 +181,7 @@ angular.module('classeur.services.scrollSync', [
 				height: scrollHeight - htmlSectionOffset
 			});
 
-			// apply Scroll Link (-10 to have a gap > 9px)
+			// apply Scroll Sync (-10 to have a gap > 9px)
 			lastEditorScrollTop = -10;
 			lastPreviewScrollTop = -10;
 			doScrollSync();
@@ -218,13 +223,6 @@ angular.module('classeur.services.scrollSync', [
 					return;
 				}
 
-				if(!isPreviewVisible || !isEditorVisible) {
-					// Don't animate if one panel is hidden
-					previewElt.scrollTop = destScrollTop;
-					lastPreviewScrollTop = destScrollTop;
-					return;
-				}
-
 				animate(previewElt, previewScrollTop, destScrollTop, function(currentScrollTop) {
 					isPreviewMoving = true;
 					lastPreviewScrollTop = currentScrollTop;
@@ -232,7 +230,7 @@ angular.module('classeur.services.scrollSync', [
 					isPreviewMoving = false;
 				});
 			}
-			else if(isScrollPreview) {
+			else if(!isEditorVisible || isScrollPreview) {
 				if(Math.abs(previewScrollTop - lastPreviewScrollTop) <= 9) {
 					return;
 				}
@@ -248,13 +246,6 @@ angular.module('classeur.services.scrollSync', [
 				if(Math.abs(destScrollTop - editorScrollTop) <= 9) {
 					// Skip the animation if diff is <= 9
 					lastEditorScrollTop = editorScrollTop;
-					return;
-				}
-
-				if(!isPreviewVisible || !isEditorVisible) {
-					// Don't animate if one panel is hidden
-					editorElt.scrollTop = destScrollTop;
-					lastEditorScrollTop = destScrollTop;
 					return;
 				}
 
@@ -313,7 +304,7 @@ angular.module('classeur.services.scrollSync', [
 			// Now set the correct height
 			//previewContentsElt.style.removeProperty('height');
 			//var newHeight = previewContentsElt.offsetHeight;
-			//isScrollEditor = true;
+			isScrollEditor = true;
 			//if(newHeight < previousHeight) {
 			//	// We expect a scroll adjustment
 			//	scrollAdjust = true;

@@ -2,15 +2,16 @@ angular.module('classeur.services.layout', [
 	'famous.angular',
 	'classeur.services.settings',
 ])
-	.factory('layout', function($famous, $rootScope, settings, btnBarSrv, cleditor) {
+	.factory('layout', function($famous, $rootScope, settings, btnBar, cleditor) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
 		var layout = {
 			isEditorOpen: true
 		};
 		var previewSizeAdjust = 130;
-		var fontSize;
+		var fontSize, transX;
 
 		function getBinderSize() {
+			transX = document.body.clientWidth/2;
 			fontSize = 3;
 			var factor = 1 + (settings.zoom - 3) * 0.1;
 			layout.pageWidth = 960 * factor;
@@ -22,12 +23,15 @@ angular.module('classeur.services.layout', [
 				layout.pageWidth = 800 * factor;
 			}
 			if(document.body.clientWidth - 50 < layout.pageWidth) {
+				layout.pageWidth = document.body.clientWidth;
+			}
+			if(layout.pageWidth < 720 * factor) {
 				fontSize = 1;
-				layout.pageWidth = document.body.clientWidth - 50;
 			}
 			if(layout.isPreviewOpen && document.body.clientWidth / 2 + 50 < layout.pageWidth) {
 				layout.pageWidth = document.body.clientWidth / 2 + 50;
 			}
+			btnBar.setPageWidth(layout.pageWidth);
 			return [
 				layout.pageWidth,
 				undefined
@@ -43,14 +47,14 @@ angular.module('classeur.services.layout', [
 
 		function getBinderTrans() {
 			return [
-				layout.isPreviewOpen ? -layout.pageWidth / 2 + 10 : -20,
+				transX + (layout.isPreviewOpen ? -layout.pageWidth / 2 + 10 : -40),
 				0
 			];
 		}
 
 		function getPreviewTrans() {
 			return [
-				layout.isPreviewOpen ? (layout.pageWidth - previewSizeAdjust) / 2 + 70 : -20,
+				transX + (layout.isPreviewOpen ? (layout.pageWidth - previewSizeAdjust) / 2 + 70 : -20),
 				0
 			];
 		}
@@ -58,7 +62,29 @@ angular.module('classeur.services.layout', [
 		function getEditorTrans() {
 			return [
 				0,
-				layout.isEditorOpen ? 0 : 2500
+				layout.isEditorOpen ? 0 : 2200
+			];
+		}
+
+		function getPageTrans() {
+			return [
+				layout.isMenuOpen ? -menuWidth : 0,
+				layout.isMenuOpen ? -80 : 0
+			];
+		}
+
+		function getPageOuterTrans() {
+			return [
+				layout.isMenuOpen ? 10 : 0,
+				0
+			];
+		}
+
+		function getPageRot() {
+			return [
+				0,
+				0,
+				layout.isMenuOpen ? -0.03 : 0
 			];
 		}
 
@@ -70,6 +96,9 @@ angular.module('classeur.services.layout', [
 		layout.editorTrans = new Transitionable(getEditorTrans());
 		layout.fontSizeClass = 'font-size-' + fontSize;
 		layout.zoomClass = 'zoom-' + settings.zoom;
+		layout.pageTrans = new Transitionable(getPageTrans());
+		layout.pageOuterTrans = new Transitionable(getPageOuterTrans());
+		layout.pageRot = new Transitionable(getPageRot());
 
 		var onLayoutResized = window.ced.Utils.createHook(layout, 'onLayoutResized');
 		var oldPageWidth, oldPreviewWidth, oldZoom;
@@ -82,7 +111,6 @@ angular.module('classeur.services.layout', [
 				onLayoutResized();
 			}
 		}, 50);
-
 
 		function setPreviewTransition() {
 			var binderSize = getBinderSize();
@@ -99,12 +127,20 @@ angular.module('classeur.services.layout', [
 		}
 
 		function setEditorTransition() {
-			layout.editorTrans.set(getEditorTrans(), {duration: 500, curve: 'easeInOut'}, function() {
+			layout.editorTrans.set(getEditorTrans(), {duration: 270, curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'}, function() {
 				layout.togglePreview(false);
+				layout.toggleMenu(false);
 			});
 		}
 
-		window.addEventListener('resize', window.ced.Utils.debounce(setPreviewTransition, 180));
+		var menuWidth = 320;
+		function setMenuTransition() {
+			layout.pageTrans.set(getPageTrans(), {duration: 180, curve: 'easeOutBounce'});
+			layout.pageOuterTrans.set(getPageOuterTrans(), {duration: 180, curve: 'easeOutBounce'});
+			layout.pageRot.set(getPageRot(), {duration: 180, curve: 'easeOutBounce'});
+		}
+
+		window.addEventListener('resize', window.ced.Utils.debounce(setPreviewTransition, 400));
 
 		var onTogglePreview = window.ced.Utils.createHook(layout, 'onTogglePreview');
 		layout.togglePreview = function(isOpen) {
@@ -123,8 +159,17 @@ angular.module('classeur.services.layout', [
 				layout.isEditorOpen = isOpen;
 				cleditor.editor.toggleEditable(isOpen);
 				onToggleEditor(isOpen);
-				btnBarSrv.toggle(isOpen);
+				btnBar.setEditorOpen(isOpen);
 				setEditorTransition();
+			}
+		};
+
+		layout.toggleMenu = function(isOpen) {
+			isOpen = isOpen === undefined ? !layout.isMenuOpen : isOpen;
+			if(isOpen != layout.isMenuOpen) {
+				layout.isMenuOpen = isOpen;
+				btnBar.setMenuOpen(layout.isMenuOpen);
+				setMenuTransition();
 			}
 		};
 
