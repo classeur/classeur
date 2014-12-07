@@ -1,9 +1,14 @@
-angular.module('classeur.services.btnBar', [])
-	.factory('btnBar', function(cledit, $famous) {
-		var Transitionable = $famous['famous/transitions/Transitionable'];
-		var btnBar = {};
+angular.module('classeur.extensions.btnBar', [])
+	.directive('clBtnBarSettings', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/extensions/btnBar/btnBarSettings.html'
+		};
+	})
+	.directive('clBtnBar', function($famous, cledit, layout, settings) {
+		settings.setDefaultValue('btnBar', true);
 
-		btnBar.btns = [
+		var btns = [
 			{
 				icon: 'mdi-editor-format-bold',
 				click: function() {
@@ -79,73 +84,61 @@ angular.module('classeur.services.btnBar', [])
 
 		];
 
-		btnBar.height = 70;
-		btnBar.visibleHeight = 48;
-		btnBar.btnWidth = 30;
-		btnBar.btnHeight = 30;
-		btnBar.margin = 30;
+		var props = {
+			margin: 30,
+			btnWidth: 30,
+			btnHeight: 30,
+			height: 70,
+			visibleHeight: 48
+		};
 
-		var offset = btnBar.margin;
-		btnBar.btns.forEach(function(btn) {
+		var offset = props.margin;
+		btns.forEach(function(btn) {
 			if(btn.separator) {
 				offset += 20;
 			}
 			btn.offset = offset;
-			btn.scaling = new Transitionable([
-				0.9,
-				0.9
-			]);
-			btn.opacity = new Transitionable(0.8);
-			btn.hover = function(enable) {
-				this.scaling.set([
-					enable ? 1 : 0.9,
-					enable ? 1 : 0.9
-				], {duration: 180, curve: 'easeOut'});
-				this.opacity.set(enable ? 1 : 0.8, {duration: 180, curve: 'easeOut'});
-			};
-			offset += btnBar.btnWidth;
+			offset += props.btnWidth;
 		});
-		btnBar.width = offset + btnBar.margin;
+		props.width = offset + props.margin;
 
-		var openOffsetY = btnBar.visibleHeight - btnBar.height,
-			closedOffsetY = -btnBar.height - 10;
+		return {
+			restrict: 'E',
+			templateUrl: 'app/extensions/btnBar/btnBar.html',
+			scope: true,
+			link: function(scope) {
+				var Transitionable = $famous['famous/transitions/Transitionable'];
 
-		var isEditorOpen = true;
-		btnBar.setEditorOpen = function(isOpen) {
-			isEditorOpen = isOpen;
-			setTransition();
-		};
-		var isMenuOpen;
-		btnBar.setMenuOpen = function(isOpen) {
-			isMenuOpen = isOpen;
-			setTransition();
-		};
-		var pageWidth;
-		btnBar.setPageWidth = function(width) {
-			pageWidth = width;
-			setTransition();
-		};
-		var isOpen;
+				angular.extend(scope, props);
+				scope.btns = btns;
 
-		function getTrans() {
-			return [
-				0,
-				isOpen ? openOffsetY : closedOffsetY
-			];
-		}
+				var openOffsetY = scope.visibleHeight - scope.height,
+					closedOffsetY = -scope.height - 10;
 
-		btnBar.trans = new Transitionable(getTrans());
-		function setTransition() {
-			var newIsOpen = !!isEditorOpen && !isMenuOpen && pageWidth - 150 > btnBar.width;
-			if(isOpen === newIsOpen) {
-				return;
+				scope.$watch('layout.pageWidth', setTransition);
+				scope.$watch('layout.isEditorOpen', setTransition);
+				scope.$watch('layout.isMenuOpen', setTransition);
+
+				var isOpen;
+				function getTrans() {
+					return [
+						0,
+						isOpen ? openOffsetY : closedOffsetY
+					];
+				}
+
+				scope.trans = new Transitionable(getTrans());
+				function setTransition() {
+					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 150 > scope.width;
+					if(isOpen === newIsOpen) {
+						return;
+					}
+					isOpen = newIsOpen;
+					if(isOpen) {
+						scope.trans.delay(250);
+					}
+					scope.trans.set(getTrans(), {duration: 120, curve: 'easeOutBounce'});
+				}
 			}
-			isOpen = newIsOpen;
-			if(isOpen) {
-				btnBar.trans.delay(250);
-			}
-			btnBar.trans.set(getTrans(), {duration: 120, curve: 'easeOutBounce'});
-		}
-
-		return btnBar;
+		};
 	});

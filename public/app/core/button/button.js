@@ -1,49 +1,37 @@
 angular.module('classeur.core.button', [])
-	.directive('clButton', function() {
-		return {
-			restrict: 'E',
-			scope: {
-				scale: '@',
-				scaleHover: '@',
-				opacity: '@',
-				opacityHover: '@',
-				action: '&'
-			},
-			templateUrl: 'app/core/button/button.html',
-			link: function(scope) {
-
-			}
-		};
-	})
-	.factory('Button', function($famous) {
+	.directive('clButton', function($famous) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
 
-		return function Button(options) {
+		return {
+			restrict: 'E',
+			scope: true,
+			transclude: true,
+			templateUrl: 'app/core/button/button.html',
+			link: function(scope, element, attrs) {
+				scope.scale = parseFloat(attrs.scale || 0.9);
+				scope.scaleHover = parseFloat(attrs.scaleHover || 1);
+				scope.opacity = parseFloat(attrs.opacity || 0.8);
+				scope.opacityHover = parseFloat(attrs.opacityHover || 1);
+				scope.surfaceClass = attrs.surfaceClass;
 
-			options = angular.extend({
-				scale: 0.9,
-				scaleHover: 1,
-				opacity: 0.8,
-				opacityHover: 1
-			}, options);
+				function getScale(isHover) {
+					return [
+						isHover ? scope.scaleHover : scope.scale,
+						isHover ? scope.scaleHover : scope.scale
+					];
+				}
 
-			function getScale(isHover) {
-				return [
-					isHover ? options.scaleHover : options.scale,
-					isHover ? options.scaleHover : options.scale
-				];
+				function getOpacity(isHover) {
+					return isHover ? scope.opacityHover : scope.opacity;
+				}
+
+				scope.scaleTrans = new Transitionable(getScale());
+				scope.opacityTrans = new Transitionable(getOpacity());
+				scope.toggleHover = function(isHover) {
+					scope.scaleTrans.set(getScale(isHover), {duration: 180, curve: 'easeOut'});
+					scope.opacityTrans.set(getOpacity(isHover), {duration: 180, curve: 'easeOut'});
+				};
+
 			}
-
-			function getOpacity(isHover) {
-				return isHover ? options.opacityHover : options.opacity;
-			}
-
-			this.scaleTrans = new Transitionable(getScale());
-			this.opacityTrans = new Transitionable(getOpacity());
-			this.toggleHover = function(isHover) {
-				this.scaleTrans.set(getScale(isHover), {duration: 180, curve: 'easeOut'});
-				this.opacityTrans.set(getOpacity(isHover) ? 0.35 : 0.3, {duration: 180, curve: 'easeOut'});
-			};
-
 		};
 	});

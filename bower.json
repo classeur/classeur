@@ -18,6 +18,8 @@
     "famous-angular": "master",
     "bootstrap-material-design": "~0.1.5",
     "google-diff-match-patch-js": "~1.0.0",
-    "rangy-official": "~1.3.0-alpha.20140921"
+    "rangy-official": "~1.3.0-alpha.20140921",
+    "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
+    "google-code-prettify": "~1.0.3"
   }
 }

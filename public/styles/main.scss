@@ -6,7 +6,7 @@ $material-font-path: "../../bower_components/bootstrap-material-design/fonts";
 @import '_icons-material-design.scss';
 @import '_ced.scss';
 $plastic-color: #64BDEB;
-$clip-color: #424140;
+$clip-color: #3A3938;
 
 fa-app {
 	position: fixed;
@@ -51,6 +51,12 @@ fa-app {
 	background-color: $clip-color;
 }
 
+.clip-light {
+	border-bottom-right-radius: 12px;
+	border-bottom: 70px solid transparentize(#fff, 0.95);
+	border-left: 8px solid transparent;
+}
+
 .editor-container, .editor, .preview, .menu {
 	margin: 0;
 	position: absolute;
@@ -58,10 +64,6 @@ fa-app {
 	top: 0;
 	left: 0;
 	right: 0;
-}
-
-.editor-container {
-	overflow: hidden;
 }
 
 .editor {
@@ -97,6 +99,10 @@ fa-app {
 	color: #fff;
 	.entry {
 		font-weight: bold;
+		text-align: center;
+	}
+	.md-track-container {
+		width: 232px;
 	}
 }
 
@@ -114,11 +120,17 @@ fa-app {
 	}
 }
 
-.btn-clip button {
-	color: #fff;
-	padding: 2px;
-	i {
-		font-size: 26px;
+.btn-clip {
+	button {
+		color: #fff;
+		padding: 2px;
+		i {
+			font-size: 26px;
+		}
+		height: 32px;
+	}
+	.mdi-navigation-more-horiz {
+		line-height: 1.35;
 	}
 }
 
@@ -178,6 +190,29 @@ fa-app {
 
 .md-track-ticks {
 	display: none;
+}
+
+md-switch.md-default-theme .md-switch-bar {
+	background-color: #c8c8c8;
+}
+
+md-radio-button.md-default-theme.md-checked .md-off, md-switch.md-default-theme .md-switch-thumb.md-checked .md-off {
+	border-color: #03a9f4;
+	background-color: #03a9f4;
+}
+
+md-radio-button.md-default-theme .md-off, md-switch.md-default-theme .md-switch-thumb .md-off {
+	border-color: #03a9f4;
+	background-color: #fff;
+}
+
+md-radio-button.md-default-theme .md-on, md-switch.md-default-theme .md-switch-thumb .md-on {
+	background-color: #03a9f4;
+}
+
+md-switch .md-switch-thumb .md-label {
+	margin-left: 80px;
+	font-weight: bold;
 }
 
 .font-size-3 {

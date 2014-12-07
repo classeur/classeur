@@ -15,5 +15,8 @@
     "gulp-sass": "^1.1.0",
     "gulp-watch": "^1.1.0",
     "gulp-minify-css": "^0.3.11"
+  },
+  "devDependencies": {
+    "gulp-inject": "^1.0.2"
   }
 }

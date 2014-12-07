@@ -1,17 +1,17 @@
-angular.module('classeur.extensions.scrollSync', [
-	'classeur.services.layout',
-	'classeur.services.cledit',
-	'classeur.services.settings',
-])
-	.directive('scrollSyncEditor', function(scrollSync) {
+angular.module('classeur.extensions.scrollSync', [])
+	.directive('clScrollSyncEditor', function(scrollSync) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
+				scope.$watch('cledit.lastPreview', scrollSync.onPreviewRefreshed);
+				scope.$watch('layout.pageWidth', scrollSync.onLayoutResized);
+				scope.$watch('layout.fontSize', scrollSync.onLayoutResized);
+				scope.$watch('settings.values.zoom', scrollSync.onLayoutResized);
 			}
 		};
 	})
-	.directive('scrollSyncPreview', function(scrollSync) {
+	.directive('clScrollSyncPreview', function(scrollSync) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
@@ -19,10 +19,10 @@ angular.module('classeur.extensions.scrollSync', [
 			}
 		};
 	})
-	.directive('scrollSyncSettings', function() {
+	.directive('clScrollSyncSettings', function() {
 		return {
 			restrict: 'E',
-			templateUrl: 'extensions/scrollSync/scrollSyncSettings.html'
+			templateUrl: 'app/extensions/scrollSync/scrollSyncSettings.html'
 		};
 	})
 	.factory('scrollSync', function(layout, cledit, settings) {
@@ -33,8 +33,6 @@ angular.module('classeur.extensions.scrollSync', [
 
 		var timeoutId;
 		var currentEndCb;
-		var isSidePreviewVisible = layout.isSidePreviewVisible;
-		var isEditorVisible = layout.isEditorOpen;
 
 		function animate(elt, startValue, endValue, stepCb, endCb) {
 			if(currentEndCb) {
@@ -46,7 +44,7 @@ angular.module('classeur.extensions.scrollSync', [
 			var startTime = 0;
 
 			// Animation only if both panels are visible
-			if(isSidePreviewVisible && isEditorVisible) {
+			if(layout.isSidePreviewOpen && layout.isEditorOpen) {
 				startTime = Date.now();
 			}
 
@@ -198,7 +196,7 @@ angular.module('classeur.extensions.scrollSync', [
 					isPreviewMoving = false;
 				});
 			}
-			else if(!isEditorVisible || isScrollPreview) {
+			else if(!layout.isEditorOpen || isScrollPreview) {
 				if(Math.abs(previewScrollTop - lastPreviewScrollTop) <= 9) {
 					return;
 				}
@@ -225,19 +223,6 @@ angular.module('classeur.extensions.scrollSync', [
 				});
 			}
 		};
-
-		layout.onToggleSidePreview(function(isOpen) {
-			isSidePreviewVisible = isOpen;
-		});
-
-		layout.onToggleEditor(function(isOpen) {
-			isEditorVisible = isOpen;
-		});
-
-		layout.onLayoutResized(function() {
-			isScrollEditor = true;
-			buildSections();
-		});
 
 		// TODO
 
@@ -268,18 +253,6 @@ angular.module('classeur.extensions.scrollSync', [
 		//};
 
 
-		cledit.onPreviewRefreshed(function() {
-			// Now set the correct height
-			//previewContentsElt.style.removeProperty('height');
-			//var newHeight = previewContentsElt.offsetHeight;
-			isScrollEditor = true;
-			//if(newHeight < previousHeight) {
-			//	// We expect a scroll adjustment
-			//	scrollAdjust = true;
-			//}
-			buildSections();
-		});
-
 		var oldEditorElt, oldPreviewElt;
 		function init() {
 			if(oldEditorElt === editorElt || oldPreviewElt === previewElt) {
@@ -289,6 +262,9 @@ angular.module('classeur.extensions.scrollSync', [
 			oldPreviewElt = previewElt;
 
 			editorElt.addEventListener('scroll', function() {
+				if(!settings.values.scrollSync) {
+					return;
+				}
 				if(!isEditorMoving) {
 					isScrollEditor = true;
 					isScrollPreview = false;
@@ -296,7 +272,10 @@ angular.module('classeur.extensions.scrollSync', [
 				}
 			});
 
-			previewElt.addEventListener('scroll', function(e) {
+			previewElt.addEventListener('scroll', function() {
+				if(!settings.values.scrollSync) {
+					return;
+				}
 				if(!isPreviewMoving && !scrollAdjust) {
 					isScrollPreview = true;
 					isScrollEditor = false;
@@ -315,6 +294,25 @@ angular.module('classeur.extensions.scrollSync', [
 			setPreviewElt: function(elt) {
 				previewElt = elt;
 				init();
+			},
+			onPreviewRefreshed: function() {
+				// Now set the correct height
+				//previewContentsElt.style.removeProperty('height');
+				//var newHeight = previewContentsElt.offsetHeight;
+				isScrollEditor = true;
+				//if(newHeight < previousHeight) {
+				//	// We expect a scroll adjustment
+				//	scrollAdjust = true;
+				//}
+				buildSections();
+			},
+			onLayoutResized: function() {
+				// This could happen before the editor/preview panels are created
+				if(!editorElt) {
+					return;
+				}
+				isScrollEditor = true;
+				buildSections();
 			}
 		};
 

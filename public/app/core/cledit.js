@@ -1,12 +1,12 @@
-angular.module('classeur.modules.cledit', [])
+angular.module('classeur.core.cledit', [])
 	.factory('cledit', function() {
 
 		var oldSectionList, oldLinkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
-		var cledit = {};
-
-		var converter = new window.Markdown.Converter();
+		var cledit = {
+			converter: new window.Markdown.Converter()
+		};
 
 		var footnoteMap = {};
 		// Store one footnote elt in the footnote map
@@ -108,7 +108,7 @@ angular.module('classeur.modules.cledit', [])
 			textToConvert.push(oldLinkDefinition + "\n\n");
 			textToConvert = textToConvert.join("");
 
-			var html = converter.makeHtml(textToConvert);
+			var html = cledit.converter.makeHtml(textToConvert);
 			htmlElt.innerHTML = html;
 		};
 

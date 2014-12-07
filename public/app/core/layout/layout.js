@@ -1,172 +1,171 @@
 angular.module('classeur.core.layout', [
 	'famous.angular',
-	'classeur.services.settings',
+	'classeur.core.settings',
 ])
-	.directive('layout', function() {
+	.directive('clLayout', function($famous, layout, settings, cledit) {
 		return {
 			restrict: 'E',
-			templateUrl: 'app/extensions/scrollSync/scrollSyncSettings.html'
+			templateUrl: 'app/core/layout/layout.html',
+			link: function(scope) {
+				var Transitionable = $famous['famous/transitions/Transitionable'];
+
+				scope.layout = layout;
+				scope.settings = settings;
+				scope.cledit = cledit;
+
+				var previewSizeAdjust = 150;
+				var transX;
+
+				function updateLayout() {
+					transX = document.body.clientWidth / 2;
+					layout.fontSize = 3;
+					var factor = 1 + (settings.values.zoom - 3) * 0.1;
+					layout.pageWidth = 960 * factor;
+					if(document.body.clientWidth < 1120 * factor) {
+						layout.fontSize = 2;
+						layout.pageWidth = 880 * factor;
+					}
+					if(document.body.clientWidth < 1040 * factor) {
+						layout.pageWidth = 800 * factor;
+					}
+					if(document.body.clientWidth + 30 < layout.pageWidth) {
+						layout.pageWidth = document.body.clientWidth + 30;
+					}
+					if(layout.pageWidth < 640 * factor) {
+						layout.fontSize = 1;
+					}
+					if(layout.isSidePreviewOpen && document.body.clientWidth / 2 + 80 < layout.pageWidth) {
+						layout.pageWidth = document.body.clientWidth / 2 + 80;
+					}
+				}
+
+				function getBinderSize() {
+					return [
+						layout.pageWidth,
+						undefined
+					];
+				}
+
+				function getPreviewSize() {
+					return [
+						layout.pageWidth - previewSizeAdjust + 8000,
+						undefined
+					];
+				}
+
+				function getBinderTranslate() {
+					return [
+						transX + (layout.isSidePreviewOpen ? -layout.pageWidth / 2 + 10 : -55),
+						0
+					];
+				}
+
+				function getPreviewTranslate() {
+					return [
+						transX + (layout.isSidePreviewOpen ? (layout.pageWidth - previewSizeAdjust) / 2 + 70 : 0),
+						0
+					];
+				}
+
+				function getEditorTranslate() {
+					return [
+						0,
+						layout.isEditorOpen ? 0 : 2200
+					];
+				}
+
+				function getPageTranslate() {
+					return [
+						layout.isMenuOpen ? -layout.menuWidth : 0,
+						layout.isMenuOpen ? -80 : 0
+					];
+				}
+
+				function getPageOuterTranslate() {
+					return [
+						layout.isMenuOpen ? 10 : 0,
+						0
+					];
+				}
+
+				function getPageRotate() {
+					return [
+						0,
+						0,
+						layout.isMenuOpen ? -0.03 : 0
+					];
+				}
+
+				updateLayout();
+				var layoutTrans = {
+					binderSize: new Transitionable(getBinderSize()),
+					binderTranslate: new Transitionable(getBinderTranslate()),
+					previewSize: new Transitionable(getPreviewSize()),
+					previewTranslate: new Transitionable(getPreviewTranslate()),
+					editorTranslate: new Transitionable(getEditorTranslate()),
+					pageTranslate: new Transitionable(getPageTranslate()),
+					pageOuterTranslate: new Transitionable(getPageOuterTranslate()),
+					pageRotate: new Transitionable(getPageRotate()),
+					fontSizeClass: 'font-size-' + layout.fontSize,
+					zoomClass: 'zoom-' + settings.values.zoom
+				};
+				scope.layoutTrans = layoutTrans;
+
+				function setLayoutTransition() {
+					updateLayout();
+					layoutTrans.binderTranslate.set(getBinderTranslate(), {duration: 180, curve: 'easeOut'}, function() {
+						layoutTrans.isReady = true;
+						layoutTrans.fontSizeClass = 'font-size-' + layout.fontSize;
+						layoutTrans.zoomClass = 'zoom-' + settings.values.zoom;
+						scope.$apply();
+						layoutTrans.binderSize.set(getBinderSize(), {duration: 180, curve: 'custom'});
+					});
+					var previewSize = getPreviewSize();
+					layoutTrans.previewTranslate.set(getPreviewTranslate(), {duration: 180, curve: 'easeOut'}, function() {
+						layoutTrans.previewSize.set(previewSize, {duration: 180, curve: 'custom'});
+					});
+				}
+
+				function setEditorTransition() {
+					layoutTrans.editorTranslate.set(getEditorTranslate(), {
+						duration: 270,
+						curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'
+					}, function() {
+						layout.toggleSidePreview(false);
+						layout.toggleMenu(false);
+						scope.$apply();
+					});
+				}
+
+				function setMenuTransition() {
+					layoutTrans.pageTranslate.set(getPageTranslate(), {duration: 180, curve: 'easeOutBounce'});
+					layoutTrans.pageOuterTranslate.set(getPageOuterTranslate(), {duration: 180, curve: 'easeOutBounce'});
+					layoutTrans.pageRotate.set(getPageRotate(), {duration: 180, curve: 'easeOutBounce'});
+				}
+
+				window.addEventListener('resize', window.ced.Utils.debounce(setLayoutTransition, 400));
+
+				scope.$watch('settings.values.zoom', setLayoutTransition);
+				scope.$watch('layout.isSidePreviewOpen', setLayoutTransition);
+				scope.$watch('layout.isEditorOpen', setEditorTransition);
+				scope.$watch('layout.isMenuOpen', setMenuTransition);
+
+			}
 		};
 	})
-	.factory('layout', function($famous, $rootScope, settings, cledit) {
-		var Transitionable = $famous['famous/transitions/Transitionable'];
-		var layout = {
-			isEditorOpen: true
-		};
-		var previewSizeAdjust = 150;
-		var transX;
-
-		function getBinderSize() {
-			transX = document.body.clientWidth/2;
-			layout.fontSize = 3;
-			var factor = 1 + (settings.values.zoom - 3) * 0.1;
-			layout.pageWidth = 960 * factor;
-			if(document.body.clientWidth < 1120 * factor) {
-				layout.fontSize = 2;
-				layout.pageWidth = 880 * factor;
-			}
-			if(document.body.clientWidth < 1040 * factor) {
-				layout.pageWidth = 800 * factor;
-			}
-			if(document.body.clientWidth + 30 < layout.pageWidth) {
-				layout.pageWidth = document.body.clientWidth + 30;
-			}
-			if(layout.pageWidth < 640 * factor) {
-				layout.fontSize = 1;
-			}
-			if(layout.isSidePreviewOpen && document.body.clientWidth / 2 + 80 < layout.pageWidth) {
-				layout.pageWidth = document.body.clientWidth / 2 + 80;
-			}
-			return [
-				layout.pageWidth,
-				undefined
-			];
-		}
-
-		function getPreviewSize() {
-			return [
-				layout.pageWidth - previewSizeAdjust + 8000,
-				undefined
-			];
-		}
-
-		function getBinderTrans() {
-			return [
-				transX + (layout.isSidePreviewOpen ? -layout.pageWidth / 2 + 10 : -55),
-				0
-			];
-		}
-
-		function getPreviewTrans() {
-			return [
-				transX + (layout.isSidePreviewOpen ? (layout.pageWidth - previewSizeAdjust) / 2 + 70 : 0),
-				0
-			];
-		}
-
-		function getEditorTrans() {
-			return [
-				0,
-				layout.isEditorOpen ? 0 : 2200
-			];
-		}
-
-		function getPageTrans() {
-			return [
-				layout.isMenuOpen ? -menuWidth : 0,
-				layout.isMenuOpen ? -80 : 0
-			];
-		}
-
-		function getPageOuterTrans() {
-			return [
-				layout.isMenuOpen ? 10 : 0,
-				0
-			];
-		}
-
-		function getPageRot() {
-			return [
-				0,
-				0,
-				layout.isMenuOpen ? -0.03 : 0
-			];
-		}
-
-		layout.pageMargin = 25;
-		layout.binderSize = new Transitionable(getBinderSize());
-		layout.binderTrans = new Transitionable(getBinderTrans());
-		layout.previewSize = new Transitionable(getPreviewSize());
-		layout.previewTrans = new Transitionable(getPreviewTrans());
-		layout.editorTrans = new Transitionable(getEditorTrans());
-		layout.fontSizeClass = 'font-size-' + layout.fontSize;
-		layout.zoomClass = 'zoom-' + settings.values.zoom;
-		layout.pageTrans = new Transitionable(getPageTrans());
-		layout.pageOuterTrans = new Transitionable(getPageOuterTrans());
-		layout.pageRot = new Transitionable(getPageRot());
-
-		function setPreviewTransition() {
-			var binderSize = getBinderSize();
-			layout.binderTrans.set(getBinderTrans(), {duration: 180, curve: 'easeOut'}, function() {
-				layout.fontSizeClass = 'font-size-' + layout.fontSize;
-				layout.zoomClass = 'zoom-' + settings.values.zoom;
-				$rootScope.$apply();
-				layout.binderSize.set(binderSize, {duration: 180, curve: 'custom'});
-			});
-			var previewSize = getPreviewSize();
-			layout.previewTrans.set(getPreviewTrans(), {duration: 180, curve: 'easeOut'}, function() {
-				layout.previewSize.set(previewSize, {duration: 180, curve: 'custom'});
-			});
-		}
-
-		function setEditorTransition() {
-			layout.editorTrans.set(getEditorTrans(), {duration: 270, curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'}, function() {
-				layout.toggleSidePreview(false);
-				layout.toggleMenu(false);
-			});
-		}
-
-		var menuWidth = 320;
-		function setMenuTransition() {
-			layout.isReady = true;
-			layout.pageTrans.set(getPageTrans(), {duration: 180, curve: 'easeOutBounce'});
-			layout.pageOuterTrans.set(getPageOuterTrans(), {duration: 180, curve: 'easeOutBounce'});
-			layout.pageRot.set(getPageRot(), {duration: 180, curve: 'easeOutBounce'});
-		}
-
-		window.addEventListener('resize', window.ced.Utils.debounce(setPreviewTransition, 400));
-
-		layout.toggleSidePreview = function(isOpen) {
-			isOpen = isOpen === undefined ? !layout.isSidePreviewOpen : isOpen;
-			if(isOpen != layout.isSidePreviewOpen) {
-				layout.isSidePreviewOpen = isOpen;
-				onToggleSidePreview(isOpen);
-				setPreviewTransition();
+	.factory('layout', function() {
+		return {
+			pageMargin: 25,
+			menuWidth: 320,
+			isEditorOpen: true,
+			toggleEditor: function(isOpen) {
+				this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;
+			},
+			toggleSidePreview: function(isOpen) {
+				this.isSidePreviewOpen = isOpen === undefined ? !this.isSidePreviewOpen : isOpen;
+			},
+			toggleMenu: function(isOpen) {
+				this.isMenuOpen = isOpen === undefined ? !this.isMenuOpen : isOpen;
 			}
 		};
-
-		var onToggleEditor = window.ced.Utils.createHook(layout, 'onToggleEditor');
-		layout.toggleEditor = function(isOpen) {
-			isOpen = isOpen === undefined ? !layout.isEditorOpen : isOpen;
-			if(isOpen != layout.isEditorOpen) {
-				layout.isEditorOpen = isOpen;
-				cledit.editor.toggleEditable(isOpen);
-				onToggleEditor(isOpen);
-				setEditorTransition();
-			}
-		};
-
-		var onToggleMenu = window.ced.Utils.createHook(layout, 'onToggleMenu');
-		layout.toggleMenu = function(isOpen) {
-			isOpen = isOpen === undefined ? !layout.isMenuOpen : isOpen;
-			if(isOpen != layout.isMenuOpen) {
-				layout.isMenuOpen = isOpen;
-				onToggleMenu(isOpen);
-				setMenuTransition();
-			}
-		};
-
-		layout.applyZoom = setPreviewTransition;
-
-		return layout;
 	});

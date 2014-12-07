@@ -4,7 +4,6 @@ var serveStatic = require('serve-static');
 
 var app = express();
 app.use(serveStatic(__dirname + '/public'));
-app.use('/bower_components', serveStatic(__dirname + '/bower_components'));
 
 if(!process.env.NO_CLUSTER && cluster.isMaster) {
 	var count = require('os').cpus().length;

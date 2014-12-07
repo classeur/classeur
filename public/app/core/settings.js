@@ -1,4 +1,4 @@
-angular.module('classeur.services.settings', [])
+angular.module('classeur.core.settings', [])
 	.factory('settings', function() {
 		var values = {
 			zoom: 3

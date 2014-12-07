@@ -1,11 +1,12 @@
-angular.module('classeur.main', [
+angular.module('classeur.app', [
 	'ngMaterial',
 	'ngAnimate',
 	'famous.angular',
-	'classeur.services.btnBar',
-	'classeur.services.cledit',
-	'classeur.services.layout',
-	'classeur.services.settings',
+	'classeur.core.button',
+	'classeur.core.cledit',
+	'classeur.core.layout',
+	'classeur.core.settings',
+	'classeur.extensions.btnBar',
 	'classeur.extensions.scrollSync',
 ])
 	.config(function($animateProvider) {
@@ -21,7 +22,7 @@ angular.module('classeur.main', [
 			return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
 		});
 	})
-	.directive('ced', function(cledit) {
+	.directive('ced', function(cledit, layout) {
 		return {
 			link: function(scope, element) {
 				window.rangy.init();
@@ -40,6 +41,7 @@ angular.module('classeur.main', [
 				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
 					cledit.convert();
 					cledit.refreshPreview();
+					scope.$apply();
 				}, 500);
 				cledit.editor.onContentChanged(function(content, sectionList) {
 					cledit.sectionList = sectionList;
@@ -50,6 +52,9 @@ angular.module('classeur.main', [
 				if(cledit.previewElt) {
 					cledit.refreshPreview();
 				}
+				scope.$watch('layout.isEditorOpen', function() {
+					cledit.editor.toggleEditable(layout.isEditorOpen);
+				});
 			}
 		};
 	})
@@ -62,33 +67,5 @@ angular.module('classeur.main', [
 				}
 			}
 		};
-	})
-	.controller('LayoutCtrl', function($scope, $famous, settings, layout, btnBar) {
-		var Transitionable = $famous['famous/transitions/Transitionable'];
-
-		function Button() {
-			this.scaleTrans = new Transitionable([
-				0.9,
-				0.9
-			]);
-			this.opacityTrans = new Transitionable(0.3);
-			this.hover = function(enable) {
-				this.scaleTrans.set([
-					enable ? 1 : 0.9,
-					enable ? 1 : 0.9
-				], {duration: 180, curve: 'easeOut'});
-				this.opacityTrans.set(enable ? 0.35 : 0.3, {duration: 180, curve: 'easeOut'});
-			};
-		}
-
-		$scope.closeBtn = new Button();
-		$scope.previewBtn = new Button();
-		$scope.minimizeBtn = new Button();
-
-		$scope.settings = settings;
-		$scope.$watch('settings.values.zoom', layout.applyZoom);
-
-		$scope.layout = layout;
-		$scope.btnBar = btnBar;
 	});
 
