@@ -1,10 +1,10 @@
-angular.module('classeur.services.cleditor', [])
-	.factory('cleditor', function() {
+angular.module('classeur.modules.cledit', [])
+	.factory('cledit', function() {
 
 		var oldSectionList, oldLinkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
-		var cleditor = {};
+		var cledit = {};
 
 		var converter = new window.Markdown.Converter();
 
@@ -22,7 +22,7 @@ angular.module('classeur.services.cleditor', [])
 			var newSectionList = [];
 			var newLinkDefinition = '\n';
 			hasFootnotes = false;
-			cleditor.sectionList.forEach(function(section) {
+			cledit.sectionList.forEach(function(section) {
 				var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
 
 				// Strip footnotes
@@ -99,7 +99,7 @@ angular.module('classeur.services.cleditor', [])
 			oldSectionList = leftSections.concat(modifiedSections).concat(rightSections);
 		}
 
-		cleditor.convert = function() {
+		cledit.convert = function() {
 			updateSectionList();
 
 			var textToConvert = modifiedSections.map(function(section) {
@@ -112,19 +112,18 @@ angular.module('classeur.services.cleditor', [])
 			htmlElt.innerHTML = html;
 		};
 
-		var onPreviewRefreshed = window.ced.Utils.createHook(cleditor, 'onPreviewRefreshed');
-		cleditor.refreshPreview = function() {
+		cledit.refreshPreview = function() {
 
 			if(!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
 				footnoteContainerElt.className = 'preview-content';
-				cleditor.previewElt.appendChild(footnoteContainerElt);
+				cledit.previewElt.appendChild(footnoteContainerElt);
 			}
 
 			// Remove outdated sections
 			sectionsToRemove.forEach(function(section) {
 				var sectionElt = document.getElementById('classeur-preview-section-' + section.id);
-				cleditor.previewElt.removeChild(sectionElt);
+				cledit.previewElt.removeChild(sectionElt);
 			});
 
 			var childNode = htmlElt.firstChild;
@@ -161,14 +160,14 @@ angular.module('classeur.services.cleditor', [])
 			if(insertBeforeSection !== undefined) {
 				insertBeforeElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
 			}
-			cleditor.previewElt.insertBefore(newSectionEltList, insertBeforeElt);
+			cledit.previewElt.insertBefore(newSectionEltList, insertBeforeElt);
 
 			// Rewrite footnotes in the footer and update footnote numbers
 			footnoteContainerElt.innerHTML = '';
 			var usedFootnoteIds = [];
 			if(hasFootnotes === true) {
 				var footnoteElts = document.createElement('ol');
-				Array.prototype.forEach.call(cleditor.previewElt.querySelectorAll('a.footnote'), function(elt, index) {
+				Array.prototype.forEach.call(cledit.previewElt.querySelectorAll('a.footnote'), function(elt, index) {
 					elt.textContent = index + 1;
 					var id = elt.id.substring(6);
 					usedFootnoteIds.push(id);
@@ -191,9 +190,9 @@ angular.module('classeur.services.cleditor', [])
 				});
 			}
 
-			onPreviewRefreshed();
+			cledit.lastPreview = Date.now();
 		};
 
-		return cleditor;
+		return cledit;
 	});
 

@@ -1,43 +1,40 @@
-angular.module('classeur.services.scrollSync', [
+angular.module('classeur.extensions.scrollSync', [
 	'classeur.services.layout',
-	'classeur.services.cleditor'
+	'classeur.services.cledit',
+	'classeur.services.settings',
 ])
-	.factory('scrollSync', function(layout, cleditor) {
-		var scrollSync = {};
+	.directive('scrollSyncEditor', function(scrollSync) {
+		return {
+			restrict: 'A',
+			link: function(scope, element) {
+				scrollSync.setEditorElt(element[0]);
+			}
+		};
+	})
+	.directive('scrollSyncPreview', function(scrollSync) {
+		return {
+			restrict: 'A',
+			link: function(scope, element) {
+				scrollSync.setPreviewElt(element[0]);
+			}
+		};
+	})
+	.directive('scrollSyncSettings', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'extensions/scrollSync/scrollSyncSettings.html'
+		};
+	})
+	.factory('scrollSync', function(layout, cledit, settings) {
+		settings.setDefaultValue('scrollSync', true);
+		var editorElt, previewElt;
 
 		var scrollSyncOffset = 120;
 
-		// Credit: Underscore.js
-		function throttle(func, wait) {
-			var context, args, result;
-			var timeout = null;
-			var previous = 0;
-			var later = function() {
-				previous = Date.now();
-				timeout = null;
-				result = func.apply(context, args);
-				if(!timeout) context = args = null;
-			};
-			return function() {
-				var now = Date.now();
-				var remaining = wait - (now - previous);
-				context = this;
-				args = arguments;
-				if(remaining <= 0 || remaining > wait) {
-					clearTimeout(timeout);
-					timeout = null;
-					previous = now;
-					result = func.apply(context, args);
-					if(!timeout) context = args = null;
-				} else if(!timeout) {
-					timeout = setTimeout(later, remaining);
-				}
-				return result;
-			};
-		}
-
 		var timeoutId;
 		var currentEndCb;
+		var isSidePreviewVisible = layout.isSidePreviewVisible;
+		var isEditorVisible = layout.isEditorOpen;
 
 		function animate(elt, startValue, endValue, stepCb, endCb) {
 			if(currentEndCb) {
@@ -49,13 +46,13 @@ angular.module('classeur.services.scrollSync', [
 			var startTime = 0;
 
 			// Animation only if both panels are visible
-			if(isPreviewVisible && isEditorVisible) {
+			if(isSidePreviewVisible && isEditorVisible) {
 				startTime = Date.now();
 			}
 
 			function tick() {
 				var currentTime = Date.now();
-				var progress = (currentTime - startTime) / 240;
+				var progress = (currentTime - startTime) / 180;
 				if(progress < 1) {
 					var scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
 					elt.scrollTop = scrollTop;
@@ -95,33 +92,6 @@ angular.module('classeur.services.scrollSync', [
 			return result - scrollSyncOffset;
 		}
 
-		var editorElt, previewElt;
-
-		scrollSync.setEditorElt = function(elt) {
-			editorElt = elt;
-
-			editorElt.addEventListener('scroll', function() {
-				if(!isEditorMoving) {
-					isScrollEditor = true;
-					isScrollPreview = false;
-					doScrollSync();
-				}
-			});
-		};
-
-		scrollSync.setPreviewElt = function(elt) {
-			previewElt = elt;
-
-			previewElt.addEventListener('scroll', function() {
-				if(!isPreviewMoving && !scrollAdjust) {
-					isScrollPreview = true;
-					isScrollEditor = false;
-					doScrollSync();
-				}
-				scrollAdjust = false;
-			});
-		};
-
 		var mdSectionList = [];
 		var htmlSectionList = [];
 		var lastEditorScrollTop;
@@ -131,15 +101,15 @@ angular.module('classeur.services.scrollSync', [
 			mdSectionList = [];
 			var mdSectionOffset;
 			var scrollHeight;
-			Array.prototype.forEach.call(editorElt.querySelectorAll('.classeur-editor-section'), function(delimiterElt) {
+			Array.prototype.forEach.call(editorElt.querySelectorAll('.classeur-editor-section'), function(sectionElt) {
 				if(mdSectionOffset === undefined) {
 					// Force start to 0 for the first section
 					mdSectionOffset = 0;
 					return;
 				}
-				delimiterElt = delimiterElt.firstChild;
+				sectionElt = sectionElt.firstChild;
 				// Consider div scroll position
-				var newSectionOffset = delimiterElt.offsetTop;
+				var newSectionOffset = sectionElt.offsetTop;
 				mdSectionList.push({
 					startOffset: mdSectionOffset,
 					endOffset: newSectionOffset,
@@ -158,14 +128,14 @@ angular.module('classeur.services.scrollSync', [
 			// Find corresponding sections in the preview
 			htmlSectionList = [];
 			var htmlSectionOffset;
-			Array.prototype.forEach.call(previewElt.querySelectorAll('.classeur-preview-section'), function(delimiterElt) {
+			Array.prototype.forEach.call(previewElt.querySelectorAll('.classeur-preview-section'), function(sectionElt) {
 				if(htmlSectionOffset === undefined) {
 					// Force start to 0 for the first section
 					htmlSectionOffset = 0;
 					return;
 				}
 				// Consider div scroll position
-				var newSectionOffset = delimiterElt.offsetTop;
+				var newSectionOffset = sectionElt.offsetTop;
 				htmlSectionList.push({
 					startOffset: htmlSectionOffset,
 					endOffset: newSectionOffset,
@@ -187,15 +157,13 @@ angular.module('classeur.services.scrollSync', [
 			doScrollSync();
 		}, 500);
 
-		var isPreviewVisible = layout.isPreviewOpen;
-		var isEditorVisible = layout.isEditorOpen;
 		var isScrollEditor;
 		var isScrollPreview;
 		var isEditorMoving;
 		var isPreviewMoving;
 		var scrollAdjust;
 
-		var doScrollSync = throttle(function() {
+		var doScrollSync = function() {
 			if(mdSectionList.length === 0 || mdSectionList.length !== htmlSectionList.length) {
 				return;
 			}
@@ -256,10 +224,10 @@ angular.module('classeur.services.scrollSync', [
 					isEditorMoving = false;
 				});
 			}
-		}, 50);
+		};
 
-		layout.onTogglePreview(function(isOpen) {
-			isPreviewVisible = isOpen;
+		layout.onToggleSidePreview(function(isOpen) {
+			isSidePreviewVisible = isOpen;
 		});
 
 		layout.onToggleEditor(function(isOpen) {
@@ -300,7 +268,7 @@ angular.module('classeur.services.scrollSync', [
 		//};
 
 
-		cleditor.onPreviewRefreshed(function() {
+		cledit.onPreviewRefreshed(function() {
 			// Now set the correct height
 			//previewContentsElt.style.removeProperty('height');
 			//var newHeight = previewContentsElt.offsetHeight;
@@ -312,5 +280,42 @@ angular.module('classeur.services.scrollSync', [
 			buildSections();
 		});
 
-		return scrollSync;
+		var oldEditorElt, oldPreviewElt;
+		function init() {
+			if(oldEditorElt === editorElt || oldPreviewElt === previewElt) {
+				return;
+			}
+			oldEditorElt = editorElt;
+			oldPreviewElt = previewElt;
+
+			editorElt.addEventListener('scroll', function() {
+				if(!isEditorMoving) {
+					isScrollEditor = true;
+					isScrollPreview = false;
+					doScrollSync();
+				}
+			});
+
+			previewElt.addEventListener('scroll', function(e) {
+				if(!isPreviewMoving && !scrollAdjust) {
+					isScrollPreview = true;
+					isScrollEditor = false;
+					doScrollSync();
+				}
+				scrollAdjust = false;
+			});
+
+		}
+
+		return {
+			setEditorElt: function(elt) {
+				editorElt = elt;
+				init();
+			},
+			setPreviewElt: function(elt) {
+				previewElt = elt;
+				init();
+			}
+		};
+
 	});

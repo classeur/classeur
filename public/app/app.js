@@ -3,10 +3,10 @@ angular.module('classeur.main', [
 	'ngAnimate',
 	'famous.angular',
 	'classeur.services.btnBar',
-	'classeur.services.cleditor',
+	'classeur.services.cledit',
 	'classeur.services.layout',
 	'classeur.services.settings',
-	'classeur.services.scrollSync',
+	'classeur.extensions.scrollSync',
 ])
 	.config(function($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animate/);
@@ -21,46 +21,44 @@ angular.module('classeur.main', [
 			return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
 		});
 	})
-	.directive('ced', function(cleditor, scrollSync) {
+	.directive('ced', function(cledit) {
 		return {
 			link: function(scope, element) {
 				window.rangy.init();
-				cleditor.editorElt = element[0];
-				cleditor.editor = window.ced(cleditor.editorElt, {
+				cledit.editorElt = element[0];
+				cledit.editor = window.ced(cledit.editorElt, {
 					language: window.prismMd,
 					sectionDelimiter: '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+'
 				});
-				scrollSync.setEditorElt(cleditor.editorElt);
 
-				var pagedownEditor = new window.Markdown.Editor(cleditor.converter, {
-					input: Object.create(cleditor.editor)
+				var pagedownEditor = new window.Markdown.Editor(cledit.converter, {
+					input: Object.create(cledit.editor)
 				});
 				pagedownEditor.run();
-				cleditor.pagedownEditor = pagedownEditor;
+				cledit.pagedownEditor = pagedownEditor;
 
 				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
-					cleditor.convert();
-					cleditor.refreshPreview();
+					cledit.convert();
+					cledit.refreshPreview();
 				}, 500);
-				cleditor.editor.onContentChanged(function(content, sectionList) {
-					cleditor.sectionList = sectionList;
+				cledit.editor.onContentChanged(function(content, sectionList) {
+					cledit.sectionList = sectionList;
 					debouncedRefreshPreview();
 				});
-				cleditor.editor.init();
-				cleditor.convert();
-				if(cleditor.previewElt) {
-					cleditor.refreshPreview();
+				cledit.editor.init();
+				cledit.convert();
+				if(cledit.previewElt) {
+					cledit.refreshPreview();
 				}
 			}
 		};
 	})
-	.directive('preview', function(cleditor, scrollSync) {
+	.directive('preview', function(cledit) {
 		return {
 			link: function(scope, element) {
-				cleditor.previewElt = element[0];
-				scrollSync.setPreviewElt(cleditor.previewElt);
-				if(cleditor.content !== undefined) {
-					cleditor.refresh();
+				cledit.previewElt = element[0];
+				if(cledit.content !== undefined) {
+					cledit.refresh();
 				}
 			}
 		};
@@ -88,7 +86,7 @@ angular.module('classeur.main', [
 		$scope.minimizeBtn = new Button();
 
 		$scope.settings = settings;
-		$scope.$watch('settings.zoom', layout.applyZoom);
+		$scope.$watch('settings.values.zoom', layout.applyZoom);
 
 		$scope.layout = layout;
 		$scope.btnBar = btnBar;

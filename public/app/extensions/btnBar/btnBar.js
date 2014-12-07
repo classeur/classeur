@@ -1,5 +1,5 @@
 angular.module('classeur.services.btnBar', [])
-	.factory('btnBar', function(cleditor, $famous) {
+	.factory('btnBar', function(cledit, $famous) {
 		var Transitionable = $famous['famous/transitions/Transitionable'];
 		var btnBar = {};
 
@@ -7,73 +7,73 @@ angular.module('classeur.services.btnBar', [])
 			{
 				icon: 'mdi-editor-format-bold',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('bold');
+					cledit.pagedownEditor.uiManager.doClick('bold');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-italic',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('italic');
+					cledit.pagedownEditor.uiManager.doClick('italic');
 				}
 			},
 			{
 				separator: true, icon: 'mdi-content-link',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('link');
+					cledit.pagedownEditor.uiManager.doClick('link');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-quote',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('quote');
+					cledit.pagedownEditor.uiManager.doClick('quote');
 				}
 			},
 			{
 				icon: 'mdi-action-settings-ethernet',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('code');
+					cledit.pagedownEditor.uiManager.doClick('code');
 				}
 			},
 			{
 				icon: 'mdi-image-crop-original',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('image');
+					cledit.pagedownEditor.uiManager.doClick('image');
 				}
 			},
 			{
 				separator: true, icon: 'mdi-editor-format-list-numbered',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('olist');
+					cledit.pagedownEditor.uiManager.doClick('olist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-list-bulleted',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('ulist');
+					cledit.pagedownEditor.uiManager.doClick('ulist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-size',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('heading');
+					cledit.pagedownEditor.uiManager.doClick('heading');
 				}
 			},
 			{
 				icon: 'mdi-navigation-more-horiz',
 				click: function() {
-					cleditor.pagedownEditor.uiManager.doClick('hr');
+					cledit.pagedownEditor.uiManager.doClick('hr');
 				}
 			},
 			{
 				separator: true, icon: 'mdi-content-undo',
 				click: function() {
-					cleditor.editor.undoMgr.undo();
+					cledit.editor.undoMgr.undo();
 				}
 			},
 			{
 				icon: 'mdi-content-redo',
 				click: function() {
-					cleditor.editor.undoMgr.redo();
+					cledit.editor.undoMgr.redo();
 				}
 			},
 
@@ -83,7 +83,7 @@ angular.module('classeur.services.btnBar', [])
 		btnBar.visibleHeight = 48;
 		btnBar.btnWidth = 30;
 		btnBar.btnHeight = 30;
-		btnBar.margin = 40;
+		btnBar.margin = 30;
 
 		var offset = btnBar.margin;
 		btnBar.btns.forEach(function(btn) {
@@ -136,7 +136,7 @@ angular.module('classeur.services.btnBar', [])
 
 		btnBar.trans = new Transitionable(getTrans());
 		function setTransition() {
-			var newIsOpen = !!isEditorOpen && !isMenuOpen && pageWidth - 100 > btnBar.width;
+			var newIsOpen = !!isEditorOpen && !isMenuOpen && pageWidth - 150 > btnBar.width;
 			if(isOpen === newIsOpen) {
 				return;
 			}

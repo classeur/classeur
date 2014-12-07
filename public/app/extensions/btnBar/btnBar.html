@@ -1,0 +1,29 @@
+<fa-modifier fa-align="[.5, 0]" fa-origin="[.5, 0]" fa-size="[btnBar.width, btnBar.height]">
+	<fa-modifier fa-translate="btnBar.trans.get()">
+		<fa-container-surface fa-options="{classes: ['clip', 'md-whiteframe-z1']}">
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[btnBar.width/2 + 5, btnBar.height]">
+				<fa-surface class="clip-light">
+				</fa-surface>
+			</fa-modifier>
+			<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[btnBar.btnWidth, btnBar.btnHeight]"
+						 fa-translate="[btn.offset, -15]" ng-repeat="btn in btnBar.btns">
+				<fa-modifier fa-align="[.5, .5]" fa-origin="[.5, .5]" fa-scale="btn.scaling.get()"
+							 fa-opacity="btn.opacity.get()">
+					<fa-surface class="btn btn-clip"
+								ng-mouseenter="btn.hover(true)" ng-mouseleave="btn.hover(false)"
+								fa-click="btn.click()">
+						<md-button>
+							<i ng-class="btn.icon"></i>
+						</md-button>
+
+					</fa-surface>
+				</fa-modifier>
+			</fa-modifier>
+			<fa-modifier fa-align="[0.5, 1]" fa-origin="[0.5, 1]" fa-size="[280, 4]"
+						 fa-translate="[0, -5]">
+				<fa-surface class="paper hole">
+				</fa-surface>
+			</fa-modifier>
+		</fa-container-surface>
+	</fa-modifier>
+</fa-modifier>
