@@ -34,6 +34,11 @@ var vendorJs = [
 	'bower_components/ced/scripts/cedUndoMgr.js',
 	'bower_components/ced/scripts/cedUtils.js',
 	'bower_components/ced/scripts/cedWatcher.js',
+	'bower_components/highlightjs/highlight.pack.js',
+	'bower_components/google-code-prettify/src/prettify.js',
+	'components/Markdown.Converter.js',
+	'components/Markdown.Editor.js',
+	'bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
 gulp.task('html', function() {

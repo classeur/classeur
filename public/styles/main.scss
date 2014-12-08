@@ -1,7 +1,9 @@
-@import '../../bower_components/angular-material/angular-material.css';
-@import '../../bower_components/famous-angular/dist/famous-angular.css';
+@import '../bower_components/angular-material/angular-material.css';
+@import '../bower_components/famous-angular/dist/famous-angular.css';
+@import '../bower_components/highlightjs/styles/default.css';
+@import '../bower_components/google-code-prettify/src/prettify.css';
 
-$material-font-path: "../../bower_components/bootstrap-material-design/fonts";
+$material-font-path: "../bower_components/bootstrap-material-design/fonts";
 @import '_roboto-draft.scss';
 @import '_icons-material-design.scss';
 @import '_ced.scss';

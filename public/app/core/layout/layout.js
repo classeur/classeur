@@ -76,7 +76,7 @@ angular.module('classeur.core.layout', [
 
 				function getPageTranslate() {
 					return [
-						layout.isMenuOpen ? -layout.menuWidth : 0,
+						layout.isMenuOpen ? -(layout.menuWidth - 20) : 0,
 						layout.isMenuOpen ? -80 : 0
 					];
 				}
