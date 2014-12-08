@@ -11,72 +11,87 @@ angular.module('classeur.extensions.btnBar', [])
 		var btns = [
 			{
 				icon: 'mdi-editor-format-bold',
+				label: 'Bold',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('bold');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-italic',
+				label: 'Italic',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('italic');
 				}
 			},
 			{
-				separator: true, icon: 'mdi-content-link',
+				separator: true,
+				icon: 'mdi-content-link',
+				label: 'Link',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('link');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-quote',
+				label: 'Blockquote',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('quote');
 				}
 			},
 			{
 				icon: 'mdi-action-settings-ethernet',
+				label: 'Code',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('code');
 				}
 			},
 			{
 				icon: 'mdi-image-crop-original',
+				label: 'Image',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('image');
 				}
 			},
 			{
-				separator: true, icon: 'mdi-editor-format-list-numbered',
+				separator: true,
+				icon: 'mdi-editor-format-list-numbered',
+				label: 'List',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('olist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-list-bulleted',
+				label: 'Numbered list',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('ulist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-size',
+				label: 'Heading',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('heading');
 				}
 			},
 			{
 				icon: 'mdi-navigation-more-horiz',
+				label: 'Horizontal rule',
 				click: function() {
 					cledit.pagedownEditor.uiManager.doClick('hr');
 				}
 			},
 			{
-				separator: true, icon: 'mdi-content-undo',
+				separator: true,
+				icon: 'mdi-content-undo',
+				label: 'Undo',
 				click: function() {
 					cledit.editor.undoMgr.undo();
 				}
 			},
 			{
 				icon: 'mdi-content-redo',
+				label: 'Redo',
 				click: function() {
 					cledit.editor.undoMgr.redo();
 				}

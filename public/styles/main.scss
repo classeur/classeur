@@ -19,7 +19,7 @@ fa-app {
 }
 
 .background {
-	background-color: #FAF8F6;
+	background-color: #F8F8F8;
 }
 
 .paper {
@@ -51,15 +51,14 @@ fa-app {
 	border-bottom-left-radius: 12px;
 	border-bottom-right-radius: 12px;
 	background-color: $clip-color;
+	.light {
+		border-bottom-right-radius: 12px;
+		border-bottom: 70px solid transparentize(#fff, 0.95);
+		border-left: 10px solid transparent;
+	}
 }
 
-.clip-light {
-	border-bottom-right-radius: 12px;
-	border-bottom: 70px solid transparentize(#fff, 0.95);
-	border-left: 8px solid transparent;
-}
-
-.editor-container, .editor, .preview, .menu {
+.editor-container, .editor, .preview-container {
 	margin: 0;
 	position: absolute;
 	bottom: 0;
@@ -83,6 +82,10 @@ fa-app {
 	word-break: normal;
 }
 
+.preview-container {
+	overflow: auto;
+}
+
 .preview {
 	padding: {
 		top: 120px;
@@ -90,21 +93,15 @@ fa-app {
 		left: 4020px;
 		right: 4020px;
 	}
-	overflow: auto;
 	text-align: justify;
 }
 
 .menu {
-	width: 320px;
-	left: auto;
 	padding: 40px;
 	color: #fff;
 	.entry {
 		font-weight: bold;
 		text-align: center;
-	}
-	.md-track-container {
-		width: 232px;
 	}
 }
 

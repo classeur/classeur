@@ -4,6 +4,7 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
+				scope.$watch('cledit.lastConvert', scrollSync.savePreviewHeight);
 				scope.$watch('cledit.lastPreview', scrollSync.onPreviewRefreshed);
 				scope.$watch('layout.pageWidth', scrollSync.onLayoutResized);
 				scope.$watch('layout.fontSize', scrollSync.onLayoutResized);
@@ -286,6 +287,7 @@ angular.module('classeur.extensions.scrollSync', [])
 
 		}
 
+		var previewHeight, previewContentElt;
 		return {
 			setEditorElt: function(elt) {
 				editorElt = elt;
@@ -293,17 +295,18 @@ angular.module('classeur.extensions.scrollSync', [])
 			},
 			setPreviewElt: function(elt) {
 				previewElt = elt;
+				previewContentElt = previewElt.children[0];
 				init();
 			},
 			onPreviewRefreshed: function() {
 				// Now set the correct height
-				//previewContentsElt.style.removeProperty('height');
-				//var newHeight = previewContentsElt.offsetHeight;
+				previewContentElt.style.removeProperty('height');
+				var newHeight = previewContentElt.offsetHeight;
 				isScrollEditor = true;
-				//if(newHeight < previousHeight) {
-				//	// We expect a scroll adjustment
-				//	scrollAdjust = true;
-				//}
+				if(newHeight < previewHeight) {
+					// We expect a scroll adjustment
+					scrollAdjust = true;
+				}
 				buildSections();
 			},
 			onLayoutResized: function() {
@@ -313,6 +316,10 @@ angular.module('classeur.extensions.scrollSync', [])
 				}
 				isScrollEditor = true;
 				buildSections();
+			},
+			savePreviewHeight: function() {
+				previewHeight = previewContentElt.offsetHeight;
+				previewContentElt.style.height = previewHeight + 'px';
 			}
 		};
 

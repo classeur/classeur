@@ -1,12 +1,84 @@
 angular.module('classeur.core.cledit', [])
-	.factory('cledit', function() {
+	.directive('clEditor', function($timeout, cledit, layout) {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/core/cledit/editor.html',
+			replace: true,
+			link: function(scope, element) {
+				cledit.setEditorElt(element[0]);
 
+				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
+					cledit.convert();
+					scope.$apply();
+					$timeout(cledit.refreshPreview, 1);
+				}, 500);
+				cledit.editor.onContentChanged(function(content, sectionList) {
+					cledit.sectionList = sectionList;
+					debouncedRefreshPreview();
+				});
+
+				scope.$watch('cledit.options', function() {
+					console.log(cledit.options);
+					cledit.forcePreviewRefresh();
+					cledit.editor.init(cledit.options);
+					debouncedRefreshPreview();
+				});
+				scope.$watch('layout.isEditorOpen', function() {
+					cledit.editor.toggleEditable(layout.isEditorOpen);
+				});
+			}
+		};
+	})
+	.directive('clPreview', function(cledit) {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/core/cledit/preview.html',
+			replace: true,
+			link: function(scope, element) {
+				cledit.setPreviewElt(element[0]);
+			}
+		};
+	})
+	.factory('cledit', function(prism) {
+		window.rangy.init();
+
+		var previewElt;
 		var oldSectionList, oldLinkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
+		var sectionDelimiters = [];
+		var prismOptions = {};
+		var forcePreviewRefresh = true;
 		var cledit = {
-			converter: new window.Markdown.Converter()
+			converter: new window.Markdown.Converter(),
+			forcePreviewRefresh: function() {
+				forcePreviewRefresh = true;
+			},
+			options: {
+				language: prism(prismOptions),
+			},
+			setPrismOptions: function(options) {
+				prismOptions = angular.extend(prismOptions, options);
+				this.options = angular.extend({}, this.options);
+				this.options.language = prism(prismOptions);
+			},
+			setSectionDelimiter: function(weight, sectionDelimiter) {
+				sectionDelimiters[weight] = sectionDelimiter;
+				this.options = angular.extend({}, this.options);
+				this.options.sectionDelimiter = sectionDelimiters.join('');
+			},
+			setPreviewElt: function(elt) {
+				previewElt = elt;
+			},
+			setEditorElt: function(elt) {
+				cledit.editor = window.ced(elt);
+				cledit.pagedownEditor = new window.Markdown.Editor(cledit.converter, {
+					input: Object.create(cledit.editor)
+				});
+				cledit.pagedownEditor.run();
+			}
 		};
+		cledit.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 
 		var footnoteMap = {};
 		// Store one footnote elt in the footnote map
@@ -58,7 +130,8 @@ angular.module('classeur.core.cledit', [])
 			insertBeforeSection = undefined;
 
 			// Render everything if file or linkDefinition changed
-			if(!oldSectionList || oldLinkDefinition != newLinkDefinition) {
+			if(forcePreviewRefresh || oldLinkDefinition != newLinkDefinition) {
+				forcePreviewRefresh = false;
 				oldLinkDefinition = newLinkDefinition;
 				sectionsToRemove = oldSectionList || [];
 				oldSectionList = newSectionList;
@@ -110,6 +183,8 @@ angular.module('classeur.core.cledit', [])
 
 			var html = cledit.converter.makeHtml(textToConvert);
 			htmlElt.innerHTML = html;
+
+			cledit.lastConvert = Date.now();
 		};
 
 		cledit.refreshPreview = function() {
@@ -117,13 +192,13 @@ angular.module('classeur.core.cledit', [])
 			if(!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
 				footnoteContainerElt.className = 'preview-content';
-				cledit.previewElt.appendChild(footnoteContainerElt);
+				previewElt.appendChild(footnoteContainerElt);
 			}
 
 			// Remove outdated sections
 			sectionsToRemove.forEach(function(section) {
 				var sectionElt = document.getElementById('classeur-preview-section-' + section.id);
-				cledit.previewElt.removeChild(sectionElt);
+				previewElt.removeChild(sectionElt);
 			});
 
 			var childNode = htmlElt.firstChild;
@@ -160,14 +235,14 @@ angular.module('classeur.core.cledit', [])
 			if(insertBeforeSection !== undefined) {
 				insertBeforeElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
 			}
-			cledit.previewElt.insertBefore(newSectionEltList, insertBeforeElt);
+			previewElt.insertBefore(newSectionEltList, insertBeforeElt);
 
 			// Rewrite footnotes in the footer and update footnote numbers
 			footnoteContainerElt.innerHTML = '';
 			var usedFootnoteIds = [];
 			if(hasFootnotes === true) {
 				var footnoteElts = document.createElement('ol');
-				Array.prototype.forEach.call(cledit.previewElt.querySelectorAll('a.footnote'), function(elt, index) {
+				Array.prototype.forEach.call(previewElt.querySelectorAll('a.footnote'), function(elt, index) {
 					elt.textContent = index + 1;
 					var id = elt.id.substring(6);
 					usedFootnoteIds.push(id);

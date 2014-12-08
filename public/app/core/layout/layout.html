@@ -1,8 +1,8 @@
 <fa-modifier fa-size="layoutTrans.previewSize.get()" fa-align="[0, 0]" fa-origin="[0.5, 0]"
 			 fa-translate="layoutTrans.previewTranslate.get()">
 	<fa-surface class="background" fa-click="layout.toggleMenu(false)">
-		<div class="preview-container" ng-class="layoutTrans.fontSizeClass">
-			<div preview cl-scroll-sync-preview cl-markdown-extra class="preview" ng-class="layout.zoomClass"></div>
+		<div cl-scroll-sync-preview class="preview-container" ng-class="layoutTrans.fontSizeClass">
+			<cl-preview></cl-preview>
 		</div>
 	</fa-surface>
 </fa-modifier>
@@ -31,35 +31,37 @@
 			<fa-container-surface>
 				<fa-modifier fa-size="[undefined, 2200]"
 							 fa-translate="[0, -5]">
-					<fa-surface class="plastic md-whiteframe-z2">
-						<div class="menu" ng-if="layoutTrans.isReady">
-							<div class="entry">Zoom</div>
-							<md-slider md-discrete ng-model="settings.values.zoom" step="1" min="1" max="5">
-							</md-slider>
-							<cl-btn-bar-settings></cl-btn-bar-settings>
-							<cl-scroll-sync-settings></cl-scroll-sync-settings>
-							<cl-markdown-extra-settings></cl-markdown-extra-settings>
-						</div>
-					</fa-surface>
+					<fa-container-surface fa-options="{classes: ['plastic', 'md-whiteframe-z2']}">
+						<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[layout.menuWidth, undefined]">
+							<fa-surface class="menu" ng-if="layoutTrans.isReady">
+								<div class="entry">Zoom</div>
+								<md-slider md-discrete ng-model="settings.values.zoom" step="1" min="1" max="5" aria-label="Zoom">
+								</md-slider>
+								<cl-btn-bar-settings></cl-btn-bar-settings>
+								<cl-scroll-sync-settings></cl-scroll-sync-settings>
+								<cl-markdown-extra-settings></cl-markdown-extra-settings>
+							</fa-surface>
+						</fa-modifier>
+					</fa-container-surface>
 				</fa-modifier>
 
 				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[2, 6]" fa-size="[38, 32]">
 					<cl-button surface-class="btn btn-close" opacity="0.3" opacity-hover="0.4">
-						<md-button ng-click="layout.toggleEditor(false)">
+						<md-button ng-click="layout.toggleEditor(false)" aria-label="Close editor">
 							<i class="mdi-content-clear"></i>
 						</md-button>
 					</cl-button>
 				</fa-modifier>
 				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[2, 33]" fa-size="[38, 32]">
 					<cl-button surface-class="btn btn-minimize" opacity="0.3" opacity-hover="0.4">
-						<md-button ng-click="layout.toggleEditor(false)">
+						<md-button ng-click="layout.toggleEditor(false)" aria-label="Hide editor">
 							<i class="mdi-content-remove"></i>
 						</md-button>
 					</cl-button>
 				</fa-modifier>
 				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[2, 63]" fa-size="[38, 32]">
 					<cl-button surface-class="btn btn-preview" opacity="0.3" opacity-hover="0.4">
-						<md-button ng-click="layout.toggleSidePreview()">
+						<md-button ng-click="layout.toggleSidePreview()" aria-label="Side preview">
 							<div class="rotate-270">
 								<i class="mdi-image-filter-none"></i>
 							</div>
@@ -86,7 +88,8 @@
 
 			<fa-surface></fa-surface>
 
-			<fa-modifier fa-translate="layoutTrans.pageTranslate.get()" fa-rotate="layoutTrans.pageRotate.get()" fa-align="[1, 1]"
+			<fa-modifier fa-translate="layoutTrans.pageTranslate.get()" fa-rotate="layoutTrans.pageRotate.get()"
+						 fa-align="[1, 1]"
 						 fa-origin="[1, 1]">
 				<fa-container-surface fa-options="{classes: ['paper', 'md-whiteframe-z1']}">
 					<fa-modifier fa-size="[30, undefined]">
@@ -104,7 +107,7 @@
 					</fa-modifier>
 					<fa-surface>
 						<div class="editor-container" ng-class="layoutTrans.fontSizeClass">
-							<ng-include src="'views/editor.html'"></ng-include>
+							<cl-editor></cl-editor>
 						</div>
 					</fa-surface>
 			</fa-modifier>

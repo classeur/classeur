@@ -1,9 +1,9 @@
 $ced-color: #555;
 $font-family-monospace: "Source Code Pro", monospace;
+$font-size-monospace: 0.95em;
 $ced-color-lighter: transparentize($ced-color, 0.6);
 $ced-color-light: transparentize($ced-color, 0.4);
-$ced-color-dark: opacify($ced-color, 0.15);
-$ced-color-darker: opacify($ced-color, 0.3);
+$ced-color-dark: darken($ced-color, 15%);
 $code-bg: #eee;
 $border-radius-base: 4px;
 
@@ -13,6 +13,7 @@ html p, body p {
 
 code, kbd, pre, samp {
 	font-family: $font-family-monospace;
+	font-size: $font-size-monospace;
 }
 
 blockquote {
@@ -33,13 +34,13 @@ hr {
 .editor {
 	.code,
 	.pre {
-		color: $ced-color-darker;
-		font: normal 1em $font-family-monospace;
+		color: $ced-color-dark;
+		font: normal $font-size-monospace $font-family-monospace;
 	}
 
 	.tag {
-		color: $ced-color-darker;
-		font: bold 1em $font-family-monospace;
+		color: $ced-color-dark;
+		font: bold $font-size-monospace $font-family-monospace;
 		.punctuation,
 		.attr-value,
 		.attr-name {
@@ -52,12 +53,12 @@ hr {
 	}
 
 	.entity {
-		font: italic 1em $font-family-monospace;
+		font: italic $font-size-monospace $font-family-monospace;
 		color: $ced-color;
 	}
 
 	.table {
-		font: normal 1em $font-family-monospace;
+		font: normal $font-size-monospace $font-family-monospace;
 		* {
 			font-size: 1em;
 		}
