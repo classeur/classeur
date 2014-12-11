@@ -29,13 +29,17 @@
 
 		<fa-modifier fa-translate="layoutTrans.pageOuterTranslate.get()">
 			<fa-container-surface>
-				<fa-modifier fa-size="[undefined, 2200]"
-							 fa-translate="[0, -5]">
+				<fa-header-footer-layout
+					fa-options="{headerSize: -5}">
+
+					<fa-surface></fa-surface>
+
 					<fa-container-surface fa-options="{classes: ['plastic', 'md-whiteframe-z2']}">
 						<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[layout.menuWidth, undefined]">
 							<fa-surface class="menu" ng-if="layoutTrans.isReady">
 								<div class="entry">Zoom</div>
-								<md-slider md-discrete ng-model="settings.values.zoom" step="1" min="1" max="5" aria-label="Zoom">
+								<md-slider md-discrete ng-model="settings.values.zoom" step="1" min="1" max="5"
+										   aria-label="Zoom">
 								</md-slider>
 								<cl-btn-bar-settings></cl-btn-bar-settings>
 								<cl-scroll-sync-settings></cl-scroll-sync-settings>
@@ -44,7 +48,8 @@
 							</fa-surface>
 						</fa-modifier>
 					</fa-container-surface>
-				</fa-modifier>
+				</fa-header-footer-layout>
+
 
 				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[3, 6]" fa-size="[34, 30]">
 					<cl-button surface-class="btn btn-close" opacity="0.3" opacity-hover="0.4">
@@ -78,8 +83,8 @@
 						</div>
 					</fa-surface>
 				</fa-modifier>
-			</fa-container-surface>
 
+			</fa-container-surface>
 		</fa-modifier>
 
 		<fa-header-footer-layout

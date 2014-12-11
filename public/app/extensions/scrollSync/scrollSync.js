@@ -9,6 +9,10 @@ angular.module('classeur.extensions.scrollSync', [])
 				scope.$watch('layout.pageWidth', scrollSync.onLayoutResized);
 				scope.$watch('layout.fontSize', scrollSync.onLayoutResized);
 				scope.$watch('settings.values.zoom', scrollSync.onLayoutResized);
+				scope.$watch('layout.isSidePreviewOpen', scrollSync.forcePreview);
+				scope.$watch('layout.isEditorOpen', function(isOpen) {
+					isOpen ? scrollSync.forceEditor() : scrollSync.forcePreview();
+				});
 			}
 		};
 	})
@@ -35,19 +39,14 @@ angular.module('classeur.extensions.scrollSync', [])
 		var timeoutId;
 		var currentEndCb;
 
-		function animate(elt, startValue, endValue, stepCb, endCb) {
+		function scroll(elt, startValue, endValue, stepCb, endCb, animate) {
 			if(currentEndCb) {
 				clearTimeout(timeoutId);
 				currentEndCb();
 			}
 			currentEndCb = endCb;
 			var diff = endValue - startValue;
-			var startTime = 0;
-
-			// Animation only if both panels are visible
-			if(layout.isSidePreviewOpen && layout.isEditorOpen) {
-				startTime = Date.now();
-			}
+			var startTime = animate ? Date.now() : 0;
 
 			function tick() {
 				var currentTime = Date.now();
@@ -162,7 +161,7 @@ angular.module('classeur.extensions.scrollSync', [])
 		var isPreviewMoving;
 		var scrollAdjust;
 
-		var doScrollSync = function() {
+		var doScrollSync = function(animate) {
 			if(mdSectionList.length === 0 || mdSectionList.length !== htmlSectionList.length) {
 				return;
 			}
@@ -172,11 +171,11 @@ angular.module('classeur.extensions.scrollSync', [])
 			var destScrollTop;
 			// Perform the animation if diff > 9px
 			if(isScrollEditor) {
-				if(Math.abs(editorScrollTop - lastEditorScrollTop) <= 9) {
-					return;
-				}
+				//if(animate && Math.abs(editorScrollTop - lastEditorScrollTop) <= 9) {
+				//	return;
+				//}
 				isScrollEditor = false;
-				// Animate the preview
+				// Scroll the preview
 				lastEditorScrollTop = editorScrollTop;
 				destScrollTop = getDestScrollTop(editorScrollTop, mdSectionList, htmlSectionList);
 				destScrollTop = Math.min(
@@ -184,25 +183,25 @@ angular.module('classeur.extensions.scrollSync', [])
 					previewElt.scrollHeight - previewElt.offsetHeight
 				);
 
-				if(Math.abs(destScrollTop - previewScrollTop) <= 9) {
+				if(animate && Math.abs(destScrollTop - previewScrollTop) <= 9) {
 					// Skip the animation if diff is <= 9
 					lastPreviewScrollTop = previewScrollTop;
 					return;
 				}
 
-				animate(previewElt, previewScrollTop, destScrollTop, function(currentScrollTop) {
+				scroll(previewElt, previewScrollTop, destScrollTop, function(currentScrollTop) {
 					isPreviewMoving = true;
 					lastPreviewScrollTop = currentScrollTop;
 				}, function() {
 					isPreviewMoving = false;
-				});
+				}, animate);
 			}
 			else if(!layout.isEditorOpen || isScrollPreview) {
-				if(Math.abs(previewScrollTop - lastPreviewScrollTop) <= 9) {
-					return;
-				}
+				//if(animate && Math.abs(previewScrollTop - lastPreviewScrollTop) <= 9) {
+				//	return;
+				//}
 				isScrollPreview = false;
-				// Animate the editor
+				// Scroll the editor
 				lastPreviewScrollTop = previewScrollTop;
 				destScrollTop = getDestScrollTop(previewScrollTop, htmlSectionList, mdSectionList);
 				destScrollTop = Math.min(
@@ -210,18 +209,18 @@ angular.module('classeur.extensions.scrollSync', [])
 					editorElt.scrollHeight - editorElt.offsetHeight
 				);
 
-				if(Math.abs(destScrollTop - editorScrollTop) <= 9) {
+				if(animate && Math.abs(destScrollTop - editorScrollTop) <= 9) {
 					// Skip the animation if diff is <= 9
 					lastEditorScrollTop = editorScrollTop;
 					return;
 				}
 
-				animate(editorElt, editorScrollTop, destScrollTop, function(currentScrollTop) {
+				scroll(editorElt, editorScrollTop, destScrollTop, function(currentScrollTop) {
 					isEditorMoving = true;
 					lastEditorScrollTop = currentScrollTop;
 				}, function() {
 					isEditorMoving = false;
-				});
+				}, animate);
 			}
 		};
 
@@ -255,6 +254,7 @@ angular.module('classeur.extensions.scrollSync', [])
 
 
 		var oldEditorElt, oldPreviewElt;
+
 		function init() {
 			if(oldEditorElt === editorElt || oldPreviewElt === previewElt) {
 				return;
@@ -263,24 +263,24 @@ angular.module('classeur.extensions.scrollSync', [])
 			oldPreviewElt = previewElt;
 
 			editorElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync) {
+				if(!settings.values.scrollSync || (layout.isEditorOpen && !layout.isSidePreviewOpen)) {
 					return;
 				}
 				if(!isEditorMoving) {
 					isScrollEditor = true;
 					isScrollPreview = false;
-					doScrollSync();
+					doScrollSync(true);
 				}
 			});
 
 			previewElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync) {
+				if(!settings.values.scrollSync || !layout.isEditorOpen) {
 					return;
 				}
 				if(!isPreviewMoving && !scrollAdjust) {
 					isScrollPreview = true;
 					isScrollEditor = false;
-					doScrollSync();
+					doScrollSync(true);
 				}
 				scrollAdjust = false;
 			});
@@ -320,6 +320,16 @@ angular.module('classeur.extensions.scrollSync', [])
 			savePreviewHeight: function() {
 				previewHeight = previewContentElt.offsetHeight;
 				previewContentElt.style.height = previewHeight + 'px';
+			},
+			forceEditor: function() {
+				isScrollPreview = true;
+				isScrollEditor = false;
+				doScrollSync();
+			},
+			forcePreview: function() {
+				isScrollEditor = true;
+				isScrollPreview = false;
+				doScrollSync();
 			}
 		};
 
