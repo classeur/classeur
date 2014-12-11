@@ -102,7 +102,7 @@ angular.module('classeur.extensions.btnBar', [])
 		var props = {
 			margin: 30,
 			btnWidth: 30,
-			btnHeight: 30,
+			btnHeight: 32,
 			height: 70,
 			visibleHeight: 48
 		};

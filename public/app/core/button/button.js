@@ -8,8 +8,8 @@ angular.module('classeur.core.button', [])
 			transclude: true,
 			templateUrl: 'app/core/button/button.html',
 			link: function(scope, element, attrs) {
-				scope.scale = parseFloat(attrs.scale || 0.9);
-				scope.scaleHover = parseFloat(attrs.scaleHover || 1);
+				scope.scale = parseFloat(attrs.scale || 1);
+				scope.scaleHover = parseFloat(attrs.scaleHover || 1.1);
 				scope.opacity = parseFloat(attrs.opacity || 0.8);
 				scope.opacityHover = parseFloat(attrs.opacityHover || 1);
 				scope.surfaceClass = attrs.surfaceClass;
