@@ -9,6 +9,7 @@ angular.module('classeur.app', [
 	'classeur.core.settings',
 	'classeur.extensions.btnBar',
 	'classeur.extensions.markdownExtra',
+	'classeur.extensions.mathJax',
 	'classeur.extensions.scrollSync',
 ])
 	.config(function($animateProvider) {

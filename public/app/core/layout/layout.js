@@ -20,13 +20,13 @@ angular.module('classeur.core.layout', [
 					transX = document.body.clientWidth / 2;
 					layout.fontSize = 3;
 					var factor = 1 + (settings.values.zoom - 3) * 0.1;
-					layout.pageWidth = 960 * factor;
+					layout.pageWidth = 990 * factor;
 					if(document.body.clientWidth < 1120 * factor) {
 						layout.fontSize = 2;
-						layout.pageWidth = 880 * factor;
+						layout.pageWidth = 910 * factor;
 					}
 					if(document.body.clientWidth < 1040 * factor) {
-						layout.pageWidth = 800 * factor;
+						layout.pageWidth = 830 * factor;
 					}
 					if(document.body.clientWidth + 30 < layout.pageWidth) {
 						layout.pageWidth = document.body.clientWidth + 30;

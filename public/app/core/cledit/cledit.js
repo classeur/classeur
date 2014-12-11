@@ -1,5 +1,5 @@
 angular.module('classeur.core.cledit', [])
-	.directive('clEditor', function($timeout, cledit, layout) {
+	.directive('clEditor', function(cledit, layout) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/cledit/editor.html',
@@ -10,7 +10,11 @@ angular.module('classeur.core.cledit', [])
 				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
 					cledit.convert();
 					scope.$apply();
-					$timeout(cledit.refreshPreview, 1);
+					setTimeout(function() {
+						cledit.refreshPreview(function() {
+							scope.$apply();
+						});
+					}, 1);
 				}, 500);
 				cledit.editor.onContentChanged(function(content, sectionList) {
 					cledit.sectionList = sectionList;
@@ -18,7 +22,6 @@ angular.module('classeur.core.cledit', [])
 				});
 
 				scope.$watch('cledit.options', function() {
-					console.log(cledit.options);
 					cledit.forcePreviewRefresh();
 					cledit.editor.init(cledit.options);
 					debouncedRefreshPreview();
@@ -49,8 +52,22 @@ angular.module('classeur.core.cledit', [])
 		var sectionDelimiters = [];
 		var prismOptions = {};
 		var forcePreviewRefresh = true;
+		var converterInitListeners = [];
+		var asyncPreviewListeners = [];
 		var cledit = {
-			converter: new window.Markdown.Converter(),
+			initConverter: function() {
+				cledit.converter = new window.Markdown.Converter();
+				asyncPreviewListeners = [];
+				converterInitListeners.forEach(function(listener) {
+					listener(cledit.converter);
+				});
+			},
+			onInitConverter: function(priority, listener) {
+				converterInitListeners[priority] = listener;
+			},
+			onAsyncPreview: function(listener) {
+				asyncPreviewListeners.push(listener);
+			},
 			forcePreviewRefresh: function() {
 				forcePreviewRefresh = true;
 			},
@@ -62,8 +79,8 @@ angular.module('classeur.core.cledit', [])
 				this.options = angular.extend({}, this.options);
 				this.options.language = prism(prismOptions);
 			},
-			setSectionDelimiter: function(weight, sectionDelimiter) {
-				sectionDelimiters[weight] = sectionDelimiter;
+			setSectionDelimiter: function(priority, sectionDelimiter) {
+				sectionDelimiters[priority] = sectionDelimiter;
 				this.options = angular.extend({}, this.options);
 				this.options.sectionDelimiter = sectionDelimiters.join('');
 			},
@@ -78,6 +95,7 @@ angular.module('classeur.core.cledit', [])
 				cledit.pagedownEditor.run();
 			}
 		};
+		cledit.initConverter();
 		cledit.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 
 		var footnoteMap = {};
@@ -187,7 +205,7 @@ angular.module('classeur.core.cledit', [])
 			cledit.lastConvert = Date.now();
 		};
 
-		cledit.refreshPreview = function() {
+		cledit.refreshPreview = function(cb) {
 
 			if(!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
@@ -264,9 +282,37 @@ angular.module('classeur.core.cledit', [])
 					}
 				});
 			}
-
-			cledit.lastPreview = Date.now();
+			runAsyncPreview(cb);
 		};
+
+		function runAsyncPreview(cb) {
+			function recursiveCall(callbackList) {
+				if(callbackList.length) {
+					return callbackList.shift()(function() {
+						recursiveCall(callbackList);
+					});
+				}
+				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
+					return html + elt.innerHTML;
+				}, '');
+				cledit.html = html.replace(/^\s+|\s+$/g, '');
+				cledit.lastPreview = Date.now();
+				cb();
+			}
+
+			var imgLoadingListeners = Array.prototype.map.call(previewElt.querySelectorAll('img'), function(imgElt) {
+				return function(cb) {
+					if(!imgElt.src) {
+						return cb();
+					}
+					var img = new Image();
+					img.onload = cb;
+					img.onerror = cb;
+					img.src = imgElt.src;
+				};
+			});
+			recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
+		}
 
 		return cledit;
 	});

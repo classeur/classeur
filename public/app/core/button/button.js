@@ -28,8 +28,8 @@ angular.module('classeur.core.button', [])
 				scope.scaleTrans = new Transitionable(getScale());
 				scope.opacityTrans = new Transitionable(getOpacity());
 				scope.toggleHover = function(isHover) {
-					scope.scaleTrans.set(getScale(isHover), {duration: 180, curve: 'easeOut'});
-					scope.opacityTrans.set(getOpacity(isHover), {duration: 180, curve: 'easeOut'});
+					scope.scaleTrans.set(getScale(isHover), {duration: 180, curve: 'easeOutBounce'});
+					scope.opacityTrans.set(getOpacity(isHover), {duration: 180, curve: 'easeOutBounce'});
 				};
 
 			}

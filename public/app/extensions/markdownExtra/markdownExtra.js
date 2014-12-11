@@ -23,68 +23,74 @@ angular.module('classeur.extensions.markdownExtra', [])
 			highlighter: 'highlight'
 		};
 
-		return {
-			restrict: 'A',
-			link: function(scope) {
+		cledit.onInitConverter(50, function(converter) {
+			var isEnabled = settings.values.markdownExtra;
+			function hasExtension(extensionName) {
+				return isEnabled && options.extensions.some(function(extension) {
+						return extension == extensionName;
+					});
+			}
 
-				var onPreviewRefreshed;
+			var converterOptions = {};
+			if(isEnabled && options.intraword) {
+				converterOptions = {
+					_DoItalicsAndBold: function(text) {
+						text = text.replace(/([^\w*]|^)(\*\*|__)(?=\S)(.+?[*_]*)(?=\S)\2(?=[^\w*]|$)/g, "$1<strong>$3</strong>");
+						text = text.replace(/([^\w*]|^)(\*|_)(?=\S)(.+?)(?=\S)\2(?=[^\w*]|$)/g, "$1<em>$3</em>");
+						// Redo bold to handle _**word**_
+						text = text.replace(/([^\w*]|^)(\*\*|__)(?=\S)(.+?[*_]*)(?=\S)\2(?=[^\w*]|$)/g, "$1<strong>$3</strong>");
+						return text;
+					}
+				};
+			}
+			converter.setOptions(converterOptions);
+
+			if(isEnabled) {
+				window.Markdown.Extra.init(converter, {
+					extensions: options.extensions,
+					highlighter: 'prettify'
+				});
+
 				if(options.highlighter == "highlight") {
-					onPreviewRefreshed = function() {
+					cledit.onAsyncPreview(function(cb) {
 						Array.prototype.forEach.call(document.querySelectorAll('.prettyprint > code'), function(elt) {
 							!elt.highlighted && window.hljs.highlightBlock(elt);
 							elt.highlighted = true;
 						});
-					};
+						cb();
+					});
 				}
 				else if(options.highlighter == "prettify") {
-					onPreviewRefreshed = window.prettify.prettyPrint;
+					cledit.onAsyncPreview(function(cb) {
+						window.prettify.prettyPrint();
+						cb();
+					});
 				}
-				onPreviewRefreshed && scope.$watch('cledit.lastPreview', onPreviewRefreshed);
+			}
+
+			// Set cledit options
+			if(hasExtension('fenced_code_gfm')) {
+				// Add new fenced code block delimiter with priority 25
+				cledit.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
+			}
+			else {
+				// Unset fenced code block delimiter
+				cledit.setSectionDelimiter(25, undefined);
+			}
+			cledit.setPrismOptions({
+				fcbs: hasExtension('fenced_code_gfm'),
+				tables: hasExtension('tables'),
+				footnotes: hasExtension('footnotes'),
+				strikes: hasExtension('strikethrough')
+			});
+		});
+
+		return {
+			restrict: 'A',
+			link: function(scope) {
 
 				scope.$watch('settings.values.markdownExtra', function() {
-					cledit.converter = new window.Markdown.Converter();
-
-					var isEnabled = settings.values.markdownExtra;
-					function hasExtension(extensionName) {
-						return isEnabled && options.extensions.some(function(extension) {
-							return extension == extensionName;
-						});
-					}
-
-					var converterOptions = {};
-					if(isEnabled && options.intraword) {
-						converterOptions = {
-							_DoItalicsAndBold: function(text) {
-								text = text.replace(/([^\w*]|^)(\*\*|__)(?=\S)(.+?[*_]*)(?=\S)\2(?=[^\w*]|$)/g, "$1<strong>$3</strong>");
-								text = text.replace(/([^\w*]|^)(\*|_)(?=\S)(.+?)(?=\S)\2(?=[^\w*]|$)/g, "$1<em>$3</em>");
-								// Redo bold to handle _**word**_
-								text = text.replace(/([^\w*]|^)(\*\*|__)(?=\S)(.+?[*_]*)(?=\S)\2(?=[^\w*]|$)/g, "$1<strong>$3</strong>");
-								return text;
-							}
-						};
-					}
-					cledit.converter.setOptions(converterOptions);
-
-					isEnabled && window.Markdown.Extra.init(cledit.converter, {
-						extensions: options.extensions,
-						highlighter: 'prettify'
-					});
-
-					// Set cledit options
-					if(hasExtension('fenced_code_gfm')) {
-						// Add new fenced code block delimiter with weight 25
-						cledit.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
-					}
-					else {
-						// Unset fenced code block delimiter
-						cledit.setSectionDelimiter(25, undefined);
-					}
-					cledit.setPrismOptions({
-						fcbs: hasExtension('fenced_code_gfm'),
-						tables: hasExtension('tables'),
-						footnotes: hasExtension('footnotes'),
-						strikes: hasExtension('strikethrough')
-					});
+					cledit.initConverter();
 				});
 			}
 		};

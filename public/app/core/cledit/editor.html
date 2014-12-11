@@ -1,5 +1,7 @@
 <pre cl-scroll-sync-editor class="editor" ng-focus="layout.toggleMenu(false)" ng-class="layoutTrans.zoomClass">
-# Headings
+# Basic writing
+
+## Headings
 
 You can create a heading by adding one or more `#` symbols before your heading text.
 
@@ -7,15 +9,13 @@ You can create a heading by adding one or more `#` symbols before your heading t
 ## The second largest heading
 ###### The 6th largest heading
 
-
-# Blockquotes
+## Blockquotes
 
 You can indicate blockquotes with a `>`.
 
 > Blockquote
 
-
-# Styling text
+## Styling text
 
 You can make text **bold** or *italic*. Both bold and italic can use either a `*` or an `_` around the text for styling.
 
@@ -46,7 +46,7 @@ You can make an ordered list by preceding list items with a number.
 
 ## Inline formats
 
-Use `single backticks` to format text in a special monospace format.
+Use single backticks to format text in a special `monospace format`.
 
 ## Multiple lines
 
@@ -72,4 +72,12 @@ By including colons within the header row, you can define text to be left-aligne
 | :------------ |:---------------:| -----:|
 | col 3 is      | some wordy text | $1600 |
 | col 2 is      | centered        |   $12 |
-| zebra stripes | are neat        |    $1 |</pre>
+| zebra stripes | are neat        |    $1 |
+
+
+# Maths
+
+For inline formulas, enclose the formula in `$...$`. For displayed formulas, use `$$...$$`.
+
+These render differently: $\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}$ (inline) or $$\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}\tag{displayed}$$
+</pre>

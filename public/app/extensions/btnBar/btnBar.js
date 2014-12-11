@@ -144,7 +144,7 @@ angular.module('classeur.extensions.btnBar', [])
 
 				scope.trans = new Transitionable(getTrans());
 				function setTransition() {
-					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 150 > scope.width;
+					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 200 > scope.width;
 					if(isOpen === newIsOpen) {
 						return;
 					}
