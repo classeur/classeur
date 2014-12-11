@@ -99,7 +99,7 @@ fa-app {
 .menu {
 	padding: 40px;
 	color: #fff;
-	.entry {
+	.entry, .md-text {
 		font-weight: bold;
 		text-align: center;
 	}
@@ -191,27 +191,20 @@ fa-app {
 	display: none;
 }
 
-md-switch.md-default-theme .md-switch-bar {
-	background-color: #c8c8c8;
+md-switch .md-container {
+	width: 60px;
 }
 
-md-radio-button.md-default-theme.md-checked .md-off, md-switch.md-default-theme .md-switch-thumb.md-checked .md-off {
-	border-color: #03a9f4;
-	background-color: #03a9f4;
+md-switch.md-default-theme .md-bar {
+	width: 54px;
+	height: 2px;
+	top: 12px;
 }
 
-md-radio-button.md-default-theme .md-off, md-switch.md-default-theme .md-switch-thumb .md-off {
-	border-color: #03a9f4;
-	background-color: #fff;
-}
-
-md-radio-button.md-default-theme .md-on, md-switch.md-default-theme .md-switch-thumb .md-on {
-	background-color: #03a9f4;
-}
-
-md-switch .md-switch-thumb .md-label {
-	margin-left: 80px;
-	font-weight: bold;
+md-switch .md-thumb-container {
+	top: 2px;
+	left: 0;
+	width: 36px;
 }
 
 .font-size-3 {
