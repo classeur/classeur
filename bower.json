@@ -1,11 +1,11 @@
 {
-  "name": "stackedit",
-  "version": "4.99.0",
+  "name": "classeur",
+  "version": "0.9.0",
   "authors": [
     "benweet <benoit.schweblin@gmail.com>"
   ],
   "license": "Apache",
-  "homepage": "https://stackedit.io",
+  "homepage": "https://classeur.io",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -22,6 +22,7 @@
     "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
     "google-code-prettify": "~1.0.3",
     "highlightjs": "~8.3.0",
-    "MathJax": "~2.4.0"
+    "MathJax": "~2.4.0",
+    "cledit": "https://github.com/classeur/cledit.git#master"
   }
 }

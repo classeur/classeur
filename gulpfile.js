@@ -59,9 +59,14 @@ gulp.task('watch', function() {
 	gulp.watch(__dirname + '/public/app/**/*.js', ['html']);
 });
 
-gulp.task('default', [
+gulp.task('run', [
 	'sass',
 	'html',
 	'watch',
 	'express'
+]);
+
+gulp.task('default', [
+	'sass',
+	'html'
 ]);
