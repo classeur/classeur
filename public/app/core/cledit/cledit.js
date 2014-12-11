@@ -72,7 +72,7 @@ angular.module('classeur.core.cledit', [])
 				forcePreviewRefresh = true;
 			},
 			options: {
-				language: prism(prismOptions),
+				language: prism(prismOptions)
 			},
 			setPrismOptions: function(options) {
 				prismOptions = angular.extend(prismOptions, options);

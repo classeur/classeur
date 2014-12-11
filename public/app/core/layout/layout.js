@@ -18,21 +18,22 @@ angular.module('classeur.core.layout', [
 
 				function updateLayout() {
 					transX = document.body.clientWidth / 2;
-					layout.fontSize = 3;
+					layout.fontSize = 18;
 					var factor = 1 + (settings.values.zoom - 3) * 0.1;
+					// Kind of responsive...
 					layout.pageWidth = 990 * factor;
-					if(document.body.clientWidth < 1120 * factor) {
-						layout.fontSize = 2;
+					if(document.body.clientWidth < 1120) {
+						--layout.fontSize;
 						layout.pageWidth = 910 * factor;
 					}
-					if(document.body.clientWidth < 1040 * factor) {
+					if(document.body.clientWidth < 1040) {
 						layout.pageWidth = 830 * factor;
 					}
 					if(document.body.clientWidth + 30 < layout.pageWidth) {
 						layout.pageWidth = document.body.clientWidth + 30;
 					}
-					if(layout.pageWidth < 640 * factor) {
-						layout.fontSize = 1;
+					if(layout.pageWidth < 640) {
+						--layout.fontSize;
 					}
 					if(layout.isSidePreviewOpen && document.body.clientWidth / 2 + 80 < layout.pageWidth) {
 						layout.pageWidth = document.body.clientWidth / 2 + 80;
@@ -106,8 +107,8 @@ angular.module('classeur.core.layout', [
 					pageTranslate: new Transitionable(getPageTranslate()),
 					pageOuterTranslate: new Transitionable(getPageOuterTranslate()),
 					pageRotate: new Transitionable(getPageRotate()),
-					fontSizeClass: 'font-size-' + layout.fontSize,
-					zoomClass: 'zoom-' + settings.values.zoom
+					fontSizePx: layout.fontSize + 'px',
+					fontSizeEm: (7 + settings.values.zoom)/10 + 'em'
 				};
 				scope.layoutTrans = layoutTrans;
 
@@ -115,8 +116,8 @@ angular.module('classeur.core.layout', [
 					updateLayout();
 					layoutTrans.binderTranslate.set(getBinderTranslate(), {duration: 180, curve: 'easeOut'}, function() {
 						layoutTrans.isReady = true;
-						layoutTrans.fontSizeClass = 'font-size-' + layout.fontSize;
-						layoutTrans.zoomClass = 'zoom-' + settings.values.zoom;
+						layoutTrans.fontSizePx = layout.fontSize + 'px';
+						layoutTrans.fontSizeEm = (7 + settings.values.zoom)/10 + 'em';
 						scope.$apply();
 						layoutTrans.binderSize.set(getBinderSize(), {duration: 180, curve: 'custom'});
 					});

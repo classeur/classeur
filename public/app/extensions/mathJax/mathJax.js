@@ -108,7 +108,6 @@ angular.module('classeur.extensions.mathJax', [])
 			script = document.createElement('script');
 			script.type = 'text/javascript';
 			script.src = 'bower_components/MathJax/MathJax.js?config=TeX-AMS_HTML';
-			script.async = false;
 			script.onload = onMathJaxLoaded;
 			document.head.appendChild(script);
 			isInit = true;

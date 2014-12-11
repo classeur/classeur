@@ -46,7 +46,7 @@ angular.module('classeur.core.prism', [])
 			'rparen': /[\])}]/g,
 			// A comment. Tex comments start with % and go to
 			// the end of the line
-			'comment': /%.*/g,
+			'comment': /%.*/g
 		};
 
 		return function(options) {

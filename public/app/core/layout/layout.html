@@ -1,7 +1,7 @@
 <fa-modifier fa-size="layoutTrans.previewSize.get()" fa-align="[0, 0]" fa-origin="[0.5, 0]"
 			 fa-translate="layoutTrans.previewTranslate.get()">
 	<fa-surface class="background" fa-click="layout.toggleMenu(false)">
-		<div cl-scroll-sync-preview class="preview-container" ng-class="layoutTrans.fontSizeClass">
+		<div cl-scroll-sync-preview class="preview-container" style="font-size: {{layoutTrans.fontSizePx}};">
 			<cl-preview></cl-preview>
 		</div>
 	</fa-surface>
@@ -105,7 +105,7 @@
 						</fa-surface>
 					</fa-modifier>
 					<fa-surface>
-						<div class="editor-container" ng-class="layoutTrans.fontSizeClass">
+						<div class="editor-container" style="font-size: {{layoutTrans.fontSizePx}};">
 							<cl-editor></cl-editor>
 						</div>
 					</fa-surface>
