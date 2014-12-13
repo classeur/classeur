@@ -14,36 +14,52 @@ angular.module('classeur.core.layout', [
 				scope.cledit = cledit;
 
 				var previewSizeAdjust = 150;
-				var transX;
+				var transX = 0;
+				var windowWidth, marginRight;
+				var leftMarginOverflow = 90;
 
 				function updateLayout() {
-					transX = document.body.clientWidth / 2;
+					windowWidth = document.body.clientWidth;
+					//transX = document.body.clientWidth / 2;
 					layout.fontSize = 18;
 					var factor = 1 + (settings.values.zoom - 3) * 0.1;
 					// Kind of responsive...
 					layout.pageWidth = 990 * factor;
-					if(document.body.clientWidth < 1120) {
+					if(windowWidth < 1120) {
 						--layout.fontSize;
 						layout.pageWidth = 910 * factor;
 					}
-					if(document.body.clientWidth < 1040) {
+					if(windowWidth < 1040) {
 						layout.pageWidth = 830 * factor;
 					}
-					if(document.body.clientWidth + 30 < layout.pageWidth) {
-						layout.pageWidth = document.body.clientWidth + 30;
+					marginRight = (windowWidth - layout.pageWidth) / 2;
+					marginRight = marginRight > 0 ? marginRight : 0;
+					if(windowWidth + leftMarginOverflow < layout.pageWidth) {
+						layout.pageWidth = windowWidth + leftMarginOverflow;
 					}
 					if(layout.pageWidth < 640) {
 						--layout.fontSize;
 					}
-					if(layout.isSidePreviewOpen && document.body.clientWidth / 2 + 80 < layout.pageWidth) {
-						layout.pageWidth = document.body.clientWidth / 2 + 80;
+					if(layout.isSidePreviewOpen) {
+						var maxWidth = windowWidth / 2 + layout.sideButtonWidth + leftMarginOverflow;
+						if(maxWidth < layout.pageWidth) {
+							layout.pageWidth = maxWidth;
+						}
+						marginRight = windowWidth/2 - layout.sideButtonWidth;
 					}
 				}
 
 				function getBinderSize() {
 					return [
-						layout.pageWidth,
+						layout.pageWidth - layout.sideButtonWidth,
 						undefined
+					];
+				}
+
+				function getBinderTranslate() {
+					return [
+						windowWidth - (layout.pageWidth + layout.sideButtonWidth) / 2 - marginRight,
+						0
 					];
 				}
 
@@ -54,18 +70,12 @@ angular.module('classeur.core.layout', [
 					];
 				}
 
-				function getBinderTranslate() {
-					return [
-						transX + (layout.isSidePreviewOpen ? -layout.pageWidth / 2 + 10 : -55),
-						0
-					];
-				}
-
 				function getPreviewTranslate() {
-					return [
-						transX + (layout.isSidePreviewOpen ? (layout.pageWidth - previewSizeAdjust) / 2 + 70 : 0),
-						0
-					];
+					var result = getBinderTranslate();
+					if(layout.isSidePreviewOpen) {
+						result[0] += layout.pageWidth - previewSizeAdjust / 2;
+					}
+					return result;
 				}
 
 				function getEditorTranslate() {
@@ -157,7 +167,9 @@ angular.module('classeur.core.layout', [
 	.factory('layout', function() {
 		return {
 			pageMargin: 25,
+			sideButtonWidth: 40,
 			menuWidth: 320,
+			gutterWidth: 120,
 			isEditorOpen: true,
 			toggleEditor: function(isOpen) {
 				this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;

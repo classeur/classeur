@@ -8,6 +8,7 @@ angular.module('classeur.app', [
 	'classeur.core.prism',
 	'classeur.core.settings',
 	'classeur.extensions.btnBar',
+	'classeur.extensions.folding',
 	'classeur.extensions.markdownExtra',
 	'classeur.extensions.mathJax',
 	'classeur.extensions.scrollSync',

@@ -150,4 +150,10 @@ hr {
 	.md-title {
 		color: $ced-color-lighter;
 	}
+
+	.hide {
+		display: block;
+		overflow: hidden;
+		height: 0;
+	}
 }

@@ -13,7 +13,7 @@
 	<cl-btn-bar></cl-btn-bar>
 
 	<fa-modifier fa-translate="layoutTrans.pageOuterTranslate.get()">
-		<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-translate="[-10, 0]" fa-size="[100, 40]">
+		<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-translate="[-10, 0]" fa-size="[100, layout.sideButtonWidth]">
 			<fa-surface class="plastic edit-label md-whiteframe-z2">
 				<div class="btn btn-edit">
 					<md-button ng-click="layout.toggleEditor(true)">
@@ -29,8 +29,7 @@
 
 		<fa-modifier fa-translate="layoutTrans.pageOuterTranslate.get()">
 			<fa-container-surface>
-				<fa-header-footer-layout
-					fa-options="{headerSize: -5}">
+				<fa-header-footer-layout fa-options="{headerSize: -5}">
 
 					<fa-surface></fa-surface>
 
@@ -72,7 +71,7 @@
 						</md-button>
 					</cl-button>
 				</fa-modifier>
-				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[0, 106]" fa-size="[40, 130]">
+				<fa-modifier fa-align="[1, 0]" fa-origin="[0, 0]" fa-translate="[0, 106]" fa-size="[layout.sideButtonWidth, 130]">
 					<fa-surface class="plastic menu-label">
 						<div class="btn btn-menu">
 							<md-button ng-click="layout.toggleMenu()">
@@ -105,13 +104,14 @@
 							</fa-modifier>
 						</fa-flexible-layout>
 					</fa-modifier>
-					<fa-modifier fa-size="[1, undefined]" fa-translate="[120, 0]">
+					<fa-modifier fa-size="[1, undefined]" fa-translate="[layout.gutterWidth, 0]">
 						<fa-surface class="margin">
 						</fa-surface>
 					</fa-modifier>
 					<fa-surface>
-						<div class="editor-container" style="font-size: {{layoutTrans.fontSizePx}};">
+						<div cl-scroll-sync-editor class="editor-container" style="font-size: {{layoutTrans.fontSizePx}};">
 							<cl-editor></cl-editor>
+							<cl-folding-gutter></cl-folding-gutter>
 						</div>
 					</fa-surface>
 			</fa-modifier>

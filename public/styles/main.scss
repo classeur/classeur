@@ -9,6 +9,7 @@ $material-font-path: "../bower_components/bootstrap-material-design/fonts";
 @import '_ced.scss';
 $plastic-color: #64BDEB;
 $clip-color: #3A3938;
+$editor-margin-width: 120px;
 
 fa-app {
 	position: fixed;
@@ -58,46 +59,57 @@ fa-app {
 	}
 }
 
-.editor-container, .editor, .preview-container {
+.editor-container, .preview-container {
 	margin: 0;
 	position: absolute;
 	bottom: 0;
 	top: 0;
 	left: 0;
 	right: 0;
+	overflow: auto;
 }
 
 .editor {
+	margin: 0;
 	padding: {
 		top: 120px;
 		bottom: 360px;
-		left: 120px;
+		left: $editor-margin-width;
 		right: 20px;
 	}
 	font-family: inherit;
 	line-height: 1.6;
-	overflow: auto;
 	white-space: pre-wrap;
 	word-wrap: break-word;
 	word-break: normal;
 }
 
-.editor-container {
-	overflow: hidden;
-}
-
-.preview-container {
-	overflow: auto;
-}
-
 .preview {
+	margin: 0;
 	padding: {
 		top: 120px;
 		bottom: 360px;
-		left: 4020px;
+		left: 4060px;
 		right: 4020px;
 	}
 	text-align: justify;
+}
+
+.folding-gutter {
+	position: absolute;
+	top: 0;
+	width: $editor-margin-width;
+	& > div {
+		position: absolute;
+		right: 0;
+		padding: 5px;
+		font-size: 16px;
+		cursor: pointer;
+		color: transparentize(#000, 0.75);
+		&:hover {
+			color: transparentize(#000, 0.5);
+		}
+	}
 }
 
 .menu {
