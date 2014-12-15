@@ -14,7 +14,6 @@ angular.module('classeur.core.layout', [
 				scope.cledit = cledit;
 
 				var previewSizeAdjust = 150;
-				var transX = 0;
 				var windowWidth, marginRight;
 				var leftMarginOverflow = 90;
 
@@ -129,7 +128,9 @@ angular.module('classeur.core.layout', [
 						layoutTrans.fontSizePx = layout.fontSize + 'px';
 						layoutTrans.fontSizeEm = (7 + settings.values.zoom)/10 + 'em';
 						scope.$apply();
-						layoutTrans.binderSize.set(getBinderSize(), {duration: 180, curve: 'custom'});
+						layoutTrans.binderSize.set(getBinderSize(), {duration: 180, curve: 'custom'}, function() {
+							scope.$apply();
+						});
 					});
 					var previewSize = getPreviewSize();
 					layoutTrans.previewTranslate.set(getPreviewTranslate(), {duration: 180, curve: 'easeOut'}, function() {
@@ -164,7 +165,9 @@ angular.module('classeur.core.layout', [
 			}
 		};
 	})
-	.factory('layout', function() {
+	.factory('layout', function(settings) {
+		settings.setDefaultValue('zoom', 3);
+
 		return {
 			pageMargin: 25,
 			sideButtonWidth: 40,

@@ -1,11 +1,10 @@
 angular.module('classeur.core.cledit', [])
-	.directive('clEditor', function(cledit, layout) {
+	.directive('clEditor', function($timeout, cledit, layout, settings) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/cledit/editor.html',
-			replace: true,
 			link: function(scope, element) {
-				cledit.setEditorElt(element[0]);
+				cledit.setEditorElt(element[0].querySelector('.editor'));
 
 				var debouncedRefreshPreview = window.ced.Utils.debounce(function() {
 					cledit.convert();
@@ -15,10 +14,12 @@ angular.module('classeur.core.cledit', [])
 							scope.$apply();
 						});
 					}, 1);
-				}, 500);
+				}, settings.values.refreshPreviewDelay);
 				cledit.editor.onContentChanged(function(content, sectionList) {
-					cledit.sectionList = sectionList;
-					debouncedRefreshPreview();
+					$timeout(function() {
+						cledit.sectionList = sectionList;
+						debouncedRefreshPreview();
+					});
 				});
 
 				scope.$watch('cledit.options', function() {
@@ -36,16 +37,17 @@ angular.module('classeur.core.cledit', [])
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/cledit/preview.html',
-			replace: true,
 			link: function(scope, element) {
-				cledit.setPreviewElt(element[0]);
+				cledit.setPreviewElt(element[0].querySelector('.preview'));
 			}
 		};
 	})
-	.factory('cledit', function(prism) {
+	.factory('cledit', function(prism, settings) {
+		settings.setDefaultValue('refreshPreviewDelay', 500);
+
 		window.rangy.init();
 
-		var previewElt;
+		var editorElt, previewElt;
 		var oldSectionList, oldLinkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
@@ -55,6 +57,9 @@ angular.module('classeur.core.cledit', [])
 		var converterInitListeners = [];
 		var asyncPreviewListeners = [];
 		var cledit = {
+			options: {
+				language: prism(prismOptions)
+			},
 			initConverter: function() {
 				cledit.converter = new window.Markdown.Converter();
 				asyncPreviewListeners = [];
@@ -71,9 +76,6 @@ angular.module('classeur.core.cledit', [])
 			forcePreviewRefresh: function() {
 				forcePreviewRefresh = true;
 			},
-			options: {
-				language: prism(prismOptions)
-			},
 			setPrismOptions: function(options) {
 				prismOptions = angular.extend(prismOptions, options);
 				this.options = angular.extend({}, this.options);
@@ -88,21 +90,32 @@ angular.module('classeur.core.cledit', [])
 				previewElt = elt;
 			},
 			setEditorElt: function(elt) {
-				cledit.editor = window.ced(elt);
+				editorElt = elt;
+				cledit.editor = window.ced(elt, elt.parentNode);
 				cledit.pagedownEditor = new window.Markdown.Editor(cledit.converter, {
 					input: Object.create(cledit.editor)
 				});
 				cledit.pagedownEditor.run();
+			},
+			editorSize: function() {
+				return editorElt.clientWidth + 'x' + editorElt.clientHeight;
+			},
+			previewSize: function() {
+				return previewElt.clientWidth + 'x' + previewElt.clientHeight;
 			}
 		};
 		cledit.initConverter();
 		cledit.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 
 		var footnoteMap = {};
+		var footnoteFragment = document.createDocumentFragment();
 		// Store one footnote elt in the footnote map
 		function storeFootnote(footnoteElt) {
 			var id = footnoteElt.id.substring(3);
+			var oldFootnote = footnoteMap[id];
+			oldFootnote && footnoteFragment.removeChild(oldFootnote);
 			footnoteMap[id] = footnoteElt;
+			footnoteFragment.appendChild(footnoteElt);
 		}
 
 		var footnoteContainerElt;
@@ -278,6 +291,7 @@ angular.module('classeur.core.cledit', [])
 				// Keep used footnotes only in our map
 				Object.keys(footnoteMap).forEach(function(key) {
 					if(usedFootnoteIds.indexOf(key) === -1) {
+						footnoteFragment.removeChild(footnoteMap[key]);
 						delete footnoteMap[key];
 					}
 				});

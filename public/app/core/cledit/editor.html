@@ -1,4 +1,5 @@
-<pre cl-folding class="editor" ng-focus="layout.toggleMenu(false)" style="font-size: {{layoutTrans.fontSizeEm}};">
+<div cl-folding cl-scroll-sync-editor class="editor-container" style="font-size: {{layoutTrans.fontSizePx}};">
+	<pre class="editor" ng-focus="layout.toggleMenu(false)" style="font-size: {{layoutTrans.fontSizeEm}};">
 # Basic writing
 
 ## Headings
@@ -81,3 +82,5 @@ For inline formulas, enclose the formula in `$...$`. For displayed formulas, use
 
 These render differently: $\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}$ (inline) or $$\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}\tag{displayed}$$
 </pre>
+	<cl-folding-gutter></cl-folding-gutter>
+</div>

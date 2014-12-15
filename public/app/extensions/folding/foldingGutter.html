@@ -1,10 +1,13 @@
 <div class="folding-gutter">
-	<div class="mdi-content-remove-circle-outline"
-		 ng-show="folding.hideButton.isShown"
-		 ng-mouseover="folding.hideButton.show()"
-		 ng-mouseout="folding.hideButton.hide()"
-		 ng-click="hide()"
-		 style="top: {{folding.hideButton.top}}">
+	<div
+		ng-repeat="sectionGroup in folding.sectionGroups"
+		ng-class="{'mdi-content-remove-circle-outline': !sectionGroup.isFolded, 'mdi-content-add-circle': sectionGroup.isFolded}"
+		ng-show="!sectionGroup.isParentFolded && (sectionGroup.foldButton.over || sectionGroup.foldButton.forceShow || sectionGroup.isFolded)"
+		ng-mouseover="sectionGroup.foldButton.over = true"
+		ng-mouseleave="sectionGroup.foldButton.over = false"
+		ng-click="fold(sectionGroup)"
+		ng-dblclick="foldAll(sectionGroup)"
+		style="top: {{sectionGroup.foldButton.top}}">
 	</div>
 
 </div>

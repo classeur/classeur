@@ -1,8 +1,8 @@
 angular.module('classeur.core.prism', [])
 	.factory('prism', function() {
 
-		var charInsideUrl = "[-A-Z0-9+&@#/%?=~_|[\\]()!:,.;]",
-			charEndingUrl = "[-A-Z0-9+&@#/%=~_|[\\])]";
+		var charInsideUrl = "(&amp;|[-A-Z0-9+@#/%?=~_|[\\]()!:,.;])",
+			charEndingUrl = "(&amp;|[-A-Z0-9+@#/%=~_|[\\])])";
 		var urlPattern = new RegExp("(https?|ftp)(://" + charInsideUrl + "*" + charEndingUrl + ")(?=$|\\W)", "gi");
 		var emailPattern = /(?:mailto:)?([-.\w]+\@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)/gi;
 
@@ -63,11 +63,13 @@ angular.module('classeur.core.prism', [])
 			md['h1 alt'] = {
 				pattern: /^(.+)[ \t]*\n=+[ \t]*$/gm,
 				inside: {
+					"md md-hash": /=+[ \t]*$/
 				}
 			};
 			md['h2 alt'] = {
 				pattern: /^(.+)[ \t]*\n-+[ \t]*$/gm,
 				inside: {
+					"md md-hash": /-+[ \t]*$/
 				}
 			};
 			for(var i = 6; i >= 1; i--) {

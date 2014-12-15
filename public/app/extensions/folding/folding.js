@@ -4,102 +4,234 @@ angular.module('classeur.extensions.folding', [])
 			restrict: 'E',
 			templateUrl: 'app/extensions/folding/foldingGutter.html',
 			scope: true,
-			link: function(scope) {
+			link: function(scope, element) {
+				var gutterElt = element[0].querySelector('.folding-gutter');
 				scope.folding = folding;
-				scope.hide = function() {
-					folding.hideButton.sectionGroup.hide();
-					folding.hideButton.isShown = false;
+				function updateFoldButtons() {
+					folding.sectionGroups.forEach(function(sectionGroup) {
+						var titleEltRect = sectionGroup.firstElt.getBoundingClientRect();
+						var offsetY = titleEltRect.top + titleEltRect.height / 2 - gutterElt.getBoundingClientRect().top;
+						sectionGroup.foldButton.setTop(offsetY);
+					});
+				}
+
+				scope.fold = function(sectionGroup) {
+					sectionGroup[sectionGroup.isFolded ? 'unfold' : 'fold']();
 				};
+
+				scope.foldAll = function(sectionGroup) {
+					var functionName = sectionGroup.isFolded ? 'unfold' : 'fold';
+					var parent = sectionGroup.parent;
+					// Fold/unfold all sections that have the same parent
+					folding.sectionGroups.forEach(function(sectionGroup) {
+						sectionGroup.parent === parent && sectionGroup[functionName]();
+					});
+				};
+
+				scope.$watch('folding.sectionGroups', updateFoldButtons);
+				scope.$watch('cledit.editorSize()', updateFoldButtons);
 			}
 		};
 	})
-	.directive('clFolding', function(folding,$timeout) {
+	.directive('clFolding', function($timeout, folding) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				var editorElt = element[0];
 
-				var hideTimeout;
-				editorElt.addEventListener('mousemove', function(e) {
-					var sectionGroup = folding.getSectionGroup(e.clientY - editorElt.getBoundingClientRect().top);
+				var editorElt = element[0].querySelector('.editor');
+				var hideTimeout, hideTimeoutCb;
+				var clientX, clientY;
+				element.on('mousemove', function(e) {
+					if(clientX === e.clientX && clientY === e.clientY) {
+						return;
+					}
+					clientX = e.clientX;
+					clientY = e.clientY;
+					var sectionGroup = folding.getSectionGroup(clientY + element[0].scrollTop);
 					if(!sectionGroup) {
 						return;
 					}
-					var titleEltRect = sectionGroup.titleElt.getBoundingClientRect();
-					var offsetY = titleEltRect.top + titleEltRect.height / 2 - editorElt.getBoundingClientRect().top;
-					folding.hideButton.sectionGroup = sectionGroup;
-					folding.hideButton.setTop(offsetY);
-					folding.hideButton.isShown = true;
-					scope.$apply();
+					if(!sectionGroup.foldButton.forceShow) {
+						hideTimeoutCb && hideTimeoutCb();
+						hideTimeoutCb = function() {
+							sectionGroup.foldButton.forceShow = false;
+						};
+						sectionGroup.foldButton.forceShow = true;
+						scope.$apply();
+					}
 					$timeout.cancel(hideTimeout);
-					hideTimeout = $timeout(function() {
-						folding.hideButton.isShown = false;
-					}, 3000);
+					hideTimeout = $timeout(hideTimeoutCb, 3000);
 				});
 
-				scope.$watch('cledit.sectionList', window.ced.Utils.debounce(folding.buildSectionGroups, 10));
+				scope.$watch('cledit.sectionList', folding.buildSectionGroups);
+
+				function unfoldContainer(node) {
+					if(!(editorElt.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
+						return;
+					}
+					while(node.parentNode !== editorElt) {
+						node = node.parentNode;
+					}
+					var sectionGroup = node.sectionGroup;
+					if(sectionGroup) {
+						while(sectionGroup.isParentFolded) {
+							sectionGroup = sectionGroup.parent;
+						}
+						if(sectionGroup.isFolded) {
+							sectionGroup.unfold();
+							return true;
+						}
+					}
+				}
+
+				scope.$watch('cledit.editor.selectionMgr', function(selectionMgr) {
+					selectionMgr.onSelectionChanged(function(start, end, selectionRange) {
+						if(selectionRange && (unfoldContainer(selectionRange.startContainer) | unfoldContainer(selectionRange.endContainer))) {
+							scope.$apply();
+						}
+					});
+				});
 			}
 		};
 	})
-	.factory('folding', function($timeout, cledit) {
-		var foldingButtonHeight = 26;
+	.factory('folding', function() {
+		var foldingButtonHeight = 24;
 
-		function FoldingButton() {
-			this.setTop(0);
-			this.isShown = false;
+		function FoldButton() {
+			this.setTop(-foldingButtonHeight);
 		}
 
-		FoldingButton.prototype.setTop = function(top) {
+		FoldButton.prototype.setTop = function(top) {
 			this.top = (top - foldingButtonHeight / 2) + 'px';
 		};
 
-		function SectionGroup(titleElt, level) {
-			this.titleElt = titleElt;
-			this.offsetTop = titleElt.offsetTop;
+		function SectionGroup(firstElt, level) {
+			this.foldButton = new FoldButton();
+			this.firstElt = firstElt;
 			this.level = level;
 			this.sections = [];
 			this.children = [];
 		}
 
-		function hideNextElt(elt) {
-			while(elt) {
-				elt.className = (elt.className || '') + ' hide';
-				elt = elt.nextSibling;
+		function setHideClass(hide, elt) {
+			var className = elt.className.replace(/ hide$/, '');
+			if(hide) {
+				className += ' hide';
 			}
+			elt.className = className;
 		}
 
-		SectionGroup.prototype.hide = function() {
-			hideNextElt(this.titleElt.nextSibling);
-			this.hideChildren();
+		var hideElt = setHideClass.bind(undefined, true);
+		var showElt = setHideClass.bind(undefined, false);
+
+		SectionGroup.prototype.fold = function(force) {
+			if(!force && this.isFolded) {
+				return;
+			}
+			var lastSection = this.hideSections();
+			// Show first child
+			showElt(this.sections[0].elt.firstChild);
+			// Show last LF
+			var lfElt = lastSection.elt.lastChild;
+			// Find last LF deeper in the section
+			while(lfElt.textContent != '\n') {
+				lfElt = lfElt.lastChild;
+			}
+			// Move last LF in section element
+			lastSection.elt.appendChild(lfElt);
+			showElt(lfElt);
+			this.isFolded = true;
 		};
 
-		SectionGroup.prototype.hideChildren = function() {
+		SectionGroup.prototype.hideSections = function() {
+			var lastSection;
+
+			// Add `hide` class in every section
+			this.sections.forEach(function(section) {
+				lastSection = section;
+				Array.prototype.forEach.call(section.elt.children, hideElt);
+			});
+
+			// Also do that in every child group
 			this.children.forEach(function(childGroup) {
-				hideNextElt(childGroup.titleElt);
-				childGroup.hideChildren();
+				childGroup.isFolded = false;
+				childGroup.isParentFolded = true;
+				lastSection = childGroup.hideSections();
+			});
+			return lastSection;
+		};
+
+		SectionGroup.prototype.unfold = function() {
+			this.isFolded && this.showSections();
+			this.isFolded = false;
+		};
+
+		SectionGroup.prototype.showSections = function() {
+
+			// Remove `hide` class in every section
+			this.sections.forEach(function(section) {
+				Array.prototype.forEach.call(section.elt.children, showElt);
+			});
+
+			// Also do that in every child group
+			this.children.forEach(function(childGroup) {
+				childGroup.isParentFolded = false;
+				childGroup.showSections();
 			});
 		};
 
-		var sectionGroups = [];
-		function buildSectionGroups() {
-			sectionGroups = [];
-			if(!cledit.sectionList) {
+		var folding = {
+			sectionGroups: []
+		};
+
+		var oldSectionList;
+
+		function buildSectionGroups(sectionList) {
+			folding.sectionGroups = [];
+			if(!sectionList) {
 				return;
 			}
-			var sectionGroup;
+
+			// Unfold modified section groups
+			oldSectionList && oldSectionList.forEach(function(section) {
+				if(section.elt.parentNode) {
+					return;
+				}
+
+				// Section group has been modified
+				var sectionGroup = section.elt.sectionGroup;
+				while(sectionGroup && !sectionGroup.isFolded) {
+					sectionGroup = sectionGroup.parent;
+				}
+
+				if(sectionGroup) {
+					// Unfold folded section group
+					sectionGroup.isFolded = false;
+				}
+			});
+			oldSectionList = sectionList;
 
 			// List groups
-			cledit.sectionList.forEach(function(section) {
+			var sectionGroup;
+			sectionList.forEach(function(section) {
 				var firstChild = section.elt.firstChild;
 				if(!firstChild) {
 					return;
 				}
+
+				// Create new group when encounter section starting with heading
 				var match = firstChild.className.match(/^token h([1-6])(?:\s|$)/);
 				if(match) {
 					sectionGroup = new SectionGroup(firstChild, parseInt(match[1]));
-					sectionGroups.push(sectionGroup);
+					if(section.elt.sectionGroup) {
+						// Keep folding state from old group
+						sectionGroup.isFolded = section.elt.sectionGroup.isFolded;
+					}
+					folding.sectionGroups.push(sectionGroup);
 				}
+
 				if(sectionGroup) {
+					// Add section to existing group
 					sectionGroup.sections.push(section);
 					section.elt.sectionGroup = sectionGroup;
 				}
@@ -107,7 +239,8 @@ angular.module('classeur.extensions.folding', [])
 
 			// Make hierarchy
 			var stack = [];
-			sectionGroups.forEach(function(sectionGroup) {
+			folding.sectionGroups.forEach(function(sectionGroup) {
+				sectionGroup.showSections();
 				while(stack.length && stack[stack.length - 1].level >= sectionGroup.level) {
 					stack.pop();
 				}
@@ -117,12 +250,17 @@ angular.module('classeur.extensions.folding', [])
 				}
 				stack.push(sectionGroup);
 			});
+
+			// Restore folded groups
+			folding.sectionGroups.forEach(function(sectionGroup) {
+				sectionGroup.isFolded && sectionGroup.fold(true);
+			});
 		}
 
 		function getSectionGroup(offsetTop) {
 			var result;
-			sectionGroups.some(function(sectionGroup) {
-				if(sectionGroup.offsetTop > offsetTop) {
+			folding.sectionGroups.some(function(sectionGroup) {
+				if(sectionGroup.firstElt.offsetTop > offsetTop) {
 					return true;
 				}
 				result = sectionGroup;
@@ -130,9 +268,8 @@ angular.module('classeur.extensions.folding', [])
 			return result;
 		}
 
-		return {
-			hideButton: new FoldingButton(),
-			buildSectionGroups: buildSectionGroups,
-			getSectionGroup: getSectionGroup
-		};
+		folding.buildSectionGroups = buildSectionGroups;
+		folding.getSectionGroup = getSectionGroup;
+
+		return folding;
 	});

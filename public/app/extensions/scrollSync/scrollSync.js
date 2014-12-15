@@ -6,12 +6,11 @@ angular.module('classeur.extensions.scrollSync', [])
 				scrollSync.setEditorElt(element[0]);
 				scope.$watch('cledit.lastConvert', scrollSync.savePreviewHeight);
 				scope.$watch('cledit.lastPreview', scrollSync.onPreviewRefreshed);
-				scope.$watch('layout.pageWidth', scrollSync.onLayoutResized);
-				scope.$watch('layout.fontSize', scrollSync.onLayoutResized);
-				scope.$watch('settings.values.zoom', scrollSync.onLayoutResized);
-				scope.$watch('layout.isSidePreviewOpen', scrollSync.forcePreview);
+				scope.$watch('cledit.editorSize()', scrollSync.onPanelResized);
+				scope.$watch('cledit.previewSize()', scrollSync.onPanelResized);
+				scope.$watch('layout.isSidePreviewOpen', scrollSync.forcePreviewSync);
 				scope.$watch('layout.isEditorOpen', function(isOpen) {
-					isOpen ? scrollSync.forceEditor() : scrollSync.forcePreview();
+					scrollSync[isOpen ? 'forceEditorSync' : 'forcePreviewSync']();
 				});
 			}
 		};
@@ -32,10 +31,9 @@ angular.module('classeur.extensions.scrollSync', [])
 	})
 	.factory('scrollSync', function(layout, cledit, settings) {
 		settings.setDefaultValue('scrollSync', true);
+
 		var editorElt, previewElt;
-
 		var scrollSyncOffset = 120;
-
 		var timeoutId;
 		var currentEndCb;
 
@@ -51,17 +49,17 @@ angular.module('classeur.extensions.scrollSync', [])
 			function tick() {
 				var currentTime = Date.now();
 				var progress = (currentTime - startTime) / 180;
+				var scrollTop = endValue;
 				if(progress < 1) {
-					var scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
-					elt.scrollTop = scrollTop;
-					stepCb(scrollTop);
+					scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
 					timeoutId = setTimeout(tick, 1);
 				}
 				else {
 					currentEndCb = undefined;
-					elt.scrollTop = endValue;
 					setTimeout(endCb, 100);
 				}
+				elt.scrollTop = scrollTop;
+				stepCb(scrollTop);
 			}
 
 			tick();
@@ -152,8 +150,8 @@ angular.module('classeur.extensions.scrollSync', [])
 			// apply Scroll Sync (-10 to have a gap > 9px)
 			lastEditorScrollTop = -10;
 			lastPreviewScrollTop = -10;
-			doScrollSync();
-		}, 500);
+			doScrollSync(true);
+		}, settings.values.refreshPreviewDelay + 100);
 
 		var isScrollEditor;
 		var isScrollPreview;
@@ -309,7 +307,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				}
 				buildSections();
 			},
-			onLayoutResized: function() {
+			onPanelResized: function() {
 				// This could happen before the editor/preview panels are created
 				if(!editorElt) {
 					return;
@@ -321,12 +319,12 @@ angular.module('classeur.extensions.scrollSync', [])
 				previewHeight = previewContentElt.offsetHeight;
 				previewContentElt.style.height = previewHeight + 'px';
 			},
-			forceEditor: function() {
+			forceEditorSync: function() {
 				isScrollPreview = true;
 				isScrollEditor = false;
 				doScrollSync();
 			},
-			forcePreview: function() {
+			forcePreviewSync: function() {
 				isScrollEditor = true;
 				isScrollPreview = false;
 				doScrollSync();

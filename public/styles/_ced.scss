@@ -152,8 +152,9 @@ hr {
 	}
 
 	.hide {
-		display: block;
+		display: inline-block;
 		overflow: hidden;
 		height: 0;
+		width: 0;
 	}
 }

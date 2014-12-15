@@ -1,8 +1,6 @@
 angular.module('classeur.core.settings', [])
 	.factory('settings', function() {
-		var values = {
-			zoom: 3
-		};
+		var values = {};
 		return {
 			values: values,
 			setDefaultValue: function(property, value) {

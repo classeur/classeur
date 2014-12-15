@@ -99,15 +99,21 @@ fa-app {
 	position: absolute;
 	top: 0;
 	width: $editor-margin-width;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 	& > div {
 		position: absolute;
-		right: 0;
-		padding: 5px;
+		right: 2px;
+		padding: 3px;
 		font-size: 16px;
 		cursor: pointer;
 		color: transparentize(#000, 0.75);
 		&:hover {
-			color: transparentize(#000, 0.5);
+			color: transparentize(#000, 0.6);
 		}
 	}
 }
@@ -207,20 +213,25 @@ fa-app {
 	display: none;
 }
 
-md-switch .md-container {
-	width: 60px;
-}
+md-switch {
+	margin-bottom: 5px;
 
-md-switch.md-default-theme .md-bar {
-	width: 54px;
-	height: 2px;
-	top: 12px;
-}
+	.md-container {
+		width: 60px;
+	}
 
-md-switch .md-thumb-container {
-	top: 2px;
-	left: 0;
-	width: 36px;
+	&.md-default-theme .md-bar {
+		width: 54px;
+		height: 2px;
+		top: 12px;
+	}
+
+	.md-thumb-container {
+		top: 2px;
+		left: 0;
+		width: 36px;
+	}
+
 }
 
 .rotate-90 {
