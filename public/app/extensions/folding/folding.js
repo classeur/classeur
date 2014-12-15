@@ -72,6 +72,10 @@ angular.module('classeur.extensions.folding', [])
 					while(node.parentNode !== editorElt) {
 						node = node.parentNode;
 					}
+					if(editorElt.lastChild === node) {
+						// If trailing LF node is selected unfold last section
+						node = node.previousSibling;
+					}
 					var sectionGroup = node.sectionGroup;
 					if(sectionGroup) {
 						while(sectionGroup.isParentFolded) {
@@ -82,11 +86,14 @@ angular.module('classeur.extensions.folding', [])
 							return true;
 						}
 					}
+
 				}
 
 				scope.$watch('cledit.editor.selectionMgr', function(selectionMgr) {
+					var i = 0;
 					selectionMgr.onSelectionChanged(function(start, end, selectionRange) {
-						if(selectionRange && (unfoldContainer(selectionRange.startContainer) | unfoldContainer(selectionRange.endContainer))) {
+						console.log(i++)
+						if(unfoldContainer(selectionRange.startContainer) | unfoldContainer(selectionRange.endContainer)) {
 							scope.$apply();
 						}
 					});
@@ -119,6 +126,7 @@ angular.module('classeur.extensions.folding', [])
 				className += ' hide';
 			}
 			elt.className = className;
+			return elt;
 		}
 
 		var hideElt = setHideClass.bind(undefined, true);
@@ -128,27 +136,20 @@ angular.module('classeur.extensions.folding', [])
 			if(!force && this.isFolded) {
 				return;
 			}
-			var lastSection = this.hideSections();
-			// Show first child
-			showElt(this.sections[0].elt.firstChild);
-			// Show last LF
-			var lfElt = lastSection.elt.lastChild;
-			// Find last LF deeper in the section
-			while(lfElt.textContent != '\n') {
-				lfElt = lfElt.lastChild;
+			this.hideSections();
+			var elt = this.sections[0].elt.firstChild;
+			while(elt && elt.textContent.slice(-1) != '\n') {
+				showElt(elt);
+				elt = elt.nextSibling;
 			}
-			// Move last LF in section element
-			lastSection.elt.appendChild(lfElt);
-			showElt(lfElt);
+			elt && showElt(elt);
 			this.isFolded = true;
 		};
 
 		SectionGroup.prototype.hideSections = function() {
-			var lastSection;
 
 			// Add `hide` class in every section
 			this.sections.forEach(function(section) {
-				lastSection = section;
 				Array.prototype.forEach.call(section.elt.children, hideElt);
 			});
 
@@ -156,9 +157,8 @@ angular.module('classeur.extensions.folding', [])
 			this.children.forEach(function(childGroup) {
 				childGroup.isFolded = false;
 				childGroup.isParentFolded = true;
-				lastSection = childGroup.hideSections();
+				childGroup.hideSections();
 			});
-			return lastSection;
 		};
 
 		SectionGroup.prototype.unfold = function() {
