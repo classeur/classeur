@@ -8,10 +8,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				scope.$watch('cledit.lastPreview', scrollSync.onPreviewRefreshed);
 				scope.$watch('cledit.editorSize()', scrollSync.onPanelResized);
 				scope.$watch('cledit.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('layout.isSidePreviewOpen', scrollSync.forcePreviewSync);
-				scope.$watch('layout.isEditorOpen', function(isOpen) {
-					scrollSync[isOpen ? 'forceEditorSync' : 'forcePreviewSync']();
-				});
+				scope.$watch('cledit.lastMeasure', scrollSync.onMeasure);
 			}
 		};
 	})
@@ -33,18 +30,18 @@ angular.module('classeur.extensions.scrollSync', [])
 		settings.setDefaultValue('scrollSync', true);
 
 		var editorElt, previewElt;
-		var scrollSyncOffset = 120;
+		var scrollSyncOffset = 100;
 		var timeoutId;
 		var currentEndCb;
 
-		function scroll(elt, startValue, endValue, stepCb, endCb, animate) {
+		function scroll(elt, startValue, endValue, stepCb, endCb, debounce) {
+			clearTimeout(timeoutId);
 			if(currentEndCb) {
-				clearTimeout(timeoutId);
 				currentEndCb();
 			}
 			currentEndCb = endCb;
 			var diff = endValue - startValue;
-			var startTime = animate ? Date.now() : 0;
+			var startTime = debounce ? 0 : Date.now();
 
 			function tick() {
 				var currentTime = Date.now();
@@ -55,133 +52,57 @@ angular.module('classeur.extensions.scrollSync', [])
 					timeoutId = setTimeout(tick, 1);
 				}
 				else {
-					currentEndCb = undefined;
-					setTimeout(endCb, 100);
+					timeoutId = setTimeout(function() {
+						currentEndCb();
+						currentEndCb = undefined;
+					}, 100);
 				}
 				elt.scrollTop = scrollTop;
 				stepCb(scrollTop);
 			}
 
-			tick();
-		}
-
-		function getDestScrollTop(srcScrollTop, srcSectionList, destSectionList) {
-			srcScrollTop += scrollSyncOffset;
-
-			// Find the section corresponding to the offset
-			var sectionIndex;
-			srcSectionList.some(function(section, index) {
-				if(srcScrollTop < section.endOffset) {
-					sectionIndex = index;
-					return true;
-				}
-			});
-			if(sectionIndex === undefined) {
-				// Something bad happened
-				return;
+			if(!debounce) {
+				return tick();
 			}
-			var srcSection = srcSectionList[sectionIndex];
-			var posInSection = (srcScrollTop - srcSection.startOffset) / (srcSection.height || 1);
-			var destSection = destSectionList[sectionIndex];
-			var result = destSection.startOffset + destSection.height * posInSection;
-
-			return result - scrollSyncOffset;
+			stepCb(startValue);
+			timeoutId = setTimeout(tick, 100);
 		}
 
-		var mdSectionList = [];
-		var htmlSectionList = [];
 		var lastEditorScrollTop;
 		var lastPreviewScrollTop;
-		var buildSections = window.ced.Utils.debounce(function() {
-
-			mdSectionList = [];
-			var mdSectionOffset;
-			var scrollHeight;
-			Array.prototype.forEach.call(editorElt.querySelectorAll('.classeur-editor-section'), function(sectionElt) {
-				if(mdSectionOffset === undefined) {
-					// Force start to 0 for the first section
-					mdSectionOffset = 0;
-					return;
-				}
-				sectionElt = sectionElt.firstChild;
-				// Consider div scroll position
-				var newSectionOffset = sectionElt.offsetTop;
-				mdSectionList.push({
-					startOffset: mdSectionOffset,
-					endOffset: newSectionOffset,
-					height: newSectionOffset - mdSectionOffset
-				});
-				mdSectionOffset = newSectionOffset;
-			});
-			// Last section
-			scrollHeight = editorElt.scrollHeight;
-			mdSectionList.push({
-				startOffset: mdSectionOffset,
-				endOffset: scrollHeight,
-				height: scrollHeight - mdSectionOffset
-			});
-
-			// Find corresponding sections in the preview
-			htmlSectionList = [];
-			var htmlSectionOffset;
-			Array.prototype.forEach.call(previewElt.querySelectorAll('.classeur-preview-section'), function(sectionElt) {
-				if(htmlSectionOffset === undefined) {
-					// Force start to 0 for the first section
-					htmlSectionOffset = 0;
-					return;
-				}
-				// Consider div scroll position
-				var newSectionOffset = sectionElt.offsetTop;
-				htmlSectionList.push({
-					startOffset: htmlSectionOffset,
-					endOffset: newSectionOffset,
-					height: newSectionOffset - htmlSectionOffset
-				});
-				htmlSectionOffset = newSectionOffset;
-			});
-			// Last section
-			scrollHeight = previewElt.scrollHeight;
-			htmlSectionList.push({
-				startOffset: htmlSectionOffset,
-				endOffset: scrollHeight,
-				height: scrollHeight - htmlSectionOffset
-			});
-
-			// apply Scroll Sync (-10 to have a gap > 9px)
-			lastEditorScrollTop = -10;
-			lastPreviewScrollTop = -10;
-			doScrollSync(true);
-		}, settings.values.refreshPreviewDelay + 100);
-
 		var isScrollEditor;
 		var isScrollPreview;
 		var isEditorMoving;
 		var isPreviewMoving;
 		var scrollAdjust;
 
-		var doScrollSync = function(animate) {
-			if(mdSectionList.length === 0 || mdSectionList.length !== htmlSectionList.length) {
+		var doScrollSync = function(debounce) {
+			if(!cledit.sectionDescList || cledit.sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;
 			editorScrollTop < 0 && (editorScrollTop = 0);
 			var previewScrollTop = previewElt.scrollTop;
 			var destScrollTop;
-			// Perform the animation if diff > 9px
 			if(isScrollEditor) {
-				//if(animate && Math.abs(editorScrollTop - lastEditorScrollTop) <= 9) {
-				//	return;
-				//}
-				isScrollEditor = false;
+
 				// Scroll the preview
+				isScrollEditor = false;
 				lastEditorScrollTop = editorScrollTop;
-				destScrollTop = getDestScrollTop(editorScrollTop, mdSectionList, htmlSectionList);
+				editorScrollTop += scrollSyncOffset;
+				cledit.sectionDescList.some(function(sectionDesc) {
+					if(editorScrollTop < sectionDesc.editorDimension.endOffset) {
+						var posInSection = (editorScrollTop - sectionDesc.editorDimension.startOffset) / (sectionDesc.editorDimension.height || 1);
+						destScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - scrollSyncOffset;
+						return true;
+					}
+				});
 				destScrollTop = Math.min(
 					destScrollTop,
 					previewElt.scrollHeight - previewElt.offsetHeight
 				);
 
-				if(animate && Math.abs(destScrollTop - previewScrollTop) <= 9) {
+				if(Math.abs(destScrollTop - previewScrollTop) <= 9) {
 					// Skip the animation if diff is <= 9
 					lastPreviewScrollTop = previewScrollTop;
 					return;
@@ -192,22 +113,27 @@ angular.module('classeur.extensions.scrollSync', [])
 					lastPreviewScrollTop = currentScrollTop;
 				}, function() {
 					isPreviewMoving = false;
-				}, animate);
+				}, debounce);
 			}
 			else if(!layout.isEditorOpen || isScrollPreview) {
-				//if(animate && Math.abs(previewScrollTop - lastPreviewScrollTop) <= 9) {
-				//	return;
-				//}
-				isScrollPreview = false;
+
 				// Scroll the editor
+				isScrollPreview = false;
 				lastPreviewScrollTop = previewScrollTop;
-				destScrollTop = getDestScrollTop(previewScrollTop, htmlSectionList, mdSectionList);
+				previewScrollTop += scrollSyncOffset;
+				cledit.sectionDescList.some(function(sectionDesc) {
+					if(previewScrollTop < sectionDesc.previewDimension.endOffset) {
+						var posInSection = (previewScrollTop - sectionDesc.previewDimension.startOffset) / (sectionDesc.previewDimension.height || 1);
+						destScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - scrollSyncOffset;
+						return true;
+					}
+				});
 				destScrollTop = Math.min(
 					destScrollTop,
 					editorElt.scrollHeight - editorElt.offsetHeight
 				);
 
-				if(animate && Math.abs(destScrollTop - editorScrollTop) <= 9) {
+				if(Math.abs(destScrollTop - editorScrollTop) <= 9) {
 					// Skip the animation if diff is <= 9
 					lastEditorScrollTop = editorScrollTop;
 					return;
@@ -218,7 +144,7 @@ angular.module('classeur.extensions.scrollSync', [])
 					lastEditorScrollTop = currentScrollTop;
 				}, function() {
 					isEditorMoving = false;
-				}, animate);
+				}, debounce);
 			}
 		};
 
@@ -261,28 +187,27 @@ angular.module('classeur.extensions.scrollSync', [])
 			oldPreviewElt = previewElt;
 
 			editorElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync || (layout.isEditorOpen && !layout.isSidePreviewOpen)) {
+				if(!settings.values.scrollSync) {
 					return;
 				}
 				if(!isEditorMoving) {
 					isScrollEditor = true;
 					isScrollPreview = false;
-					doScrollSync(true);
+					doScrollSync(layout.isEditorOpen && !layout.isSidePreviewOpen);
 				}
 			});
 
 			previewElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync || !layout.isEditorOpen) {
+				if(!settings.values.scrollSync) {
 					return;
 				}
 				if(!isPreviewMoving && !scrollAdjust) {
 					isScrollPreview = true;
 					isScrollEditor = false;
-					doScrollSync(true);
+					doScrollSync(!layout.isEditorOpen);
 				}
 				scrollAdjust = false;
 			});
-
 		}
 
 		var previewHeight, previewContentElt;
@@ -300,34 +225,28 @@ angular.module('classeur.extensions.scrollSync', [])
 				// Now set the correct height
 				previewContentElt.style.removeProperty('height');
 				var newHeight = previewContentElt.offsetHeight;
-				isScrollEditor = true;
+				isScrollEditor = layout.isEditorOpen;
 				if(newHeight < previewHeight) {
 					// We expect a scroll adjustment
 					scrollAdjust = true;
 				}
-				buildSections();
 			},
 			onPanelResized: function() {
 				// This could happen before the editor/preview panels are created
 				if(!editorElt) {
 					return;
 				}
-				isScrollEditor = true;
-				buildSections();
+				isScrollEditor = layout.isEditorOpen;
+			},
+			onMeasure: function() {
+				// Force Scroll Sync (-10 to have a gap > 9px)
+				lastEditorScrollTop = -10;
+				lastPreviewScrollTop = -10;
+				doScrollSync(!layout.isEditorOpen || !layout.isSidePreviewOpen);
 			},
 			savePreviewHeight: function() {
 				previewHeight = previewContentElt.offsetHeight;
 				previewContentElt.style.height = previewHeight + 'px';
-			},
-			forceEditorSync: function() {
-				isScrollPreview = true;
-				isScrollEditor = false;
-				doScrollSync();
-			},
-			forcePreviewSync: function() {
-				isScrollEditor = true;
-				isScrollPreview = false;
-				doScrollSync();
 			}
 		};
 

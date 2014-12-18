@@ -22,14 +22,27 @@ angular.module('classeur.core.cledit', [])
 					});
 				});
 
+				var isInited;
 				scope.$watch('cledit.options', function() {
 					cledit.forcePreviewRefresh();
 					cledit.editor.init(cledit.options);
+					if(!isInited) {
+						cledit.editor.setSelection(0, 0);
+						isInited = true;
+					}
 					debouncedRefreshPreview();
 				});
 				scope.$watch('layout.isEditorOpen', function() {
 					cledit.editor.toggleEditable(layout.isEditorOpen);
 				});
+
+				var debouncedMeasureSectionDimension = window.ced.Utils.debounce(function() {
+					cledit.measureSectionDimensions();
+					scope.$apply();
+				}, settings.values.refreshPreviewDelay + 100);
+				scope.$watch('cledit.lastPreview', debouncedMeasureSectionDimension);
+				scope.$watch('cledit.editorSize()', debouncedMeasureSectionDimension);
+				scope.$watch('cledit.previewSize()', debouncedMeasureSectionDimension);
 			}
 		};
 	})
@@ -42,13 +55,57 @@ angular.module('classeur.core.cledit', [])
 			}
 		};
 	})
+	.directive('clToc', function(cledit) {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/core/cledit/toc.html',
+			link: function(scope, element) {
+				var tocElt = element[0].querySelector('.toc');
+				cledit.setTocElt(tocElt);
+
+				var isMousedown;
+				function onClick(e) {
+					if(!isMousedown) {
+						return;
+					}
+					e.preventDefault();
+					var y = e.clientY + tocElt.parentNode.scrollTop;
+
+					cledit.sectionDescList.some(function(sectionDesc) {
+						if(y < sectionDesc.tocDimension.endOffset) {
+							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1);
+							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection;
+							cledit.editorElt.parentNode.scrollTop = editorScrollTop - 100;
+							var previewScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection;
+							cledit.previewElt.parentNode.scrollTop = previewScrollTop - 100;
+							return true;
+						}
+					});
+				}
+
+				tocElt.addEventListener("mouseup", function() {
+					isMousedown = false;
+				});
+				tocElt.addEventListener("mouseleave", function() {
+					isMousedown = false;
+				});
+				tocElt.addEventListener("mousedown", function(e) {
+					isMousedown = e.which === 1;
+					onClick(e);
+				});
+				tocElt.addEventListener("mousemove", function(e){
+					onClick(e);
+				});
+			}
+		};
+	})
 	.factory('cledit', function(prism, settings) {
 		settings.setDefaultValue('refreshPreviewDelay', 500);
 
 		window.rangy.init();
 
-		var editorElt, previewElt;
-		var oldSectionList, oldLinkDefinition;
+		var editorElt, previewElt, tocElt;
+		var linkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
 		var sectionDelimiters = [];
@@ -88,9 +145,15 @@ angular.module('classeur.core.cledit', [])
 			},
 			setPreviewElt: function(elt) {
 				previewElt = elt;
+				this.previewElt = elt;
+			},
+			setTocElt: function(elt) {
+				tocElt = elt;
+				this.tocElt = elt;
 			},
 			setEditorElt: function(elt) {
 				editorElt = elt;
+				this.editorElt = elt;
 				cledit.editor = window.ced(elt, elt.parentNode);
 				cledit.pagedownEditor = new window.Markdown.Editor(cledit.converter, {
 					input: Object.create(cledit.editor)
@@ -121,8 +184,9 @@ angular.module('classeur.core.cledit', [])
 		var footnoteContainerElt;
 		var htmlElt = document.createElement('div');
 
-		function updateSectionList() {
-			var newSectionList = [];
+		function updateSectionDescList() {
+			var sectionDescList = cledit.sectionDescList || [];
+			var newSectionDescList = [];
 			var newLinkDefinition = '\n';
 			hasFootnotes = false;
 			cledit.sectionList.forEach(function(section) {
@@ -150,8 +214,9 @@ angular.module('classeur.core.cledit', [])
 				});
 
 				// Add section to the newSectionList
-				newSectionList.push({
+				newSectionDescList.push({
 					id: section.id,
+					editorElt: section.elt,
 					text: text + '\n'
 				});
 			});
@@ -161,55 +226,61 @@ angular.module('classeur.core.cledit', [])
 			insertBeforeSection = undefined;
 
 			// Render everything if file or linkDefinition changed
-			if(forcePreviewRefresh || oldLinkDefinition != newLinkDefinition) {
+			if(forcePreviewRefresh || linkDefinition != newLinkDefinition) {
 				forcePreviewRefresh = false;
-				oldLinkDefinition = newLinkDefinition;
-				sectionsToRemove = oldSectionList || [];
-				oldSectionList = newSectionList;
-				modifiedSections = newSectionList;
+				linkDefinition = newLinkDefinition;
+				sectionsToRemove = sectionDescList;
+				cledit.sectionDescList = newSectionDescList;
+				modifiedSections = newSectionDescList;
 				return;
 			}
 
 			// Find modified section starting from top
-			var leftIndex = oldSectionList.length;
-			oldSectionList.some(function(section, index) {
-				if(index >= newSectionList.length || section.text != newSectionList[index].text) {
+			var leftIndex = sectionDescList.length;
+			sectionDescList.some(function(sectionDesc, index) {
+				var newSectionDesc = newSectionDescList[index];
+				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
 					leftIndex = index;
 					return true;
 				}
+				// Replace old editor element in case markdown section has changed
+				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
 
 			// Find modified section starting from bottom
-			var rightIndex = -oldSectionList.length;
-			oldSectionList.slice().reverse().some(function(section, index) {
-				if(index >= newSectionList.length || section.text != newSectionList[newSectionList.length - index - 1].text) {
+			var rightIndex = -sectionDescList.length;
+			sectionDescList.slice().reverse().some(function(sectionDesc, index) {
+				var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
+				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
 					rightIndex = -index;
 					return true;
 				}
+				// Replace old editor element in case markdown section has changed
+				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
 
-			if(leftIndex - rightIndex > oldSectionList.length) {
+			if(leftIndex - rightIndex > sectionDescList.length) {
 				// Prevent overlap
-				rightIndex = leftIndex - oldSectionList.length;
+				rightIndex = leftIndex - sectionDescList.length;
 			}
 
 			// Create an array composed of left unmodified, modified, right
 			// unmodified sections
-			var leftSections = oldSectionList.slice(0, leftIndex);
-			modifiedSections = newSectionList.slice(leftIndex, newSectionList.length + rightIndex);
-			var rightSections = oldSectionList.slice(oldSectionList.length + rightIndex, oldSectionList.length);
+			var leftSections = sectionDescList.slice(0, leftIndex);
+			modifiedSections = newSectionDescList.slice(leftIndex, newSectionDescList.length + rightIndex);
+			var rightSections = sectionDescList.slice(sectionDescList.length + rightIndex, sectionDescList.length);
 			insertBeforeSection = rightSections[0];
-			sectionsToRemove = oldSectionList.slice(leftIndex, oldSectionList.length + rightIndex);
-			oldSectionList = leftSections.concat(modifiedSections).concat(rightSections);
+			sectionsToRemove = sectionDescList.slice(leftIndex, sectionDescList.length + rightIndex);
+			cledit.sectionDescList = leftSections.concat(modifiedSections).concat(rightSections);
 		}
 
 		cledit.convert = function() {
-			updateSectionList();
+			updateSectionDescList();
 
 			var textToConvert = modifiedSections.map(function(section) {
 				return section.text;
 			});
-			textToConvert.push(oldLinkDefinition + "\n\n");
+			textToConvert.push(linkDefinition + "\n\n");
 			textToConvert = textToConvert.join("");
 
 			var html = cledit.converter.makeHtml(textToConvert);
@@ -228,16 +299,23 @@ angular.module('classeur.core.cledit', [])
 
 			// Remove outdated sections
 			sectionsToRemove.forEach(function(section) {
-				var sectionElt = document.getElementById('classeur-preview-section-' + section.id);
-				previewElt.removeChild(sectionElt);
+				var sectionPreviewElt = document.getElementById('classeur-preview-section-' + section.id);
+				previewElt.removeChild(sectionPreviewElt);
+				var sectionTocElt = document.getElementById('classeur-toc-section-' + section.id);
+				tocElt.removeChild(sectionTocElt);
 			});
 
 			var childNode = htmlElt.firstChild;
 
-			function createSectionElt(section) {
-				var sectionElt = document.createElement('div');
-				sectionElt.id = 'classeur-preview-section-' + section.id;
-				sectionElt.className = 'classeur-preview-section';
+			var newPreviewEltList = document.createDocumentFragment();
+			var newTocEltList = document.createDocumentFragment();
+
+			function createSectionElt(sectionDesc) {
+
+				// Create section preview elt
+				var sectionPreviewElt = document.createElement('div');
+				sectionPreviewElt.id = 'classeur-preview-section-' + sectionDesc.id;
+				sectionPreviewElt.className = 'classeur-preview-section';
 				var isNextDelimiter = false;
 				while(childNode) {
 					var nextNode = childNode.nextSibling;
@@ -251,22 +329,32 @@ angular.module('classeur.core.cledit', [])
 						Array.prototype.forEach.call(childNode.querySelectorAll("ol > li"), storeFootnote);
 					}
 					else {
-						isDelimiter || sectionElt.appendChild(childNode);
+						isDelimiter || sectionPreviewElt.appendChild(childNode);
 					}
 					childNode = nextNode;
 				}
-				return sectionElt;
+				sectionDesc.previewElt = sectionPreviewElt;
+				newPreviewEltList.appendChild(sectionPreviewElt);
+
+				// Create section TOC elt
+				var sectionTocElt = document.createElement('div');
+				sectionTocElt.id = 'classeur-toc-section-' + sectionDesc.id;
+				sectionTocElt.className = 'classeur-toc-section';
+				var titleElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
+				titleElt && sectionTocElt.appendChild(titleElt.cloneNode(true));
+				sectionDesc.tocElt = sectionTocElt;
+				newTocEltList.appendChild(sectionTocElt);
 			}
 
-			var newSectionEltList = document.createDocumentFragment();
-			modifiedSections.forEach(function(section) {
-				newSectionEltList.appendChild(createSectionElt(section));
-			});
-			var insertBeforeElt = footnoteContainerElt;
+			modifiedSections.forEach(createSectionElt);
+			var insertBeforePreviewElt = footnoteContainerElt;
+			var insertBeforeTocElt;
 			if(insertBeforeSection !== undefined) {
-				insertBeforeElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
+				insertBeforePreviewElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
+				insertBeforeTocElt = document.getElementById('classeur-toc-section-' + insertBeforeSection.id);
 			}
-			previewElt.insertBefore(newSectionEltList, insertBeforeElt);
+			previewElt.insertBefore(newPreviewEltList, insertBeforePreviewElt);
+			insertBeforeTocElt ? tocElt.insertBefore(newTocEltList, insertBeforeTocElt) : tocElt.appendChild(newTocEltList);
 
 			// Rewrite footnotes in the footer and update footnote numbers
 			footnoteContainerElt.innerHTML = '';
@@ -327,6 +415,87 @@ angular.module('classeur.core.cledit', [])
 			});
 			recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
 		}
+
+		function SectionDimension(startOffset, endOffset) {
+			this.startOffset = startOffset;
+			this.endOffset = endOffset;
+			this.height = endOffset - startOffset;
+		}
+
+		function dimensionNormalizer(dimensionName) {
+			return function() {
+				var dimensionList = cledit.sectionDescList.map(function(sectionDesc) {
+					return sectionDesc[dimensionName];
+				});
+				var dimension, i, j;
+				for(i = 0; i < dimensionList.length; i++) {
+					dimension = dimensionList[i];
+					if(!dimension.height) {
+						continue;
+					}
+					for(j = i + 1; j < dimensionList.length && dimensionList[j].height === 0; j++) {
+					}
+					var normalizeFactor = j - i;
+					if(normalizeFactor === 1) {
+						continue;
+					}
+					var normizedHeight = dimension.height / normalizeFactor;
+					dimension.height = normizedHeight;
+					dimension.endOffset = dimension.startOffset + dimension.height;
+					for(j = i + 1; j < i + normalizeFactor; j++) {
+						var startOffset = dimension.endOffset;
+						dimension = dimensionList[j];
+						dimension.startOffset = startOffset;
+						dimension.height = normizedHeight;
+						dimension.endOffset = dimension.startOffset + dimension.height;
+					}
+					i = j - 1;
+				}
+			};
+		}
+
+		var normalizeEditorDimensions = dimensionNormalizer('editorDimension');
+		var normalizePreviewDimensions = dimensionNormalizer('previewDimension');
+		var normalizeTocDimensions = dimensionNormalizer('tocDimension');
+
+		cledit.measureSectionDimensions = function() {
+			var editorSectionOffset = 0;
+			var previewSectionOffset = 0;
+			var tocSectionOffset = 0;
+			var sectionDesc = cledit.sectionDescList[0];
+			var nextSectionDesc;
+			for(var i = 1; i < cledit.sectionDescList.length; i++) {
+				nextSectionDesc = cledit.sectionDescList[i];
+
+				// Measure editor section
+				var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset;
+				sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, newEditorSectionOffset);
+				editorSectionOffset = newEditorSectionOffset;
+
+				// Measure preview section
+				var newPreviewSectionOffset = nextSectionDesc.previewElt ? nextSectionDesc.previewElt.offsetTop : previewSectionOffset;
+				sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, newPreviewSectionOffset);
+				previewSectionOffset = newPreviewSectionOffset;
+
+				// Measure TOC section
+				var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight/2 : tocSectionOffset;
+				sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, newTocSectionOffset);
+				tocSectionOffset = newTocSectionOffset;
+				sectionDesc = nextSectionDesc;
+			}
+
+			// Last section
+			sectionDesc = cledit.sectionDescList[i - 1];
+			sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
+			sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
+			sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
+
+			normalizeEditorDimensions();
+			normalizePreviewDimensions();
+			normalizeTocDimensions();
+
+			cledit.lastMeasure = Date.now();
+		};
 
 		return cledit;
 	});

@@ -234,7 +234,7 @@ angular.module('classeur.extensions.mathJax', [])
 			return text;
 		}
 
-		var ready = false, pending = false, preview = null, inline = "$", blocks, start, end, last, braces, math;
+		var ready = false, pending = false, inline = "$", blocks, start, end, last, braces, math;
 
 		//
 		//  The pattern for math delimiters and special symbols
@@ -283,8 +283,7 @@ angular.module('classeur.extensions.mathJax', [])
 				HUB.cancelTypeset = false;
 				HUB.Queue([
 					"Typeset",
-					HUB,
-					preview
+					HUB
 				]);
 				HUB.Queue(typesetCallback); //benweet
 			}

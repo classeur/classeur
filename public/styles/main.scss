@@ -19,8 +19,26 @@ fa-app {
 	right: 0;
 }
 
+body {
+	background-color: #ccc;
+}
+
+.no-overflow {
+	overflow: hidden;
+}
+
 .background {
 	background-color: #F8F8F8;
+}
+
+.background-folding {
+	background-color: #eaeaea;
+	cursor: pointer;
+	overflow: hidden;
+	.shadow {
+		background-color: #d8d8d8;
+		box-shadow: inset 0px 8px 17px rgba(0, 0, 0, 0.2);
+	}
 }
 
 .paper {
@@ -42,7 +60,6 @@ fa-app {
 	border-top-right-radius: 12px;
 }
 
-
 .hole {
 	box-shadow: inset 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
 	border-radius: 10px;
@@ -59,7 +76,12 @@ fa-app {
 	}
 }
 
-.editor-container, .preview-container {
+.postit {
+	background-color: #FFF7B2;
+	padding: 10px;
+}
+
+.editor-container, .preview-container, .toc-container {
 	margin: 0;
 	position: absolute;
 	bottom: 0;
@@ -95,6 +117,43 @@ fa-app {
 	text-align: justify;
 }
 
+.toc-container {
+	* {
+		font-weight: normal;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	.classeur-toc-section * {
+		margin: .55em 0;
+	}
+	h2 {
+		padding-left: 5px;
+	}
+	h3 {
+		padding-left: 10px;
+	}
+	h4 {
+		padding-left: 15px;
+	}
+	h5 {
+		padding-left: 20px;
+	}
+	h6 {
+		padding-left: 25px;
+	}
+	.toc {
+		font-size: 9px;
+		color: #4a4a4a;
+		cursor: pointer;
+		padding: 30px;
+	}
+}
+
+
 .folding-gutter {
 	position: absolute;
 	top: 0;
@@ -122,7 +181,6 @@ fa-app {
 	padding: 40px;
 	color: #fff;
 	.entry, .md-text {
-		font-weight: bold;
 		text-align: center;
 	}
 }
@@ -152,6 +210,29 @@ fa-app {
 	}
 	.mdi-navigation-more-horiz {
 		line-height: 1.4;
+	}
+}
+
+.btn-folding i {
+	font-size: 28px;
+	padding: 5px;
+}
+
+.btn-close-stat {
+	i {
+		display: block;
+		cursor: pointer;
+		padding: 5px;
+		font-size: 18px;
+	}
+}
+
+.btn-close-toc {
+	i {
+		display: block;
+		cursor: pointer;
+		padding: 5px;
+		font-size: 22px;
 	}
 }
 
@@ -209,6 +290,10 @@ fa-app {
 	padding: 0;
 }
 
+md-slider.md-default-theme .md-track {
+	background-color: #aaa;
+}
+
 .md-track-ticks {
 	display: none;
 }
@@ -240,3 +325,18 @@ md-switch {
 	-ms-transform: rotate(90deg);
 	-o-transform: rotate(90deg);
 }
+
+.rotate-180 {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+}
+
+.rotate-270 {
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+}
+

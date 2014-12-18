@@ -14,37 +14,39 @@ angular.module('classeur.core.layout', [
 				scope.cledit = cledit;
 
 				var previewSizeAdjust = 150;
-				var windowWidth, marginRight;
+				var binderWidth, marginRight;
 				var leftMarginOverflow = 90;
 
 				function updateLayout() {
-					windowWidth = document.body.clientWidth;
-					//transX = document.body.clientWidth / 2;
+					binderWidth = document.body.clientWidth;
+					if(layout.isTocOpen) {
+						binderWidth -= layout.tocWidth;
+					}
 					layout.fontSize = 18;
 					var factor = 1 + (settings.values.zoom - 3) * 0.1;
 					// Kind of responsive...
 					layout.pageWidth = 990 * factor;
-					if(windowWidth < 1120) {
+					if(binderWidth < 1120) {
 						--layout.fontSize;
 						layout.pageWidth = 910 * factor;
 					}
-					if(windowWidth < 1040) {
+					if(binderWidth < 1040) {
 						layout.pageWidth = 830 * factor;
 					}
-					marginRight = (windowWidth - layout.pageWidth) / 2;
+					marginRight = (binderWidth - layout.pageWidth) / 2;
 					marginRight = marginRight > 0 ? marginRight : 0;
-					if(windowWidth + leftMarginOverflow < layout.pageWidth) {
-						layout.pageWidth = windowWidth + leftMarginOverflow;
+					if(binderWidth + leftMarginOverflow < layout.pageWidth) {
+						layout.pageWidth = binderWidth + leftMarginOverflow;
 					}
 					if(layout.pageWidth < 640) {
 						--layout.fontSize;
 					}
 					if(layout.isSidePreviewOpen) {
-						var maxWidth = windowWidth / 2 + layout.sideButtonWidth + leftMarginOverflow;
+						var maxWidth = binderWidth / 2 + layout.sideButtonWidth + leftMarginOverflow;
 						if(maxWidth < layout.pageWidth) {
 							layout.pageWidth = maxWidth;
 						}
-						marginRight = windowWidth/2 - layout.sideButtonWidth;
+						marginRight = binderWidth/2 - layout.sideButtonWidth;
 					}
 				}
 
@@ -55,11 +57,22 @@ angular.module('classeur.core.layout', [
 					];
 				}
 
-				function getBinderTranslate() {
+				function getBinderOuterTranslate() {
 					return [
-						windowWidth - (layout.pageWidth + layout.sideButtonWidth) / 2 - marginRight,
+						layout.isTocOpen ? -layout.tocWidth : 0,
 						0
 					];
+				}
+
+				function getBinderTranslate() {
+					var result = [
+						binderWidth - (layout.pageWidth + layout.sideButtonWidth) / 2 - marginRight,
+						0
+					];
+					if(layout.isTocOpen) {
+						result[0] += layout.tocWidth;
+					}
+					return result;
 				}
 
 				function getPreviewSize() {
@@ -93,7 +106,7 @@ angular.module('classeur.core.layout', [
 
 				function getPageOuterTranslate() {
 					return [
-						layout.isMenuOpen ? 10 : 0,
+						layout.isMenuOpen ? 5 : 0,
 						0
 					];
 				}
@@ -106,16 +119,41 @@ angular.module('classeur.core.layout', [
 					];
 				}
 
+				function getFoldingSize() {
+					return [
+						layout.isFoldingOpen ? 100 : 40,
+						layout.isFoldingOpen ? 100 : 40
+					];
+				}
+
+				function getFoldingShadowSize() {
+					var result = getFoldingSize();
+					result[0] = 200;
+					result[1] = Math.sqrt(result[1] * result[1] * 2);
+					return result;
+				}
+
+				function getStatTranslate() {
+					return [
+						layout.isStatOpen ? 30 : 40,
+						layout.isStatOpen ? 50 : 300,
+					];
+				}
+
 				updateLayout();
 				var layoutTrans = {
 					binderSize: new Transitionable(getBinderSize()),
 					binderTranslate: new Transitionable(getBinderTranslate()),
+					binderOuterTranslate: new Transitionable(getBinderOuterTranslate()),
 					previewSize: new Transitionable(getPreviewSize()),
 					previewTranslate: new Transitionable(getPreviewTranslate()),
 					editorTranslate: new Transitionable(getEditorTranslate()),
 					pageTranslate: new Transitionable(getPageTranslate()),
 					pageOuterTranslate: new Transitionable(getPageOuterTranslate()),
 					pageRotate: new Transitionable(getPageRotate()),
+					foldingSize: new Transitionable(getFoldingSize()),
+					foldingShadowSize: new Transitionable(getFoldingShadowSize()),
+					statTranslate: new Transitionable(getStatTranslate()),
 					fontSizePx: layout.fontSize + 'px',
 					fontSizeEm: (7 + settings.values.zoom)/10 + 'em'
 				};
@@ -123,18 +161,19 @@ angular.module('classeur.core.layout', [
 
 				function setLayoutTransition() {
 					updateLayout();
+					layoutTrans.binderOuterTranslate.set(getBinderOuterTranslate(), {duration: 180, curve: 'easeOut'});
 					layoutTrans.binderTranslate.set(getBinderTranslate(), {duration: 180, curve: 'easeOut'}, function() {
 						layoutTrans.isReady = true;
 						layoutTrans.fontSizePx = layout.fontSize + 'px';
 						layoutTrans.fontSizeEm = (7 + settings.values.zoom)/10 + 'em';
 						scope.$apply();
-						layoutTrans.binderSize.set(getBinderSize(), {duration: 180, curve: 'custom'}, function() {
+						layoutTrans.binderSize.set(getBinderSize(), {duration: 0}, function() {
 							scope.$apply();
 						});
 					});
 					var previewSize = getPreviewSize();
 					layoutTrans.previewTranslate.set(getPreviewTranslate(), {duration: 180, curve: 'easeOut'}, function() {
-						layoutTrans.previewSize.set(previewSize, {duration: 180, curve: 'custom'});
+						layoutTrans.previewSize.set(previewSize, {duration: 0});
 					});
 				}
 
@@ -155,13 +194,32 @@ angular.module('classeur.core.layout', [
 					layoutTrans.pageRotate.set(getPageRotate(), {duration: 180, curve: 'easeOutBounce'});
 				}
 
+				function setFoldingTransition() {
+					if(!layout.isFoldingOpen) {
+						layoutTrans.showFoldingButtons = false;
+					}
+					layoutTrans.foldingSize.set(getFoldingSize(), {duration: 180, curve: 'easeOut'});
+					layoutTrans.foldingShadowSize.set(getFoldingShadowSize(), {duration: 180, curve: 'easeOut'}, function() {
+						if(layout.isFoldingOpen) {
+							layoutTrans.showFoldingButtons = true;
+							scope.$apply();
+						}
+					});
+				}
+
+				function setStatTransition() {
+					layoutTrans.statTranslate.set(getStatTranslate(), {duration: 180, curve: 'easeOutBounce'});
+				}
+
 				window.addEventListener('resize', window.ced.Utils.debounce(setLayoutTransition, 400));
 
 				scope.$watch('settings.values.zoom', setLayoutTransition);
 				scope.$watch('layout.isSidePreviewOpen', setLayoutTransition);
 				scope.$watch('layout.isEditorOpen', setEditorTransition);
 				scope.$watch('layout.isMenuOpen', setMenuTransition);
-
+				scope.$watch('layout.isTocOpen', setLayoutTransition);
+				scope.$watch('layout.isStatOpen', setStatTransition);
+				scope.$watch('layout.isFoldingOpen', setFoldingTransition);
 			}
 		};
 	})
@@ -172,6 +230,8 @@ angular.module('classeur.core.layout', [
 			pageMargin: 25,
 			sideButtonWidth: 40,
 			menuWidth: 320,
+			tocWidth: 250,
+			statHeight: 30,
 			gutterWidth: 120,
 			isEditorOpen: true,
 			toggleEditor: function(isOpen) {
@@ -182,6 +242,15 @@ angular.module('classeur.core.layout', [
 			},
 			toggleMenu: function(isOpen) {
 				this.isMenuOpen = isOpen === undefined ? !this.isMenuOpen : isOpen;
+			},
+			toggleToc: function(isOpen) {
+				this.isTocOpen = isOpen === undefined ? !this.isTocOpen : isOpen;
+			},
+			toggleStat: function(isOpen) {
+				this.isStatOpen = isOpen === undefined ? !this.isStatOpen : isOpen;
+			},
+			toggleFolding: function(isOpen) {
+				this.isFoldingOpen = isOpen === undefined ? !this.isFoldingOpen : isOpen;
 			}
 		};
 	});
