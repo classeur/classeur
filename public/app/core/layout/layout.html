@@ -175,17 +175,20 @@
 	</fa-container-surface>
 </fa-modifier>
 
-<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[180, 180]" fa-rotate-z="-0.05"
-			 fa-translate="layoutTrans.statTranslate.get()">
-	<fa-container-surface>
-		<fa-surface class="postit md-whiteframe-z2">
-			Nothing here right now!
-		</fa-surface>
-		<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
-			<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
-				<i class="mdi-content-clear" ng-click="layout.toggleStat(false)"></i>
-			</cl-button>
-		</fa-modifier>
-	</fa-container-surface>
+<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[180, 180]" fa-rotate-z="-0.04"
+			 fa-translate="layoutTrans.statTranslate.get()" ng-if="layout.isStatOpen">
+	<fa-draggable fa-pipe-from="layoutTrans.statHandler">
+		<fa-container-surface fa-pipe-to="layoutTrans.statHandler">
+			<fa-surface class="postit md-whiteframe-z2">
+				<cl-stat></cl-stat>
+			</fa-surface>
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
+				<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-content-clear" ng-click="layout.toggleStat(false)"></i>
+				</cl-button>
+			</fa-modifier>
+		</fa-container-surface>
+	</fa-draggable>
 </fa-modifier>
 
+<cl-conversation></cl-conversation>

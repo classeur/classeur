@@ -195,10 +195,11 @@ angular.module('classeur.core.prism', [])
 			};
 			md.p = {
 				pattern: /.+/g,
-				inside: {
-					'md md-toc': /^\s*\[(toc|TOC)\]\s*$/g
-				}
+				inside: {}
 			};
+			if(options.toc) {
+				md.p.inside['md md-toc'] = /^\s*\[(toc|TOC)\]\s*$/g;
+			}
 			md.img = {
 				pattern: /!\[[^\]]*\]\([^\)]+\)/g,
 				inside: {

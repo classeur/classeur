@@ -79,6 +79,14 @@ body {
 .postit {
 	background-color: #FFF7B2;
 	padding: 10px;
+	cursor: move;
+	font-size: 14px;
+}
+
+.stat {
+	.value {
+		font-size: 16px;
+	}
 }
 
 .editor-container, .preview-container, .toc-container {
@@ -94,7 +102,7 @@ body {
 .editor {
 	margin: 0;
 	padding: {
-		top: 120px;
+		top: 100px;
 		bottom: 360px;
 		left: $editor-margin-width;
 		right: 20px;
@@ -109,7 +117,7 @@ body {
 .preview {
 	margin: 0;
 	padding: {
-		top: 120px;
+		top: 100px;
 		bottom: 360px;
 		left: 4060px;
 		right: 4020px;
@@ -154,7 +162,7 @@ body {
 }
 
 
-.folding-gutter {
+.gutter {
 	position: absolute;
 	top: 0;
 	width: $editor-margin-width;
@@ -166,14 +174,27 @@ body {
 	user-select: none;
 	& > div {
 		position: absolute;
-		right: 2px;
-		padding: 3px;
-		font-size: 16px;
 		cursor: pointer;
 		color: transparentize(#000, 0.75);
 		&:hover {
 			color: transparentize(#000, 0.6);
 		}
+	}
+}
+
+.folding.gutter {
+	& > div {
+		right: 2px;
+		padding: 3px;
+		font-size: 16px;
+	}
+}
+
+.commenting.gutter {
+	& > div {
+		right: 24px;
+		padding: 3px 2px;
+		font-size: 24px;
 	}
 }
 

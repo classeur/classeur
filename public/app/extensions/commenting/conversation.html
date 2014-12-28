@@ -1,0 +1,15 @@
+<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[240, 240]" fa-translate="[25, 15, 10]" fa-rotate-z="-0.04" ng-if="commenting.currentDiscussion">
+	<fa-draggable fa-pipe-from="draggableHandler">
+		<fa-container-surface fa-pipe-to="draggableHandler">
+			<fa-surface class="postit md-whiteframe-z2">
+				<cl-comment-input></cl-comment-input>
+			</fa-surface>
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
+				<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-content-clear" ng-click="commenting.currentDiscussion = undefined"></i>
+				</cl-button>
+			</fa-modifier>
+		</fa-container-surface>
+	</fa-draggable>
+</fa-modifier>
+

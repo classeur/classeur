@@ -82,13 +82,51 @@ angular.module('classeur.extensions.mathJax', [])
 				init();
 				converter.hooks.chain("preConversion", removeMath);
 				converter.hooks.chain("postConversion", replaceMath);
+
+				var cacheDict = {};
+				var encloseMath;
 				cledit.onAsyncPreview(function(cb) {
 					if(!UpdateMJ) {
 						return cb();
 					}
-					typesetCallback = cb;
+					if(!encloseMath) {
+						encloseMath = window.MathJax.Extension.tex2jax.encloseMath;
+						window.MathJax.Extension.tex2jax.encloseMath = function(element) {
+							element = element.parentNode;
+							var className = element.className;
+							element.className = className ? className + ' contains-mathjax' : 'contains-mathjax';
+							element.htmlBeforeTypeSet = element.innerHTML;
+							return encloseMath.apply(window.MathJax.Extension.tex2jax, arguments);
+						};
+					}
+					Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section.modified *'), function(elt) {
+						var entry, entries = cacheDict[elt.innerHTML];
+						do {
+							entry = entries && entries.pop();
+						} while(entry && document.contains(entry));
+						entry && elt.parentNode.replaceChild(entry, elt);
+					});
+					typesetCallback = function() {
+						cacheDict = {};
+						Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section .contains-mathjax'), function(elt) {
+							var entries = cacheDict[elt.htmlBeforeTypeSet] || [];
+							entries.push(elt);
+							cacheDict[elt.htmlBeforeTypeSet] = entries;
+						});
+						cb();
+					};
 					UpdateMJ();
 				});
+
+				// Add new math block delimiter with priority 10
+				var delimiter = '^[ \\t]*\\n\\$\\$[\\s\\S]*?\\$\\$|'; // $$ math block delimiters
+				delimiter = '^[ \\t]*\\n\\\\\\\\[[\\s\\S]*?\\\\\\\\]|' + delimiter; // \\[ \\] math block delimiters
+				delimiter = '^[ \\t]*\\n\\\\?\\\\begin\\{[a-z]*\\*?\\}[\\s\\S]*?\\\\end\\{[a-z]*\\*?\\}|' + delimiter; // \\begin{...} \\end{...} math block delimiters
+				cledit.setSectionDelimiter(10, delimiter);
+			}
+			else {
+				// Unset math block delimiter
+				cledit.setSectionDelimiter(10, undefined);
 			}
 
 			cledit.setPrismOptions({
@@ -107,7 +145,7 @@ angular.module('classeur.extensions.mathJax', [])
 			// Load MathJax via a script tag
 			script = document.createElement('script');
 			script.type = 'text/javascript';
-			script.src = 'bower_components/MathJax/MathJax.js?config=TeX-AMS_HTML';
+			script.src = 'bower_components/MathJax/unpacked/MathJax.js?config=TeX-AMS_HTML';
 			script.onload = onMathJaxLoaded;
 			document.head.appendChild(script);
 			isInit = true;

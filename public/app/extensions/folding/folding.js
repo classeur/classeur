@@ -5,7 +5,7 @@ angular.module('classeur.extensions.folding', [])
 			templateUrl: 'app/extensions/folding/foldingGutter.html',
 			scope: true,
 			link: function(scope, element) {
-				var gutterElt = element[0].querySelector('.folding-gutter');
+				var gutterElt = element[0].querySelector('.folding.gutter');
 				scope.folding = folding;
 				function updateFoldButtons() {
 					folding.sectionGroups.forEach(function(sectionGroup) {
@@ -90,9 +90,7 @@ angular.module('classeur.extensions.folding', [])
 				}
 
 				scope.$watch('cledit.editor.selectionMgr', function(selectionMgr) {
-					var i = 0;
 					selectionMgr.onSelectionChanged(function(start, end, selectionRange) {
-						console.log(i++)
 						if(unfoldContainer(selectionRange.startContainer) | unfoldContainer(selectionRange.endContainer)) {
 							scope.$apply();
 						}

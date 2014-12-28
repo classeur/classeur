@@ -1,0 +1,10 @@
+<div class="commenting gutter">
+	<div
+		ng-repeat="discussion in commenting.discussions"
+		ng-class="{'mdi-communication-messenger': true}"
+		ng-mouseover="discussion.commentButton.over = true"
+		ng-mouseleave="discussion.commentButton.over = false"
+		ng-click="commenting.currentDiscussion = discussion"
+		style="top: {{discussion.commentButton.top}}">
+	</div>
+</div>

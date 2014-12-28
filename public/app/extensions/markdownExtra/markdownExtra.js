@@ -5,7 +5,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			templateUrl: 'app/extensions/markdownExtra/markdownExtraSettings.html'
 		};
 	})
-	.directive('clMarkdownExtra', function(cledit, settings) {
+	.directive('clMarkdownExtra', function(cledit, settings, Slug) {
 		settings.setDefaultValue('markdownExtra', true);
 
 		var options = {
@@ -20,6 +20,9 @@ angular.module('classeur.extensions.markdownExtra', [])
 				"newlines"
 			],
 			intraword: true,
+			toc: true,
+			tocMaxDepth: 6,
+			tocMarker: '\\[(TOC|toc)\\]',
 			highlighter: 'highlight'
 		};
 
@@ -68,6 +71,13 @@ angular.module('classeur.extensions.markdownExtra', [])
 				}
 			}
 
+			// Add email conversion to links
+			converter.hooks.chain("postConversion", function(text) {
+				return text.replace(/<(mailto\:)?([^\s>]+@[^\s>]+\.\S+?)>/g, function(match, mailto, email) {
+					return '<a href="mailto:' + email + '">' + email + '</a>';
+				});
+			});
+
 			// Set cledit options
 			if(hasExtension('fenced_code_gfm')) {
 				// Add new fenced code block delimiter with priority 25
@@ -81,17 +91,120 @@ angular.module('classeur.extensions.markdownExtra', [])
 				fcbs: hasExtension('fenced_code_gfm'),
 				tables: hasExtension('tables'),
 				footnotes: hasExtension('footnotes'),
-				strikes: hasExtension('strikethrough')
+				strikes: hasExtension('strikethrough'),
+				toc: isEnabled && options.toc
 			});
 		});
 
+
+		// TOC element description
+		function TocElement(tagName, anchor, text) {
+			this.tagName = tagName;
+			this.anchor = anchor;
+			this.text = text;
+			this.children = [];
+		}
+
+		TocElement.prototype.childrenToString = function() {
+			if(this.children.length === 0) {
+				return "";
+			}
+			var result = "<ul>\n";
+			this.children.forEach(function(child) {
+				result += child.toString();
+			});
+			result += "</ul>\n";
+			return result;
+		};
+
+		TocElement.prototype.toString = function() {
+			var result = "<li>";
+			if(this.anchor && this.text) {
+				result += '<a href="#' + this.anchor + '">' + this.text + '</a>';
+			}
+			result += this.childrenToString() + "</li>\n";
+			return result;
+		};
+
+		// Transform flat list of TocElement into a tree
+		function groupTags(array, level) {
+			level = level || 1;
+			var tagName = "H" + level;
+			var result = [];
+
+			var currentElement;
+			function pushCurrentElement() {
+				if(currentElement !== undefined) {
+					if(currentElement.children.length > 0) {
+						currentElement.children = groupTags(currentElement.children, level + 1);
+					}
+					result.push(currentElement);
+				}
+			}
+
+			array.forEach(function(element) {
+				if(element.tagName != tagName) {
+					if(level !== options.tocMaxDepth) {
+						if(currentElement === undefined) {
+							currentElement = new TocElement();
+						}
+						currentElement.children.push(element);
+					}
+				}
+				else {
+					pushCurrentElement();
+					currentElement = element;
+				}
+			});
+			pushCurrentElement();
+			return result;
+		}
+
 		return {
 			restrict: 'A',
-			link: function(scope) {
+			link: function(scope, element) {
+				var previewElt = element[0];
+				var tocExp = new RegExp("^\\s*" + options.tocMarker + "\\s*$");
 
 				scope.$watch('settings.values.markdownExtra', function() {
 					cledit.initConverter();
 				});
+
+				scope.$watch('cledit.lastPreview', function() {
+					if(!settings.values.markdownExtra || !options.toc) {
+						return;
+					}
+
+					// Build the TOC
+					var anchorList = {};
+					function createAnchor(element) {
+						var id = element.id || Slug.slugify(element.textContent) || 'title';
+						var anchor = id;
+						var index = 0;
+						while (anchorList.hasOwnProperty(anchor)) {
+							anchor = id + "-" + (++index);
+						}
+						anchorList[anchor] = true;
+						// Update the id of the element
+						element.id = anchor;
+						return anchor;
+					}
+
+					var elementList = [];
+					Array.prototype.forEach.call(previewElt.querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
+						elementList.push(new TocElement(elt.tagName, createAnchor(elt), elt.textContent));
+					});
+					elementList = groupTags(elementList);
+					var htmlToc = '<div class="toc">\n<ul>\n' + elementList.join("") + '</ul>\n</div>\n';
+
+					// Replace toc paragraphs
+					Array.prototype.forEach.call(previewElt.getElementsByTagName('p'), function(elt) {
+						if(tocExp.test(elt.innerHTML)) {
+							elt.innerHTML = htmlToc;
+						}
+					});
+				});
+
 			}
 		};
 	});

@@ -1,6 +1,7 @@
 angular.module('classeur.app', [
 	'ngMaterial',
 	'ngAnimate',
+	'slugifier',
 	'famous.angular',
 	'classeur.core.button',
 	'classeur.core.cledit',
@@ -8,10 +9,13 @@ angular.module('classeur.app', [
 	'classeur.core.prism',
 	'classeur.core.settings',
 	'classeur.extensions.btnBar',
+	'classeur.extensions.commenting',
 	'classeur.extensions.folding',
+	'classeur.extensions.htmlSanitizer',
 	'classeur.extensions.markdownExtra',
 	'classeur.extensions.mathJax',
 	'classeur.extensions.scrollSync',
+	'classeur.extensions.stat',
 ])
 	.config(function($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animate/);

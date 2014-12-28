@@ -76,11 +76,25 @@ By including colons within the header row, you can define text to be left-aligne
 | zebra stripes | are neat        |    $1 |
 
 
+# Table of contents
+
+You can insert a table of contents using the marker `[TOC]`:
+
+[TOC]
+
+
 # Maths
 
-For inline formulas, enclose the formula in `$...$`. For displayed formulas, use `$$...$$`.
+## MathJax
 
-These render differently: $\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}$ (inline) or $$\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}\tag{displayed}$$
+You can render *LaTeX* mathematical expressions using **MathJax** as on StackExchange:
+
+The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
+
+$$
+\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.
+$$
 </pre>
+	<cl-commenting-gutter></cl-commenting-gutter>
 	<cl-folding-gutter></cl-folding-gutter>
 </div>

@@ -23,6 +23,7 @@ var vendorJs = [
 	'bower_components/angular-animate/angular-animate.js',
 	'bower_components/hammerjs/hammer.js',
 	'bower_components/angular-material/angular-material.js',
+	'bower_components/angular-slugify/angular-slugify.js',
 	'bower_components/famous/dist/famous-global.js',
 	'bower_components/famous-angular/dist/famous-angular.js',
 	'bower_components/google-diff-match-patch-js/diff_match_patch.js',

@@ -8,6 +8,7 @@ angular.module('classeur.core.layout', [
 			templateUrl: 'app/core/layout/layout.html',
 			link: function(scope) {
 				var Transitionable = $famous['famous/transitions/Transitionable'];
+				var EventHandler = $famous['famous/core/EventHandler'];
 
 				scope.layout = layout;
 				scope.settings = settings;
@@ -135,8 +136,8 @@ angular.module('classeur.core.layout', [
 
 				function getStatTranslate() {
 					return [
-						layout.isStatOpen ? 30 : 40,
-						layout.isStatOpen ? 50 : 300,
+						layout.isStatOpen ? 20 : 30,
+						layout.isStatOpen ? 80 : 300,
 					];
 				}
 
@@ -154,6 +155,7 @@ angular.module('classeur.core.layout', [
 					foldingSize: new Transitionable(getFoldingSize()),
 					foldingShadowSize: new Transitionable(getFoldingShadowSize()),
 					statTranslate: new Transitionable(getStatTranslate()),
+					statHandler: new EventHandler(),
 					fontSizePx: layout.fontSize + 'px',
 					fontSizeEm: (7 + settings.values.zoom)/10 + 'em'
 				};

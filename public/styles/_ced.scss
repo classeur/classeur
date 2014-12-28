@@ -36,6 +36,10 @@ pre.prettyprint {
 	border: 0;
 }
 
+.toc ul {
+	list-style-type: none;
+}
+
 .editor {
 	.code,
 	.pre {
@@ -156,7 +160,7 @@ pre.prettyprint {
 		color: $ced-color-lighter;
 	}
 
-	.hide {
+	.hide, .hide * {
 		display: inline-block;
 		position: absolute;
 		overflow: hidden;

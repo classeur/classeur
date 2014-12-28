@@ -4,8 +4,11 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
+				scope.$watch('cledit.editor', function(editor) {
+					editor && editor.onContentChanged(scrollSync.onContentChanged);
+				});
 				scope.$watch('cledit.lastConvert', scrollSync.savePreviewHeight);
-				scope.$watch('cledit.lastPreview', scrollSync.onPreviewRefreshed);
+				scope.$watch('cledit.lastPreview', scrollSync.restorePreviewHeight);
 				scope.$watch('cledit.editorSize()', scrollSync.onPanelResized);
 				scope.$watch('cledit.previewSize()', scrollSync.onPanelResized);
 				scope.$watch('cledit.lastMeasure', scrollSync.onMeasure);
@@ -74,10 +77,10 @@ angular.module('classeur.extensions.scrollSync', [])
 		var isScrollPreview;
 		var isEditorMoving;
 		var isPreviewMoving;
-		var scrollAdjust;
+		var sectionDescList;
 
 		var doScrollSync = function(debounce) {
-			if(!cledit.sectionDescList || cledit.sectionDescList.length === 0) {
+			if(!settings.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;
@@ -90,7 +93,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				isScrollEditor = false;
 				lastEditorScrollTop = editorScrollTop;
 				editorScrollTop += scrollSyncOffset;
-				cledit.sectionDescList.some(function(sectionDesc) {
+				sectionDescList.some(function(sectionDesc) {
 					if(editorScrollTop < sectionDesc.editorDimension.endOffset) {
 						var posInSection = (editorScrollTop - sectionDesc.editorDimension.startOffset) / (sectionDesc.editorDimension.height || 1);
 						destScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - scrollSyncOffset;
@@ -121,7 +124,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				isScrollPreview = false;
 				lastPreviewScrollTop = previewScrollTop;
 				previewScrollTop += scrollSyncOffset;
-				cledit.sectionDescList.some(function(sectionDesc) {
+				sectionDescList.some(function(sectionDesc) {
 					if(previewScrollTop < sectionDesc.previewDimension.endOffset) {
 						var posInSection = (previewScrollTop - sectionDesc.previewDimension.startOffset) / (sectionDesc.previewDimension.height || 1);
 						destScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - scrollSyncOffset;
@@ -187,30 +190,26 @@ angular.module('classeur.extensions.scrollSync', [])
 			oldPreviewElt = previewElt;
 
 			editorElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync) {
+				if(isEditorMoving) {
 					return;
 				}
-				if(!isEditorMoving) {
-					isScrollEditor = true;
-					isScrollPreview = false;
-					doScrollSync(layout.isEditorOpen && !layout.isSidePreviewOpen);
-				}
+				isScrollEditor = true;
+				isScrollPreview = false;
+				doScrollSync(layout.isEditorOpen && !layout.isSidePreviewOpen);
 			});
 
 			previewElt.addEventListener('scroll', function() {
-				if(!settings.values.scrollSync) {
+				if(isPreviewMoving) {
 					return;
 				}
-				if(!isPreviewMoving && !scrollAdjust) {
-					isScrollPreview = true;
-					isScrollEditor = false;
-					doScrollSync(!layout.isEditorOpen);
-				}
-				scrollAdjust = false;
+				isScrollPreview = true;
+				isScrollEditor = false;
+				doScrollSync(!layout.isEditorOpen);
 			});
 		}
 
 		var previewHeight, previewContentElt;
+		var isPreviewRefreshing;
 		return {
 			setEditorElt: function(elt) {
 				editorElt = elt;
@@ -221,15 +220,19 @@ angular.module('classeur.extensions.scrollSync', [])
 				previewContentElt = previewElt.children[0];
 				init();
 			},
-			onPreviewRefreshed: function() {
+			onContentChanged: function() {
+				isPreviewRefreshing = true;
+				sectionDescList = undefined;
+			},
+			savePreviewHeight: function() {
+				previewHeight = previewContentElt.offsetHeight;
+				previewContentElt.style.height = previewHeight + 'px';
+			},
+			restorePreviewHeight: function() {
 				// Now set the correct height
 				previewContentElt.style.removeProperty('height');
-				var newHeight = previewContentElt.offsetHeight;
 				isScrollEditor = layout.isEditorOpen;
-				if(newHeight < previewHeight) {
-					// We expect a scroll adjustment
-					scrollAdjust = true;
-				}
+				isPreviewRefreshing = false;
 			},
 			onPanelResized: function() {
 				// This could happen before the editor/preview panels are created
@@ -239,14 +242,14 @@ angular.module('classeur.extensions.scrollSync', [])
 				isScrollEditor = layout.isEditorOpen;
 			},
 			onMeasure: function() {
+				if(isPreviewRefreshing) {
+					return;
+				}
+				sectionDescList = cledit.sectionDescList;
 				// Force Scroll Sync (-10 to have a gap > 9px)
 				lastEditorScrollTop = -10;
 				lastPreviewScrollTop = -10;
 				doScrollSync(!layout.isEditorOpen || !layout.isSidePreviewOpen);
-			},
-			savePreviewHeight: function() {
-				previewHeight = previewContentElt.offsetHeight;
-				previewContentElt.style.height = previewHeight + 'px';
 			}
 		};
 

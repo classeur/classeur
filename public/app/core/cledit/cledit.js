@@ -39,7 +39,7 @@ angular.module('classeur.core.cledit', [])
 				var debouncedMeasureSectionDimension = window.ced.Utils.debounce(function() {
 					cledit.measureSectionDimensions();
 					scope.$apply();
-				}, settings.values.refreshPreviewDelay + 100);
+				}, settings.values.measureSectionDelay);
 				scope.$watch('cledit.lastPreview', debouncedMeasureSectionDimension);
 				scope.$watch('cledit.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('cledit.previewSize()', debouncedMeasureSectionDimension);
@@ -101,6 +101,7 @@ angular.module('classeur.core.cledit', [])
 	})
 	.factory('cledit', function(prism, settings) {
 		settings.setDefaultValue('refreshPreviewDelay', 500);
+		settings.setDefaultValue('measureSectionDelay', 1000);
 
 		window.rangy.init();
 
@@ -243,26 +244,27 @@ angular.module('classeur.core.cledit', [])
 					leftIndex = index;
 					return true;
 				}
-				// Replace old editor element in case markdown section has changed
+				// Replace old elements in case markdown section has changed
 				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
 
 			// Find modified section starting from bottom
 			var rightIndex = -sectionDescList.length;
+			var boundary = Math.min(sectionDescList.length, newSectionDescList.length);
 			sectionDescList.slice().reverse().some(function(sectionDesc, index) {
 				var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
 				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
 					rightIndex = -index;
 					return true;
 				}
+				if(leftIndex - rightIndex > boundary) {
+					// Prevent overlap
+					rightIndex = leftIndex - boundary;
+					return true;
+				}
 				// Replace old editor element in case markdown section has changed
 				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
-
-			if(leftIndex - rightIndex > sectionDescList.length) {
-				// Prevent overlap
-				rightIndex = leftIndex - sectionDescList.length;
-			}
 
 			// Create an array composed of left unmodified, modified, right
 			// unmodified sections
@@ -305,6 +307,11 @@ angular.module('classeur.core.cledit', [])
 				tocElt.removeChild(sectionTocElt);
 			});
 
+			// Remove `modified` class
+			Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section.modified, .classeur-toc-section.modified'), function(elt) {
+				elt.className = elt.className.replace(/ modified$/, '');
+			});
+
 			var childNode = htmlElt.firstChild;
 
 			var newPreviewEltList = document.createDocumentFragment();
@@ -315,7 +322,7 @@ angular.module('classeur.core.cledit', [])
 				// Create section preview elt
 				var sectionPreviewElt = document.createElement('div');
 				sectionPreviewElt.id = 'classeur-preview-section-' + sectionDesc.id;
-				sectionPreviewElt.className = 'classeur-preview-section';
+				sectionPreviewElt.className = 'classeur-preview-section modified';
 				var isNextDelimiter = false;
 				while(childNode) {
 					var nextNode = childNode.nextSibling;
@@ -339,7 +346,7 @@ angular.module('classeur.core.cledit', [])
 				// Create section TOC elt
 				var sectionTocElt = document.createElement('div');
 				sectionTocElt.id = 'classeur-toc-section-' + sectionDesc.id;
-				sectionTocElt.className = 'classeur-toc-section';
+				sectionTocElt.className = 'classeur-toc-section modified';
 				var titleElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
 				titleElt && sectionTocElt.appendChild(titleElt.cloneNode(true));
 				sectionDesc.tocElt = sectionTocElt;
@@ -397,7 +404,8 @@ angular.module('classeur.core.cledit', [])
 				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
 					return html + elt.innerHTML;
 				}, '');
-				cledit.html = html.replace(/^\s+|\s+$/g, '');
+				cledit.previewHtml = html.replace(/^\s+|\s+$/g, '');
+				cledit.previewText = previewElt.textContent;
 				cledit.lastPreview = Date.now();
 				cb();
 			}
