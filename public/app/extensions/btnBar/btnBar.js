@@ -138,7 +138,8 @@ angular.module('classeur.extensions.btnBar', [])
 				function getTrans() {
 					return [
 						0,
-						isOpen ? openOffsetY : closedOffsetY
+						isOpen ? openOffsetY : closedOffsetY,
+						1
 					];
 				}
 

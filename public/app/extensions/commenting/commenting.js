@@ -28,6 +28,24 @@ angular.module('classeur.extensions.commenting', [])
 						commenting.undoHighlight();
 					}
 				});
+
+				commenting.discussionsModelObject = {
+					a: {
+						start: 10,
+						end: 20,
+						comments: []
+					},
+				b: {
+						start: 110,
+					end: 120,
+					comments: []
+				},
+					$users: {}
+				};
+				scope.$watch('commenting.lastDiscussionChange', function() {
+					commenting.updateDiscussions(commenting.discussionsModelObject);
+					debouncedRefreshCoordinates();
+				});
 			}
 		};
 	})
@@ -43,26 +61,42 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clCommentInput', function() {
+	.directive('clCommentInput', function(commenting, user, layout) {
 		return {
 			restrict: 'E',
-			template: '<md-text-float label="Comment" ng-model="newComment"> </md-text-float>',
+			template: '<md-text-float label="Comment" ng-model="commenting.newCommentContent"></md-text-float>',
 			link: function(scope, element) {
 				var inputElt = element[0].querySelector('input');
 				inputElt.addEventListener('mousedown', function(e) {
 					e.stopPropagation();
 				});
-				scope.$watch('commenting.currentDiscussion', function() {
-					setTimeout(function() {
-						inputElt.focus();
-					}, 100);
+				inputElt.addEventListener('keydown', function(e) {
+					// Check enter key
+					if(e.which !== 13) {
+						return;
+					}
+					e.preventDefault();
+					var discussion = commenting.discussionsModelObject[commenting.currentDiscussion.id];
+					if(discussion && commenting.newCommentContent) {
+						discussion.comments.push({
+							user: user.localId,
+							content: commenting.newCommentContent
+						});
+						commenting.newCommentContent = undefined;
+						layout.currentControl = undefined;
+						commenting.discussionsModelObject.$users[user.localId] = user.name;
+						commenting.lastDiscussionChange = Date.now();
+						scope.$apply();
+					}
 				});
+				setTimeout(function() {
+					inputElt.focus();
+				}, 100);
 			}
 		};
 	})
-	.factory('commenting', function(editor, layout) {
+	.factory('commenting', function(editor, layout, settings) {
 		var commentButtonHeight = 30;
-
 		function CommentButton() {
 			this.setTop(-commentButtonHeight);
 		}
@@ -83,22 +117,40 @@ angular.module('classeur.extensions.commenting', [])
 			this.top = (top - commentButtonHeight/2 + 1) + 'px';
 		};
 
-		function Discussion(startMarker, endMarker, comments) {
-			this.startMarker = startMarker;
-			this.endMarker = endMarker;
-			this.comments = comments;
+		var Marker = window.cledit.Utils.Marker;
+		function Discussion(id, modelObject, users) {
+			this.id = id;
+			this.startMarker = new Marker(modelObject.start);
+			this.endMarker = new Marker(modelObject.end);
+			this.comments = modelObject.comments.map(function(commentModelObject) {
+				return {
+					user: users[commentModelObject.user] || settings.values.defaultUserName,
+					content: commentModelObject.content
+				};
+			});
+			this.modelObject = modelObject;
 			this.commentButton = new CommentButton();
 		}
 
-		var Marker = window.cledit.Utils.Marker;
-		var discussions = [
-			new Discussion(new Marker(10), new Marker(20), []),
-			new Discussion(new Marker(110), new Marker(120), []),
-			new Discussion(new Marker(110), new Marker(120), []),
-		];
+		var commenting = {
+			updateDiscussions: updateDiscussions,
+			refreshCoordinates: refreshCoordinates,
+			select: select,
+			highlight: highlight,
+			undoHighlight: undoHighlight
+		};
+
+		function updateDiscussions(discussionsModelObject) {
+			var discussions = [];
+			Object.keys(discussionsModelObject).forEach(function(id) {
+				id[0] !== '$' && discussions.push(new Discussion(id, discussionsModelObject[id], discussionsModelObject.$users || {}));
+			});
+			commenting.discussions = discussions;
+		}
+
 		function refreshCoordinates() {
 			yList = [];
-			discussions.sort(function(discussion1, discussion2) {
+			commenting.discussions.sort(function(discussion1, discussion2) {
 				return discussion1.endMarker.offset - discussion2.endMarker.offset;
 			}).forEach(function(discussion) {
 				var coordinates = editor.cledit.selectionMgr.getCoordinates(discussion.endMarker.offset);
@@ -133,11 +185,5 @@ angular.module('classeur.extensions.commenting', [])
 			catch(e) {}
 		}
 
-		return {
-			discussions: discussions,
-			refreshCoordinates: refreshCoordinates,
-			select: select,
-			highlight: highlight,
-			undoHighlight: undoHighlight
-		};
+		return commenting;
 	});

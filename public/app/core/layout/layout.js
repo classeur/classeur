@@ -230,10 +230,10 @@ angular.module('classeur.core.layout', [
 			}
 		};
 	})
-	.factory('layout', function(settings) {
+	.factory('layout', function($rootScope, settings) {
 		settings.setDefaultValue('zoom', 3);
 
-		return {
+		var layout = {
 			pageMargin: 25,
 			sideButtonWidth: 40,
 			menuWidth: 320,
@@ -260,4 +260,15 @@ angular.module('classeur.core.layout', [
 				this.isFoldingOpen = isOpen === undefined ? !this.isFoldingOpen : isOpen;
 			},
 		};
+
+		window.addEventListener('keydown', function(e) {
+			if(e.which === 27) {
+				// Esc key
+				e.preventDefault();
+				layout.currentControl = undefined;
+				$rootScope.$apply();
+			}
+		});
+
+		return layout;
 	});

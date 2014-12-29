@@ -1,4 +1,4 @@
-angular.module('classeur.core.prism', [])
+angular.module('classeur.core.editor.prism', [])
 	.factory('prism', function() {
 
 		var charInsideUrl = "(&amp;|[-A-Z0-9+@#/%?=~_|[\\]()!:,.;])",

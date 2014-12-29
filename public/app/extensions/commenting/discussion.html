@@ -2,6 +2,10 @@
 	<fa-draggable fa-pipe-from="draggableHandler">
 		<fa-container-surface fa-pipe-to="draggableHandler">
 			<fa-surface class="postit md-whiteframe-z2">
+				<div ng-repeat="comment in commenting.currentDiscussion.comments">
+					<span class="user">{{comment.user}}:</span>
+					<span class="content">{{comment.content}}</span>
+				</div>
 				<cl-comment-input></cl-comment-input>
 			</fa-surface>
 			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">

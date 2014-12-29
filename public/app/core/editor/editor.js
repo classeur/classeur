@@ -1,5 +1,5 @@
 angular.module('classeur.core.editor', [])
-	.directive('clEditor', function($timeout, editor, layout, settings) {
+	.directive('clEditor', function($timeout, editor, settings) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/editor/editor.html',
@@ -10,11 +10,10 @@ angular.module('classeur.core.editor', [])
 					editor.convert();
 					scope.$apply();
 					setTimeout(function() {
-						editor.refreshPreview(function() {
-							scope.$apply();
-						});
+						editor.refreshPreview(scope.$apply.bind(scope));
 					}, 1);
 				}, settings.values.refreshPreviewDelay);
+
 				editor.cledit.on('contentChanged', function(content, sectionList) {
 					$timeout(function() {
 						editor.sectionList = sectionList;
@@ -32,8 +31,8 @@ angular.module('classeur.core.editor', [])
 					}
 					debouncedRefreshPreview();
 				});
-				scope.$watch('layout.isEditorOpen', function() {
-					editor.cledit.toggleEditable(layout.isEditorOpen);
+				scope.$watch('layout.isEditorOpen', function(isOpen) {
+					editor.cledit.toggleEditable(isOpen);
 				});
 
 				var debouncedMeasureSectionDimension = window.cledit.Utils.debounce(function() {
@@ -43,6 +42,11 @@ angular.module('classeur.core.editor', [])
 				scope.$watch('editor.lastPreview', debouncedMeasureSectionDimension);
 				scope.$watch('editor.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editor.previewSize()', debouncedMeasureSectionDimension);
+				scope.$watch('layout.currentControl', function(currentControl) {
+					!currentControl && setTimeout(function() {
+						editor.cledit && editor.cledit.focus();
+					}, 1);
+				});
 			}
 		};
 	})
