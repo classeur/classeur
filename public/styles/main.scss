@@ -7,6 +7,7 @@ $material-font-path: "../bower_components/bootstrap-material-design/fonts";
 @import '_roboto-draft.scss';
 @import '_icons-material-design.scss';
 @import '_ced.scss';
+@import '_material.scss';
 $plastic-color: #64BDEB;
 $clip-color: #3A3938;
 $editor-margin-width: 120px;
@@ -89,7 +90,7 @@ body {
 	}
 }
 
-.editor-container, .preview-container, .toc-container {
+.panel {
 	margin: 0;
 	position: absolute;
 	bottom: 0;
@@ -195,6 +196,12 @@ body {
 		right: 24px;
 		padding: 3px 2px;
 		font-size: 24px;
+		&:hover {
+			color: rgba(33, 150, 243, 0.75);
+		}
+		&.current {
+			color: rgb(33, 150, 243);
+		}
 	}
 }
 
@@ -309,35 +316,6 @@ body {
 	height: 40px;
 	width: 100px;
 	padding: 0;
-}
-
-md-slider.md-default-theme .md-track {
-	background-color: #aaa;
-}
-
-.md-track-ticks {
-	display: none;
-}
-
-md-switch {
-	margin-bottom: 5px;
-
-	.md-container {
-		width: 60px;
-	}
-
-	&.md-default-theme .md-bar {
-		width: 54px;
-		height: 2px;
-		top: 12px;
-	}
-
-	.md-thumb-container {
-		top: 2px;
-		left: 0;
-		width: 36px;
-	}
-
 }
 
 .rotate-90 {

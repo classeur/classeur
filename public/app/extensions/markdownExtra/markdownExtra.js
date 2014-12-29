@@ -5,7 +5,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			templateUrl: 'app/extensions/markdownExtra/markdownExtraSettings.html'
 		};
 	})
-	.directive('clMarkdownExtra', function(cledit, settings, Slug) {
+	.directive('clMarkdownExtra', function(editor, settings, Slug) {
 		settings.setDefaultValue('markdownExtra', true);
 
 		var options = {
@@ -26,7 +26,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			highlighter: 'highlight'
 		};
 
-		cledit.onInitConverter(50, function(converter) {
+		editor.onInitConverter(50, function(converter) {
 			var isEnabled = settings.values.markdownExtra;
 			function hasExtension(extensionName) {
 				return isEnabled && options.extensions.some(function(extension) {
@@ -55,7 +55,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 				});
 
 				if(options.highlighter == "highlight") {
-					cledit.onAsyncPreview(function(cb) {
+					editor.onAsyncPreview(function(cb) {
 						Array.prototype.forEach.call(document.querySelectorAll('.prettyprint > code'), function(elt) {
 							!elt.highlighted && window.hljs.highlightBlock(elt);
 							elt.highlighted = true;
@@ -64,7 +64,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 					});
 				}
 				else if(options.highlighter == "prettify") {
-					cledit.onAsyncPreview(function(cb) {
+					editor.onAsyncPreview(function(cb) {
 						window.prettify.prettyPrint();
 						cb();
 					});
@@ -78,16 +78,16 @@ angular.module('classeur.extensions.markdownExtra', [])
 				});
 			});
 
-			// Set cledit options
+			// Set editor options
 			if(hasExtension('fenced_code_gfm')) {
 				// Add new fenced code block delimiter with priority 25
-				cledit.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
+				editor.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
 			}
 			else {
 				// Unset fenced code block delimiter
-				cledit.setSectionDelimiter(25, undefined);
+				editor.setSectionDelimiter(25, undefined);
 			}
-			cledit.setPrismOptions({
+			editor.setPrismOptions({
 				fcbs: hasExtension('fenced_code_gfm'),
 				tables: hasExtension('tables'),
 				footnotes: hasExtension('footnotes'),
@@ -167,10 +167,10 @@ angular.module('classeur.extensions.markdownExtra', [])
 				var tocExp = new RegExp("^\\s*" + options.tocMarker + "\\s*$");
 
 				scope.$watch('settings.values.markdownExtra', function() {
-					cledit.initConverter();
+					editor.initConverter();
 				});
 
-				scope.$watch('cledit.lastPreview', function() {
+				scope.$watch('editor.lastPreview', function() {
 					if(!settings.values.markdownExtra || !options.toc) {
 						return;
 					}

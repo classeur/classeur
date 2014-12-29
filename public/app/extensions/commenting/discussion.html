@@ -1,4 +1,4 @@
-<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[240, 240]" fa-translate="[25, 15, 10]" fa-rotate-z="-0.04" ng-if="commenting.currentDiscussion">
+<fa-modifier fa-size="[240, 240]" fa-translate="[10, 15, 10]" fa-rotate-z="-0.02" ng-if="layout.currentControl === 'discussion'">
 	<fa-draggable fa-pipe-from="draggableHandler">
 		<fa-container-surface fa-pipe-to="draggableHandler">
 			<fa-surface class="postit md-whiteframe-z2">
@@ -6,7 +6,7 @@
 			</fa-surface>
 			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
 				<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-content-clear" ng-click="commenting.currentDiscussion = undefined"></i>
+					<i class="mdi-content-clear" ng-click="layout.currentControl = undefined"></i>
 				</cl-button>
 			</fa-modifier>
 		</fa-container-surface>

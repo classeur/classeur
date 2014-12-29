@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.folding', [])
-	.directive('clFoldingGutter', function(folding) {
+	.directive('clFoldingGutter', function(layout, folding) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/folding/foldingGutter.html',
@@ -16,6 +16,7 @@ angular.module('classeur.extensions.folding', [])
 				}
 
 				scope.fold = function(sectionGroup) {
+					layout.currentControl = undefined;
 					sectionGroup[sectionGroup.isFolded ? 'unfold' : 'fold']();
 				};
 
@@ -29,7 +30,7 @@ angular.module('classeur.extensions.folding', [])
 				};
 
 				scope.$watch('folding.sectionGroups', updateFoldButtons);
-				scope.$watch('cledit.editorSize()', updateFoldButtons);
+				scope.$watch('editor.editorSize()', updateFoldButtons);
 			}
 		};
 	})
@@ -37,8 +38,6 @@ angular.module('classeur.extensions.folding', [])
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-
-				var editorElt = element[0].querySelector('.editor');
 				var hideTimeout, hideTimeoutCb;
 				var clientX, clientY;
 				element.on('mousemove', function(e) {
@@ -63,43 +62,19 @@ angular.module('classeur.extensions.folding', [])
 					hideTimeout = $timeout(hideTimeoutCb, 3000);
 				});
 
-				scope.$watch('cledit.sectionList', folding.buildSectionGroups);
+				scope.$watch('editor.sectionList', folding.buildSectionGroups);
 
-				function unfoldContainer(node) {
-					if(!(editorElt.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
-						return;
-					}
-					while(node.parentNode !== editorElt) {
-						node = node.parentNode;
-					}
-					if(editorElt.lastChild === node) {
-						// If trailing LF node is selected unfold last section
-						node = node.previousSibling;
-					}
-					var sectionGroup = node.sectionGroup;
-					if(sectionGroup) {
-						while(sectionGroup.isParentFolded) {
-							sectionGroup = sectionGroup.parent;
-						}
-						if(sectionGroup.isFolded) {
-							sectionGroup.unfold();
-							return true;
-						}
-					}
-
-				}
-
-				scope.$watch('cledit.editor.selectionMgr', function(selectionMgr) {
-					selectionMgr.onSelectionChanged(function(start, end, selectionRange) {
-						if(unfoldContainer(selectionRange.startContainer) | unfoldContainer(selectionRange.endContainer)) {
-							scope.$apply();
-						}
+				scope.$watch('editor.cledit.selectionMgr', function(selectionMgr) {
+					selectionMgr && selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
+						$timeout(function() {
+							folding.unfoldSelection(selectionRange);
+						});
 					});
 				});
 			}
 		};
 	})
-	.factory('folding', function() {
+	.factory('folding', function(editor) {
 		var foldingButtonHeight = 24;
 
 		function FoldButton() {
@@ -119,7 +94,7 @@ angular.module('classeur.extensions.folding', [])
 		}
 
 		function setHideClass(hide, elt) {
-			var className = elt.className.replace(/ hide$/, '');
+			var className = (elt.className || '').replace(/(?:^|\s)hide(?!\S)/, '');
 			if(hide) {
 				className += ' hide';
 			}
@@ -160,8 +135,15 @@ angular.module('classeur.extensions.folding', [])
 		};
 
 		SectionGroup.prototype.unfold = function() {
-			this.isFolded && this.showSections();
-			this.isFolded = false;
+			var sectionGroup = this;
+			while(sectionGroup.isParentFolded) {
+				sectionGroup = sectionGroup.parent;
+			}
+			if(sectionGroup.isFolded) {
+				sectionGroup.showSections();
+				sectionGroup.isFolded = false;
+				return true;
+			}
 		};
 
 		SectionGroup.prototype.showSections = function() {
@@ -266,8 +248,56 @@ angular.module('classeur.extensions.folding', [])
 			return result;
 		}
 
+		function unfold(sectionGroup) {
+			while(sectionGroup.isParentFolded) {
+				sectionGroup = sectionGroup.parent;
+			}
+			if(sectionGroup.isFolded) {
+				sectionGroup.unfold();
+				return true;
+			}
+		}
+
+		function unfoldSelection(selectionRange) {
+			var editorLastChild = editor.editorElt.lastChild;
+			var isStarted, isFinished, isUnfolded = false;
+			var startContainer = selectionRange.startContainer;
+			if(editorLastChild.contains(startContainer)) {
+				// If trailing LF node is selected unfold last section
+				startContainer = editorLastChild.previousSibling;
+			}
+			var endContainer = selectionRange.endContainer;
+			if(editorLastChild.contains(endContainer)) {
+				// If trailing LF node is selected unfold last section
+				endContainer = editorLastChild.previousSibling;
+			}
+			editor.sectionList && editor.sectionList.some(function(section) {
+				if(section.elt.contains(startContainer)) {
+					if(isStarted) {
+						isFinished = true;
+					}
+					isStarted = true;
+				}
+				if(section.elt.contains(endContainer)) {
+					if(isStarted) {
+						isFinished = true;
+					}
+					isStarted = true;
+				}
+				if(isStarted) {
+					isUnfolded |= unfold(section.elt.sectionGroup);
+				}
+				if(isFinished) {
+					return true;
+				}
+			});
+
+			return isUnfolded;
+		}
+
 		folding.buildSectionGroups = buildSectionGroups;
 		folding.getSectionGroup = getSectionGroup;
+		folding.unfoldSelection = unfoldSelection;
 
 		return folding;
 	});

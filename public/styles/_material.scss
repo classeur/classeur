@@ -1,0 +1,40 @@
+md-slider.md-default-theme .md-track {
+	background-color: #aaa;
+}
+
+.md-track-ticks {
+	display: none;
+}
+
+md-switch {
+	margin-bottom: 5px;
+
+	.md-container {
+		width: 60px;
+	}
+
+	&.md-default-theme .md-bar {
+		width: 54px;
+		height: 2px;
+		top: 12px;
+	}
+
+	.md-thumb-container {
+		top: 2px;
+		left: 0;
+		width: 36px;
+	}
+
+}
+
+md-switch .md-label {
+	border-width: 0px;
+}
+
+md-slider.md-default-theme .md-track.md-track-fill {
+	background-color: rgb(66, 170, 239);
+}
+
+md-slider.md-default-theme .md-thumb:after {
+	box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
+}

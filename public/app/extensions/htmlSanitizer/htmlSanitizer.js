@@ -1,8 +1,8 @@
 angular.module('classeur.extensions.htmlSanitizer', [])
-	.directive('clHtmlSanitizer', function(cledit) {
+	.directive('clHtmlSanitizer', function(editor) {
 
 		var buf;
-		cledit.onInitConverter(90, function(converter) {
+		editor.onInitConverter(90, function(converter) {
 			converter.hooks.chain("postConversion", function(html) {
 				buf = [];
 				htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {

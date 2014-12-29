@@ -4,7 +4,7 @@ angular.module('classeur.app', [
 	'slugifier',
 	'famous.angular',
 	'classeur.core.button',
-	'classeur.core.cledit',
+	'classeur.core.editor',
 	'classeur.core.layout',
 	'classeur.core.prism',
 	'classeur.core.settings',

@@ -4,14 +4,14 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
-				scope.$watch('cledit.editor', function(editor) {
-					editor && editor.onContentChanged(scrollSync.onContentChanged);
+				scope.$watch('editor.cledit', function(editor) {
+					editor && editor.on('contentChanged', scrollSync.onContentChanged);
 				});
-				scope.$watch('cledit.lastConvert', scrollSync.savePreviewHeight);
-				scope.$watch('cledit.lastPreview', scrollSync.restorePreviewHeight);
-				scope.$watch('cledit.editorSize()', scrollSync.onPanelResized);
-				scope.$watch('cledit.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('cledit.lastMeasure', scrollSync.onMeasure);
+				scope.$watch('editor.lastConvert', scrollSync.savePreviewHeight);
+				scope.$watch('editor.lastPreview', scrollSync.restorePreviewHeight);
+				scope.$watch('editor.editorSize()', scrollSync.onPanelResized);
+				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
+				scope.$watch('editor.lastMeasure', scrollSync.onMeasure);
 			}
 		};
 	})
@@ -29,7 +29,7 @@ angular.module('classeur.extensions.scrollSync', [])
 			templateUrl: 'app/extensions/scrollSync/scrollSyncSettings.html'
 		};
 	})
-	.factory('scrollSync', function(layout, cledit, settings) {
+	.factory('scrollSync', function(layout, editor, settings) {
 		settings.setDefaultValue('scrollSync', true);
 
 		var editorElt, previewElt;
@@ -245,7 +245,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				if(isPreviewRefreshing) {
 					return;
 				}
-				sectionDescList = cledit.sectionDescList;
+				sectionDescList = editor.sectionDescList;
 				// Force Scroll Sync (-10 to have a gap > 9px)
 				lastEditorScrollTop = -10;
 				lastPreviewScrollTop = -10;

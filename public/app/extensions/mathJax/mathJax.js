@@ -5,7 +5,7 @@ angular.module('classeur.extensions.mathJax', [])
 			templateUrl: 'app/extensions/mathJax/mathJaxSettings.html'
 		};
 	})
-	.directive('clMathJax', function(cledit, settings) {
+	.directive('clMathJax', function(editor, settings) {
 		settings.setDefaultValue('mathJax', true);
 
 		var options = {
@@ -75,7 +75,7 @@ angular.module('classeur.extensions.mathJax', [])
 			init();
 		}
 
-		cledit.onInitConverter(75, function(converter) {
+		editor.onInitConverter(75, function(converter) {
 			var isEnabled = settings.values.mathJax;
 
 			if(isEnabled) {
@@ -85,11 +85,11 @@ angular.module('classeur.extensions.mathJax', [])
 
 				var cacheDict = {};
 				var encloseMath;
-				cledit.onAsyncPreview(function(cb) {
+				editor.onAsyncPreview(function(cb) {
 					if(!UpdateMJ) {
 						return cb();
 					}
-					if(!encloseMath) {
+					if(!encloseMath && window.MathJax.Extension.tex2jax) {
 						encloseMath = window.MathJax.Extension.tex2jax.encloseMath;
 						window.MathJax.Extension.tex2jax.encloseMath = function(element) {
 							element = element.parentNode;
@@ -122,14 +122,14 @@ angular.module('classeur.extensions.mathJax', [])
 				var delimiter = '^[ \\t]*\\n\\$\\$[\\s\\S]*?\\$\\$|'; // $$ math block delimiters
 				delimiter = '^[ \\t]*\\n\\\\\\\\[[\\s\\S]*?\\\\\\\\]|' + delimiter; // \\[ \\] math block delimiters
 				delimiter = '^[ \\t]*\\n\\\\?\\\\begin\\{[a-z]*\\*?\\}[\\s\\S]*?\\\\end\\{[a-z]*\\*?\\}|' + delimiter; // \\begin{...} \\end{...} math block delimiters
-				cledit.setSectionDelimiter(10, delimiter);
+				editor.setSectionDelimiter(10, delimiter);
 			}
 			else {
 				// Unset math block delimiter
-				cledit.setSectionDelimiter(10, undefined);
+				editor.setSectionDelimiter(10, undefined);
 			}
 
-			cledit.setPrismOptions({
+			editor.setPrismOptions({
 				maths: isEnabled
 			});
 		});
@@ -404,7 +404,7 @@ angular.module('classeur.extensions.mathJax', [])
 			restrict: 'A',
 			link: function(scope) {
 				scope.$watch('settings.values.mathJax', function() {
-					cledit.initConverter();
+					editor.initConverter();
 				});
 			}
 		};

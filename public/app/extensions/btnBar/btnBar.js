@@ -5,7 +5,7 @@ angular.module('classeur.extensions.btnBar', [])
 			templateUrl: 'app/extensions/btnBar/btnBarSettings.html'
 		};
 	})
-	.directive('clBtnBar', function($famous, cledit, layout, settings) {
+	.directive('clBtnBar', function($famous, editor, layout, settings) {
 		settings.setDefaultValue('btnBar', true);
 
 		var btns = [
@@ -13,14 +13,14 @@ angular.module('classeur.extensions.btnBar', [])
 				icon: 'mdi-editor-format-bold',
 				label: 'Bold',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('bold');
+					editor.pagedownEditor.uiManager.doClick('bold');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-italic',
 				label: 'Italic',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('italic');
+					editor.pagedownEditor.uiManager.doClick('italic');
 				}
 			},
 			{
@@ -28,28 +28,28 @@ angular.module('classeur.extensions.btnBar', [])
 				icon: 'mdi-content-link',
 				label: 'Link',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('link');
+					editor.pagedownEditor.uiManager.doClick('link');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-quote',
 				label: 'Blockquote',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('quote');
+					editor.pagedownEditor.uiManager.doClick('quote');
 				}
 			},
 			{
 				icon: 'mdi-action-settings-ethernet',
 				label: 'Code',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('code');
+					editor.pagedownEditor.uiManager.doClick('code');
 				}
 			},
 			{
 				icon: 'mdi-image-crop-original',
 				label: 'Image',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('image');
+					editor.pagedownEditor.uiManager.doClick('image');
 				}
 			},
 			{
@@ -57,28 +57,28 @@ angular.module('classeur.extensions.btnBar', [])
 				icon: 'mdi-editor-format-list-numbered',
 				label: 'List',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('olist');
+					editor.pagedownEditor.uiManager.doClick('olist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-list-bulleted',
 				label: 'Numbered list',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('ulist');
+					editor.pagedownEditor.uiManager.doClick('ulist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-size',
 				label: 'Heading',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('heading');
+					editor.pagedownEditor.uiManager.doClick('heading');
 				}
 			},
 			{
 				icon: 'mdi-navigation-more-horiz',
 				label: 'Horizontal rule',
 				click: function() {
-					cledit.pagedownEditor.uiManager.doClick('hr');
+					editor.pagedownEditor.uiManager.doClick('hr');
 				}
 			},
 			{
@@ -86,14 +86,14 @@ angular.module('classeur.extensions.btnBar', [])
 				icon: 'mdi-content-undo',
 				label: 'Undo',
 				click: function() {
-					cledit.editor.undoMgr.undo();
+					editor.cledit.undoMgr.undo();
 				}
 			},
 			{
 				icon: 'mdi-content-redo',
 				label: 'Redo',
 				click: function() {
-					cledit.editor.undoMgr.redo();
+					editor.cledit.undoMgr.redo();
 				}
 			},
 

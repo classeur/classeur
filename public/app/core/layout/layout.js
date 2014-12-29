@@ -2,7 +2,7 @@ angular.module('classeur.core.layout', [
 	'famous.angular',
 	'classeur.core.settings',
 ])
-	.directive('clLayout', function($famous, layout, settings, cledit) {
+	.directive('clLayout', function($famous, layout, settings, editor) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/layout/layout.html',
@@ -12,7 +12,7 @@ angular.module('classeur.core.layout', [
 
 				scope.layout = layout;
 				scope.settings = settings;
-				scope.cledit = cledit;
+				scope.editor = editor;
 
 				var previewSizeAdjust = 150;
 				var binderWidth, marginRight;
@@ -61,7 +61,8 @@ angular.module('classeur.core.layout', [
 				function getBinderOuterTranslate() {
 					return [
 						layout.isTocOpen ? -layout.tocWidth : 0,
-						0
+						0,
+						1
 					];
 				}
 
@@ -101,7 +102,8 @@ angular.module('classeur.core.layout', [
 				function getPageTranslate() {
 					return [
 						layout.isMenuOpen ? -(layout.menuWidth - 20) : 0,
-						layout.isMenuOpen ? -80 : 0
+						layout.isMenuOpen ? -80 : 0,
+						1
 					];
 				}
 
@@ -185,7 +187,7 @@ angular.module('classeur.core.layout', [
 						curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'
 					}, function() {
 						layout.toggleSidePreview(false);
-						layout.toggleMenu(false);
+						layout.currentControl = undefined;
 						scope.$apply();
 					});
 				}
@@ -213,7 +215,7 @@ angular.module('classeur.core.layout', [
 					layoutTrans.statTranslate.set(getStatTranslate(), {duration: 180, curve: 'easeOutBounce'});
 				}
 
-				window.addEventListener('resize', window.ced.Utils.debounce(setLayoutTransition, 400));
+				window.addEventListener('resize', window.cledit.Utils.debounce(setLayoutTransition, 400));
 
 				scope.$watch('settings.values.zoom', setLayoutTransition);
 				scope.$watch('layout.isSidePreviewOpen', setLayoutTransition);
@@ -222,6 +224,9 @@ angular.module('classeur.core.layout', [
 				scope.$watch('layout.isTocOpen', setLayoutTransition);
 				scope.$watch('layout.isStatOpen', setStatTransition);
 				scope.$watch('layout.isFoldingOpen', setFoldingTransition);
+				scope.$watch('layout.currentControl', function(currentControl) {
+					layout.isMenuOpen = currentControl === 'menu';
+				});
 			}
 		};
 	})
@@ -242,8 +247,8 @@ angular.module('classeur.core.layout', [
 			toggleSidePreview: function(isOpen) {
 				this.isSidePreviewOpen = isOpen === undefined ? !this.isSidePreviewOpen : isOpen;
 			},
-			toggleMenu: function(isOpen) {
-				this.isMenuOpen = isOpen === undefined ? !this.isMenuOpen : isOpen;
+			toggleMenu: function() {
+				this.currentControl = this.currentControl === 'menu' ? undefined : 'menu';
 			},
 			toggleToc: function(isOpen) {
 				this.isTocOpen = isOpen === undefined ? !this.isTocOpen : isOpen;
@@ -253,6 +258,6 @@ angular.module('classeur.core.layout', [
 			},
 			toggleFolding: function(isOpen) {
 				this.isFoldingOpen = isOpen === undefined ? !this.isFoldingOpen : isOpen;
-			}
+			},
 		};
 	});

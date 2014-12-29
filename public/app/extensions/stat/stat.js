@@ -17,7 +17,7 @@ angular.module('classeur.extensions.stat', [])
 			templateUrl: 'app/extensions/stat/stat.html',
 			link: function(scope) {
 				scope.stats = stats;
-				scope.$watch('cledit.previewText', function(text) {
+				scope.$watch('editor.previewText', function(text) {
 					stats.forEach(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
