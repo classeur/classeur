@@ -49,15 +49,20 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clDiscussion', function($famous, commenting) {
+	.directive('clDiscussion', function($famous, commenting, layout) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/discussion.html',
 			scope: true,
 			link: function(scope) {
 				var EventHandler = $famous['famous/core/EventHandler'];
-				scope.commenting = commenting;
 				scope.draggableHandler = new EventHandler();
+				scope.commenting = commenting;
+				scope.removeDiscussion = function(discussion) {
+					layout.currentControl = undefined;
+					delete commenting.discussionsModelObject[discussion.id];
+					commenting.lastDiscussionChange = Date.now();
+				};
 			}
 		};
 	})

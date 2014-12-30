@@ -205,6 +205,19 @@ body {
 	}
 }
 
+.discussion {
+	padding-right: 65px;
+	margin-right: -40px;
+	overflow-y: auto;
+	.comment {
+		margin-top: 10px;
+	}
+	.user {
+		font-size: 15px;
+		font-weight: bold;
+	}
+}
+
 .menu {
 	padding: 40px;
 	color: #fff;
@@ -316,6 +329,15 @@ body {
 	height: 40px;
 	width: 100px;
 	padding: 0;
+}
+
+.btn-remove-discussion {
+	i {
+		display: block;
+		cursor: pointer;
+		padding: 5px;
+		font-size: 22px;
+	}
 }
 
 .rotate-90 {

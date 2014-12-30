@@ -140,6 +140,7 @@ angular.module('classeur.core.layout', [
 					return [
 						layout.isStatOpen ? 20 : 30,
 						layout.isStatOpen ? 80 : 300,
+						10
 					];
 				}
 

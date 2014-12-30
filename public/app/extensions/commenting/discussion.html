@@ -1,16 +1,29 @@
-<fa-modifier fa-size="[240, 240]" fa-translate="[10, 15, 10]" fa-rotate-z="-0.02" ng-if="layout.currentControl === 'discussion'">
+<fa-modifier fa-size="[240, 240]" fa-translate="[10, 15, 20]" fa-rotate-z="-0.02"
+			 ng-if="layout.currentControl === 'discussion'">
 	<fa-draggable fa-pipe-from="draggableHandler">
-		<fa-container-surface fa-pipe-to="draggableHandler">
-			<fa-surface class="postit md-whiteframe-z2">
-				<div ng-repeat="comment in commenting.currentDiscussion.comments">
-					<span class="user">{{comment.user}}:</span>
-					<span class="content">{{comment.content}}</span>
+		<fa-container-surface>
+			<fa-surface class="no-overflow md-whiteframe-z2" fa-pipe-to="draggableHandler">
+				<div class="discussion panel postit">
+					<div ng-repeat="comment in commenting.currentDiscussion.comments" class="comment">
+						<span class="user">{{comment.user}}:</span>
+						<span class="content">{{comment.content}}</span>
+					</div>
+					<cl-comment-input></cl-comment-input>
 				</div>
-				<cl-comment-input></cl-comment-input>
 			</fa-surface>
-			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
-				<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-content-clear" ng-click="layout.currentControl = undefined"></i>
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]">
+				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-action-delete" ng-click="removeDiscussion(commenting.currentDiscussion)"></i>
+				</cl-button>
+			</fa-modifier>
+			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]" fa-translate="[0, -32]">
+				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-navigation-arrow-back rotate-90" ng-click=""></i>
+				</cl-button>
+			</fa-modifier>
+			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]">
+				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-navigation-arrow-forward rotate-90" ng-click=""></i>
 				</cl-button>
 			</fa-modifier>
 		</fa-container-surface>
