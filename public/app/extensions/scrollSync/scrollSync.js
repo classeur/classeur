@@ -5,11 +5,7 @@ angular.module('classeur.extensions.scrollSync', [])
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
 				scope.$watch('editor.sectionList', scrollSync.onContentChanged);
-				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
-				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
 				scope.$watch('editor.editorSize()', scrollSync.onPanelResized);
-				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('onSectionMeasured', scrollSync.onMeasure);
 			}
 		};
 	})
@@ -18,6 +14,10 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setPreviewElt(element[0]);
+				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
+				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
+				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
+				scope.$watch('onSectionMeasured', scrollSync.onMeasure);
 			}
 		};
 	})

@@ -7,6 +7,7 @@ angular.module('classeur.app', [
 	'classeur.core.editor',
 	'classeur.core.editor.prism',
 	'classeur.core.layout',
+	'classeur.core.layoutLight',
 	'classeur.core.settings',
 	'classeur.core.user',
 	'classeur.core.utils',

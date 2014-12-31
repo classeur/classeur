@@ -164,8 +164,11 @@ pre.prettyprint {
 		background-color: transparentize(#FFE400, 0.5);
 	}
 
-	.hide {
-		display: block;
+	.hide, .hide * {
+		display: inline-block;
+		position: absolute;
 		overflow: hidden;
+		height: 0;
+		width: 0;
 	}
 }

@@ -45,7 +45,7 @@ var vendorJs = [
 ];
 
 gulp.task('html', function() {
-	return gulp.src('./tmpl/index.html')
+	return gulp.src('./tmpl/*')
 		.pipe(inject(
 			gulp.src(vendorJs, {read: false, cwd: './public'}),
 			{starttag: '<!-- inject:vendor:{{ext}} -->'}))

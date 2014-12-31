@@ -141,7 +141,7 @@ angular.module('classeur.core.layout', [
 				function getStatTranslate() {
 					return [
 						layout.isStatOpen ? 20 : 30,
-						layout.isStatOpen ? 80 : 300,
+						layout.isStatOpen ? 140 : 300,
 						10
 					];
 				}
