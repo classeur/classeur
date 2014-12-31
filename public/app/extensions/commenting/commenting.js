@@ -6,8 +6,9 @@ angular.module('classeur.extensions.commenting', [])
 			scope: true,
 			link: function(scope) {
 				scope.commenting = commenting;
+
 				scope.setCurrentDiscussion = function(discussion) {
-					// Select modifies editor selection provoking comment dismiss
+					// Select modifies editor selection which provokes comment dismiss
 					commenting.select(discussion);
 					$timeout(function() {
 						// Need to delay this as it's not refreshed properly
@@ -18,7 +19,7 @@ angular.module('classeur.extensions.commenting', [])
 				var debouncedRefreshCoordinates = window.cledit.Utils.debounce(function() {
 					commenting.refreshCoordinates();
 					scope.$apply();
-				}, 10);
+				}, 5);
 
 				scope.$watch('editor.editorSize()', debouncedRefreshCoordinates);
 				scope.$watch('editor.sectionList', debouncedRefreshCoordinates);
@@ -29,22 +30,44 @@ angular.module('classeur.extensions.commenting', [])
 					}
 				});
 
-				commenting.discussionsModelObject = {
-					a: {
-						start: 10,
-						end: 20,
-						comments: []
-					},
-				b: {
-						start: 110,
-					end: 120,
-					comments: []
-				},
-					$users: {}
+				commenting.fileDao = {
+					users: {},
+					discussions: {
+						a: {
+							id: 'a',
+							start: 10,
+							end: 20,
+							comments: []
+						},
+						b: {
+							id: 'b',
+							start: 110,
+							end: 120,
+							comments: []
+						}
+					}
 				};
-				scope.$watch('commenting.lastDiscussionChange', function() {
-					commenting.updateDiscussions(commenting.discussionsModelObject);
+				scope.$watch('onDiscussionChanged', function() {
+					commenting.updateDiscussions();
 					debouncedRefreshCoordinates();
+				});
+				scope.$watch('onDiscussionOffsetChanged', function() {
+					commenting.updateMarkers();
+					debouncedRefreshCoordinates();
+				});
+			}
+		};
+	})
+	.directive('clDiscussionButton', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/extensions/commenting/discussionButton.html',
+			link: function(scope) {
+				var discussion = scope.discussion;
+				scope.$watchGroup(['discussion.startMarker.offset', 'discussion.endMarker.offset'], function() {
+					discussion.discussionDao.start = discussion.startMarker.offset;
+					discussion.discussionDao.end = discussion.endMarker.offset;
+					scope.trigger('onDiscussionOffsetChanged');
 				});
 			}
 		};
@@ -60,8 +83,8 @@ angular.module('classeur.extensions.commenting', [])
 				scope.commenting = commenting;
 				scope.removeDiscussion = function(discussion) {
 					layout.currentControl = undefined;
-					delete commenting.discussionsModelObject[discussion.id];
-					commenting.lastDiscussionChange = Date.now();
+					delete commenting.fileDao.discussions[discussion.discussionDao.id];
+					scope.trigger('onDiscussionChanged');
 				};
 			}
 		};
@@ -81,16 +104,16 @@ angular.module('classeur.extensions.commenting', [])
 						return;
 					}
 					e.preventDefault();
-					var discussion = commenting.discussionsModelObject[commenting.currentDiscussion.id];
-					if(discussion && commenting.newCommentContent) {
-						discussion.comments.push({
+					var discussionDao = commenting.currentDiscussion.discussionDao;
+					if(discussionDao && commenting.newCommentContent) {
+						discussionDao.comments.push({
 							user: user.localId,
 							content: commenting.newCommentContent
 						});
 						commenting.newCommentContent = undefined;
 						layout.currentControl = undefined;
-						commenting.discussionsModelObject.$users[user.localId] = user.name;
-						commenting.lastDiscussionChange = Date.now();
+						commenting.fileDao.users[user.localId] = user.name;
+						scope.trigger('onDiscussionChanged');
 						scope.$apply();
 					}
 				});
@@ -102,55 +125,66 @@ angular.module('classeur.extensions.commenting', [])
 	})
 	.factory('commenting', function(editor, layout, settings) {
 		var commentButtonHeight = 30;
-		function CommentButton() {
-			this.setTop(-commentButtonHeight);
-		}
-
 		var yList = [];
 
-		CommentButton.prototype.setTop = function(top, isNew) {
-			top = Math.round(top);
-			var yListIndex = top - commentButtonHeight + 1;
-			// Avoid overlap of comment icons
-			while(yListIndex < top + commentButtonHeight) {
-				if(yList[yListIndex]) {
-					top = yListIndex + commentButtonHeight;
-				}
-				yListIndex++;
-			}
-			!isNew && (yList[top] = 1);
-			this.top = (top - commentButtonHeight/2 + 1) + 'px';
-		};
-
-		var Marker = window.cledit.Utils.Marker;
-		function Discussion(id, modelObject, users) {
-			this.id = id;
-			this.startMarker = new Marker(modelObject.start);
-			this.endMarker = new Marker(modelObject.end);
-			this.comments = modelObject.comments.map(function(commentModelObject) {
-				return {
-					user: users[commentModelObject.user] || settings.values.defaultUserName,
-					content: commentModelObject.content
-				};
-			});
-			this.modelObject = modelObject;
-			this.commentButton = new CommentButton();
-		}
-
 		var commenting = {
+			discussions: [],
 			updateDiscussions: updateDiscussions,
+			updateMarkers: updateMarkers,
 			refreshCoordinates: refreshCoordinates,
 			select: select,
 			highlight: highlight,
 			undoHighlight: undoHighlight
 		};
 
-		function updateDiscussions(discussionsModelObject) {
-			var discussions = [];
-			Object.keys(discussionsModelObject).forEach(function(id) {
-				id[0] !== '$' && discussions.push(new Discussion(id, discussionsModelObject[id], discussionsModelObject.$users || {}));
+		var Marker = window.cledit.Marker;
+
+		function Discussion(discussionDao, fileDao) {
+			this.discussionDao = discussionDao;
+			this.fileDao = fileDao;
+			this.startMarker = new Marker(discussionDao.start);
+			this.endMarker = new Marker(discussionDao.end);
+			this.comments = discussionDao.comments.map(function(commentModelObject) {
+				return {
+					user: fileDao.users[commentModelObject.user] || settings.values.defaultUserName,
+					content: commentModelObject.content
+				};
 			});
-			commenting.discussions = discussions;
+		}
+
+		Discussion.prototype.setTopOffset = function(y, isNew) {
+			y = Math.round(y);
+			var yListIndex = y - commentButtonHeight + 1;
+			// Avoid overlap of comment icons
+			while(yListIndex < y + commentButtonHeight) {
+				if(yList[yListIndex]) {
+					y = yListIndex + commentButtonHeight;
+				}
+				yListIndex++;
+			}
+			!isNew && (yList[y] = 1);
+			this.topOffset = (y - commentButtonHeight / 2 + 1) + 'px';
+		};
+
+		function updateDiscussions() {
+			commenting.discussions.forEach(function(discussion) {
+				editor.cledit.removeMarker(discussion.startMarker);
+				editor.cledit.removeMarker(discussion.endMarker);
+			});
+			commenting.discussions = [];
+			angular.forEach(commenting.fileDao.discussions, function(discussionDao) {
+				var discussion = new Discussion(discussionDao, commenting.fileDao);
+				commenting.discussions.push(discussion);
+				editor.cledit.addMarker(discussion.startMarker);
+				editor.cledit.addMarker(discussion.endMarker);
+			});
+		}
+
+		function updateMarkers() {
+			commenting.discussions.forEach(function(discussion) {
+				discussion.startMarker.offset = discussion.discussionDao.start;
+				discussion.endMarker.offset = discussion.discussionDao.end;
+			});
 		}
 
 		function refreshCoordinates() {
@@ -159,7 +193,7 @@ angular.module('classeur.extensions.commenting', [])
 				return discussion1.endMarker.offset - discussion2.endMarker.offset;
 			}).forEach(function(discussion) {
 				var coordinates = editor.cledit.selectionMgr.getCoordinates(discussion.endMarker.offset);
-				discussion.commentButton.setTop(coordinates.y);
+				discussion.setTopOffset(coordinates.y);
 			});
 		}
 
@@ -167,6 +201,7 @@ angular.module('classeur.extensions.commenting', [])
 			normalize: false
 		});
 		var selectionRange, selectedDiscussion;
+
 		function select(discussion) {
 			undoHighlight();
 			selectedDiscussion = discussion;
@@ -178,16 +213,19 @@ angular.module('classeur.extensions.commenting', [])
 			selectionRange.setStart(range.startContainer, range.startOffset);
 			selectionRange.setEnd(range.endContainer, range.endOffset);
 		}
+
 		function highlight() {
 			this.currentDiscussion = selectedDiscussion;
 			layout.currentControl = 'discussion';
 			classApplier.applyToRange(selectionRange);
 		}
+
 		function undoHighlight() {
 			try {
 				classApplier.undoToRange(selectionRange);
 			}
-			catch(e) {}
+			catch(e) {
+			}
 		}
 
 		return commenting;

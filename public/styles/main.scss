@@ -24,6 +24,10 @@ body {
 	background-color: #ccc;
 }
 
+body.editor-iframe {
+	background-color: transparent;
+}
+
 .no-overflow {
 	overflow: hidden;
 }
@@ -79,14 +83,20 @@ body {
 
 .postit {
 	background-color: #FFF7B2;
-	padding: 10px;
 	cursor: move;
-	font-size: 14px;
 }
 
-.stat {
+.stat-block {
+	width: 50%;
+	float: left;
+	font-size: 13px;
+	text-align: center;
+	.block-name {
+		font-weight: bold;
+		padding: 10px;
+	}
 	.value {
-		font-size: 16px;
+		font-weight: bold;
 	}
 }
 
@@ -173,7 +183,7 @@ body {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	& > div {
+	div {
 		position: absolute;
 		cursor: pointer;
 		color: transparentize(#000, 0.75);
@@ -192,7 +202,7 @@ body {
 }
 
 .commenting.gutter {
-	& > div {
+	div {
 		right: 24px;
 		padding: 3px 2px;
 		font-size: 24px;
@@ -206,9 +216,11 @@ body {
 }
 
 .discussion {
+	padding: 10px;
 	padding-right: 65px;
 	margin-right: -40px;
 	overflow-y: auto;
+	font-size: 14px;
 	.comment {
 		margin-top: 10px;
 	}
@@ -257,24 +269,6 @@ body {
 .btn-folding i {
 	font-size: 28px;
 	padding: 5px;
-}
-
-.btn-close-stat {
-	i {
-		display: block;
-		cursor: pointer;
-		padding: 5px;
-		font-size: 18px;
-	}
-}
-
-.btn-close-toc {
-	i {
-		display: block;
-		cursor: pointer;
-		padding: 5px;
-		font-size: 22px;
-	}
 }
 
 .btn-close button {
@@ -331,7 +325,16 @@ body {
 	padding: 0;
 }
 
-.btn-remove-discussion {
+.btn-close-stat, .btn-discussion {
+	i {
+		display: block;
+		cursor: pointer;
+		padding: 5px;
+		font-size: 22px;
+	}
+}
+
+.btn-close-toc {
 	i {
 		display: block;
 		cursor: pointer;

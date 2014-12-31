@@ -3,6 +3,8 @@ angular.module('classeur.core.layout', [
 	'classeur.core.settings',
 ])
 	.directive('clLayout', function($famous, layout, settings, editor) {
+		var hideOffset = 2200;
+
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/layout/layout.html',
@@ -95,7 +97,7 @@ angular.module('classeur.core.layout', [
 				function getEditorTranslate() {
 					return [
 						0,
-						layout.isEditorOpen ? 0 : 2200
+						layout.isEditorOpen ? 0 : hideOffset
 					];
 				}
 
@@ -164,6 +166,23 @@ angular.module('classeur.core.layout', [
 				};
 				scope.layoutTrans = layoutTrans;
 
+				var lastPreviewTranslate;
+				function hidePreview() {
+					// Put the preview outside the browser viewport when hidden
+					if(layout.isEditorOpen && !layout.isSidePreviewOpen) {
+						lastPreviewTranslate[1] = -hideOffset;
+						layoutTrans.previewTranslate.set(lastPreviewTranslate);
+					}
+
+				}
+				function showPreview() {
+					// Put the preview back in the browser viewport
+					if(!layout.isEditorOpen || layout.isSidePreviewOpen) {
+						lastPreviewTranslate[1] = 0;
+						layoutTrans.previewTranslate.set(lastPreviewTranslate);
+					}
+				}
+
 				function setLayoutTransition() {
 					updateLayout();
 					layoutTrans.binderOuterTranslate.set(getBinderOuterTranslate(), {duration: 180, curve: 'easeOut'});
@@ -176,17 +195,25 @@ angular.module('classeur.core.layout', [
 							scope.$apply();
 						});
 					});
+					var previewTranslate = getPreviewTranslate();
+					lastPreviewTranslate = lastPreviewTranslate || previewTranslate;
+					showPreview();
 					var previewSize = getPreviewSize();
-					layoutTrans.previewTranslate.set(getPreviewTranslate(), {duration: 180, curve: 'easeOut'}, function() {
+					layoutTrans.previewTranslate.set(previewTranslate, {duration: 180, curve: 'easeOut'}, function() {
 						layoutTrans.previewSize.set(previewSize, {duration: 0});
+						hidePreview();
+						lastPreviewTranslate = previewTranslate;
 					});
 				}
 
 				function setEditorTransition() {
+					lastPreviewTranslate = lastPreviewTranslate || getPreviewTranslate();
+					showPreview();
 					layoutTrans.editorTranslate.set(getEditorTranslate(), {
 						duration: 270,
 						curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'
 					}, function() {
+						hidePreview();
 						layout.toggleSidePreview(false);
 						layout.currentControl = undefined;
 						scope.$apply();

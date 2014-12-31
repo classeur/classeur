@@ -4,14 +4,12 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				scrollSync.setEditorElt(element[0]);
-				scope.$watch('editor.cledit', function(editor) {
-					editor && editor.on('contentChanged', scrollSync.onContentChanged);
-				});
-				scope.$watch('editor.lastConvert', scrollSync.savePreviewHeight);
-				scope.$watch('editor.lastPreview', scrollSync.restorePreviewHeight);
+				scope.$watch('editor.sectionList', scrollSync.onContentChanged);
+				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
+				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
 				scope.$watch('editor.editorSize()', scrollSync.onPanelResized);
 				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('editor.lastMeasure', scrollSync.onMeasure);
+				scope.$watch('onSectionMeasured', scrollSync.onMeasure);
 			}
 		};
 	})
@@ -34,11 +32,11 @@ angular.module('classeur.extensions.scrollSync', [])
 
 		var editorElt, previewElt;
 		var scrollSyncOffset = 100;
-		var timeoutId;
+		var scrollTimeoutId;
 		var currentEndCb;
 
 		function scroll(elt, startValue, endValue, stepCb, endCb, debounce) {
-			clearTimeout(timeoutId);
+			clearTimeout(scrollTimeoutId);
 			if(currentEndCb) {
 				currentEndCb();
 			}
@@ -52,10 +50,10 @@ angular.module('classeur.extensions.scrollSync', [])
 				var scrollTop = endValue;
 				if(progress < 1) {
 					scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
-					timeoutId = setTimeout(tick, 1);
+					scrollTimeoutId = setTimeout(tick, 1);
 				}
 				else {
-					timeoutId = setTimeout(function() {
+					scrollTimeoutId = setTimeout(function() {
 						currentEndCb();
 						currentEndCb = undefined;
 					}, 100);
@@ -68,7 +66,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				return tick();
 			}
 			stepCb(startValue);
-			timeoutId = setTimeout(tick, 100);
+			scrollTimeoutId = setTimeout(tick, 100);
 		}
 
 		var lastEditorScrollTop;
@@ -181,6 +179,7 @@ angular.module('classeur.extensions.scrollSync', [])
 
 
 		var oldEditorElt, oldPreviewElt;
+		var isPreviewRefreshing;
 
 		function init() {
 			if(oldEditorElt === editorElt || oldPreviewElt === previewElt) {
@@ -195,21 +194,20 @@ angular.module('classeur.extensions.scrollSync', [])
 				}
 				isScrollEditor = true;
 				isScrollPreview = false;
-				doScrollSync(layout.isEditorOpen && !layout.isSidePreviewOpen);
+				doScrollSync(!layout.isSidePreviewOpen);
 			});
 
 			previewElt.addEventListener('scroll', function() {
-				if(isPreviewMoving) {
+				if(isPreviewMoving || isPreviewRefreshing) {
 					return;
 				}
 				isScrollPreview = true;
 				isScrollEditor = false;
-				doScrollSync(!layout.isEditorOpen);
+				doScrollSync(!layout.isSidePreviewOpen);
 			});
 		}
 
-		var previewHeight, previewContentElt;
-		var isPreviewRefreshing;
+		var previewHeight, previewContentElt, timeoutId;
 		return {
 			setEditorElt: function(elt) {
 				editorElt = elt;
@@ -221,6 +219,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				init();
 			},
 			onContentChanged: function() {
+				clearTimeout(timeoutId);
 				isPreviewRefreshing = true;
 				sectionDescList = undefined;
 			},
@@ -232,7 +231,10 @@ angular.module('classeur.extensions.scrollSync', [])
 				// Now set the correct height
 				previewContentElt.style.removeProperty('height');
 				isScrollEditor = layout.isEditorOpen;
-				isPreviewRefreshing = false;
+				// A preview scrolling event can occur if height is smaller
+				timeoutId = setTimeout(function() {
+					isPreviewRefreshing = false;
+				}, 100);
 			},
 			onPanelResized: function() {
 				// This could happen before the editor/preview panels are created
@@ -249,7 +251,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				// Force Scroll Sync (-10 to have a gap > 9px)
 				lastEditorScrollTop = -10;
 				lastPreviewScrollTop = -10;
-				doScrollSync(!layout.isEditorOpen || !layout.isSidePreviewOpen);
+				doScrollSync(!layout.isSidePreviewOpen);
 			}
 		};
 

@@ -4,16 +4,8 @@ angular.module('classeur.extensions.folding', [])
 			restrict: 'E',
 			templateUrl: 'app/extensions/folding/foldingGutter.html',
 			scope: true,
-			link: function(scope, element) {
-				var gutterElt = element[0].querySelector('.folding.gutter');
+			link: function(scope) {
 				scope.folding = folding;
-				function updateFoldButtons() {
-					folding.sectionGroups.forEach(function(sectionGroup) {
-						var titleEltRect = sectionGroup.firstElt.getBoundingClientRect();
-						var offsetY = titleEltRect.top + titleEltRect.height / 2 - gutterElt.getBoundingClientRect().top;
-						sectionGroup.foldButton.setTop(offsetY);
-					});
-				}
 
 				scope.fold = function(sectionGroup) {
 					layout.currentControl = undefined;
@@ -29,24 +21,24 @@ angular.module('classeur.extensions.folding', [])
 					});
 				};
 
-				scope.$watch('folding.sectionGroups', updateFoldButtons);
-				scope.$watch('editor.editorSize()', updateFoldButtons);
 			}
 		};
 	})
-	.directive('clFolding', function($timeout, folding) {
+	.directive('clFolding', function($timeout, folding, editor) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
 				var hideTimeout, hideTimeoutCb;
-				var clientX, clientY;
+				var mouseX, mouseY;
 				element.on('mousemove', function(e) {
-					if(clientX === e.clientX && clientY === e.clientY) {
+					var newMouseX = e.clientX;
+					var newMouseY = e.clientY + element[0].scrollTop;
+					if(mouseX === newMouseX && mouseY === newMouseY) {
 						return;
 					}
-					clientX = e.clientX;
-					clientY = e.clientY;
-					var sectionGroup = folding.getSectionGroup(clientY + element[0].scrollTop);
+					mouseX = newMouseX;
+					mouseY = newMouseY;
+					var sectionGroup = folding.getSectionGroup(mouseY);
 					if(!sectionGroup) {
 						return;
 					}
@@ -62,15 +54,19 @@ angular.module('classeur.extensions.folding', [])
 					hideTimeout = $timeout(hideTimeoutCb, 3000);
 				});
 
-				scope.$watch('editor.sectionList', folding.buildSectionGroups);
+				var sectionList, selectionRange;
+				var debouncedUpdateFolding = window.cledit.Utils.debounce(function() {
+					editor.sectionList !== sectionList && folding.buildSectionGroups(editor.sectionList);
+					editor.selectionRange !== selectionRange && folding.unfoldSelection(editor.selectionRange);
+					sectionList = editor.sectionList;
+					selectionRange = editor.selectionRange;
+					folding.refreshCoordinates();
+					scope.$apply();
+				}, 5);
 
-				scope.$watch('editor.cledit.selectionMgr', function(selectionMgr) {
-					selectionMgr && selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
-						$timeout(function() {
-							folding.unfoldSelection(selectionRange);
-						});
-					});
-				});
+				scope.$watch('editor.sectionList', debouncedUpdateFolding);
+				scope.$watch('editor.selectionRange', debouncedUpdateFolding);
+				scope.$watch('editor.editorSize()', debouncedUpdateFolding);
 			}
 		};
 	})
@@ -168,9 +164,6 @@ angular.module('classeur.extensions.folding', [])
 
 		function buildSectionGroups(sectionList) {
 			folding.sectionGroups = [];
-			if(!sectionList) {
-				return;
-			}
 
 			// Unfold modified section groups
 			oldSectionList && oldSectionList.forEach(function(section) {
@@ -237,6 +230,15 @@ angular.module('classeur.extensions.folding', [])
 			});
 		}
 
+		function refreshCoordinates() {
+			var editorOffset = editor.editorElt.getBoundingClientRect().top + editor.editorElt.scrollTop;
+			folding.sectionGroups.forEach(function(sectionGroup) {
+				var titleEltRect = sectionGroup.firstElt.getBoundingClientRect();
+				var offsetY = titleEltRect.top + titleEltRect.height / 2 - editorOffset;
+				sectionGroup.foldButton.setTop(offsetY);
+			});
+		}
+
 		function getSectionGroup(offsetTop) {
 			var result;
 			folding.sectionGroups.some(function(sectionGroup) {
@@ -296,6 +298,7 @@ angular.module('classeur.extensions.folding', [])
 		}
 
 		folding.buildSectionGroups = buildSectionGroups;
+		folding.refreshCoordinates = refreshCoordinates;
 		folding.getSectionGroup = getSectionGroup;
 		folding.unfoldSelection = unfoldSelection;
 

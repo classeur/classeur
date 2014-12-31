@@ -8,4 +8,10 @@ angular.module('classeur.core.utils', [])
 				return alphabet[Math.random() * alphabet.length | 0];
 			}).join('');
 		};
+	})
+	.run(function($rootScope) {
+		// Trigger function that forces a scope variable to change for event listening
+		$rootScope.trigger = function(eventName) {
+			$rootScope[eventName] = Date.now();
+		};
 	});

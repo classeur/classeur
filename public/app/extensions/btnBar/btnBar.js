@@ -113,6 +113,11 @@ angular.module('classeur.extensions.btnBar', [])
 				offset += 20;
 			}
 			btn.offset = offset;
+			var click = btn.click;
+			btn.click = function() {
+				layout.currentControl = undefined;
+				setTimeout(click, 10);
+			};
 			offset += props.btnWidth;
 		});
 		props.width = offset + props.margin;

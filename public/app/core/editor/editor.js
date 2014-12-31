@@ -4,9 +4,21 @@ angular.module('classeur.core.editor', [])
 			restrict: 'E',
 			templateUrl: 'app/core/editor/editor.html',
 			link: function(scope, element) {
-				editor.setEditorElt(element[0].querySelector('.editor'));
+				var editorElt = element[0].querySelector('.editor');
+				editor.setEditorElt(editorElt);
+
+				var newSectionList, newSelectionRange;
+				var debouncedEditorChanged = window.cledit.Utils.debounce(function() {
+					if(editor.sectionList !== newSectionList) {
+						editor.sectionList = newSectionList;
+						debouncedRefreshPreview();
+					}
+					editor.selectionRange = newSelectionRange;
+					scope.$apply();
+				}, 10);
 
 				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
+					editor.updateSectionDescList();
 					editor.convert();
 					scope.$apply();
 					setTimeout(function() {
@@ -15,10 +27,13 @@ angular.module('classeur.core.editor', [])
 				}, settings.values.refreshPreviewDelay);
 
 				editor.cledit.on('contentChanged', function(content, sectionList) {
-					$timeout(function() {
-						editor.sectionList = sectionList;
-						debouncedRefreshPreview();
-					});
+					newSectionList = sectionList;
+					debouncedEditorChanged();
+				});
+
+				editor.cledit.selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
+					newSelectionRange = selectionRange;
+					debouncedEditorChanged();
 				});
 
 				var isInited;
@@ -29,7 +44,6 @@ angular.module('classeur.core.editor', [])
 						editor.cledit.setSelection(0, 0);
 						isInited = true;
 					}
-					debouncedRefreshPreview();
 				});
 				scope.$watch('layout.isEditorOpen', function(isOpen) {
 					editor.cledit.toggleEditable(isOpen);
@@ -39,7 +53,7 @@ angular.module('classeur.core.editor', [])
 					editor.measureSectionDimensions();
 					scope.$apply();
 				}, settings.values.measureSectionDelay);
-				scope.$watch('editor.lastPreview', debouncedMeasureSectionDimension);
+				scope.$watch('onPreviewRefreshed', debouncedMeasureSectionDimension);
 				scope.$watch('editor.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editor.previewSize()', debouncedMeasureSectionDimension);
 				scope.$watch('layout.currentControl', function(currentControl) {
@@ -103,7 +117,7 @@ angular.module('classeur.core.editor', [])
 			}
 		};
 	})
-	.factory('editor', function(prism, settings) {
+	.factory('editor', function($rootScope, prism, settings) {
 		settings.setDefaultValue('refreshPreviewDelay', 500);
 		settings.setDefaultValue('measureSectionDelay', 1000);
 
@@ -189,7 +203,7 @@ angular.module('classeur.core.editor', [])
 		var footnoteContainerElt;
 		var htmlElt = document.createElement('div');
 
-		function updateSectionDescList() {
+		editor.updateSectionDescList = function() {
 			var sectionDescList = editor.sectionDescList || [];
 			var newSectionDescList = [];
 			var newLinkDefinition = '\n';
@@ -254,20 +268,12 @@ angular.module('classeur.core.editor', [])
 
 			// Find modified section starting from bottom
 			var rightIndex = -sectionDescList.length;
-			var boundary = Math.min(sectionDescList.length, newSectionDescList.length);
 			sectionDescList.slice().reverse().some(function(sectionDesc, index) {
 				var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
-				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
+				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text || sectionDesc.editorElt) {
 					rightIndex = -index;
 					return true;
 				}
-				if(leftIndex - rightIndex > boundary) {
-					// Prevent overlap
-					rightIndex = leftIndex - boundary;
-					return true;
-				}
-				// Replace old editor element in case markdown section has changed
-				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
 
 			// Create an array composed of left unmodified, modified, right
@@ -278,11 +284,9 @@ angular.module('classeur.core.editor', [])
 			insertBeforeSection = rightSections[0];
 			sectionsToRemove = sectionDescList.slice(leftIndex, sectionDescList.length + rightIndex);
 			editor.sectionDescList = leftSections.concat(modifiedSections).concat(rightSections);
-		}
+		};
 
 		editor.convert = function() {
-			updateSectionDescList();
-
 			var textToConvert = modifiedSections.map(function(section) {
 				return section.text;
 			});
@@ -292,7 +296,7 @@ angular.module('classeur.core.editor', [])
 			var html = editor.converter.makeHtml(textToConvert);
 			htmlElt.innerHTML = html;
 
-			editor.lastConvert = Date.now();
+			$rootScope.trigger('onMarkdownConverted');
 		};
 
 		editor.refreshPreview = function(cb) {
@@ -410,7 +414,7 @@ angular.module('classeur.core.editor', [])
 				}, '');
 				editor.previewHtml = html.replace(/^\s+|\s+$/g, '');
 				editor.previewText = previewElt.textContent;
-				editor.lastPreview = Date.now();
+				$rootScope.trigger('onPreviewRefreshed');
 				cb();
 			}
 
@@ -506,7 +510,7 @@ angular.module('classeur.core.editor', [])
 			normalizePreviewDimensions();
 			normalizeTocDimensions();
 
-			editor.lastMeasure = Date.now();
+			$rootScope.trigger('onSectionMeasured');
 		};
 
 		return editor;

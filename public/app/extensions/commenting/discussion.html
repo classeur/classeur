@@ -12,17 +12,22 @@
 				</div>
 			</fa-surface>
 			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]">
-				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
+					<i class="mdi-content-clear" ng-click="layout.currentControl = undefined"></i>
+				</cl-button>
+			</fa-modifier>
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]" fa-translate="[0, 32]">
+				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
 					<i class="mdi-action-delete" ng-click="removeDiscussion(commenting.currentDiscussion)"></i>
 				</cl-button>
 			</fa-modifier>
 			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]" fa-translate="[0, -32]">
-				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
 					<i class="mdi-navigation-arrow-back rotate-90" ng-click=""></i>
 				</cl-button>
 			</fa-modifier>
 			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]">
-				<cl-button surface-class="btn btn-remove-discussion" opacity="0.2" opacity-hover="0.3">
+				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
 					<i class="mdi-navigation-arrow-forward rotate-90" ng-click=""></i>
 				</cl-button>
 			</fa-modifier>

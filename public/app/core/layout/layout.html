@@ -41,7 +41,6 @@
 					</div>
 				</fa-surface>
 			</fa-modifier>
-
 		</fa-modifier>
 
 		<fa-modifier fa-translate="layoutTrans.editorTranslate.get()">
@@ -173,14 +172,14 @@
 	</fa-modifier>
 </fa-modifier>
 
-<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[180, 180]" fa-rotate-z="-0.025"
+<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[240, 240]" fa-rotate-z="-0.025"
 			 fa-translate="layoutTrans.statTranslate.get()" ng-if="layout.isStatOpen">
 	<fa-draggable fa-pipe-from="layoutTrans.statHandler">
 		<fa-container-surface fa-pipe-to="layoutTrans.statHandler">
 			<fa-surface class="postit md-whiteframe-z2">
 				<cl-stat></cl-stat>
 			</fa-surface>
-			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[28, 28]">
+			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]">
 				<cl-button surface-class="btn btn-close-stat" opacity="0.2" opacity-hover="0.3">
 					<i class="mdi-content-clear" ng-click="layout.toggleStat(false)"></i>
 				</cl-button>
