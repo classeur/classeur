@@ -1,0 +1,31 @@
+.btn-bar.panel {
+	left: 50%;
+	.paper.hole {
+		left: 50%;
+		bottom: 5px;
+		height: 4px;
+	}
+}
+
+.btn-bar .btn {
+	top: 24px;
+	div {
+		color: #fff;
+		font-size: 25px;
+		line-height: 32px;
+	}
+	.mdi-navigation-more-horiz {
+		line-height: 1.4;
+	}
+}
+
+.clip {
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	background-color: #3A3938;
+	.light {
+		border-bottom-right-radius: 12px;
+		border-bottom: 70px solid transparentize(#fff, 0.95);
+		border-left: 10px solid transparent;
+	}
+}

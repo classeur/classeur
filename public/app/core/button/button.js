@@ -1,6 +1,5 @@
 angular.module('classeur.core.button', [])
-	.directive('clButton', function($famous) {
-		var Transitionable = $famous['famous/transitions/Transitionable'];
+	.directive('clButton', function(panel) {
 
 		return {
 			restrict: 'E',
@@ -8,30 +7,28 @@ angular.module('classeur.core.button', [])
 			transclude: true,
 			templateUrl: 'app/core/button/button.html',
 			link: function(scope, element, attrs) {
-				scope.scale = parseFloat(attrs.scale || 1);
-				scope.scaleHover = parseFloat(attrs.scaleHover || 1.1);
-				scope.opacity = parseFloat(attrs.opacity || 0.8);
-				scope.opacityHover = parseFloat(attrs.opacityHover || 1);
-				scope.surfaceClass = attrs.surfaceClass;
-
-				function getScale(isHover) {
-					return [
-						isHover ? scope.scaleHover : scope.scale,
-						isHover ? scope.scaleHover : scope.scale
-					];
+				scope.class = attrs.class;
+				var scale = parseFloat(attrs.scale || 1);
+				var scaleHover = parseFloat(attrs.scaleHover || 1.1);
+				var opacity = parseFloat(attrs.opacity || 0.8);
+				var opacityHover = parseFloat(attrs.opacityHover || 1);
+				var buttonPanel = panel(element, '.btn-panel');
+				attrs.size && buttonPanel.width(attrs.size).height(attrs.size);
+				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
+					var attr = attrs[attrName];
+					attr && buttonPanel[attrName](attr);
+				});
+				function enter() {
+					buttonPanel.move().scale(scaleHover).set('opacity', opacityHover).duration(90).ease('out').end();
 				}
-
-				function getOpacity(isHover) {
-					return isHover ? scope.opacityHover : scope.opacity;
+				var isInited;
+				function leave() {
+					buttonPanel.move().scale(scale).set('opacity', opacity).duration(isInited ? 90 : 0).ease('in').end();
 				}
-
-				scope.scaleTrans = new Transitionable(getScale());
-				scope.opacityTrans = new Transitionable(getOpacity());
-				scope.toggleHover = function(isHover) {
-					scope.scaleTrans.set(getScale(isHover), {duration: 180, curve: 'easeOutBounce'});
-					scope.opacityTrans.set(getOpacity(isHover), {duration: 180, curve: 'easeOutBounce'});
-				};
-
+				leave();
+				element.on('mouseenter', enter);
+				element.on('mouseleave', leave);
+				isInited = true;
 			}
 		};
 	});

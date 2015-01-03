@@ -5,7 +5,7 @@ angular.module('classeur.extensions.btnBar', [])
 			templateUrl: 'app/extensions/btnBar/btnBarSettings.html'
 		};
 	})
-	.directive('clBtnBar', function($famous, editor, layout, settings) {
+	.directive('clBtnBar', function(editor, layout, settings, panel) {
 		settings.setDefaultValue('btnBar', true);
 
 		var btns = [
@@ -104,7 +104,8 @@ angular.module('classeur.extensions.btnBar', [])
 			btnWidth: 30,
 			btnHeight: 32,
 			height: 70,
-			visibleHeight: 48
+			visibleHeight: 48,
+			paperHoleWidth: 270
 		};
 
 		var offset = props.margin;
@@ -126,39 +127,32 @@ angular.module('classeur.extensions.btnBar', [])
 			restrict: 'E',
 			templateUrl: 'app/extensions/btnBar/btnBar.html',
 			scope: true,
-			link: function(scope) {
-				var Transitionable = $famous['famous/transitions/Transitionable'];
-
-				angular.extend(scope, props);
+			link: function(scope, element) {
 				scope.btns = btns;
+				scope.btnWidth = props.btnWidth;
+				scope.btnHeight = props.btnHeight;
+				scope.editor = editor;
 
-				var openOffsetY = scope.visibleHeight - scope.height,
-					closedOffsetY = -scope.height - 10;
+				var isOpen,
+					openOffsetY = props.visibleHeight - props.height,
+					closedOffsetY = -props.height - 10;
+
+				var btnBarPanel = panel(element, '.btn-bar.panel').width(props.width).height(props.height).top(2000);
+				btnBarPanel.move().to(-props.width / 2, closedOffsetY).end();
+				panel(element, '.light.panel').width(props.width / 2 + 5).right(0);
+				panel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
 
 				scope.$watch('layout.pageWidth', setTransition);
 				scope.$watch('layout.isEditorOpen', setTransition);
 				scope.$watch('layout.isMenuOpen', setTransition);
 
-				var isOpen;
-				function getTrans() {
-					return [
-						0,
-						isOpen ? openOffsetY : closedOffsetY,
-						1
-					];
-				}
-
-				scope.trans = new Transitionable(getTrans());
 				function setTransition() {
-					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 240 > scope.width;
+					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 240 > props.width;
 					if(isOpen === newIsOpen) {
 						return;
 					}
 					isOpen = newIsOpen;
-					if(isOpen) {
-						scope.trans.delay(250);
-					}
-					scope.trans.set(getTrans(), {duration: 120, curve: 'easeOutBounce'});
+					btnBarPanel.move().delay(isOpen ? 250 : 0).to(-props.width / 2, isOpen ? openOffsetY : closedOffsetY).ease('ease-out-back').duration(180).end();
 				}
 			}
 		};

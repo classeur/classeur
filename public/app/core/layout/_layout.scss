@@ -1,0 +1,115 @@
+.page.panel {
+	z-index: 1;
+	transform-origin: 50% 100%;
+
+	.margin.panel {
+		width: 1px;
+		left: $editor-margin-width;
+	}
+
+	.hole.panel {
+		left: 22px;
+		width: 20px;
+		height: 20px;
+		&.first {
+			top: 22%;
+		}
+		&.second {
+			bottom: 22%;
+		}
+	}
+}
+
+.corner.panel {
+	bottom: 0;
+	right: 0;
+	width: 40px;
+	height: 40px;
+	transform-origin: 100% 100%;
+	background-color: #eaeaea;
+	cursor: pointer;
+	.shadow.panel {
+		width: 97px;
+		background-color: #d8d8d8;
+		box-shadow: inset 0px 8px 17px rgba(0, 0, 0, 0.2);
+	}
+}
+
+.corner.btn i {
+	font-size: 28px;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.editor.panel .btn-grp {
+	.btn div {
+		line-height: 34px;
+	}
+
+	.close.btn {
+		top: 6px;
+		left: 3px;
+		font-size: 28px;
+	}
+
+	.minimize.btn {
+		top: 33px;
+		left: 3px;
+		font-size: 28px;
+	}
+
+	.preview.btn {
+		top: 64px;
+		left: 3px;
+		font-size: 24px;
+	}
+
+	.menu.btn {
+		top: 106px;
+		height: 130px;
+		box-shadow: 2px 4px 9px -4px rgba(0, 0, 0, 0.2);
+		border-top-right-radius: 12px;
+		border-bottom-right-radius: 12px;
+		button {
+			.rotate-90 {
+				position: absolute;
+				z-index: 1;
+				height: 0;
+			}
+		}
+	}
+}
+
+.edit.btn {
+	right: 15px;
+	width: 100px;
+	height: 40px;
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+	button {
+		padding: 8px;
+		i {
+			font-size: 28px;
+		}
+	}
+}
+
+.menu.btn button,
+.edit.btn button {
+	width: 100%;
+	height: 100%;
+	font-size: 20px;
+	color: mix(#fff, $plastic-color, 80%);
+	&:hover {
+		color: #fff;
+	}
+}
+
+.menu.content {
+	padding: 40px;
+	color: #fff;
+	.entry, .md-text {
+		text-align: center;
+	}
+}
+

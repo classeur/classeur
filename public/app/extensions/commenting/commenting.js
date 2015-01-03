@@ -72,7 +72,7 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clDiscussion', function($famous, commenting, layout) {
+	.directive('clDiscussion', function(commenting, layout) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/discussion.html',
@@ -150,6 +150,7 @@ angular.module('classeur.extensions.commenting', [])
 					content: commentModelObject.content
 				};
 			});
+			this.topOffset = '-100px';
 		}
 
 		Discussion.prototype.setTopOffset = function(y, isNew) {

@@ -1,0 +1,18 @@
+.btn-panel {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	div {
+		cursor: pointer;
+		text-align: center;
+	}
+	button {
+		line-height: 0;
+		&:hover, &:focus {
+			background-color: transparent !important;
+		}
+		.md-ripple-container {
+			background-color: transparent !important;
+		}
+	}
+}

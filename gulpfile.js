@@ -21,11 +21,10 @@ var vendorJs = [
 	'bower_components/angular/angular.js',
 	'bower_components/angular-aria/angular-aria.js',
 	'bower_components/angular-animate/angular-animate.js',
+	'bower_components/movejs/move.js',
 	'bower_components/hammerjs/hammer.js',
 	'bower_components/angular-material/angular-material.js',
 	'bower_components/angular-slugify/angular-slugify.js',
-	'bower_components/famous/dist/famous-global.js',
-	'bower_components/famous-angular/dist/famous-angular.js',
 	'bower_components/google-diff-match-patch-js/diff_match_patch.js',
 	'bower_components/rangy-official/rangy-core.js',
 	'bower_components/rangy-official/rangy-classapplier.js',
@@ -58,8 +57,14 @@ gulp.task('html', function() {
 });
 
 gulp.task('watch', function() {
-	gulp.watch(__dirname + '/public/styles/*', ['sass']);
-	gulp.watch(__dirname + '/public/app/**/*.js', ['html']);
+	watch([__dirname + '/public/styles/*.scss', __dirname + '/public/app/**/*.scss'], function(files, cb) {
+		gulp.start('sass');
+		cb();
+	});
+	watch(__dirname + '/public/app/**/*.js', function(files, cb) {
+		gulp.start('html');
+		cb();
+	});
 });
 
 gulp.task('run', [

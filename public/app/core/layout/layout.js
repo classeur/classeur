@@ -1,20 +1,27 @@
-angular.module('classeur.core.layout', [
-	'famous.angular',
-	'classeur.core.settings',
-])
-	.directive('clLayout', function($famous, layout, settings, editor) {
-		var hideOffset = 2200;
+angular.module('classeur.core.layout', [])
+	.directive('clLayout', function(layout, settings, editor, panel) {
+		var hideOffsetY = 2000;
 
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/layout/layout.html',
-			link: function(scope) {
-				var Transitionable = $famous['famous/transitions/Transitionable'];
-				var EventHandler = $famous['famous/core/EventHandler'];
+			link: function(scope, element) {
 
 				scope.layout = layout;
 				scope.settings = settings;
 				scope.editor = editor;
+
+				panel(element, '.toc.panel').width(layout.tocWidth + 50).right(-50);
+				var backgroundPanel = panel(element, '.background.panel');
+				var previewPanel = panel(element, '.preview.panel');
+				var binderPanel = panel(element, '.binder.panel').top(-hideOffsetY);
+				panel(element, '.edit.btn-panel').bottom(-hideOffsetY);
+				var editorPanel = panel(element, '.editor.panel').top(hideOffsetY);
+				var pagePanel = panel(element, '.page.panel').left(layout.pageMargin / 2);
+				panel(element, '.menu.panel').width(layout.menuWidth).right(0);
+				panel(element, '.editor .btn-grp.panel').width(layout.editorBtnGrpWidth).right(-layout.editorBtnGrpWidth);
+				var cornerPanel = panel(element, '.corner.panel');
+				panel(element, '.corner .shadow.panel').move().rotate(-45).end();
 
 				var previewSizeAdjust = 150;
 				var binderWidth, marginRight;
@@ -45,213 +52,112 @@ angular.module('classeur.core.layout', [
 						--layout.fontSize;
 					}
 					if(layout.isSidePreviewOpen) {
-						var maxWidth = binderWidth / 2 + layout.sideButtonWidth + leftMarginOverflow;
+						var maxWidth = binderWidth / 2 + layout.editorBtnGrpWidth + leftMarginOverflow;
 						if(maxWidth < layout.pageWidth) {
 							layout.pageWidth = maxWidth;
 						}
-						marginRight = binderWidth/2 - layout.sideButtonWidth;
+						marginRight = binderWidth / 2 - layout.editorBtnGrpWidth;
 					}
+
+					layout.backgroundX = layout.isTocOpen ? -layout.tocWidth : 0;
+					layout.binderWidth = layout.pageWidth - layout.editorBtnGrpWidth;
+					layout.binderX = binderWidth - (layout.pageWidth + layout.editorBtnGrpWidth) / 2 - marginRight;
+					layout.binderX += layout.isTocOpen ? layout.tocWidth : 0;
+					layout.previewWidth = layout.pageWidth - previewSizeAdjust + 2000;
+					layout.previewX = layout.binderX;
+					layout.previewX += layout.isSidePreviewOpen ? layout.pageWidth - previewSizeAdjust / 2 : 0;
+					layout.editorX = layout.isMenuOpen ? 5 : 0;
+					layout.editorY = layout.isEditorOpen ? 0 : hideOffsetY;
+					layout.pageX = layout.isMenuOpen ? -(layout.menuWidth - 20) : 0;
+					layout.pageY = layout.isMenuOpen ? -80 : 0;
+					layout.pageRotate = layout.isMenuOpen ? -2 : 0;
 				}
 
-				function getBinderSize() {
-					return [
-						layout.pageWidth - layout.sideButtonWidth,
-						undefined
-					];
-				}
-
-				function getBinderOuterTranslate() {
-					return [
-						layout.isTocOpen ? -layout.tocWidth : 0,
-						0,
-						1
-					];
-				}
-
-				function getBinderTranslate() {
-					var result = [
-						binderWidth - (layout.pageWidth + layout.sideButtonWidth) / 2 - marginRight,
-						0
-					];
-					if(layout.isTocOpen) {
-						result[0] += layout.tocWidth;
-					}
-					return result;
-				}
-
-				function getPreviewSize() {
-					return [
-						layout.pageWidth - previewSizeAdjust + 8000,
-						undefined
-					];
-				}
-
-				function getPreviewTranslate() {
-					var result = getBinderTranslate();
-					if(layout.isSidePreviewOpen) {
-						result[0] += layout.pageWidth - previewSizeAdjust / 2;
-					}
-					return result;
-				}
-
-				function getEditorTranslate() {
-					return [
-						0,
-						layout.isEditorOpen ? 0 : hideOffset
-					];
-				}
-
-				function getPageTranslate() {
-					return [
-						layout.isMenuOpen ? -(layout.menuWidth - 20) : 0,
-						layout.isMenuOpen ? -80 : 0,
-						1
-					];
-				}
-
-				function getPageOuterTranslate() {
-					return [
-						layout.isMenuOpen ? 5 : 0,
-						0
-					];
-				}
-
-				function getPageRotate() {
-					return [
-						0,
-						0,
-						layout.isMenuOpen ? -0.03 : 0
-					];
-				}
-
-				function getFoldingSize() {
-					return [
-						layout.isFoldingOpen ? 100 : 40,
-						layout.isFoldingOpen ? 100 : 40
-					];
-				}
-
-				function getFoldingShadowSize() {
-					var result = getFoldingSize();
-					result[0] = 200;
-					result[1] = Math.sqrt(result[1] * result[1] * 2);
-					return result;
-				}
-
-				function getStatTranslate() {
-					return [
-						layout.isStatOpen ? 20 : 30,
-						layout.isStatOpen ? 140 : 300,
-						10
-					];
-				}
-
-				updateLayout();
-				var layoutTrans = {
-					binderSize: new Transitionable(getBinderSize()),
-					binderTranslate: new Transitionable(getBinderTranslate()),
-					binderOuterTranslate: new Transitionable(getBinderOuterTranslate()),
-					previewSize: new Transitionable(getPreviewSize()),
-					previewTranslate: new Transitionable(getPreviewTranslate()),
-					editorTranslate: new Transitionable(getEditorTranslate()),
-					pageTranslate: new Transitionable(getPageTranslate()),
-					pageOuterTranslate: new Transitionable(getPageOuterTranslate()),
-					pageRotate: new Transitionable(getPageRotate()),
-					foldingSize: new Transitionable(getFoldingSize()),
-					foldingShadowSize: new Transitionable(getFoldingShadowSize()),
-					statTranslate: new Transitionable(getStatTranslate()),
-					statHandler: new EventHandler(),
-					fontSizePx: layout.fontSize + 'px',
-					fontSizeEm: (7 + settings.values.zoom)/10 + 'em'
-				};
-				scope.layoutTrans = layoutTrans;
-
-				var lastPreviewTranslate;
 				function hidePreview() {
-					// Put the preview outside the browser viewport when hidden
 					if(layout.isEditorOpen && !layout.isSidePreviewOpen) {
-						lastPreviewTranslate[1] = -hideOffset;
-						layoutTrans.previewTranslate.set(lastPreviewTranslate);
+						layout.isPreviewVisible = false;
+						previewPanel.$elt.addClass('hidden');
 					}
 
 				}
+
 				function showPreview() {
-					// Put the preview back in the browser viewport
 					if(!layout.isEditorOpen || layout.isSidePreviewOpen) {
-						lastPreviewTranslate[1] = 0;
-						layoutTrans.previewTranslate.set(lastPreviewTranslate);
+						layout.isPreviewVisible = true;
+						previewPanel.$elt.removeClass('hidden');
 					}
 				}
 
-				function setLayoutTransition() {
-					updateLayout();
-					layoutTrans.binderOuterTranslate.set(getBinderOuterTranslate(), {duration: 180, curve: 'easeOut'});
-					layoutTrans.binderTranslate.set(getBinderTranslate(), {duration: 180, curve: 'easeOut'}, function() {
-						layoutTrans.isReady = true;
-						layoutTrans.fontSizePx = layout.fontSize + 'px';
-						layoutTrans.fontSizeEm = (7 + settings.values.zoom)/10 + 'em';
-						scope.$apply();
-						layoutTrans.binderSize.set(getBinderSize(), {duration: 0}, function() {
-							scope.$apply();
-						});
-					});
-					var previewTranslate = getPreviewTranslate();
-					lastPreviewTranslate = lastPreviewTranslate || previewTranslate;
-					showPreview();
-					var previewSize = getPreviewSize();
-					layoutTrans.previewTranslate.set(previewTranslate, {duration: 180, curve: 'easeOut'}, function() {
-						layoutTrans.previewSize.set(previewSize, {duration: 0});
-						hidePreview();
-						lastPreviewTranslate = previewTranslate;
-					});
+				function updateLayoutSize() {
+					layout.fontSizePx = layout.fontSize + 'px';
+					layout.fontSizeEm = (7 + settings.values.zoom) / 10 + 'em';
+					binderPanel.width(layout.binderWidth).left(-layout.binderWidth / 2);
+					previewPanel.width(layout.previewWidth).left(-layout.previewWidth / 2);
+					pagePanel.width(layout.binderWidth - layout.pageMargin);
+					hidePreview();
 				}
 
-				function setEditorTransition() {
-					lastPreviewTranslate = lastPreviewTranslate || getPreviewTranslate();
+				var debouncedUpdatedLayoutSize = window.cledit.Utils.debounce(function() {
+					updateLayoutSize();
+					scope.$apply();
+				}, 20);
+
+				var isInited;
+
+				function animateLayout() {
 					showPreview();
-					layoutTrans.editorTranslate.set(getEditorTranslate(), {
-						duration: 270,
-						curve: layout.isEditorOpen ? 'easeOut' : 'easeIn'
-					}, function() {
+					updateLayout();
+					var duration = isInited ? 180 : 0;
+					backgroundPanel.move().x(layout.backgroundX).duration(duration).then(debouncedUpdatedLayoutSize).end();
+					binderPanel.move().x(layout.binderX).duration(duration).then(debouncedUpdatedLayoutSize).end();
+					previewPanel.move().x(layout.previewX).duration(duration).then(debouncedUpdatedLayoutSize).end();
+				}
+
+				animateLayout();
+				updateLayoutSize();
+
+				function animateEditor() {
+					showPreview();
+					updateLayout();
+					editorPanel.move().to(layout.editorX, layout.editorY).duration(270).ease(layout.isEditorOpen ? 'out' : 'in').then(function() {
 						hidePreview();
 						layout.toggleSidePreview(false);
 						layout.currentControl = undefined;
 						scope.$apply();
-					});
+					}).end();
 				}
 
-				function setMenuTransition() {
-					layoutTrans.pageTranslate.set(getPageTranslate(), {duration: 180, curve: 'easeOutBounce'});
-					layoutTrans.pageOuterTranslate.set(getPageOuterTranslate(), {duration: 180, curve: 'easeOutBounce'});
-					layoutTrans.pageRotate.set(getPageRotate(), {duration: 180, curve: 'easeOutBounce'});
+				function animateMenu() {
+					updateLayout();
+					pagePanel.move().x(layout.pageX).y(layout.pageY).rotate(layout.pageRotate).ease('ease-out-back').duration(180).end();
+					editorPanel.move().to(layout.editorX, layout.editorY).duration(180).end();
 				}
 
-				function setFoldingTransition() {
-					if(!layout.isFoldingOpen) {
-						layoutTrans.showFoldingButtons = false;
+				function animateCorner() {
+					if(!layout.isCornerOpen) {
+						layout.isCornerButtonVisible = false;
 					}
-					layoutTrans.foldingSize.set(getFoldingSize(), {duration: 180, curve: 'easeOut'});
-					layoutTrans.foldingShadowSize.set(getFoldingShadowSize(), {duration: 180, curve: 'easeOut'}, function() {
-						if(layout.isFoldingOpen) {
-							layoutTrans.showFoldingButtons = true;
+					var duration = isInited ? 180 : 0;
+					cornerPanel.move().scale(layout.isCornerOpen ? 2.5 : 1).duration(duration).then(function() {
+						if(layout.isCornerOpen) {
+							layout.isCornerButtonVisible = true;
 							scope.$apply();
 						}
-					});
+					}).end();
 				}
 
-				function setStatTransition() {
-					layoutTrans.statTranslate.set(getStatTranslate(), {duration: 180, curve: 'easeOutBounce'});
-				}
+				animateCorner();
 
-				window.addEventListener('resize', window.cledit.Utils.debounce(setLayoutTransition, 400));
+				isInited = true;
 
-				scope.$watch('settings.values.zoom', setLayoutTransition);
-				scope.$watch('layout.isSidePreviewOpen', setLayoutTransition);
-				scope.$watch('layout.isEditorOpen', setEditorTransition);
-				scope.$watch('layout.isMenuOpen', setMenuTransition);
-				scope.$watch('layout.isTocOpen', setLayoutTransition);
-				scope.$watch('layout.isStatOpen', setStatTransition);
-				scope.$watch('layout.isFoldingOpen', setFoldingTransition);
+				window.addEventListener('resize', window.cledit.Utils.debounce(animateLayout, 400));
+
+				scope.$watch('settings.values.zoom', animateLayout);
+				scope.$watch('layout.isSidePreviewOpen', animateLayout);
+				scope.$watch('layout.isEditorOpen', animateEditor);
+				scope.$watch('layout.isMenuOpen', animateMenu);
+				scope.$watch('layout.isTocOpen', animateLayout);
+				scope.$watch('layout.isCornerOpen', animateCorner);
 				scope.$watch('layout.currentControl', function(currentControl) {
 					layout.isMenuOpen = currentControl === 'menu';
 				});
@@ -262,12 +168,11 @@ angular.module('classeur.core.layout', [
 		settings.setDefaultValue('zoom', 3);
 
 		var layout = {
-			pageMargin: 25,
-			sideButtonWidth: 40,
+			pageMargin: 24,
+			editorBtnGrpWidth: 40,
 			menuWidth: 320,
 			tocWidth: 250,
 			statHeight: 30,
-			gutterWidth: 120,
 			isEditorOpen: true,
 			toggleEditor: function(isOpen) {
 				this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;
@@ -284,8 +189,8 @@ angular.module('classeur.core.layout', [
 			toggleStat: function(isOpen) {
 				this.isStatOpen = isOpen === undefined ? !this.isStatOpen : isOpen;
 			},
-			toggleFolding: function(isOpen) {
-				this.isFoldingOpen = isOpen === undefined ? !this.isFoldingOpen : isOpen;
+			toggleCorner: function(isOpen) {
+				this.isCornerOpen = isOpen === undefined ? !this.isCornerOpen : isOpen;
 			},
 		};
 

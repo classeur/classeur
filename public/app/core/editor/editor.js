@@ -4,7 +4,7 @@ angular.module('classeur.core.editor', [])
 			restrict: 'E',
 			templateUrl: 'app/core/editor/editor.html',
 			link: function(scope, element) {
-				var editorElt = element[0].querySelector('.editor');
+				var editorElt = element[0].querySelector('.editor.content');
 				editor.setEditorElt(editorElt);
 
 				var newSectionList, newSelectionRange;
@@ -56,6 +56,9 @@ angular.module('classeur.core.editor', [])
 				scope.$watch('onPreviewRefreshed', debouncedMeasureSectionDimension);
 				scope.$watch('editor.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editor.previewSize()', debouncedMeasureSectionDimension);
+				scope.$watch('layout.isPreviewVisible', function(isVisible) {
+					isVisible && editor.sectionDescList && editor.measureSectionDimensions();
+				});
 				scope.$watch('layout.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
 						editor.cledit && editor.cledit.focus();
@@ -69,7 +72,7 @@ angular.module('classeur.core.editor', [])
 			restrict: 'E',
 			templateUrl: 'app/core/editor/preview.html',
 			link: function(scope, element) {
-				editor.setPreviewElt(element[0].querySelector('.preview'));
+				editor.setPreviewElt(element[0].querySelector('.preview.content'));
 			}
 		};
 	})
@@ -78,7 +81,7 @@ angular.module('classeur.core.editor', [])
 			restrict: 'E',
 			templateUrl: 'app/core/editor/toc.html',
 			link: function(scope, element) {
-				var tocElt = element[0].querySelector('.toc');
+				var tocElt = element[0].querySelector('.toc.content');
 				editor.setTocElt(tocElt);
 
 				var isMousedown;

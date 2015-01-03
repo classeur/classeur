@@ -1,21 +1,7 @@
-<fa-modifier fa-align="[.5, 0]" fa-origin="[.5, 0]" fa-size="[width, height]" fa-translate="trans.get()">
-	<fa-container-surface fa-options="{classes: ['clip', 'md-whiteframe-z1']}">
-		<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[width/2 + 5, height]">
-			<fa-surface class="light">
-			</fa-surface>
-		</fa-modifier>
-		<fa-modifier fa-align="[0, 1]" fa-origin="[0, 1]" fa-size="[btnWidth, btnHeight]"
-					 fa-translate="[btn.offset, -15]" ng-repeat="btn in btns">
-			<cl-button surface-class="btn btn-clip">
-				<md-button ng-click="btn.click()" aria-label="{{btn.label}}">
-					<i ng-class="btn.icon"></i>
-				</md-button>
-			</cl-button>
-		</fa-modifier>
-		<fa-modifier fa-align="[0.5, 1]" fa-origin="[0.5, 1]" fa-size="[270, 4]"
-					 fa-translate="[0, -5]">
-			<fa-surface class="paper hole">
-			</fa-surface>
-		</fa-modifier>
-	</fa-container-surface>
-</fa-modifier>
+<div class="btn-bar panel clip md-whiteframe-z1">
+	<div class="light panel"></div>
+	<div class="hole panel paper"></div>
+	<cl-button class="btn" width="{{btnWidth}}" height="{{btnHeight}}" left="{{btn.offset}}" ng-repeat="btn in btns">
+		<div ng-class="btn.icon" ng-click="btn.click()" aria-label="{{btn.label}}"></div>
+	</cl-button>
+</div>

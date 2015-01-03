@@ -1,0 +1,35 @@
+.stat.panel {
+	width: 240px;
+	height: 240px;
+	left: 25px;
+	bottom: -250px;
+
+	& > div {
+		float: left;
+		font-size: 13px;
+		text-align: center;
+		&.markdown {
+			width: 110px;
+		}
+		&.html {
+			width: 140px;
+			margin-left: -10px;
+		}
+		.name {
+			font-weight: bold;
+			padding-top: 15px;
+			padding-bottom: 10px;
+		}
+		.value {
+			font-weight: bold;
+		}
+	}
+}
+
+.close-stat.btn {
+	right: 0;
+	div {
+		font-size: 22px;
+		line-height: 30px;
+	}
+}

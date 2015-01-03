@@ -17,6 +17,9 @@ angular.module('classeur.extensions.scrollSync', [])
 				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
 				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
 				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
+				scope.$watch('layout.isPreviewHidden', function(isVisible) {
+					isVisible && scrollSync.onPreviewOpen();
+				});
 				scope.$watch('onSectionMeasured', scrollSync.onMeasure);
 			}
 		};
@@ -33,7 +36,7 @@ angular.module('classeur.extensions.scrollSync', [])
 		var editorElt, previewElt;
 		var scrollSyncOffset = 100;
 		var scrollTimeoutId;
-		var currentEndCb;
+		var currentEndCb, skipAnimation;
 
 		function scroll(elt, startValue, endValue, stepCb, endCb, debounce) {
 			clearTimeout(scrollTimeoutId);
@@ -42,7 +45,7 @@ angular.module('classeur.extensions.scrollSync', [])
 			}
 			currentEndCb = endCb;
 			var diff = endValue - startValue;
-			var startTime = debounce ? 0 : Date.now();
+			var startTime = debounce || skipAnimation ? 0 : Date.now();
 
 			function tick() {
 				var currentTime = Date.now();
@@ -50,7 +53,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				var scrollTop = endValue;
 				if(progress < 1) {
 					scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
-					scrollTimeoutId = setTimeout(tick, 1);
+					scrollTimeoutId = setTimeout(tick, 10);
 				}
 				else {
 					scrollTimeoutId = setTimeout(function() {
@@ -147,6 +150,7 @@ angular.module('classeur.extensions.scrollSync', [])
 					isEditorMoving = false;
 				}, debounce);
 			}
+			skipAnimation = false;
 		};
 
 		// TODO
@@ -242,6 +246,11 @@ angular.module('classeur.extensions.scrollSync', [])
 					return;
 				}
 				isScrollEditor = layout.isEditorOpen;
+			},
+			onPreviewOpen: function() {
+				isScrollEditor = true;
+				isScrollPreview = false;
+				skipAnimation = true;
 			},
 			onMeasure: function() {
 				if(isPreviewRefreshing) {

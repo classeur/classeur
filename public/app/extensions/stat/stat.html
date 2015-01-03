@@ -1,12 +1,24 @@
-<div class="stat-block">
-	<div class="block-name">Markdown</div>
-	<div ng-repeat="stat in markdownStats" class="stat">
-		<span class="value">{{stat.value}}</span> {{stat.name}}
+<div class="stat panel postit md-whiteframe-z2">
+	<cl-button class="close-stat btn" opacity="0.2" opacity-hover="0.3" size="30">
+		<div class="mdi-content-clear" ng-click="layout.toggleStat(false)" aria-label="Close stats"></div>
+	</cl-button>
+
+	<div class="markdown">
+		<div class="name">
+			Markdown<br>
+			<small ng-show="isMarkdownSelection">(selection)</small>
+		</div>
+		<div ng-repeat="stat in markdownStats">
+			<span class="value">{{stat.value}}</span> {{stat.name}}
+		</div>
 	</div>
-</div>
-<div class="stat-block">
-	<div class="block-name">HTML</div>
-	<div ng-repeat="stat in htmlStats" class="stat">
-		<span class="value">{{stat.value}}</span> {{stat.name}}
+	<div class="html">
+		<div class="name">
+			HTML<br>
+			<small ng-show="isHtmlSelection">(selection)</small>
+		</div>
+		<div ng-repeat="stat in htmlStats">
+			<span class="value">{{stat.value}}</span> {{stat.name}}
+		</div>
 	</div>
 </div>

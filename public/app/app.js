@@ -2,7 +2,6 @@ angular.module('classeur.app', [
 	'ngMaterial',
 	'ngAnimate',
 	'slugifier',
-	'famous.angular',
 	'classeur.core.button',
 	'classeur.core.editor',
 	'classeur.core.editor.prism',
@@ -22,12 +21,5 @@ angular.module('classeur.app', [
 ])
 	.config(function($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animate/);
-	})
-	.run(function($famous) {
-		// Fix scrolling on mobile
-		var Engine = $famous['famous/core/Engine'];
-		Engine.setOptions({
-			appMode: false
-		});
 	});
 
