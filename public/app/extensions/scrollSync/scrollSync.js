@@ -17,7 +17,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
 				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
 				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('layout.isPreviewHidden', function(isVisible) {
+				scope.$watch('layout.isPreviewVisible', function(isVisible) {
 					isVisible && scrollSync.onPreviewOpen();
 				});
 				scope.$watch('onSectionMeasured', scrollSync.onMeasure);

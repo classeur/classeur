@@ -270,13 +270,16 @@ angular.module('classeur.core.editor', [])
 			});
 
 			// Find modified section starting from bottom
+			var maxIndex = Math.min(sectionDescList.length, newSectionDescList.length);
 			var rightIndex = -sectionDescList.length;
 			sectionDescList.slice().reverse().some(function(sectionDesc, index) {
 				var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
-				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text || sectionDesc.editorElt) {
+				if(leftIndex + index >= maxIndex || sectionDesc.text != newSectionDesc.text) {
 					rightIndex = -index;
 					return true;
 				}
+				// Replace old elements in case markdown section has changed
+				sectionDesc.editorElt = newSectionDesc.editorElt;
 			});
 
 			// Create an array composed of left unmodified, modified, right

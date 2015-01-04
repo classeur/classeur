@@ -15,7 +15,6 @@
   ],
   "dependencies": {
     "angular-material": "master",
-    "famous-angular": "master",
     "bootstrap-material-design": "~0.1.5",
     "google-diff-match-patch-js": "~1.0.0",
     "rangy-official": "~1.3.0-alpha.20140921",
@@ -28,6 +27,6 @@
     "movejs": "~0.4.0"
   },
   "resolutions": {
-    "angular": "1.3.8"
+    "angular": "1.3.x"
   }
 }

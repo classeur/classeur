@@ -100,7 +100,7 @@ angular.module('classeur.core.layout', [])
 				var debouncedUpdatedLayoutSize = window.cledit.Utils.debounce(function() {
 					updateLayoutSize();
 					scope.$apply();
-				}, 20);
+				}, 50);
 
 				var isInited;
 

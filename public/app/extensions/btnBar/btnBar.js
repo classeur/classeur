@@ -142,12 +142,12 @@ angular.module('classeur.extensions.btnBar', [])
 				panel(element, '.light.panel').width(props.width / 2 + 5).right(0);
 				panel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
 
-				scope.$watch('layout.pageWidth', setTransition);
-				scope.$watch('layout.isEditorOpen', setTransition);
-				scope.$watch('layout.isMenuOpen', setTransition);
+				scope.$watch('layout.pageWidth', animate);
+				scope.$watch('layout.isEditorOpen', animate);
+				scope.$watch('layout.isMenuOpen', animate);
 
-				function setTransition() {
-					var newIsOpen = settings.values.btnBar && !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 240 > props.width;
+				function animate() {
+					var newIsOpen = !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 240 > props.width;
 					if(isOpen === newIsOpen) {
 						return;
 					}

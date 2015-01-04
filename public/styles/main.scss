@@ -1,5 +1,4 @@
 @import '../bower_components/angular-material/angular-material.css';
-@import '../bower_components/famous-angular/dist/famous-angular.css';
 @import '../bower_components/highlightjs/styles/default.css';
 @import '../bower_components/google-code-prettify/src/prettify.css';
 
@@ -15,6 +14,7 @@ $editor-margin-width: 120px;
 @import '../app/core/editor/_toc.scss';
 @import '../app/core/layout/_layout.scss';
 @import '../app/extensions/btnBar/_btnBar.scss';
+@import '../app/extensions/folding/_folding.scss';
 @import '../app/extensions/stat/_stat.scss';
 @import '_material.scss';
 

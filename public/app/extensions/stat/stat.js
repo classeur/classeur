@@ -6,15 +6,15 @@ angular.module('classeur.extensions.stat', [])
 		}
 
 		var markdownStats = [
-			new Stat('bytes', '.'),
-			new Stat('lines', '^'),
-			new Stat('paragraphs', '\\S.*'),
+			new Stat('bytes', '[\\s\\S]'),
+			new Stat('words', '\\S+'),
+			new Stat('lines', '\n'),
 		];
 
 		var htmlStats = [
 			new Stat('characters', '\\S'),
 			new Stat('words', '\\S+'),
-			new Stat('paragraphs', '\\S.*'),
+			new Stat('paragraphs', '\\S.*\n'),
 		];
 
 		var Hammer = window.Hammer;
@@ -48,14 +48,10 @@ angular.module('classeur.extensions.stat', [])
 				function computeMarkdown() {
 					scope.isMarkdownSelection = false;
 					var text = editor.cledit.getContent();
-					var selectionStart = editor.cledit.selectionMgr.selectionStart;
-					var selectionEnd = editor.cledit.selectionMgr.selectionEnd;
-					if(selectionStart !== selectionEnd) {
+					var selectedText = editor.cledit.selectionMgr.getSelectedText();
+					if(selectedText) {
 						scope.isMarkdownSelection = true;
-						text = text.substring(
-							Math.min(selectionStart, selectionEnd),
-							Math.max(selectionStart, selectionEnd)
-						);
+						text = selectedText;
 					}
 					markdownStats.forEach(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
