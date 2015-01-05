@@ -12,9 +12,6 @@ $border-radius-base: 4px;
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-	* {
-		line-height: 1.5;
-	}
 }
 
 .editor.content {
@@ -24,6 +21,9 @@ $border-radius-base: 4px;
 		bottom: 360px;
 		left: $editor-margin-width;
 		right: 20px;
+	}
+	* {
+		line-height: 1.5;
 	}
 	font-family: inherit;
 	white-space: pre-wrap;

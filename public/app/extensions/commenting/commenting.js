@@ -16,13 +16,8 @@ angular.module('classeur.extensions.commenting', [])
 					}, 180);
 				};
 
-				var debouncedRefreshCoordinates = window.cledit.Utils.debounce(function() {
-					commenting.refreshCoordinates();
-					scope.$apply();
-				}, 5);
-
-				scope.$watch('editor.editorSize()', debouncedRefreshCoordinates);
-				scope.$watch('editor.sectionList', debouncedRefreshCoordinates);
+				scope.$watch('editor.editorSize()', commenting.refreshCoordinates);
+				scope.$watch('editor.sectionList', commenting.refreshCoordinates);
 				scope.$watch('layout.currentControl', function(currentControl) {
 					if(currentControl !== 'discussion') {
 						commenting.currentDiscussion = undefined;
@@ -49,19 +44,19 @@ angular.module('classeur.extensions.commenting', [])
 				};
 				scope.$watch('onDiscussionChanged', function() {
 					commenting.updateDiscussions();
-					debouncedRefreshCoordinates();
+					commenting.refreshCoordinates();
 				});
 				scope.$watch('onDiscussionOffsetChanged', function() {
 					commenting.updateMarkers();
-					debouncedRefreshCoordinates();
+					commenting.refreshCoordinates();
 				});
 			}
 		};
 	})
-	.directive('clDiscussionButton', function() {
+	.directive('clCommentingButton', function() {
 		return {
 			restrict: 'E',
-			templateUrl: 'app/extensions/commenting/discussionButton.html',
+			templateUrl: 'app/extensions/commenting/commentingButton.html',
 			link: function(scope) {
 				var discussion = scope.discussion;
 				scope.$watchGroup(['discussion.startMarker.offset', 'discussion.endMarker.offset'], function() {
@@ -72,14 +67,31 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clDiscussion', function(commenting, layout) {
+	.directive('clDiscussion', function(commenting, layout, panel) {
+		var Hammer = window.Hammer;
+
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/discussion.html',
 			scope: true,
-			link: function(scope) {
-				var EventHandler = $famous['famous/core/EventHandler'];
-				scope.draggableHandler = new EventHandler();
+			link: function(scope, element) {
+				var x = 0, y = 0;
+				var discussionPanel = panel(element, '.discussion.panel');
+				discussionPanel.move().rotate(-1.5)
+					.then().to(x, y).duration(180).ease('ease-out-back').pop()
+					.end();
+
+				var hammertime = new Hammer(element[0]);
+				hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
+				hammertime.on('panmove', function(evt) {
+					evt.preventDefault();
+					discussionPanel.move().rotate(-1.5).to(x + evt.deltaX, y + evt.deltaY).end();
+				});
+				hammertime.on('panend', function(evt) {
+					x += evt.deltaX;
+					y += evt.deltaY;
+				});
+
 				scope.commenting = commenting;
 				scope.removeDiscussion = function(discussion) {
 					layout.currentControl = undefined;
@@ -90,10 +102,12 @@ angular.module('classeur.extensions.commenting', [])
 		};
 	})
 	.directive('clCommentInput', function(commenting, user, layout) {
+
 		return {
 			restrict: 'E',
 			template: '<md-text-float label="Comment" ng-model="commenting.newCommentContent"></md-text-float>',
 			link: function(scope, element) {
+
 				var inputElt = element[0].querySelector('input');
 				inputElt.addEventListener('mousedown', function(e) {
 					e.stopPropagation();
@@ -155,8 +169,8 @@ angular.module('classeur.extensions.commenting', [])
 
 		Discussion.prototype.setTopOffset = function(y, isNew) {
 			y = Math.round(y);
+			// Prevent overlap of comment icons
 			var yListIndex = y - commentButtonHeight + 1;
-			// Avoid overlap of comment icons
 			while(yListIndex < y + commentButtonHeight) {
 				if(yList[yListIndex]) {
 					y = yListIndex + commentButtonHeight;
@@ -164,7 +178,7 @@ angular.module('classeur.extensions.commenting', [])
 				yListIndex++;
 			}
 			!isNew && (yList[y] = 1);
-			this.topOffset = (y - commentButtonHeight / 2 + 1) + 'px';
+			this.topOffset = (y - commentButtonHeight / 2 + 2) + 'px';
 		};
 
 		function updateDiscussions() {

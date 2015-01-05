@@ -14,6 +14,7 @@ $editor-margin-width: 120px;
 @import '../app/core/editor/_toc.scss';
 @import '../app/core/layout/_layout.scss';
 @import '../app/extensions/btnBar/_btnBar.scss';
+@import '../app/extensions/commenting/_commenting.scss';
 @import '../app/extensions/folding/_folding.scss';
 @import '../app/extensions/stat/_stat.scss';
 @import '_material.scss';
@@ -79,43 +80,6 @@ body {
 		&:hover {
 			color: transparentize(#000, 0.6);
 		}
-	}
-}
-
-.folding.gutter {
-	& > div {
-		right: 2px;
-		padding: 3px;
-		font-size: 16px;
-	}
-}
-
-.commenting.gutter {
-	div {
-		right: 24px;
-		padding: 3px 2px;
-		font-size: 24px;
-		&:hover {
-			color: rgba(33, 150, 243, 0.75);
-		}
-		&.current {
-			color: rgb(33, 150, 243);
-		}
-	}
-}
-
-.discussion {
-	padding: 10px;
-	padding-right: 65px;
-	margin-right: -40px;
-	overflow-y: auto;
-	font-size: 14px;
-	.comment {
-		margin-top: 10px;
-	}
-	.user {
-		font-size: 15px;
-		font-weight: bold;
 	}
 }
 

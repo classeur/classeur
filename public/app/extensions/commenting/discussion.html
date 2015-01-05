@@ -1,37 +1,21 @@
-<fa-modifier fa-size="[240, 240]" fa-translate="[10, 15, 20]" fa-rotate-z="-0.02"
-			 ng-if="layout.currentControl === 'discussion'">
-	<fa-draggable fa-pipe-from="draggableHandler">
-		<fa-container-surface>
-			<fa-surface class="no-overflow md-whiteframe-z2" fa-pipe-to="draggableHandler">
-				<div class="discussion panel postit">
-					<div ng-repeat="comment in commenting.currentDiscussion.comments" class="comment">
-						<span class="user">{{comment.user}}:</span>
-						<span class="content">{{comment.content}}</span>
-					</div>
-					<cl-comment-input></cl-comment-input>
-				</div>
-			</fa-surface>
-			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]">
-				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-content-clear" ng-click="layout.currentControl = undefined"></i>
-				</cl-button>
-			</fa-modifier>
-			<fa-modifier fa-align="[1, 0]" fa-origin="[1, 0]" fa-size="[32, 32]" fa-translate="[0, 32]">
-				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-action-delete" ng-click="removeDiscussion(commenting.currentDiscussion)"></i>
-				</cl-button>
-			</fa-modifier>
-			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]" fa-translate="[0, -32]">
-				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-navigation-arrow-back rotate-90" ng-click=""></i>
-				</cl-button>
-			</fa-modifier>
-			<fa-modifier fa-align="[1, 1]" fa-origin="[1, 1]" fa-size="[32, 32]">
-				<cl-button surface-class="btn btn-discussion" opacity="0.2" opacity-hover="0.3">
-					<i class="mdi-navigation-arrow-forward rotate-90" ng-click=""></i>
-				</cl-button>
-			</fa-modifier>
-		</fa-container-surface>
-	</fa-draggable>
-</fa-modifier>
-
+<div class="discussion panel postit no-overflow md-whiteframe-z2">
+	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30">
+		<div class="mdi-content-clear" ng-click="layout.currentControl = undefined" aria-label="Close discussion"></div>
+	</cl-button>
+	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" top="30">
+		<div class="mdi-action-delete" ng-click="removeDiscussion(commenting.currentDiscussion)" aria-label="Delete discussion"></div>
+	</cl-button>
+	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" bottom="30">
+		<div class="mdi-navigation-arrow-back" ng-click="" aria-label="Previous discussion"></div>
+	</cl-button>
+	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" bottom="0">
+		<div class="mdi-navigation-arrow-forward" ng-click="" aria-label="Next discussion"></div>
+	</cl-button>
+	<div class="discussion content">
+	<div ng-repeat="comment in commenting.currentDiscussion.comments" class="comment">
+		<span class="user">{{comment.user}}:</span>
+		<span class="content">{{comment.content}}</span>
+	</div>
+	<cl-comment-input></cl-comment-input>
+	</div>
+</div>

@@ -10,7 +10,7 @@ angular.module('classeur.app', [
 	'classeur.core.user',
 	'classeur.core.utils',
 	'classeur.extensions.btnBar',
-	//'classeur.extensions.commenting',
+	'classeur.extensions.commenting',
 	'classeur.extensions.folding',
 	'classeur.extensions.htmlSanitizer',
 	'classeur.extensions.markdownExtra',

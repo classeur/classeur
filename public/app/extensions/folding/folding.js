@@ -5,6 +5,7 @@ angular.module('classeur.extensions.folding', [])
 			link: function(scope, element) {
 				var mouseX, mouseY;
 				var sectionGroupHover, timeoutId;
+
 				function removeSectionGroupHover() {
 					if(sectionGroupHover) {
 						var elt = sectionGroupHover.sections[0].elt;
@@ -12,6 +13,15 @@ angular.module('classeur.extensions.folding', [])
 						sectionGroupHover = undefined;
 					}
 				}
+
+				function setSectionGroupHover(sectionGroup) {
+					removeSectionGroupHover();
+					sectionGroupHover = sectionGroup;
+					sectionGroupHover.sections[0].elt.className += ' folding-hover';
+					clearTimeout(timeoutId);
+					timeoutId = setTimeout(removeSectionGroupHover, 3000);
+				}
+
 				element.on('mousemove', function(e) {
 					var newMouseX = e.clientX;
 					var newMouseY = e.clientY + element[0].scrollTop;
@@ -24,22 +34,23 @@ angular.module('classeur.extensions.folding', [])
 					if(!sectionGroup) {
 						return;
 					}
-					removeSectionGroupHover();
-					sectionGroupHover = sectionGroup;
-					sectionGroupHover.sections[0].elt.className += ' folding-hover';
-					clearTimeout(timeoutId);
-					timeoutId = setTimeout(removeSectionGroupHover, 3000);
+					setSectionGroupHover(sectionGroup);
 				});
 
 				function buttonClickHandler(handler) {
 					return function(e) {
-						if(!sectionGroupHover || e.offsetX >= 0 || e.target !== sectionGroupHover.sections[0].elt) {
+						if(!sectionGroupHover || e.target !== sectionGroupHover.sections[0].elt) {
 							return;
 						}
-						e.preventDefault();
-						handler && handler(sectionGroupHover);
+						var offsetX = e.offsetX || e.clientX - e.target.getBoundingClientRect().left;
+						if(offsetX < 0) {
+							e.preventDefault();
+							setSectionGroupHover(sectionGroupHover);
+							handler && handler(sectionGroupHover);
+						}
 					};
 				}
+
 				element.on('mousedown', buttonClickHandler());
 				element.on('click', buttonClickHandler(function(sectionGroup) {
 					sectionGroup[sectionGroup.isFolded ? 'unfold' : 'fold']();
@@ -183,20 +194,13 @@ angular.module('classeur.extensions.folding', [])
 				}
 
 				// Section group has been modified
-				var sectionGroup = section.elt.sectionGroup;
-				while(sectionGroup && !sectionGroup.isFolded) {
-					sectionGroup = sectionGroup.parent;
-				}
-
-				if(sectionGroup) {
-					// Unfold folded section group
-					sectionGroup.isFolded = false;
-				}
+				section.elt.sectionGroup.unfold();
 			});
 			oldSectionList = sectionList;
 
 			// List groups
 			var sectionGroup;
+			var newSectionGroups = [];
 			sectionList.forEach(function(section) {
 				var firstChild = section.elt.firstChild;
 				if(!firstChild) {
@@ -210,6 +214,10 @@ angular.module('classeur.extensions.folding', [])
 					if(section.elt.sectionGroup) {
 						// Keep folding state from old group
 						sectionGroup.isFolded = section.elt.sectionGroup.isFolded;
+						sectionGroup.isParentFolded = section.elt.sectionGroup.isParentFolded;
+					}
+					else {
+						newSectionGroups.push(sectionGroup);
 					}
 					folding.sectionGroups.push(sectionGroup);
 				}
@@ -224,7 +232,6 @@ angular.module('classeur.extensions.folding', [])
 			// Make hierarchy
 			var stack = [];
 			folding.sectionGroups.forEach(function(sectionGroup) {
-				sectionGroup.showSections();
 				while(stack.length && stack[stack.length - 1].level >= sectionGroup.level) {
 					stack.pop();
 				}
@@ -235,9 +242,12 @@ angular.module('classeur.extensions.folding', [])
 				stack.push(sectionGroup);
 			});
 
-			// Restore folded groups
-			folding.sectionGroups.forEach(function(sectionGroup) {
-				sectionGroup.isFolded && sectionGroup.fold(true);
+			// Unfold parent/children of new section groups
+			newSectionGroups.forEach(function(sectionGroup) {
+				sectionGroup.parent && sectionGroup.parent.unfold();
+				sectionGroup.children.forEach(function(childGroup) {
+					childGroup.unfold();
+				});
 			});
 		}
 
