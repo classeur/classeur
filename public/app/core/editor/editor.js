@@ -120,7 +120,7 @@ angular.module('classeur.core.editor', [])
 			}
 		};
 	})
-	.factory('editor', function($rootScope, prism, settings) {
+	.factory('editor', function($rootScope, settings, layout) {
 		settings.setDefaultValue('refreshPreviewDelay', 500);
 		settings.setDefaultValue('measureSectionDelay', 1000);
 
@@ -137,7 +137,7 @@ angular.module('classeur.core.editor', [])
 		var asyncPreviewListeners = [];
 		var editor = {
 			options: {
-				language: prism(prismOptions)
+				language: window.mdGrammar(prismOptions)
 			},
 			initConverter: function() {
 				editor.converter = new window.Markdown.Converter();
@@ -158,7 +158,7 @@ angular.module('classeur.core.editor', [])
 			setPrismOptions: function(options) {
 				prismOptions = angular.extend(prismOptions, options);
 				this.options = angular.extend({}, this.options);
-				this.options.language = prism(prismOptions);
+				this.options.language = window.mdGrammar(prismOptions);
 			},
 			setSectionDelimiter: function(priority, sectionDelimiter) {
 				sectionDelimiters[priority] = sectionDelimiter;
@@ -179,6 +179,11 @@ angular.module('classeur.core.editor', [])
 				editor.cledit = window.cledit(elt, elt.parentNode);
 				editor.pagedownEditor = new window.Markdown.Editor(editor.converter, {
 					input: Object.create(editor.cledit)
+				});
+				editor.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
+					editor.imageDialogCallback = callback;
+					layout.currentControl = 'imageDialog';
+					return true;
 				});
 				editor.pagedownEditor.run();
 			},

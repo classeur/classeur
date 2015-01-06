@@ -8,11 +8,5 @@
 	}
 	button {
 		line-height: 0;
-		&:hover, &:focus {
-			background-color: transparent !important;
-		}
-		.md-ripple-container {
-			background-color: transparent !important;
-		}
 	}
 }

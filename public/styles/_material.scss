@@ -31,6 +31,15 @@ md-switch {
 
 }
 
+.md-button {
+	&:hover, &:focus {
+		background-color: transparent !important;
+	}
+	.md-ripple-container {
+		background-color: transparent !important;
+	}
+}
+
 md-switch .md-label {
 	border-width: 0px;
 }
@@ -42,3 +51,14 @@ md-slider.md-default-theme .md-track.md-track-fill {
 md-slider.md-default-theme .md-thumb:after {
 	box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
 }
+
+md-dialog.transition-out {
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+	-webkit-transform: scale(0.8);
+	transform: scale(0.8);
+}
+
+md-dialog.md-default-theme {
+	border-radius: 0;
+}
+

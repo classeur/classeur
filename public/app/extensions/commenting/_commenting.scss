@@ -21,7 +21,7 @@
 
 .discussion.content {
 	padding: 10px;
-	padding-right: 65px;
+	padding-right: 75px;
 	margin-right: -40px;
 	overflow-y: auto;
 	font-size: 14px;
@@ -31,6 +31,9 @@
 	.user {
 		font-size: 15px;
 		font-weight: bold;
+	}
+	input {
+		width: 100%;
 	}
 }
 

@@ -36,6 +36,7 @@ var vendorJs = [
 	'bower_components/cledit/scripts/cleditUndoMgr.js',
 	'bower_components/cledit/scripts/cleditUtils.js',
 	'bower_components/cledit/scripts/cleditWatcher.js',
+	'bower_components/cledit/examples/markdownEditor/mdGrammar.js',
 	'bower_components/highlightjs/highlight.pack.js',
 	'bower_components/google-code-prettify/src/prettify.js',
 	'components/Markdown.Converter.js',

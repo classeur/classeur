@@ -69,7 +69,7 @@
             options = { helpButton: options };
         }
         options.strings = options.strings || {};
-		var getString = function (identifier) { return options.strings[identifier] || defaultsStrings[identifier]; }
+		var getString = function (identifier) { return options.strings[identifier] || defaultsStrings[identifier]; };
 
         var hooks = this.hooks = new window.Markdown.HookCollection();
         hooks.addNoop("onPreviewRefresh");       // called with no arguments after the preview has been refreshed
@@ -610,8 +610,6 @@
         //chunk.findTags(/\s*!?\[/, /\][ ]?(?:\n[ ]*)?(\[.*?\])?/);
         chunk.findTags(/\s*!?\[/, /\][ ]?(?:\n[ ]*)?(\(.*?\))?/);
 
-        var background;
-
         if (chunk.endTag.length > 1 && chunk.startTag.length > 0) {
 
             chunk.startTag = chunk.startTag.replace(/!?\[/, "");
@@ -635,8 +633,6 @@
             // The function to be executed when you enter a link and press OK or Cancel.
             // Marks up the link and adds the ref.
             var linkEnteredCallback = function (link) {
-
-                background.parentNode.removeChild(background);
 
                 if (link !== null) {
                     // (                          $1
@@ -982,7 +978,7 @@
 
             // Renumber/bullet the list element.
             itemText = itemText.replace(/^[ ]{0,3}([*+-]|\d+[.])\s/gm,
-                function (_) {
+                function() {
                     return getItemPrefix();
                 });
 
@@ -1088,7 +1084,7 @@
         // We make a level 2 header if there is no current header.
         // If there is a header level, we substract one from the header level.
         // If it's already a level 1 header, it's removed.
-        var headerLevelToCreate = headerLevel == 0 ? 2 : headerLevel - 1;
+        var headerLevelToCreate = headerLevel === 0 ? 2 : headerLevel - 1;
 
         if (headerLevelToCreate > 0) {
 
@@ -1110,7 +1106,7 @@
         chunk.startTag = "----------\n";
         chunk.selection = "";
         chunk.skipLines(2, 1, true);
-    }
+    };
 
 
 })();

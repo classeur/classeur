@@ -1,0 +1,25 @@
+.image.dialog {
+	min-width: 340px;
+	input {
+		width: 100%;
+	}
+	.or {
+		text-align: center;
+		text-transform: uppercase;
+		font-weight: bold;
+		color: #bbb;
+		span {
+			font-weight: 300;
+		}
+	}
+	.drop-zone {
+		border: 3px dashed #bbb;
+		border-radius: 16px;
+		padding: 32px;
+		text-align: center;
+		color: #bbb;
+		.icon {
+			font-size: 42px;
+		}
+	}
+}

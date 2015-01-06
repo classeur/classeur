@@ -8,7 +8,10 @@
 	height: 100%;
 	overflow: auto;
 	* {
-		line-height: 1.5;
+		line-height: 1.45;
+	}
+	img {
+		max-width: 100%;
 	}
 }
 

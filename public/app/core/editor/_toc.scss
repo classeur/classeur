@@ -3,6 +3,15 @@
 	overflow-y: auto;
 }
 
+.toc.title {
+	position: absolute;
+	bottom: -10px;
+	right: 50px;
+	color: transparentize(#000, 0.92);
+	font-size: 80px;
+	font-weight: 300;
+}
+
 .toc.content {
 	font-size: 9px;
 	color: #4a4a4a;

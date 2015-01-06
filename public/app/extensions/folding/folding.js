@@ -189,7 +189,7 @@ angular.module('classeur.extensions.folding', [])
 
 			// Unfold modified section groups
 			oldSectionList && oldSectionList.forEach(function(section) {
-				if(section.elt.parentNode) {
+				if(section.elt.parentNode || !section.elt.sectionGroup) {
 					return;
 				}
 
