@@ -1,11 +1,22 @@
 angular.module('classeur.core.editor', [])
-	.directive('clEditor', function($timeout, editor, settings) {
+	.directive('clEditor', function($timeout, editor, settings, keystrokes, uriValidator) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/editor/editor.html',
 			link: function(scope, element) {
+				scope.fileDao = scope.files.currentFileDao;
+				var containerElt = element[0].querySelector('.editor.container');
 				var editorElt = element[0].querySelector('.editor.content');
 				editor.setEditorElt(editorElt);
+
+				function saveState() {
+					scope.fileDao.state = {
+						selectionStart: editor.cledit.selectionMgr.selectionStart,
+						selectionEnd: editor.cledit.selectionMgr.selectionEnd,
+						scrollTop: containerElt.scrollTop,
+					};
+				}
+				containerElt.addEventListener('scroll', saveState);
 
 				var newSectionList, newSelectionRange;
 				var debouncedEditorChanged = window.cledit.Utils.debounce(function() {
@@ -14,6 +25,8 @@ angular.module('classeur.core.editor', [])
 						debouncedRefreshPreview();
 					}
 					editor.selectionRange = newSelectionRange;
+					scope.fileDao.content = editor.cledit.getContent();
+					saveState();
 					scope.$apply();
 				}, 10);
 
@@ -23,7 +36,7 @@ angular.module('classeur.core.editor', [])
 					scope.$apply();
 					setTimeout(function() {
 						editor.refreshPreview(scope.$apply.bind(scope));
-					}, 1);
+					}, 10);
 				}, settings.values.refreshPreviewDelay);
 
 				editor.cledit.on('contentChanged', function(content, sectionList) {
@@ -36,14 +49,50 @@ angular.module('classeur.core.editor', [])
 					debouncedEditorChanged();
 				});
 
+				editor.cledit.highlighter.on('sectionHighlighted', function(section) {
+					section.imgTokenEltList = section.elt.getElementsByClassName('token img');
+					Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
+						var srcElt = imgTokenElt.querySelector('.token.md-src');
+						if(srcElt) {
+							var imgElt = document.createElement('img');
+							var uri = srcElt.textContent;
+							if(uriValidator(uri, true)) {
+								imgElt.src = uri;
+							}
+							imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
+						}
+					});
+				});
+
+				editor.cledit.highlighter.on('domChanged', function(modifiedSections) {
+					modifiedSections.forEach(function(section) {
+						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
+							if(imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
+								imgTokenElt.parentNode.removeChild(imgTokenElt);
+							}
+						});
+					});
+				});
+
+				// Add custom keystrokes
+				keystrokes(editor);
+
 				var isInited;
 				scope.$watch('editor.options', function() {
 					editor.forcePreviewRefresh();
-					editor.cledit.init(editor.options);
+					var options = editor.options;
 					if(!isInited) {
-						editor.cledit.setSelection(0, 0);
+						options = angular.extend({}, options);
+						options.content = scope.fileDao.content;
+						if(options.content.slice(-1) !== '\n') {
+							options.content += '\n';
+						}
+						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
+							options[key] = scope.fileDao.state[key];
+						});
 						isInited = true;
 					}
+					editor.cledit.init(options);
 				});
 				scope.$watch('layout.isEditorOpen', function(isOpen) {
 					editor.cledit.toggleEditable(isOpen);
@@ -57,7 +106,7 @@ angular.module('classeur.core.editor', [])
 				scope.$watch('editor.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editor.previewSize()', debouncedMeasureSectionDimension);
 				scope.$watch('layout.isPreviewVisible', function(isVisible) {
-					isVisible && editor.sectionDescList && editor.measureSectionDimensions();
+					isVisible && editor.measureSectionDimensions();
 				});
 				scope.$watch('layout.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
@@ -135,6 +184,7 @@ angular.module('classeur.core.editor', [])
 		var forcePreviewRefresh = true;
 		var converterInitListeners = [];
 		var asyncPreviewListeners = [];
+		var footnoteContainerElt;
 		var editor = {
 			options: {
 				language: window.mdGrammar(prismOptions)
@@ -176,9 +226,16 @@ angular.module('classeur.core.editor', [])
 			setEditorElt: function(elt) {
 				editorElt = elt;
 				this.editorElt = elt;
+				editor.sectionDescList = [];
+				footnoteContainerElt = undefined;
 				editor.cledit = window.cledit(elt, elt.parentNode);
 				editor.pagedownEditor = new window.Markdown.Editor(editor.converter, {
 					input: Object.create(editor.cledit)
+				});
+				editor.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
+					editor.linkDialogCallback = callback;
+					layout.currentControl = 'linkDialog';
+					return true;
 				});
 				editor.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
 					editor.imageDialogCallback = callback;
@@ -208,11 +265,10 @@ angular.module('classeur.core.editor', [])
 			footnoteFragment.appendChild(footnoteElt);
 		}
 
-		var footnoteContainerElt;
 		var htmlElt = document.createElement('div');
 
 		editor.updateSectionDescList = function() {
-			var sectionDescList = editor.sectionDescList || [];
+			var sectionDescList = editor.sectionDescList;
 			var newSectionDescList = [];
 			var newLinkDefinition = '\n';
 			hasFootnotes = false;

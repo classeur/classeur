@@ -25,23 +25,7 @@ angular.module('classeur.extensions.commenting', [])
 					}
 				});
 
-				commenting.fileDao = {
-					users: {},
-					discussions: {
-						a: {
-							id: 'a',
-							start: 10,
-							end: 20,
-							comments: []
-						},
-						b: {
-							id: 'b',
-							start: 110,
-							end: 120,
-							comments: []
-						}
-					}
-				};
+				commenting.fileDao = scope.files.currentFileDao;
 				scope.$watch('onDiscussionChanged', function() {
 					commenting.updateDiscussions();
 					commenting.refreshCoordinates();
@@ -104,11 +88,9 @@ angular.module('classeur.extensions.commenting', [])
 	.directive('clCommentInput', function(commenting, user, layout) {
 
 		return {
-			restrict: 'E',
-			template: '<md-text-float label="Comment" ng-model="commenting.newCommentContent"></md-text-float>',
 			link: function(scope, element) {
 
-				var inputElt = element[0].querySelector('input');
+				var inputElt = element[0].querySelector('textarea');
 				inputElt.addEventListener('mousedown', function(e) {
 					e.stopPropagation();
 				});

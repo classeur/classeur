@@ -32,6 +32,7 @@ md-switch {
 }
 
 .md-button {
+	font-weight: normal;
 	&:hover, &:focus {
 		background-color: transparent !important;
 	}
@@ -61,4 +62,3 @@ md-dialog.transition-out {
 md-dialog.md-default-theme {
 	border-radius: 0;
 }
-

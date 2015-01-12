@@ -6,6 +6,7 @@ angular.module('classeur.core.layout', [])
 			restrict: 'E',
 			templateUrl: 'app/core/layout/layout.html',
 			link: function(scope, element) {
+				layout.init();
 
 				scope.layout = layout;
 				scope.settings = settings;
@@ -100,7 +101,7 @@ angular.module('classeur.core.layout', [])
 				var debouncedUpdatedLayoutSize = window.cledit.Utils.debounce(function() {
 					updateLayoutSize();
 					scope.$apply();
-				}, 50);
+				}, 90);
 
 				var isInited;
 
@@ -164,7 +165,7 @@ angular.module('classeur.core.layout', [])
 			}
 		};
 	})
-	.factory('layout', function($rootScope, settings) {
+	.factory('layout', function($rootScope, settings, files) {
 		settings.setDefaultValue('zoom', 3);
 
 		var layout = {
@@ -173,7 +174,14 @@ angular.module('classeur.core.layout', [])
 			menuWidth: 320,
 			tocWidth: 250,
 			statHeight: 30,
-			isEditorOpen: true,
+			init: function() {
+				this.isEditorOpen = true;
+				this.isSidePreviewOpen = false;
+				this.currentControl = undefined;
+				this.isTocOpen = false;
+				this.isStatOpen = false;
+				this.isCornerOpen = false;
+			},
 			toggleEditor: function(isOpen) {
 				this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;
 			},
@@ -192,6 +200,10 @@ angular.module('classeur.core.layout', [])
 			toggleCorner: function(isOpen) {
 				this.isCornerOpen = isOpen === undefined ? !this.isCornerOpen : isOpen;
 			},
+			close: function() {
+
+				files.setCurrent();
+			}
 		};
 
 		window.addEventListener('keydown', function(e) {

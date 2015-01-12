@@ -4,6 +4,7 @@
 
 $material-font-path: "../bower_components/bootstrap-material-design/fonts";
 $plastic-color: #64BDEB;
+$link-color: #3f51b5;
 $editor-margin-width: 120px;
 
 @import '_roboto-draft.scss';
@@ -15,7 +16,7 @@ $editor-margin-width: 120px;
 @import '../app/core/layout/_layout.scss';
 @import '../app/extensions/btnBar/_btnBar.scss';
 @import '../app/extensions/commenting/_commenting.scss';
-@import '../app/extensions/imageDialog/_imageDialog.scss';
+@import '../app/extensions/urlDialog/_urlDialog.scss';
 @import '../app/extensions/folding/_folding.scss';
 @import '../app/extensions/stat/_stat.scss';
 @import '_material.scss';

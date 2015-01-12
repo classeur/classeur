@@ -30,6 +30,7 @@ var vendorJs = [
 	'bower_components/rangy-official/rangy-classapplier.js',
 	'bower_components/cledit/scripts/cleditCore.js',
 	'bower_components/cledit/scripts/cleditHighlighter.js',
+	'bower_components/cledit/scripts/cleditKeystroke.js',
 	'bower_components/cledit/scripts/cleditMarker.js',
 	'bower_components/cledit/scripts/cleditPrism.js',
 	'bower_components/cledit/scripts/cleditSelectionMgr.js',

@@ -12,6 +12,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-editor-format-bold',
 				label: 'Bold',
+				keystroke: 'Ctrl/Cmd+B',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('bold');
 				}
@@ -19,6 +20,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-editor-format-italic',
 				label: 'Italic',
+				keystroke: 'Ctrl/Cmd+I',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('italic');
 				}
@@ -27,6 +29,7 @@ angular.module('classeur.extensions.btnBar', [])
 				separator: true,
 				icon: 'mdi-content-link',
 				label: 'Link',
+				keystroke: 'Ctrl/Cmd+L',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('link');
 				}
@@ -34,6 +37,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-editor-format-quote',
 				label: 'Blockquote',
+				keystroke: 'Ctrl/Cmd+Q',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('quote');
 				}
@@ -41,6 +45,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-action-settings-ethernet',
 				label: 'Code',
+				keystroke: 'Ctrl/Cmd+K',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('code');
 				}
@@ -48,6 +53,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-image-crop-original',
 				label: 'Image',
+				keystroke: 'Ctrl/Cmd+G',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('image');
 				}
@@ -55,14 +61,16 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				separator: true,
 				icon: 'mdi-editor-format-list-numbered',
-				label: 'List',
+				label: 'Numbered list',
+				keystroke: 'Ctrl/Cmd+O',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('olist');
 				}
 			},
 			{
 				icon: 'mdi-editor-format-list-bulleted',
-				label: 'Numbered list',
+				label: 'Bullet list',
+				keystroke: 'Ctrl/Cmd+U',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('ulist');
 				}
@@ -70,6 +78,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-editor-format-size',
 				label: 'Heading',
+				keystroke: 'Ctrl/Cmd+H',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('heading');
 				}
@@ -77,6 +86,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-navigation-more-horiz',
 				label: 'Horizontal rule',
+				keystroke: 'Ctrl/Cmd+R',
 				click: function() {
 					editor.pagedownEditor.uiManager.doClick('hr');
 				}
@@ -85,6 +95,7 @@ angular.module('classeur.extensions.btnBar', [])
 				separator: true,
 				icon: 'mdi-content-undo',
 				label: 'Undo',
+				keystroke: 'Ctrl/Cmd+Z',
 				click: function() {
 					editor.cledit.undoMgr.undo();
 				}
@@ -92,6 +103,7 @@ angular.module('classeur.extensions.btnBar', [])
 			{
 				icon: 'mdi-content-redo',
 				label: 'Redo',
+				keystroke: 'Ctrl/Cmd+Y',
 				click: function() {
 					editor.cledit.undoMgr.redo();
 				}

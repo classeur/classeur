@@ -1,0 +1,9 @@
+<div>
+	<a ng-click="loadDocFile('markdownCheatSheet.md')">Markdown Cheat Sheet</a>
+</div>
+<div>
+	<a ng-click="newFile()">New file</a>
+</div>
+<div ng-repeat="fileDao in files.localFiles">
+	<a ng-click="loadFile(fileDao)">{{fileDao.metadata.title}}</a>
+</div>

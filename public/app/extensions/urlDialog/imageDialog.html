@@ -11,8 +11,13 @@
 				<span>—</span> or <span>—</span>
 		</p>
 		<div class="drop-zone">
+			<div ng-show="!isUploading">
 			<div class="icon mdi-image-crop-original"></div>
 			Drop image here
+			</div>
+			<div layout="row" layout-sm="column" layout-align="space-around" ng-show="isUploading">
+				<md-progress-circular md-mode="indeterminate"></md-progress-circular>
+			</div>
 		</div>
 	</md-content>
 	<div class="md-actions">

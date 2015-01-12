@@ -27,12 +27,13 @@
 	font-size: 14px;
 	.comment {
 		margin-top: 10px;
+		margin-bottom: 5px;
 	}
 	.user {
 		font-size: 15px;
 		font-weight: bold;
 	}
-	input {
+	textarea {
 		width: 100%;
 	}
 }
@@ -40,7 +41,7 @@
 
 .discussion.btn {
 	right: 0;
-	div {
+	a {
 		font-size: 22px;
 		line-height: 30px;
 	}

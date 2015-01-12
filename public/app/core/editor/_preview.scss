@@ -26,6 +26,10 @@
 	text-align: justify;
 }
 
+a {
+	color: $link-color;
+}
+
 code, kbd, pre, samp {
 	font-family: $font-family-monospace;
 	font-size: $font-size-monospace;
@@ -53,5 +57,24 @@ pre.prettyprint {
 
 .toc ul {
 	list-style-type: none;
+	padding-left: 20px;
+}
+
+table {
+	border-spacing: 0;
+	border-collapse: collapse;
+	background-color: transparent;
+}
+
+td, th {
+	padding: 8px;
+}
+
+tr:nth-child(even) td {
+	background-color: $code-bg;
+}
+
+th {
+	background-color: $code-bg;
 }
 

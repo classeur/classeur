@@ -8,8 +8,8 @@
 }
 
 .btn-bar .btn {
-	top: 24px;
-	div {
+	top: 25px;
+	a {
 		color: #fff;
 		font-size: 25px;
 		line-height: 32px;
@@ -22,7 +22,7 @@
 .clip {
 	border-bottom-left-radius: 12px;
 	border-bottom-right-radius: 12px;
-	background-color: #3A3938;
+	background-color: #383838;
 	.light {
 		border-bottom-right-radius: 12px;
 		border-bottom: 70px solid transparentize(#fff, 0.95);

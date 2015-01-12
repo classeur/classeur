@@ -1,12 +1,12 @@
 angular.module('classeur.extensions.htmlSanitizer', [])
-	.directive('clHtmlSanitizer', function(editor) {
+	.directive('clHtmlSanitizer', function(editor, uriValidator) {
 
 		var buf;
 		editor.onInitConverter(90, function(converter) {
 			converter.hooks.chain("postConversion", function(html) {
 				buf = [];
 				htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
-					return !/^unsafe/.test(sanitizeUri(uri, isImage));
+					return uriValidator(uri, isImage);
 				}));
 				return buf.join('');
 			});
@@ -17,55 +17,6 @@ angular.module('classeur.extensions.htmlSanitizer', [])
 		 * (c) 2010-2014 Google, Inc. http://angularjs.org
 		 * License: MIT
 		 */
-
-		var aHrefSanitizationWhitelist = /^\s*(https?|ftp|mailto|tel|file):/,
-			imgSrcSanitizationWhitelist = /^\s*(https?|ftp|file):|data:image\//;
-
-		function sanitizeUri(uri, isImage) {
-			var regex = isImage ? imgSrcSanitizationWhitelist : aHrefSanitizationWhitelist;
-			var normalizedVal;
-			normalizedVal = urlResolve(uri).href;
-			if(normalizedVal !== '' && !normalizedVal.match(regex)) {
-				return 'unsafe:' + normalizedVal;
-			}
-		}
-
-		/**
-		 * IE 11 changed the format of the UserAgent string.
-		 * See http://msdn.microsoft.com/en-us/library/ms537503.aspx
-		 */
-		var msie = parseInt((/msie (\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1], 10);
-		if(isNaN(msie)) {
-			msie = parseInt((/trident\/.*; rv:(\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1], 10);
-		}
-
-		var urlParsingNode = document.createElement("a");
-
-		function urlResolve(url) {
-			var href = url;
-
-			if(msie) {
-				// Normalize before parse.  Refer Implementation Notes on why this is
-				// done in two steps on IE.
-				urlParsingNode.setAttribute("href", href);
-				href = urlParsingNode.href;
-			}
-
-			urlParsingNode.setAttribute('href', href);
-
-			// urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-			return {
-				href: urlParsingNode.href,
-				protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-				host: urlParsingNode.host,
-				search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-				hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-				hostname: urlParsingNode.hostname,
-				port: urlParsingNode.port,
-				pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-					urlParsingNode.pathname : '/' + urlParsingNode.pathname
-			};
-		}
 
 		// Regular Expressions for parsing tags and attributes
 		var START_TAG_REGEXP =

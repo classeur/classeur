@@ -1,4 +1,4 @@
-.classeur-editor-section {
+.cledit-section {
 	&::before {
 		position: absolute;
 		display: none;
@@ -19,10 +19,10 @@
 	}
 }
 
-.classeur-editor-section.folding-hover::before {
+.cledit-section.folding-hover::before {
 	display: block;
 }
-.classeur-editor-section.folded::before {
+.cledit-section.folded::before {
 	display: block;
 	content: "\e6fd";
 }

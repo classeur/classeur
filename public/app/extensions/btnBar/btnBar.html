@@ -2,6 +2,6 @@
 	<div class="light panel"></div>
 	<div class="hole panel paper"></div>
 	<cl-button class="btn" width="{{btnWidth}}" height="{{btnHeight}}" left="{{btn.offset}}" ng-repeat="btn in btns">
-		<div ng-class="btn.icon" ng-click="btn.click()" aria-label="{{btn.label}}"></div>
+		<a ng-class="btn.icon" ng-click="btn.click()" title="{{btn.label}} {{btn.keystroke}}" aria-label="{{btn.label}}"></a>
 	</cl-button>
 </div>
