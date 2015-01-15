@@ -1,20 +1,19 @@
 angular.module('classeur.core.classeurLayout', [])
-	.directive('clClasseurLayout', function(docFiles, files) {
+	.directive('clClasseurLayout', function(clDocFileSvc, clFileSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/classeurLayout/classeurLayout.html',
 			link: function(scope) {
-				scope.files = files;
-				scope.loadDocFile = function(fileName) {
-					files.setCurrent(docFiles(fileName));
+				scope.loadDocFile = function(fileName, fileTitle) {
+					scope.setFileDao(clDocFileSvc(fileName, fileTitle));
 				};
 				scope.loadFile = function(fileDao) {
 					fileDao.load(function() {
-						files.setCurrent(fileDao);
+						scope.setFileDao(fileDao);
 					});
 				};
 				scope.newFile = function() {
-					var fileDao = files.newLocalFile();
+					var fileDao = clFileSvc.newLocalFile();
 					scope.loadFile(fileDao);
 				};
 			}

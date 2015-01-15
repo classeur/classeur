@@ -1,18 +1,17 @@
 angular.module('classeur.core.editor', [])
-	.directive('clEditor', function($timeout, editor, settings, keystrokes, uriValidator) {
+	.directive('clEditor', function($timeout, clEditorSvc, clSettingSvc, clKeystrokeSvc, clUriValidator) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/editor/editor.html',
 			link: function(scope, element) {
-				scope.fileDao = scope.files.currentFileDao;
 				var containerElt = element[0].querySelector('.editor.container');
 				var editorElt = element[0].querySelector('.editor.content');
-				editor.setEditorElt(editorElt);
+				clEditorSvc.setEditorElt(editorElt);
 
 				function saveState() {
 					scope.fileDao.state = {
-						selectionStart: editor.cledit.selectionMgr.selectionStart,
-						selectionEnd: editor.cledit.selectionMgr.selectionEnd,
+						selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
+						selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
 						scrollTop: containerElt.scrollTop,
 					};
 				}
@@ -20,43 +19,43 @@ angular.module('classeur.core.editor', [])
 
 				var newSectionList, newSelectionRange;
 				var debouncedEditorChanged = window.cledit.Utils.debounce(function() {
-					if(editor.sectionList !== newSectionList) {
-						editor.sectionList = newSectionList;
+					if(clEditorSvc.sectionList !== newSectionList) {
+						clEditorSvc.sectionList = newSectionList;
 						debouncedRefreshPreview();
 					}
-					editor.selectionRange = newSelectionRange;
-					scope.fileDao.content = editor.cledit.getContent();
+					clEditorSvc.selectionRange = newSelectionRange;
+					scope.fileDao.content = clEditorSvc.cledit.getContent();
 					saveState();
 					scope.$apply();
 				}, 10);
 
 				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
-					editor.updateSectionDescList();
-					editor.convert();
+					clEditorSvc.updateSectionDescList();
+					clEditorSvc.convert();
 					scope.$apply();
 					setTimeout(function() {
-						editor.refreshPreview(scope.$apply.bind(scope));
+						clEditorSvc.refreshPreview(scope.$apply.bind(scope));
 					}, 10);
-				}, settings.values.refreshPreviewDelay);
+				}, clSettingSvc.values.refreshPreviewDelay);
 
-				editor.cledit.on('contentChanged', function(content, sectionList) {
+				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 					newSectionList = sectionList;
 					debouncedEditorChanged();
 				});
 
-				editor.cledit.selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
+				clEditorSvc.cledit.selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
 					newSelectionRange = selectionRange;
 					debouncedEditorChanged();
 				});
 
-				editor.cledit.highlighter.on('sectionHighlighted', function(section) {
+				clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 					section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 					Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
 						var srcElt = imgTokenElt.querySelector('.token.md-src');
 						if(srcElt) {
 							var imgElt = document.createElement('img');
 							var uri = srcElt.textContent;
-							if(uriValidator(uri, true)) {
+							if(clUriValidator(uri, true)) {
 								imgElt.src = uri;
 							}
 							imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
@@ -64,7 +63,7 @@ angular.module('classeur.core.editor', [])
 					});
 				});
 
-				editor.cledit.highlighter.on('domChanged', function(modifiedSections) {
+				clEditorSvc.cledit.highlighter.on('domChanged', function(modifiedSections) {
 					modifiedSections.forEach(function(section) {
 						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
 							if(imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
@@ -75,12 +74,12 @@ angular.module('classeur.core.editor', [])
 				});
 
 				// Add custom keystrokes
-				keystrokes(editor);
+				clKeystrokeSvc(clEditorSvc);
 
 				var isInited;
-				scope.$watch('editor.options', function() {
-					editor.forcePreviewRefresh();
-					var options = editor.options;
+				scope.$watch('editorSvc.options', function() {
+					clEditorSvc.forcePreviewRefresh();
+					var options = clEditorSvc.options;
 					if(!isInited) {
 						options = angular.extend({}, options);
 						options.content = scope.fileDao.content;
@@ -92,46 +91,46 @@ angular.module('classeur.core.editor', [])
 						});
 						isInited = true;
 					}
-					editor.cledit.init(options);
+					clEditorSvc.cledit.init(options);
 				});
-				scope.$watch('layout.isEditorOpen', function(isOpen) {
-					editor.cledit.toggleEditable(isOpen);
+				scope.$watch('editorLayoutSvc.isEditorOpen', function(isOpen) {
+					clEditorSvc.cledit.toggleEditable(isOpen);
 				});
 
 				var debouncedMeasureSectionDimension = window.cledit.Utils.debounce(function() {
-					editor.measureSectionDimensions();
+					clEditorSvc.measureSectionDimensions();
 					scope.$apply();
-				}, settings.values.measureSectionDelay);
+				}, clSettingSvc.values.measureSectionDelay);
 				scope.$watch('onPreviewRefreshed', debouncedMeasureSectionDimension);
-				scope.$watch('editor.editorSize()', debouncedMeasureSectionDimension);
-				scope.$watch('editor.previewSize()', debouncedMeasureSectionDimension);
-				scope.$watch('layout.isPreviewVisible', function(isVisible) {
-					isVisible && editor.measureSectionDimensions();
+				scope.$watch('editorSvc.editorSize()', debouncedMeasureSectionDimension);
+				scope.$watch('editorSvc.previewSize()', debouncedMeasureSectionDimension);
+				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
+					isVisible && clEditorSvc.measureSectionDimensions();
 				});
-				scope.$watch('layout.currentControl', function(currentControl) {
+				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
-						editor.cledit && editor.cledit.focus();
+						clEditorSvc.cledit && clEditorSvc.cledit.focus();
 					}, 1);
 				});
 			}
 		};
 	})
-	.directive('clPreview', function(editor) {
+	.directive('clPreview', function(clEditorSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/editor/preview.html',
 			link: function(scope, element) {
-				editor.setPreviewElt(element[0].querySelector('.preview.content'));
+				clEditorSvc.setPreviewElt(element[0].querySelector('.preview.content'));
 			}
 		};
 	})
-	.directive('clToc', function(editor) {
+	.directive('clToc', function(clEditorSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/editor/toc.html',
 			link: function(scope, element) {
 				var tocElt = element[0].querySelector('.toc.content');
-				editor.setTocElt(tocElt);
+				clEditorSvc.setTocElt(tocElt);
 
 				var isMousedown;
 				function onClick(e) {
@@ -141,13 +140,13 @@ angular.module('classeur.core.editor', [])
 					e.preventDefault();
 					var y = e.clientY + tocElt.parentNode.scrollTop;
 
-					editor.sectionDescList.some(function(sectionDesc) {
+					clEditorSvc.sectionDescList.some(function(sectionDesc) {
 						if(y < sectionDesc.tocDimension.endOffset) {
 							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1);
 							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection;
-							editor.editorElt.parentNode.scrollTop = editorScrollTop - 100;
+							clEditorSvc.editorElt.parentNode.scrollTop = editorScrollTop - 100;
 							var previewScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection;
-							editor.previewElt.parentNode.scrollTop = previewScrollTop - 100;
+							clEditorSvc.previewElt.parentNode.scrollTop = previewScrollTop - 100;
 							return true;
 						}
 					});
@@ -169,9 +168,9 @@ angular.module('classeur.core.editor', [])
 			}
 		};
 	})
-	.factory('editor', function($rootScope, settings, layout) {
-		settings.setDefaultValue('refreshPreviewDelay', 500);
-		settings.setDefaultValue('measureSectionDelay', 1000);
+	.factory('clEditorSvc', function($rootScope, clSettingSvc, clEditorLayoutSvc) {
+		clSettingSvc.setDefaultValue('refreshPreviewDelay', 500);
+		clSettingSvc.setDefaultValue('measureSectionDelay', 1000);
 
 		window.rangy.init();
 
@@ -185,15 +184,15 @@ angular.module('classeur.core.editor', [])
 		var converterInitListeners = [];
 		var asyncPreviewListeners = [];
 		var footnoteContainerElt;
-		var editor = {
+		var clEditorSvc = {
 			options: {
 				language: window.mdGrammar(prismOptions)
 			},
 			initConverter: function() {
-				editor.converter = new window.Markdown.Converter();
+				clEditorSvc.converter = new window.Markdown.Converter();
 				asyncPreviewListeners = [];
 				converterInitListeners.forEach(function(listener) {
-					listener(editor.converter);
+					listener(clEditorSvc.converter);
 				});
 			},
 			onInitConverter: function(priority, listener) {
@@ -226,23 +225,23 @@ angular.module('classeur.core.editor', [])
 			setEditorElt: function(elt) {
 				editorElt = elt;
 				this.editorElt = elt;
-				editor.sectionDescList = [];
+				clEditorSvc.sectionDescList = [];
 				footnoteContainerElt = undefined;
-				editor.cledit = window.cledit(elt, elt.parentNode);
-				editor.pagedownEditor = new window.Markdown.Editor(editor.converter, {
-					input: Object.create(editor.cledit)
+				clEditorSvc.cledit = window.cledit(elt, elt.parentNode);
+				clEditorSvc.pagedownEditor = new window.Markdown.Editor(clEditorSvc.converter, {
+					input: Object.create(clEditorSvc.cledit)
 				});
-				editor.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
-					editor.linkDialogCallback = callback;
-					layout.currentControl = 'linkDialog';
+				clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
+					clEditorSvc.linkDialogCallback = callback;
+					clEditorLayoutSvc.currentControl = 'linkDialog';
 					return true;
 				});
-				editor.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
-					editor.imageDialogCallback = callback;
-					layout.currentControl = 'imageDialog';
+				clEditorSvc.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
+					clEditorSvc.imageDialogCallback = callback;
+					clEditorLayoutSvc.currentControl = 'imageDialog';
 					return true;
 				});
-				editor.pagedownEditor.run();
+				clEditorSvc.pagedownEditor.run();
 			},
 			editorSize: function() {
 				return editorElt.clientWidth + 'x' + editorElt.clientHeight;
@@ -251,8 +250,8 @@ angular.module('classeur.core.editor', [])
 				return previewElt.clientWidth + 'x' + previewElt.clientHeight;
 			}
 		};
-		editor.initConverter();
-		editor.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
+		clEditorSvc.initConverter();
+		clEditorSvc.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 
 		var footnoteMap = {};
 		var footnoteFragment = document.createDocumentFragment();
@@ -267,12 +266,12 @@ angular.module('classeur.core.editor', [])
 
 		var htmlElt = document.createElement('div');
 
-		editor.updateSectionDescList = function() {
-			var sectionDescList = editor.sectionDescList;
+		clEditorSvc.updateSectionDescList = function() {
+			var sectionDescList = clEditorSvc.sectionDescList;
 			var newSectionDescList = [];
 			var newLinkDefinition = '\n';
 			hasFootnotes = false;
-			editor.sectionList.forEach(function(section) {
+			clEditorSvc.sectionList.forEach(function(section) {
 				var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
 
 				// Strip footnotes
@@ -313,7 +312,7 @@ angular.module('classeur.core.editor', [])
 				forcePreviewRefresh = false;
 				linkDefinition = newLinkDefinition;
 				sectionsToRemove = sectionDescList;
-				editor.sectionDescList = newSectionDescList;
+				clEditorSvc.sectionDescList = newSectionDescList;
 				modifiedSections = newSectionDescList;
 				return;
 			}
@@ -350,23 +349,23 @@ angular.module('classeur.core.editor', [])
 			var rightSections = sectionDescList.slice(sectionDescList.length + rightIndex, sectionDescList.length);
 			insertBeforeSection = rightSections[0];
 			sectionsToRemove = sectionDescList.slice(leftIndex, sectionDescList.length + rightIndex);
-			editor.sectionDescList = leftSections.concat(modifiedSections).concat(rightSections);
+			clEditorSvc.sectionDescList = leftSections.concat(modifiedSections).concat(rightSections);
 		};
 
-		editor.convert = function() {
+		clEditorSvc.convert = function() {
 			var textToConvert = modifiedSections.map(function(section) {
 				return section.text;
 			});
 			textToConvert.push(linkDefinition + "\n\n");
 			textToConvert = textToConvert.join("");
 
-			var html = editor.converter.makeHtml(textToConvert);
+			var html = clEditorSvc.converter.makeHtml(textToConvert);
 			htmlElt.innerHTML = html;
 
 			$rootScope.trigger('onMarkdownConverted');
 		};
 
-		editor.refreshPreview = function(cb) {
+		clEditorSvc.refreshPreview = function(cb) {
 
 			if(!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
@@ -479,8 +478,8 @@ angular.module('classeur.core.editor', [])
 				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
 					return html + elt.innerHTML;
 				}, '');
-				editor.previewHtml = html.replace(/^\s+|\s+$/g, '');
-				editor.previewText = previewElt.textContent;
+				clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
+				clEditorSvc.previewText = previewElt.textContent;
 				$rootScope.trigger('onPreviewRefreshed');
 				cb();
 			}
@@ -507,7 +506,7 @@ angular.module('classeur.core.editor', [])
 
 		function dimensionNormalizer(dimensionName) {
 			return function() {
-				var dimensionList = editor.sectionDescList.map(function(sectionDesc) {
+				var dimensionList = clEditorSvc.sectionDescList.map(function(sectionDesc) {
 					return sectionDesc[dimensionName];
 				});
 				var dimension, i, j;
@@ -541,14 +540,14 @@ angular.module('classeur.core.editor', [])
 		var normalizePreviewDimensions = dimensionNormalizer('previewDimension');
 		var normalizeTocDimensions = dimensionNormalizer('tocDimension');
 
-		editor.measureSectionDimensions = function() {
+		clEditorSvc.measureSectionDimensions = function() {
 			var editorSectionOffset = 0;
 			var previewSectionOffset = 0;
 			var tocSectionOffset = 0;
-			var sectionDesc = editor.sectionDescList[0];
+			var sectionDesc = clEditorSvc.sectionDescList[0];
 			var nextSectionDesc;
-			for(var i = 1; i < editor.sectionDescList.length; i++) {
-				nextSectionDesc = editor.sectionDescList[i];
+			for(var i = 1; i < clEditorSvc.sectionDescList.length; i++) {
+				nextSectionDesc = clEditorSvc.sectionDescList[i];
 
 				// Measure editor section
 				var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset;
@@ -568,7 +567,7 @@ angular.module('classeur.core.editor', [])
 			}
 
 			// Last section
-			sectionDesc = editor.sectionDescList[i - 1];
+			sectionDesc = clEditorSvc.sectionDescList[i - 1];
 			sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
 			sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
 			sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
@@ -580,6 +579,6 @@ angular.module('classeur.core.editor', [])
 			$rootScope.trigger('onSectionMeasured');
 		};
 
-		return editor;
+		return clEditorSvc;
 	});
 

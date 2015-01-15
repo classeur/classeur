@@ -1,12 +1,12 @@
 angular.module('classeur.extensions.htmlSanitizer', [])
-	.directive('clHtmlSanitizer', function(editor, uriValidator) {
+	.directive('clHtmlSanitizer', function(clEditorSvc, clUriValidator) {
 
 		var buf;
-		editor.onInitConverter(90, function(converter) {
+		clEditorSvc.onInitConverter(90, function(converter) {
 			converter.hooks.chain("postConversion", function(html) {
 				buf = [];
 				htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
-					return uriValidator(uri, isImage);
+					return clUriValidator(uri, isImage);
 				}));
 				return buf.join('');
 			});

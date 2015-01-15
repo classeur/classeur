@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.urlDialog', [])
-	.directive('clUriDialog', function($mdDialog, $http, toast, layout, editor) {
+	.directive('clUriDialog', function($mdDialog, $http, clToast, clEditorLayoutSvc, clEditorSvc) {
 		var maxImageSize = 10000000;
 
 		function onLinkDialog(scope, element) {
@@ -55,7 +55,7 @@ angular.module('classeur.extensions.urlDialog', [])
 					var bytes = new Uint8Array(e.target.result);
 					var len = bytes.byteLength;
 					if(len === maxImageSize) {
-						return toast('Image is too big.');
+						return clToast('Image is too big.');
 					}
 					var binary = '';
 					for(var i = 0; i < len; i++) {
@@ -83,7 +83,7 @@ angular.module('classeur.extensions.urlDialog', [])
 						})
 						.error(function(err) {
 							scope.isUploading = false;
-							toast(err.data.error);
+							clToast(err.data.error);
 						});
 				};
 				var blob = file.slice(0, maxImageSize);
@@ -95,17 +95,17 @@ angular.module('classeur.extensions.urlDialog', [])
 		return {
 			restrict: 'E',
 			link: function(scope) {
-				scope.$watch('layout.currentControl', function(currentControl) {
+				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					if(currentControl === 'linkDialog') {
 						$mdDialog.show({
 							templateUrl: 'app/extensions/urlDialog/linkDialog.html',
 							onComplete: onLinkDialog
 						}).then(function(url) {
-							layout.currentControl = undefined;
-							editor.linkDialogCallback && editor.linkDialogCallback(url || null);
+							clEditorLayoutSvc.currentControl = undefined;
+							clEditorSvc.linkDialogCallback && clEditorSvc.linkDialogCallback(url || null);
 						}, function() {
-							layout.currentControl = undefined;
-							editor.linkDialogCallback && editor.linkDialogCallback(null);
+							clEditorLayoutSvc.currentControl = undefined;
+							clEditorSvc.linkDialogCallback && clEditorSvc.linkDialogCallback(null);
 						});
 					}
 					else if(currentControl === 'imageDialog') {
@@ -113,11 +113,11 @@ angular.module('classeur.extensions.urlDialog', [])
 							templateUrl: 'app/extensions/urlDialog/imageDialog.html',
 							onComplete: onImageDialog
 						}).then(function(url) {
-							layout.currentControl = undefined;
-							editor.imageDialogCallback && editor.imageDialogCallback(url || null);
+							clEditorLayoutSvc.currentControl = undefined;
+							clEditorSvc.imageDialogCallback && clEditorSvc.imageDialogCallback(url || null);
 						}, function() {
-							layout.currentControl = undefined;
-							editor.imageDialogCallback && editor.imageDialogCallback(null);
+							clEditorLayoutSvc.currentControl = undefined;
+							clEditorSvc.imageDialogCallback && clEditorSvc.imageDialogCallback(null);
 						});
 					}
 				});

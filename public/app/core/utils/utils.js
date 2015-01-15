@@ -1,5 +1,5 @@
 angular.module('classeur.core.utils', [])
-	.factory('uid', function() {
+	.factory('clUid', function() {
 		// Generates a 24 char length random id
 		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		var mapper = Array.apply(null, new Array(24));
@@ -9,7 +9,7 @@ angular.module('classeur.core.utils', [])
 			}).join('');
 		};
 	})
-	.factory('toast', function($mdToast) {
+	.factory('clToast', function($mdToast) {
 		return function(text) {
 			$mdToast.show(
 				$mdToast.simple()
@@ -19,7 +19,7 @@ angular.module('classeur.core.utils', [])
 			);
 		};
 	})
-	.factory('panel', function() {
+	.factory('clPanel', function() {
 		window.move.defaults = {
 			duration: 0
 		};
@@ -56,7 +56,20 @@ angular.module('classeur.core.utils', [])
 			return new Panel(elt, selector);
 		};
 	})
-	.factory('uriValidator', function() {
+	.factory('clSelectionListeningSvc', function($timeout) {
+		var clSelectionListeningSvc = {};
+		function saveSelection() {
+			$timeout(function() {
+				var selection = window.getSelection();
+				clSelectionListeningSvc.range = selection.rangeCount && selection.getRangeAt(0);
+			}, 25);
+		}
+		window.addEventListener('keyup', saveSelection);
+		window.addEventListener('mouseup', saveSelection);
+		window.addEventListener('contextmenu', saveSelection);
+		return clSelectionListeningSvc;
+	})
+	.factory('clUriValidator', function() {
 		var aHrefSanitizationWhitelist = /^\s*(https?|ftp|mailto|tel|file):/,
 			imgSrcSanitizationWhitelist = /^\s*(https?|ftp|file):|data:image\//;
 

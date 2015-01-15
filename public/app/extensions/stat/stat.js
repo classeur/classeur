@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.stat', [])
-	.directive('clStat', function(editor, panel, selectionListener) {
+	.directive('clStat', function(clEditorSvc, clPanel, clSelectionListeningSvc) {
 		function Stat(name, regex) {
 			this.name = name;
 			this.regex = new RegExp(regex, 'gm');
@@ -25,11 +25,11 @@ angular.module('classeur.extensions.stat', [])
 			link: function(scope, element) {
 				scope.markdownStats = markdownStats;
 				scope.htmlStats = htmlStats;
-				scope.editor = editor;
-				scope.selectionListener = selectionListener;
+				scope.editor = clEditorSvc;
+				scope.selectionListener = clSelectionListeningSvc;
 
 				var x = 0, y = -130;
-				var statPanel = panel(element, '.stat.panel');
+				var statPanel = clPanel(element, '.stat.panel');
 				statPanel.move().rotate(-1.5)
 					.then().to(x, y).duration(180).ease('ease-out-back').pop()
 					.end();
@@ -47,8 +47,8 @@ angular.module('classeur.extensions.stat', [])
 
 				function computeMarkdown() {
 					scope.isMarkdownSelection = false;
-					var text = editor.cledit.getContent();
-					var selectedText = editor.cledit.selectionMgr.getSelectedText();
+					var text = clEditorSvc.cledit.getContent();
+					var selectedText = clEditorSvc.cledit.selectionMgr.getSelectedText();
 					if(selectedText) {
 						scope.isMarkdownSelection = true;
 						text = selectedText;
@@ -60,40 +60,27 @@ angular.module('classeur.extensions.stat', [])
 
 				function computeHtml() {
 					var text;
-					if(selectionListener.range &&
-						(editor.previewElt.compareDocumentPosition(selectionListener.range.startContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY) &&
-						(editor.previewElt.compareDocumentPosition(selectionListener.range.endContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
-						text = '' + selectionListener.range;
+					if(clSelectionListeningSvc.range &&
+						(clEditorSvc.previewElt.compareDocumentPosition(clSelectionListeningSvc.range.startContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY) &&
+						(clEditorSvc.previewElt.compareDocumentPosition(clSelectionListeningSvc.range.endContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
+						text = '' + clSelectionListeningSvc.range;
 					}
 					if(text) {
 						scope.isHtmlSelection = true;
 					}
 					else {
 						scope.isHtmlSelection = false;
-						text = editor.previewText;
+						text = clEditorSvc.previewText;
 					}
 					htmlStats.forEach(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}
 
-				scope.$watch('editor.sectionList', computeMarkdown);
-				scope.$watch('editor.selectionRange', computeMarkdown);
-				scope.$watch('editor.previewText', computeHtml);
+				scope.$watch('editorSvc.sectionList', computeMarkdown);
+				scope.$watch('editorSvc.selectionRange', computeMarkdown);
+				scope.$watch('editorSvc.previewText', computeHtml);
 				scope.$watch('selectionListener.range', computeHtml);
 			}
 		};
-	})
-	.factory('selectionListener', function($timeout) {
-		var selectionListener = {};
-		function saveSelection() {
-			$timeout(function() {
-				var selection = window.getSelection();
-				selectionListener.range = selection.rangeCount && selection.getRangeAt(0);
-			}, 25);
-		}
-		window.addEventListener('keyup', saveSelection);
-		window.addEventListener('mouseup', saveSelection);
-		window.addEventListener('contextmenu', saveSelection);
-		return selectionListener;
 	});

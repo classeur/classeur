@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.folding', [])
-	.directive('clFolding', function($timeout, folding, editor, layout) {
+	.directive('clFolding', function($timeout, clFoldingSvc, clEditorSvc) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
@@ -30,7 +30,7 @@ angular.module('classeur.extensions.folding', [])
 					}
 					mouseX = newMouseX;
 					mouseY = newMouseY;
-					var sectionGroup = folding.getSectionGroup(mouseY + 10);
+					var sectionGroup = clFoldingSvc.getSectionGroup(mouseY + 10);
 					if(!sectionGroup) {
 						return;
 					}
@@ -59,42 +59,42 @@ angular.module('classeur.extensions.folding', [])
 					var functionName = sectionGroup.isFolded ? 'unfold' : 'fold';
 					var parent = sectionGroup.parent;
 					// Fold/unfold all sections that have the same parent
-					folding.sectionGroups.forEach(function(sectionGroup) {
+					clFoldingSvc.sectionGroups.forEach(function(sectionGroup) {
 						sectionGroup.parent === parent && sectionGroup[functionName]();
 					});
 				}));
 
 				element.on('keydown', function(e) {
-					var selectionStart = editor.cledit.selectionMgr.selectionStart;
-					var selectionEnd = editor.cledit.selectionMgr.selectionEnd;
+					var selectionStart = clEditorSvc.cledit.selectionMgr.selectionStart;
+					var selectionEnd = clEditorSvc.cledit.selectionMgr.selectionEnd;
 					if(selectionStart !== selectionEnd) {
 						return;
 					}
 					if(e.which === 8 && selectionStart > 0) {
 						// Backspace
-						var range = editor.cledit.selectionMgr.createRange(selectionStart - 1, selectionEnd - 1);
-						folding.unfoldRange(range);
+						var range = clEditorSvc.cledit.selectionMgr.createRange(selectionStart - 1, selectionEnd - 1);
+						clFoldingSvc.unfoldRange(range);
 					}
 					if(e.which === 46) {
 						// Del
-						editor.selectionRange && folding.unfoldRange(editor.selectionRange);
+						clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange);
 					}
 				});
 
 				var debouncedBuildSectionGroups = window.cledit.Utils.debounce(function() {
-					editor.sectionList && folding.buildSectionGroups(editor.sectionList);
+					clEditorSvc.sectionList && clFoldingSvc.buildSectionGroups(clEditorSvc.sectionList);
 				}, 10);
 
 				var debouncedunfoldRange = window.cledit.Utils.debounce(function() {
-					editor.selectionRange && folding.unfoldRange(editor.selectionRange);
+					clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange);
 				}, 10);
 
-				scope.$watch('editor.sectionList', debouncedBuildSectionGroups);
-				scope.$watch('editor.selectionRange', debouncedunfoldRange);
+				scope.$watch('editorSvc.sectionList', debouncedBuildSectionGroups);
+				scope.$watch('editorSvc.selectionRange', debouncedunfoldRange);
 			}
 		};
 	})
-	.factory('folding', function(editor) {
+	.factory('clFoldingSvc', function(clEditorSvc) {
 
 		function SectionGroup(firstElt, level) {
 			this.firstElt = firstElt;
@@ -279,7 +279,7 @@ angular.module('classeur.extensions.folding', [])
 			var isStarted, isFinished;
 			var startContainer = range.startContainer;
 			var endContainer = range.endContainer;
-			editor.sectionList && editor.sectionList.some(function(section) {
+			clEditorSvc.sectionList && clEditorSvc.sectionList.some(function(section) {
 				if(section.elt.contains(startContainer)) {
 					isFinished = isStarted;
 					isStarted = true;

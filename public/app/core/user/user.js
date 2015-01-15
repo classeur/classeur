@@ -1,9 +1,9 @@
 angular.module('classeur.core.user', [])
-	.factory('user', function(uid, settings) {
-		settings.setDefaultValue('defaultUserName', 'Anonymous');
+	.factory('clUserSvc', function(clUid, clSettingSvc) {
+		clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
 
-		var user = {
-			localId: uid()
+		var clUserSvc = {
+			localId: clUid()
 		};
-		return user;
+		return clUserSvc;
 	});

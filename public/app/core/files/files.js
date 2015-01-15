@@ -1,5 +1,5 @@
 angular.module('classeur.core.files', [])
-	.factory('files', function(uid) {
+	.factory('clFileSvc', function(clUid) {
 
 		var localFiles = JSON.parse(localStorage.fileIds || '[]').map(function(id) {
 			return new LocalFile(id);
@@ -12,14 +12,11 @@ angular.module('classeur.core.files', [])
 		}
 		sortLocalFiles();
 
-		function LocalFile(id, title) {
+		function LocalFile(id) {
 			this.id = id;
 			var isSaving, isLoaded, isUnloading;
 			this.updated = parseInt(localStorage['file.' + this.id + '.updated'] || '0');
 			this.metadata = JSON.parse(localStorage['file.' + this.id + '.metadata'] || '{}');
-			if(title) {
-				this.metadata.title = title;
-			}
 
 			this.load = function(cb) {
 				if(!isLoaded || !isSaving) {
@@ -80,22 +77,24 @@ angular.module('classeur.core.files', [])
 
 		function addLocalFile(fileDao) {
 			localFiles.unshift(fileDao);
-			localFiles.splice(100);
+			var filesToRemove = localFiles.splice(1);
 			localStorage.fileIds = JSON.stringify(localFiles.map(function(fileDao) {
 				return fileDao.id;
 			}));
+			filesToRemove.forEach(function(fileToRemove) {
+				var keyPrefix = '^file\\.' + fileToRemove.id + '\\.';
+				for (var key in localStorage){
+					if(key.match(keyPrefix)) {
+						localStorage.removeItem(key);
+					}
+				}
+			});
 		}
 
 		return {
 			localFiles: localFiles,
-			setCurrent: function(fileDao) {
-				if(this.currentFileDao && this.currentFileDao.unload) {
-					this.currentFileDao.unload();
-				}
-				this.currentFileDao = fileDao;
-			},
 			newLocalFile: function() {
-				var fileDao = new LocalFile(uid(), 'Untitled');
+				var fileDao = new LocalFile(clUid());
 				addLocalFile(fileDao);
 				return fileDao;
 			},

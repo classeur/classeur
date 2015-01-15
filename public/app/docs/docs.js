@@ -1,9 +1,9 @@
 angular.module('classeur.core.docs', [])
-	.factory('docFiles', function($templateCache, files) {
+	.factory('clDocFileSvc', function($templateCache, clFileSvc) {
 		return function(fileName, fileTitle) {
 			var cacheEntry = $templateCache.get('app/docs/' + fileName);
 			if(cacheEntry) {
-				return files.readOnlyFile(fileTitle, cacheEntry[1]);
+				return clFileSvc.readOnlyFile(fileTitle, cacheEntry[1]);
 			}
 		};
 	})

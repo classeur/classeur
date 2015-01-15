@@ -1,19 +1,19 @@
 angular.module('classeur.core.keystrokes', [])
-	.factory('keystrokes', function() {
+	.factory('clKeystrokeSvc', function() {
 		var Keystroke = window.cledit.Keystroke;
 		var indentRegexp = /^ {0,3}>[ ]*|^[ \t]*(?:[*+\-]|(\d+)\.)[ \t]|^\s+/;
 		var clearNewline;
 
-		return function(editor) {
+		return function(clEditorSvc) {
 
 			function addPagedownKeystroke(keyCodeChar, name) {
-				editor.cledit.addKeystroke(name, new Keystroke(function(evt) {
+				clEditorSvc.cledit.addKeystroke(name, new Keystroke(function(evt) {
 					if((!evt.ctrlKey && !evt.metaKey) || evt.altKey) {
 						return;
 					}
 					var keyCode = evt.charCode || evt.keyCode;
 					if(String.fromCharCode(keyCode).toLowerCase() === keyCodeChar) {
-						editor.pagedownEditor.uiManager.doClick(name);
+						clEditorSvc.pagedownEditor.uiManager.doClick(name);
 						evt.preventDefault();
 						return true;
 					}
@@ -31,7 +31,7 @@ angular.module('classeur.core.keystrokes', [])
 			addPagedownKeystroke('h', 'heading');
 			addPagedownKeystroke('r', 'hr');
 
-			editor.cledit.addKeystroke('indent', new Keystroke(function(evt, state) {
+			clEditorSvc.cledit.addKeystroke('indent', new Keystroke(function(evt, state) {
 				if(evt.which !== 9 || evt.metaKey || evt.ctrlKey) {
 					// Not tab
 					return;
@@ -73,7 +73,7 @@ angular.module('classeur.core.keystrokes', [])
 				return true;
 			}));
 
-			editor.cledit.addKeystroke('newline', new Keystroke(function(evt, state) {
+			clEditorSvc.cledit.addKeystroke('newline', new Keystroke(function(evt, state) {
 				if(evt.which !== 13) {
 					// Not enter
 					clearNewline = false;
@@ -102,7 +102,7 @@ angular.module('classeur.core.keystrokes', [])
 					clearNewline = true;
 				}
 
-				editor.cledit.undoMgr.setCurrentMode('single');
+				clEditorSvc.cledit.undoMgr.setCurrentMode('single');
 
 				state.before += '\n' + indent;
 				state.selection = '';

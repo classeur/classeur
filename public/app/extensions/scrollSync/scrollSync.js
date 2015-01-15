@@ -1,26 +1,26 @@
 angular.module('classeur.extensions.scrollSync', [])
-	.directive('clScrollSyncEditor', function(scrollSync) {
+	.directive('clScrollSyncEditor', function(clScrollSyncSvc) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				scrollSync.setEditorElt(element[0]);
-				scope.$watch('editor.sectionList', scrollSync.onContentChanged);
-				scope.$watch('editor.editorSize()', scrollSync.onPanelResized);
+				clScrollSyncSvc.setEditorElt(element[0]);
+				scope.$watch('editorSvc.sectionList', clScrollSyncSvc.onContentChanged);
+				scope.$watch('editorSvc.editorSize()', clScrollSyncSvc.onPanelResized);
 			}
 		};
 	})
-	.directive('clScrollSyncPreview', function(scrollSync) {
+	.directive('clScrollSyncPreview', function(clScrollSyncSvc) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				scrollSync.setPreviewElt(element[0]);
-				scope.$watch('onMarkdownConverted', scrollSync.savePreviewHeight);
-				scope.$watch('onPreviewRefreshed', scrollSync.restorePreviewHeight);
-				scope.$watch('editor.previewSize()', scrollSync.onPanelResized);
-				scope.$watch('layout.isPreviewVisible', function(isVisible) {
-					isVisible && scrollSync.onPreviewOpen();
+				clScrollSyncSvc.setPreviewElt(element[0]);
+				scope.$watch('onMarkdownConverted', clScrollSyncSvc.savePreviewHeight);
+				scope.$watch('onPreviewRefreshed', clScrollSyncSvc.restorePreviewHeight);
+				scope.$watch('editorSvc.previewSize()', clScrollSyncSvc.onPanelResized);
+				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
+					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
-				scope.$watch('onSectionMeasured', scrollSync.onMeasure);
+				scope.$watch('onSectionMeasured', clScrollSyncSvc.onMeasure);
 			}
 		};
 	})
@@ -30,8 +30,8 @@ angular.module('classeur.extensions.scrollSync', [])
 			templateUrl: 'app/extensions/scrollSync/scrollSyncSettings.html'
 		};
 	})
-	.factory('scrollSync', function(layout, editor, settings) {
-		settings.setDefaultValue('scrollSync', true);
+	.factory('clScrollSyncSvc', function(clEditorLayoutSvc, clEditorSvc, clSettingSvc) {
+		clSettingSvc.setDefaultValue('scrollSync', true);
 
 		var editorElt, previewElt;
 		var scrollSyncOffset = 100;
@@ -81,7 +81,7 @@ angular.module('classeur.extensions.scrollSync', [])
 		var sectionDescList;
 
 		var doScrollSync = function(debounce) {
-			if(!settings.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
+			if(!clSettingSvc.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;
@@ -119,7 +119,7 @@ angular.module('classeur.extensions.scrollSync', [])
 					isPreviewMoving = false;
 				}, debounce);
 			}
-			else if(!layout.isEditorOpen || isScrollPreview) {
+			else if(!clEditorLayoutSvc.isEditorOpen || isScrollPreview) {
 
 				// Scroll the editor
 				isScrollPreview = false;
@@ -198,7 +198,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				}
 				isScrollEditor = true;
 				isScrollPreview = false;
-				doScrollSync(!layout.isSidePreviewOpen);
+				doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);
 			});
 
 			previewElt.addEventListener('scroll', function() {
@@ -207,7 +207,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				}
 				isScrollPreview = true;
 				isScrollEditor = false;
-				doScrollSync(!layout.isSidePreviewOpen);
+				doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);
 			});
 		}
 
@@ -234,7 +234,7 @@ angular.module('classeur.extensions.scrollSync', [])
 			restorePreviewHeight: function() {
 				// Now set the correct height
 				previewContentElt.style.removeProperty('height');
-				isScrollEditor = layout.isEditorOpen;
+				isScrollEditor = clEditorLayoutSvc.isEditorOpen;
 				// A preview scrolling event can occur if height is smaller
 				timeoutId = setTimeout(function() {
 					isPreviewRefreshing = false;
@@ -245,7 +245,7 @@ angular.module('classeur.extensions.scrollSync', [])
 				if(!editorElt) {
 					return;
 				}
-				isScrollEditor = layout.isEditorOpen;
+				isScrollEditor = clEditorLayoutSvc.isEditorOpen;
 			},
 			onPreviewOpen: function() {
 				isScrollEditor = true;
@@ -256,11 +256,11 @@ angular.module('classeur.extensions.scrollSync', [])
 				if(isPreviewRefreshing) {
 					return;
 				}
-				sectionDescList = editor.sectionDescList;
+				sectionDescList = clEditorSvc.sectionDescList;
 				// Force Scroll Sync (-10 to have a gap > 9px)
 				lastEditorScrollTop = -10;
 				lastPreviewScrollTop = -10;
-				doScrollSync(!layout.isSidePreviewOpen);
+				doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);
 			}
 		};
 

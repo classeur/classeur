@@ -5,8 +5,8 @@ angular.module('classeur.extensions.btnBar', [])
 			templateUrl: 'app/extensions/btnBar/btnBarSettings.html'
 		};
 	})
-	.directive('clBtnBar', function(editor, layout, settings, panel) {
-		settings.setDefaultValue('btnBar', true);
+	.directive('clBtnBar', function(clEditorSvc, clEditorLayoutSvc, clSettingSvc, clPanel) {
+		clSettingSvc.setDefaultValue('btnBar', true);
 
 		var btns = [
 			{
@@ -14,7 +14,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Bold',
 				keystroke: 'Ctrl/Cmd+B',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('bold');
+					clEditorSvc.pagedownEditor.uiManager.doClick('bold');
 				}
 			},
 			{
@@ -22,7 +22,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Italic',
 				keystroke: 'Ctrl/Cmd+I',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('italic');
+					clEditorSvc.pagedownEditor.uiManager.doClick('italic');
 				}
 			},
 			{
@@ -31,7 +31,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Link',
 				keystroke: 'Ctrl/Cmd+L',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('link');
+					clEditorSvc.pagedownEditor.uiManager.doClick('link');
 				}
 			},
 			{
@@ -39,7 +39,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Blockquote',
 				keystroke: 'Ctrl/Cmd+Q',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('quote');
+					clEditorSvc.pagedownEditor.uiManager.doClick('quote');
 				}
 			},
 			{
@@ -47,7 +47,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Code',
 				keystroke: 'Ctrl/Cmd+K',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('code');
+					clEditorSvc.pagedownEditor.uiManager.doClick('code');
 				}
 			},
 			{
@@ -55,7 +55,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Image',
 				keystroke: 'Ctrl/Cmd+G',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('image');
+					clEditorSvc.pagedownEditor.uiManager.doClick('image');
 				}
 			},
 			{
@@ -64,7 +64,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Numbered list',
 				keystroke: 'Ctrl/Cmd+O',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('olist');
+					clEditorSvc.pagedownEditor.uiManager.doClick('olist');
 				}
 			},
 			{
@@ -72,7 +72,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Bullet list',
 				keystroke: 'Ctrl/Cmd+U',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('ulist');
+					clEditorSvc.pagedownEditor.uiManager.doClick('ulist');
 				}
 			},
 			{
@@ -80,7 +80,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Heading',
 				keystroke: 'Ctrl/Cmd+H',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('heading');
+					clEditorSvc.pagedownEditor.uiManager.doClick('heading');
 				}
 			},
 			{
@@ -88,7 +88,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Horizontal rule',
 				keystroke: 'Ctrl/Cmd+R',
 				click: function() {
-					editor.pagedownEditor.uiManager.doClick('hr');
+					clEditorSvc.pagedownEditor.uiManager.doClick('hr');
 				}
 			},
 			{
@@ -97,7 +97,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Undo',
 				keystroke: 'Ctrl/Cmd+Z',
 				click: function() {
-					editor.cledit.undoMgr.undo();
+					clEditorSvc.cledit.undoMgr.undo();
 				}
 			},
 			{
@@ -105,7 +105,7 @@ angular.module('classeur.extensions.btnBar', [])
 				label: 'Redo',
 				keystroke: 'Ctrl/Cmd+Y',
 				click: function() {
-					editor.cledit.undoMgr.redo();
+					clEditorSvc.cledit.undoMgr.redo();
 				}
 			},
 
@@ -128,7 +128,7 @@ angular.module('classeur.extensions.btnBar', [])
 			btn.offset = offset;
 			var click = btn.click;
 			btn.click = function() {
-				layout.currentControl = undefined;
+				clEditorLayoutSvc.currentControl = undefined;
 				setTimeout(click, 10);
 			};
 			offset += props.btnWidth;
@@ -143,23 +143,23 @@ angular.module('classeur.extensions.btnBar', [])
 				scope.btns = btns;
 				scope.btnWidth = props.btnWidth;
 				scope.btnHeight = props.btnHeight;
-				scope.editor = editor;
+				scope.editor = clEditorSvc;
 
 				var isOpen,
 					openOffsetY = props.visibleHeight - props.height,
 					closedOffsetY = -props.height - 10;
 
-				var btnBarPanel = panel(element, '.btn-bar.panel').width(props.width).height(props.height).top(2000);
+				var btnBarPanel = clPanel(element, '.btn-bar.panel').width(props.width).height(props.height).top(2000);
 				btnBarPanel.move().to(-props.width / 2, closedOffsetY).end();
-				panel(element, '.light.panel').width(props.width / 2 + 5).right(0);
-				panel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
+				clPanel(element, '.light.panel').width(props.width / 2 + 5).right(0);
+				clPanel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
 
-				scope.$watch('layout.pageWidth', animate);
-				scope.$watch('layout.isEditorOpen', animate);
-				scope.$watch('layout.isMenuOpen', animate);
+				scope.$watch('editorLayoutSvc.pageWidth', animate);
+				scope.$watch('editorLayoutSvc.isEditorOpen', animate);
+				scope.$watch('editorLayoutSvc.isMenuOpen', animate);
 
 				function animate() {
-					var newIsOpen = !!layout.isEditorOpen && !layout.isMenuOpen && layout.pageWidth - 240 > props.width;
+					var newIsOpen = !!clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isMenuOpen && clEditorLayoutSvc.pageWidth - 240 > props.width;
 					if(isOpen === newIsOpen) {
 						return;
 					}

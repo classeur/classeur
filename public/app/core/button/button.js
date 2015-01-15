@@ -1,5 +1,5 @@
 angular.module('classeur.core.button', [])
-	.directive('clButton', function(panel) {
+	.directive('clButton', function(clPanel) {
 
 		return {
 			restrict: 'E',
@@ -12,7 +12,7 @@ angular.module('classeur.core.button', [])
 				var scaleHover = parseFloat(attrs.scaleHover || 1.1);
 				var opacity = parseFloat(attrs.opacity || 0.8);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
-				var buttonPanel = panel(element, '.btn-panel');
+				var buttonPanel = clPanel(element, '.btn-panel');
 				attrs.size && buttonPanel.width(attrs.size).height(attrs.size);
 				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
 					var attr = attrs[attrName];

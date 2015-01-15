@@ -5,8 +5,8 @@ angular.module('classeur.extensions.markdownExtra', [])
 			templateUrl: 'app/extensions/markdownExtra/markdownExtraSettings.html'
 		};
 	})
-	.directive('clMarkdownExtra', function(editor, settings, Slug) {
-		settings.setDefaultValue('markdownExtra', true);
+	.directive('clMarkdownExtra', function(clEditorSvc, clSettingSvc, Slug) {
+		clSettingSvc.setDefaultValue('markdownExtra', true);
 
 		var options = {
 			extensions: [
@@ -26,8 +26,8 @@ angular.module('classeur.extensions.markdownExtra', [])
 			highlighter: 'highlight'
 		};
 
-		editor.onInitConverter(50, function(converter) {
-			var isEnabled = settings.values.markdownExtra;
+		clEditorSvc.onInitConverter(50, function(converter) {
+			var isEnabled = clSettingSvc.values.markdownExtra;
 			function hasExtension(extensionName) {
 				return isEnabled && options.extensions.some(function(extension) {
 						return extension == extensionName;
@@ -55,7 +55,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 				});
 
 				if(options.highlighter == "highlight") {
-					editor.onAsyncPreview(function(cb) {
+					clEditorSvc.onAsyncPreview(function(cb) {
 						Array.prototype.forEach.call(document.querySelectorAll('.prettyprint > code'), function(elt) {
 							!elt.highlighted && window.hljs.highlightBlock(elt);
 							elt.highlighted = true;
@@ -64,7 +64,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 					});
 				}
 				else if(options.highlighter == "prettify") {
-					editor.onAsyncPreview(function(cb) {
+					clEditorSvc.onAsyncPreview(function(cb) {
 						window.prettify.prettyPrint();
 						cb();
 					});
@@ -81,13 +81,13 @@ angular.module('classeur.extensions.markdownExtra', [])
 			// Set editor options
 			if(hasExtension('fenced_code_gfm')) {
 				// Add new fenced code block delimiter with priority 25
-				editor.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
+				clEditorSvc.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
 			}
 			else {
 				// Unset fenced code block delimiter
-				editor.setSectionDelimiter(25, undefined);
+				clEditorSvc.setSectionDelimiter(25, undefined);
 			}
-			editor.setPrismOptions({
+			clEditorSvc.setPrismOptions({
 				fcbs: hasExtension('fenced_code_gfm'),
 				tables: hasExtension('tables'),
 				footnotes: hasExtension('footnotes'),
@@ -166,12 +166,12 @@ angular.module('classeur.extensions.markdownExtra', [])
 				var previewElt = element[0];
 				var tocExp = new RegExp("^\\s*" + options.tocMarker + "\\s*$");
 
-				scope.$watch('settings.values.markdownExtra', function() {
-					editor.initConverter();
+				scope.$watch('settingSvc.values.markdownExtra', function() {
+					clEditorSvc.initConverter();
 				});
 
 				scope.$watch('onPreviewRefreshed', function() {
-					if(!settings.values.markdownExtra || !options.toc) {
+					if(!clSettingSvc.values.markdownExtra || !options.toc) {
 						return;
 					}
 

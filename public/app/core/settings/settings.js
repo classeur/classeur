@@ -1,5 +1,5 @@
 angular.module('classeur.core.settings', [])
-	.factory('settings', function() {
+	.factory('clSettingSvc', function() {
 		var values = {};
 		return {
 			values: values,

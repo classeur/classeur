@@ -1,38 +1,38 @@
 angular.module('classeur.extensions.commenting', [])
-	.directive('clCommentingGutter', function($timeout, commenting) {
+	.directive('clCommentingGutter', function($timeout, clCommentingSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/commentingGutter.html',
 			scope: true,
 			link: function(scope) {
-				scope.commenting = commenting;
+				scope.commenting = clCommentingSvc;
+				clCommentingSvc.fileDao = scope.fileDao;
 
 				scope.setCurrentDiscussion = function(discussion) {
 					// Select modifies editor selection which provokes comment dismiss
-					commenting.select(discussion);
+					clCommentingSvc.select(discussion);
 					$timeout(function() {
 						// Need to delay this as it's not refreshed properly
-						commenting.highlight();
+						clCommentingSvc.highlight();
 					}, 180);
 				};
 
-				scope.$watch('editor.editorSize()', commenting.refreshCoordinates);
-				scope.$watch('editor.sectionList', commenting.refreshCoordinates);
-				scope.$watch('layout.currentControl', function(currentControl) {
+				scope.$watch('editorSvc.editorSize()', clCommentingSvc.refreshCoordinates);
+				scope.$watch('editorSvc.sectionList', clCommentingSvc.refreshCoordinates);
+				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					if(currentControl !== 'discussion') {
-						commenting.currentDiscussion = undefined;
-						commenting.undoHighlight();
+						clCommentingSvc.currentDiscussion = undefined;
+						clCommentingSvc.undoHighlight();
 					}
 				});
 
-				commenting.fileDao = scope.files.currentFileDao;
 				scope.$watch('onDiscussionChanged', function() {
-					commenting.updateDiscussions();
-					commenting.refreshCoordinates();
+					clCommentingSvc.updateDiscussions();
+					clCommentingSvc.refreshCoordinates();
 				});
 				scope.$watch('onDiscussionOffsetChanged', function() {
-					commenting.updateMarkers();
-					commenting.refreshCoordinates();
+					clCommentingSvc.updateMarkers();
+					clCommentingSvc.refreshCoordinates();
 				});
 			}
 		};
@@ -51,7 +51,7 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clDiscussion', function(commenting, layout, panel) {
+	.directive('clDiscussion', function(clCommentingSvc, clEditorLayoutSvc, clPanel) {
 		var Hammer = window.Hammer;
 
 		return {
@@ -60,7 +60,7 @@ angular.module('classeur.extensions.commenting', [])
 			scope: true,
 			link: function(scope, element) {
 				var x = 0, y = 0;
-				var discussionPanel = panel(element, '.discussion.panel');
+				var discussionPanel = clPanel(element, '.discussion.panel');
 				discussionPanel.move().rotate(-1.5)
 					.then().to(x, y).duration(180).ease('ease-out-back').pop()
 					.end();
@@ -76,16 +76,16 @@ angular.module('classeur.extensions.commenting', [])
 					y += evt.deltaY;
 				});
 
-				scope.commenting = commenting;
+				scope.commenting = clCommentingSvc;
 				scope.removeDiscussion = function(discussion) {
-					layout.currentControl = undefined;
-					delete commenting.fileDao.discussions[discussion.discussionDao.id];
+					clEditorLayoutSvc.currentControl = undefined;
+					delete clCommentingSvc.fileDao.discussions[discussion.discussionDao.id];
 					scope.trigger('onDiscussionChanged');
 				};
 			}
 		};
 	})
-	.directive('clCommentInput', function(commenting, user, layout) {
+	.directive('clCommentInput', function(clCommentingSvc, clUserSvc, clEditorLayoutSvc) {
 
 		return {
 			link: function(scope, element) {
@@ -100,15 +100,15 @@ angular.module('classeur.extensions.commenting', [])
 						return;
 					}
 					e.preventDefault();
-					var discussionDao = commenting.currentDiscussion.discussionDao;
-					if(discussionDao && commenting.newCommentContent) {
+					var discussionDao = clCommentingSvc.currentDiscussion.discussionDao;
+					if(discussionDao && clCommentingSvc.newCommentContent) {
 						discussionDao.comments.push({
-							user: user.localId,
-							content: commenting.newCommentContent
+							user: clUserSvc.localId,
+							content: clCommentingSvc.newCommentContent
 						});
-						commenting.newCommentContent = undefined;
-						layout.currentControl = undefined;
-						commenting.fileDao.users[user.localId] = user.name;
+						clCommentingSvc.newCommentContent = undefined;
+						clEditorLayoutSvc.currentControl = undefined;
+						clCommentingSvc.fileDao.users[clUserSvc.localId] = clUserSvc.name;
 						scope.trigger('onDiscussionChanged');
 						scope.$apply();
 					}
@@ -119,7 +119,7 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.factory('commenting', function(editor, layout, settings) {
+	.factory('clCommentingSvc', function(clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
 		var commentButtonHeight = 30;
 		var yList = [];
 
@@ -142,7 +142,7 @@ angular.module('classeur.extensions.commenting', [])
 			this.endMarker = new Marker(discussionDao.end);
 			this.comments = discussionDao.comments.map(function(commentModelObject) {
 				return {
-					user: fileDao.users[commentModelObject.user] || settings.values.defaultUserName,
+					user: fileDao.users[commentModelObject.user] || clSettingSvc.values.defaultUserName,
 					content: commentModelObject.content
 				};
 			});
@@ -165,15 +165,15 @@ angular.module('classeur.extensions.commenting', [])
 
 		function updateDiscussions() {
 			commenting.discussions.forEach(function(discussion) {
-				editor.cledit.removeMarker(discussion.startMarker);
-				editor.cledit.removeMarker(discussion.endMarker);
+				clEditorSvc.cledit.removeMarker(discussion.startMarker);
+				clEditorSvc.cledit.removeMarker(discussion.endMarker);
 			});
 			commenting.discussions = [];
 			angular.forEach(commenting.fileDao.discussions, function(discussionDao) {
 				var discussion = new Discussion(discussionDao, commenting.fileDao);
 				commenting.discussions.push(discussion);
-				editor.cledit.addMarker(discussion.startMarker);
-				editor.cledit.addMarker(discussion.endMarker);
+				clEditorSvc.cledit.addMarker(discussion.startMarker);
+				clEditorSvc.cledit.addMarker(discussion.endMarker);
 			});
 		}
 
@@ -189,7 +189,7 @@ angular.module('classeur.extensions.commenting', [])
 			commenting.discussions.sort(function(discussion1, discussion2) {
 				return discussion1.endMarker.offset - discussion2.endMarker.offset;
 			}).forEach(function(discussion) {
-				var coordinates = editor.cledit.selectionMgr.getCoordinates(discussion.endMarker.offset);
+				var coordinates = clEditorSvc.cledit.selectionMgr.getCoordinates(discussion.endMarker.offset);
 				discussion.setTopOffset(coordinates.y);
 			});
 		}
@@ -204,7 +204,7 @@ angular.module('classeur.extensions.commenting', [])
 			selectedDiscussion = discussion;
 
 			// Select text in the editor
-			var range = editor.cledit.selectionMgr.setSelectionStartEnd(discussion.startMarker.offset, discussion.endMarker.offset);
+			var range = clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(discussion.startMarker.offset, discussion.endMarker.offset);
 			// Create rangy range
 			selectionRange = window.rangy.createRange();
 			selectionRange.setStart(range.startContainer, range.startOffset);
@@ -213,7 +213,7 @@ angular.module('classeur.extensions.commenting', [])
 
 		function highlight() {
 			this.currentDiscussion = selectedDiscussion;
-			layout.currentControl = 'discussion';
+			clEditorLayoutSvc.currentControl = 'discussion';
 			classApplier.applyToRange(selectionRange);
 		}
 

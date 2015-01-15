@@ -5,8 +5,8 @@ angular.module('classeur.extensions.mathJax', [])
 			templateUrl: 'app/extensions/mathJax/mathJaxSettings.html'
 		};
 	})
-	.directive('clMathJax', function(editor, settings) {
-		settings.setDefaultValue('mathJax', true);
+	.directive('clMathJax', function(clEditorSvc, clSettingSvc) {
+		clSettingSvc.setDefaultValue('mathJax', true);
 
 		var options = {
 			tex: {},
@@ -71,12 +71,12 @@ angular.module('classeur.extensions.mathJax', [])
 			messageStyle: "none"
 		};
 
-		if(settings.values.mathJax) {
+		if(clSettingSvc.values.mathJax) {
 			init();
 		}
 
-		editor.onInitConverter(75, function(converter) {
-			var isEnabled = settings.values.mathJax;
+		clEditorSvc.onInitConverter(75, function(converter) {
+			var isEnabled = clSettingSvc.values.mathJax;
 
 			if(isEnabled) {
 				init();
@@ -85,7 +85,7 @@ angular.module('classeur.extensions.mathJax', [])
 
 				var cacheDict = {};
 				var encloseMath;
-				editor.onAsyncPreview(function(cb) {
+				clEditorSvc.onAsyncPreview(function(cb) {
 					if(!UpdateMJ) {
 						return cb();
 					}
@@ -122,14 +122,14 @@ angular.module('classeur.extensions.mathJax', [])
 				var delimiter = '^[ \\t]*\\n\\$\\$[\\s\\S]*?\\$\\$|'; // $$ math block delimiters
 				delimiter = '^[ \\t]*\\n\\\\\\\\[[\\s\\S]*?\\\\\\\\]|' + delimiter; // \\[ \\] math block delimiters
 				delimiter = '^[ \\t]*\\n\\\\?\\\\begin\\{[a-z]*\\*?\\}[\\s\\S]*?\\\\end\\{[a-z]*\\*?\\}|' + delimiter; // \\begin{...} \\end{...} math block delimiters
-				editor.setSectionDelimiter(10, delimiter);
+				clEditorSvc.setSectionDelimiter(10, delimiter);
 			}
 			else {
 				// Unset math block delimiter
-				editor.setSectionDelimiter(10, undefined);
+				clEditorSvc.setSectionDelimiter(10, undefined);
 			}
 
-			editor.setPrismOptions({
+			clEditorSvc.setPrismOptions({
 				maths: isEnabled
 			});
 		});
@@ -403,8 +403,8 @@ angular.module('classeur.extensions.mathJax', [])
 		return {
 			restrict: 'A',
 			link: function(scope) {
-				scope.$watch('settings.values.mathJax', function() {
-					editor.initConverter();
+				scope.$watch('settingSvc.values.mathJax', function() {
+					clEditorSvc.initConverter();
 				});
 			}
 		};
