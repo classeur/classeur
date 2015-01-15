@@ -1,9 +1,29 @@
-<div>
-	<a ng-click="loadDocFile('markdownCheatSheet.md', 'Markdown Cheat Sheet')">Markdown Cheat Sheet</a>
-</div>
-<div>
-	<a ng-click="newFile()">New file</a>
-</div>
-<div ng-repeat="fileDao in fileSvc.localFiles">
-	<a ng-click="loadFile(fileDao)">{{fileDao.metadata.title || 'Untitled'}}</a>
+<div class="background panel">
+	<div>
+		<a ng-click="loadDocFile('markdownCheatSheet.md', 'Markdown Cheat Sheet')">Markdown Cheat Sheet</a>
+	</div>
+	<div>
+		<a ng-click="newFile()">New file</a>
+	</div>
+	<div ng-repeat="fileDao in fileSvc.localFiles">
+		<a ng-click="loadFile(fileDao)">{{fileDao.metadata.title}}</a>
+	</div>
+	<div class="classeur plastic md-whiteframe-z2">
+		<div class="panel">
+
+			<div class="btn-grp panel">
+				<div class="menu btn btn-panel plastic">
+					<md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
+						<div class="rotate-90">
+							Recent
+						</div>
+					</md-button>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+
 </div>

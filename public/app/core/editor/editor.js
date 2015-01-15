@@ -101,7 +101,7 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.measureSectionDimensions();
 					scope.$apply();
 				}, clSettingSvc.values.measureSectionDelay);
-				scope.$watch('onPreviewRefreshed', debouncedMeasureSectionDimension);
+				scope.$watch('editorSvc.lastPreviewRefreshed', debouncedMeasureSectionDimension);
 				scope.$watch('editorSvc.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorSvc.previewSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
@@ -361,8 +361,7 @@ angular.module('classeur.core.editor', [])
 
 			var html = clEditorSvc.converter.makeHtml(textToConvert);
 			htmlElt.innerHTML = html;
-
-			$rootScope.trigger('onMarkdownConverted');
+			clEditorSvc.lastMarkdownConverted = Date.now();
 		};
 
 		clEditorSvc.refreshPreview = function(cb) {
@@ -480,7 +479,7 @@ angular.module('classeur.core.editor', [])
 				}, '');
 				clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
 				clEditorSvc.previewText = previewElt.textContent;
-				$rootScope.trigger('onPreviewRefreshed');
+				clEditorSvc.lastPreviewRefreshed = Date.now();
 				cb();
 			}
 
@@ -576,7 +575,7 @@ angular.module('classeur.core.editor', [])
 			normalizePreviewDimensions();
 			normalizeTocDimensions();
 
-			$rootScope.trigger('onSectionMeasured');
+			clEditorSvc.lastSectionMeasured = Date.now();
 		};
 
 		return clEditorSvc;

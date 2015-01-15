@@ -3,6 +3,14 @@ angular.module('classeur.extensions.fileTitle', [])
 
 		return {
 			restrict: 'E',
-			templateUrl: 'app/extensions/fileTitle/fileTitle.html'
+			templateUrl: 'app/extensions/fileTitle/fileTitle.html',
+			link: function(scope) {
+				function setDefaultTitle() {
+					scope.fileDao.metadata.title = scope.fileDao.metadata.title || 'Untitled';
+					document.title = scope.fileDao.metadata.title;
+				}
+				setDefaultTitle();
+				scope.setDefaultTitle = setDefaultTitle;
+			}
 		};
 	});

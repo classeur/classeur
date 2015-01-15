@@ -5,7 +5,7 @@ angular.module('classeur.extensions.commenting', [])
 			templateUrl: 'app/extensions/commenting/commentingGutter.html',
 			scope: true,
 			link: function(scope) {
-				scope.commenting = clCommentingSvc;
+				scope.commentingSvc = clCommentingSvc;
 				clCommentingSvc.fileDao = scope.fileDao;
 
 				scope.setCurrentDiscussion = function(discussion) {
@@ -26,18 +26,18 @@ angular.module('classeur.extensions.commenting', [])
 					}
 				});
 
-				scope.$watch('onDiscussionChanged', function() {
+				scope.$watch('commentingSvc.lastDiscussionChanged', function() {
 					clCommentingSvc.updateDiscussions();
 					clCommentingSvc.refreshCoordinates();
 				});
-				scope.$watch('onDiscussionOffsetChanged', function() {
+				scope.$watch('commentingSvc.lastDiscussionOffsetChanged', function() {
 					clCommentingSvc.updateMarkers();
 					clCommentingSvc.refreshCoordinates();
 				});
 			}
 		};
 	})
-	.directive('clCommentingButton', function() {
+	.directive('clCommentingButton', function(clCommentingSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/commentingButton.html',
@@ -46,7 +46,7 @@ angular.module('classeur.extensions.commenting', [])
 				scope.$watchGroup(['discussion.startMarker.offset', 'discussion.endMarker.offset'], function() {
 					discussion.discussionDao.start = discussion.startMarker.offset;
 					discussion.discussionDao.end = discussion.endMarker.offset;
-					scope.trigger('onDiscussionOffsetChanged');
+					clCommentingSvc.lastDiscussionOffsetChanged = Date.now();
 				});
 			}
 		};
@@ -80,7 +80,7 @@ angular.module('classeur.extensions.commenting', [])
 				scope.removeDiscussion = function(discussion) {
 					clEditorLayoutSvc.currentControl = undefined;
 					delete clCommentingSvc.fileDao.discussions[discussion.discussionDao.id];
-					scope.trigger('onDiscussionChanged');
+					clCommentingSvc.lastDiscussionChanged = Date.now();
 				};
 			}
 		};
@@ -109,7 +109,7 @@ angular.module('classeur.extensions.commenting', [])
 						clCommentingSvc.newCommentContent = undefined;
 						clEditorLayoutSvc.currentControl = undefined;
 						clCommentingSvc.fileDao.users[clUserSvc.localId] = clUserSvc.name;
-						scope.trigger('onDiscussionChanged');
+						clCommentingSvc.lastDiscussionChanged = Date.now();
 						scope.$apply();
 					}
 				});
@@ -123,7 +123,7 @@ angular.module('classeur.extensions.commenting', [])
 		var commentButtonHeight = 30;
 		var yList = [];
 
-		var commenting = {
+		var commentingSvc = {
 			discussions: [],
 			updateDiscussions: updateDiscussions,
 			updateMarkers: updateMarkers,
@@ -164,21 +164,21 @@ angular.module('classeur.extensions.commenting', [])
 		};
 
 		function updateDiscussions() {
-			commenting.discussions.forEach(function(discussion) {
+			commentingSvc.discussions.forEach(function(discussion) {
 				clEditorSvc.cledit.removeMarker(discussion.startMarker);
 				clEditorSvc.cledit.removeMarker(discussion.endMarker);
 			});
-			commenting.discussions = [];
-			angular.forEach(commenting.fileDao.discussions, function(discussionDao) {
-				var discussion = new Discussion(discussionDao, commenting.fileDao);
-				commenting.discussions.push(discussion);
+			commentingSvc.discussions = [];
+			angular.forEach(commentingSvc.fileDao.discussions, function(discussionDao) {
+				var discussion = new Discussion(discussionDao, commentingSvc.fileDao);
+				commentingSvc.discussions.push(discussion);
 				clEditorSvc.cledit.addMarker(discussion.startMarker);
 				clEditorSvc.cledit.addMarker(discussion.endMarker);
 			});
 		}
 
 		function updateMarkers() {
-			commenting.discussions.forEach(function(discussion) {
+			commentingSvc.discussions.forEach(function(discussion) {
 				discussion.startMarker.offset = discussion.discussionDao.start;
 				discussion.endMarker.offset = discussion.discussionDao.end;
 			});
@@ -186,7 +186,7 @@ angular.module('classeur.extensions.commenting', [])
 
 		function refreshCoordinates() {
 			yList = [];
-			commenting.discussions.sort(function(discussion1, discussion2) {
+			commentingSvc.discussions.sort(function(discussion1, discussion2) {
 				return discussion1.endMarker.offset - discussion2.endMarker.offset;
 			}).forEach(function(discussion) {
 				var coordinates = clEditorSvc.cledit.selectionMgr.getCoordinates(discussion.endMarker.offset);
@@ -225,5 +225,5 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		}
 
-		return commenting;
+		return commentingSvc;
 	});

@@ -1,9 +1,13 @@
 angular.module('classeur.core.classeurLayout', [])
-	.directive('clClasseurLayout', function(clDocFileSvc, clFileSvc) {
+	.directive('clClasseurLayout', function(clDocFileSvc, clFileSvc, clPanel) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/classeurLayout/classeurLayout.html',
-			link: function(scope) {
+			link: function(scope, element) {
+				document.title = 'Classeur';
+
+				clPanel(element, '.classeur .btn-grp.panel').width(40).right(-40);
+
 				scope.loadDocFile = function(fileName, fileTitle) {
 					scope.setFileDao(clDocFileSvc(fileName, fileTitle));
 				};

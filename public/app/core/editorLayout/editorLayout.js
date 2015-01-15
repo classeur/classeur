@@ -147,7 +147,11 @@ angular.module('classeur.core.editorLayout', [])
 
 				isInited = true;
 
-				window.addEventListener('resize', window.cledit.Utils.debounce(animateLayout, 400));
+				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 400);
+				window.addEventListener('resize', debouncedAnimateLayout);
+				scope.$on('$destroy', function() {
+					window.removeEventListener('resize', debouncedAnimateLayout);
+				});
 
 				scope.$watch('settingSvc.values.zoom', animateLayout);
 				scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout);

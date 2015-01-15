@@ -14,13 +14,13 @@ angular.module('classeur.extensions.scrollSync', [])
 			restrict: 'A',
 			link: function(scope, element) {
 				clScrollSyncSvc.setPreviewElt(element[0]);
-				scope.$watch('onMarkdownConverted', clScrollSyncSvc.savePreviewHeight);
-				scope.$watch('onPreviewRefreshed', clScrollSyncSvc.restorePreviewHeight);
+				scope.$watch('editorSvc.lastMarkdownConverted', clScrollSyncSvc.savePreviewHeight);
+				scope.$watch('editorSvc.lastPreviewRefreshed', clScrollSyncSvc.restorePreviewHeight);
 				scope.$watch('editorSvc.previewSize()', clScrollSyncSvc.onPanelResized);
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
 					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
-				scope.$watch('onSectionMeasured', clScrollSyncSvc.onMeasure);
+				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.onMeasure);
 			}
 		};
 	})

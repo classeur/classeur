@@ -11,11 +11,6 @@ angular.module('classeur.core.classeur', [])
 				scope.editorSvc = clEditorSvc;
 				scope.fileSvc = clFileSvc;
 
-				// Forces a scope variable to change for event listening
-				scope.trigger = function(eventName) {
-					scope[eventName] = Date.now();
-				};
-
 				// Set the current file
 				scope.setFileDao = function(fileDao) {
 					if(scope.fileDao && scope.fileDao.unload) {

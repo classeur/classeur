@@ -30,6 +30,5 @@ angular.module('classeur.app', [
 		var menuTheme = $mdThemingProvider.theme('classeur-menu', 'default');
 		menuTheme.dark();
 		menuTheme.foregroundShadow = '';
-		console.log(menuTheme);
 	});
 

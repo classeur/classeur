@@ -1,4 +1,4 @@
 <md-input-container md-theme="classeur-menu">
-	<label>File title</label>
-	<input ng-model="fileDao.metadata.title">
+	<label>Title</label>
+	<input ng-model="fileDao.metadata.title" ng-blur="setDefaultTitle()">
 </md-input-container>

@@ -170,7 +170,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 					clEditorSvc.initConverter();
 				});
 
-				scope.$watch('onPreviewRefreshed', function() {
+				scope.$watch('editorSvc.lastPreviewRefreshed', function() {
 					if(!clSettingSvc.values.markdownExtra || !options.toc) {
 						return;
 					}
