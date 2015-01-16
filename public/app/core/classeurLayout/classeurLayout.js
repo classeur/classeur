@@ -1,12 +1,40 @@
 angular.module('classeur.core.classeurLayout', [])
 	.directive('clClasseurLayout', function(clDocFileSvc, clFileSvc, clPanel) {
+		var classeurMaxWidth = 700;
+		var btnGrpWidth = 40;
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/classeurLayout/classeurLayout.html',
 			link: function(scope, element) {
 				document.title = 'Classeur';
 
-				clPanel(element, '.classeur .btn-grp.panel').width(40).right(-40);
+				var classeurPanel = clPanel(element, '.classeur.panel');
+
+				function animateLayout() {
+					var classeurWidth = document.body.clientWidth;
+					if(classeurWidth > classeurMaxWidth) {
+						classeurWidth = classeurMaxWidth;
+					}
+					classeurPanel.width(classeurWidth).move().x(-classeurWidth/2 - btnGrpWidth).end();
+				}
+
+				animateLayout();
+
+				window.addEventListener('resize', animateLayout);
+				scope.$on('$destroy', function() {
+					window.removeEventListener('resize', animateLayout);
+				});
+
+				scope.setStateRecent = function() {
+					scope.state = 'recent';
+					scope.plasticColor = 1;
+				};
+				scope.setStateRecent();
+
+				scope.setStateFiles = function() {
+					scope.state = 'files';
+					scope.plasticColor = 2;
+				};
 
 				scope.loadDocFile = function(fileName, fileTitle) {
 					scope.setFileDao(clDocFileSvc(fileName, fileTitle));

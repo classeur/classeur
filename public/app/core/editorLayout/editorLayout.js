@@ -75,7 +75,6 @@ angular.module('classeur.core.editorLayout', [])
 						clEditorLayoutSvc.isPreviewVisible = false;
 						previewPanel.$elt.addClass('hidden');
 					}
-
 				}
 
 				function showPreview() {

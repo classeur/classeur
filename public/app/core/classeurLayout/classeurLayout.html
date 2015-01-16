@@ -8,19 +8,30 @@
 	<div ng-repeat="fileDao in fileSvc.localFiles">
 		<a ng-click="loadFile(fileDao)">{{fileDao.metadata.title}}</a>
 	</div>
-	<div class="classeur plastic md-whiteframe-z2">
-		<div class="panel">
+	<div class="classeur panel md-whiteframe-z2" ng-class="'plastic-' + plasticColor">
 
-			<div class="btn-grp panel">
-				<div class="menu btn btn-panel plastic">
-					<md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
-						<div class="rotate-90">
-							Recent
-						</div>
-					</md-button>
-				</div>
+		<div class="btn-grp panel background no-overflow">
+			<div class="new folder btn btn-panel plastic-4">
+				<button class="md-button">
+					<div class="mdi-content-add"></div>
+				</button>
 			</div>
-
+			<div class="folder btn btn-panel plastic-3">
+				<button class="md-button">
+					<div class="rotate-90">New folder</div>
+				</button>
+			</div>
+			<div class="files btn btn-panel plastic-2" ng-class="{selected: state == 'files'}">
+				<md-button ng-click="setStateFiles()" aria-label="Menu">
+					<div class="rotate-90">Files</div>
+				</md-button>
+			</div>
+			<div class="recent btn btn-panel plastic-1" ng-class="{selected: state == 'recent'}">
+				<md-button ng-click="setStateRecent()" aria-label="Recent">
+					<div class="rotate-90">Recent</div>
+				</md-button>
+			</div>
+			<div class="shadow panel md-whiteframe-z2"></div>
 		</div>
 
 	</div>

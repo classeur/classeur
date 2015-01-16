@@ -69,13 +69,15 @@
 	.menu.btn {
 		top: 106px;
 		height: 130px;
-		box-shadow: 2px 4px 9px -4px rgba(0, 0, 0, 0.2);
+		box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
 		border-top-right-radius: 12px;
 		border-bottom-right-radius: 12px;
 		button {
 			.rotate-90 {
 				position: absolute;
 				z-index: 1;
+				width: 130px;
+				left: -32px;
 				height: 0;
 			}
 		}
@@ -97,7 +99,7 @@
 		width: 100%;
 		height: 100%;
 		font-size: 20px;
-		color: mix(#fff, $plastic-color, 80%);
+		color: transparentize(#fff, 0.2);
 		&:hover {
 			color: #fff;
 		}
