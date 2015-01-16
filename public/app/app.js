@@ -10,6 +10,7 @@ angular.module('classeur.app', [
 	'classeur.core.editor',
 	'classeur.core.editorLayout',
 	'classeur.core.files',
+	'classeur.core.folders',
 	'classeur.core.keystrokes',
 	'classeur.core.settings',
 	'classeur.core.user',
@@ -27,7 +28,7 @@ angular.module('classeur.app', [
 ])
 	.config(function($animateProvider, $mdThemingProvider) {
 		$animateProvider.classNameFilter(/angular-animate/);
-		var menuTheme = $mdThemingProvider.theme('classeur-menu', 'default');
+		var menuTheme = $mdThemingProvider.theme('classeur', 'default');
 		menuTheme.dark();
 		menuTheme.foregroundShadow = '';
 	});

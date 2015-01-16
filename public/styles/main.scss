@@ -3,10 +3,10 @@
 @import '../bower_components/google-code-prettify/src/prettify.css';
 
 $material-font-path: "../bower_components/bootstrap-material-design/fonts";
-$plastic-color-1: #65C3FA;
-$plastic-color-2: #F9D77E;
-$plastic-color-3: #64D3C0;
-$plastic-color-4: #FA95A6;
+$plastic-color-0: #65C3FA;
+$plastic-color-1: #F9D77E;
+$plastic-color-2: #64D3C0;
+$plastic-color-3: #FA95A6;
 $link-color: #3f51b5;
 $editor-margin-width: 120px;
 
@@ -61,7 +61,11 @@ body {
 	background-color: #fff;
 }
 
-.plastic, .plastic-1 {
+.plastic, .plastic-0 {
+	background-color: $plastic-color-0;
+}
+
+.plastic-1 {
 	background-color: $plastic-color-1;
 }
 
@@ -71,10 +75,6 @@ body {
 
 .plastic-3 {
 	background-color: $plastic-color-3;
-}
-
-.plastic-4 {
-	background-color: $plastic-color-4;
 }
 
 .hole {

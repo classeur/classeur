@@ -16,7 +16,8 @@ angular.module('classeur.core.files', [])
 			this.id = id;
 			var isSaving, isLoaded, isUnloading;
 			this.updated = parseInt(localStorage['file.' + this.id + '.updated'] || '0');
-			this.metadata = JSON.parse(localStorage['file.' + this.id + '.metadata'] || '{}');
+			this.title = localStorage['file.' + this.id + '.title'] || '';
+			this.folderId = localStorage['file.' + this.id + '.folderId'] || '';
 
 			this.load = function(cb) {
 				if(!isLoaded || !isSaving) {
@@ -32,7 +33,8 @@ angular.module('classeur.core.files', [])
 			};
 
 			var debouncedSave = window.cledit.Utils.debounce((function() {
-				localStorage['file.' + this.id + '.metadata'] = JSON.stringify(this.metadata);
+				localStorage['file.' + this.id + '.title'] = this.title;
+				localStorage['file.' + this.id + '.folderId'] = this.folderId;
 				if(isLoaded) {
 					this.updated = Date.now();
 					localStorage['file.' + this.id + '.updated'] = this.updated;
@@ -67,9 +69,7 @@ angular.module('classeur.core.files', [])
 		function ReadOnlyFile(title, content) {
 			this.content = content;
 			this.state = {};
-			this.metadata = {
-				title: title
-			};
+			this.title = title;
 			this.save = function() {
 				this.isSaveAttempted = true;
 			};

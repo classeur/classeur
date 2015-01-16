@@ -2,32 +2,49 @@
 	<div>
 		<a ng-click="loadDocFile('markdownCheatSheet.md', 'Markdown Cheat Sheet')">Markdown Cheat Sheet</a>
 	</div>
-	<div>
-		<a ng-click="newFile()">New file</a>
-	</div>
-	<div ng-repeat="fileDao in fileSvc.localFiles">
-		<a ng-click="loadFile(fileDao)">{{fileDao.metadata.title}}</a>
-	</div>
-	<div class="classeur panel md-whiteframe-z2" ng-class="'plastic-' + plasticColor">
+	<div class="classeur panel md-whiteframe-z2" ng-class="plasticClass">
+
+		<div class="hole panel background first"></div>
+		<div class="hole panel background second"></div>
+
+		<div class="folder container">
+			<md-input-container md-theme="classeur" ng-if="currentFolder">
+				<input ng-model="currentFolder.name"
+					   class="folder title"
+					   ng-disabled="currentFolder === unclassifiedFolder"
+					   ng-blur="currentFolder.folderTitleModified()">
+			</md-input-container>
+
+			<md-input-container md-theme="classeur" ng-if="!currentFolder">
+				<input class="folder title" value="Recent" disabled>
+			</md-input-container>
+
+			<div class="folder content">
+				<md-button class="md-primary" ng-click="newFile()">
+					<span class="mdi-content-add"></span> New file
+				</md-button>
+				<br>
+				<br>
+				<div ng-repeat="fileDao in files">
+					<a ng-click="loadFile(fileDao)">{{fileDao.title}}</a>
+				</div>
+			</div>
+		</div>
 
 		<div class="btn-grp panel background no-overflow">
-			<div class="new folder btn btn-panel plastic-4">
-				<button class="md-button">
-					<div class="mdi-content-add"></div>
-				</button>
+			<div class="container panel">
+				<div cl-folder-button
+					 class="folder btn btn-panel"
+					 ng-repeat="folder in folders"
+					 ng-class="'plastic-' + ((folders.length - $index) % 4)">
+					<md-button ng-click="setFolder(folder)" aria-label="{{folder.name}}">
+						<div class="rotate-90" ng-if="folder !== createFolder">{{folder.name}}</div>
+						<div class="mdi-content-add" ng-if="folder === createFolder"></div>
+					</md-button>
+				</div>
 			</div>
-			<div class="folder btn btn-panel plastic-3">
-				<button class="md-button">
-					<div class="rotate-90">New folder</div>
-				</button>
-			</div>
-			<div class="files btn btn-panel plastic-2" ng-class="{selected: state == 'files'}">
-				<md-button ng-click="setStateFiles()" aria-label="Menu">
-					<div class="rotate-90">Files</div>
-				</md-button>
-			</div>
-			<div class="recent btn btn-panel plastic-1" ng-class="{selected: state == 'recent'}">
-				<md-button ng-click="setStateRecent()" aria-label="Recent">
+			<div cl-folder-button class="recent btn btn-panel plastic" ng-class="{selected: !currentFolder}">
+				<md-button ng-click="setFolder()" aria-label="Recent">
 					<div class="rotate-90">Recent</div>
 				</md-button>
 			</div>

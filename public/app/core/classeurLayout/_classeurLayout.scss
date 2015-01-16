@@ -4,31 +4,49 @@
 	margin: 0 auto;
 	border-radius: 3px;
 
+
+	.folder.container {
+		margin: 50px 40px 50px 90px;
+	}
+
+	.folder.content {
+		padding: 30px 40px 200px;
+		border-radius: 12px;
+		background-color: transparentize(#fff, 0.7);
+	}
+
+	.folder.title {
+		font-size: 30px;
+	}
+
+	.hole.panel {
+		left: 22px;
+		width: 20px;
+		height: 20px;
+		&.first {
+			top: 22%;
+		}
+		&.second {
+			bottom: 22%;
+		}
+	}
+
 	.btn-grp.panel {
-		top: 20px;
-		width: 50px;
-		right: -50px;
+		top: 8px;
+		width: 2050px;
+		right: -2050px;
+		.container.panel {
+			top: 128px;
+			overflow: auto;
+		}
+		.shadow.panel {
+			left: -2050px;
+		}
 	}
 
-	.shadow.panel {
-		left: -50px;
-	}
-
-	.files.btn {
-		top: 128px;
-	}
-
-	.folder.btn {
-		top: 256px;
-	}
-
-	.new.folder.btn {
-		top: 354px;
-	}
-
-	.recent.btn, .files.btn, .folder.btn {
+	.recent.btn, .folder.btn {
 		height: 130px;
-		width: 40px;
+		width: 44px;
 		box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
 		border-top-right-radius: 12px;
 		border-bottom-right-radius: 12px;
@@ -43,9 +61,8 @@
 			}
 			.rotate-90 {
 				position: absolute;
-				z-index: 1;
 				width: 130px;
-				left: -32px;
+				left: -28px;
 				height: 0;
 			}
 		}
@@ -53,30 +70,28 @@
 
 	.folder.btn {
 		height: 110px;
-		width: 30px;
-		border-top-right-radius: 0;
+		width: 34px;
+		margin-bottom: 220px;
 		.md-button {
 			text-transform: none;
 			font-size: 16px;
 			.rotate-90 {
 				position: absolute;
-				z-index: 1;
 				width: 110px;
-				left: -24px;
+				left: -21px;
 				height: 0;
 			}
 		}
-	}
-
-	.new.folder.btn {
-		height: 40px;
-		.md-button {
-			padding: 12px 0 0;
-			font-size: 20px;
+		.mdi-content-add {
+			padding: 0;
+			font-size: 18px;
 		}
 	}
 
-	.selected {
+	.btn.selected {
 		z-index: 1;
+		button {
+			color: #fff;
+		}
 	}
 }
