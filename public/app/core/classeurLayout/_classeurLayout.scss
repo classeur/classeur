@@ -1,22 +1,76 @@
-.classeur.panel {
-	left: 50%;
-	min-height: 100%;
-	margin: 0 auto;
-	border-radius: 3px;
+.classeur.background {
 
+	.classeur.container {
+		left: 50%;
+		min-height: 100%;
+		margin: 0 auto;
+		border-radius: 3px;
+
+
+	}
 
 	.folder.container {
-		margin: 50px 40px 50px 90px;
+		margin: 50px 40px 50px 80px;
 	}
 
 	.folder.content {
-		padding: 30px 40px 200px;
-		border-radius: 12px;
-		background-color: transparentize(#fff, 0.7);
+		padding: 30px 40px 150px;
+		border-radius: 6px;
+		background-color: transparentize(#fff, 0.75);
 	}
 
 	.folder.title {
 		font-size: 30px;
+	}
+
+	.delete.folder.btn {
+		width: 50px;
+		height: 46px;
+		font-size: 32px;
+		a {
+			line-height: 46px;
+			color: #fff;
+		}
+	}
+
+	.file.actions {
+		min-height: 100px;
+	}
+
+	$file-entry-height: 40px;
+	.file.entry {
+		line-height: $file-entry-height;
+		.drag {
+			padding-left: 2px;
+			padding-right: 2px;
+			cursor: move;
+			height: $file-entry-height;
+			span {
+				color: transparentize(#000, 0.75);
+				font-size: 26px;
+				display: inline-block;
+				overflow: hidden;
+				width: 10px;
+				line-height: $file-entry-height;
+			}
+		}
+		md-checkbox {
+			margin: 0 10px;
+			.md-label {
+				display: none;
+			}
+		}
+		md-input-container {
+			padding-bottom: 8px;
+		}
+		.edit.file.btn {
+			width: 45px;
+			height: $file-entry-height;
+			font-size: 26px;
+			a {
+				line-height: $file-entry-height;
+			}
+		}
 	}
 
 	.hole.panel {
@@ -36,62 +90,62 @@
 		width: 2050px;
 		right: -2050px;
 		.container.panel {
-			top: 128px;
+			top: 129px;
 			overflow: auto;
 		}
 		.shadow.panel {
 			left: -2050px;
 		}
-	}
 
-	.recent.btn, .folder.btn {
-		height: 130px;
-		width: 44px;
-		box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
-		border-top-right-radius: 12px;
-		border-bottom-right-radius: 12px;
-		button {
-			line-height: 34px;
-			width: 100%;
-			height: 100%;
-			font-size: 20px;
-			color: transparentize(#fff, 0.2);
-			&:hover {
+		.recent.btn, .folder.btn {
+			height: 130px;
+			width: 44px;
+			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
+			border-top-right-radius: 10px;
+			border-bottom-right-radius: 10px;
+			button {
+				line-height: 34px;
+				width: 100%;
+				height: 100%;
+				font-size: 20px;
+				color: transparentize(#fff, 0.2);
+				&:hover {
+					color: #fff;
+				}
+				.rotate-90 {
+					position: absolute;
+					width: 130px;
+					left: -28px;
+					height: 0;
+				}
+			}
+		}
+
+		.folder.btn {
+			height: 110px;
+			width: 32px;
+			margin-bottom: 220px;
+			.md-button {
+				text-transform: none;
+				font-size: 16px;
+				.rotate-90 {
+					position: absolute;
+					width: 110px;
+					left: -23px;
+					height: 0;
+				}
+			}
+			.mdi-content-add {
+				padding: 0;
+				font-size: 18px;
+			}
+		}
+
+		.selected.btn {
+			z-index: 1;
+			button {
 				color: #fff;
 			}
-			.rotate-90 {
-				position: absolute;
-				width: 130px;
-				left: -28px;
-				height: 0;
-			}
-		}
-	}
-
-	.folder.btn {
-		height: 110px;
-		width: 34px;
-		margin-bottom: 220px;
-		.md-button {
-			text-transform: none;
-			font-size: 16px;
-			.rotate-90 {
-				position: absolute;
-				width: 110px;
-				left: -21px;
-				height: 0;
-			}
-		}
-		.mdi-content-add {
-			padding: 0;
-			font-size: 18px;
-		}
-	}
-
-	.btn.selected {
-		z-index: 1;
-		button {
-			color: #fff;
 		}
 	}
 }

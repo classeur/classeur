@@ -1,0 +1,11 @@
+<div class="file entry" layout="row">
+	<div class="drag"><span class="mdi-action-view-headline"></span></div>
+	<md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
+	</md-checkbox>
+	<md-input-container flex>
+		<input ng-model="fileDao.title" ng-blur="classeurLayoutSvc.refreshFiles()">
+	</md-input-container>
+	<cl-button class="edit file btn">
+		<a class="mdi-editor-mode-edit" ng-click="loadFile(fileDao)" title="Edit" aria-label="Edit"></a>
+	</cl-button>
+</div>

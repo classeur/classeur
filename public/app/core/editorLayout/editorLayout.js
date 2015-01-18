@@ -164,7 +164,7 @@ angular.module('classeur.core.editorLayout', [])
 			}
 		};
 	})
-	.factory('clEditorLayoutSvc', function($rootScope, clSettingSvc, clFileSvc) {
+	.factory('clEditorLayoutSvc', function($rootScope, clSettingSvc) {
 		clSettingSvc.setDefaultValue('zoom', 3);
 
 		var clEditorLayoutSvc = {

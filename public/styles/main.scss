@@ -3,10 +3,10 @@
 @import '../bower_components/google-code-prettify/src/prettify.css';
 
 $material-font-path: "../bower_components/bootstrap-material-design/fonts";
-$plastic-color-0: #65C3FA;
-$plastic-color-1: #F9D77E;
-$plastic-color-2: #64D3C0;
-$plastic-color-3: #FA95A6;
+$plastic-color-0: #6BC3F7;
+$plastic-color-1: #F2CC79;
+$plastic-color-2: #6ED0BF;
+$plastic-color-3: #F7A1B0;
 $link-color: #3f51b5;
 $editor-margin-width: 120px;
 
@@ -20,6 +20,8 @@ $editor-margin-width: 120px;
 @import '../app/core/editorLayout/_editorLayout.scss';
 @import '../app/extensions/btnBar/_btnBar.scss';
 @import '../app/extensions/commenting/_commenting.scss';
+@import '../app/extensions/fileDragging/_fileDragging.scss';
+@import '../app/extensions/fileTitle/_fileTitle.scss';
 @import '../app/extensions/urlDialog/_urlDialog.scss';
 @import '../app/extensions/folding/_folding.scss';
 @import '../app/extensions/stat/_stat.scss';

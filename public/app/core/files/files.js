@@ -1,70 +1,69 @@
 angular.module('classeur.core.files', [])
-	.factory('clFileSvc', function(clUid) {
-
-		var localFiles = JSON.parse(localStorage.fileIds || '[]').map(function(id) {
-			return new LocalFile(id);
-		});
-
-		function sortLocalFiles() {
-			localFiles.sort(function(fileDao1, fileDao2) {
-				return fileDao1.updated - fileDao2.updated;
-			});
-		}
-		sortLocalFiles();
+	.factory('clFileSvc', function(clUid, clLocalStorageObject) {
+		var maxLocalFiles = 5;
 
 		function LocalFile(id) {
 			this.id = id;
-			var isSaving, isLoaded, isUnloading;
-			this.updated = parseInt(localStorage['file.' + this.id + '.updated'] || '0');
-			this.title = localStorage['file.' + this.id + '.title'] || '';
-			this.folderId = localStorage['file.' + this.id + '.folderId'] || '';
-
-			this.load = function(cb) {
-				if(!isLoaded || !isSaving) {
-					this.content = localStorage['file.' + this.id + '.content'] || '';
-					this.state = JSON.parse(localStorage['file.' + this.id + '.state'] || '{}');
-					this.users = JSON.parse(localStorage['file.' + this.id + '.users'] || '{}');
-					this.discussions = JSON.parse(localStorage['file.' + this.id + '.discussions'] || '{}');
-				}
-				isUnloading = false;
-				isLoaded = true;
-				this.save();
-				cb();
-			};
-
-			var debouncedSave = window.cledit.Utils.debounce((function() {
-				localStorage['file.' + this.id + '.title'] = this.title;
-				localStorage['file.' + this.id + '.folderId'] = this.folderId;
-				if(isLoaded) {
-					this.updated = Date.now();
-					localStorage['file.' + this.id + '.updated'] = this.updated;
-					localStorage['file.' + this.id + '.content'] = this.content;
-					localStorage['file.' + this.id + '.state'] = JSON.stringify(this.state);
-					localStorage['file.' + this.id + '.users'] = JSON.stringify(this.users);
-					localStorage['file.' + this.id + '.discussions'] = JSON.stringify(this.discussions);
-					sortLocalFiles();
-				}
-				isSaving = false;
-				if(isUnloading) {
-					delete this.content;
-					delete this.state;
-					delete this.users;
-					delete this.discussions;
-					isUnloading = false;
-					isLoaded = false;
-				}
-			}).bind(this), 100);
-
-			this.save = function() {
-				isSaving = true;
-				debouncedSave();
-			};
-
-			this.unload = function() {
-				isUnloading = true;
-				this.save();
-			};
+			this.$readAttr('updated', '0', parseInt);
+			this.read();
 		}
+
+		LocalFile.prototype = clLocalStorageObject('file');
+
+		LocalFile.prototype.read = function(loadedAttr) {
+			if(!loadedAttr) {
+				this.$readAttr('title', '');
+				this.$readAttr('folderId', '');
+			}
+			else if(this.isLoaded) {
+				this.$readAttr('content', '');
+				this.$readAttr('state', '{}', JSON.parse);
+				this.$readAttr('users', '{}', JSON.parse);
+				this.$readAttr('discussions', '{}', JSON.parse);
+			}
+		};
+
+		LocalFile.prototype.checkChanges = function(loadedAttr) {
+			var hasChanged = false;
+			if(!loadedAttr) {
+				hasChanged |= this.$checkAttr('title', '');
+				hasChanged |= this.$checkAttr('folderId', '');
+			}
+			else if(this.isLoaded) {
+				hasChanged |= this.$checkAttr('updated', '0');
+			}
+			return hasChanged;
+		};
+
+		LocalFile.prototype.write = function() {
+			this.$writeAttr('title');
+			this.$writeAttr('folderId');
+			if(this.isLoaded) {
+				var isUpdated = false;
+				isUpdated |= this.$writeAttr('content');
+				isUpdated |= this.$writeAttr('users', JSON.stringify);
+				isUpdated |= this.$writeAttr('discussions', JSON.stringify);
+				this.$writeAttr('state', JSON.stringify);
+				if(isUpdated) {
+					this.updated = Date.now();
+					this.$writeAttr('updated');
+				}
+			}
+		};
+
+		LocalFile.prototype.load = function(cb) {
+			this.isLoaded = true;
+			this.read(true);
+			cb();
+		};
+
+		LocalFile.prototype.unload = function() {
+			this.$freeAttr('content');
+			this.$freeAttr('state');
+			this.$freeAttr('users');
+			this.$freeAttr('discussions');
+			this.isLoaded = false;
+		};
 
 		function ReadOnlyFile(title, content) {
 			this.content = content;
@@ -75,31 +74,67 @@ angular.module('classeur.core.files', [])
 			};
 		}
 
-		function addLocalFile(fileDao) {
-			localFiles.unshift(fileDao);
-			var filesToRemove = localFiles.splice(1);
-			localStorage.fileIds = JSON.stringify(localFiles.map(function(fileDao) {
-				return fileDao.id;
-			}));
-			filesToRemove.forEach(function(fileToRemove) {
-				var keyPrefix = '^file\\.' + fileToRemove.id + '\\.';
-				for (var key in localStorage){
-					if(key.match(keyPrefix)) {
-						localStorage.removeItem(key);
-					}
-				}
+		function init() {
+			if(!clFileSvc.localFileIds) {
+				clFileSvc.$readAttr('localFileIds', '[]', JSON.parse);
+			}
+			clFileSvc.localFiles = clFileSvc.localFileIds.map(function(id) {
+				return clFileSvc.localFileMap[id] || new LocalFile(id);
 			});
+			clFileSvc.localFileMap = {};
+			clFileSvc.localFiles.forEach(function(fileDao) {
+				clFileSvc.localFileMap[fileDao.id] = fileDao;
+			});
+			var keyPrefix = /^cl\.file\.(\w+)\./;
+			for(var key in localStorage) {
+				var match = key.match(keyPrefix);
+				if(match && !clFileSvc.localFileMap[match[1]]) {
+					localStorage.removeItem(key);
+				}
+			}
 		}
 
-		return {
-			localFiles: localFiles,
-			newLocalFile: function() {
-				var fileDao = new LocalFile(clUid());
-				addLocalFile(fileDao);
-				return fileDao;
-			},
-			readOnlyFile: function(title, content) {
-				return new ReadOnlyFile(title, content);
+		function checkLocalFileIds(isStorageModified) {
+			if(isStorageModified && clFileSvc.$checkAttr('localFileIds', '[]')) {
+				delete clFileSvc.localFileIds;
+				return true;
 			}
-		};
+			clFileSvc.$writeAttr('localFileIds', JSON.stringify);
+		}
+
+		function createLocalFile() {
+			clFileSvc.localFileIds.sort(function(id1, id2) {
+				return clFileSvc.localFileMap[id1].updated - clFileSvc.localFileMap[id2].updated;
+			});
+			var id = clUid();
+			clFileSvc.localFileIds.unshift(id);
+			clFileSvc.localFileIds.splice(maxLocalFiles);
+			init();
+			return clFileSvc.localFileMap[id];
+		}
+
+		function removeLocalFiles(fileDaoList) {
+			var fileIds = {};
+			fileDaoList.forEach(function(fileDao) {
+				fileIds[fileDao.id] = 1;
+			});
+			clFileSvc.localFileIds = clFileSvc.localFileIds.filter(function(fileId) {
+				return !fileIds.hasOwnProperty(fileId);
+			});
+			init();
+		}
+
+		function createReadOnlyFile(title, content) {
+			return new ReadOnlyFile(title, content);
+		}
+
+		var clFileSvc = Object.create(clLocalStorageObject());
+		clFileSvc.init = init;
+		clFileSvc.checkLocalFileIds = checkLocalFileIds;
+		clFileSvc.createLocalFile = createLocalFile;
+		clFileSvc.removeLocalFiles = removeLocalFiles;
+		clFileSvc.createReadOnlyFile = createReadOnlyFile;
+		clFileSvc.localFileMap = {};
+
+		return clFileSvc;
 	});

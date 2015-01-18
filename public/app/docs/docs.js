@@ -3,7 +3,7 @@ angular.module('classeur.core.docs', [])
 		return function(fileName, fileTitle) {
 			var cacheEntry = $templateCache.get('app/docs/' + fileName);
 			if(cacheEntry) {
-				return clFileSvc.readOnlyFile(fileTitle, cacheEntry[1]);
+				return clFileSvc.createReadOnlyFile(fileTitle, cacheEntry[1]);
 			}
 		};
 	})

@@ -79,7 +79,7 @@ angular.module('classeur.extensions.stat', [])
 
 				scope.$watch('editorSvc.sectionList', computeMarkdown);
 				scope.$watch('editorSvc.selectionRange', computeMarkdown);
-				scope.$watch('editorSvc.previewText', computeHtml);
+				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('selectionListener.range', computeHtml);
 			}
 		};

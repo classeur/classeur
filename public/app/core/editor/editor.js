@@ -168,7 +168,7 @@ angular.module('classeur.core.editor', [])
 			}
 		};
 	})
-	.factory('clEditorSvc', function($rootScope, clSettingSvc, clEditorLayoutSvc) {
+	.factory('clEditorSvc', function(clSettingSvc, clEditorLayoutSvc) {
 		clSettingSvc.setDefaultValue('refreshPreviewDelay', 500);
 		clSettingSvc.setDefaultValue('measureSectionDelay', 1000);
 

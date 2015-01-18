@@ -17,6 +17,7 @@ angular.module('classeur.app', [
 	'classeur.core.utils',
 	'classeur.extensions.btnBar',
 	'classeur.extensions.commenting',
+	'classeur.extensions.fileDragging',
 	'classeur.extensions.fileTitle',
 	'classeur.extensions.folding',
 	'classeur.extensions.htmlSanitizer',

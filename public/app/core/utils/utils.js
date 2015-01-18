@@ -45,8 +45,8 @@ angular.module('classeur.core.utils', [])
 			'bottom',
 			'left'
 		].forEach(function(attr) {
-			Panel.prototype[attr] = styleSetter(attr, 'px');
-		});
+				Panel.prototype[attr] = styleSetter(attr, 'px');
+			});
 
 		Panel.prototype.move = function() {
 			return window.move(this.$$elt).ease('out');
@@ -56,14 +56,60 @@ angular.module('classeur.core.utils', [])
 			return new Panel(elt, selector);
 		};
 	})
+	.factory('clLocalStorageObject', function() {
+		var appPrefix = 'cl.';
+		var lastModificationKey = appPrefix + 'lastStorageModification';
+
+		function LocalStorageObject(prefix) {
+			this.$prefix = prefix ? appPrefix + prefix + '.' : appPrefix;
+		}
+
+		LocalStorageObject.prototype.$readAttr = function(name, defaultValue, processor) {
+			var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
+			var value = localStorage[key] || defaultValue;
+			this['$' + name + 'Saved'] = value;
+			value = processor ? processor(value) : value;
+			this[name] = value;
+		};
+
+		LocalStorageObject.prototype.$checkAttr = function(name, defaultValue) {
+			var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
+			var value = localStorage[key] || defaultValue;
+			if(value !== this['$' + name + 'Saved']) {
+				return true;
+			}
+		};
+
+		LocalStorageObject.prototype.$writeAttr = function(name, processor) {
+			var value = processor ? processor(this[name]) : this[name];
+			if(value !== this['$' + name + 'Saved']) {
+				var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
+				localStorage[key] = value;
+				this['$' + name + 'Saved'] = value;
+				localStorage[lastModificationKey] = Date.now();
+				return true;
+			}
+		};
+
+		LocalStorageObject.prototype.$freeAttr = function(name) {
+			delete this[name];
+			delete this['$' + name + 'Saved'];
+		};
+
+		return function(prefix) {
+			return new LocalStorageObject(prefix);
+		};
+	})
 	.factory('clSelectionListeningSvc', function($timeout) {
 		var clSelectionListeningSvc = {};
+
 		function saveSelection() {
 			$timeout(function() {
 				var selection = window.getSelection();
 				clSelectionListeningSvc.range = selection.rangeCount && selection.getRangeAt(0);
 			}, 25);
 		}
+
 		window.addEventListener('keyup', saveSelection);
 		window.addEventListener('mouseup', saveSelection);
 		window.addEventListener('contextmenu', saveSelection);
