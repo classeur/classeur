@@ -1,5 +1,5 @@
 angular.module('classeur.core.files', [])
-	.factory('clFileSvc', function(clUid, clLocalStorageObject) {
+	.factory('clFileSvc', function(clUid, clLocalStorageObject, $timeout) {
 		var maxLocalFiles = 5;
 
 		function LocalFile(id) {
@@ -52,9 +52,14 @@ angular.module('classeur.core.files', [])
 		};
 
 		LocalFile.prototype.load = function(cb) {
-			this.isLoaded = true;
-			this.read(true);
-			cb();
+			if(this.isLoaded) {
+				return cb();
+			}
+			$timeout((function() {
+				this.isLoaded = true;
+				this.read(true);
+				cb();
+			}).bind(this));
 		};
 
 		LocalFile.prototype.unload = function() {
@@ -66,12 +71,12 @@ angular.module('classeur.core.files', [])
 		};
 
 		function ReadOnlyFile(title, content) {
+			this.title = title;
 			this.content = content;
 			this.state = {};
-			this.title = title;
-			this.save = function() {
-				this.isSaveAttempted = true;
-			};
+			this.users = {};
+			this.discussions = {};
+			this.isReadOnly = true;
 		}
 
 		function init() {

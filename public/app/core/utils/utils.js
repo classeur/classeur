@@ -56,6 +56,28 @@ angular.module('classeur.core.utils', [])
 			return new Panel(elt, selector);
 		};
 	})
+	.factory('clDraggablePanel', function(clPanel) {
+		var Hammer = window.Hammer;
+		return function(elt, selector, x, y, rotation) {
+			rotation = rotation || 0;
+			var panel = clPanel(elt, selector);
+			panel.move().rotate(rotation)
+				.then().to(x, y).duration(180).ease('ease-out-back').pop()
+				.end();
+
+			var hammertime = new Hammer(panel.$$elt);
+			hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
+			hammertime.on('panmove', function(evt) {
+				evt.preventDefault();
+				panel.move().rotate(rotation).to(x + evt.deltaX, y + evt.deltaY).end();
+			});
+			hammertime.on('panend', function(evt) {
+				x += evt.deltaX;
+				y += evt.deltaY;
+			});
+			return panel;
+		};
+	})
 	.factory('clLocalStorageObject', function() {
 		var appPrefix = 'cl.';
 		var lastModificationKey = appPrefix + 'lastStorageModification';

@@ -51,30 +51,13 @@ angular.module('classeur.extensions.commenting', [])
 			}
 		};
 	})
-	.directive('clDiscussion', function(clCommentingSvc, clEditorLayoutSvc, clPanel) {
-		var Hammer = window.Hammer;
-
+	.directive('clDiscussion', function(clCommentingSvc, clEditorLayoutSvc, clDraggablePanel) {
 		return {
 			restrict: 'E',
 			templateUrl: 'app/extensions/commenting/discussion.html',
 			scope: true,
 			link: function(scope, element) {
-				var x = 0, y = 0;
-				var discussionPanel = clPanel(element, '.discussion.panel');
-				discussionPanel.move().rotate(-1.5)
-					.then().to(x, y).duration(180).ease('ease-out-back').pop()
-					.end();
-
-				var hammertime = new Hammer(element[0]);
-				hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
-				hammertime.on('panmove', function(evt) {
-					evt.preventDefault();
-					discussionPanel.move().rotate(-1.5).to(x + evt.deltaX, y + evt.deltaY).end();
-				});
-				hammertime.on('panend', function(evt) {
-					x += evt.deltaX;
-					y += evt.deltaY;
-				});
+				clDraggablePanel(element, '.discussion.panel', 0, 0, -1.5);
 
 				scope.commenting = clCommentingSvc;
 				scope.removeDiscussion = function(discussion) {

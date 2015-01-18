@@ -1,0 +1,23 @@
+.read-only-alert.panel {
+	width: 230px;
+	height: 230px;
+	left: 15px;
+	top: 15px;
+	font-size: 14px;
+
+	p {
+		line-height: 1.3;
+	}
+
+	.content.panel {
+		padding: 5px 20px 15px;
+	}
+
+	.close.btn {
+		right: 0;
+		a {
+			font-size: 22px;
+			line-height: 30px;
+		}
+	}
+}

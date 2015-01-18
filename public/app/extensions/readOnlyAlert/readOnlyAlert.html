@@ -1,0 +1,21 @@
+<div class="read-only-alert panel postit no-overflow md-whiteframe-z2" ng-show="editorLayoutSvc.currentControl === 'readOnlyAlert'">
+
+	<div class="content panel" layout="column" layout-align="space-between end">
+		<div>
+			<h2>Hold on!</h2>
+			<p><b>You're modifying a read-only file.</b></p>
+			<p>Your modifications won't be saved unless you create a copy.</p>
+		</div>
+		<div layout="row" layout-align="end end">
+			<md-button md-no-ink class="md-primary"
+					   ng-click="createCopy()">
+				Create copy
+			</md-button>
+		</div>
+	</div>
+
+	<cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+		<a class="mdi-content-clear" ng-click="dismiss()" title="Close" aria-label="Close"></a>
+	</cl-button>
+
+</div>

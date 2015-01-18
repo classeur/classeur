@@ -42,7 +42,7 @@ angular.module('classeur.core.classeurLayout', [])
 		};
 	})
 	.directive('clClasseurLayout', function($mdDialog, clClasseurLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel) {
-		var classeurMaxWidth = 650;
+		var classeurMaxWidth = 680;
 		return {
 			restrict: 'E',
 			templateUrl: 'app/core/classeurLayout/classeurLayout.html',

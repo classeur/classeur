@@ -8,6 +8,11 @@ angular.module('classeur.core.editor', [])
 				var editorElt = element[0].querySelector('.editor.content');
 				clEditorSvc.setEditorElt(editorElt);
 
+				var isDestroyed;
+				scope.$on('$destroy', function() {
+					isDestroyed = true;
+				});
+
 				function saveState() {
 					scope.fileDao.state = {
 						selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
@@ -30,6 +35,9 @@ angular.module('classeur.core.editor', [])
 				}, 10);
 
 				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
+					if(isDestroyed) {
+						return;
+					}
 					clEditorSvc.updateSectionDescList();
 					clEditorSvc.convert();
 					scope.$apply();
@@ -98,6 +106,9 @@ angular.module('classeur.core.editor', [])
 				});
 
 				var debouncedMeasureSectionDimension = window.cledit.Utils.debounce(function() {
+					if(isDestroyed) {
+						return;
+					}
 					clEditorSvc.measureSectionDimensions();
 					scope.$apply();
 				}, clSettingSvc.values.measureSectionDelay);

@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.stat', [])
-	.directive('clStat', function(clEditorSvc, clPanel, clSelectionListeningSvc) {
+	.directive('clStat', function(clEditorSvc, clDraggablePanel, clSelectionListeningSvc) {
 		function Stat(name, regex) {
 			this.name = name;
 			this.regex = new RegExp(regex, 'gm');
@@ -17,7 +17,6 @@ angular.module('classeur.extensions.stat', [])
 			new Stat('paragraphs', '\\S.*\n'),
 		];
 
-		var Hammer = window.Hammer;
 		return {
 			restrict: 'E',
 			scope: true,
@@ -28,22 +27,7 @@ angular.module('classeur.extensions.stat', [])
 				scope.editor = clEditorSvc;
 				scope.selectionListener = clSelectionListeningSvc;
 
-				var x = 0, y = -130;
-				var statPanel = clPanel(element, '.stat.panel');
-				statPanel.move().rotate(-1.5)
-					.then().to(x, y).duration(180).ease('ease-out-back').pop()
-					.end();
-
-				var hammertime = new Hammer(element[0]);
-				hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
-				hammertime.on('panmove', function(evt) {
-					evt.preventDefault();
-					statPanel.move().rotate(-1.5).to(x + evt.deltaX, y + evt.deltaY).end();
-				});
-				hammertime.on('panend', function(evt) {
-					x += evt.deltaX;
-					y += evt.deltaY;
-				});
+				clDraggablePanel(element, '.stat.panel', 0, -130, -1.5);
 
 				function computeMarkdown() {
 					scope.isMarkdownSelection = false;

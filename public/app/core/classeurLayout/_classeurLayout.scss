@@ -3,10 +3,14 @@
 	.classeur.container {
 		left: 50%;
 		min-height: 100%;
-		margin: 0 auto;
+	}
+
+	.classeur.content {
 		border-radius: 3px;
+	}
 
-
+	.links {
+		font-size: 14px;
 	}
 
 	.folder.container {
@@ -147,5 +151,13 @@
 				color: #fff;
 			}
 		}
+	}
+
+	.footer.panel {
+		bottom: 0;
+		height: 30px;
+		background-color: transparentize(#ccc, 0.25);
+		padding: 8px 12px;
+		font-size: 13px;
 	}
 }
