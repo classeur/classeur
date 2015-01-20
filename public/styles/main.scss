@@ -4,29 +4,31 @@
 
 $material-font-path: "../bower_components/bootstrap-material-design/fonts";
 $plastic-color-0: #6BC3F7;
-$plastic-color-1: #F2CC79;
+$plastic-color-1: #F2CF61;
 $plastic-color-2: #6ED0BF;
 $plastic-color-3: #F7A1B0;
+$plastic-color-98: #999;
+$plastic-color-99: #C0C0C0;
 $link-color: #3f51b5;
 $editor-margin-width: 120px;
 
-@import '_roboto-draft.scss';
-@import '_icons-material-design.scss';
-@import '../app/core/button/_button.scss';
-@import '../app/core/explorerLayout/_explorerLayout.scss';
-@import '../app/core/editor/_editor.scss';
-@import '../app/core/editor/_preview.scss';
-@import '../app/core/editor/_toc.scss';
-@import '../app/core/editorLayout/_editorLayout.scss';
-@import '../app/extensions/btnBar/_btnBar.scss';
-@import '../app/extensions/commenting/_commenting.scss';
-@import '../app/extensions/fileDragging/_fileDragging.scss';
-@import '../app/extensions/fileTitle/_fileTitle.scss';
-@import '../app/extensions/readOnlyAlert/_readOnlyAlert.scss';
-@import '../app/extensions/urlDialog/_urlDialog.scss';
-@import '../app/extensions/folding/_folding.scss';
-@import '../app/extensions/stat/_stat.scss';
-@import '_material.scss';
+@import 'roboto-draft';
+@import 'icons-material-design';
+@import '../app/core/button/button';
+@import '../app/core/explorerLayout/explorerLayout';
+@import '../app/core/editor/editor';
+@import '../app/core/editor/preview';
+@import '../app/core/editor/toc';
+@import '../app/core/editorLayout/editorLayout';
+@import '../app/extensions/btnBar/btnBar';
+@import '../app/extensions/commenting/commenting';
+@import '../app/extensions/fileDragging/fileDragging';
+@import '../app/extensions/fileTitle/fileTitle';
+@import '../app/extensions/readOnlyAlert/readOnlyAlert';
+@import '../app/extensions/urlDialog/urlDialog';
+@import '../app/extensions/folding/folding';
+@import '../app/extensions/stat/stat';
+@import 'material';
 
 body {
 	position: fixed;
@@ -78,6 +80,14 @@ body {
 
 .plastic-3 {
 	background-color: $plastic-color-3;
+}
+
+.plastic-98 {
+	background-color: $plastic-color-98;
+}
+
+.plastic-99 {
+	background-color: $plastic-color-99;
 }
 
 .hole {

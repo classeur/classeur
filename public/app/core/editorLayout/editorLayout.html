@@ -14,19 +14,26 @@
 
 	<div class="binder panel">
 
-		<div class="edit btn btn-panel plastic md-whiteframe-z4">
+		<div class="edit btn btn-panel md-whiteframe-z4" ng-class="plasticClass">
 			<md-button ng-click="editorLayoutSvc.toggleEditor(true)">
 				Edit
 			</md-button>
 		</div>
 
-		<div class="editor panel plastic md-whiteframe-z2">
+		<div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
 
 			<div class="menu content panel">
 				<cl-file-title></cl-file-title>
+				<div class="links">
+					<a ng-if="currentFileDao.isReadOnly" ng-click="makeCurrentFileCopy()">Make a copy</a>
+				</div>
 				<div class="entry">Zoom</div>
-				<md-slider md-discrete ng-model="settingSvc.values.zoom" step="1" min="1" max="5"
+				<md-slider md-discrete ng-model="settingSvc.values.editorZoom" step="1" min="1" max="5"
 						   aria-label="Zoom">
+				</md-slider>
+				<div class="entry">Binder color</div>
+				<md-slider md-discrete ng-model="settingSvc.values.editorColor" step="1" min="1" max="6"
+						   aria-label="Binder color">
 				</md-slider>
 				<cl-btn-bar-settings></cl-btn-bar-settings>
 				<cl-scroll-sync-settings></cl-scroll-sync-settings>
@@ -45,7 +52,7 @@
 				<cl-button class="preview btn" opacity="0.4" opacity-hover="0.5" size="34">
 					<a class="mdi-image-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" title="Side preview" aria-label="Side preview"></a>
 				</cl-button>
-				<div class="menu btn btn-panel plastic">
+				<div class="menu btn btn-panel" ng-class="plasticClass">
 					<md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
 						<div class="rotate-90">
 							Menu
@@ -55,8 +62,8 @@
 			</div>
 
 			<div class="page panel paper md-whiteframe-z1">
-				<div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : 'plastic'"></div>
-				<div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : 'plastic'"></div>
+				<div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+				<div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
 				<div class="margin panel">
 				</div>
 				<cl-editor></cl-editor>

@@ -11,13 +11,14 @@ gulp.task('express', function() {
 	require('./index');
 });
 
-gulp.task('sass', function() {
-	return gulp.src(__dirname + '/public/styles/main.scss')
+var sassSrc = ['public/styles/*.scss', 'public/app/**/*.scss'];
+gulp.task('sass-dev', function() {
+	return gulp.src('public/styles/main.scss')
+		.pipe(sourcemaps.init())
 		.pipe(sass())
-		//.pipe(minifycss())
-		.pipe(gulp.dest(__dirname + '/public/styles'));
+		.pipe(sourcemaps.write('.'))
+		.pipe(gulp.dest('public/styles'));
 });
-
 
 var vendorJs = [
 	'public/bower_components/angular/angular.js',
@@ -48,8 +49,9 @@ var vendorJs = [
 	'public/bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
+var templateCacheSrc = ['public/app/**/*.html', 'public/app/**/*.md'];
 gulp.task('template-cache', function() {
-	return gulp.src(['public/app/**/*.html', 'public/app/**/*.md'])
+	return gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
 			root: 'app/',
@@ -58,8 +60,9 @@ gulp.task('template-cache', function() {
 		.pipe(gulp.dest('public/app'));
 });
 
-gulp.task('js-dev', ['template-cache'], function() {
-	gulp.src(vendorJs.concat('public/app/**/*.js'))
+var jsSrc = ['public/app/**/*.js'];
+gulp.task('js-dev', function() {
+	gulp.src(vendorJs.concat(jsSrc))
 		.pipe(sourcemaps.init())
 		.pipe(concat('app-min.js', {newLine: ';'}))
 		.pipe(sourcemaps.write('.'))
@@ -67,24 +70,28 @@ gulp.task('js-dev', ['template-cache'], function() {
 });
 
 gulp.task('watch', function() {
-	watch(['/public/styles/*.scss', '/public/app/**/*.scss'], function(files, cb) {
-		gulp.start('sass');
+	watch(sassSrc, function(files, cb) {
+		gulp.start('sass-dev');
 		cb();
 	});
-	watch(['/public/app/**/*.js', 'public/app/**/*.html', 'public/app/**/*.md'], function(files, cb) {
+	watch(templateCacheSrc, function(files, cb) {
+		gulp.start('template-cache');
+		cb();
+	});
+	watch(jsSrc, function(files, cb) {
 		gulp.start('js-dev');
 		cb();
 	});
+	gulp.start('sass-dev');
+	gulp.start('template-cache');
 });
 
 gulp.task('run', [
-	'sass',
-	'js-dev',
 	'watch',
 	'express'
 ]);
 
 gulp.task('default', [
-	'sass',
+	'sass-dev',
 	'js-dev'
 ]);

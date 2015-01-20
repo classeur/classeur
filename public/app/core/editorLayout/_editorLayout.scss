@@ -91,6 +91,17 @@
 		.entry, .md-text {
 			text-align: center;
 		}
+		.links {
+			margin-bottom: 20px;
+			margin-left: 3px;
+			a {
+				color: #fff;
+				cursor: pointer;
+				border-bottom: 1px solid rgba(255,255,255,0.12);
+				display: inline-block;
+				line-height: 1;
+			}
+		}
 	}
 
 }

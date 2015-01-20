@@ -30,7 +30,7 @@ angular.module('classeur.core.editorLayout', [])
 						binderWidth -= clEditorLayoutSvc.tocWidth;
 					}
 					clEditorLayoutSvc.fontSize = 18;
-					var factor = 1 + (clSettingSvc.values.zoom - 3) * 0.1;
+					var factor = 1 + (clSettingSvc.values.editorZoom - 3) * 0.1;
 					// Kind of responsive...
 					clEditorLayoutSvc.pageWidth = 990 * factor;
 					if(binderWidth < 1120) {
@@ -86,7 +86,7 @@ angular.module('classeur.core.editorLayout', [])
 
 				function updateLayoutSize() {
 					clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px';
-					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.values.zoom) / 10 + 'em';
+					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.values.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
 					previewPanel.width(clEditorLayoutSvc.previewWidth).left(-clEditorLayoutSvc.previewWidth / 2);
 					pagePanel.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMargin);
@@ -99,14 +99,16 @@ angular.module('classeur.core.editorLayout', [])
 				}, 90);
 
 				var isInited;
+				setTimeout(function() {
+					isInited = true;
+				}, 1);
 
 				function animateLayout() {
 					showPreview();
 					updateLayout();
-					var duration = isInited ? 180 : 0;
-					backgroundPanel.move().x(clEditorLayoutSvc.backgroundX).duration(duration).then(debouncedUpdatedLayoutSize).end();
-					binderPanel.move().x(clEditorLayoutSvc.binderX).duration(duration).then(debouncedUpdatedLayoutSize).end();
-					previewPanel.move().x(clEditorLayoutSvc.previewX).duration(duration).then(debouncedUpdatedLayoutSize).end();
+					backgroundPanel.move().x(clEditorLayoutSvc.backgroundX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
+					binderPanel.move().x(clEditorLayoutSvc.binderX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
+					previewPanel.move().x(clEditorLayoutSvc.previewX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
 				}
 
 				animateLayout();
@@ -115,36 +117,33 @@ angular.module('classeur.core.editorLayout', [])
 				function animateEditor() {
 					showPreview();
 					updateLayout();
-					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(270).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
+					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(isInited && 270).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
 						hidePreview();
 						clEditorLayoutSvc.toggleSidePreview(false);
 						clEditorLayoutSvc.currentControl = undefined;
-						scope.$apply();
+						isInited && scope.$apply();
 					}).end();
 				}
 
 				function animateMenu() {
 					updateLayout();
 					pagePanel.move().x(clEditorLayoutSvc.pageX).y(clEditorLayoutSvc.pageY).rotate(clEditorLayoutSvc.pageRotate).ease('ease-out-back').duration(180).end();
-					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(180).end();
+					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(isInited && 180).end();
 				}
 
 				function animateCorner() {
 					if(!clEditorLayoutSvc.isCornerOpen) {
 						clEditorLayoutSvc.isCornerButtonVisible = false;
 					}
-					var duration = isInited ? 180 : 0;
-					cornerPanel.move().scale(clEditorLayoutSvc.isCornerOpen ? 2.5 : 1).duration(duration).then(function() {
+					cornerPanel.move().scale(clEditorLayoutSvc.isCornerOpen ? 2.5 : 1).duration(isInited && 180).then(function() {
 						if(clEditorLayoutSvc.isCornerOpen) {
 							clEditorLayoutSvc.isCornerButtonVisible = true;
-							scope.$apply();
+							isInited && scope.$apply();
 						}
 					}).end();
 				}
 
 				animateCorner();
-
-				isInited = true;
 
 				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 400);
 				window.addEventListener('resize', debouncedAnimateLayout);
@@ -152,7 +151,10 @@ angular.module('classeur.core.editorLayout', [])
 					window.removeEventListener('resize', debouncedAnimateLayout);
 				});
 
-				scope.$watch('settingSvc.values.zoom', animateLayout);
+				scope.$watch('settingSvc.values.editorZoom', animateLayout);
+				scope.$watch('settingSvc.values.editorColor', function(value) {
+					scope.plasticClass = 'plastic-' + (value + 97) % 100;
+				});
 				scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout);
 				scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor);
 				scope.$watch('editorLayoutSvc.isMenuOpen', animateMenu);
@@ -165,7 +167,8 @@ angular.module('classeur.core.editorLayout', [])
 		};
 	})
 	.factory('clEditorLayoutSvc', function($rootScope, clSettingSvc) {
-		clSettingSvc.setDefaultValue('zoom', 3);
+		clSettingSvc.setDefaultValue('editorZoom', 3);
+		clSettingSvc.setDefaultValue('editorColor', 3);
 
 		var clEditorLayoutSvc = {
 			pageMargin: 24,

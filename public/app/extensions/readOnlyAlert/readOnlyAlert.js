@@ -17,18 +17,6 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 					clEditorLayoutSvc.currentControl = undefined;
 				};
 
-				scope.createCopy = function() {
-					var oldFileDao = scope.currentFileDao;
-					var newFileDao = clFileSvc.createLocalFile();
-					newFileDao.load(function() {
-						['title', 'content', 'state', 'users', 'discussions'].forEach(function(attrName) {
-							newFileDao[attrName] = oldFileDao[attrName];
-						});
-						scope.setCurrentFile(newFileDao);
-						clToast('Copy created.');
-					});
-				};
-
 				scope.$watch('currentFileDao.content', function(newContent) {
 					if(!wasDismissed && newContent !== content) {
 						clEditorLayoutSvc.currentControl = 'readOnlyAlert';

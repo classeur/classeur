@@ -13,7 +13,7 @@ angular.module('classeur.core.explorerLayout', [])
 					element.toggleClass('open', isOpen);
 					var y = scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
-					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset refresh before the animation
+					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
 					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end();
 					duration = 90;
 					if(isOpen) {

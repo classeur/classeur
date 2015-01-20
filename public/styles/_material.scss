@@ -62,3 +62,7 @@ md-dialog.transition-out {
 md-dialog.md-default-theme {
 	border-radius: 0;
 }
+
+md-slider.md-default-theme.md-min .md-thumb:after {
+	background-color: rgb(33,150,243);
+}

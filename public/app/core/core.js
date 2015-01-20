@@ -14,8 +14,7 @@ angular.module('classeur.core', [])
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
 				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc) {
-					var fileName = $routeParams.fileName;
-					var currentFileDao = clDocFileSvc(fileName);
+					var currentFileDao = clDocFileSvc($routeParams.fileName);
 					$timeout(function() {
 						$rootScope.currentFileDao = currentFileDao;
 					});
@@ -25,7 +24,7 @@ angular.module('classeur.core', [])
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clToast) {
 		clFileSvc.init();
 		clFolderSvc.init();
 		var lastModificationKey = 'cl.lastStorageModification';
@@ -94,9 +93,22 @@ angular.module('classeur.core', [])
 			$location.url('/doc/' + fileName);
 		}
 
+		function makeCurrentFileCopy() {
+			var oldFileDao = $rootScope.currentFileDao;
+			var newFileDao = clFileSvc.createLocalFile();
+			newFileDao.load(function() {
+				['title', 'content', 'state', 'users', 'discussions'].forEach(function(attrName) {
+					newFileDao[attrName] = oldFileDao[attrName];
+				});
+				setCurrentFile(newFileDao);
+				clToast('Copy created.');
+			});
+		}
+
 		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.setDocFile = setDocFile;
+		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
 		setInterval(function() {
 			var isStorageModified = saveAll();
