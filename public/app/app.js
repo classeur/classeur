@@ -1,11 +1,13 @@
 angular.module('classeur.app', [
+	'ngRoute',
 	'ngMaterial',
 	'ngAnimate',
 	'ngAria',
 	'slugifier',
+	'classeur.templates',
+	'classeur.core',
 	'classeur.core.button',
-	'classeur.core.classeur',
-	'classeur.core.classeurLayout',
+	'classeur.core.explorerLayout',
 	'classeur.core.docs',
 	'classeur.core.editor',
 	'classeur.core.editorLayout',
@@ -28,7 +30,8 @@ angular.module('classeur.app', [
 	'classeur.extensions.scrollSync',
 	'classeur.extensions.stat',
 ])
-	.config(function($animateProvider, $mdThemingProvider) {
+	.config(function($locationProvider, $animateProvider, $mdThemingProvider) {
+		$locationProvider.hashPrefix('!');
 		$animateProvider.classNameFilter(/angular-animate/);
 		var menuTheme = $mdThemingProvider.theme('classeur', 'default');
 		menuTheme.dark();

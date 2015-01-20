@@ -1,16 +1,15 @@
 angular.module('classeur.extensions.readOnlyAlert', [])
-	.directive('clReadOnlyAlert', function($timeout, clDraggablePanel, clEditorLayoutSvc, clFileSvc) {
+	.directive('clReadOnlyAlert', function(clEditorLayoutSvc, clFileSvc, clToast) {
 		return {
 			restrict: 'E',
 			scope: true,
-			templateUrl: 'app/extensions/readOnlyAlert/readOnlyAlert.html',
-			link: function(scope, element) {
-				if(!scope.fileDao.isReadOnly) {
+			template: '<cl-read-only-alert-panel ng-if="editorLayoutSvc.currentControl === \'readOnlyAlert\'"></cl-read-only-alert-panel>',
+			link: function(scope) {
+				if(!scope.currentFileDao.isReadOnly) {
 					return;
 				}
-				clDraggablePanel(element, '.read-only-alert.panel', 0, 0, -1.5);
 
-				var content = scope.fileDao.content;
+				var content = scope.currentFileDao.content;
 				var wasDismissed;
 
 				scope.dismiss = function() {
@@ -19,23 +18,32 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 				};
 
 				scope.createCopy = function() {
-					var oldFileDao = scope.fileDao;
+					var oldFileDao = scope.currentFileDao;
 					var newFileDao = clFileSvc.createLocalFile();
-					// Unload the editor
-					scope.setFileDao();
 					newFileDao.load(function() {
 						['title', 'content', 'state', 'users', 'discussions'].forEach(function(attrName) {
 							newFileDao[attrName] = oldFileDao[attrName];
 						});
-						scope.setFileDao(newFileDao);
+						scope.setCurrentFile(newFileDao);
+						clToast('Copy created.');
 					});
 				};
 
-				scope.$watch('fileDao.content', function(newContent) {
+				scope.$watch('currentFileDao.content', function(newContent) {
 					if(!wasDismissed && newContent !== content) {
 						clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 					}
 				});
+			}
+		};
+
+	})
+	.directive('clReadOnlyAlertPanel', function(clDraggablePanel) {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/extensions/readOnlyAlert/readOnlyAlertPanel.html',
+			link: function(scope, element) {
+				clDraggablePanel(element, '.read-only-alert.panel', 0, 0, -1.5);
 			}
 		};
 

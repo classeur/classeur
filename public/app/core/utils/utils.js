@@ -30,6 +30,11 @@ angular.module('classeur.core.utils', [])
 			this.$$elt = elt[0];
 		}
 
+		Panel.prototype.css = function(attr, value) {
+			this.$$elt.style[attr] = value !== undefined ? value: '';
+			return this;
+		};
+
 		function styleSetter(attr, unit) {
 			return function(value) {
 				this.$$elt.style[attr] = value !== undefined ? value + unit : '';
@@ -43,6 +48,10 @@ angular.module('classeur.core.utils', [])
 			'top',
 			'right',
 			'bottom',
+			'marginTop',
+			'marginRight',
+			'marginBottom',
+			'marginLeft',
 			'left'
 		].forEach(function(attr) {
 				Panel.prototype[attr] = styleSetter(attr, 'px');

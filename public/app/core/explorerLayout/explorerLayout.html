@@ -1,32 +1,34 @@
-<div class="classeur background panel">
-	<div class="classeur container panel">
+<div class="explorer background panel">
+	<div class="explorer container panel">
 		<div class="links" layout="row" layout-align="end center">
 			<md-button md-no-ink class="md-primary"
-					   ng-click="loadDocFile('markdownCheatSheet.md', 'Markdown Cheat Sheet')">
+					   ng-click="setDocFile('markdownCheatSheet')">
 				<span class="mdi-action-help"></span> Markdown Cheat Sheet
 			</md-button>
 		</div>
-		<div class="classeur content panel md-whiteframe-z2" ng-class="plasticClass">
+		<div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
 
 			<div class="hole panel background first"></div>
 			<div class="hole panel background second"></div>
 
+			<div class="folder scroller panel">
+
 			<div class="folder container">
 
 				<div layout="row">
-					<md-input-container md-theme="classeur" ng-if="classeurLayoutSvc.currentFolder" flex>
-						<input ng-model="classeurLayoutSvc.currentFolder.name"
+					<md-input-container md-theme="classeur" ng-if="explorerLayoutSvc.currentFolderDao" flex>
+						<input ng-model="explorerLayoutSvc.currentFolderDao.name"
 							   class="folder title"
-							   ng-disabled="classeurLayoutSvc.currentFolder === classeurLayoutSvc.unclassifiedFolder"
+							   ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder"
 							   ng-blur="folderTitleModified()">
 					</md-input-container>
 
-					<md-input-container md-theme="classeur" ng-if="!classeurLayoutSvc.currentFolder" flex>
+					<md-input-container md-theme="classeur" ng-if="!explorerLayoutSvc.currentFolderDao" flex>
 						<input class="folder title" value="Recent" disabled>
 					</md-input-container>
 
 					<cl-button class="delete folder btn" opacity="0.4" opacity-hover="0.5"
-							   ng-if="classeurLayoutSvc.currentFolder && classeurLayoutSvc.currentFolder !== classeurLayoutSvc.unclassifiedFolder">
+							   ng-if="explorerLayoutSvc.currentFolderDao && explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
 						<a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder"
 						   aria-label="Delete folder"></a>
 					</cl-button>
@@ -40,7 +42,7 @@
 								<span class="mdi-content-add"></span> New file
 							</md-button>
 						</div>
-						<div ng-if="classeurLayoutSvc.files.length" ng-switch="hasSelection()">
+						<div ng-if="explorerLayoutSvc.files.length" ng-switch="hasSelection()">
 							<div ng-switch-when="false">
 								<md-button md-no-ink class="md-primary" ng-click="selectAll()">
 									<span class="mdi-navigation-check"></span> Select all
@@ -59,29 +61,30 @@
 						</div>
 					</div>
 
-					<cl-file-entry cl-file-dragging-src ng-repeat="fileDao in classeurLayoutSvc.files"></cl-file-entry>
+					<cl-file-entry cl-file-dragging-src ng-repeat="fileDao in explorerLayoutSvc.files"></cl-file-entry>
 
 				</div>
 
 			</div>
+				</div>
 
 			<div class="btn-grp panel background no-overflow">
 				<div class="container panel">
 					<div cl-folder-button
 						 cl-file-dragging-target
 						 class="folder btn btn-panel"
-						 ng-repeat="folderDao in classeurLayoutSvc.folders"
-						 ng-class="'plastic-' + ((classeurLayoutSvc.folders.length - $index) % 4)">
+						 ng-repeat="folderDao in explorerLayoutSvc.folders"
+						 ng-class="'plastic-' + (($index + 1) % 4)">
 						<md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
-							<div class="rotate-90" ng-if="folderDao !== classeurLayoutSvc.createFolder">
+							<div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder">
 								{{folderDao.name}}
 							</div>
-							<div class="mdi-content-add" ng-if="folderDao === classeurLayoutSvc.createFolder"></div>
+							<div class="mdi-content-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
 						</md-button>
 					</div>
 				</div>
 				<div cl-folder-button class="recent btn btn-panel plastic"
-					 ng-class="{selected: !classeurLayoutSvc.currentFolder}">
+					 ng-class="{open: !explorerLayoutSvc.currentFolderDao}">
 					<md-button ng-click="setFolder()" aria-label="Recent">
 						<div class="rotate-90">Recent</div>
 					</md-button>
@@ -98,4 +101,3 @@
 		<div>Privacy Policy</div>
 	</div>
 </div>
-

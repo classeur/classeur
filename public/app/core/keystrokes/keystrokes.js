@@ -13,7 +13,9 @@ angular.module('classeur.core.keystrokes', [])
 					}
 					var keyCode = evt.charCode || evt.keyCode;
 					if(String.fromCharCode(keyCode).toLowerCase() === keyCodeChar) {
-						clEditorSvc.pagedownEditor.uiManager.doClick(name);
+						setTimeout(function() {
+							clEditorSvc.pagedownEditor.uiManager.doClick(name);
+						}, 1);
 						evt.preventDefault();
 						return true;
 					}

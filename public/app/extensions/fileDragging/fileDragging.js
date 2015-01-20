@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.fileDragging', [])
-	.directive('clFileDraggingSrc', function(clFileDraggingSvc) {
+	.directive('clFileDraggingSrc', function(clFileDraggingSvc, clExplorerLayoutSvc) {
 		var Hammer = window.Hammer;
 		return {
 			restrict: 'A',
@@ -16,6 +16,7 @@ angular.module('classeur.extensions.fileDragging', [])
 						clFileDraggingSvc.targetFolder = undefined;
 					}
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
+					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.folderContainerWidth);
 					movePanel(evt);
 					scope.$apply();
 				});
@@ -30,11 +31,11 @@ angular.module('classeur.extensions.fileDragging', [])
 			}
 		};
 	})
-	.directive('clFileDraggingTarget', function(clFileDraggingSvc, clClasseurLayoutSvc) {
+	.directive('clFileDraggingTarget', function(clFileDraggingSvc, clExplorerLayoutSvc) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				if(scope.folderDao === clClasseurLayoutSvc.createFolder) {
+				if(scope.folderDao === clExplorerLayoutSvc.createFolder) {
 					return;
 				}
 				element.on('mouseenter', function() {
@@ -64,19 +65,19 @@ angular.module('classeur.extensions.fileDragging', [])
 			}
 		};
 	})
-	.factory('clFileDraggingSvc', function(clClasseurLayoutSvc) {
+	.factory('clFileDraggingSvc', function(clExplorerLayoutSvc) {
 		function setFileSrc(fileDao) {
-			clFileDraggingSvc.files = fileDao.isSelected ? clClasseurLayoutSvc.files.filter(function(fileDao) {
+			clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
 				return fileDao.isSelected;
 			}) : [fileDao];
 		}
 
 		function moveFiles() {
-			if(clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clClasseurLayoutSvc.currentFolder) {
+			if(clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
 				clFileDraggingSvc.files.forEach(function(fileDao) {
 					fileDao.folderId = clFileDraggingSvc.targetFolder.id;
 				});
-				clClasseurLayoutSvc.refreshFiles();
+				clExplorerLayoutSvc.refreshFiles();
 			}
 		}
 

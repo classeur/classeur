@@ -14,7 +14,7 @@ angular.module('classeur.core.editor', [])
 				});
 
 				function saveState() {
-					scope.fileDao.state = {
+					scope.currentFileDao.state = {
 						selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
 						selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
 						scrollTop: containerElt.scrollTop,
@@ -29,7 +29,7 @@ angular.module('classeur.core.editor', [])
 						debouncedRefreshPreview();
 					}
 					clEditorSvc.selectionRange = newSelectionRange;
-					scope.fileDao.content = clEditorSvc.cledit.getContent();
+					scope.currentFileDao.content = clEditorSvc.cledit.getContent();
 					saveState();
 					scope.$apply();
 				}, 10);
@@ -90,12 +90,12 @@ angular.module('classeur.core.editor', [])
 					var options = clEditorSvc.options;
 					if(!isInited) {
 						options = angular.extend({}, options);
-						options.content = scope.fileDao.content;
+						options.content = scope.currentFileDao.content;
 						if(options.content.slice(-1) !== '\n') {
 							options.content += '\n';
 						}
 						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
-							options[key] = scope.fileDao.state[key];
+							options[key] = scope.currentFileDao.state[key];
 						});
 						isInited = true;
 					}

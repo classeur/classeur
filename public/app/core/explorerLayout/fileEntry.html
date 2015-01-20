@@ -3,9 +3,9 @@
 	<md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
 	</md-checkbox>
 	<md-input-container flex>
-		<input ng-model="fileDao.title" ng-blur="classeurLayoutSvc.refreshFiles()">
+		<input ng-model="fileDao.title" ng-blur="explorerLayoutSvc.refreshFiles()">
 	</md-input-container>
 	<cl-button class="edit file btn">
-		<a class="mdi-editor-mode-edit" ng-click="loadFile(fileDao)" title="Edit" aria-label="Edit"></a>
+		<a class="mdi-editor-mode-edit" ng-click="setCurrentFile(fileDao)" title="Edit" aria-label="Edit"></a>
 	</cl-button>
 </div>

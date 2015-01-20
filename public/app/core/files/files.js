@@ -77,6 +77,8 @@ angular.module('classeur.core.files', [])
 			this.users = {};
 			this.discussions = {};
 			this.isReadOnly = true;
+			this.unload = function() {
+			};
 		}
 
 		function init() {

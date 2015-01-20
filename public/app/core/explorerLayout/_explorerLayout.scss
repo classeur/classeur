@@ -1,11 +1,11 @@
-.classeur.background {
+.explorer.background {
 
-	.classeur.container {
+	.explorer.container {
 		left: 50%;
 		min-height: 100%;
 	}
 
-	.classeur.content {
+	.explorer.content {
 		border-radius: 3px;
 	}
 
@@ -13,8 +13,15 @@
 		font-size: 14px;
 	}
 
+	.folder.scroller {
+		overflow-x: hidden;
+		overflow-y: auto;
+		right: -40px;
+		top: 8px;
+	}
+
 	.folder.container {
-		margin: 50px 40px 50px 80px;
+		margin: 40px 0 100px;
 	}
 
 	.folder.content {
@@ -98,6 +105,7 @@
 			overflow: auto;
 		}
 		.shadow.panel {
+			z-index: 9999;
 			left: -2050px;
 		}
 
@@ -105,8 +113,6 @@
 			height: 130px;
 			width: 44px;
 			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
-			border-top-right-radius: 10px;
-			border-bottom-right-radius: 10px;
 			button {
 				line-height: 34px;
 				width: 100%;
@@ -125,10 +131,17 @@
 			}
 		}
 
+		.recent.btn {
+			border-top-right-radius: 12px;
+			border-bottom-right-radius: 12px;
+		}
+
 		.folder.btn {
 			height: 110px;
 			width: 32px;
 			margin-bottom: 220px;
+			border-top-right-radius: 10px;
+			border-bottom-right-radius: 10px;
 			.md-button {
 				text-transform: none;
 				font-size: 16px;
@@ -145,8 +158,7 @@
 			}
 		}
 
-		.selected.btn {
-			z-index: 1;
+		.open.btn {
 			button {
 				color: #fff;
 			}

@@ -24,7 +24,8 @@
     "MathJax": "~2.4.0",
     "cledit": "https://github.com/classeur/cledit.git#master",
     "angular-slugify": "~1.0.0",
-    "movejs": "~0.4.0"
+    "movejs": "~0.4.0",
+    "angular-route": "~1.3.9"
   },
   "resolutions": {
     "angular": "1.3.x"

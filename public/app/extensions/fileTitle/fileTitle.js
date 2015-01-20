@@ -6,8 +6,8 @@ angular.module('classeur.extensions.fileTitle', [])
 			templateUrl: 'app/extensions/fileTitle/fileTitle.html',
 			link: function(scope) {
 				function setDefaultTitle() {
-					scope.fileDao.title = scope.fileDao.title || 'Untitled';
-					document.title = scope.fileDao.title;
+					scope.currentFileDao.title = scope.currentFileDao.title || 'Untitled';
+					document.title = scope.currentFileDao.title;
 				}
 				setDefaultTitle();
 				scope.setDefaultTitle = setDefaultTitle;

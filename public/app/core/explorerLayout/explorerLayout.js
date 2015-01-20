@@ -1,0 +1,218 @@
+angular.module('classeur.core.explorerLayout', [])
+	.directive('clFolderButton', function(clExplorerLayoutSvc, clPanel) {
+		return {
+			restrict: 'A',
+			link: function(scope, element) {
+				var elt = element[0];
+				var parentElt = elt.parentNode;
+				var buttonPanel = clPanel(element);
+				var duration = 0;
+				var isOpen;
+
+				function animate() {
+					element.toggleClass('open', isOpen);
+					var y = scope.$index * 109;
+					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
+					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset refresh before the animation
+					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end();
+					duration = 90;
+					if(isOpen) {
+						// Adjust scrolling position
+						var minY = parentElt.scrollTop + 30;
+						var maxY = parentElt.scrollTop + parentElt.clientHeight - 330;
+						if(y > maxY) {
+							parentElt.scrollTop += y - maxY;
+						}
+						if(y < minY) {
+							parentElt.scrollTop += y - minY;
+						}
+					}
+				}
+
+				scope.$watch('$index', animate);
+				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(isEqual) {
+					isOpen = isEqual;
+					animate();
+				});
+			}
+		};
+	})
+	.directive('clFileEntry', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'app/core/explorerLayout/fileEntry.html'
+		};
+	})
+	.directive('clExplorerLayout', function($mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel) {
+		var explorerMaxWidth = 680;
+		return {
+			restrict: 'E',
+			templateUrl: 'app/core/explorerLayout/explorerLayout.html',
+			link: function(scope, element) {
+				document.title = 'Classeur';
+
+				var explorerPanel = clPanel(element, '.explorer.container');
+				var folderContainerPanel = clPanel(element, '.folder.container');
+
+				function animateLayout() {
+					clExplorerLayoutSvc.explorerWidth = document.body.clientWidth;
+					var containerPadding = 12;
+					if(clExplorerLayoutSvc.explorerWidth > explorerMaxWidth) {
+						clExplorerLayoutSvc.explorerWidth = explorerMaxWidth;
+						containerPadding = 50;
+					}
+					clExplorerLayoutSvc.folderContainerWidth = clExplorerLayoutSvc.explorerWidth-containerPadding*2 - 35;
+					explorerPanel.width(clExplorerLayoutSvc.explorerWidth).move().x(-clExplorerLayoutSvc.explorerWidth / 2 - 44).end();
+					folderContainerPanel.width(clExplorerLayoutSvc.folderContainerWidth).marginLeft(containerPadding);
+				}
+
+				animateLayout();
+
+				window.addEventListener('resize', animateLayout);
+				scope.$on('$destroy', function() {
+					window.removeEventListener('resize', animateLayout);
+				});
+
+				function folderTitleFocus() {
+					setTimeout(function() {
+						var input = element[0].querySelector('.folder.title');
+						input && input.setSelectionRange(0, input.value.length);
+					}, 10);
+				}
+
+				function setPlasticClass() {
+					scope.plasticClass = 'plastic';
+					if(clExplorerLayoutSvc.currentFolderDao) {
+						var index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao);
+						scope.plasticClass = 'plastic-' + ((index + 1) % 4);
+					}
+				}
+
+				scope.folderTitleModified = function() {
+					clExplorerLayoutSvc.currentFolderDao.name = clExplorerLayoutSvc.currentFolderDao.name || 'Untitled';
+					clExplorerLayoutSvc.refreshFolders();
+					setPlasticClass();
+				};
+
+				scope.setFolder = function(folder) {
+					if(folder === clExplorerLayoutSvc.createFolder) {
+						var newFolder = clFolderSvc.createFolder('New folder');
+						clExplorerLayoutSvc.refreshFolders();
+						scope.setFolder(newFolder);
+						return folderTitleFocus();
+					}
+					folder = folder === clExplorerLayoutSvc.unclassifiedFolder ? folder : (folder && clFolderSvc.folderMap[folder.id]);
+					clExplorerLayoutSvc.currentFolderDao = folder;
+				};
+				scope.setFolder(clExplorerLayoutSvc.currentFolderDao);
+
+				scope.selectAll = function() {
+					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+						fileDao.isSelected = true;
+					});
+				};
+
+				scope.selectNone = function() {
+					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+						fileDao.isSelected = false;
+					});
+				};
+
+				scope.hasSelection = function() {
+					return clExplorerLayoutSvc.files.some(function(fileDao) {
+						return fileDao.isSelected;
+					});
+				};
+
+				scope.deleteConfirm = function(deleteFolder) {
+					deleteFolder && scope.selectAll();
+					var filesToRemove = clExplorerLayoutSvc.files.filter(function(fileDao) {
+						return fileDao.isSelected;
+					});
+					function remove() {
+						clFileSvc.removeLocalFiles(filesToRemove);
+						if(deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
+							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
+							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
+							scope.setFolder(currentFolderDao);
+						}
+					}
+					if(!filesToRemove.length) {
+						return remove();
+					}
+					var title = deleteFolder ? 'Delete folder' : 'Delete files';
+					var confirm = $mdDialog.confirm()
+						.title(title)
+						.ariaLabel(title)
+						.content('You\'re about to delete ' + filesToRemove.length + ' file(s). Are you sure?')
+						.ok('Delete')
+						.cancel('Cancel');
+					$mdDialog.show(confirm).then(remove);
+				};
+
+				scope.$watch('explorerLayoutSvc.currentFolderDao', function() {
+					clExplorerLayoutSvc.refreshFiles();
+					scope.selectNone();
+					setPlasticClass();
+				});
+
+				scope.$watch('fileSvc.localFiles', clExplorerLayoutSvc.refreshFiles);
+				scope.$watch('folderSvc.folders', clExplorerLayoutSvc.refreshFolders);
+
+				scope.newFile = function() {
+					var fileDao = clFileSvc.createLocalFile();
+					if(clExplorerLayoutSvc.currentFolderDao) {
+						fileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
+					}
+					scope.setCurrentFile(fileDao);
+					clExplorerLayoutSvc.refreshFiles();
+				};
+			}
+		};
+	})
+	.factory('clExplorerLayoutSvc', function(clFolderSvc, clFileSvc) {
+		var unclassifiedFolder = {
+			name: 'Unclassified'
+		};
+		var createFolder = {
+			name: 'Create folder'
+		};
+
+		function refreshFolders() {
+			clExplorerLayoutSvc.folders = clFolderSvc.folders.slice().sort(function(folder1, folder2) {
+				return folder1.name.toLowerCase() > folder2.name.toLowerCase();
+			});
+			clExplorerLayoutSvc.folders.unshift(unclassifiedFolder);
+			clExplorerLayoutSvc.folders.push(createFolder);
+			if(clExplorerLayoutSvc.currentFolderDao && clExplorerLayoutSvc.currentFolderDao !== unclassifiedFolder) {
+				// Make sure current folder still exists
+				clExplorerLayoutSvc.currentFolderDao = clFolderSvc.folderMap[clExplorerLayoutSvc.currentFolderDao.id];
+			}
+		}
+
+		function refreshFiles() {
+			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.localFiles.filter(
+				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
+					return !clFolderSvc.folderMap.hasOwnProperty(fileDao.folderId);
+				} : function(fileDao) {
+					return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id;
+				}) : clFileSvc.localFiles.slice();
+			clExplorerLayoutSvc.files.sort(
+				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {
+					return fileDao1.title > fileDao2.title;
+				} : function(fileDao1, fileDao2) {
+					return fileDao1.updated < fileDao2.updated;
+				});
+		}
+
+		var clExplorerLayoutSvc = {
+			folders: [],
+			files: [],
+			unclassifiedFolder: unclassifiedFolder,
+			createFolder: createFolder,
+			refreshFolders: refreshFolders,
+			refreshFiles: refreshFiles
+		};
+
+		return clExplorerLayoutSvc;
+	});

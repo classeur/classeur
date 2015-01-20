@@ -1,21 +1,11 @@
 angular.module('classeur.core.docs', [])
 	.factory('clDocFileSvc', function($templateCache, clFileSvc) {
-		return function(fileName, fileTitle) {
-			var cacheEntry = $templateCache.get('app/docs/' + fileName);
+		return function(fileName) {
+			var title = fileName.replace(/([A-Z])/g, ' $1');
+			title = title[0].toUpperCase() + title.slice(1);
+			var cacheEntry = $templateCache.get('app/docs/' + fileName + '.md');
 			if(cacheEntry) {
-				return clFileSvc.createReadOnlyFile(fileTitle, cacheEntry[1]);
+				return clFileSvc.createReadOnlyFile(title, cacheEntry);
 			}
-		};
-	})
-	.directive('clDocs', function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'app/docs/docs.html'
-		};
-	})
-	.directive('clMarkdownCheatSheet', function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'app/docs/markdownCheatSheet.md'
 		};
 	});
