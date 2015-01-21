@@ -1,10 +1,15 @@
 <div class="explorer background panel">
 	<div class="explorer container panel">
-		<div class="links" layout="row" layout-align="end center">
-			<md-button md-no-ink class="md-primary"
-					   ng-click="setDocFile('markdownCheatSheet')">
-				<span class="mdi-action-help"></span> Markdown Cheat Sheet
-			</md-button>
+		<div class="header" layout="column" layout-align="space-between">
+			<div class="logo">
+				<img src="images/logo.svg" height="48">
+			</div>
+			<div class="links" layout="row" layout-align="end center">
+				<md-button md-no-ink class="md-primary"
+						   ng-click="setDocFile('markdownCheatSheet')">
+					<span class="mdi-action-help"></span> Markdown Cheat Sheet
+				</md-button>
+			</div>
 		</div>
 		<div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
 
