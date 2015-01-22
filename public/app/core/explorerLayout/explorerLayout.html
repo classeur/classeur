@@ -18,25 +18,28 @@
 
 			<div class="folder scroller panel">
 
-			<div class="folder container">
+			<div class="folder container" ng-switch="!!explorerLayoutSvc.currentFolderDao">
 
-				<div layout="row">
-					<md-input-container md-theme="classeur" ng-if="explorerLayoutSvc.currentFolderDao" flex>
+				<div layout="row" ng-switch-when="true">
+					<md-input-container md-theme="classeur" flex>
 						<input ng-model="explorerLayoutSvc.currentFolderDao.name"
 							   class="folder title"
 							   ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder"
 							   ng-blur="folderTitleModified()">
 					</md-input-container>
 
-					<md-input-container md-theme="classeur" ng-if="!explorerLayoutSvc.currentFolderDao" flex>
-						<input class="folder title" value="Recent" disabled>
-					</md-input-container>
-
 					<cl-button class="delete folder btn" opacity="0.4" opacity-hover="0.5"
-							   ng-if="explorerLayoutSvc.currentFolderDao && explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
+							   ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
 						<a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder"
 						   aria-label="Delete folder"></a>
 					</cl-button>
+				</div>
+
+				<div layout="row" ng-switch-when="false">
+					<md-input-container md-theme="classeur" flex>
+						<input class="folder title" value="Available offline" disabled>
+					</md-input-container>
+
 				</div>
 
 				<div class="folder content">

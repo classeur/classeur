@@ -23,6 +23,7 @@ angular.module('classeur.core', [])
 			.otherwise({
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
+
 	})
 	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clSyncSvc, clToast) {
 		clFileSvc.init();
@@ -39,6 +40,7 @@ angular.module('classeur.core', [])
 		$rootScope.folderSvc = clFolderSvc;
 
 		function saveAll() {
+
 			var isStorageModified = lastModification !== localStorage[lastModificationKey];
 			var isExternalFileChanged = clFileSvc.checkLocalFileIds(isStorageModified);
 			var isExternalFolderChanged = clFolderSvc.checkFolderIds(isStorageModified);
