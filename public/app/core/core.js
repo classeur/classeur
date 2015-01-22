@@ -24,7 +24,7 @@ angular.module('classeur.core', [])
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clToast) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clSyncSvc, clToast) {
 		clFileSvc.init();
 		clFolderSvc.init();
 		var lastModificationKey = 'cl.lastStorageModification';
@@ -115,5 +115,10 @@ angular.module('classeur.core', [])
 			$rootScope.$broadcast('periodicRun');
 			isStorageModified && $rootScope.$apply();
 		}, 1000);
+
+		window.addEventListener('beforeunload', function(evt) {
+			saveAll();
+			//evt.returnValue = 'Are you sure?';
+		});
 
 	});

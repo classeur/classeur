@@ -15,6 +15,7 @@ angular.module('classeur.app', [
 	'classeur.core.folders',
 	'classeur.core.keystrokes',
 	'classeur.core.settings',
+	'classeur.core.sync',
 	'classeur.core.user',
 	'classeur.core.utils',
 	'classeur.extensions.btnBar',
