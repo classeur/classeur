@@ -1,10 +1,20 @@
 <div class="explorer background panel">
 	<div class="explorer container panel">
 		<div class="header" layout="column" layout-align="space-between">
-			<div class="logo">
-				<img src="images/logo.svg" height="48">
+			<div class="links" layout="row" layout-align="space-between start">
+				<div class="logo">
+					<img src="images/logo.png" height="48">
+				</div>
+				<md-button md-no-ink
+						   ng-click="setDocFile('markdownCheatSheet')">
+					Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
+				</md-button>
 			</div>
 			<div class="links" layout="row" layout-align="end center">
+				<md-button md-no-ink class="md-primary"
+						   ng-click="setDocFile('markdownCheatSheet')">
+					<span class="mdi-action-help"></span> Help
+				</md-button>
 				<md-button md-no-ink class="md-primary"
 						   ng-click="setDocFile('markdownCheatSheet')">
 					<span class="mdi-action-help"></span> Markdown Cheat Sheet
@@ -18,60 +28,61 @@
 
 			<div class="folder scroller panel">
 
-			<div class="folder container">
+				<div class="folder container">
 
-				<div layout="row">
-					<md-input-container md-theme="classeur" ng-if="explorerLayoutSvc.currentFolderDao" flex>
-						<input ng-model="explorerLayoutSvc.currentFolderDao.name"
-							   class="folder title"
-							   ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder"
-							   ng-blur="folderTitleModified()">
-					</md-input-container>
+					<div layout="row">
+						<md-input-container md-theme="classeur" ng-if="explorerLayoutSvc.currentFolderDao" flex>
+							<input ng-model="explorerLayoutSvc.currentFolderDao.name"
+								   class="folder title"
+								   ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder"
+								   ng-blur="folderTitleModified()">
+						</md-input-container>
 
-					<md-input-container md-theme="classeur" ng-if="!explorerLayoutSvc.currentFolderDao" flex>
-						<input class="folder title" value="Recent" disabled>
-					</md-input-container>
+						<md-input-container md-theme="classeur" ng-if="!explorerLayoutSvc.currentFolderDao" flex>
+							<input class="folder title" value="Recent" disabled>
+						</md-input-container>
 
-					<cl-button class="delete folder btn" opacity="0.4" opacity-hover="0.5"
-							   ng-if="explorerLayoutSvc.currentFolderDao && explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
-						<a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder"
-						   aria-label="Delete folder"></a>
-					</cl-button>
-				</div>
-
-				<div class="folder content">
-
-					<div class="file actions">
-						<div>
-							<md-button md-no-ink class="md-primary" ng-click="newFile()">
-								<span class="mdi-content-add"></span> New file
-							</md-button>
-						</div>
-						<div ng-if="explorerLayoutSvc.files.length" ng-switch="hasSelection()">
-							<div ng-switch-when="false">
-								<md-button md-no-ink class="md-primary" ng-click="selectAll()">
-									<span class="mdi-navigation-check"></span> Select all
-								</md-button>
-							</div>
-							<div ng-switch-when="true">
-								<md-button md-no-ink class="md-primary" ng-click="selectNone()">
-									<span class="mdi-toggle-check-box-outline-blank"></span> Select None
-								</md-button>
-							</div>
-							<div ng-switch-when="true">
-								<md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
-									<span class="mdi-action-delete"></span> Delete
-								</md-button>
-							</div>
-						</div>
+						<cl-button class="delete folder btn" opacity="0.4" opacity-hover="0.5"
+								   ng-if="explorerLayoutSvc.currentFolderDao && explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
+							<a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder"
+							   aria-label="Delete folder"></a>
+						</cl-button>
 					</div>
 
-					<cl-file-entry cl-file-dragging-src ng-repeat="fileDao in explorerLayoutSvc.files"></cl-file-entry>
+					<div class="folder content">
+
+						<div class="file actions">
+							<div>
+								<md-button md-no-ink class="md-primary" ng-click="newFile()">
+									<span class="mdi-content-add"></span> New file
+								</md-button>
+							</div>
+							<div ng-if="explorerLayoutSvc.files.length" ng-switch="hasSelection()">
+								<div ng-switch-when="false">
+									<md-button md-no-ink class="md-primary" ng-click="selectAll()">
+										<span class="mdi-navigation-check"></span> Select all
+									</md-button>
+								</div>
+								<div ng-switch-when="true">
+									<md-button md-no-ink class="md-primary" ng-click="selectNone()">
+										<span class="mdi-toggle-check-box-outline-blank"></span> Select None
+									</md-button>
+								</div>
+								<div ng-switch-when="true">
+									<md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
+										<span class="mdi-action-delete"></span> Delete
+									</md-button>
+								</div>
+							</div>
+						</div>
+
+						<cl-file-entry cl-file-dragging-src
+									   ng-repeat="fileDao in explorerLayoutSvc.files"></cl-file-entry>
+
+					</div>
 
 				</div>
-
 			</div>
-				</div>
 
 			<div class="btn-grp panel background no-overflow">
 				<div class="container panel">
