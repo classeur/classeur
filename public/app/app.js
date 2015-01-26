@@ -3,10 +3,12 @@ angular.module('classeur.app', [
 	'ngMaterial',
 	'ngAnimate',
 	'ngAria',
+	'ngMessages',
 	'slugifier',
 	'classeur.templates',
 	'classeur.core',
 	'classeur.core.button',
+	'classeur.core.constants',
 	'classeur.core.explorerLayout',
 	'classeur.core.docs',
 	'classeur.core.editor',
@@ -15,6 +17,7 @@ angular.module('classeur.app', [
 	'classeur.core.folders',
 	'classeur.core.keystrokes',
 	'classeur.core.settings',
+	'classeur.core.sync',
 	'classeur.core.user',
 	'classeur.core.utils',
 	'classeur.extensions.btnBar',
@@ -36,5 +39,8 @@ angular.module('classeur.app', [
 		var menuTheme = $mdThemingProvider.theme('classeur', 'default');
 		menuTheme.dark();
 		menuTheme.foregroundShadow = '';
+	})
+	.run(function($http) {
+		$http.defaults.withCredentials = true;
 	});
 

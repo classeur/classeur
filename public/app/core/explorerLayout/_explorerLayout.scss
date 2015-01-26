@@ -10,10 +10,10 @@
 	}
 
 	.header {
-		height: 55px;
+		height: 75px;
 	}
 	.logo {
-		margin-top: 2px;
+		margin-top: 5px;
 	}
 	.links {
 		font-size: 14px;
@@ -27,7 +27,7 @@
 	}
 
 	.folder.container {
-		margin: 40px 0 100px;
+		margin-bottom: 100px;
 	}
 
 	.folder.content {
@@ -41,11 +41,8 @@
 	}
 
 	.delete.folder.btn {
-		width: 50px;
-		height: 46px;
 		font-size: 32px;
 		a {
-			line-height: 46px;
 			color: #fff;
 		}
 	}
@@ -83,7 +80,7 @@
 		.edit.file.btn {
 			width: 45px;
 			height: $file-entry-height;
-			font-size: 26px;
+			font-size: 28px;
 			a {
 				line-height: $file-entry-height;
 			}
@@ -150,11 +147,11 @@
 			border-bottom-right-radius: 10px;
 			.md-button {
 				text-transform: none;
-				font-size: 16px;
+				font-size: 14px;
 				.rotate-90 {
 					position: absolute;
 					width: 110px;
-					left: -23px;
+					left: -24px;
 					height: 0;
 				}
 			}

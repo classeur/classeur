@@ -1,0 +1,47 @@
+<div class="new-user-form panel background" layout="column" layout-align="center center" ng-switch="userSvc.isLoading">
+    <div ng-switch-when="true"></div>
+    <div ng-switch-when="false">
+        <div class="logo">
+            <img src="images/logo.png" height="64">
+        </div>
+        <div class="md-whiteframe-z2 plastic">
+            <div class="nav" layout="row" layout-align="space-between center">
+                <div class="title">
+                    New account
+                </div>
+                <md-button md-no-ink ng-click="close()">
+                    <span class="mdi-navigation-arrow-back"></span>
+                </md-button>
+            </div>
+            <div class="content">
+                <form name="form">
+                    <md-input-container>
+                        <label>User name</label>
+                        <input required name="name" ng-model="userSvc.newUser.name">
+                        <div ng-messages="form.name.$error">
+                            <div class="angular-animate" ng-message="required">This is required.</div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container>
+                        <label>Email</label>
+                        <input ng-model="userSvc.newUser.email" disabled>
+                    </md-input-container>
+                    <md-checkbox ng-model="userSvc.newUser.syncFiles" aria-label="Sync files">
+                        Sync files
+                    </md-checkbox>
+                    <md-checkbox ng-model="userSvc.newUser.syncSettings" aria-label="Sync settings">
+                        Sync settings
+                    </md-checkbox>
+                    <div class="terms">
+                        By clicking "Create account", you agree to the Terms of Service and confirm that you've read the Privacy Policy, including the "Cookies" section.
+                    </div>
+                </form>
+                <div layout="row" layout-align="end">
+                    <md-button ng-click="create()">
+                        Create account
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

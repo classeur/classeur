@@ -1,0 +1,39 @@
+.new-user-form.panel {
+    overflow: auto;
+    & > * {
+        max-width: 500px;
+    }
+    .logo {
+    	margin-bottom: 5px;
+    }
+    .plastic {
+        overflow: auto;
+        padding: 0 30px 30px;
+        margin-bottom: 40px;
+        border-radius: 3px;
+    }
+    .nav {
+        & > * {
+            margin: 0;
+            color: #fff;
+        }
+        .title {
+            font-size: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            width: 100%;
+        }
+        .md-button {
+            font-size: 26px;
+            line-height: 0;
+        }
+    }
+    .content {
+        padding: 30px;
+        border-radius: 6px;
+        background-color: transparentize(#fff, 0.75);
+    }
+    .terms {
+    	font-size: 12px;
+    	margin: 40px 0;
+    }
+}

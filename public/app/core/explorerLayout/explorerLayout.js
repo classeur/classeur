@@ -43,7 +43,7 @@ angular.module('classeur.core.explorerLayout', [])
 			templateUrl: 'app/core/explorerLayout/fileEntry.html'
 		};
 	})
-	.directive('clExplorerLayout', function($mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel) {
+	.directive('clExplorerLayout', function($mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants) {
 		var explorerMaxWidth = 680;
 		return {
 			restrict: 'E',
@@ -98,13 +98,11 @@ angular.module('classeur.core.explorerLayout', [])
 					if(folder === clExplorerLayoutSvc.createFolder) {
 						var newFolder = clFolderSvc.createFolder('New folder');
 						clExplorerLayoutSvc.refreshFolders();
-						scope.setFolder(newFolder);
+						clExplorerLayoutSvc.setCurrentFolder(newFolder);
 						return folderTitleFocus();
 					}
-					folder = folder === clExplorerLayoutSvc.unclassifiedFolder ? folder : (folder && clFolderSvc.folderMap[folder.id]);
-					clExplorerLayoutSvc.currentFolderDao = folder;
+					clExplorerLayoutSvc.setCurrentFolder(folder);
 				};
-				scope.setFolder(clExplorerLayoutSvc.currentFolderDao);
 
 				scope.selectAll = function() {
 					clExplorerLayoutSvc.files.forEach(function(fileDao) {
@@ -134,7 +132,7 @@ angular.module('classeur.core.explorerLayout', [])
 						if(deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
 							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
 							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
-							scope.setFolder(currentFolderDao);
+							clExplorerLayoutSvc.setCurrentFolder(currentFolderDao);
 						}
 					}
 					if(!filesToRemove.length) {
@@ -148,6 +146,13 @@ angular.module('classeur.core.explorerLayout', [])
 						.ok('Delete')
 						.cancel('Cancel');
 					$mdDialog.show(confirm).then(remove);
+				};
+
+				scope.signin = function() {
+					var state = scope.setState({
+						url: '/newUser'
+					});
+					window.location.href = clConstants.serverUrl + '/app/user/oauth/google/authorize?state=' + state.id;
 				};
 
 				scope.$watch('explorerLayoutSvc.currentFolderDao', function() {
@@ -177,6 +182,7 @@ angular.module('classeur.core.explorerLayout', [])
 		var createFolder = {
 			name: 'Create folder'
 		};
+		var isInited;
 
 		function refreshFolders() {
 			clExplorerLayoutSvc.folders = clFolderSvc.folders.slice().sort(function(folder1, folder2) {
@@ -184,10 +190,8 @@ angular.module('classeur.core.explorerLayout', [])
 			});
 			clExplorerLayoutSvc.folders.unshift(unclassifiedFolder);
 			clExplorerLayoutSvc.folders.push(createFolder);
-			if(clExplorerLayoutSvc.currentFolderDao && clExplorerLayoutSvc.currentFolderDao !== unclassifiedFolder) {
-				// Make sure current folder still exists
-				clExplorerLayoutSvc.currentFolderDao = clFolderSvc.folderMap[clExplorerLayoutSvc.currentFolderDao.id];
-			}
+			setCurrentFolder(isInited ? clExplorerLayoutSvc.currentFolderDao : clFolderSvc.folderMap[localStorage[lastFolderKey]]);
+			isInited = true;
 		}
 
 		function refreshFiles() {
@@ -205,13 +209,21 @@ angular.module('classeur.core.explorerLayout', [])
 				});
 		}
 
+		var lastFolderKey = 'cl.lastFolderId';
+		function setCurrentFolder(folder) {
+			folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.folderMap[folder.id]);
+			clExplorerLayoutSvc.currentFolderDao = folder;
+			(folder && folder.id) ? localStorage.setItem(lastFolderKey, folder.id) : localStorage.removeItem(lastFolderKey);
+		}
+
 		var clExplorerLayoutSvc = {
 			folders: [],
 			files: [],
 			unclassifiedFolder: unclassifiedFolder,
 			createFolder: createFolder,
 			refreshFolders: refreshFolders,
-			refreshFiles: refreshFiles
+			refreshFiles: refreshFiles,
+			setCurrentFolder: setCurrentFolder
 		};
 
 		return clExplorerLayoutSvc;

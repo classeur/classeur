@@ -20,6 +20,7 @@ $editor-margin-width: 120px;
 @import '../app/core/editor/preview';
 @import '../app/core/editor/toc';
 @import '../app/core/editorLayout/editorLayout';
+@import '../app/core/user/user';
 @import '../app/extensions/btnBar/btnBar';
 @import '../app/extensions/commenting/commenting';
 @import '../app/extensions/fileDragging/fileDragging';
@@ -111,6 +112,13 @@ body {
 		&:hover {
 			color: transparentize(#000, 0.6);
 		}
+	}
+}
+
+.nav {
+	height: 110px;
+	md-input-container {
+		padding-bottom: 10px;
 	}
 }
 

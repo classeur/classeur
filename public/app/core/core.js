@@ -20,11 +20,27 @@ angular.module('classeur.core', [])
 					});
 				}
 			})
+			.when('/state/:stateId', {
+				template: '',
+				controller: function($rootScope, $routeParams, $location) {
+					var state = JSON.parse(localStorage['cl.state'] || '{}');
+					localStorage.removeItem('cl.state');
+					if(state.id !== $routeParams.stateId) {
+						return $location.url('');
+					}
+					$location.url(state.url);
+					$rootScope.state = state;
+				}
+			})
+			.when('/newUser', {
+				template: '<cl-new-user-form></cl-new-user-form>'
+			})
 			.otherwise({
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
+
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clToast) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clToast, clUid) {
 		clFileSvc.init();
 		clFolderSvc.init();
 		var lastModificationKey = 'cl.lastStorageModification';
@@ -37,8 +53,10 @@ angular.module('classeur.core', [])
 		$rootScope.editorSvc = clEditorSvc;
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
+		$rootScope.userSvc = clUserSvc;
 
 		function saveAll() {
+
 			var isStorageModified = lastModification !== localStorage[lastModificationKey];
 			var isExternalFileChanged = clFileSvc.checkLocalFileIds(isStorageModified);
 			var isExternalFolderChanged = clFolderSvc.checkFolderIds(isStorageModified);
@@ -105,15 +123,27 @@ angular.module('classeur.core', [])
 			});
 		}
 
+		function setState(state) {
+			state.id = clUid();
+			localStorage['cl.state'] = JSON.stringify(state);
+			return state;
+		}
+
 		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
+		$rootScope.setState = setState;
 
 		setInterval(function() {
 			var isStorageModified = saveAll();
 			$rootScope.$broadcast('periodicRun');
 			isStorageModified && $rootScope.$apply();
 		}, 1000);
+
+		window.addEventListener('beforeunload', function(evt) {
+			saveAll();
+			//evt.returnValue = 'Are you sure?';
+		});
 
 	});

@@ -1,8 +1,8 @@
 angular.module('classeur.core.utils', [])
 	.factory('clUid', function() {
-		// Generates a 24 char length random id
+		// Generates a 16 char length random id
 		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		var mapper = Array.apply(null, new Array(24));
+		var mapper = Array.apply(null, new Array(16));
 		return function() {
 			return mapper.map(function() {
 				return alphabet[Math.random() * alphabet.length | 0];

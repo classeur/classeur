@@ -3,7 +3,6 @@ var watch = require('gulp-watch');
 var concat = require('gulp-concat');
 var sourcemaps = require('gulp-sourcemaps');
 var sass = require('gulp-sass');
-var inject = require('gulp-inject');
 var templateCache = require('gulp-angular-templatecache');
 
 gulp.task('express', function() {
@@ -24,6 +23,7 @@ var vendorJs = [
 	'public/bower_components/angular/angular.js',
 	'public/bower_components/angular-animate/angular-animate.js',
 	'public/bower_components/angular-aria/angular-aria.js',
+	'public/bower_components/angular-messages/angular-messages.js',
 	'public/bower_components/angular-route/angular-route.js',
 	'public/bower_components/movejs/move.js',
 	'public/bower_components/hammerjs/hammer.js',
@@ -64,7 +64,9 @@ var jsSrc = ['public/app/**/*.js'];
 gulp.task('js-dev', function() {
 	gulp.src(vendorJs.concat(jsSrc))
 		.pipe(sourcemaps.init())
-		.pipe(concat('app-min.js', {newLine: ';'}))
+		.pipe(concat('app-min.js', {
+			newLine: ';'
+		}))
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('public'));
 });
