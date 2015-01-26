@@ -5,6 +5,5 @@ node_modules
 Thumbs.db
 .DS_Store
 bower_components
-public/app/templates.js
-public/app-min.js*
-public/styles/main.css*
+src/templates.js
+public/app-min.*

@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
+var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
@@ -10,13 +11,14 @@ gulp.task('express', function() {
 	require('./index');
 });
 
-var sassSrc = ['public/styles/*.scss', 'public/app/**/*.scss'];
+var sassSrc = ['src/**/*.scss'];
 gulp.task('sass-dev', function() {
-	return gulp.src('public/styles/main.scss')
+	return gulp.src('src/styles/main.scss')
 		.pipe(sourcemaps.init())
 		.pipe(sass())
+		.pipe(rename('app-min.css'))
 		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('public/styles'));
+		.pipe(gulp.dest('public'));
 });
 
 var vendorJs = [
@@ -49,18 +51,17 @@ var vendorJs = [
 	'public/bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
-var templateCacheSrc = ['public/app/**/*.html', 'public/app/**/*.md'];
+var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
 gulp.task('template-cache', function() {
 	return gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
-			root: 'app/',
 			standalone: true
 		}))
-		.pipe(gulp.dest('public/app'));
+		.pipe(gulp.dest('src'));
 });
 
-var jsSrc = ['public/app/**/*.js'];
+var jsSrc = ['src/**/*.js'];
 gulp.task('js-dev', function() {
 	gulp.src(vendorJs.concat(jsSrc))
 		.pipe(sourcemaps.init())
