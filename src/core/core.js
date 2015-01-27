@@ -1,5 +1,11 @@
 angular.module('classeur.core', [])
-	.config(function($routeProvider) {
+	.config(function($mdThemingProvider, $routeProvider) {
+		$mdThemingProvider.theme('default')
+			.primaryColor('blue')
+			.accentColor('blue');
+		var menuTheme = $mdThemingProvider.theme('classeur', 'default');
+		menuTheme.dark();
+		menuTheme.foregroundShadow = '';
 
 		$routeProvider
 			.when('/file/:fileId', {
@@ -22,14 +28,8 @@ angular.module('classeur.core', [])
 			})
 			.when('/state/:stateId', {
 				template: '',
-				controller: function($rootScope, $routeParams, $location) {
-					var state = JSON.parse(localStorage['cl.state'] || '{}');
-					localStorage.removeItem('cl.state');
-					if(state.id !== $routeParams.stateId) {
-						return $location.url('');
-					}
-					$location.url(state.url);
-					$rootScope.state = state;
+				controller: function($location, clStateMgr) {
+					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
 			})
 			.when('/newUser', {
@@ -40,7 +40,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clToast, clUid) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clStateMgr, clToast) {
 		clFileSvc.init();
 		clFolderSvc.init();
 		var lastModificationKey = 'cl.lastStorageModification';
@@ -123,17 +123,10 @@ angular.module('classeur.core', [])
 			});
 		}
 
-		function setState(state) {
-			state.id = clUid();
-			localStorage['cl.state'] = JSON.stringify(state);
-			return state;
-		}
-
 		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
-		$rootScope.setState = setState;
 
 		setInterval(function() {
 			var isStorageModified = saveAll();

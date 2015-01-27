@@ -16,14 +16,14 @@ angular.module('classeur.core.explorerLayout', [])
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
 					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end();
 					duration = 90;
-					if(isOpen) {
+					if (isOpen) {
 						// Adjust scrolling position
 						var minY = parentElt.scrollTop + 30;
 						var maxY = parentElt.scrollTop + parentElt.clientHeight - 330;
-						if(y > maxY) {
+						if (y > maxY) {
 							parentElt.scrollTop += y - maxY;
 						}
-						if(y < minY) {
+						if (y < minY) {
 							parentElt.scrollTop += y - minY;
 						}
 					}
@@ -43,8 +43,9 @@ angular.module('classeur.core.explorerLayout', [])
 			templateUrl: 'core/explorerLayout/fileEntry.html'
 		};
 	})
-	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants) {
-		var explorerMaxWidth = 680;
+	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants, clStateMgr) {
+		var explorerMaxWidth = 720;
+		var noPaddingWidth = 560;
 		return {
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/explorerLayout.html',
@@ -57,13 +58,17 @@ angular.module('classeur.core.explorerLayout', [])
 				function animateLayout() {
 					clExplorerLayoutSvc.explorerWidth = document.body.clientWidth;
 					var containerPadding = 12;
-					if(clExplorerLayoutSvc.explorerWidth > explorerMaxWidth) {
-						clExplorerLayoutSvc.explorerWidth = explorerMaxWidth;
+					var noPadding = true;
+					if (clExplorerLayoutSvc.explorerWidth > noPaddingWidth) {
 						containerPadding = 50;
+						noPadding = false;
 					}
-					clExplorerLayoutSvc.folderContainerWidth = clExplorerLayoutSvc.explorerWidth-containerPadding*2 - 35;
+					if (clExplorerLayoutSvc.explorerWidth > explorerMaxWidth) {
+						clExplorerLayoutSvc.explorerWidth = explorerMaxWidth;
+					}
+					clExplorerLayoutSvc.folderContainerWidth = clExplorerLayoutSvc.explorerWidth - containerPadding * 2 - 35;
 					explorerPanel.width(clExplorerLayoutSvc.explorerWidth).move().x(-clExplorerLayoutSvc.explorerWidth / 2 - 44).end();
-					folderContainerPanel.width(clExplorerLayoutSvc.folderContainerWidth).marginLeft(containerPadding);
+					folderContainerPanel.width(clExplorerLayoutSvc.folderContainerWidth).marginLeft(containerPadding).$elt.toggleClass('no-padding', noPadding);
 				}
 
 				animateLayout();
@@ -82,7 +87,7 @@ angular.module('classeur.core.explorerLayout', [])
 
 				function setPlasticClass() {
 					scope.plasticClass = 'plastic';
-					if(clExplorerLayoutSvc.currentFolderDao) {
+					if (clExplorerLayoutSvc.currentFolderDao) {
 						var index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao);
 						scope.plasticClass = 'plastic-' + ((index + 1) % 4);
 					}
@@ -95,7 +100,7 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				scope.setFolder = function(folder) {
-					if(folder === clExplorerLayoutSvc.createFolder) {
+					if (folder === clExplorerLayoutSvc.createFolder) {
 						var newFolder = clFolderSvc.createFolder('New folder');
 						clExplorerLayoutSvc.refreshFolders();
 						clExplorerLayoutSvc.setCurrentFolder(newFolder);
@@ -127,15 +132,16 @@ angular.module('classeur.core.explorerLayout', [])
 					var filesToRemove = clExplorerLayoutSvc.files.filter(function(fileDao) {
 						return fileDao.isSelected;
 					});
+
 					function remove() {
 						clFileSvc.removeLocalFiles(filesToRemove);
-						if(deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
+						if (deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
 							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
 							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
 							clExplorerLayoutSvc.setCurrentFolder(currentFolderDao);
 						}
 					}
-					if(!filesToRemove.length) {
+					if (!filesToRemove.length) {
 						return remove();
 					}
 					var title = deleteFolder ? 'Delete folder' : 'Delete files';
@@ -149,15 +155,14 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				scope.signin = function() {
-					var state = scope.setState({
-						url: '/newUser'
-					});
 					var params = {
 						client_id: clConstants.googleClientId,
 						response_type: 'code',
 						redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
 						scope: 'email',
-						state: state.id,
+						state: clStateMgr.saveState({
+							url: '/newUser'
+						}),
 					};
 					params = Object.keys(params).map(function(key) {
 						return key + '=' + encodeURIComponent(params[key]);
@@ -176,7 +181,7 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.newFile = function() {
 					var fileDao = clFileSvc.createLocalFile();
-					if(clExplorerLayoutSvc.currentFolderDao) {
+					if (clExplorerLayoutSvc.currentFolderDao) {
 						fileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
 					}
 					scope.setCurrentFile(fileDao);
@@ -220,10 +225,11 @@ angular.module('classeur.core.explorerLayout', [])
 		}
 
 		var lastFolderKey = 'cl.lastFolderId';
+
 		function setCurrentFolder(folder) {
 			folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.folderMap[folder.id]);
 			clExplorerLayoutSvc.currentFolderDao = folder;
-			(folder && folder.id) ? localStorage.setItem(lastFolderKey, folder.id) : localStorage.removeItem(lastFolderKey);
+			(folder && folder.id) ? localStorage.setItem(lastFolderKey, folder.id): localStorage.removeItem(lastFolderKey);
 		}
 
 		var clExplorerLayoutSvc = {

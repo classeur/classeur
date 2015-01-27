@@ -1,21 +1,23 @@
 angular.module('classeur.core.utils', [])
 	.factory('clUid', function() {
-		// Generates a 16 char length random id
-		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		var mapper = Array.apply(null, new Array(16));
-		return function() {
+		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+		var radix = alphabet.length;
+		var length = 16;
+		var mapper = Array.apply(null, new Array(length));
+		function clUid() {
 			return mapper.map(function() {
-				return alphabet[Math.random() * alphabet.length | 0];
+				return alphabet[Math.random() * radix | 0];
 			}).join('');
-		};
+		}
+		return clUid;
 	})
 	.factory('clToast', function($mdToast) {
 		return function(text) {
 			$mdToast.show(
 				$mdToast.simple()
-					.content(text)
-					.position('bottom right')
-					.hideDelay(6000)
+				.content(text)
+				.position('bottom right')
+				.hideDelay(6000)
 			);
 		};
 	})
@@ -31,7 +33,7 @@ angular.module('classeur.core.utils', [])
 		}
 
 		Panel.prototype.css = function(attr, value) {
-			this.$$elt.style[attr] = value !== undefined ? value: '';
+			this.$$elt.style[attr] = value !== undefined ? value : '';
 			return this;
 		};
 
@@ -54,8 +56,8 @@ angular.module('classeur.core.utils', [])
 			'marginLeft',
 			'left'
 		].forEach(function(attr) {
-				Panel.prototype[attr] = styleSetter(attr, 'px');
-			});
+			Panel.prototype[attr] = styleSetter(attr, 'px');
+		});
 
 		Panel.prototype.move = function() {
 			return window.move(this.$$elt).ease('out');
@@ -75,7 +77,10 @@ angular.module('classeur.core.utils', [])
 				.end();
 
 			var hammertime = new Hammer(panel.$$elt);
-			hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
+			hammertime.get('pan').set({
+				direction: Hammer.DIRECTION_ALL,
+				threshold: 0
+			});
 			hammertime.on('panmove', function(evt) {
 				evt.preventDefault();
 				panel.move().rotate(rotation).to(x + evt.deltaX, y + evt.deltaY).end();
@@ -106,14 +111,14 @@ angular.module('classeur.core.utils', [])
 		LocalStorageObject.prototype.$checkAttr = function(name, defaultValue) {
 			var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
 			var value = localStorage[key] || defaultValue;
-			if(value !== this['$' + name + 'Saved']) {
+			if (value !== this['$' + name + 'Saved']) {
 				return true;
 			}
 		};
 
 		LocalStorageObject.prototype.$writeAttr = function(name, processor) {
 			var value = processor ? processor(this[name]) : this[name];
-			if(value !== this['$' + name + 'Saved']) {
+			if (value !== this['$' + name + 'Saved']) {
 				var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
 				localStorage[key] = value;
 				this['$' + name + 'Saved'] = value;
@@ -130,6 +135,47 @@ angular.module('classeur.core.utils', [])
 		return function(prefix) {
 			return new LocalStorageObject(prefix);
 		};
+	})
+	.factory('clStateMgr', function($rootScope, clUid) {
+		var stateKeyPrefix = 'cl.state.';
+		var stateMaxAge = 3600000; // 1 hour
+
+		var currentDate = Date.now();
+		var keyPrefix = /^cl\.state\.(.+)/;
+		for(var key in localStorage) {
+			var match = key.match(keyPrefix);
+			if(match) {
+				var stateAge = parseInt(match[1].split('.')[1] || 0);
+				(currentDate - stateAge > stateMaxAge) && localStorage.removeItem(key);
+			}
+		}
+
+		var clStateMgr = {
+			saveState: function(state) {
+				var stateId = clUid() + '.' + Date.now();
+				localStorage[stateKeyPrefix + stateId] = JSON.stringify(state);
+				return stateId;
+			}
+		};
+
+		function checkState(stateId) {
+			if (stateId) {
+				var storedState = localStorage[stateKeyPrefix + stateId];
+				if(storedState) {
+					localStorage.removeItem(stateKeyPrefix + stateId);
+					clStateMgr.checkedState = JSON.parse(storedState);
+				}
+			} else {
+				clStateMgr.state = clStateMgr.checkedState;
+				clStateMgr.checkedState = undefined;
+			}
+		}
+
+		$rootScope.$on('$routeChangeStart', function(evt, next) {
+			checkState(next.params.stateId);
+		});
+
+		return clStateMgr;
 	})
 	.factory('clSelectionListeningSvc', function($timeout) {
 		var clSelectionListeningSvc = {};
@@ -157,7 +203,7 @@ angular.module('classeur.core.utils', [])
 		function urlResolve(url) {
 			var href = url;
 
-			if(msie) {
+			if (msie) {
 				// Normalize before parse.  Refer Implementation Notes on why this is
 				// done in two steps on IE.
 				urlParsingNode.setAttribute("href", href);
@@ -184,7 +230,7 @@ angular.module('classeur.core.utils', [])
 			var regex = isImage ? imgSrcSanitizationWhitelist : aHrefSanitizationWhitelist;
 			var normalizedVal;
 			normalizedVal = urlResolve(uri).href;
-			if(normalizedVal === '' || normalizedVal.match(regex)) {
+			if (normalizedVal === '' || normalizedVal.match(regex)) {
 				return true;
 			}
 		};

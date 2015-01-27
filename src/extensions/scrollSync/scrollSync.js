@@ -34,7 +34,7 @@ angular.module('classeur.extensions.scrollSync', [])
 		clSettingSvc.setDefaultValue('scrollSync', true);
 
 		var editorElt, previewElt;
-		var scrollSyncOffset = 100;
+		var scrollSyncOffset = 80;
 		var scrollTimeoutId;
 		var currentEndCb, skipAnimation;
 

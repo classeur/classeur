@@ -12,11 +12,13 @@
 	.header {
 		height: 75px;
 	}
-	.logo {
-		margin-top: 5px;
-	}
+
 	.links {
-		font-size: 14px;
+		font-size: 13px;
+		text-align: right;
+		.md-button {
+			padding: 4px;
+		}
 	}
 
 	.folder.scroller {
@@ -28,6 +30,10 @@
 
 	.folder.container {
 		margin-bottom: 100px;
+		&.no-padding .folder.content {
+			padding-left: 10px;
+			padding-right: 10px;
+		}
 	}
 
 	.folder.content {
@@ -48,7 +54,7 @@
 	}
 
 	.file.actions {
-		min-height: 100px;
+		min-height: 105px;
 	}
 
 	$file-entry-height: 40px;
