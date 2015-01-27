@@ -6,13 +6,26 @@ angular.module('classeur.core.user', [])
             isLoading: true
         };
 
-        $http.get('/ajax/user/info')
-            .success(function(data) {
-                clUserSvc.isLoading = false;
-                clUserSvc.user = data.user;
-                clUserSvc.newUser = data.newUser;
-            });
+        clUserSvc.getUserInfo = function() {
+            return $http.get('/ajax/user/info')
+                .then(function(res) {
+                    clUserSvc.isLoading = false;
+                    clUserSvc.user = res.data.user;
+                    clUserSvc.newUser = res.data.newUser;
+                    clUserSvc.existingUser = res.data.existingUser;
+                });
+        };
 
+        clUserSvc.signout = function() {
+            return $http.get('/ajax/user/signout')
+                .then(function() {
+                    delete clUserSvc.user;
+                    delete clUserSvc.newUser;
+                    delete clUserSvc.existingUser;
+                });
+        };
+
+        clUserSvc.getUserInfo();
         return clUserSvc;
     })
     .directive('clNewUserForm', function($location, $http, clToast, clUserSvc) {
@@ -30,8 +43,12 @@ angular.module('classeur.core.user', [])
                     }
                     //scope.isLoading = true;
                     $http.post('/ajax/user/new', clUserSvc.newUser)
-                        .success(function(data) {
-                            console.log(data);
+                        .success(function(user) {
+                            clUserSvc.user = user;
+                            $location.url('');
+                        })
+                        .error(function(data, status) {
+                            clToast(data.message || 'Error: ' + status);
                         });
                 };
 

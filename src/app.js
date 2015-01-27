@@ -25,6 +25,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.fileDragging',
 		'classeur.extensions.fileTitle',
 		'classeur.extensions.folding',
+		'classeur.extensions.footer',
 		'classeur.extensions.htmlSanitizer',
 		'classeur.extensions.readOnlyAlert',
 		'classeur.extensions.urlDialog',

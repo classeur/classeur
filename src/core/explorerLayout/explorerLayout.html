@@ -1,10 +1,19 @@
 <div class="explorer background panel">
     <div class="explorer container panel">
         <div class="header" layout="column" layout-align="space-between">
-            <div layout="row" layout-align="end start">
-                <md-button ng-click="signin()">
-                    Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
-                </md-button>
+            <div layout="row" layout-align="end start" ng-switch="!!userSvc.user">
+                <div ng-switch-when="false">
+                    <md-button ng-click="signin()">
+                        Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
+                    </md-button>
+                </div>
+                <div ng-switch-when="true">
+                    <span class="links">Hi {{userSvc.user.name}},</span>
+                    </span>
+                    <md-button>
+                        Go premium <span class="mdi-navigation-arrow-forward"></span>
+                    </md-button>
+                </div>
             </div>
             <div layout="row" layout-align="space-between end">
                 <div class="logo">
@@ -103,8 +112,5 @@
 
     <cl-file-dragging></cl-file-dragging>
 
-    <div class="footer panel" layout="row" layout-align="space-between">
-        <div>© 2014-2015 Classeur</div>
-        <div>Privacy Policy</div>
-    </div>
+    <cl-footer></cl-footer>
 </div>
