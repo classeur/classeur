@@ -48,7 +48,7 @@ angular.module('classeur.core.user', [])
                             $location.url('');
                         })
                         .error(function(data, status) {
-                            clToast(data.message || 'Error: ' + status);
+                            clToast(data.reason || 'Error: ' + status);
                         });
                 };
 
@@ -59,8 +59,7 @@ angular.module('classeur.core.user', [])
                     if (clUserSvc.user || !clUserSvc.newUser) {
                         return scope.close();
                     }
-                    clUserSvc.newUser.syncFiles = true;
-                    clUserSvc.newUser.syncSettings = true;
+                    clUserSvc.newUser.syncFilesAndSettings = true;
                 });
             }
         };
