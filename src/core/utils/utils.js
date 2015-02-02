@@ -4,6 +4,7 @@ angular.module('classeur.core.utils', [])
 		var radix = alphabet.length;
 		var length = 16;
 		var mapper = Array.apply(null, new Array(length));
+
 		function clUid() {
 			return mapper.map(function() {
 				return alphabet[Math.random() * radix | 0];
@@ -93,36 +94,55 @@ angular.module('classeur.core.utils', [])
 		};
 	})
 	.factory('clLocalStorageObject', function() {
-		var appPrefix = 'cl.';
-		var lastModificationKey = appPrefix + 'lastStorageModification';
 
-		function LocalStorageObject(prefix) {
-			this.$prefix = prefix ? appPrefix + prefix + '.' : appPrefix;
+		function LocalStorageObject(prefix, id) {
+			this.$setPrefix(prefix, id);
 		}
 
-		LocalStorageObject.prototype.$readAttr = function(name, defaultValue, processor) {
-			var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
-			var value = localStorage[key] || defaultValue;
+		LocalStorageObject.prototype.$setPrefix = function(prefix, id) {
+			this.$globalPrefix = prefix ? prefix + '.' : '';
+			this.$localPrefix = this.$globalPrefix + (id ? id + '.' : '');
+			this.$globalUpdateKey = this.$globalPrefix + 'u';
+			this.$localUpdateKey = this.$localPrefix + 'u';
+			this.$readLocalUpdate();
+		};
+
+		LocalStorageObject.prototype.$readAttr = function(name, defaultValue, parser) {
+			var exists = true;
+			var key = this.$localPrefix + name;
+			var value = localStorage[key];
+			if (value === undefined) {
+				exists = false;
+				value = defaultValue;
+			}
 			this['$' + name + 'Saved'] = value;
-			value = processor ? processor(value) : value;
+			value = parser ? parser(value) : value;
 			this[name] = value;
+			return exists;
 		};
 
 		LocalStorageObject.prototype.$checkAttr = function(name, defaultValue) {
-			var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
+			var key = this.$localPrefix + name;
 			var value = localStorage[key] || defaultValue;
 			if (value !== this['$' + name + 'Saved']) {
 				return true;
 			}
 		};
 
-		LocalStorageObject.prototype.$writeAttr = function(name, processor) {
-			var value = processor ? processor(this[name]) : this[name];
+		LocalStorageObject.prototype.$writeAttr = function(name, serializer) {
+			var value = serializer ? serializer(this[name]) : '' + this[name];
 			if (value !== this['$' + name + 'Saved']) {
-				var key = this.$prefix + (this.id ? this.id + '.' : '') + name;
-				localStorage[key] = value;
+				var key = this.$localPrefix + name;
+				if(!value) {
+					localStorage.removeItem(key);
+				}
+				else {
+					localStorage[key] = value;
+				}
 				this['$' + name + 'Saved'] = value;
-				localStorage[lastModificationKey] = Date.now();
+				this.updated = '' + Date.now();
+				localStorage[this.$localUpdateKey] = this.updated;
+				localStorage[this.$globalUpdateKey] = this.updated;
 				return true;
 			}
 		};
@@ -132,19 +152,27 @@ angular.module('classeur.core.utils', [])
 			delete this['$' + name + 'Saved'];
 		};
 
-		return function(prefix) {
-			return new LocalStorageObject(prefix);
+		LocalStorageObject.prototype.$checkLocalUpdate = function() {
+			return this.updated !== localStorage[this.$localUpdateKey];
+		};
+
+		LocalStorageObject.prototype.$readLocalUpdate = function() {
+			this.updated = localStorage[this.$localUpdateKey];
+		};
+
+		return function(prefix, id) {
+			return new LocalStorageObject(prefix, id);
 		};
 	})
 	.factory('clStateMgr', function($rootScope, clUid) {
-		var stateKeyPrefix = 'cl.state.';
+		var stateKeyPrefix = 'state.';
 		var stateMaxAge = 3600000; // 1 hour
 
 		var currentDate = Date.now();
 		var keyPrefix = /^cl\.state\.(.+)/;
-		for(var key in localStorage) {
+		for (var key in localStorage) {
 			var match = key.match(keyPrefix);
-			if(match) {
+			if (match) {
 				var stateAge = parseInt(match[1].split('.')[1] || 0);
 				(currentDate - stateAge > stateMaxAge) && localStorage.removeItem(key);
 			}
@@ -161,7 +189,7 @@ angular.module('classeur.core.utils', [])
 		function checkState(stateId) {
 			if (stateId) {
 				var storedState = localStorage[stateKeyPrefix + stateId];
-				if(storedState) {
+				if (storedState) {
 					localStorage.removeItem(stateKeyPrefix + stateId);
 					clStateMgr.checkedState = JSON.parse(storedState);
 				}

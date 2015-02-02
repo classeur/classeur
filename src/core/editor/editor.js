@@ -14,7 +14,7 @@ angular.module('classeur.core.editor', [])
 				});
 
 				function saveState() {
-					scope.currentFileDao.state = {
+					scope.currentFileDao.contentDao.state = {
 						selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
 						selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
 						scrollTop: containerElt.scrollTop,
@@ -29,7 +29,7 @@ angular.module('classeur.core.editor', [])
 						debouncedRefreshPreview();
 					}
 					clEditorSvc.selectionRange = newSelectionRange;
-					scope.currentFileDao.content = clEditorSvc.cledit.getContent();
+					scope.currentFileDao.contentDao.content = clEditorSvc.cledit.getContent();
 					saveState();
 					scope.$apply();
 				}, 10);
@@ -90,12 +90,12 @@ angular.module('classeur.core.editor', [])
 					var options = clEditorSvc.options;
 					if(!isInited) {
 						options = angular.extend({}, options);
-						options.content = scope.currentFileDao.content;
+						options.content = scope.currentFileDao.contentDao.content;
 						if(options.content.slice(-1) !== '\n') {
 							options.content += '\n';
 						}
 						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
-							options[key] = scope.currentFileDao.state[key];
+							options[key] = scope.currentFileDao.contentDao.state[key];
 						});
 						isInited = true;
 					}
@@ -431,8 +431,8 @@ angular.module('classeur.core.editor', [])
 				var sectionTocElt = document.createElement('div');
 				sectionTocElt.id = 'classeur-toc-section-' + sectionDesc.id;
 				sectionTocElt.className = 'classeur-toc-section modified';
-				var titleElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
-				titleElt && sectionTocElt.appendChild(titleElt.cloneNode(true));
+				var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
+				headingElt && sectionTocElt.appendChild(headingElt.cloneNode(true));
 				sectionDesc.tocElt = sectionTocElt;
 				newTocEltList.appendChild(sectionTocElt);
 			}
@@ -486,7 +486,14 @@ angular.module('classeur.core.editor', [])
 					});
 				}
 				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
-					return html + elt.innerHTML;
+					if(!elt.exportableHtml) {
+						var clonedElt = elt.cloneNode(true);
+						Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
+							elt.parentNode.removeChild(elt);
+						});
+						elt.exportableHtml = clonedElt.innerHTML;
+					}
+					return html + elt.exportableHtml;
 				}, '');
 				clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
 				clEditorSvc.previewText = previewElt.textContent;

@@ -2,146 +2,226 @@ angular.module('classeur.core.files', [])
 	.factory('clFileSvc', function(clUid, clLocalStorageObject, $timeout) {
 		var maxLocalFiles = 5;
 
-		function LocalFile(id) {
+		function FileDao(id) {
 			this.id = id;
-			this.$readAttr('updated', '0', parseInt);
+			this.$setPrefix('f', id);
+			this.contentDao = clLocalStorageObject('c', id);
 			this.read();
+			this.readContent();
 		}
 
-		LocalFile.prototype = clLocalStorageObject('file');
+		FileDao.prototype = clLocalStorageObject();
 
-		LocalFile.prototype.read = function(loadedAttr) {
-			if(!loadedAttr) {
-				this.$readAttr('title', '');
-				this.$readAttr('folderId', '');
-			}
-			else if(this.isLoaded) {
-				this.$readAttr('content', '');
-				this.$readAttr('state', '{}', JSON.parse);
-				this.$readAttr('users', '{}', JSON.parse);
-				this.$readAttr('discussions', '{}', JSON.parse);
-			}
+		FileDao.prototype.read = function() {
+			this.$readAttr('name', '');
+			this.$readAttr('folderId', '');
+			this.$readLocalUpdate();
 		};
 
-		LocalFile.prototype.checkChanges = function(loadedAttr) {
-			var hasChanged = false;
-			if(!loadedAttr) {
-				hasChanged |= this.$checkAttr('title', '');
-				hasChanged |= this.$checkAttr('folderId', '');
-			}
-			else if(this.isLoaded) {
-				hasChanged |= this.$checkAttr('updated', '0');
-			}
-			return hasChanged;
-		};
-
-		LocalFile.prototype.write = function() {
-			this.$writeAttr('title');
+		FileDao.prototype.write = function() {
+			this.$writeAttr('name');
 			this.$writeAttr('folderId');
-			if(this.isLoaded) {
-				var isUpdated = false;
-				isUpdated |= this.$writeAttr('content');
-				isUpdated |= this.$writeAttr('users', JSON.stringify);
-				isUpdated |= this.$writeAttr('discussions', JSON.stringify);
-				this.$writeAttr('state', JSON.stringify);
-				if(isUpdated) {
-					this.updated = Date.now();
-					this.$writeAttr('updated');
-				}
+		};
+
+		FileDao.prototype.readContent = function() {
+			this.contentDao.$readAttr('isLocal', '');
+			this.contentDao.$readAttr('lastChange', '0', parseInt);
+			if (this.isLoaded) {
+				this.contentDao.$readAttr('content', '');
+				this.contentDao.$readAttr('users', '{}', JSON.parse);
+				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
+				this.contentDao.$readAttr('state', '{}', JSON.parse);
+			}
+			this.contentDao.$readLocalUpdate();
+		};
+
+		FileDao.prototype.writeContent = function(updateLastChange) {
+			this.contentDao.$writeAttr('isLocal');
+			if (this.isLoaded) {
+				updateLastChange |= this.contentDao.$writeAttr('content');
+				updateLastChange |= this.contentDao.$writeAttr('users', JSON.stringify);
+				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
+				this.contentDao.$writeAttr('state', JSON.stringify);
+			}
+			if (updateLastChange) {
+				this.contentDao.lastChange = Date.now();
+				this.contentDao.$writeAttr('lastChange');
 			}
 		};
 
-		LocalFile.prototype.load = function(cb) {
-			if(this.isLoaded) {
+		FileDao.prototype.load = function(cb) {
+			if (this.isLoaded) {
 				return cb();
 			}
-			$timeout((function() {
-				this.isLoaded = true;
-				this.read(true);
-				cb();
-			}).bind(this));
+			if (this.contentDao.isLocal) {
+				return $timeout((function() {
+					this.isLoaded = true;
+					this.readContent();
+					cb();
+				}).bind(this));
+			}
+			// TODO get content from server and set the file as local
+			alert('Not implemented');
 		};
 
-		LocalFile.prototype.unload = function() {
-			this.$freeAttr('content');
-			this.$freeAttr('state');
-			this.$freeAttr('users');
-			this.$freeAttr('discussions');
+		FileDao.prototype.unload = function() {
+			this.contentDao.$freeAttr('content');
+			this.contentDao.$freeAttr('users');
+			this.contentDao.$freeAttr('discussions');
+			this.contentDao.$freeAttr('state');
 			this.isLoaded = false;
 		};
 
-		function ReadOnlyFile(title, content) {
-			this.title = title;
-			this.content = content;
-			this.state = {};
-			this.users = {};
-			this.discussions = {};
-			this.isReadOnly = true;
-			this.unload = function() {
+		function ReadOnlyFile(name, content) {
+			this.name = name;
+			this.contentDao = {
+				content: content,
+				state: {},
+				users: {},
+				discussions: {}
 			};
+			this.isLoaded = true;
+			this.isReadOnly = true;
+			this.unload = function() {};
 		}
 
-		function init() {
-			if(!clFileSvc.localFileIds) {
-				clFileSvc.$readAttr('localFileIds', '[]', JSON.parse);
+		var clFileSvc = clLocalStorageObject('fileSvc');
+
+		var fileAuthorizedKeys = {
+			u: true,
+			name: true,
+			folderId: true,
+		};
+
+		var contentAuthorizedKeys = {
+			u: true,
+			lastChange: true,
+			isLocal: true,
+			content: false,
+			users: false,
+			discussions: false,
+			state: false,
+		};
+
+		function init(cleanStorage) {
+			if (!clFileSvc.fileIds) {
+				clFileSvc.$readAttr('fileIds', '[]', JSON.parse);
 			}
-			clFileSvc.localFiles = clFileSvc.localFileIds.map(function(id) {
-				return clFileSvc.localFileMap[id] || new LocalFile(id);
+			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
+				return clFileSvc.fileMap[id] || new FileDao(id);
 			});
-			clFileSvc.localFileMap = {};
-			clFileSvc.localFiles.forEach(function(fileDao) {
-				clFileSvc.localFileMap[fileDao.id] = fileDao;
+			clFileSvc.fileMap = {};
+			clFileSvc.localFiles = [];
+			clFileSvc.files.forEach(function(fileDao) {
+				clFileSvc.fileMap[fileDao.id] = fileDao;
+				fileDao.contentDao.isLocal && clFileSvc.localFiles.push(fileDao);
 			});
-			var keyPrefix = /^cl\.file\.(\w+)\./;
-			for(var key in localStorage) {
-				var match = key.match(keyPrefix);
-				if(match && !clFileSvc.localFileMap[match[1]]) {
-					localStorage.removeItem(key);
+			clFileSvc.localFiles.sort(function(fileDao1, fileDao2) {
+				return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
+			}).splice(maxLocalFiles).forEach(function(fileDao) {
+				fileDao.unload();
+				fileDao.contentDao.isLocal = '';
+				fileDao.writeContent();
+			});
+
+			if (cleanStorage) {
+				var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
+				var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
+				for (var key in localStorage) {
+					var fileDao, match = key.match(fileKeyPrefix);
+					if (match) {
+						fileDao = clFileSvc.fileMap[match[1]];
+						if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
+							localStorage.removeItem(key);
+						}
+						continue;
+					}
+					match = key.match(contentKeyPrefix);
+					if (match) {
+						fileDao = clFileSvc.fileMap[match[1]];
+						if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || (!fileDao.contentDao.isLocal && !contentAuthorizedKeys[match[2]])) {
+							localStorage.removeItem(key);
+						}
+					}
 				}
 			}
 		}
 
-		function checkLocalFileIds(isStorageModified) {
-			if(isStorageModified && clFileSvc.$checkAttr('localFileIds', '[]')) {
-				delete clFileSvc.localFileIds;
+		var fileSvcUpdateKey = clFileSvc.$globalUpdateKey;
+		var lastFileSvcUpdate = localStorage[fileSvcUpdateKey];
+		var fileUpdateKey = clLocalStorageObject('f').$globalUpdateKey;
+		var lastFileUpdate = localStorage[fileUpdateKey];
+		var contentUpdateKey = clLocalStorageObject('c').$globalUpdateKey;
+		var lastContentUpdate = localStorage[contentUpdateKey];
+
+		function checkAll() {
+			// Check file id list
+			var checkFileSvcUpdate = lastFileSvcUpdate !== localStorage[fileSvcUpdateKey];
+			if (checkFileSvcUpdate && clFileSvc.$checkAttr('fileIds', '[]')) {
+				delete clFileSvc.fileIds;
+			} else {
+				clFileSvc.$writeAttr('fileIds', JSON.stringify);
+			}
+
+			// Check every file
+			var checkFileUpdate = lastFileUpdate !== localStorage[fileUpdateKey];
+			var checkContentUpdate = lastContentUpdate !== localStorage[contentUpdateKey];
+			clFileSvc.files.forEach(function(fileDao) {
+				if (checkFileUpdate && fileDao.$checkLocalUpdate()) {
+					fileDao.read();
+				} else {
+					fileDao.write();
+				}
+				if (checkContentUpdate && fileDao.contentDao.$checkLocalUpdate()) {
+					fileDao.unload();
+					fileDao.readContent();
+				} else {
+					fileDao.writeContent();
+				}
+			});
+
+			lastFileSvcUpdate = localStorage[fileSvcUpdateKey];
+			lastFileUpdate = localStorage[fileUpdateKey];
+			lastContentUpdate = localStorage[contentUpdateKey];
+
+			if (checkFileSvcUpdate || checkFileUpdate || checkContentUpdate) {
+				init();
 				return true;
 			}
-			clFileSvc.$writeAttr('localFileIds', JSON.stringify);
 		}
 
-		function createLocalFile() {
-			clFileSvc.localFileIds.sort(function(id1, id2) {
-				return clFileSvc.localFileMap[id1].updated - clFileSvc.localFileMap[id2].updated;
-			});
+		function createFile() {
 			var id = clUid();
-			clFileSvc.localFileIds.unshift(id);
-			clFileSvc.localFileIds.splice(maxLocalFiles);
+			var fileDao = new FileDao(id);
+			fileDao.contentDao.isLocal = '1';
+			fileDao.writeContent(true);
+			clFileSvc.fileMap[id] = fileDao;
+			clFileSvc.fileIds.push(id);
 			init();
-			return clFileSvc.localFileMap[id];
+			return clFileSvc.fileMap[id];
 		}
 
-		function removeLocalFiles(fileDaoList) {
+		function removeFiles(fileDaoList) {
 			var fileIds = {};
 			fileDaoList.forEach(function(fileDao) {
 				fileIds[fileDao.id] = 1;
 			});
-			clFileSvc.localFileIds = clFileSvc.localFileIds.filter(function(fileId) {
+			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(fileId) {
 				return !fileIds.hasOwnProperty(fileId);
 			});
 			init();
 		}
 
-		function createReadOnlyFile(title, content) {
-			return new ReadOnlyFile(title, content);
+		function createReadOnlyFile(name, content) {
+			return new ReadOnlyFile(name, content);
 		}
 
-		var clFileSvc = Object.create(clLocalStorageObject());
 		clFileSvc.init = init;
-		clFileSvc.checkLocalFileIds = checkLocalFileIds;
-		clFileSvc.createLocalFile = createLocalFile;
-		clFileSvc.removeLocalFiles = removeLocalFiles;
+		clFileSvc.checkAll = checkAll;
+		clFileSvc.createFile = createFile;
+		clFileSvc.removeFiles = removeFiles;
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
-		clFileSvc.localFileMap = {};
+		clFileSvc.fileMap = {};
 
 		return clFileSvc;
 	});

@@ -27,6 +27,7 @@ var vendorJs = [
 	'public/bower_components/angular-aria/angular-aria.js',
 	'public/bower_components/angular-messages/angular-messages.js',
 	'public/bower_components/angular-route/angular-route.js',
+	'public/bower_components/bluebird/js/browser/bluebird.js',
 	'public/bower_components/movejs/move.js',
 	'public/bower_components/hammerjs/hammer.js',
 	'public/bower_components/angular-material/angular-material.js',

@@ -3,7 +3,7 @@
 	<md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
 	</md-checkbox>
 	<md-input-container flex>
-		<input ng-model="fileDao.title" ng-blur="explorerLayoutSvc.refreshFiles()">
+		<input ng-model="fileDao.name" ng-blur="explorerLayoutSvc.refreshFiles()">
 	</md-input-container>
 	<cl-button class="edit file btn" opacity="1">
 		<a class="mdi-editor-mode-edit" ng-click="setCurrentFile(fileDao)" aria-label="Edit"></a>

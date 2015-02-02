@@ -78,9 +78,9 @@ angular.module('classeur.core.explorerLayout', [])
 					window.removeEventListener('resize', animateLayout);
 				});
 
-				function folderTitleFocus() {
+				function folderNameFocus() {
 					setTimeout(function() {
-						var input = element[0].querySelector('.folder.title');
+						var input = element[0].querySelector('.folder.name');
 						input && input.setSelectionRange(0, input.value.length);
 					}, 10);
 				}
@@ -93,7 +93,7 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				}
 
-				scope.folderTitleModified = function() {
+				scope.folderNameModified = function() {
 					clExplorerLayoutSvc.currentFolderDao.name = clExplorerLayoutSvc.currentFolderDao.name || 'Untitled';
 					clExplorerLayoutSvc.refreshFolders();
 					setPlasticClass();
@@ -104,7 +104,7 @@ angular.module('classeur.core.explorerLayout', [])
 						var newFolder = clFolderSvc.createFolder('New folder');
 						clExplorerLayoutSvc.refreshFolders();
 						clExplorerLayoutSvc.setCurrentFolder(newFolder);
-						return folderTitleFocus();
+						return folderNameFocus();
 					}
 					clExplorerLayoutSvc.setCurrentFolder(folder);
 				};
@@ -134,7 +134,7 @@ angular.module('classeur.core.explorerLayout', [])
 					});
 
 					function remove() {
-						clFileSvc.removeLocalFiles(filesToRemove);
+						clFileSvc.removeFiles(filesToRemove);
 						if (deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
 							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
 							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
@@ -176,11 +176,11 @@ angular.module('classeur.core.explorerLayout', [])
 					setPlasticClass();
 				});
 
-				scope.$watch('fileSvc.localFiles', clExplorerLayoutSvc.refreshFiles);
+				scope.$watch('fileSvc.files', clExplorerLayoutSvc.refreshFiles);
 				scope.$watch('folderSvc.folders', clExplorerLayoutSvc.refreshFolders);
 
 				scope.newFile = function() {
-					var fileDao = clFileSvc.createLocalFile();
+					var fileDao = clFileSvc.createFile();
 					if (clExplorerLayoutSvc.currentFolderDao) {
 						fileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
 					}
@@ -210,7 +210,7 @@ angular.module('classeur.core.explorerLayout', [])
 		}
 
 		function refreshFiles() {
-			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.localFiles.filter(
+			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
 				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
 					return !clFolderSvc.folderMap.hasOwnProperty(fileDao.folderId);
 				} : function(fileDao) {
@@ -218,13 +218,13 @@ angular.module('classeur.core.explorerLayout', [])
 				}) : clFileSvc.localFiles.slice();
 			clExplorerLayoutSvc.files.sort(
 				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {
-					return fileDao1.title > fileDao2.title;
+					return fileDao1.name > fileDao2.name;
 				} : function(fileDao1, fileDao2) {
 					return fileDao1.updated < fileDao2.updated;
 				});
 		}
 
-		var lastFolderKey = 'cl.lastFolderId';
+		var lastFolderKey = 'lastFolderId';
 
 		function setCurrentFolder(folder) {
 			folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.folderMap[folder.id]);

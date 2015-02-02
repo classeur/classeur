@@ -6,7 +6,7 @@ angular.module('classeur.extensions.commenting', [])
 			scope: true,
 			link: function(scope) {
 				scope.commentingSvc = clCommentingSvc;
-				clCommentingSvc.currentFileDao = scope.currentFileDao;
+				clCommentingSvc.contentDao = scope.currentFileDao.contentDao;
 
 				scope.setCurrentDiscussion = function(discussion) {
 					// Select modifies editor selection which provokes comment dismiss
@@ -62,7 +62,7 @@ angular.module('classeur.extensions.commenting', [])
 				scope.commenting = clCommentingSvc;
 				scope.removeDiscussion = function(discussion) {
 					clEditorLayoutSvc.currentControl = undefined;
-					delete clCommentingSvc.currentFileDao.discussions[discussion.discussionDao.id];
+					delete clCommentingSvc.contentDao.discussions[discussion.discussionDao.id];
 					clCommentingSvc.lastDiscussionChanged = Date.now();
 				};
 			}
@@ -91,7 +91,7 @@ angular.module('classeur.extensions.commenting', [])
 						});
 						clCommentingSvc.newCommentContent = undefined;
 						clEditorLayoutSvc.currentControl = undefined;
-						clCommentingSvc.currentFileDao.users[clUserSvc.localId] = clUserSvc.name;
+						clCommentingSvc.contentDao.users[clUserSvc.localId] = clUserSvc.name;
 						clCommentingSvc.lastDiscussionChanged = Date.now();
 						scope.$apply();
 					}
@@ -152,8 +152,8 @@ angular.module('classeur.extensions.commenting', [])
 				clEditorSvc.cledit.removeMarker(discussion.endMarker);
 			});
 			commentingSvc.discussions = [];
-			angular.forEach(commentingSvc.currentFileDao.discussions, function(discussionDao) {
-				var discussion = new Discussion(discussionDao, commentingSvc.currentFileDao);
+			angular.forEach(commentingSvc.contentDao.discussions, function(discussionDao) {
+				var discussion = new Discussion(discussionDao, commentingSvc.contentDao);
 				commentingSvc.discussions.push(discussion);
 				clEditorSvc.cledit.addMarker(discussion.startMarker);
 				clEditorSvc.cledit.addMarker(discussion.endMarker);

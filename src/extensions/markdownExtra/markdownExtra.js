@@ -178,7 +178,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 					// Build the TOC
 					var anchorList = {};
 					function createAnchor(element) {
-						var id = element.id || Slug.slugify(element.textContent) || 'title';
+						var id = element.id || Slug.slugify(element.textContent) || 'heading';
 						var anchor = id;
 						var index = 0;
 						while (anchorList.hasOwnProperty(anchor)) {

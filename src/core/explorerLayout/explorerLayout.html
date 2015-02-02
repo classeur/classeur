@@ -40,7 +40,7 @@
 
                     <div class="nav" layout="row" ng-switch-when="true" layout-align="center center">
                         <md-input-container md-theme="classeur" flex>
-                            <input ng-model="explorerLayoutSvc.currentFolderDao.name" class="folder title" ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder" ng-blur="folderTitleModified()">
+                            <input ng-model="explorerLayoutSvc.currentFolderDao.name" class="folder name" ng-disabled="explorerLayoutSvc.currentFolderDao === explorerLayoutSvc.unclassifiedFolder" ng-blur="folderNameModified()">
                         </md-input-container>
 
                         <md-button class="delete folder btn" md-no-ink ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
@@ -50,7 +50,7 @@
 
                     <div class="nav" layout="row" ng-switch-when="false" layout-align="center center">
                         <md-input-container md-theme="classeur" flex>
-                            <input class="folder title" value="Available offline" disabled>
+                            <input class="folder name" value="Available offline" disabled>
                         </md-input-container>
 
                     </div>

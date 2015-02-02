@@ -23,7 +23,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.btnBar',
 		'classeur.extensions.commenting',
 		'classeur.extensions.fileDragging',
-		'classeur.extensions.fileTitle',
+		'classeur.extensions.fileName',
 		'classeur.extensions.folding',
 		'classeur.extensions.footer',
 		'classeur.extensions.htmlSanitizer',

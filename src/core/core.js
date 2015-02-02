@@ -11,7 +11,7 @@ angular.module('classeur.core', [])
 			.when('/file/:fileId', {
 				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
 				controller: function($rootScope, $routeParams, clFileSvc) {
-					var currentFileDao = clFileSvc.localFileMap[$routeParams.fileId];
+					var currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
 					currentFileDao.load(function() {
 						$rootScope.currentFileDao = currentFileDao;
 					});
@@ -40,11 +40,14 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clStateMgr, clToast) {
-		clFileSvc.init();
-		clFolderSvc.init();
-		var lastModificationKey = 'cl.lastStorageModification';
-		var lastModification = localStorage[lastModificationKey];
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clStateMgr, clToast) {
+		// Configure Bluebird to integrate with Angular
+		Promise.setScheduler(function(fn) {
+			$rootScope.$evalAsync(fn);
+		});
+
+		clFileSvc.init(true);
+		clFolderSvc.init(true);
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -56,44 +59,13 @@ angular.module('classeur.core', [])
 		$rootScope.userSvc = clUserSvc;
 
 		function saveAll() {
-
-			var isStorageModified = lastModification !== localStorage[lastModificationKey];
-			var isExternalFileChanged = clFileSvc.checkLocalFileIds(isStorageModified);
-			var isExternalFolderChanged = clFolderSvc.checkFolderIds(isStorageModified);
-
-			// Read/write file changes
-			clFileSvc.localFiles.forEach(function(fileDao) {
-				if(isStorageModified && fileDao.checkChanges()) {
-					fileDao.read();
-					isExternalFileChanged = true;
-				}
-				if(isStorageModified && fileDao.checkChanges(true)) {
-					// Close current file
-					fileDao.unload();
-					setCurrentFile();
-				}
-				else {
-					fileDao.write();
-				}
-			});
-
-			// Read/write folder changes
-			clFolderSvc.folders.forEach(function(folderDao) {
-				if(isStorageModified && folderDao.checkChanges()) {
-					folderDao.read();
-					isExternalFolderChanged = true;
-				}
-				else {
-					folderDao.write();
-				}
-			});
-
-			isExternalFileChanged && clFileSvc.init();
-			isExternalFolderChanged && clFolderSvc.init();
-
-			isStorageModified = lastModification !== localStorage[lastModificationKey];
-			lastModification = localStorage[lastModificationKey];
-			return isStorageModified;
+			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
+			if($rootScope.currentFileDao && !$rootScope.currentFileDao.isLoaded) {
+				// Close current file if has been unloaded
+				setCurrentFile();
+				hasChanged = true;
+			}
+			return hasChanged;
 		}
 
 		function unloadCurrentFile() {
@@ -113,10 +85,11 @@ angular.module('classeur.core', [])
 
 		function makeCurrentFileCopy() {
 			var oldFileDao = $rootScope.currentFileDao;
-			var newFileDao = clFileSvc.createLocalFile();
+			var newFileDao = clFileSvc.createFile();
 			newFileDao.load(function() {
-				['title', 'content', 'state', 'users', 'discussions'].forEach(function(attrName) {
-					newFileDao[attrName] = oldFileDao[attrName];
+				newFileDao.name = oldFileDao.name;
+				['content', 'state', 'users', 'discussions'].forEach(function(attrName) {
+					newFileDao.contentDao[attrName] = oldFileDao.contentDao[attrName];
 				});
 				setCurrentFile(newFileDao);
 				clToast('Copy created.');
@@ -129,9 +102,9 @@ angular.module('classeur.core', [])
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
 		setInterval(function() {
-			var isStorageModified = saveAll();
-			$rootScope.$broadcast('periodicRun');
-			isStorageModified && $rootScope.$apply();
+			var hasChanged = saveAll();
+			$rootScope.$broadcast('clPeriodicRun');
+			hasChanged && $rootScope.$apply();
 		}, 1000);
 
 		window.addEventListener('beforeunload', function(evt) {
