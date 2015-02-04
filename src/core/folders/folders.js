@@ -108,5 +108,6 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.removeFolder = removeFolder;
 		clFolderSvc.folderMap = {};
 
+		init(true);
 		return clFolderSvc;
 	});

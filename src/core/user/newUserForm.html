@@ -1,6 +1,5 @@
-<div class="new-user-form panel background" layout="column" layout-align="center center" ng-switch="userSvc.isLoading">
-    <div ng-switch-when="true"></div>
-    <div ng-switch-when="false">
+<div class="new-user-form panel background" layout="column" layout-align="center center">
+    <div>
         <div class="logo">
             <img src="images/logo.png" height="64">
         </div>
@@ -17,16 +16,16 @@
                 <form name="form">
                     <md-input-container>
                         <label>User name</label>
-                        <input required name="name" ng-model="userSvc.newUser.name">
+                        <input required name="name" ng-model="newUser.name">
                         <div ng-messages="form.name.$error">
                             <div class="angular-animate" ng-message="required">This is required.</div>
                         </div>
                     </md-input-container>
                     <md-input-container>
                         <label>Email</label>
-                        <input ng-model="userSvc.newUser.email" disabled>
+                        <input ng-model="newUser.email" disabled>
                     </md-input-container>
-                    <md-checkbox ng-model="userSvc.newUser.syncFilesAndSettings" aria-label="Sync files">
+                    <md-checkbox ng-model="newUser.syncFilesAndSettings" aria-label="Sync files">
                         Sync files and settings
                     </md-checkbox>
                     <div class="terms">

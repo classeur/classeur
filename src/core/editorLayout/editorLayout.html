@@ -25,7 +25,7 @@
 			<div class="menu content panel">
 				<cl-file-name></cl-file-name>
 				<div class="links">
-					<a ng-if="currentFileDao.isReadOnly" ng-click="makeCurrentFileCopy()">Make a copy</a>
+					<a ng-click="makeCurrentFileCopy()">Make a copy</a>
 				</div>
 				<div class="entry">Zoom</div>
 				<md-slider md-discrete ng-model="settingSvc.values.editorZoom" step="1" min="1" max="5"

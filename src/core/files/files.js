@@ -223,5 +223,6 @@ angular.module('classeur.core.files', [])
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.fileMap = {};
 
+		init(true);
 		return clFileSvc;
 	});

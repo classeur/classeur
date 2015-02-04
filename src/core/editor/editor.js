@@ -486,7 +486,7 @@ angular.module('classeur.core.editor', [])
 					});
 				}
 				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
-					if(!elt.exportableHtml) {
+					if(!elt.exportableHtml || elt === footnoteContainerElt) {
 						var clonedElt = elt.cloneNode(true);
 						Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
 							elt.parentNode.removeChild(elt);

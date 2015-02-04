@@ -1,5 +1,5 @@
 angular.module('classeur.core.sync', [])
-	.run(function($rootScope, $http, clUserSvc, clFolderSvc) {
+	.run(function($rootScope, $http, $location, clUserSvc, clFolderSvc) {
 		var lastActivity = 0;
 		var maxInactivity = 90 * 1000; // 1 minute 30
 		function syncFolders() {

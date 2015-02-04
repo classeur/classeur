@@ -29,6 +29,7 @@ angular.module('classeur.core', [])
 			.when('/state/:stateId', {
 				template: '',
 				controller: function($location, clStateMgr) {
+					clStateMgr.token = $location.search().token;
 					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
 			})
@@ -45,9 +46,6 @@ angular.module('classeur.core', [])
 		Promise.setScheduler(function(fn) {
 			$rootScope.$evalAsync(fn);
 		});
-
-		clFileSvc.init(true);
-		clFolderSvc.init(true);
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
