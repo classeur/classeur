@@ -1,56 +1,27 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clSettingSvc) {
+    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clWs) {
         clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
-        var userTokenKey = 'userToken';
-        var userToken = localStorage[userTokenKey];
-        var userSocket;
-
-        function setToken(token) {
-            userToken = token;
-            localStorage[userTokenKey] = token;
-        }
-
-        function openSocket() {
-            closeSocket();
-            userSocket = new WebSocket('ws://' + $location.host() + ':' + $location.port() + '/?token=' + userToken);
-            userSocket.onopen = function() {
-                clUserSvc.isReady = true;
-            };
-            userSocket.onmessage = function(event) {
-                console.log(event.data);
-                var msg = JSON.parse(event.data);
-                if(msg.type === 'signedIn') {
-                    setToken(msg.token);
-                    clUserSvc.user = msg.user;
-                    $rootScope.$apply();
-                }
-            };
-        }
-
-        function closeSocket() {
-            userSocket && userSocket.close();
-            userSocket = undefined;
-        }
 
         function signin(token) {
-            setToken(token);
-            openSocket();
+            clWs.setToken(token);
+            clWs.openSocket();
         }
 
         function signout() {
-            localStorage.removeItem(userTokenKey);
-            userToken = undefined;
             clUserSvc.user = undefined;
-            closeSocket();
+            clWs.clearToken();
+            clWs.closeSocket();
         }
 
-        userToken && openSocket();
+        clWs.addMsgHandler('signedInUser', function(msg) {
+            clUserSvc.user = msg.user;
+            $rootScope.$apply();
+        });
 
         var clUserSvc = {
             isReady: false,
             signin: signin,
-            signout: signout,
-            openSocket: openSocket
+            signout: signout
         };
 
         return clUserSvc;

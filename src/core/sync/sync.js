@@ -1,10 +1,20 @@
 angular.module('classeur.core.sync', [])
-	.run(function($rootScope, $http, $location, clUserSvc, clFolderSvc) {
+	.run(function($rootScope, $http, $location, clUserSvc, clFolderSvc, clWs) {
 		var lastActivity = 0;
 		var maxInactivity = 90 * 1000; // 1 minute 30
 		function syncFolders() {
 			lastActivity = Date.now();
 			var folderChanges = {};
+
+			clWs.addMsgHandler('folderChanges', function(msg) {
+				msg.changes.forEach(function(change) {
+					folderChanges[change.id] = change;
+				});
+				if (msg.last) {
+					getChangePage(msg.last);
+				}
+			});
+
 
 			function getChangePage(lastUpdate) {
 				return $http.get('/ajax/folder/changes?lastUpdate=' + lastUpdate)
