@@ -101,7 +101,8 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.setFolder = function(folder) {
 					if (folder === clExplorerLayoutSvc.createFolder) {
-						var newFolder = clFolderSvc.createFolder('New folder');
+						var newFolder = clFolderSvc.createFolder();
+						newFolder.name = 'New folder';
 						clExplorerLayoutSvc.refreshFolders();
 						clExplorerLayoutSvc.setCurrentFolder(newFolder);
 						return folderNameFocus();

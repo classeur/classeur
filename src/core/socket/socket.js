@@ -17,12 +17,10 @@ angular.module('classeur.core.socket', [])
 		var lastConnectionAttempt;
 		var nextConnectionAttempt = 1000;
 		function attemptOpenSocket() {
-			console.log('attempt')
 			lastConnectionAttempt = Date.now();
 			closeSocket();
 			socket = new WebSocket('ws://' + $location.host() + ':' + $location.port() + '/?token=' + socketToken);
 			socket.onopen = function() {
-				clSocketSvc.isReady = true;
 				nextConnectionAttempt = 1000;
 			};
 			socket.onmessage = function(event) {
@@ -68,6 +66,7 @@ angular.module('classeur.core.socket', [])
 
 		addMsgHandler('signedInUser', function(msg) {
 			msg.token && setToken(msg.token);
+			clSocketSvc.isReady = true;
 		});
 		
 		setInterval(function() {

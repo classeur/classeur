@@ -102,6 +102,7 @@ angular.module('classeur.core.utils', [])
 			var self = this; // Make sure we update the __proto__ object
 			this.$readGlobalUpdate = function() {
 				self.gUpdated = parseInt(localStorage[this.$globalUpdateKey]);
+				isNaN(self.gUpdated) && this.$setGlobalUpdate(Date.now());
 			};
 			this.$setGlobalUpdate = function(updated) {
 				self.gUpdated = updated;
@@ -166,6 +167,7 @@ angular.module('classeur.core.utils', [])
 
 		LocalStorageObject.prototype.$readLocalUpdate = function() {
 			this.updated = parseInt(localStorage[this.$localUpdateKey]);
+			isNaN(this.updated) && this.$setLocalUpdate(Date.now());
 		};
 
 		LocalStorageObject.prototype.$setLocalUpdate = function(updated) {

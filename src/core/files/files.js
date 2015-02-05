@@ -185,8 +185,8 @@ angular.module('classeur.core.files', [])
 			}
 		}
 
-		function createFile() {
-			var id = clUid();
+		function createFile(id) {
+			id = id || clUid();
 			var fileDao = new FileDao(id);
 			fileDao.contentDao.isLocal = '1';
 			fileDao.writeContent(true);

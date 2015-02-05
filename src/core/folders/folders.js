@@ -79,13 +79,11 @@ angular.module('classeur.core.folders', [])
 			}
 		}
 
-		function createFolder(name) {
+		function createFolder() {
 			var id = clUid();
 			clFolderSvc.folderIds.push(id);
 			init();
-			var folderDao = clFolderSvc.folderMap[id];
-			folderDao.name = name;
-			return folderDao;
+			return clFolderSvc.folderMap[id];
 		}
 
 		function removeFolder(folderDao) {
@@ -97,11 +95,30 @@ angular.module('classeur.core.folders', [])
 			return index;
 		}
 
+		function updateFolders(changes) {
+			changes.forEach(function(change) {
+				var folderDao = clFolderSvc.folderMap[change.id];
+				if(changes.removed && folderDao) {
+					var index = clFolderSvc.folders.indexOf(folderDao);
+					clFolderSvc.folderIds.splice(index, 1);
+				}
+				else if(!folderDao) {
+					folderDao = new FolderDao(change.id);
+					clFolderSvc.folderMap[change.id] = folderDao;
+					clFolderSvc.folderIds.push(change.id);
+				}
+				folderDao.name = change.name;
+				folderDao.write(change.updated);
+			});
+			init();
+		}
+
 		clFolderSvc.folderDaoProto = folderDaoProto;
 		clFolderSvc.init = init;
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;
 		clFolderSvc.removeFolder = removeFolder;
+		clFolderSvc.updateFolders = updateFolders;
 		clFolderSvc.folderMap = {};
 
 		init(true);

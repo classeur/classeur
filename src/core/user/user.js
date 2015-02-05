@@ -18,7 +18,10 @@ angular.module('classeur.core.user', [])
             $rootScope.$apply();
         });
 
-        clSocketSvc.addMsgHandler('invalidToken', signout);
+        clSocketSvc.addMsgHandler('invalidToken', function() {
+            signout();
+            $rootScope.$apply();
+        });
         
         var clUserSvc = {
             isReady: false,
