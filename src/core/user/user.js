@@ -1,23 +1,25 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clWs) {
+    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc) {
         clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
 
         function signin(token) {
-            clWs.setToken(token);
-            clWs.openSocket();
+            clSocketSvc.setToken(token);
+            clSocketSvc.openSocket();
         }
 
         function signout() {
             clUserSvc.user = undefined;
-            clWs.clearToken();
-            clWs.closeSocket();
+            clSocketSvc.clearToken();
+            clSocketSvc.closeSocket();
         }
 
-        clWs.addMsgHandler('signedInUser', function(msg) {
+        clSocketSvc.addMsgHandler('signedInUser', function(msg) {
             clUserSvc.user = msg.user;
             $rootScope.$apply();
         });
 
+        clSocketSvc.addMsgHandler('invalidToken', signout);
+        
         var clUserSvc = {
             isReady: false,
             signin: signin,

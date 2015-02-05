@@ -95,14 +95,23 @@ angular.module('classeur.core.utils', [])
 	})
 	.factory('clLocalStorageObject', function() {
 
-		function LocalStorageObject(prefix, id) {
-			this.$setPrefix(prefix, id);
+		function LocalStorageObject(prefix) {
+			this.$globalPrefix = prefix ? prefix + '.' : '';
+			this.$globalUpdateKey = this.$globalPrefix + 'u';
+			this.$setId();
+			var self = this; // Make sure we update the __proto__ object
+			this.$readGlobalUpdate = function() {
+				self.gUpdated = parseInt(localStorage[this.$globalUpdateKey]);
+			};
+			this.$setGlobalUpdate = function(updated) {
+				self.gUpdated = updated;
+				localStorage[this.$globalUpdateKey] = updated;
+			};
+			this.$readGlobalUpdate();
 		}
 
-		LocalStorageObject.prototype.$setPrefix = function(prefix, id) {
-			this.$globalPrefix = prefix ? prefix + '.' : '';
+		LocalStorageObject.prototype.$setId = function(id) {
 			this.$localPrefix = this.$globalPrefix + (id ? id + '.' : '');
-			this.$globalUpdateKey = this.$globalPrefix + 'u';
 			this.$localUpdateKey = this.$localPrefix + 'u';
 			this.$readLocalUpdate();
 		};
@@ -129,7 +138,7 @@ angular.module('classeur.core.utils', [])
 			}
 		};
 
-		LocalStorageObject.prototype.$writeAttr = function(name, serializer) {
+		LocalStorageObject.prototype.$writeAttr = function(name, serializer, updated) {
 			var value = serializer ? serializer(this[name]) : '' + this[name];
 			if (value !== this['$' + name + 'Saved']) {
 				var key = this.$localPrefix + name;
@@ -139,9 +148,9 @@ angular.module('classeur.core.utils', [])
 					localStorage[key] = value;
 				}
 				this['$' + name + 'Saved'] = value;
-				this.updated = '' + Date.now();
-				localStorage[this.$localUpdateKey] = this.updated;
-				localStorage[this.$globalUpdateKey] = this.updated;
+				updated = updated || Date.now();
+				this.$setLocalUpdate(updated);
+				this.$setGlobalUpdate(updated);
 				return true;
 			}
 		};
@@ -152,101 +161,25 @@ angular.module('classeur.core.utils', [])
 		};
 
 		LocalStorageObject.prototype.$checkLocalUpdate = function() {
-			return this.updated !== localStorage[this.$localUpdateKey];
+			return this.updated != localStorage[this.$localUpdateKey];
 		};
 
 		LocalStorageObject.prototype.$readLocalUpdate = function() {
-			this.updated = localStorage[this.$localUpdateKey];
+			this.updated = parseInt(localStorage[this.$localUpdateKey]);
 		};
 
-		return function(prefix, id) {
-			return new LocalStorageObject(prefix, id);
+		LocalStorageObject.prototype.$setLocalUpdate = function(updated) {
+			this.updated = updated;
+			localStorage[this.$localUpdateKey] = updated;
 		};
-	})
-	.factory('clWs', function($window, $location) {
-		var socketTokenKey = 'socketToken';
-		var socketToken = localStorage[socketTokenKey];
-		var socket, msgHandlers = {};
 
-		function setToken(token) {
-			socketToken = token;
-			localStorage[socketTokenKey] = token;
-		}
-
-		function clearToken() {
-			localStorage.removeItem(socketTokenKey);
-			socketToken = undefined;
-		}
-
-		var lastConnectionAttempt;
-		var nextConnectionAttempt = 1000;
-		function attemptOpenSocket() {
-			lastConnectionAttempt = Date.now();
-			closeSocket();
-			socket = new WebSocket('ws://' + $location.host() + ':' + $location.port() + '/?token=' + socketToken);
-			socket.onopen = function() {
-				clWs.isReady = true;
-				nextConnectionAttempt = 1000;
-			};
-			socket.onmessage = function(event) {
-				var msg = JSON.parse(event.data);
-				console.log(msg);
-				(msgHandlers[msg.type] || []).forEach(function(handler) {
-					return handler(msg, socket);
-				});
-			};
-		}
-
-		function isSocketToBeOpened() {
-			return (!socket || socket.readyState > 1) && socketToken && $window.navigator.onLine;
-		}
-
-		function openSocket() {
-			isSocketToBeOpened() && attemptOpenSocket();
-		}
-
-		function closeSocket() {
-			if(socket) {
-				socket.onopen = undefined;
-				socket.onmessage = undefined;
-				socket.close();
-				socket = undefined;
-			}
-		}
-
-		function addMsgHandler(type, handler) {
-			var typeHandlers = msgHandlers[type] || [];
-			typeHandlers.push(handler);
-			msgHandlers[type] = typeHandlers;
-		}
-
-		addMsgHandler('signedInUser', function(msg) {
-			msg.token && setToken(msg.token);
-		});
-		
-		openSocket();
-		setInterval(function() {
-			if(!isSocketToBeOpened()) {
-				nextConnectionAttempt = 1000;
-				return;
-			}
-			if(Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
-				attemptOpenSocket();
-				if(nextConnectionAttempt < 30000) {
-					// Exponential backoff
-					nextConnectionAttempt *= 2;
-				}
-			}
-		}, 1000);
-
-		var clWs = {
-			setToken: setToken,
-			clearToken: clearToken,
-			openSocket: openSocket,
-			closeSocket: closeSocket,
-			addMsgHandler: addMsgHandler
+		LocalStorageObject.prototype.$checkGlobalUpdate = function() {
+			return this.gUpdated != localStorage[this.$globalUpdateKey];
 		};
-		return clWs;
+
+		return function(prefix) {
+			return new LocalStorageObject(prefix);
+		};
 	})
 	.factory('clStateMgr', function($rootScope, clUid) {
 		var stateKeyPrefix = 'state.';

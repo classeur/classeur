@@ -1,24 +1,25 @@
 angular.module('classeur.core.folders', [])
 	.factory('clFolderSvc', function(clUid, clLocalStorageObject) {
+		var folderDaoProto = clLocalStorageObject('F');
 
 		function FolderDao(id) {
 			this.id = id;
-			this.$setPrefix('F', id);
+			this.$setId(id);
 			this.read();
 		}
 
-		FolderDao.prototype = clLocalStorageObject();
+		FolderDao.prototype = folderDaoProto;
 
 		FolderDao.prototype.read = function() {
 			this.$readAttr('name', '');
 			this.$readLocalUpdate();
 		};
 
-		FolderDao.prototype.write = function() {
-			this.$writeAttr('name');
+		FolderDao.prototype.write = function(updated) {
+			this.$writeAttr('name', undefined, updated);
 		};
 
-		var clFolderSvc = Object.create(clLocalStorageObject('folderSvc'));
+		var clFolderSvc = clLocalStorageObject('folderSvc');
 
 		var authorizedKeys = {
 			u: false,
@@ -51,14 +52,10 @@ angular.module('classeur.core.folders', [])
 			}
 		}
 
-		var folderSvcUpdateKey = clFolderSvc.$globalUpdateKey;
-		var lastFolderSvcUpdate = localStorage[folderSvcUpdateKey];
-		var folderUpdateKey = clLocalStorageObject('F').$globalUpdateKey;
-		var lastFolderUpdate = localStorage[folderUpdateKey];
-
 		function checkAll() {
 			// Check folder id list
-			var checkFolderSvcUpdate = lastFolderSvcUpdate !== localStorage[folderSvcUpdateKey];
+			var checkFolderSvcUpdate = clFolderSvc.$checkGlobalUpdate();
+			clFolderSvc.$readGlobalUpdate();
 			if (checkFolderSvcUpdate && clFolderSvc.$checkAttr('folderIds', '[]')) {
 				delete clFolderSvc.folderIds;
 			} else {
@@ -66,7 +63,8 @@ angular.module('classeur.core.folders', [])
 			}
 
 			// Check every folder
-			var checkFolderUpdate = lastFolderUpdate !== localStorage[folderUpdateKey];
+			var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate();
+			folderDaoProto.$readGlobalUpdate();
 			clFolderSvc.folders.forEach(function(folderDao) {
 				if (checkFolderUpdate && folderDao.$checkLocalUpdate()) {
 					folderDao.read();
@@ -74,9 +72,6 @@ angular.module('classeur.core.folders', [])
 					folderDao.write();
 				}
 			});
-
-			lastFolderSvcUpdate = localStorage[folderSvcUpdateKey];
-			lastFolderUpdate = localStorage[folderUpdateKey];
 
 			if(checkFolderSvcUpdate || checkFolderUpdate) {
 				init();
@@ -102,6 +97,7 @@ angular.module('classeur.core.folders', [])
 			return index;
 		}
 
+		clFolderSvc.folderDaoProto = folderDaoProto;
 		clFolderSvc.init = init;
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;

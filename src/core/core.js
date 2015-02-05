@@ -42,10 +42,6 @@ angular.module('classeur.core', [])
 
 	})
 	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clStateMgr, clToast) {
-		// Configure Bluebird to integrate with Angular
-		Promise.setScheduler(function(fn) {
-			$rootScope.$evalAsync(fn);
-		});
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;

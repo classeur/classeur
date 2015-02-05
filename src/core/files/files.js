@@ -1,16 +1,19 @@
 angular.module('classeur.core.files', [])
 	.factory('clFileSvc', function(clUid, clLocalStorageObject, $timeout) {
 		var maxLocalFiles = 5;
+		var fileDaoProto = clLocalStorageObject('f');
+		var contentDaoProto = clLocalStorageObject('c');
 
 		function FileDao(id) {
 			this.id = id;
-			this.$setPrefix('f', id);
-			this.contentDao = clLocalStorageObject('c', id);
+			this.$setId(id);
+			this.contentDao = Object.create(contentDaoProto);
+			this.contentDao.$setId(id);
 			this.read();
 			this.readContent();
 		}
 
-		FileDao.prototype = clLocalStorageObject();
+		FileDao.prototype = fileDaoProto;
 
 		FileDao.prototype.read = function() {
 			this.$readAttr('name', '');
@@ -147,16 +150,10 @@ angular.module('classeur.core.files', [])
 			}
 		}
 
-		var fileSvcUpdateKey = clFileSvc.$globalUpdateKey;
-		var lastFileSvcUpdate = localStorage[fileSvcUpdateKey];
-		var fileUpdateKey = clLocalStorageObject('f').$globalUpdateKey;
-		var lastFileUpdate = localStorage[fileUpdateKey];
-		var contentUpdateKey = clLocalStorageObject('c').$globalUpdateKey;
-		var lastContentUpdate = localStorage[contentUpdateKey];
-
 		function checkAll() {
 			// Check file id list
-			var checkFileSvcUpdate = lastFileSvcUpdate !== localStorage[fileSvcUpdateKey];
+			var checkFileSvcUpdate = clFileSvc.$checkGlobalUpdate();
+			clFileSvc.$readGlobalUpdate();
 			if (checkFileSvcUpdate && clFileSvc.$checkAttr('fileIds', '[]')) {
 				delete clFileSvc.fileIds;
 			} else {
@@ -164,8 +161,10 @@ angular.module('classeur.core.files', [])
 			}
 
 			// Check every file
-			var checkFileUpdate = lastFileUpdate !== localStorage[fileUpdateKey];
-			var checkContentUpdate = lastContentUpdate !== localStorage[contentUpdateKey];
+			var checkFileUpdate = fileDaoProto.$checkGlobalUpdate();
+			fileDaoProto.$readGlobalUpdate();
+			var checkContentUpdate = contentDaoProto.$checkGlobalUpdate();
+			contentDaoProto.$readGlobalUpdate();
 			clFileSvc.files.forEach(function(fileDao) {
 				if (checkFileUpdate && fileDao.$checkLocalUpdate()) {
 					fileDao.read();
@@ -179,10 +178,6 @@ angular.module('classeur.core.files', [])
 					fileDao.writeContent();
 				}
 			});
-
-			lastFileSvcUpdate = localStorage[fileSvcUpdateKey];
-			lastFileUpdate = localStorage[fileUpdateKey];
-			lastContentUpdate = localStorage[contentUpdateKey];
 
 			if (checkFileSvcUpdate || checkFileUpdate || checkContentUpdate) {
 				init();
@@ -216,6 +211,7 @@ angular.module('classeur.core.files', [])
 			return new ReadOnlyFile(name, content);
 		}
 
+		clFileSvc.fileDaoProto = fileDaoProto;
 		clFileSvc.init = init;
 		clFileSvc.checkAll = checkAll;
 		clFileSvc.createFile = createFile;
