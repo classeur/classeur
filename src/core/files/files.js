@@ -21,9 +21,9 @@ angular.module('classeur.core.files', [])
 			this.$readLocalUpdate();
 		};
 
-		FileDao.prototype.write = function() {
-			this.$writeAttr('name');
-			this.$writeAttr('folderId');
+		FileDao.prototype.write = function(updated) {
+			this.$writeAttr('name', undefined, updated);
+			this.$writeAttr('folderId', undefined, updated);
 		};
 
 		FileDao.prototype.readContent = function() {
@@ -207,6 +207,25 @@ angular.module('classeur.core.files', [])
 			init();
 		}
 
+		function updateFiles(changes) {
+			changes.forEach(function(change) {
+				var fileDao = clFileSvc.fileMap[change.id];
+				if(change.deleted && fileDao) {
+					var index = clFileSvc.files.indexOf(fileDao);
+					clFileSvc.fileIds.splice(index, 1);
+				}
+				else if(!fileDao) {
+					fileDao = new FileDao(change.id);
+					clFileSvc.fileMap[change.id] = fileDao;
+					clFileSvc.fileIds.push(change.id);
+				}
+				fileDao.name = change.name;
+				fileDao.folderId = change.folderId;
+				fileDao.write(change.updated);
+			});
+			init();
+		}
+
 		function createReadOnlyFile(name, content) {
 			return new ReadOnlyFile(name, content);
 		}
@@ -216,6 +235,7 @@ angular.module('classeur.core.files', [])
 		clFileSvc.checkAll = checkAll;
 		clFileSvc.createFile = createFile;
 		clFileSvc.removeFiles = removeFiles;
+		clFileSvc.updateFiles = updateFiles;
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.fileMap = {};
 

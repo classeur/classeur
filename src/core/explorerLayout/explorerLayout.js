@@ -14,19 +14,20 @@ angular.module('classeur.core.explorerLayout', [])
 					var y = scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
-					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end();
+					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end(function() {
+						if (isOpen) {
+							// Adjust scrolling position
+							var minY = parentElt.scrollTop + 20;
+							var maxY = parentElt.scrollTop + parentElt.clientHeight - 360;
+							if (y > maxY) {
+								parentElt.scrollTop += y - maxY;
+							}
+							if (y < minY) {
+								parentElt.scrollTop += y - minY;
+							}
+						}
+					});
 					duration = 90;
-					if (isOpen) {
-						// Adjust scrolling position
-						var minY = parentElt.scrollTop + 30;
-						var maxY = parentElt.scrollTop + parentElt.clientHeight - 330;
-						if (y > maxY) {
-							parentElt.scrollTop += y - maxY;
-						}
-						if (y < minY) {
-							parentElt.scrollTop += y - minY;
-						}
-					}
 				}
 
 				scope.$watch('$index', animate);

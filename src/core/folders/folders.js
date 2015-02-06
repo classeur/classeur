@@ -98,7 +98,7 @@ angular.module('classeur.core.folders', [])
 		function updateFolders(changes) {
 			changes.forEach(function(change) {
 				var folderDao = clFolderSvc.folderMap[change.id];
-				if(changes.removed && folderDao) {
+				if(change.deleted && folderDao) {
 					var index = clFolderSvc.folders.indexOf(folderDao);
 					clFolderSvc.folderIds.splice(index, 1);
 				}

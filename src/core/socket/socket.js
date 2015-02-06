@@ -25,7 +25,6 @@ angular.module('classeur.core.socket', [])
 			};
 			socket.onmessage = function(event) {
 				var msg = JSON.parse(event.data);
-				console.log(msg);
 				(msgHandlers[msg.type] || []).forEach(function(handler) {
 					return handler(msg, socket);
 				});
