@@ -134,14 +134,12 @@ angular.module('classeur.core.utils', [])
 		LocalStorageObject.prototype.$checkAttr = function(name, defaultValue) {
 			var key = this.$localPrefix + name;
 			var value = localStorage[key] || defaultValue;
-			if (value !== this['$' + name + 'Saved']) {
-				return true;
-			}
+			return value !== this['$' + name + 'Saved'];
 		};
 
 		LocalStorageObject.prototype.$writeAttr = function(name, serializer, updated) {
 			var value = serializer ? serializer(this[name]) : '' + this[name];
-			if (value !== this['$' + name + 'Saved']) {
+			if (updated || value !== this['$' + name + 'Saved']) {
 				var key = this.$localPrefix + name;
 				if (!value) {
 					localStorage.removeItem(key);
