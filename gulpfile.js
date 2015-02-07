@@ -5,6 +5,7 @@ var ngAnnotate = require('gulp-ng-annotate');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
+var gulpMerge = require('gulp-merge');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
 
@@ -52,27 +53,30 @@ gulp.task('sass', function() {
 });
 
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
-gulp.task('template-cache', function() {
-	gulp.src(templateCacheSrc)
+var jsSrc = ['src/**/*.js'];
+
+function jsStream() {
+	return gulpMerge(
+		gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
 			standalone: true
-		}))
-		.pipe(gulp.dest('src'));
-});
-
-var jsSrc = ['src/**/*.js'];
-gulp.task('js', ['template-cache'], function() {
-	gulp.src(vendorJs.concat(jsSrc))
+		})),
+		gulp.src(vendorJs.concat(jsSrc))
+	);
+}
+gulp.task('js', function() {
+	return jsStream()
 		.pipe(ngAnnotate())
 		.pipe(uglify())
 		.pipe(concat('app-min.js', {
 			newLine: ';'
 		}))
 		.pipe(gulp.dest('public'));
+
 });
 gulp.task('js-dev', function() {
-	gulp.src(vendorJs.concat(jsSrc))
+	return jsStream()
 		.pipe(sourcemaps.init())
 		.pipe(concat('app-min.js', {
 			newLine: ';'
@@ -91,16 +95,12 @@ gulp.task('watch', function() {
 		gulp.start('sass');
 		cb();
 	});
-	watch(templateCacheSrc, function(files, cb) {
-		gulp.start('template-cache');
-		cb();
-	});
-	watch(jsSrc, function(files, cb) {
+	watch(templateCacheSrc.concat(jsSrc), function(files, cb) {
 		gulp.start('js-dev');
 		cb();
 	});
 	gulp.start('sass');
-	gulp.start('template-cache');
+	gulp.start('js-dev');
 });
 
 gulp.task('run', [

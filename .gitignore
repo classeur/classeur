@@ -5,5 +5,4 @@ node_modules
 Thumbs.db
 .DS_Store
 bower_components
-src/templates.js
 public/app-min.*
