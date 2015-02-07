@@ -39,18 +39,11 @@ var vendorJs = [
 	'public/bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
-var sassSrc = ['src/**/*.scss'];
-
-gulp.task('sass', function() {
-	gulp.src('src/styles/main.scss')
-		.pipe(sourcemaps.init())
-		.pipe(sass({
-			outputStyle: 'compressed'
-		}))
-		.pipe(rename('app-min.css'))
-		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('public'));
-});
+var vendorCss = [
+	'public/bower_components/angular-material/angular-material.css',
+	'public/bower_components/highlightjs/styles/default.css',
+	'public/bower_components/google-code-prettify/src/prettify.css'
+];
 
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
 var jsSrc = ['src/**/*.js'];
@@ -81,6 +74,26 @@ gulp.task('js-dev', function() {
 		.pipe(sourcemaps.init())
 		.pipe(concat('app-min.js', {
 			newLine: ';'
+		}))
+		.pipe(sourcemaps.write('.'))
+		.pipe(gulp.dest('public'));
+});
+
+var sassSrc = ['src/**/*.scss'];
+
+function cssStream() {
+	return mergeStream(
+		gulp.src(vendorCss),
+		gulp.src('src/styles/main.scss')
+	);
+}
+
+gulp.task('sass', function() {
+	return cssStream()
+		.pipe(sourcemaps.init())
+		.pipe(concat('app-min.css'))
+		.pipe(sass({
+			outputStyle: 'compressed'
 		}))
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('public'));
