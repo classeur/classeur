@@ -26,7 +26,8 @@
     "angular-slugify": "~1.0.0",
     "movejs": "~0.4.0",
     "angular-route": "~1.3.9",
-    "angular-messages": "~1.3.10"
+    "angular-messages": "~1.3.10",
+    "hammerjs": "~2.0.4"
   },
   "resolutions": {
     "angular": "1.3.x"

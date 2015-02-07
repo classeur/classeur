@@ -91,10 +91,10 @@ function cssStream() {
 gulp.task('sass', function() {
 	return cssStream()
 		.pipe(sourcemaps.init())
-		.pipe(concat('app-min.css'))
 		.pipe(sass({
 			outputStyle: 'compressed'
 		}))
+		.pipe(concat('app-min.css'))
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('public'));
 });
