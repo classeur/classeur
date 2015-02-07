@@ -5,7 +5,7 @@ var ngAnnotate = require('gulp-ng-annotate');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
-var gulpMerge = require('gulp-merge');
+var mergeStream = require('merge-stream');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
 
@@ -56,13 +56,14 @@ var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
 var jsSrc = ['src/**/*.js'];
 
 function jsStream() {
-	return gulpMerge(
+	return mergeStream(
+		gulp.src(vendorJs),
+		gulp.src(jsSrc),
 		gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
 			standalone: true
-		})),
-		gulp.src(vendorJs.concat(jsSrc))
+		}))
 	);
 }
 gulp.task('js', function() {
