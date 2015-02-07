@@ -3,9 +3,8 @@ var watch = require('gulp-watch');
 var concat = require('gulp-concat');
 var ngAnnotate = require('gulp-ng-annotate');
 var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
-var mergeStream = require('merge-stream');
+var streamqueue = require('streamqueue');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
 
@@ -49,7 +48,9 @@ var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
 var jsSrc = ['src/**/*.js'];
 
 function jsStream() {
-	return mergeStream(
+	return streamqueue({
+			objectMode: true
+		},
 		gulp.src(vendorJs),
 		gulp.src(jsSrc),
 		gulp.src(templateCacheSrc)
@@ -82,7 +83,9 @@ gulp.task('js-dev', function() {
 var sassSrc = ['src/**/*.scss'];
 
 function cssStream() {
-	return mergeStream(
+	return streamqueue({
+			objectMode: true
+		},
 		gulp.src(vendorCss),
 		gulp.src('src/styles/main.scss')
 	);
