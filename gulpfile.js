@@ -1,25 +1,12 @@
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
+var ngAnnotate = require('gulp-ng-annotate');
+var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
-
-gulp.task('express', function() {
-	process.env.NO_CLUSTER = true;
-	require('./index');
-});
-
-var sassSrc = ['src/**/*.scss'];
-gulp.task('sass-dev', function() {
-	return gulp.src('src/styles/main.scss')
-		.pipe(sourcemaps.init())
-		.pipe(sass())
-		.pipe(rename('app-min.css'))
-		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('public'));
-});
 
 var vendorJs = [
 	'public/bower_components/angular/angular.js',
@@ -51,9 +38,22 @@ var vendorJs = [
 	'public/bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
+var sassSrc = ['src/**/*.scss'];
+
+gulp.task('sass', function() {
+	gulp.src('src/styles/main.scss')
+		.pipe(sourcemaps.init())
+		.pipe(sass({
+			outputStyle: 'compressed'
+		}))
+		.pipe(rename('app-min.css'))
+		.pipe(sourcemaps.write('.'))
+		.pipe(gulp.dest('public'));
+});
+
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
 gulp.task('template-cache', function() {
-	return gulp.src(templateCacheSrc)
+	gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
 			standalone: true
@@ -62,6 +62,15 @@ gulp.task('template-cache', function() {
 });
 
 var jsSrc = ['src/**/*.js'];
+gulp.task('js', ['template-cache'], function() {
+	gulp.src(vendorJs.concat(jsSrc))
+		.pipe(ngAnnotate())
+		.pipe(uglify())
+		.pipe(concat('app-min.js', {
+			newLine: ';'
+		}))
+		.pipe(gulp.dest('public'));
+});
 gulp.task('js-dev', function() {
 	gulp.src(vendorJs.concat(jsSrc))
 		.pipe(sourcemaps.init())
@@ -72,9 +81,14 @@ gulp.task('js-dev', function() {
 		.pipe(gulp.dest('public'));
 });
 
+gulp.task('express', function() {
+	process.env.NO_CLUSTER = true;
+	require('./index');
+});
+
 gulp.task('watch', function() {
 	watch(sassSrc, function(files, cb) {
-		gulp.start('sass-dev');
+		gulp.start('sass');
 		cb();
 	});
 	watch(templateCacheSrc, function(files, cb) {
@@ -85,7 +99,7 @@ gulp.task('watch', function() {
 		gulp.start('js-dev');
 		cb();
 	});
-	gulp.start('sass-dev');
+	gulp.start('sass');
 	gulp.start('template-cache');
 });
 
@@ -95,6 +109,6 @@ gulp.task('run', [
 ]);
 
 gulp.task('default', [
-	'sass-dev',
-	'js-dev'
+	'sass',
+	'js'
 ]);
