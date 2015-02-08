@@ -38,6 +38,13 @@ angular.module('classeur.core.files', [])
 			this.contentDao.$readLocalUpdate();
 		};
 
+		FileDao.prototype.freeContent = function() {
+			this.contentDao.$freeAttr('content');
+			this.contentDao.$freeAttr('users');
+			this.contentDao.$freeAttr('discussions');
+			this.contentDao.$freeAttr('state');
+		};
+
 		FileDao.prototype.writeContent = function(updateLastChange) {
 			this.contentDao.$writeAttr('isLocal');
 			if (this.isLoaded) {
@@ -68,10 +75,18 @@ angular.module('classeur.core.files', [])
 		};
 
 		FileDao.prototype.unload = function() {
-			this.contentDao.$freeAttr('content');
-			this.contentDao.$freeAttr('users');
-			this.contentDao.$freeAttr('discussions');
-			this.contentDao.$freeAttr('state');
+			this.freeContent();
+			this.isLoaded = false;
+		};
+
+		FileDao.prototype.loadExecUnload = function(cb) {
+			if(this.isLoaded) {
+				return cb();
+			}
+			this.isLoaded = true;
+			this.readContent();
+			cb();
+			this.freeContent();
 			this.isLoaded = false;
 		};
 
