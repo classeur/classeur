@@ -1,14 +1,15 @@
 angular.module('classeur.core.sync', [])
 	.run(function($rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc) {
 		var lastActivity = 0;
-		var maxInactivity = 60 * 1000; // 60 sec
+		var maxInactivity = 30 * 1000; // 30 sec
 
 		function updateLastActivity() {
 			lastActivity = Date.now();
 		}
 
-		var fileSyncData = {};
 		var folderSyncData = {};
+		var fileSyncData = {};
+		var contentSyncData = {};
 
 		var syncFolders = (function() {
 
@@ -127,28 +128,19 @@ angular.module('classeur.core.sync', [])
 					return retrieveChanges();
 				}
 				sendChanges();
+				sendNewFiles();
 			});
 
 			function sendChanges() {
 				var changes = [];
-				var newFiles = [];
 				clFileSvc.files.forEach(function(fileDao) {
-					var syncData = fileSyncData[fileDao.id];
+					var syncData = fileSyncData[fileDao.id] || {};
 					var change = {
 						id: fileDao.id,
 						name: fileDao.name,
 						folderId: fileDao.folderId || undefined,
 						updated: fileDao.updated
 					};
-					if(!syncData) {
-						if(fileDao.contentDao.isLocal) {
-							fileDao.loadExecUnload(function() {
-								change.content = fileDao.contentDao.content;
-							});
-							newFiles.push(change);
-						}
-						return;
-					}
 					if (fileDao.updated == syncData.r) {
 						return;
 					}
@@ -169,21 +161,51 @@ angular.module('classeur.core.sync', [])
 					type: 'setFileChanges',
 					changes: changes
 				});
-				newFiles.length && clSocketSvc.sendMsg({
+			}
+
+			function sendNewFiles() {
+				var files = [];
+				clFileSvc.files.forEach(function(fileDao) {
+					if(!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
+						return;
+					}
+					var syncData = fileSyncData[fileDao.id] || {};
+					if(syncData.r) {
+						return;
+					}
+					var file = {
+						id: fileDao.id
+					};
+					fileDao.loadExecUnload(function() {
+						file.content = fileDao.contentDao.content;
+						files.push(file);
+					});
+				});
+				files.length && clSocketSvc.sendMsg({
 					type: 'createFiles',
-					files: newFiles
+					files: files
 				});
 			}
 
-			clSocketSvc.addMsgHandler('createdFile', function(msg) {
-				updateLastActivity();
-				fileSyncData[msg.id] = {
-					r: msg.updated
-				};
-			});
-
 			return retrieveChanges;
 		})();
+
+		clSocketSvc.addMsgHandler('content', function(msg) {
+			updateLastActivity();
+			var syncData = contentSyncData[msg.id];
+			if(syncData) {
+				if(msg.rev < syncData.rev) {
+					return;
+				}
+				if(syncData.content !== msg.content) {
+					// Deal with conflicts
+				}
+			}
+			contentSyncData[msg.id] = {
+				rev: msg.rev,
+				content: msg.content
+			};
+		});
 
 		function sync() {
 			if (!clSocketSvc.isReady) {
