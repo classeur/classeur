@@ -166,11 +166,11 @@ angular.module('classeur.core.sync', [])
 			function sendNewFiles() {
 				var files = [];
 				clFileSvc.files.forEach(function(fileDao) {
-					if(!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
+					if (!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
 						return;
 					}
 					var syncData = fileSyncData[fileDao.id] || {};
-					if(syncData.r) {
+					if (syncData.r) {
 						return;
 					}
 					var file = {
@@ -187,25 +187,24 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
+			clSocketSvc.addMsgHandler('contentRev', function(msg) {
+				updateLastActivity();
+				var syncData = contentSyncData[msg.id];
+				if (syncData) {
+					if (msg.rev < syncData.rev) {
+						return;
+					}
+					if (syncData.content !== msg.content) {
+						// Deal with conflicts
+					}
+				}
+				contentSyncData[msg.id] = {
+					rev: msg.rev
+				};
+			});
+
 			return retrieveChanges;
 		})();
-
-		clSocketSvc.addMsgHandler('content', function(msg) {
-			updateLastActivity();
-			var syncData = contentSyncData[msg.id];
-			if(syncData) {
-				if(msg.rev < syncData.rev) {
-					return;
-				}
-				if(syncData.content !== msg.content) {
-					// Deal with conflicts
-				}
-			}
-			contentSyncData[msg.id] = {
-				rev: msg.rev,
-				content: msg.content
-			};
-		});
 
 		function sync() {
 			if (!clSocketSvc.isReady) {

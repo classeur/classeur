@@ -9,12 +9,12 @@ angular.module('classeur.extensions.fileDragging', [])
 					clFileDraggingSvc.panel.move().to(evt.center.x + 10, evt.center.y).end();
 				}
 				var hammertime = new Hammer(element[0].querySelector('.drag'));
-				hammertime.get('pan').set({direction: Hammer.DIRECTION_ALL, threshold: 0});
+				hammertime.get('pan').set({
+					direction: Hammer.DIRECTION_ALL,
+					threshold: 0
+				});
 				hammertime.on('panstart', function(evt) {
-					if(clFileDraggingSvc.targetFolder) {
-						clFileDraggingSvc.targetFolder.isDraggingTarget = false;
-						clFileDraggingSvc.targetFolder = undefined;
-					}
+					clFileDraggingSvc.setFolderTarget();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
 					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.folderContainerWidth);
 					movePanel(evt);
@@ -26,6 +26,7 @@ angular.module('classeur.extensions.fileDragging', [])
 				hammertime.on('panend', function() {
 					clFileDraggingSvc.moveFiles();
 					clFileDraggingSvc.files = [];
+					clFileDraggingSvc.setFolderTarget();
 					scope.$apply();
 				});
 			}
@@ -35,20 +36,18 @@ angular.module('classeur.extensions.fileDragging', [])
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				if(scope.folderDao === clExplorerLayoutSvc.createFolder) {
+				if (scope.folderDao === clExplorerLayoutSvc.createFolder) {
 					return;
 				}
 				element.on('mouseenter', function() {
-					if(clFileDraggingSvc.files.length) {
-						scope.folderDao.isDraggingTarget = true;
-						clFileDraggingSvc.targetFolder = scope.folderDao;
+					if (clFileDraggingSvc.files.length) {
+						clFileDraggingSvc.setFolderTarget(scope.folderDao);
 						scope.$apply();
 					}
 				});
 				element.on('mouseleave', function() {
-					if(clFileDraggingSvc.targetFolder === scope.folderDao) {
-						scope.folderDao.isDraggingTarget = false;
-						clFileDraggingSvc.targetFolder = undefined;
+					if (clFileDraggingSvc.targetFolder === scope.folderDao) {
+						clFileDraggingSvc.setFolderTarget();
 						scope.$apply();
 					}
 				});
@@ -72,8 +71,19 @@ angular.module('classeur.extensions.fileDragging', [])
 			}) : [fileDao];
 		}
 
+		function setFolderTarget(folderDao) {
+			if (clFileDraggingSvc.targetFolder) {
+				clFileDraggingSvc.targetFolder.isDraggingTarget = false;
+				clFileDraggingSvc.targetFolder = undefined;
+			}
+			if (folderDao) {
+				folderDao.isDraggingTarget = true;
+				clFileDraggingSvc.targetFolder = folderDao;
+			}
+		}
+
 		function moveFiles() {
-			if(clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
+			if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
 				clFileDraggingSvc.files.forEach(function(fileDao) {
 					fileDao.folderId = clFileDraggingSvc.targetFolder.id;
 				});
@@ -84,6 +94,7 @@ angular.module('classeur.extensions.fileDragging', [])
 		var clFileDraggingSvc = {
 			files: [],
 			setFileSrc: setFileSrc,
+			setFolderTarget: setFolderTarget,
 			moveFiles: moveFiles
 		};
 		return clFileDraggingSvc;

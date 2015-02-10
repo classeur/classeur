@@ -1,8 +1,8 @@
 angular.module('classeur.core', [])
 	.config(function($mdThemingProvider, $routeProvider) {
 		$mdThemingProvider.theme('default')
-			.primaryColor('blue')
-			.accentColor('blue');
+			.primaryPalette('blue')
+			.accentPalette('blue');
 		var menuTheme = $mdThemingProvider.theme('classeur', 'default');
 		menuTheme.dark();
 		menuTheme.foregroundShadow = '';
@@ -55,7 +55,7 @@ angular.module('classeur.core', [])
 		function saveAll() {
 			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
 			if($rootScope.currentFileDao && !$rootScope.currentFileDao.isLoaded) {
-				// Close current file if has been unloaded
+				// Close current file if it has been unloaded
 				setCurrentFile();
 				hasChanged = true;
 			}
@@ -99,7 +99,7 @@ angular.module('classeur.core', [])
 			var hasChanged = saveAll();
 			$rootScope.$broadcast('clPeriodicRun');
 			hasChanged && $rootScope.$apply();
-		}, 1000);
+		}, (9.5 + Math.random()) * 100 | 0); // 1000ms +/- 50
 
 		window.addEventListener('beforeunload', function(evt) {
 			saveAll();

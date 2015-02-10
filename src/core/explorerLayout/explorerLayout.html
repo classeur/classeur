@@ -55,30 +55,31 @@
 
                     </div>
 
-                    <div class="folder content">
+                    <div class="new-file actions" layout="row" layout-align="end">
+                        <md-button ng-click="newFile()">
+                            <span class="mdi-content-add"></span> New file
+                        </md-button>
+                        <md-button>
+                            <span class="mdi-content-add"></span> Import
+                        </md-button>
+                    </div>
+                    <div class="folder content" ng-if="explorerLayoutSvc.files.length">
 
-                        <div class="file actions">
-                            <div>
-                                <md-button md-no-ink class="md-primary" ng-click="newFile()">
-                                    <span class="mdi-content-add"></span> New file
+                        <div class="file actions" ng-switch="hasSelection()">
+                            <div ng-switch-when="false">
+                                <md-button md-no-ink class="md-primary" ng-click="selectAll()">
+                                    <span class="mdi-navigation-check"></span> Select all
                                 </md-button>
                             </div>
-                            <div ng-if="explorerLayoutSvc.files.length" ng-switch="hasSelection()">
-                                <div ng-switch-when="false">
-                                    <md-button md-no-ink class="md-primary" ng-click="selectAll()">
-                                        <span class="mdi-navigation-check"></span> Select all
-                                    </md-button>
-                                </div>
-                                <div ng-switch-when="true">
-                                    <md-button md-no-ink class="md-primary" ng-click="selectNone()">
-                                        <span class="mdi-toggle-check-box-outline-blank"></span> Select None
-                                    </md-button>
-                                </div>
-                                <div ng-switch-when="true">
-                                    <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
-                                        <span class="mdi-action-delete"></span> Delete
-                                    </md-button>
-                                </div>
+                            <div ng-switch-when="true">
+                                <md-button md-no-ink class="md-primary" ng-click="selectNone()">
+                                    <span class="mdi-toggle-check-box-outline-blank"></span> Select None
+                                </md-button>
+                            </div>
+                            <div ng-switch-when="true">
+                                <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
+                                    <span class="mdi-action-delete"></span> Delete
+                                </md-button>
                             </div>
                         </div>
 
