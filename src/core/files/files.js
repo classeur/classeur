@@ -170,7 +170,7 @@ angular.module('classeur.core.files', [])
 			var checkFileSvcUpdate = clFileSvc.$checkGlobalUpdate();
 			clFileSvc.$readGlobalUpdate();
 			if (checkFileSvcUpdate && clFileSvc.$checkAttr('fileIds', '[]')) {
-				delete clFileSvc.fileIds;
+				clFileSvc.fileIds = undefined;
 			} else {
 				clFileSvc.$writeAttr('fileIds', JSON.stringify);
 			}

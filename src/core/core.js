@@ -10,19 +10,21 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/file/:fileId', {
 				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, clFileSvc) {
+				controller: function($rootScope, $routeParams, clFileSvc, clEditorLayoutSvc) {
 					var currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
 					currentFileDao.load(function() {
 						$rootScope.currentFileDao = currentFileDao;
+						clEditorLayoutSvc.init();
 					});
 				}
 			})
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc) {
+				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc, clEditorLayoutSvc) {
 					var currentFileDao = clDocFileSvc($routeParams.fileName);
 					$timeout(function() {
 						$rootScope.currentFileDao = currentFileDao;
+						clEditorLayoutSvc.init();
 					});
 				}
 			})
@@ -41,7 +43,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clStateMgr, clToast) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clStateMgr, clToast, clSetInterval) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -95,11 +97,11 @@ angular.module('classeur.core', [])
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
-		setInterval(function() {
+		clSetInterval(function() {
 			var hasChanged = saveAll();
 			$rootScope.$broadcast('clPeriodicRun');
 			hasChanged && $rootScope.$apply();
-		}, (9.5 + Math.random()) * 100 | 0); // 1000ms +/- 50
+		}, 1000);
 
 		window.addEventListener('beforeunload', function(evt) {
 			saveAll();

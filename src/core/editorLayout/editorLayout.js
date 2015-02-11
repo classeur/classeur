@@ -6,8 +6,6 @@ angular.module('classeur.core.editorLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/editorLayout.html',
 			link: function(scope, element) {
-				clEditorLayoutSvc.init();
-
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
@@ -176,10 +174,11 @@ angular.module('classeur.core.editorLayout', [])
 			menuWidth: 320,
 			tocWidth: 250,
 			statHeight: 30,
-			init: function() {
-				this.isEditorOpen = true;
+			init: function(hideEditor) {
+				this.isEditorOpen = !hideEditor;
 				this.isSidePreviewOpen = false;
 				this.currentControl = undefined;
+				this.isMenuOpen = false;
 				this.isTocOpen = false;
 				this.isStatOpen = false;
 				this.isCornerOpen = false;

@@ -57,7 +57,7 @@ angular.module('classeur.core.folders', [])
 			var checkFolderSvcUpdate = clFolderSvc.$checkGlobalUpdate();
 			clFolderSvc.$readGlobalUpdate();
 			if (checkFolderSvcUpdate && clFolderSvc.$checkAttr('folderIds', '[]')) {
-				delete clFolderSvc.folderIds;
+				clFolderSvc.folderIds = undefined;
 			} else {
 				clFolderSvc.$writeAttr('folderIds', JSON.stringify);
 			}

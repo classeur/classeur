@@ -155,8 +155,8 @@ angular.module('classeur.core.utils', [])
 		};
 
 		LocalStorageObject.prototype.$freeAttr = function(name) {
-			delete this[name];
-			delete this['$' + name + 'Saved'];
+			this[name] = undefined;
+			this['$' + name + 'Saved'] = undefined;
 		};
 
 		LocalStorageObject.prototype.$checkLocalUpdate = function() {
@@ -236,6 +236,12 @@ angular.module('classeur.core.utils', [])
 		window.addEventListener('mouseup', saveSelection);
 		window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
+	})
+	.factory('clSetInterval', function() {
+		return function(cb, interval) {
+			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
+			setInterval(cb, interval);
+		};
 	})
 	.factory('clUriValidator', function() {
 		var aHrefSanitizationWhitelist = /^\s*(https?|ftp|mailto|tel|file):/,

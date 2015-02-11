@@ -17,7 +17,7 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 					clEditorLayoutSvc.currentControl = undefined;
 				};
 
-				scope.$watch('currentFileDao.content', function(newContent) {
+				scope.$watch('currentFileDao.contentDao.content', function(newContent) {
 					if(!wasDismissed && newContent !== content) {
 						clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 					}

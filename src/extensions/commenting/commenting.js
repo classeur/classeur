@@ -62,7 +62,7 @@ angular.module('classeur.extensions.commenting', [])
 				scope.commenting = clCommentingSvc;
 				scope.removeDiscussion = function(discussion) {
 					clEditorLayoutSvc.currentControl = undefined;
-					delete clCommentingSvc.contentDao.discussions[discussion.discussionDao.id];
+					clCommentingSvc.contentDao.discussions[discussion.discussionDao.id] = undefined;
 					clCommentingSvc.lastDiscussionChanged = Date.now();
 				};
 			}
