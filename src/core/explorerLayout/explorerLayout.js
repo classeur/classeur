@@ -45,7 +45,7 @@ angular.module('classeur.core.explorerLayout', [])
 		};
 	})
 	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants, clStateMgr) {
-		var explorerMaxWidth = 720;
+		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		return {
 			restrict: 'E',

@@ -1,7 +1,20 @@
 <div class="explorer background panel">
     <div class="explorer container panel">
         <div class="header" layout="column" layout-align="space-between">
-            <div layout="row" layout-align="end start" ng-switch="!!userSvc.user">
+            <div class="bottom" layout="row" layout-align="space-between end">
+                <div class="logo">
+                    <img src="images/logo.png" height="64">
+                </div>
+                <div class="links" flex>
+                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
+                        <span class="mdi-action-help"></span> Help
+                    </md-button>
+                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
+                        <span class="mdi-action-help"></span> Markdown Cheat Sheet
+                    </md-button>
+                </div>
+            </div>
+            <div class="top" layout="row" layout-align="end start" ng-switch="!!userSvc.user">
                 <div ng-switch-when="false">
                     <md-button ng-click="signin()">
                         Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
@@ -12,19 +25,6 @@
                     </span>
                     <md-button>
                         Go premium <span class="mdi-navigation-arrow-forward"></span>
-                    </md-button>
-                </div>
-            </div>
-            <div layout="row" layout-align="space-between end">
-                <div class="logo">
-                    <img src="images/logo.png" height="64">
-                </div>
-                <div class="links" flex>
-                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="mdi-action-help"></span> Help
-                    </md-button>
-                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="mdi-action-help"></span> Markdown Cheat Sheet
                     </md-button>
                 </div>
             </div>

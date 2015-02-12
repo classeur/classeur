@@ -14,10 +14,14 @@ angular.module('classeur.extensions.zenMode', [])
 			link: function(scope, element) {
 				var zenPanel = clPanel(element, '.zen.panel').width(4000).left(-1500);
 
-				var timeout, enabled = true;
+				var timeout, enabled = true, lastClientX, lastClientY;
 				function hideZenPanel(evt) {
-					if (evt && evt.type === 'mousemove' && !evt.movementX && !evt.movementY) {
-						return;
+					if(evt && evt.type === 'mousemove') {
+						if (lastClientX === evt.clientX && lastClientY === evt.clientY) {
+							return;
+						}
+						lastClientX = evt.clientX;
+						lastClientY = evt.clientY;
 					}
 					clearTimeout(timeout);
 					if (enabled === true) {
@@ -33,8 +37,8 @@ angular.module('classeur.extensions.zenMode', [])
 						enabled = true;
 						zenPanel.$elt.removeClass('hidden');
 						zenPanel.$$elt.offsetWidth;
-						zenPanel.move().set('opacity', 1).duration(4000).ease('in').end();
-					}, 4000);
+						zenPanel.move().set('opacity', 1).duration(2000).ease('in').end();
+					}, 5000);
 				}
 
 				hideZenPanel();

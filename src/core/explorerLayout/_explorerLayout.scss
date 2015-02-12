@@ -11,6 +11,17 @@
 
 	.header {
 		height: 75px;
+		position: relative;
+		& > div {
+			position: absolute;
+			width: 100%;
+		}
+		.top {
+			top: 0;
+		}
+		.bottom {
+			bottom: 0;
+		}
 	}
 
 	.links {
