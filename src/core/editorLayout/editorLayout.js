@@ -104,9 +104,9 @@ angular.module('classeur.core.editorLayout', [])
 				function animateLayout() {
 					showPreview();
 					updateLayout();
-					backgroundPanel.move().x(clEditorLayoutSvc.backgroundX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
-					binderPanel.move().x(clEditorLayoutSvc.binderX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
-					previewPanel.move().x(clEditorLayoutSvc.previewX).duration(isInited && 180).then(debouncedUpdatedLayoutSize).end();
+					backgroundPanel.move(isInited && 'slow').x(clEditorLayoutSvc.backgroundX).then(debouncedUpdatedLayoutSize).end();
+					binderPanel.move(isInited && 'slow').x(clEditorLayoutSvc.binderX).then(debouncedUpdatedLayoutSize).end();
+					previewPanel.move(isInited && 'slow').x(clEditorLayoutSvc.previewX).then(debouncedUpdatedLayoutSize).end();
 				}
 
 				animateLayout();
@@ -115,7 +115,7 @@ angular.module('classeur.core.editorLayout', [])
 				function animateEditor() {
 					showPreview();
 					updateLayout();
-					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(isInited && 270).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
+					editorPanel.move(isInited && 'sslow').to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
 						hidePreview();
 						clEditorLayoutSvc.toggleSidePreview(false);
 						clEditorLayoutSvc.currentControl = undefined;
@@ -125,15 +125,15 @@ angular.module('classeur.core.editorLayout', [])
 
 				function animateMenu() {
 					updateLayout();
-					pagePanel.move().x(clEditorLayoutSvc.pageX).y(clEditorLayoutSvc.pageY).rotate(clEditorLayoutSvc.pageRotate).ease('ease-out-back').duration(180).end();
-					editorPanel.move().to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).duration(isInited && 180).end();
+					pagePanel.move('slow').x(clEditorLayoutSvc.pageX).y(clEditorLayoutSvc.pageY).rotate(clEditorLayoutSvc.pageRotate).ease('ease-out-back').end();
+					editorPanel.move(isInited && 'slow').to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).end();
 				}
 
 				function animateCorner() {
 					if(!clEditorLayoutSvc.isCornerOpen) {
 						clEditorLayoutSvc.isCornerButtonVisible = false;
 					}
-					cornerPanel.move().scale(clEditorLayoutSvc.isCornerOpen ? 2.5 : 1).duration(isInited && 180).then(function() {
+					cornerPanel.move(isInited && 'slow').scale(clEditorLayoutSvc.isCornerOpen ? 2.5 : 1).then(function() {
 						if(clEditorLayoutSvc.isCornerOpen) {
 							clEditorLayoutSvc.isCornerButtonVisible = true;
 							isInited && scope.$apply();

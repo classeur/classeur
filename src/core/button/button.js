@@ -19,16 +19,16 @@ angular.module('classeur.core.button', [])
 					attr && buttonPanel[attrName](attr);
 				});
 				function enter() {
-					buttonPanel.move().scale(scaleHover).set('opacity', opacityHover).duration(90).ease('out').end();
+					buttonPanel.move('fast').scale(scaleHover).set('opacity', opacityHover).ease('out').end();
 				}
-				var isInited;
+				var speed;
 				function leave() {
-					buttonPanel.move().scale(scale).set('opacity', opacity).duration(isInited ? 90 : 0).ease('in').end();
+					buttonPanel.move(speed).scale(scale).set('opacity', opacity).ease('in').end();
 				}
 				leave();
+				speed = 'fast';
 				element.on('mouseenter', enter);
 				element.on('mouseleave', leave);
-				isInited = true;
 			}
 		};
 	});

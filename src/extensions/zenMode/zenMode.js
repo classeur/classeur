@@ -22,7 +22,7 @@ angular.module('classeur.extensions.zenMode', [])
 					clearTimeout(timeout);
 					if (enabled === true) {
 						enabled = false;
-						zenPanel.move().set('opacity', 0).duration(90).ease('out').end(function() {
+						zenPanel.move('fast').set('opacity', 0).ease('out').end(function() {
 							!enabled && zenPanel.$elt.addClass('hidden');
 						});
 					}

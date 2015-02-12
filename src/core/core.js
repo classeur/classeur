@@ -99,7 +99,6 @@ angular.module('classeur.core', [])
 
 		clSetInterval(function() {
 			var hasChanged = saveAll();
-			$rootScope.$broadcast('clPeriodicRun');
 			hasChanged && $rootScope.$apply();
 		}, 1000);
 
