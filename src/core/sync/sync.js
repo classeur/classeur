@@ -1,8 +1,9 @@
 angular.module('classeur.core.sync', [])
-	.run(function($rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc) {
+	.run(function($rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval) {
 		var lastSyncDate = 0;
 		var lastCreationDate = 0;
-		var maxInactivity = 30 * 1000; // 30 sec
+		var maxSyncInactivity = 30 * 1000; // 30 sec
+		var maxCreationInactivity = 15 * 1000; // 15 sec
 
 		function updateLastSyncDate() {
 			lastSyncDate = Date.now();
@@ -179,22 +180,17 @@ angular.module('classeur.core.sync', [])
 
 		function sendNewFiles() {
 			updateLastCreationDate();
-			var files = [];
 			clFileSvc.files.forEach(function(fileDao) {
 				if (!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
 					return;
 				}
-				var file = {
-					id: fileDao.id
-				};
 				fileDao.loadExecUnload(function() {
-					file.content = fileDao.contentDao.content;
-					files.push(file);
+					clSocketSvc.sendMsg({
+						type: 'createFile',
+						id: fileDao.id,
+						content: fileDao.contentDao.content
+					});
 				});
-			});
-			files.length && clSocketSvc.sendMsg({
-				type: 'createFiles',
-				files: files
 			});
 		}
 
@@ -233,25 +229,24 @@ angular.module('classeur.core.sync', [])
 			}
 		}
 
-		function sync() {
-			if (!clSocketSvc.isReady) {
-				return;
-			}
-
-			var currentDate = Date.now();
-			if (!isFirstSync && currentDate - lastCreationDate > maxInactivity) {
+		clSetInterval(function() {
+			if (!isFirstSync && Date.now() - lastCreationDate > maxCreationInactivity) {
 				sendNewFiles();
 			}
-			if ($rootScope.currentFileDao !== watchedFileDao) {
-				stopWatchContent();
-			}
-			watchContent($rootScope.currentFileDao);
+		}, 1000, true, true);
 
-			if (currentDate - lastSyncDate > maxInactivity) {
+		clSetInterval(function() {
+			if (Date.now() - lastSyncDate > maxSyncInactivity) {
 				updateLastSyncDate();
 				syncFolders();
 				syncFiles();
 			}
-		}
-		$rootScope.$on('clPeriodicRun', sync);
+		}, 1000, true, true);
+
+		clSetInterval(function() {
+			if ($rootScope.currentFileDao !== watchedFileDao) {
+				stopWatchContent();
+			}
+			watchContent($rootScope.currentFileDao);
+		}, 1000, true);
 	});

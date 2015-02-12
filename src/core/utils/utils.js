@@ -22,8 +22,8 @@ angular.module('classeur.core.utils', [])
 			);
 		};
 	})
-	.factory('clPanel', function() {
-		window.move.defaults = {
+	.factory('clPanel', function($window) {
+		$window.move.defaults = {
 			duration: 0
 		};
 
@@ -51,31 +51,40 @@ angular.module('classeur.core.utils', [])
 			'top',
 			'right',
 			'bottom',
+			'left',
 			'marginTop',
 			'marginRight',
 			'marginBottom',
-			'marginLeft',
-			'left'
+			'marginLeft'
 		].forEach(function(attr) {
 			Panel.prototype[attr] = styleSetter(attr, 'px');
 		});
 
-		Panel.prototype.move = function() {
-			return window.move(this.$$elt).ease('out');
+		var speedValues = {
+			fast: 90,
+			slow: 180,
+			sslow: 270
+		};
+		Panel.prototype.move = function(speed) {
+			var result = $window.move(this.$$elt).ease('out');
+			var duration = speedValues[speed];
+			duration && result.duration(duration);
+			return result;
 		};
 
 		return function(elt, selector) {
 			return new Panel(elt, selector);
 		};
 	})
-	.factory('clDraggablePanel', function(clPanel) {
-		var Hammer = window.Hammer;
+	.factory('clDraggablePanel', function($window, clPanel) {
+		var Hammer = $window.Hammer;
 		return function(elt, selector, x, y, rotation) {
 			rotation = rotation || 0;
 			var panel = clPanel(elt, selector);
 			panel.move().rotate(rotation)
-				.then().to(x, y).duration(180).ease('ease-out-back').pop()
-				.end();
+				.then(function() {
+					panel.move('slow').to(x, y).ease('ease-out-back').end();
+				}).end();
 
 			var hammertime = new Hammer(panel.$$elt);
 			hammertime.get('pan').set({
@@ -222,34 +231,36 @@ angular.module('classeur.core.utils', [])
 
 		return clStateMgr;
 	})
-	.factory('clSelectionListeningSvc', function($timeout) {
+	.factory('clSelectionListeningSvc', function($window, $timeout) {
 		var clSelectionListeningSvc = {};
 
 		function saveSelection() {
 			$timeout(function() {
-				var selection = window.getSelection();
+				var selection = $window.getSelection();
 				clSelectionListeningSvc.range = selection.rangeCount && selection.getRangeAt(0);
 			}, 25);
 		}
 
-		window.addEventListener('keyup', saveSelection);
-		window.addEventListener('mouseup', saveSelection);
-		window.addEventListener('contextmenu', saveSelection);
+		$window.addEventListener('keyup', saveSelection);
+		$window.addEventListener('mouseup', saveSelection);
+		$window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
 	})
-	.factory('clSetInterval', function() {
-		return function(cb, interval) {
+	.factory('clSetInterval', function($window, clSocketSvc) {
+		return function(cb, interval, checkConnectionStatus, checkWindowFocus) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
-			setInterval(cb, interval);
+			setInterval(function() {
+				(!checkConnectionStatus || clSocketSvc.isReady) && (!checkWindowFocus || $window.document.hasFocus()) && cb();
+			}, interval);
 		};
 	})
-	.factory('clUriValidator', function() {
+	.factory('clUriValidator', function($window) {
 		var aHrefSanitizationWhitelist = /^\s*(https?|ftp|mailto|tel|file):/,
 			imgSrcSanitizationWhitelist = /^\s*(https?|ftp|file):|data:image\//;
 
-		var msie = window.cledit.Utils.isMsie;
+		var msie = $window.cledit.Utils.isMsie;
 
-		var urlParsingNode = document.createElement("a");
+		var urlParsingNode = $window.document.createElement("a");
 
 		function urlResolve(url) {
 			var href = url;

@@ -164,7 +164,7 @@ angular.module('classeur.extensions.btnBar', [])
 						return;
 					}
 					isOpen = newIsOpen;
-					btnBarPanel.move().delay(isOpen ? 250 : 0).to(-props.width / 2, isOpen ? openOffsetY : closedOffsetY).ease('ease-out-back').duration(180).end();
+					btnBarPanel.move('slow').delay(isOpen ? 250 : 0).to(-props.width / 2, isOpen ? openOffsetY : closedOffsetY).ease('ease-out-back').end();
 				}
 			}
 		};

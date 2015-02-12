@@ -6,7 +6,7 @@ angular.module('classeur.core.explorerLayout', [])
 				var elt = element[0];
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
-				var duration = 0;
+				var speed;
 				var isOpen;
 
 				function animate() {
@@ -14,7 +14,7 @@ angular.module('classeur.core.explorerLayout', [])
 					var y = scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
-					buttonPanel.move().translate(isOpen ? 0 : -4, y).duration(duration).ease('out').end(function() {
+					buttonPanel.move(speed).translate(isOpen ? 0 : -4, y).ease('out').then(function() {
 						if (isOpen) {
 							// Adjust scrolling position
 							var minY = parentElt.scrollTop + 20;
@@ -26,8 +26,8 @@ angular.module('classeur.core.explorerLayout', [])
 								parentElt.scrollTop += y - minY;
 							}
 						}
-					});
-					duration = 90;
+					}).end();
+					speed = 'fast';
 				}
 
 				scope.$watch('$index', animate);
