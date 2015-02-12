@@ -1,9 +1,9 @@
 angular.module('classeur.core.sync', [])
-	.run(function($rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval) {
+	.run(function($window, $rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval, clEditorSvc) {
 		var lastSyncDate = 0;
 		var lastCreationDate = 0;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
-		var maxCreationInactivity = 15 * 1000; // 15 sec
+		var maxCreationInactivity = 30 * 1000; // 30 sec
 
 		function updateLastSyncDate() {
 			lastSyncDate = Date.now();
@@ -143,7 +143,7 @@ angular.module('classeur.core.sync', [])
 				var changes = [];
 				clFileSvc.files.forEach(function(fileDao) {
 					var syncData = fileSyncData[fileDao.id];
-					if(!syncData) {
+					if (!syncData) {
 						return;
 					}
 					var change = {
@@ -179,19 +179,24 @@ angular.module('classeur.core.sync', [])
 		})();
 
 		function sendNewFiles() {
-			updateLastCreationDate();
-			clFileSvc.files.forEach(function(fileDao) {
-				if (!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
-					return;
-				}
-				fileDao.loadExecUnload(function() {
-					clSocketSvc.sendMsg({
-						type: 'createFile',
-						id: fileDao.id,
-						content: fileDao.contentDao.content
+			var newFiles = clFileSvc.files.filter(function(fileDao) {
+				return fileDao.contentDao.isLocal && !contentSyncData.hasOwnProperty(fileDao.id);
+			});
+			if (newFiles.length) {
+				updateLastCreationDate();
+				newFiles.forEach(function(fileDao) {
+					if (!fileDao.contentDao.isLocal || contentSyncData.hasOwnProperty(fileDao.id)) {
+						return;
+					}
+					fileDao.loadExecUnload(function() {
+						clSocketSvc.sendMsg({
+							type: 'createFile',
+							id: fileDao.id,
+							content: fileDao.contentDao.content
+						});
 					});
 				});
-			});
+			}
 		}
 
 		clSocketSvc.addMsgHandler('contentRev', function(msg) {
@@ -202,31 +207,91 @@ angular.module('classeur.core.sync', [])
 			};
 		});
 
-		var watchedFileDao, watchedContentSyncData;
+		var watchCtx = {};
 		clSocketSvc.addMsgHandler('signedInUser', function() {
-			watchedFileDao = undefined;
+			watchCtx = {};
 		});
 
 		function watchContent(fileDao) {
-			if (!fileDao || (fileDao === watchedFileDao && watchedContentSyncData)) {
+			if (!fileDao || (fileDao === watchCtx.fileDao && watchCtx.syncData)) {
 				return;
 			}
-			watchedFileDao = fileDao;
-			watchedContentSyncData = contentSyncData[fileDao.id];
-			watchedContentSyncData && clSocketSvc.sendMsg({
+			watchCtx = {
+				fileDao: fileDao,
+				syncData: contentSyncData[fileDao.id]
+			};
+			watchCtx.syncData && clSocketSvc.sendMsg({
 				type: 'startWatchContent',
-				fileId: watchedFileDao.id
+				id: watchCtx.fileDao.id
 			});
 		}
 
 		function stopWatchContent() {
-			if (watchedFileDao) {
-				clSocketSvc.sendMsg({
+			if (watchCtx.fileDao) {
+				clSocketSvc.isReady && clSocketSvc.sendMsg({
 					type: 'stopWatchContent',
-					fileId: watchedFileDao.id
+					fileId: watchCtx.fileDao.id
 				});
-				watchedFileDao = undefined;
+				watchCtx = {};
 			}
+		}
+
+		clSocketSvc.addMsgHandler('content', function(msg) {
+			if (!watchCtx.fileDao || watchCtx.fileDao.id !== msg.id || !watchCtx.syncData) {
+				return;
+			}
+			watchCtx.content = msg.content;
+			watchCtx.rev = msg.rev;
+			// Replace content
+			watchCtx.syncData.content = msg.content;
+			watchCtx.syncData.rev = msg.rev;
+			clEditorSvc.cledit.setContent(msg.content);
+		});
+
+		var diffMatchPatch = new $window.diff_match_patch();
+		var DIFF_DELETE = -1;
+		var DIFF_INSERT = 1;
+		var DIFF_EQUAL = 0;
+
+		function sendContent() {
+			if (!watchCtx.rev || watchCtx.sentRev) {
+				return;
+			}
+			var newContent = watchCtx.fileDao.contentDao.content;
+			var changes = diffMatchPatch.diff_main(watchCtx.content, newContent);
+			var patches = [];
+			var startOffset = 0;
+			changes.forEach(function(change) {
+				var changeType = change[0];
+				var changeText = change[1];
+				switch (changeType) {
+					case DIFF_EQUAL:
+						startOffset += changeText.length;
+						break;
+					case DIFF_DELETE:
+						patches.push({
+							off: startOffset,
+							del: changeText
+						});
+						break;
+					case DIFF_INSERT:
+						patches.push({
+							off: startOffset,
+							ins: changeText
+						});
+						startOffset += changeText.length;
+						break;
+				}
+			});
+			if(!patches.length) {
+				return;
+			}
+			watchCtx.sentRev = watchCtx.rev + 1;
+			clSocketSvc.sendMsg({
+				type: 'setContentChange',
+				changes: patches,
+				rev: watchCtx.sentRev
+			});
 		}
 
 		clSetInterval(function() {
@@ -243,10 +308,9 @@ angular.module('classeur.core.sync', [])
 			}
 		}, 1000, true, true);
 
+		$rootScope.$watch('currentFileDao', stopWatchContent);
 		clSetInterval(function() {
-			if ($rootScope.currentFileDao !== watchedFileDao) {
-				stopWatchContent();
-			}
 			watchContent($rootScope.currentFileDao);
+			sendContent();
 		}, 1000, true);
 	});
