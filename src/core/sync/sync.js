@@ -1,5 +1,5 @@
 angular.module('classeur.core.sync', [])
-	.run(function($window, $rootScope, $http, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval, clEditorSvc) {
+	.run(function($rootScope, $location, clUserSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils) {
 		var lastSyncDate = 0;
 		var lastCreationDate = 0;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
@@ -218,7 +218,8 @@ angular.module('classeur.core.sync', [])
 			}
 			watchCtx = {
 				fileDao: fileDao,
-				syncData: contentSyncData[fileDao.id]
+				syncData: contentSyncData[fileDao.id],
+				contentChanges: []
 			};
 			watchCtx.syncData && clSocketSvc.sendMsg({
 				type: 'startWatchContent',
@@ -229,70 +230,93 @@ angular.module('classeur.core.sync', [])
 		function stopWatchContent() {
 			if (watchCtx.fileDao) {
 				clSocketSvc.isReady && clSocketSvc.sendMsg({
-					type: 'stopWatchContent',
-					fileId: watchCtx.fileDao.id
+					type: 'stopWatchContent'
 				});
 				watchCtx = {};
 			}
 		}
 
 		clSocketSvc.addMsgHandler('content', function(msg) {
-			if (!watchCtx.fileDao || watchCtx.fileDao.id !== msg.id || !watchCtx.syncData) {
+			if (!watchCtx.syncData || watchCtx.fileDao.id !== msg.id) {
 				return;
 			}
-			watchCtx.content = msg.content;
-			watchCtx.rev = msg.rev;
-			// Replace content
-			watchCtx.syncData.content = msg.content;
-			watchCtx.syncData.rev = msg.rev;
-			clEditorSvc.cledit.setContent(msg.content);
+			var oldContent = msg.previous ? msg.previous.content : msg.latest.content;
+			var serverContent = msg.latest.content;
+			var isServerChanges = oldContent !== serverContent;
+			var localContent = watchCtx.fileDao.contentDao.content;
+			var isLocalChanges = oldContent !== localContent;
+			var isSynchronized = serverContent === localContent;
+			if (!isSynchronized && isServerChanges && isLocalChanges) {
+				// Deal with conflict
+				watchCtx.content = msg.previous.content;
+				watchCtx.rev = msg.previous.rev;
+				watchCtx.conflict = msg.latest;
+			} else {
+				watchCtx.content = msg.latest.content;
+				watchCtx.rev = msg.latest.rev;
+				watchCtx.syncData.rev = msg.rev;
+				if (!isSynchronized && isServerChanges) {
+					// Replace content
+					clEditorSvc.cledit.setContent(msg.content);
+				}
+			}
 		});
 
-		var diffMatchPatch = new $window.diff_match_patch();
-		var DIFF_DELETE = -1;
-		var DIFF_INSERT = 1;
-		var DIFF_EQUAL = 0;
-
-		function sendContent() {
-			if (!watchCtx.rev || watchCtx.sentRev) {
+		function sendContentChange() {
+			if (!watchCtx.rev || watchCtx.sentContentChange) {
 				return;
 			}
 			var newContent = watchCtx.fileDao.contentDao.content;
-			var changes = diffMatchPatch.diff_main(watchCtx.content, newContent);
-			var patches = [];
-			var startOffset = 0;
-			changes.forEach(function(change) {
-				var changeType = change[0];
-				var changeText = change[1];
-				switch (changeType) {
-					case DIFF_EQUAL:
-						startOffset += changeText.length;
-						break;
-					case DIFF_DELETE:
-						patches.push({
-							off: startOffset,
-							del: changeText
-						});
-						break;
-					case DIFF_INSERT:
-						patches.push({
-							off: startOffset,
-							ins: changeText
-						});
-						startOffset += changeText.length;
-						break;
-				}
-			});
-			if(!patches.length) {
+			var changes = clSyncUtils.getPatches(watchCtx.content, newContent);
+			if (!changes.length) {
 				return;
 			}
-			watchCtx.sentRev = watchCtx.rev + 1;
+			var newRev = watchCtx.rev + 1;
+			watchCtx.sentContentChange = JSON.stringify({
+				rev: newRev,
+				changes: changes
+			});
 			clSocketSvc.sendMsg({
 				type: 'setContentChange',
-				changes: patches,
-				rev: watchCtx.sentRev
+				rev: newRev,
+				changes: changes,
 			});
 		}
+
+		clSocketSvc.addMsgHandler('contentChange', function(msg) {
+			if (!watchCtx.rev || watchCtx.fileDao.id !== msg.id || watchCtx.rev >= msg.rev) {
+				return;
+			}
+			watchCtx.contentChanges[msg.rev] = msg;
+			var serverContent = watchCtx.content;
+			while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
+				watchCtx.rev = msg.rev;
+				serverContent = clSyncUtils.applyPatches(serverContent, msg.changes);
+				var receivedContentChange = JSON.stringify({
+					rev: msg.rev,
+					changes: msg.changes
+				});
+				if (watchCtx.sentContentChange === receivedContentChange) {
+					watchCtx.content = serverContent;
+				}
+				watchCtx.sentContentChange = undefined;
+			}
+			var oldContent = watchCtx.content;
+			var isServerChanges = oldContent !== serverContent;
+			var localContent = watchCtx.fileDao.contentDao.content;
+			var isLocalChanges = oldContent !== localContent;
+			var isSynchronized = serverContent === localContent;
+			if (!isSynchronized && isServerChanges) {
+				if (isLocalChanges) {
+					localContent = clSyncUtils.quickPatch(oldContent, serverContent, localContent);
+				} else {
+					localContent = serverContent;
+				}
+				clEditorSvc.cledit.setContent(localContent);
+			}
+			watchCtx.content = serverContent;
+			watchCtx.syncData.rev = watchCtx.rev;
+		});
 
 		clSetInterval(function() {
 			if (!isFirstSync && Date.now() - lastCreationDate > maxCreationInactivity) {
@@ -311,6 +335,73 @@ angular.module('classeur.core.sync', [])
 		$rootScope.$watch('currentFileDao', stopWatchContent);
 		clSetInterval(function() {
 			watchContent($rootScope.currentFileDao);
-			sendContent();
+			sendContentChange();
 		}, 1000, true);
-	});
+
+	})
+
+.factory('clSyncUtils', function($window) {
+	var diffMatchPatch = new $window.diff_match_patch();
+	var DIFF_DELETE = -1;
+	var DIFF_INSERT = 1;
+	var DIFF_EQUAL = 0;
+
+	function getPatches(oldContent, newContent) {
+		var diffs = diffMatchPatch.diff_main(oldContent, newContent);
+		diffMatchPatch.diff_cleanupEfficiency(diffs);
+		var patches = [];
+		var startOffset = 0;
+		diffs.forEach(function(change) {
+			var changeType = change[0];
+			var changeText = change[1];
+			switch (changeType) {
+				case DIFF_EQUAL:
+					startOffset += changeText.length;
+					break;
+				case DIFF_DELETE:
+					patches.push({
+						off: startOffset,
+						del: changeText
+					});
+					break;
+				case DIFF_INSERT:
+					patches.push({
+						off: startOffset,
+						ins: changeText
+					});
+					startOffset += changeText.length;
+					break;
+			}
+		});
+		return patches;
+	}
+
+	function applyPatches(content, patches) {
+		if (!patches) {
+			return content;
+		}
+		return patches.reduce(function(content, change) {
+			if (change.ins) {
+				return content.slice(0, change.off) + change.ins + content.slice(change.off);
+			} else if (change.del) {
+				return content.slice(0, change.off) + content.slice(change.off + change.del.length);
+			} else {
+				return content;
+			}
+		}, content);
+	}
+
+	function quickPatch(oldContent, newContent, destContent) {
+		var diffs = diffMatchPatch.diff_main(oldContent, newContent);
+		var patches = diffMatchPatch.patch_make(oldContent, diffs);
+		var patchResult = diffMatchPatch.patch_apply(patches, destContent);
+		console.log(patchResult)
+		return patchResult[0];
+	}
+
+	return {
+		getPatches: getPatches,
+		applyPatches: applyPatches,
+		quickPatch: quickPatch
+	};
+});
