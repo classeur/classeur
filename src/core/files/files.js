@@ -1,6 +1,6 @@
 angular.module('classeur.core.files', [])
-	.factory('clFileSvc', function(clUid, clLocalStorageObject, $timeout) {
-		var maxLocalFiles = 5;
+	.factory('clFileSvc', function($timeout, clUid, clLocalStorageObject, clSocketSvc) {
+		var maxLocalFiles = 3;
 		var fileDaoProto = clLocalStorageObject('f');
 		var contentDaoProto = clLocalStorageObject('c');
 
@@ -53,7 +53,11 @@ angular.module('classeur.core.files', [])
 				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
 				this.contentDao.$writeAttr('state', JSON.stringify);
 			}
-			if (updateLastChange) {
+			if(!this.contentDao.isLocal) {
+				this.contentDao.lastChange = '';
+				this.contentDao.$writeAttr('lastChange', undefined, 0);
+			}
+			else if (updateLastChange) {
 				this.contentDao.lastChange = Date.now();
 				this.contentDao.$writeAttr('lastChange');
 			}
@@ -70,8 +74,20 @@ angular.module('classeur.core.files', [])
 					cb();
 				}).bind(this));
 			}
-			// TODO get content from server and set the file as local
-			alert('Not implemented');
+			this.onLoaded = function() {
+				$timeout((function() {
+					this.onLoaded = undefined;
+					this.isLoaded = true;
+					this.contentDao.isLocal = '1';
+					// TODO fill these values in sync module
+					this.contentDao.users = {};
+					this.contentDao.discussions = {};
+					this.contentDao.state = {};
+					this.writeContent(true);
+					init();
+					cb();
+				}).bind(this));
+			};
 		};
 
 		FileDao.prototype.unload = function() {
@@ -98,7 +114,6 @@ angular.module('classeur.core.files', [])
 				users: {},
 				discussions: {}
 			};
-			this.isLoaded = true;
 			this.isReadOnly = true;
 			this.unload = function() {};
 		}

@@ -1,5 +1,5 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc) {
+    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc, clSetInterval) {
         clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
 
         function signin(token) {
@@ -15,6 +15,11 @@ angular.module('classeur.core.user', [])
 
         clSocketSvc.addMsgHandler('signedInUser', function(msg) {
             clUserSvc.user = msg.user;
+            userInfo[msg.user.id] = {
+                id: msg.user.id,
+                name: msg.user.name
+            };
+            clUserSvc.lastUserInfo = Date.now();
             $rootScope.$apply();
         });
 
@@ -22,11 +27,43 @@ angular.module('classeur.core.user', [])
             signout();
             $rootScope.$apply();
         });
-        
+
+        var userInfo = {};
+        var requestedUserInfo = {};
+        var maxUserInfoInactivity = 30000;
+        var lastUserInfoActivity = 0;
+
+        clSetInterval(function() {
+            var currentDate = Date.now();
+            var userIds = Object.keys(requestedUserInfo);
+            if (userIds.length && currentDate - lastUserInfoActivity > maxUserInfoInactivity) {
+                lastUserInfoActivity = currentDate;
+                clSocketSvc.sendMsg({
+                    type: 'getUserInfo',
+                    ids: userIds,
+                });
+            }
+        }, 1000, true);
+
+        clSocketSvc.addMsgHandler('userInfo', function(msg) {
+            msg.users.forEach(function(user) {
+                userInfo[user.id] = user;
+                delete requestedUserInfo[user.id];
+            });
+            clUserSvc.lastUserInfo = lastUserInfoActivity = Date.now();
+            $rootScope.$apply();
+        });
+
         var clUserSvc = {
             isReady: false,
             signin: signin,
-            signout: signout
+            signout: signout,
+            userInfo: userInfo,
+            requestUserInfo: function(id) {
+                if(!userInfo.hasOwnProperty(id)) {
+                    requestedUserInfo[id] = true;
+                }
+            }
         };
 
         return clUserSvc;

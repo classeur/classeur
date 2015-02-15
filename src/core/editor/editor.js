@@ -585,9 +585,11 @@ angular.module('classeur.core.editor', [])
 
 			// Last section
 			sectionDesc = clEditorSvc.sectionDescList[i - 1];
-			sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
-			sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
-			sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
+			if(sectionDesc) {
+				sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
+				sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
+				sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
+			}
 
 			normalizeEditorDimensions();
 			normalizePreviewDimensions();

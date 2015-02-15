@@ -7,6 +7,7 @@ $plastic-color-98: #999;
 $plastic-color-99: #C0C0C0;
 $link-color: #3f51b5;
 $editor-margin-width: 120px;
+$font-family: RobotoDraft, Roboto, 'Helvetica Neue', sans-serif;
 
 @import 'roboto-draft';
 @import 'icons-material-design';
@@ -26,6 +27,7 @@ $editor-margin-width: 120px;
 @import '../extensions/urlDialog/urlDialog';
 @import '../extensions/folding/folding';
 @import '../extensions/stat/stat';
+@import '../extensions/userActivity/userActivity';
 @import '../extensions/zenMode/zenMode';
 @import 'material';
 

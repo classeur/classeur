@@ -147,8 +147,8 @@ angular.module('classeur.core.utils', [])
 		};
 
 		LocalStorageObject.prototype.$writeAttr = function(name, serializer, updated) {
-			var value = serializer ? serializer(this[name]) : '' + this[name];
-			if (updated || value !== this['$' + name + 'Saved']) {
+			var value = serializer ? serializer(this[name]) : (this[name] || '').toString();
+			if ((updated !== undefined && updated != this.updated) || value !== this['$' + name + 'Saved']) {
 				var key = this.$localPrefix + name;
 				if (!value) {
 					localStorage.removeItem(key);
@@ -156,9 +156,9 @@ angular.module('classeur.core.utils', [])
 					localStorage[key] = value;
 				}
 				this['$' + name + 'Saved'] = value;
-				updated = updated || Date.now();
-				this.$setLocalUpdate(updated);
-				this.$setGlobalUpdate(updated);
+				var currentDate = Date.now();
+				this.$setLocalUpdate(updated !== undefined ? updated : currentDate);
+				this.$setGlobalUpdate(currentDate);
 				return true;
 			}
 		};
@@ -169,17 +169,23 @@ angular.module('classeur.core.utils', [])
 		};
 
 		LocalStorageObject.prototype.$checkLocalUpdate = function() {
-			return this.updated != localStorage[this.$localUpdateKey];
+			return this.updated != (localStorage[this.$localUpdateKey] || 0);
 		};
 
 		LocalStorageObject.prototype.$readLocalUpdate = function() {
 			this.updated = parseInt(localStorage[this.$localUpdateKey]);
-			isNaN(this.updated) && this.$setLocalUpdate(Date.now());
+			if(isNaN(this.updated)) {
+				this.updated = 0;
+			}
 		};
 
 		LocalStorageObject.prototype.$setLocalUpdate = function(updated) {
 			this.updated = updated;
-			localStorage[this.$localUpdateKey] = updated;
+			if (!updated) {
+				localStorage.removeItem(this.$localUpdateKey);
+			} else {
+				localStorage[this.$localUpdateKey] = updated;
+			}
 		};
 
 		LocalStorageObject.prototype.$checkGlobalUpdate = function() {
@@ -247,10 +253,17 @@ angular.module('classeur.core.utils', [])
 		return clSelectionListeningSvc;
 	})
 	.factory('clSetInterval', function($window, clSocketSvc) {
+		var lastFocus, lastFocusKey = 'lastWindowFocus';
+		function setLastFocus() {
+			lastFocus = Date.now();
+			localStorage[lastFocusKey] = lastFocus;
+		}
+		setLastFocus();
+		$window.addEventListener('focus', setLastFocus);
 		return function(cb, interval, checkConnectionStatus, checkWindowFocus) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
 			setInterval(function() {
-				(!checkConnectionStatus || clSocketSvc.isReady) && (!checkWindowFocus || $window.document.hasFocus()) && cb();
+				(!checkConnectionStatus || clSocketSvc.isReady) && (!checkWindowFocus || localStorage[lastFocusKey] == lastFocus) && cb();
 			}, interval);
 		};
 	})

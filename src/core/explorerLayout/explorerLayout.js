@@ -222,7 +222,7 @@ angular.module('classeur.core.explorerLayout', [])
 				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {
 					return fileDao1.name > fileDao2.name;
 				} : function(fileDao1, fileDao2) {
-					return fileDao1.updated < fileDao2.updated;
+					return fileDao1.contentDao.lastChange < fileDao2.contentDao.lastChange;
 				});
 		}
 

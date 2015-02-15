@@ -9,21 +9,24 @@ angular.module('classeur.core', [])
 
 		$routeProvider
 			.when('/file/:fileId', {
-				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, clFileSvc, clEditorLayoutSvc) {
-					var currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
-					currentFileDao.load(function() {
-						$rootScope.currentFileDao = currentFileDao;
+				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
+				controller: function($rootScope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
+					$rootScope.currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
+					$rootScope.currentFileDao.load(function(err) {
+						if(err) {
+							clToast(err);
+							return $location.url('');
+						}
 						clEditorLayoutSvc.init();
 					});
 				}
 			})
 			.when('/doc/:fileName', {
-				template: '<cl-editor-layout ng-if="currentFileDao"></cl-editor-layout>',
+				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
 				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc, clEditorLayoutSvc) {
-					var currentFileDao = clDocFileSvc($routeParams.fileName);
+					$rootScope.currentFileDao = clDocFileSvc($routeParams.fileName);
 					$timeout(function() {
-						$rootScope.currentFileDao = currentFileDao;
+						$rootScope.currentFileDao.isLoaded = true;
 						clEditorLayoutSvc.init();
 					});
 				}
@@ -43,7 +46,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clStateMgr, clToast, clSetInterval) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clStateMgr, clToast, clSetInterval) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -53,6 +56,7 @@ angular.module('classeur.core', [])
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
 		$rootScope.userSvc = clUserSvc;
+		$rootScope.syncSvc = clSyncSvc;
 
 		function saveAll() {
 			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
