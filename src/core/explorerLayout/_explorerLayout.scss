@@ -97,9 +97,16 @@
 		}
 		md-input-container {
 			padding-bottom: 8px;
+			.md-input {
+				line-height: 1;
+				&[disabled] {
+					color: rgba(0,0,0,0.87);
+					cursor: pointer;
+				}
+			}
 		}
-		.edit.file.btn {
-			width: 45px;
+		.edit.filename.btn, .share.file.btn {
+			width: 32px;
 			height: $file-entry-height;
 			font-size: 28px;
 			a {

@@ -38,10 +38,26 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clFileEntry', function() {
+	.directive('clFileEntry', function(clExplorerLayoutSvc) {
 		return {
 			restrict: 'E',
-			templateUrl: 'core/explorerLayout/fileEntry.html'
+			templateUrl: 'core/explorerLayout/fileEntry.html',
+			link: function(scope, element) {
+				var nameInput = element[0].querySelector('input.name');
+				scope.open = function() {
+					!scope.isEditing && scope.setCurrentFile(scope.fileDao);
+				};
+				scope.setEditing = function(value) {
+					scope.isEditing = value;
+					if (value) {
+						setTimeout(function() {
+							nameInput.focus();
+						}, 10);
+					} else {
+						clExplorerLayoutSvc.refreshFiles();
+					}
+				};
+			}
 		};
 	})
 	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants, clStateMgr) {

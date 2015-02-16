@@ -30,14 +30,14 @@ angular.module('classeur.core.user', [])
 
         var userInfo = {};
         var requestedUserInfo = {};
-        var maxUserInfoInactivity = 30000;
-        var lastUserInfoActivity = 0;
+        var userInfoTimeout = 30000;
+        var lastUserInfoAttempt = 0;
 
         clSetInterval(function() {
             var currentDate = Date.now();
             var userIds = Object.keys(requestedUserInfo);
-            if (userIds.length && currentDate - lastUserInfoActivity > maxUserInfoInactivity) {
-                lastUserInfoActivity = currentDate;
+            if (userIds.length && currentDate - lastUserInfoAttempt > userInfoTimeout) {
+                lastUserInfoAttempt = currentDate;
                 clSocketSvc.sendMsg({
                     type: 'getUserInfo',
                     ids: userIds,
@@ -50,7 +50,8 @@ angular.module('classeur.core.user', [])
                 userInfo[user.id] = user;
                 delete requestedUserInfo[user.id];
             });
-            clUserSvc.lastUserInfo = lastUserInfoActivity = Date.now();
+            clUserSvc.lastUserInfo = Date.now();
+            lastUserInfoAttempt = 0;
             $rootScope.$apply();
         });
 

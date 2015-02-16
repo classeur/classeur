@@ -71,7 +71,8 @@ angular.module('classeur.extensions.userActivity', [])
 				var highlightedOffset;
 				var startMarker, endMarker;
 				// Live collection
-				var userActivityElts = clEditorSvc.editorElt.getElementsByClassName('user-activity-' + scope.userId);
+				var className = 'user-activity-' + scope.userId;
+				var userActivityElts = clEditorSvc.editorElt.getElementsByClassName(className);
 
 				function setHighlighting() {
 					var start = startMarker.offset;
@@ -97,7 +98,7 @@ angular.module('classeur.extensions.userActivity', [])
 					rangyRange = $window.rangy.createRange();
 					rangyRange.setStart(range.startContainer, range.startOffset);
 					rangyRange.setEnd(range.endContainer, range.endOffset);
-					var classApplier = $window.rangy.createClassApplier('user-activity-' + scope.userId, {
+					var classApplier = $window.rangy.createClassApplier(className, {
 						elementProperties: {
 							className: 'user-activity'
 						},
@@ -109,8 +110,7 @@ angular.module('classeur.extensions.userActivity', [])
 					var undoElt;
 					Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
 						if (undoElt) {
-							undoElt.classList.remove('user-activity');
-							undoElt.classList.remove('user-activity-' + scope.userId);
+							undoElt.classList.remove(className);
 						}
 						undoElt = elt;
 					});
@@ -121,8 +121,7 @@ angular.module('classeur.extensions.userActivity', [])
 					startMarker && clEditorSvc.cledit.removeMarker(startMarker);
 					endMarker && clEditorSvc.cledit.removeMarker(endMarker);
 					Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
-						elt.classList.remove('user-activity');
-						elt.classList.remove('user-activity-' + scope.userId);
+						elt.classList.remove(className);
 					});
 				}
 

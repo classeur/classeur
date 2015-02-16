@@ -1,5 +1,7 @@
 <div class="file dragging panel" ng-show="fileDraggingSvc.files.length">
 
-	<cl-file-entry ng-repeat="fileDao in fileDraggingSvc.files"></cl-file-entry>
+    <div ng-repeat="fileDao in fileDraggingSvc.files|limitTo:10" style="opacity:{{1-$index*0.1}}">
+        <cl-file-entry></cl-file-entry>
+    </div>
 
 </div>

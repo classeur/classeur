@@ -2,10 +2,13 @@
 	<div class="drag"><span class="mdi-action-view-headline"></span></div>
 	<md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
 	</md-checkbox>
-	<md-input-container flex>
-		<input ng-model="fileDao.name" ng-blur="explorerLayoutSvc.refreshFiles()">
+	<md-input-container flex ng-click="open()">
+		<input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
 	</md-input-container>
-	<cl-button class="edit file btn" opacity="1">
-		<a class="mdi-editor-mode-edit" ng-click="setCurrentFile(fileDao)" aria-label="Edit"></a>
+	<cl-button class="edit filename btn" opacity="1">
+		<a class="mdi-editor-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
+	</cl-button>
+	<cl-button class="share file btn" opacity="0.2" opacity-hover="0.4">
+		<a class="mdi-social-share" ng-click="setEditing(true)" aria-label="Share file" title="Share file"></a>
 	</cl-button>
 </div>

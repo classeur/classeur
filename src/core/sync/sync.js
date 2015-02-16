@@ -334,15 +334,12 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			var newRev = watchCtx.rev + 1;
-			watchCtx.sentContentChange = JSON.stringify({
-				rev: newRev,
-				changes: changes
-			});
-			clSocketSvc.sendMsg({
+			watchCtx.sentMsg = {
 				type: 'setContentChange',
 				rev: newRev,
-				changes: changes,
-			});
+				changes: changes
+			};
+			clSocketSvc.sendMsg(watchCtx.sentMsg);
 		}
 
 		clSocketSvc.addMsgHandler('contentChange', function(msg) {
@@ -356,15 +353,12 @@ angular.module('classeur.core.sync', [])
 				watchCtx.rev = msg.rev;
 				watchCtx.contentChanges[msg.rev] = undefined;
 				var oldContent = serverContent;
-				serverContent = clSyncUtils.applyPatches(serverContent, msg.changes);
-				var receivedContentChange = JSON.stringify({
-					rev: msg.rev,
-					changes: msg.changes
-				});
-				if (watchCtx.sentContentChange === receivedContentChange) {
-					watchCtx.content = serverContent;
+				if(!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
+					// This has to be the previously sent message
+					msg = watchCtx.sentMsg;
 				}
-				else {
+				serverContent = clSyncUtils.applyPatches(serverContent, msg.changes);
+				if (msg !== watchCtx.sentMsg) {
 					var isServerChanges = oldContent !== serverContent;
 					var isLocalChanges = oldContent !== localContent;
 					var isSynchronized = serverContent === localContent;
@@ -379,9 +373,9 @@ angular.module('classeur.core.sync', [])
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;
 					}
+					clUserSvc.requestUserInfo(msg.userId);
 				}
-				clUserSvc.requestUserInfo(msg.userId);
-				watchCtx.sentContentChange = undefined;
+				watchCtx.sentMsg = undefined;
 			}
 			watchCtx.content = serverContent;
 			contentRevStore[watchCtx.fileDao.id] = watchCtx.rev;
