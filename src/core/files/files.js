@@ -18,12 +18,14 @@ angular.module('classeur.core.files', [])
 		FileDao.prototype.read = function() {
 			this.$readAttr('name', '');
 			this.$readAttr('folderId', '');
+			this.$readAttr('sharing', '');
 			this.$readLocalUpdate();
 		};
 
 		FileDao.prototype.write = function(updated) {
 			this.$writeAttr('name', undefined, updated);
 			this.$writeAttr('folderId', undefined, updated);
+			this.$writeAttr('sharing', undefined, updated);
 		};
 
 		FileDao.prototype.readContent = function() {

@@ -208,7 +208,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.factory('clExplorerLayoutSvc', function(clFolderSvc, clFileSvc) {
+	.factory('clExplorerLayoutSvc', function($rootScope, clFolderSvc, clFileSvc) {
 		var unclassifiedFolder = {
 			name: 'Unclassified'
 		};
@@ -259,6 +259,15 @@ angular.module('classeur.core.explorerLayout', [])
 			refreshFiles: refreshFiles,
 			setCurrentFolder: setCurrentFolder
 		};
+
+		window.addEventListener('keydown', function(e) {
+			if(e.which === 27) {
+				// Esc key
+				e.preventDefault();
+				clExplorerLayoutSvc.currentControl = undefined;
+				$rootScope.$apply();
+			}
+		});
 
 		return clExplorerLayoutSvc;
 	});

@@ -33,6 +33,8 @@ angular.module('classeur.app', [
 		'classeur.extensions.markdownExtra',
 		'classeur.extensions.mathJax',
 		'classeur.extensions.scrollSync',
+		'classeur.extensions.sharingDialog',
+		'classeur.extensions.socialIcon',
 		'classeur.extensions.stat',
 		'classeur.extensions.userActivity',
 		'classeur.extensions.zenMode',

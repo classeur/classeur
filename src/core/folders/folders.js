@@ -12,11 +12,13 @@ angular.module('classeur.core.folders', [])
 
 		FolderDao.prototype.read = function() {
 			this.$readAttr('name', '');
+			this.$readAttr('sharing', '');
 			this.$readLocalUpdate();
 		};
 
 		FolderDao.prototype.write = function(updated) {
 			this.$writeAttr('name', undefined, updated);
+			this.$writeAttr('sharing', undefined, updated);
 		};
 
 		var clFolderSvc = clLocalStorageObject('folderSvc');
