@@ -1,0 +1,34 @@
+<md-dialog class="sharing dialog">
+    <md-content>
+        <h1>Sharing</h1>
+        <md-input-container>
+            <label>Filename</label>
+            <input ng-model="filename" disabled="disabled">
+        </md-input-container>
+        <md-input-container>
+            <label>URL</label>
+            <input ng-model="sharingUrl" disabled="disabled">
+        </md-input-container>
+        <md-radio-group ng-model="sharing">
+            <md-radio-button value="">Private</md-radio-button>
+            <md-radio-button value="r">Read only</md-radio-button>
+            <md-radio-button value="rw">Read/write</md-radio-button>
+        </md-radio-group>
+        <div layout="row" layout-align="end">
+        	<a href="" target="_blank" class="social buttton">
+        		<cl-social-icon name="twitterbird"></cl-social-icon>
+        	</a>
+        	<a href="" target="_blank" class="social buttton">
+        		<cl-social-icon name="facebook"></cl-social-icon>
+        	</a>
+        </div>
+    </md-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="ok()" class="md-primary">
+            Ok
+        </md-button>
+    </div>
+</md-dialog>

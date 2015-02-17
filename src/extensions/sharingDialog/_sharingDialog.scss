@@ -1,0 +1,16 @@
+.sharing.dialog {
+    min-width: 360px;
+    .md-input[disabled] {
+        color: rgba(0, 0, 0, 0.87);
+    }
+    .social.buttton {
+        text-decoration: none;
+        div {
+            width: 40px;
+            height: 40px;
+            font-size: 34px;
+            line-height: 1;
+            text-align: center;
+        }
+    }
+}
