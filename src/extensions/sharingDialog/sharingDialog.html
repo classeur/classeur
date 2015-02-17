@@ -9,19 +9,21 @@
             <label>URL</label>
             <input ng-model="sharingUrl" disabled="disabled">
         </md-input-container>
+        <div layout="row" layout-align="end" class="sharing">
+            <a href="" target="_blank" class="fa fa-twitter">
+            </a>
+            <a href="" target="_blank" class="fa fa-facebook">
+            </a>
+            <a href="" target="_blank" class="fa fa-google-plus">
+            </a>
+            <a href="" target="_blank" class="fa fa-linkedin">
+            </a>
+        </div>
         <md-radio-group ng-model="sharing">
             <md-radio-button value="">Private</md-radio-button>
-            <md-radio-button value="r">Read only</md-radio-button>
-            <md-radio-button value="rw">Read/write</md-radio-button>
+            <md-radio-button value="r">Public (read only)</md-radio-button>
+            <md-radio-button value="rw">Public (read/write)</md-radio-button>
         </md-radio-group>
-        <div layout="row" layout-align="end">
-        	<a href="" target="_blank" class="social buttton">
-        		<cl-social-icon name="twitterbird"></cl-social-icon>
-        	</a>
-        	<a href="" target="_blank" class="social buttton">
-        		<cl-social-icon name="facebook"></cl-social-icon>
-        	</a>
-        </div>
     </md-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
