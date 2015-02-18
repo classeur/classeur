@@ -3,10 +3,10 @@
         <h1>Sharing</h1>
         <md-input-container>
             <label>Filename</label>
-            <input ng-model="filename" disabled="disabled">
+            <input ng-model="fileDao.name" disabled="disabled">
         </md-input-container>
         <md-input-container>
-            <label>URL</label>
+            <label>Link</label>
             <input ng-model="sharingUrl" disabled="disabled">
         </md-input-container>
         <div layout="row" layout-align="end" class="sharing">
@@ -19,18 +19,18 @@
             <a href="" target="_blank" class="fa fa-linkedin">
             </a>
         </div>
-        <md-radio-group ng-model="sharing">
+        <md-radio-group ng-model="fileDao.sharing">
             <md-radio-button value="">Private</md-radio-button>
+            <div class="help">Only you can access the file.</div>
             <md-radio-button value="r">Public (read only)</md-radio-button>
+            <div class="help">Anyone with the link can read the file.</div>
             <md-radio-button value="rw">Public (read/write)</md-radio-button>
+            <div class="help">Signed-in premium users can modify the file.</div>
         </md-radio-group>
     </md-content>
     <div class="md-actions">
-        <md-button ng-click="cancel()">
-            Cancel
-        </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Ok
+        <md-button ng-click="close()">
+            Close
         </md-button>
     </div>
 </md-dialog>

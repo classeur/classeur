@@ -44,6 +44,12 @@ angular.module('classeur.core.explorerLayout', [])
 			templateUrl: 'core/explorerLayout/fileEntry.html',
 			link: function(scope, element) {
 				var nameInput = element[0].querySelector('input.name');
+				nameInput.addEventListener('keydown', function(e) {
+					if (e.which === 27 || e.which === 13) {
+						// Esc key
+						nameInput.blur();
+					}
+				});
 				scope.open = function() {
 					!scope.isEditing && scope.setCurrentFile(scope.fileDao);
 				};
@@ -259,15 +265,6 @@ angular.module('classeur.core.explorerLayout', [])
 			refreshFiles: refreshFiles,
 			setCurrentFolder: setCurrentFolder
 		};
-
-		window.addEventListener('keydown', function(e) {
-			if(e.which === 27) {
-				// Esc key
-				e.preventDefault();
-				clExplorerLayoutSvc.currentControl = undefined;
-				$rootScope.$apply();
-			}
-		});
 
 		return clExplorerLayoutSvc;
 	});

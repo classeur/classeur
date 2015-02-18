@@ -3,14 +3,37 @@
     .md-input[disabled] {
         color: rgba(0, 0, 0, 0.87);
     }
-    .social.buttton {
-        text-decoration: none;
-        div {
+    .sharing {
+        a {
+            background: #205D7A;
+            color: #fff;
             width: 40px;
             height: 40px;
-            font-size: 34px;
-            line-height: 1;
+            line-height: 40px;
+            border-radius: 20px;
+            font-size: 16px;
             text-align: center;
+            text-decoration: none;
+            margin: 0 1px;
         }
+        .fa-facebook {
+            background: #3b5998
+        }
+        .fa-linkedin {
+            background: #007bb6
+        }
+        .fa-twitter {
+            background: #00aced
+        }
+        .fa-google-plus {
+            background: #dd4b39
+        }
+    }
+    .help {
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 12px;
+        padding-left: 40px;
+        margin-top: -10px;
+        line-height: 1;
     }
 }

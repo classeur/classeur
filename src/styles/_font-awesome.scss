@@ -16,28 +16,3 @@ $fa-font-path: "../bower_components/font-awesome/fonts";
 @import "../../public/bower_components/font-awesome/scss/rotated-flipped";
 @import "../../public/bower_components/font-awesome/scss/stacked";
 @import "../../public/bower_components/font-awesome/scss/icons";
-.sharing {
-    a {
-        background: #205D7A;
-        color: #fff;
-        width: 42px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 22px;
-        text-align: center;
-        text-decoration: none;
-        margin: 1px;
-    }
-    .fa-facebook {
-        background: #3b5998
-    }
-    .fa-linkedin {
-        background: #007bb6
-    }
-    .fa-twitter {
-        background: #00aced
-    }
-    .fa-google-plus {
-        background: #dd4b39
-    }
-}

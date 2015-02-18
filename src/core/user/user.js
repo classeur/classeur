@@ -1,5 +1,5 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc, clSetInterval) {
+    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc) {
         clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
 
         function signin(token) {
@@ -8,27 +8,44 @@ angular.module('classeur.core.user', [])
         }
 
         function signout() {
-            clUserSvc.user = undefined;
             clSocketSvc.clearToken();
             clSocketSvc.closeSocket();
+            clUserSvc.user = undefined;
         }
 
-        clSocketSvc.addMsgHandler('signedInUser', function(msg) {
+        function isSignedIn() {
+            if(clSocketSvc.checkToken()) {
+                clSocketSvc.openSocket();
+                return clSocketSvc.isReady;
+            }
+            clSocketSvc.closeSocket();
+            if(clUserSvc.user) {
+                clUserSvc.user = undefined;
+                $rootScope.$evalAsync();
+            }
+        }
+
+        clSocketSvc.addMsgHandler('signedInUser', function(msg, ctx) {
             clUserSvc.user = msg.user;
-            userInfo[msg.user.id] = {
-                id: msg.user.id,
-                name: msg.user.name
-            };
+            ctx.user = msg.user;
             clUserSvc.lastUserInfo = Date.now();
-            $rootScope.$apply();
+            $rootScope.$evalAsync();
         });
 
         clSocketSvc.addMsgHandler('invalidToken', function() {
             signout();
-            $rootScope.$apply();
+            $rootScope.$evalAsync();
         });
 
-        var userInfo = {};
+        var clUserSvc = {
+            signin: signin,
+            signout: signout,
+            isSignedIn: isSignedIn,
+        };
+
+        return clUserSvc;
+    })
+    .factory('clUserInfoSvc', function($rootScope, clSocketSvc, clSetInterval, clUserSvc) {
         var requestedUserInfo = {};
         var userInfoTimeout = 30000;
         var lastUserInfoAttempt = 0;
@@ -47,27 +64,32 @@ angular.module('classeur.core.user', [])
 
         clSocketSvc.addMsgHandler('userInfo', function(msg) {
             msg.users.forEach(function(user) {
-                userInfo[user.id] = user;
+                clUserInfoSvc.users[user.id] = user;
                 delete requestedUserInfo[user.id];
             });
-            clUserSvc.lastUserInfo = Date.now();
+            clUserInfoSvc.lastUserInfo = Date.now();
             lastUserInfoAttempt = 0;
-            $rootScope.$apply();
+            $rootScope.$evalAsync();
         });
 
-        var clUserSvc = {
-            isReady: false,
-            signin: signin,
-            signout: signout,
-            userInfo: userInfo,
-            requestUserInfo: function(id) {
-                if(!userInfo.hasOwnProperty(id)) {
-                    requestedUserInfo[id] = true;
+        var clUserInfoSvc = {
+            users: {},
+            request: function(id) {
+                if (!clUserInfoSvc.hasOwnProperty(id)) {
+                    if (clUserSvc.user && clUserSvc.user.id === id) {
+                        clUserInfoSvc.users[clUserSvc.user.id] = {
+                            id: clUserSvc.user.id,
+                            name: clUserSvc.user.name
+                        };
+                    }
+                    else {
+                        requestedUserInfo[id] = true;
+                    }
                 }
             }
         };
 
-        return clUserSvc;
+        return clUserInfoSvc;
     })
     .directive('clNewUserForm', function($location, $http, clToast, clUserSvc, clStateMgr) {
         return {

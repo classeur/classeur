@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.userActivity', [])
-	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserSvc, clEditorSvc, clSyncSvc) {
+	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserInfoSvc, clEditorSvc, clSyncSvc) {
 		var colors = [
 			'F15D45',
 			'EF4A53',
@@ -37,7 +37,7 @@ angular.module('classeur.extensions.userActivity', [])
 				styleContent += '.user-activity-' + userId + ' {';
 				styleContent += '-webkit-box-shadow: inset -2px 0 0 1px #' + userClass.color + ';';
 				styleContent += 'box-shadow: inset -2px 0 0 1px #' + userClass.color + '}';
-				var userInfo = clUserSvc.userInfo[userId];
+				var userInfo = clUserInfoSvc.users[userId];
 				var escapedUsername = ((userInfo && userInfo.name) || userId).replace(/[\s\S]/g, function(character) {
 					var escape = character.charCodeAt().toString(16);
 					return '\\' + ('000000' + escape).slice(-6);
@@ -58,7 +58,7 @@ angular.module('classeur.extensions.userActivity', [])
 			}
 		}
 
-		$rootScope.$watch('userSvc.lastUserInfo', refreshClasses);
+		$rootScope.$watch('userInfoSvc.lastUserInfo', refreshClasses);
 
 		var Marker = window.cledit.Marker;
 

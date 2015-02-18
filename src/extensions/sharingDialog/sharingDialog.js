@@ -16,20 +16,13 @@ angular.module('classeur.extensions.sharingDialog', [])
 					$mdDialog.show({
 						templateUrl: 'extensions/sharingDialog/sharingDialog.html',
 						onComplete: function(scope) {
-							scope.filename = fileDao.name;
+							scope.fileDao = fileDao;
 							scope.sharingUrl = sharingUrl;
-							scope.sharing = fileDao.sharing;
-							scope.ok = function() {
-								$mdDialog.hide(scope.sharing);
-							};
-							scope.cancel = function() {
-								$mdDialog.cancel();
+							scope.close = function() {
+								$mdDialog.hide();
 							};
 						}
-					}).then(function(sharing) {
-						fileDao.sharing = sharing;
-						closeDialog();
-					}, closeDialog);
+					}).then(closeDialog, closeDialog);
 				}
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					currentControl === 'sharingDialog' && showDialog(scope.currentFileDao);

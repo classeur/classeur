@@ -76,6 +76,9 @@ angular.module('classeur.core.files', [])
 					cb();
 				}).bind(this));
 			}
+			if(!clSocketSvc.isReady) {
+				return cb('You appear to be offline.');
+			}
 			this.onLoaded = function() {
 				$timeout((function() {
 					this.onLoaded = undefined;
@@ -125,6 +128,7 @@ angular.module('classeur.core.files', [])
 		var fileAuthorizedKeys = {
 			u: true,
 			name: true,
+			sharing: true,
 			folderId: true,
 		};
 
@@ -132,10 +136,10 @@ angular.module('classeur.core.files', [])
 			u: true,
 			lastChange: true,
 			isLocal: true,
-			content: false,
-			users: false,
-			discussions: false,
-			state: false,
+			content: true,
+			users: true,
+			discussions: true,
+			state: true,
 		};
 
 		function init(cleanStorage) {
@@ -174,7 +178,7 @@ angular.module('classeur.core.files', [])
 					match = key.match(contentKeyPrefix);
 					if (match) {
 						fileDao = clFileSvc.fileMap[match[1]];
-						if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || (!fileDao.contentDao.isLocal && !contentAuthorizedKeys[match[2]])) {
+						if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
 							localStorage.removeItem(key);
 						}
 					}
@@ -253,9 +257,20 @@ angular.module('classeur.core.files', [])
 				}
 				fileDao.name = change.name;
 				fileDao.folderId = change.folderId;
+				fileDao.sharing = change.sharing;
 				fileDao.write(change.updated);
 			});
 			init();
+		}
+
+		function cleanNonLocalFiles() {
+			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
+				if(!fileDao.contentDao.isLocal) {
+					return true;
+				}
+				fileDao.sharing = undefined;
+			});
+			removeFiles(filesToRemove);
 		}
 
 		function createReadOnlyFile(name, content) {
@@ -268,6 +283,7 @@ angular.module('classeur.core.files', [])
 		clFileSvc.createFile = createFile;
 		clFileSvc.removeFiles = removeFiles;
 		clFileSvc.updateFiles = updateFiles;
+		clFileSvc.cleanNonLocalFiles = cleanNonLocalFiles;
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.fileMap = {};
 

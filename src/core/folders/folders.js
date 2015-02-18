@@ -24,8 +24,9 @@ angular.module('classeur.core.folders', [])
 		var clFolderSvc = clLocalStorageObject('folderSvc');
 
 		var authorizedKeys = {
-			u: false,
-			name: false,
+			u: true,
+			name: true,
+			sharing: true,
 		};
 
 		function init(cleanStorage) {
@@ -110,6 +111,7 @@ angular.module('classeur.core.folders', [])
 					clFolderSvc.folderIds.push(change.id);
 				}
 				folderDao.name = change.name;
+				folderDao.sharing = change.sharing;
 				folderDao.write(change.updated);
 			});
 			init();

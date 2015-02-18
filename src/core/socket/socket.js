@@ -1,49 +1,65 @@
 angular.module('classeur.core.socket', [])
 	.factory('clSocketSvc', function($window, $location) {
 		var socketTokenKey = 'socketToken';
-		var socketToken = localStorage[socketTokenKey];
 		var socket, msgHandlers = {};
+		var socketToken;
 
 		function setToken(token) {
-			socketToken = token;
 			localStorage[socketTokenKey] = token;
 		}
 
 		function clearToken() {
 			localStorage.removeItem(socketTokenKey);
-			socketToken = undefined;
 		}
 
-		var lastConnectionAttempt;
+		function checkToken() {
+			socketToken = localStorage[socketTokenKey];
+			return !!socketToken;
+		}
+
+		var lastConnectionAttempt = 0;
 		var nextConnectionAttempt = 1000;
+
 		function attemptOpenSocket() {
 			lastConnectionAttempt = Date.now();
 			closeSocket();
 			socket = new WebSocket('ws://' + $location.host() + ':' + $location.port() + '/?token=' + socketToken);
+			clSocketSvc.ctx = {
+				socket: socket
+			};
 			socket.onopen = function() {
 				nextConnectionAttempt = 1000;
 			};
 			socket.onmessage = function(event) {
 				var msg = JSON.parse(event.data);
 				(msgHandlers[msg.type] || []).forEach(function(handler) {
-					return handler(msg, socket);
+					return handler(msg, clSocketSvc.ctx);
 				});
 			};
 			socket.onclose = function() {
 				clSocketSvc.isReady = false;
+				clSocketSvc.ctx = undefined;
 			};
 		}
 
-		function isSocketToBeOpened() {
-			return (!socket || socket.readyState > 1) && socketToken && $window.navigator.onLine !== false;
+		function isPendingAttempt() {
+			return (!socket || socket.readyState > 1) && checkToken() && $window.navigator.onLine !== false;
 		}
 
 		function openSocket() {
-			isSocketToBeOpened() && attemptOpenSocket();
+			if (!isPendingAttempt()) {
+				nextConnectionAttempt = 1000;
+			} else if (Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
+				attemptOpenSocket();
+				if (nextConnectionAttempt < 30000) {
+					// Exponential backoff
+					nextConnectionAttempt *= 2;
+				}
+			}
 		}
 
 		function closeSocket() {
-			if(socket) {
+			if (socket) {
 				socket.onopen = undefined;
 				socket.onmessage = undefined;
 				socket.onclose = undefined;
@@ -51,6 +67,7 @@ angular.module('classeur.core.socket', [])
 				socket = undefined;
 			}
 			clSocketSvc.isReady = false;
+			clSocketSvc.ctx = undefined;
 		}
 
 		function sendMsg(msg) {
@@ -67,24 +84,11 @@ angular.module('classeur.core.socket', [])
 			msg.token && setToken(msg.token);
 			clSocketSvc.isReady = true;
 		});
-		
-		setInterval(function() {
-			if(!isSocketToBeOpened()) {
-				nextConnectionAttempt = 1000;
-				return;
-			}
-			if(Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
-				attemptOpenSocket();
-				if(nextConnectionAttempt < 30000) {
-					// Exponential backoff
-					nextConnectionAttempt *= 2;
-				}
-			}
-		}, 1000);
 
 		var clSocketSvc = {
 			setToken: setToken,
 			clearToken: clearToken,
+			checkToken: checkToken,
 			openSocket: openSocket,
 			closeSocket: closeSocket,
 			sendMsg: sendMsg,

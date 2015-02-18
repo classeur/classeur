@@ -46,7 +46,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSyncSvc, clStateMgr, clToast, clSetInterval) {
+	.run(function($rootScope, $location, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -56,6 +56,7 @@ angular.module('classeur.core', [])
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
 		$rootScope.userSvc = clUserSvc;
+		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
 
 		function saveAll() {

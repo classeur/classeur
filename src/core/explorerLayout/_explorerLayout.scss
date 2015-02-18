@@ -111,6 +111,12 @@
 			font-size: 28px;
 			a {
 				line-height: $file-entry-height;
+				&.blue {
+					color: #316ED3;
+				}
+				&.red {
+					color: #DF3F33;
+				}
 			}
 		}
 	}
