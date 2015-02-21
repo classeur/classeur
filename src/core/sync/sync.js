@@ -408,7 +408,7 @@ angular.module('classeur.core.sync', [])
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;
 					}
-					clUserInfoSvc.requestUserInfo(msg.userId);
+					clUserInfoSvc.request(msg.userId);
 				}
 				watchCtx.sentMsg = undefined;
 			}

@@ -13,7 +13,7 @@ angular.module('classeur.core.button', [])
 				var scaleActive = parseFloat(attrs.scaleActive || scaleHover);
 				var opacity = parseFloat(attrs.opacity || 0.8);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
-				var opacityActive = parseFloat(attrs.opacityActive || 1);				
+				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);				
 				var buttonPanel = clPanel(element, '.btn-panel');
 				attrs.size && buttonPanel.width(attrs.size).height(attrs.size);
 				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
