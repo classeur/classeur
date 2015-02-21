@@ -12,6 +12,9 @@ angular.module('classeur.core', [])
 				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
 				controller: function($rootScope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
 					$rootScope.currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
+					if(!$rootScope.currentFileDao) {
+						return $location.url('');
+					}
 					$rootScope.currentFileDao.load(function(err) {
 						if(err) {
 							clToast(err);
@@ -61,7 +64,7 @@ angular.module('classeur.core', [])
 
 		function saveAll() {
 			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
-			if($rootScope.currentFileDao && !$rootScope.currentFileDao.isLoaded) {
+			if($rootScope.currentFileDao && !$rootScope.currentFileDao.isLoaded && !$rootScope.currentFileDao.onLoaded) {
 				// Close current file if it has been unloaded
 				setCurrentFile();
 				hasChanged = true;

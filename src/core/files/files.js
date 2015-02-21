@@ -55,11 +55,10 @@ angular.module('classeur.core.files', [])
 				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
 				this.contentDao.$writeAttr('state', JSON.stringify);
 			}
-			if(!this.contentDao.isLocal) {
+			if (!this.contentDao.isLocal) {
 				this.contentDao.lastChange = '';
 				this.contentDao.$writeAttr('lastChange', undefined, 0);
-			}
-			else if (updateLastChange) {
+			} else if (updateLastChange) {
 				this.contentDao.lastChange = Date.now();
 				this.contentDao.$writeAttr('lastChange');
 			}
@@ -76,10 +75,15 @@ angular.module('classeur.core.files', [])
 					cb();
 				}).bind(this));
 			}
-			if(!clSocketSvc.isReady) {
+			if (!clSocketSvc.isReady) {
 				return cb('You appear to be offline.');
 			}
+			var timeoutId = $timeout((function() {
+				this.onLoaded = undefined;
+				return cb('A timeout occured.');
+			}).bind(this), 30000);
 			this.onLoaded = function() {
+				$timeout.cancel(timeoutId);
 				$timeout((function() {
 					this.onLoaded = undefined;
 					this.isLoaded = true;
@@ -101,7 +105,7 @@ angular.module('classeur.core.files', [])
 		};
 
 		FileDao.prototype.loadExecUnload = function(cb) {
-			if(this.isLoaded) {
+			if (this.isLoaded) {
 				return cb();
 			}
 			this.isLoaded = true;
@@ -246,11 +250,10 @@ angular.module('classeur.core.files', [])
 		function updateFiles(changes) {
 			changes.forEach(function(change) {
 				var fileDao = clFileSvc.fileMap[change.id];
-				if(change.deleted && fileDao) {
+				if (change.deleted && fileDao) {
 					var index = clFileSvc.files.indexOf(fileDao);
 					clFileSvc.fileIds.splice(index, 1);
-				}
-				else if(!fileDao) {
+				} else if (!fileDao) {
 					fileDao = new FileDao(change.id);
 					clFileSvc.fileMap[change.id] = fileDao;
 					clFileSvc.fileIds.push(change.id);
@@ -265,7 +268,7 @@ angular.module('classeur.core.files', [])
 
 		function cleanNonLocalFiles() {
 			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-				if(!fileDao.contentDao.isLocal) {
+				if (!fileDao.contentDao.isLocal) {
 					return true;
 				}
 				fileDao.sharing = undefined;
