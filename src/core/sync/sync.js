@@ -445,7 +445,7 @@ angular.module('classeur.core.sync', [])
 			}
 			watchContent($rootScope.currentFileDao);
 			sendContentChange();
-		}, 1000, true);
+		}, 500, true);
 
 		var clSyncSvc = {};
 		return clSyncSvc;
