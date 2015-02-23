@@ -105,7 +105,7 @@ angular.module('classeur.core.user', [])
                         return;
                     }
                     scope.isLoading = true;
-                    $http.post('/ajax/user/new', {
+                    $http.post('/api/users/new', {
                             name: scope.newUser.name,
                             syncFilesAndSettings: scope.newUser.syncFilesAndSettings,
                             token: clStateMgr.token

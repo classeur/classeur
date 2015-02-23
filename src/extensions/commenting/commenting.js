@@ -57,7 +57,7 @@ angular.module('classeur.extensions.commenting', [])
 			templateUrl: 'extensions/commenting/discussion.html',
 			scope: true,
 			link: function(scope, element) {
-				clDraggablePanel(element, '.discussion.panel', 0, 0, -1.5);
+				clDraggablePanel(element, '.discussion.panel', 0, 0, -1);
 
 				scope.commenting = clCommentingSvc;
 				scope.removeDiscussion = function(discussion) {
@@ -91,7 +91,6 @@ angular.module('classeur.extensions.commenting', [])
 						});
 						clCommentingSvc.newCommentContent = undefined;
 						clEditorLayoutSvc.currentControl = undefined;
-						clCommentingSvc.contentDao.users[clUserSvc.localId] = clUserSvc.name;
 						clCommentingSvc.lastDiscussionChanged = Date.now();
 						scope.$apply();
 					}

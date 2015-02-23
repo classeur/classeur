@@ -10,7 +10,7 @@ angular.module('classeur.extensions.zenMode', [])
 
 		return {
 			restrict: 'E',
-			template: '<div class="zen panel hidden"></div>',
+			template: '<div class="zen panel background hidden"></div>',
 			link: function(scope, element) {
 				var zenPanel = clPanel(element, '.zen.panel').width(4000).left(-1500);
 

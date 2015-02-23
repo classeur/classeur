@@ -24,6 +24,19 @@ angular.module('classeur.core', [])
 					});
 				}
 			})
+			.when('/file/:userId/:fileId', {
+				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
+				controller: function($rootScope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
+					$rootScope.currentFileDao = clFileSvc.fileMap[$routeParams.fileId] || clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
+					$rootScope.currentFileDao.load(function(err) {
+						if(err) {
+							clToast(err);
+							return $location.url('');
+						}
+						clEditorLayoutSvc.init(true);
+					});
+				}
+			})
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
 				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc, clEditorLayoutSvc) {
@@ -79,7 +92,7 @@ angular.module('classeur.core', [])
 
 		function setCurrentFile(fileDao) {
 			unloadCurrentFile();
-			$location.url(fileDao ? '/file/' + fileDao.id : '');
+			$location.url(fileDao ? '/file/' + (fileDao.userId && fileDao.userId + '/') + fileDao.id : '');
 		}
 
 		function setDocFile(fileName) {
@@ -92,7 +105,7 @@ angular.module('classeur.core', [])
 			var newFileDao = clFileSvc.createFile();
 			newFileDao.load(function() {
 				newFileDao.name = oldFileDao.name;
-				['content', 'state', 'users', 'discussions'].forEach(function(attrName) {
+				['content', 'state', 'discussions'].forEach(function(attrName) {
 					newFileDao.contentDao[attrName] = oldFileDao.contentDao[attrName];
 				});
 				setCurrentFile(newFileDao);

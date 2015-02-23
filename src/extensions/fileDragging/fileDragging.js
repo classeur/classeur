@@ -67,7 +67,7 @@ angular.module('classeur.extensions.fileDragging', [])
 	.factory('clFileDraggingSvc', function(clExplorerLayoutSvc) {
 		function setFileSrc(fileDao) {
 			clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
-				return fileDao.isSelected;
+				return !fileDao.userId && fileDao.isSelected;
 			}) : [fileDao];
 		}
 

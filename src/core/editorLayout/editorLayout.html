@@ -44,13 +44,13 @@
 
 
 			<div class="btn-grp panel">
-				<cl-button class="close btn" opacity="0.4" opacity-hover="0.5" size="34">
+				<cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
 					<a class="mdi-content-clear" ng-click="saveAll(); setCurrentFile()" title="Close editor" aria-label="Close editor"></a>
 				</cl-button>
-				<cl-button class="minimize btn" opacity="0.4" opacity-hover="0.5" size="34">
+				<cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="34">
 					<a class="mdi-content-remove" ng-click="editorLayoutSvc.toggleEditor(false)" title="Hide editor" aria-label="Hide editor"></a>
 				</cl-button>
-				<cl-button class="preview btn" opacity="0.4" opacity-hover="0.5" size="34">
+				<cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="34">
 					<a class="mdi-image-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" title="Side preview" aria-label="Side preview"></a>
 				</cl-button>
 				<div class="menu btn btn-panel" ng-class="plasticClass">
@@ -85,10 +85,10 @@
 		</div>
 
 		<div ng-if="editorLayoutSvc.isCornerButtonVisible">
-			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.4" size="36" right="0" bottom="35">
+			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="0" bottom="35">
 				<a class="mdi-communication-call-made" ng-click="editorLayoutSvc.toggleToc()" title="Toggle TOC" aria-label="Toggle TOC"></a>
 			</cl-button>
-			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.4" size="36" right="35" bottom="0">
+			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="35" bottom="0">
 				<a class="mdi-communication-call-received" ng-click="editorLayoutSvc.toggleStat()" title="Toggle stats" aria-label="Toggle stats"></a>
 			</cl-button>
 		</div>

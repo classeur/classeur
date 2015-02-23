@@ -12,7 +12,7 @@ angular.module('classeur.extensions.sharingDialog', [])
 					if(!clUserSvc.user) {
 						return closeDialog();
 					}
-					var sharingUrl = clConstants.serverUrl + '/#!/' + clUserSvc.user.id + '/' + fileDao.id;
+					var sharingUrl = clConstants.serverUrl + '/#!/file/' + clUserSvc.user.id + '/' + fileDao.id;
 					$mdDialog.show({
 						templateUrl: 'extensions/sharingDialog/sharingDialog.html',
 						onComplete: function(scope) {

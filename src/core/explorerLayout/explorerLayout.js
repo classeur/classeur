@@ -66,6 +66,17 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
+	.directive('clPublicFileEntry', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'core/explorerLayout/publicFileEntry.html',
+			link: function(scope) {
+				scope.open = function() {
+					scope.setCurrentFile(scope.fileDao);
+				};
+			}
+		};
+	})
 	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants, clStateMgr) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
@@ -73,7 +84,7 @@ angular.module('classeur.core.explorerLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/explorerLayout.html',
 			link: function(scope, element) {
-				document.title = 'Classeur';
+				$window.document.title = 'Classeur';
 
 				var explorerPanel = clPanel(element, '.explorer.container');
 				var folderContainerPanel = clPanel(element, '.folder.container');
@@ -166,6 +177,7 @@ angular.module('classeur.core.explorerLayout', [])
 						}
 					}
 					if (!filesToRemove.length) {
+						// No confirmation
 						return remove();
 					}
 					var title = deleteFolder ? 'Delete folder' : 'Delete files';
@@ -236,9 +248,9 @@ angular.module('classeur.core.explorerLayout', [])
 		function refreshFiles() {
 			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
 				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
-					return !clFolderSvc.folderMap.hasOwnProperty(fileDao.folderId);
+					return !fileDao.userId && !clFolderSvc.folderMap.hasOwnProperty(fileDao.folderId);
 				} : function(fileDao) {
-					return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id;
+					return !fileDao.userId && fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id;
 				}) : clFileSvc.localFiles.slice();
 			clExplorerLayoutSvc.files.sort(
 				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {

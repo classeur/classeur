@@ -48,7 +48,7 @@
 	}
 
 	.folder.content {
-		padding: 30px 40px 120px;
+		padding: 30px 40px 110px;
 		border-radius: 6px;
 		background-color: transparentize(#fff, 0.75);
 	}
@@ -118,6 +118,9 @@
 					color: #DF3F33;
 				}
 			}
+		}
+		&.public {
+			padding-left: 16px;	
 		}
 	}
 

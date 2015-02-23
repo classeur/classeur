@@ -8,10 +8,7 @@ angular.module('classeur.core.button', [])
 			templateUrl: 'core/button/button.html',
 			link: function(scope, element, attrs) {
 				scope.class = attrs.class;
-				var scale = parseFloat(attrs.scale || 1);
-				var scaleHover = parseFloat(attrs.scaleHover || 1.1);
-				var scaleActive = parseFloat(attrs.scaleActive || scaleHover);
-				var opacity = parseFloat(attrs.opacity || 0.8);
+				var opacity = parseFloat(attrs.opacity || 0.75);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
 				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);				
 				var buttonPanel = clPanel(element, '.btn-panel');
@@ -23,22 +20,22 @@ angular.module('classeur.core.button', [])
 				var isActive, isHover, speed;
 				function toggle() {
 					if(isActive) {
-						buttonPanel.move(speed).scale(scaleActive).set('opacity', opacityActive).ease('out').end();
+						buttonPanel.move(speed).set('opacity', opacityActive).ease('out').end();
 					}
 					else if(isHover) {
-						buttonPanel.move(speed).scale(scaleHover).set('opacity', opacityHover).ease('out').end();
+						buttonPanel.move(speed).set('opacity', opacityHover).ease('out').end();
 					}
 					else {
-						buttonPanel.move(speed).scale(scale).set('opacity', opacity).ease('in').end();
+						buttonPanel.move(speed).set('opacity', opacity).ease('in').end();
 					}
-					speed = 'fast';
+					speed = 'slow';
 				}
 				element.on('mouseenter', function() {
 					isHover = true;
 					toggle();
 				});
 				element.on('mouseleave', function() {
-					isHover = false
+					isHover = false;
 					toggle();
 				});
 				attrs.active ? scope.$watch(attrs.active, function(value) {

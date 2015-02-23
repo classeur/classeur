@@ -27,7 +27,7 @@ angular.module('classeur.extensions.stat', [])
 				scope.editor = clEditorSvc;
 				scope.selectionListener = clSelectionListeningSvc;
 
-				clDraggablePanel(element, '.stat.panel', 0, -130, -1.5);
+				clDraggablePanel(element, '.stat.panel', 0, -130, -1);
 
 				function computeMarkdown() {
 					scope.isMarkdownSelection = false;

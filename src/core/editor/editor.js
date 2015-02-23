@@ -8,10 +8,13 @@ angular.module('classeur.core.editor', [])
 				var editorElt = element[0].querySelector('.editor.content');
 				clEditorSvc.setEditorElt(editorElt);
 
-				var isDestroyed;
+				var state;
 				scope.$on('$destroy', function() {
-					isDestroyed = true;
+					state = 'destroyed';
 				});
+				function checkState() {
+					return state === 'destroyed';
+				}
 
 				function saveState() {
 					scope.currentFileDao.contentDao.state = {
@@ -24,9 +27,12 @@ angular.module('classeur.core.editor', [])
 
 				var newSectionList, newSelectionRange;
 				var debouncedEditorChanged = window.cledit.Utils.debounce(function() {
+					if(checkState()) {
+						return;
+					}
 					if(clEditorSvc.sectionList !== newSectionList) {
 						clEditorSvc.sectionList = newSectionList;
-						debouncedRefreshPreview();
+						state ? debouncedRefreshPreview() : refreshPreview();
 					}
 					clEditorSvc.selectionRange = newSelectionRange;
 					scope.currentFileDao.contentDao.content = clEditorSvc.cledit.getContent();
@@ -34,16 +40,21 @@ angular.module('classeur.core.editor', [])
 					scope.$apply();
 				}, 10);
 
-				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
-					if(isDestroyed) {
-						return;
-					}
+				function refreshPreview() {
+					state = 'ready';
 					clEditorSvc.updateSectionDescList();
 					clEditorSvc.convert();
-					scope.$apply();
 					setTimeout(function() {
 						clEditorSvc.refreshPreview(scope.$apply.bind(scope));
 					}, 10);
+				}
+
+				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
+					if(checkState()) {
+						return;
+					}
+					refreshPreview();
+					scope.$apply();
 				}, clSettingSvc.values.refreshPreviewDelay);
 
 				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
@@ -106,7 +117,7 @@ angular.module('classeur.core.editor', [])
 				});
 
 				var debouncedMeasureSectionDimension = window.cledit.Utils.debounce(function() {
-					if(isDestroyed) {
+					if(checkState()) {
 						return;
 					}
 					clEditorSvc.measureSectionDimensions();

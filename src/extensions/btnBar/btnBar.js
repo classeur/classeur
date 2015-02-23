@@ -112,12 +112,12 @@ angular.module('classeur.extensions.btnBar', [])
 		];
 
 		var props = {
-			margin: 30,
+			margin: 25,
 			btnWidth: 30,
 			btnHeight: 32,
 			height: 70,
 			visibleHeight: 48,
-			paperHoleWidth: 270
+			paperHoleWidth: 260
 		};
 
 		var offset = props.margin;
@@ -151,7 +151,6 @@ angular.module('classeur.extensions.btnBar', [])
 
 				var btnBarPanel = clPanel(element, '.btn-bar.panel').width(props.width).height(props.height).top(2000);
 				btnBarPanel.move().to(-props.width / 2, closedOffsetY).end();
-				clPanel(element, '.light.panel').width(props.width / 2 + 5).right(0);
 				clPanel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
 
 				scope.$watch('editorLayoutSvc.pageWidth', animate);

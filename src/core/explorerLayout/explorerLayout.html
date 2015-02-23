@@ -83,7 +83,10 @@
                             </div>
                         </div>
 
-                        <cl-file-entry cl-file-dragging-src ng-repeat="fileDao in explorerLayoutSvc.files"></cl-file-entry>
+                        <div ng-repeat="fileDao in explorerLayoutSvc.files" ng-switch="!fileDao.userId">
+                            <cl-file-entry cl-file-dragging-src ng-switch-when="true"></cl-file-entry>
+                            <cl-public-file-entry ng-switch-when="false"></cl-public-file-entry>
+                        </div>
 
                     </div>
 

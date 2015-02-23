@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.readOnlyAlert', [])
-	.directive('clReadOnlyAlert', function(clEditorLayoutSvc, clFileSvc, clToast) {
+	.directive('clReadOnlyAlert', function(clEditorLayoutSvc) {
 		return {
 			restrict: 'E',
 			scope: true,
@@ -9,7 +9,7 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 					return;
 				}
 
-				var content = scope.currentFileDao.content;
+				var content;
 				var wasDismissed;
 
 				scope.dismiss = function() {
@@ -18,7 +18,10 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 				};
 
 				scope.$watch('currentFileDao.contentDao.content', function(newContent) {
-					if(!wasDismissed && newContent !== content) {
+					if(content === undefined) {
+						content = newContent;
+					}
+					else if(!wasDismissed && newContent !== content) {
 						clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 					}
 				});
@@ -31,7 +34,7 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 			restrict: 'E',
 			templateUrl: 'extensions/readOnlyAlert/readOnlyAlertPanel.html',
 			link: function(scope, element) {
-				clDraggablePanel(element, '.read-only-alert.panel', 0, 0, -1.5);
+				clDraggablePanel(element, '.read-only-alert.panel', 0, 0, -1);
 			}
 		};
 

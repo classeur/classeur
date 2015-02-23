@@ -81,10 +81,7 @@ angular.module('classeur.core.utils', [])
 		return function(elt, selector, x, y, rotation) {
 			rotation = rotation || 0;
 			var panel = clPanel(elt, selector);
-			panel.move().rotate(rotation)
-				.then(function() {
-					panel.move('slow').to(x, y).ease('ease-out-back').end();
-				}).end();
+			panel.move('slow').rotate(rotation).to(x, y).ease('ease-out-back').end();
 
 			var hammertime = new Hammer(panel.$$elt);
 			hammertime.get('pan').set({

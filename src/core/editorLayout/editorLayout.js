@@ -1,11 +1,13 @@
 angular.module('classeur.core.editorLayout', [])
-	.directive('clEditorLayout', function(clEditorLayoutSvc, clSettingSvc, clEditorSvc, clPanel) {
+	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clPanel) {
 		var hideOffsetY = 2000;
 
 		return {
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/editorLayout.html',
 			link: function(scope, element) {
+				$window.document.title = scope.currentFileDao.name;
+
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
