@@ -55,6 +55,14 @@ pre.prettyprint {
 	border: 0;
 }
 
+pre > code {
+	display: block;
+	overflow-x: auto;
+	padding: 0.5em;
+	background: #f0f0f0;
+	-webkit-text-size-adjust: none;
+}
+
 .toc ul {
 	list-style-type: none;
 	padding-left: 20px;

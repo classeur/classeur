@@ -466,9 +466,7 @@ angular.module('classeur.core.sync', [])
 			readSyncDataStore(clSocketSvc.ctx);
 			// Remove files that are not local and not going to be synced
 			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-				if (!fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id)) {
-					return true;
-				}
+				return !fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
 			});
 			if (filesToRemove.length) {
 				clFileSvc.removeFiles(filesToRemove);

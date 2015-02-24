@@ -154,10 +154,11 @@
 			width: 44px;
 			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
 			button {
+				text-transform: none;
 				line-height: 34px;
 				width: 100%;
 				height: 100%;
-				font-size: 20px;
+				font-size: 23px;
 				color: transparentize(#fff, 0.2);
 				&:hover {
 					color: #fff;
@@ -183,7 +184,6 @@
 			border-top-right-radius: 10px;
 			border-bottom-right-radius: 10px;
 			.md-button {
-				text-transform: none;
 				font-size: 14px;
 				.rotate-90 {
 					position: absolute;

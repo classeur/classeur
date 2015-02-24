@@ -2,20 +2,20 @@
 
 ## Headings
 
-You can create a heading by adding one or more `#` symbols before your heading text.
+Create a heading by adding one or more `#` symbols before your heading text.
 
-### Heading level 3
+##### Heading level 5
 ###### Heading level 6
 
 ## Blockquotes
 
-You can indicate blockquotes with a `>`.
+Indicate blockquotes with a `>`.
 
 > Blockquote
 
 ## Styling text
 
-You can make text **bold** or *italic*. Both bold and italic can use either a `*` or an `_` around the text for styling.
+Make text **bold** or *italic* by using either `*` or `_` around the text.
 
 *This text will be italic*
 __This text will be bold__
@@ -25,7 +25,7 @@ __This text will be bold__
 
 ## Unordered lists
 
-You can make an unordered list by preceding list items with either a `*` or a `-`.
+Make an unordered list by preceding list items with either a `*` or a `-`.
 
 - Item
 - Item
@@ -33,7 +33,7 @@ You can make an unordered list by preceding list items with either a `*` or a `-
 
 ## Ordered lists
 
-You can make an ordered list by preceding list items with a number.
+Make an ordered list by preceding list items with a number.
 
 1. Item 1
 2. Item 2
@@ -48,7 +48,13 @@ Use single backticks to format text in a special `monospace format`.
 
 ## Multiple lines
 
-You can use triple backticks to format text as its own distinct block.
+Indent four spaces or a tab to format text as its own distinct block.
+
+	var foo = 'bar' // baz
+
+## Code highlighting
+
+Or use triple backticks to have a code block with syntax highlighting.
 
 ```
 var foo = 'bar' // baz
@@ -57,7 +63,7 @@ var foo = 'bar' // baz
 
 # Tables
 
-You can create tables by assembling a list of words and dividing them with hyphens `-` (for the first row), and then separating each column with a pipe `|`:
+Create tables by assembling a list of words and dividing them with hyphens `-` (for the first row), and then separating each column with a pipe `|`:
 
 First Header  | Second Header
 ------------- | -------------
@@ -75,7 +81,7 @@ By including colons within the header row, you can define text to be left-aligne
 
 # Table of contents
 
-You can insert a table of contents using the marker `[TOC]`:
+Insert a table of contents using the marker `[TOC]`:
 
 [TOC]
 
@@ -84,7 +90,7 @@ You can insert a table of contents using the marker `[TOC]`:
 
 ## MathJax
 
-You can render *LaTeX* mathematical expressions using **MathJax** as on StackExchange:
+Render *LaTeX* mathematical expressions using **MathJax** as on StackExchange:
 
 The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
 
