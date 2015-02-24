@@ -10,6 +10,7 @@ $editor-margin-width: 120px;
 $font-family: RobotoDraft, Roboto, 'Helvetica Neue', sans-serif;
 
 @import 'font-awesome';
+@import 'prism';
 @import 'roboto-draft';
 @import 'icons-material-design';
 @import '../core/button/button';
@@ -41,6 +42,8 @@ body {
 	left: 0;
 	background-color: #ccc;
 	text-rendering: auto;
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
 	tab-size: 4;
 }
 

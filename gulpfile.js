@@ -25,23 +25,25 @@ var vendorJs = [
 	'public/bower_components/cledit/scripts/cleditHighlighter.js',
 	'public/bower_components/cledit/scripts/cleditKeystroke.js',
 	'public/bower_components/cledit/scripts/cleditMarker.js',
-	'public/bower_components/cledit/scripts/cleditPrism.js',
 	'public/bower_components/cledit/scripts/cleditSelectionMgr.js',
 	'public/bower_components/cledit/scripts/cleditUndoMgr.js',
 	'public/bower_components/cledit/scripts/cleditUtils.js',
 	'public/bower_components/cledit/scripts/cleditWatcher.js',
 	'public/bower_components/cledit/examples/markdownEditor/mdGrammar.js',
 	'public/bower_components/highlightjs/highlight.pack.js',
-	'public/bower_components/google-code-prettify/src/prettify.js',
+	'public/bower_components/prism/components/prism-core.js',
+	'public/bower_components/prism/components/prism-markup.js',
+	'public/bower_components/prism/components/prism-clike.js',
+	'public/bower_components/prism/components/prism-javascript.js',
+	'public/bower_components/prism/components/prism-css.js',
+	'public/bower_components/prism/components/prism-!(*.min).js',
 	'public/components/Markdown.Converter.js',
 	'public/components/Markdown.Editor.js',
 	'public/bower_components/pagedown-extra/Markdown.Extra.js',
 ];
 
 var vendorCss = [
-	'public/bower_components/angular-material/angular-material.css',
-	'public/bower_components/highlightjs/styles/default.css',
-	'public/bower_components/google-code-prettify/src/prettify.css'
+	'public/bower_components/angular-material/angular-material.css'
 ];
 
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];

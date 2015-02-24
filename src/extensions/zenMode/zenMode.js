@@ -13,15 +13,20 @@ angular.module('classeur.extensions.zenMode', [])
 			template: '<div class="zen panel background hidden"></div>',
 			link: function(scope, element) {
 				var zenPanel = clPanel(element, '.zen.panel').width(4000).left(-1500);
+				var parentNode = element[0].parentNode;
 
 				var timeout, enabled = true, lastClientX, lastClientY;
 				function hideZenPanel(evt) {
-					if(evt && evt.type === 'mousemove') {
-						if (lastClientX === evt.clientX && lastClientY === evt.clientY) {
+					if(evt) {
+						if(evt.type === 'mousemove' && lastClientX === evt.clientX && lastClientY === evt.clientY) {
 							return;
 						}
 						lastClientX = evt.clientX;
 						lastClientY = evt.clientY;
+						var minLeft = parentNode.getBoundingClientRect().left + parentNode.offsetWidth;
+						if(evt.clientX < minLeft) {
+							return;
+						}
 					}
 					clearTimeout(timeout);
 					if (enabled === true) {

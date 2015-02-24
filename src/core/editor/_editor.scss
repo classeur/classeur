@@ -3,7 +3,7 @@ $font-family-monospace: "Inconsolata", monospace;
 $font-size-monospace: 1em;
 $ced-color-lighter: transparentize($ced-color, 0.6);
 $ced-color-light: transparentize($ced-color, 0.4);
-$ced-color-dark: darken($ced-color, 15%);
+$ced-color-dark: black;
 $code-bg: #eee;
 $border-radius-base: 4px;
 
@@ -40,7 +40,7 @@ $border-radius-base: 4px;
 	}
 
 	.tag {
-		color: $ced-color-dark;
+		color: $ced-color;
 		font: bold $font-size-monospace $font-family-monospace;
 		.punctuation,
 		.attr-value,

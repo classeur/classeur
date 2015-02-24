@@ -12,6 +12,7 @@ angular.module('classeur.core.editor', [])
 				scope.$on('$destroy', function() {
 					state = 'destroyed';
 				});
+
 				function checkState() {
 					return state === 'destroyed';
 				}
@@ -27,10 +28,10 @@ angular.module('classeur.core.editor', [])
 
 				var newSectionList, newSelectionRange;
 				var debouncedEditorChanged = window.cledit.Utils.debounce(function() {
-					if(checkState()) {
+					if (checkState()) {
 						return;
 					}
-					if(clEditorSvc.sectionList !== newSectionList) {
+					if (clEditorSvc.sectionList !== newSectionList) {
 						clEditorSvc.sectionList = newSectionList;
 						state ? debouncedRefreshPreview() : refreshPreview();
 					}
@@ -50,7 +51,7 @@ angular.module('classeur.core.editor', [])
 				}
 
 				var debouncedRefreshPreview = window.cledit.Utils.debounce(function() {
-					if(checkState()) {
+					if (checkState()) {
 						return;
 					}
 					refreshPreview();
@@ -71,10 +72,10 @@ angular.module('classeur.core.editor', [])
 					section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 					Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
 						var srcElt = imgTokenElt.querySelector('.token.md-src');
-						if(srcElt) {
+						if (srcElt) {
 							var imgElt = document.createElement('img');
 							var uri = srcElt.textContent;
-							if(clUriValidator(uri, true)) {
+							if (clUriValidator(uri, true)) {
 								imgElt.src = uri;
 							}
 							imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
@@ -85,7 +86,7 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.cledit.highlighter.on('domChanged', function(modifiedSections) {
 					modifiedSections.forEach(function(section) {
 						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
-							if(imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
+							if (imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
 								imgTokenElt.parentNode.removeChild(imgTokenElt);
 							}
 						});
@@ -99,10 +100,10 @@ angular.module('classeur.core.editor', [])
 				scope.$watch('editorSvc.options', function() {
 					clEditorSvc.forcePreviewRefresh();
 					var options = clEditorSvc.options;
-					if(!isInited) {
+					if (!isInited) {
 						options = angular.extend({}, options);
 						options.content = scope.currentFileDao.contentDao.content;
-						if(options.content.slice(-1) !== '\n') {
+						if (options.content.slice(-1) !== '\n') {
 							options.content += '\n';
 						}
 						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
@@ -117,7 +118,7 @@ angular.module('classeur.core.editor', [])
 				});
 
 				var debouncedMeasureSectionDimension = window.cledit.Utils.debounce(function() {
-					if(checkState()) {
+					if (checkState()) {
 						return;
 					}
 					clEditorSvc.measureSectionDimensions();
@@ -155,15 +156,16 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.setTocElt(tocElt);
 
 				var isMousedown;
+
 				function onClick(e) {
-					if(!isMousedown) {
+					if (!isMousedown) {
 						return;
 					}
 					e.preventDefault();
 					var y = e.clientY + tocElt.parentNode.scrollTop;
 
 					clEditorSvc.sectionDescList.some(function(sectionDesc) {
-						if(y < sectionDesc.tocDimension.endOffset) {
+						if (y < sectionDesc.tocDimension.endOffset) {
 							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1);
 							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection;
 							clEditorSvc.editorElt.parentNode.scrollTop = editorScrollTop - 100;
@@ -184,34 +186,70 @@ angular.module('classeur.core.editor', [])
 					isMousedown = e.which === 1;
 					onClick(e);
 				});
-				tocElt.addEventListener("mousemove", function(e){
+				tocElt.addEventListener("mousemove", function(e) {
 					onClick(e);
 				});
 			}
 		};
 	})
-	.factory('clEditorSvc', function(clSettingSvc, clEditorLayoutSvc) {
+	.factory('clEditorSvc', function($window, clSettingSvc, clEditorLayoutSvc) {
 		clSettingSvc.setDefaultValue('refreshPreviewDelay', 500);
 		clSettingSvc.setDefaultValue('measureSectionDelay', 1000);
 
-		window.rangy.init();
+		// Init rangy
+		$window.rangy.init();
+
+		// Create aliases for syntax highlighting
+		var Prism = $window.Prism;
+		angular.forEach({
+			'js': 'javascript',
+			'html': 'markup',
+			'svg': 'markup',
+			'xml': 'markup',
+			'py': 'python',
+			'rb': 'ruby',
+			'ps1': 'powershell',
+			'psm1': 'powershell'
+		}, function(name, alias) {
+			Prism.languages[alias] = Prism.languages[name];
+		});
+
+		var insideFcb = {};
+		angular.forEach(Prism.languages, function(language, name) {
+			if (Prism.util.type(language) !== 'Object') {
+				return;
+			}
+			insideFcb['language-' + name] = {
+				pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
+				inside: {
+					"md md-pre": /`{3}.*/,
+					rest: language
+				}
+			};
+		});
+
+		Prism.hooks.add('wrap', function(env) {
+			if (env.type === 'code' || env.type.match(/^pre($|\b)/)) {
+				env.attributes.spellcheck = 'false';
+			}
+		});
 
 		var editorElt, previewElt, tocElt;
 		var linkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
 		var sectionDelimiters = [];
-		var prismOptions = {};
+		var prismOptions = {
+			insideFcb: insideFcb
+		};
 		var forcePreviewRefresh = true;
 		var converterInitListeners = [];
 		var asyncPreviewListeners = [];
 		var footnoteContainerElt;
 		var clEditorSvc = {
-			options: {
-				language: window.mdGrammar(prismOptions)
-			},
+			options: {},
 			initConverter: function() {
-				clEditorSvc.converter = new window.Markdown.Converter();
+				clEditorSvc.converter = new $window.Markdown.Converter();
 				asyncPreviewListeners = [];
 				converterInitListeners.forEach(function(listener) {
 					listener(clEditorSvc.converter);
@@ -228,8 +266,11 @@ angular.module('classeur.core.editor', [])
 			},
 			setPrismOptions: function(options) {
 				prismOptions = angular.extend(prismOptions, options);
+				var grammar = $window.mdGrammar(prismOptions);
 				this.options = angular.extend({}, this.options);
-				this.options.language = window.mdGrammar(prismOptions);
+				this.options.highlighter = function(text) {
+					return Prism.highlight(text, grammar);
+				};
 			},
 			setSectionDelimiter: function(priority, sectionDelimiter) {
 				sectionDelimiters[priority] = sectionDelimiter;
@@ -249,8 +290,8 @@ angular.module('classeur.core.editor', [])
 				this.editorElt = elt;
 				clEditorSvc.sectionDescList = [];
 				footnoteContainerElt = undefined;
-				clEditorSvc.cledit = window.cledit(elt, elt.parentNode);
-				clEditorSvc.pagedownEditor = new window.Markdown.Editor(clEditorSvc.converter, {
+				clEditorSvc.cledit = $window.cledit(elt, elt.parentNode);
+				clEditorSvc.pagedownEditor = new $window.Markdown.Editor(clEditorSvc.converter, {
 					input: Object.create(clEditorSvc.cledit)
 				});
 				clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
@@ -297,9 +338,9 @@ angular.module('classeur.core.editor', [])
 				var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
 
 				// Strip footnotes
-				if(doFootnotes) {
+				if (doFootnotes) {
 					text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\[\^(.+?)\]\:[ \t]*\n?([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, footnote) {
-						if(footnote) {
+						if (footnote) {
 							hasFootnotes = true;
 							newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
 							return "";
@@ -310,7 +351,7 @@ angular.module('classeur.core.editor', [])
 
 				// Strip link definitions
 				text = text.replace(/^```.*\n[\s\S]*?\n```|^[ ]{0,3}\[(.+)\]:[ \t]*\n?[ \t]*<?(\S+?)>?(?=\s|$)[ \t]*\n?[ \t]*((\n*)["(](.+?)[")][ \t]*)?(?:\n+)/gm, function(wholeMatch, link) {
-					if(link) {
+					if (link) {
 						newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
 						return "";
 					}
@@ -330,7 +371,7 @@ angular.module('classeur.core.editor', [])
 			insertBeforeSection = undefined;
 
 			// Render everything if file or linkDefinition changed
-			if(forcePreviewRefresh || linkDefinition != newLinkDefinition) {
+			if (forcePreviewRefresh || linkDefinition != newLinkDefinition) {
 				forcePreviewRefresh = false;
 				linkDefinition = newLinkDefinition;
 				sectionsToRemove = sectionDescList;
@@ -343,7 +384,7 @@ angular.module('classeur.core.editor', [])
 			var leftIndex = sectionDescList.length;
 			sectionDescList.some(function(sectionDesc, index) {
 				var newSectionDesc = newSectionDescList[index];
-				if(index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
+				if (index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
 					leftIndex = index;
 					return true;
 				}
@@ -356,7 +397,7 @@ angular.module('classeur.core.editor', [])
 			var rightIndex = -sectionDescList.length;
 			sectionDescList.slice().reverse().some(function(sectionDesc, index) {
 				var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
-				if(leftIndex + index >= maxIndex || sectionDesc.text != newSectionDesc.text) {
+				if (leftIndex + index >= maxIndex || sectionDesc.text != newSectionDesc.text) {
 					rightIndex = -index;
 					return true;
 				}
@@ -388,7 +429,7 @@ angular.module('classeur.core.editor', [])
 
 		clEditorSvc.refreshPreview = function(cb) {
 
-			if(!footnoteContainerElt) {
+			if (!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
 				footnoteContainerElt.className = 'preview-content';
 				previewElt.appendChild(footnoteContainerElt);
@@ -419,18 +460,17 @@ angular.module('classeur.core.editor', [])
 				sectionPreviewElt.id = 'classeur-preview-section-' + sectionDesc.id;
 				sectionPreviewElt.className = 'classeur-preview-section modified';
 				var isNextDelimiter = false;
-				while(childNode) {
+				while (childNode) {
 					var nextNode = childNode.nextSibling;
 					var isDelimiter = childNode.className == 'classeur-preview-section-delimiter';
-					if(isNextDelimiter === true && childNode.tagName == 'DIV' && isDelimiter) {
+					if (isNextDelimiter === true && childNode.tagName == 'DIV' && isDelimiter) {
 						// Stop when encountered the next delimiter
 						break;
 					}
 					isNextDelimiter = true;
-					if(childNode.tagName == 'DIV' && childNode.className == 'footnotes') {
+					if (childNode.tagName == 'DIV' && childNode.className == 'footnotes') {
 						Array.prototype.forEach.call(childNode.querySelectorAll("ol > li"), storeFootnote);
-					}
-					else {
+					} else {
 						isDelimiter || sectionPreviewElt.appendChild(childNode);
 					}
 					childNode = nextNode;
@@ -451,7 +491,7 @@ angular.module('classeur.core.editor', [])
 			modifiedSections.forEach(createSectionElt);
 			var insertBeforePreviewElt = footnoteContainerElt;
 			var insertBeforeTocElt;
-			if(insertBeforeSection !== undefined) {
+			if (insertBeforeSection !== undefined) {
 				insertBeforePreviewElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
 				insertBeforeTocElt = document.getElementById('classeur-toc-section-' + insertBeforeSection.id);
 			}
@@ -461,7 +501,7 @@ angular.module('classeur.core.editor', [])
 			// Rewrite footnotes in the footer and update footnote numbers
 			footnoteContainerElt.innerHTML = '';
 			var usedFootnoteIds = [];
-			if(hasFootnotes === true) {
+			if (hasFootnotes === true) {
 				var footnoteElts = document.createElement('ol');
 				Array.prototype.forEach.call(previewElt.querySelectorAll('a.footnote'), function(elt, index) {
 					elt.textContent = index + 1;
@@ -470,7 +510,7 @@ angular.module('classeur.core.editor', [])
 					var footnoteElt = footnoteMap[id];
 					footnoteElt && footnoteElts.appendChild(footnoteElt.cloneNode(true));
 				});
-				if(usedFootnoteIds.length > 0) {
+				if (usedFootnoteIds.length > 0) {
 					// Append the whole footnotes at the end of the document
 					var divElt = document.createElement('div');
 					divElt.className = 'footnotes';
@@ -480,7 +520,7 @@ angular.module('classeur.core.editor', [])
 				}
 				// Keep used footnotes only in our map
 				Object.keys(footnoteMap).forEach(function(key) {
-					if(usedFootnoteIds.indexOf(key) === -1) {
+					if (usedFootnoteIds.indexOf(key) === -1) {
 						footnoteFragment.removeChild(footnoteMap[key]);
 						delete footnoteMap[key];
 					}
@@ -491,13 +531,13 @@ angular.module('classeur.core.editor', [])
 
 		function runAsyncPreview(cb) {
 			function recursiveCall(callbackList) {
-				if(callbackList.length) {
+				if (callbackList.length) {
 					return callbackList.shift()(function() {
 						recursiveCall(callbackList);
 					});
 				}
 				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
-					if(!elt.exportableHtml || elt === footnoteContainerElt) {
+					if (!elt.exportableHtml || elt === footnoteContainerElt) {
 						var clonedElt = elt.cloneNode(true);
 						Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
 							elt.parentNode.removeChild(elt);
@@ -514,7 +554,7 @@ angular.module('classeur.core.editor', [])
 
 			var imgLoadingListeners = Array.prototype.map.call(previewElt.querySelectorAll('img'), function(imgElt) {
 				return function(cb) {
-					if(!imgElt.src) {
+					if (!imgElt.src) {
 						return cb();
 					}
 					var img = new Image();
@@ -538,21 +578,20 @@ angular.module('classeur.core.editor', [])
 					return sectionDesc[dimensionName];
 				});
 				var dimension, i, j;
-				for(i = 0; i < dimensionList.length; i++) {
+				for (i = 0; i < dimensionList.length; i++) {
 					dimension = dimensionList[i];
-					if(!dimension.height) {
+					if (!dimension.height) {
 						continue;
 					}
-					for(j = i + 1; j < dimensionList.length && dimensionList[j].height === 0; j++) {
-					}
+					for (j = i + 1; j < dimensionList.length && dimensionList[j].height === 0; j++) {}
 					var normalizeFactor = j - i;
-					if(normalizeFactor === 1) {
+					if (normalizeFactor === 1) {
 						continue;
 					}
 					var normizedHeight = dimension.height / normalizeFactor;
 					dimension.height = normizedHeight;
 					dimension.endOffset = dimension.startOffset + dimension.height;
-					for(j = i + 1; j < i + normalizeFactor; j++) {
+					for (j = i + 1; j < i + normalizeFactor; j++) {
 						var startOffset = dimension.endOffset;
 						dimension = dimensionList[j];
 						dimension.startOffset = startOffset;
@@ -574,7 +613,7 @@ angular.module('classeur.core.editor', [])
 			var tocSectionOffset = 0;
 			var sectionDesc = clEditorSvc.sectionDescList[0];
 			var nextSectionDesc;
-			for(var i = 1; i < clEditorSvc.sectionDescList.length; i++) {
+			for (var i = 1; i < clEditorSvc.sectionDescList.length; i++) {
 				nextSectionDesc = clEditorSvc.sectionDescList[i];
 
 				// Measure editor section
@@ -588,7 +627,7 @@ angular.module('classeur.core.editor', [])
 				previewSectionOffset = newPreviewSectionOffset;
 
 				// Measure TOC section
-				var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight/2 : tocSectionOffset;
+				var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight / 2 : tocSectionOffset;
 				sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, newTocSectionOffset);
 				tocSectionOffset = newTocSectionOffset;
 				sectionDesc = nextSectionDesc;
@@ -596,7 +635,7 @@ angular.module('classeur.core.editor', [])
 
 			// Last section
 			sectionDesc = clEditorSvc.sectionDescList[i - 1];
-			if(sectionDesc) {
+			if (sectionDesc) {
 				sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
 				sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
 				sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
@@ -611,4 +650,3 @@ angular.module('classeur.core.editor', [])
 
 		return clEditorSvc;
 	});
-

@@ -56,10 +56,12 @@ pre.prettyprint {
 }
 
 pre > code {
+	color: black;
 	display: block;
 	overflow-x: auto;
 	padding: 0.5em;
 	background: #f0f0f0;
+	text-shadow: 0 1px white;
 	-webkit-text-size-adjust: none;
 }
 

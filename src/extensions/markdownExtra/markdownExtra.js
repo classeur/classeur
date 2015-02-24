@@ -5,7 +5,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			templateUrl: 'extensions/markdownExtra/markdownExtraSettings.html'
 		};
 	})
-	.directive('clMarkdownExtra', function(clEditorSvc, clSettingSvc, Slug) {
+	.directive('clMarkdownExtra', function($window, clEditorSvc, clSettingSvc, Slug) {
 		clSettingSvc.setDefaultValue('markdownExtra', true);
 
 		var options = {
@@ -23,7 +23,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			toc: true,
 			tocMaxDepth: 6,
 			tocMarker: '\\[(TOC|toc)\\]',
-			highlighter: 'highlight'
+			syntaxHighlighting: true
 		};
 
 		clEditorSvc.onInitConverter(50, function(converter) {
@@ -49,23 +49,17 @@ angular.module('classeur.extensions.markdownExtra', [])
 			converter.setOptions(converterOptions);
 
 			if(isEnabled) {
-				window.Markdown.Extra.init(converter, {
+				$window.Markdown.Extra.init(converter, {
 					extensions: options.extensions,
 					highlighter: 'prettify'
 				});
 
-				if(options.highlighter == "highlight") {
+				if(options.syntaxHighlighting) {
 					clEditorSvc.onAsyncPreview(function(cb) {
 						Array.prototype.forEach.call(document.querySelectorAll('.prettyprint > code'), function(elt) {
-							!elt.highlighted && window.hljs.highlightBlock(elt);
+							!elt.highlighted && Prism.highlightElement(elt);
 							elt.highlighted = true;
 						});
-						cb();
-					});
-				}
-				else if(options.highlighter == "prettify") {
-					clEditorSvc.onAsyncPreview(function(cb) {
-						window.prettify.prettyPrint();
 						cb();
 					});
 				}

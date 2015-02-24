@@ -50,14 +50,14 @@ Use single backticks to format text in a special `monospace format`.
 
 Indent four spaces or a tab to format text as its own distinct block.
 
-	var foo = 'bar' // baz
+	var foo = 'bar'; // baz
 
 ## Code highlighting
 
-Or use triple backticks to have a code block with syntax highlighting.
+Use triple backticks including the language identifier to have syntax highlighting.
 
-```
-var foo = 'bar' // baz
+```javascript
+var foo = 'bar'; // baz
 ```
 
 
