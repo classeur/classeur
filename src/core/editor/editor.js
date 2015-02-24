@@ -216,16 +216,15 @@ angular.module('classeur.core.editor', [])
 
 		var insideFcb = {};
 		angular.forEach(Prism.languages, function(language, name) {
-			if (Prism.util.type(language) !== 'Object') {
-				return;
+			if (Prism.util.type(language) === 'Object') {
+				insideFcb['language-' + name] = {
+					pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
+					inside: {
+						"md md-pre": /`{3}.*/,
+						rest: language
+					}
+				};
 			}
-			insideFcb['language-' + name] = {
-				pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
-				inside: {
-					"md md-pre": /`{3}.*/,
-					rest: language
-				}
-			};
 		});
 
 		Prism.hooks.add('wrap', function(env) {
