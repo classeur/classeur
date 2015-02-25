@@ -1,36 +1,21 @@
 .stat.panel {
-	width: 240px;
-	height: 240px;
-	left: 25px;
-	bottom: -250px;
-
-	& > div {
-		float: left;
-		font-size: 13px;
-		text-align: center;
-		&.markdown {
-			width: 110px;
-		}
-		&.html {
-			width: 140px;
-			margin-left: -10px;
-		}
+    background-color: transparentize(#d8d8d8, 0.1);
+	text-shadow: 0 1px white;
+    color: #444;
+    bottom: 0;
+    height: 20px;
+    font-size: 12px;
+    div {
+    	position: relative;
+    	display: inline-block;
+    	margin: 3px;
 		.name {
 			font-weight: bold;
-			padding-top: 15px;
-			padding-bottom: 10px;
+			margin: 0 10px;
 		}
 		.value {
 			font-weight: bold;
 		}
-	}
-
-	.close.btn {
-		right: 0;
-		a {
-			font-size: 22px;
-			line-height: 30px;
-		}
-	}
+    }
 }
 

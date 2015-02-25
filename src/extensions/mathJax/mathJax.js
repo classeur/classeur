@@ -93,9 +93,11 @@ angular.module('classeur.extensions.mathJax', [])
 						encloseMath = window.MathJax.Extension.tex2jax.encloseMath;
 						window.MathJax.Extension.tex2jax.encloseMath = function(element) {
 							element = element.parentNode;
-							var className = element.className;
-							element.className = className ? className + ' contains-mathjax' : 'contains-mathjax';
-							element.htmlBeforeTypeSet = element.innerHTML;
+							if(element) {
+								var className = element.className;
+								element.className = className ? className + ' contains-mathjax' : 'contains-mathjax';
+								element.htmlBeforeTypeSet = element.innerHTML;
+							}
 							return encloseMath.apply(window.MathJax.Extension.tex2jax, arguments);
 						};
 					}

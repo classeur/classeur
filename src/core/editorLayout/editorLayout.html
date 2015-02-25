@@ -37,7 +37,6 @@
 				</md-slider>
 				<cl-btn-bar-settings></cl-btn-bar-settings>
 				<cl-zen-mode-settings></cl-zen-mode-settings>
-				<cl-scroll-sync-settings></cl-scroll-sync-settings>
 				<cl-markdown-extra-settings></cl-markdown-extra-settings>
 				<cl-math-jax-settings></cl-math-jax-settings>
 			</div>
@@ -77,6 +76,8 @@
 
 	</div>
 
+	<cl-stat></cl-stat>
+
 	<div ng-mouseenter="editorLayoutSvc.toggleCorner(true)"
 		 ng-mouseleave="editorLayoutSvc.toggleCorner(false)">
 
@@ -95,8 +96,6 @@
 	</div>
 
 </div>
-
-<cl-stat ng-if="editorLayoutSvc.isStatOpen"></cl-stat>
 
 <cl-discussion ng-if="editorLayoutSvc.currentControl === 'discussion'"></cl-discussion>
 

@@ -181,8 +181,6 @@ angular.module('classeur.core.editorLayout', [])
 				this.isSidePreviewOpen = false;
 				this.currentControl = undefined;
 				this.isMenuOpen = false;
-				this.isTocOpen = false;
-				this.isStatOpen = false;
 				this.isCornerOpen = false;
 			},
 			toggleEditor: function(isOpen) {

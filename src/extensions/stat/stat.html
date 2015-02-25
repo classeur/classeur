@@ -1,24 +1,20 @@
-<div class="stat panel postit no-overflow md-whiteframe-z2">
-	<cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
-		<a class="mdi-content-clear" ng-click="editorLayoutSvc.toggleStat(false)" title="Close" aria-label="Close"></a>
-	</cl-button>
-
+<div class="stat panel no-overflow">
 	<div class="markdown">
-		<div class="name">
-			Markdown<br>
+		<span class="name">
+			Markdown
 			<small ng-show="isMarkdownSelection">(selection)</small>
-		</div>
-		<div ng-repeat="stat in markdownStats">
+		</span>
+		<span ng-repeat="stat in markdownStats">
 			<span class="value">{{stat.value}}</span> {{stat.name}}
-		</div>
+		</span>
 	</div>
 	<div class="html">
-		<div class="name">
-			HTML<br>
+		<span class="name">
+			HTML
 			<small ng-show="isHtmlSelection">(selection)</small>
-		</div>
-		<div ng-repeat="stat in htmlStats">
+		</span>
+		<span ng-repeat="stat in htmlStats">
 			<span class="value">{{stat.value}}</span> {{stat.name}}
-		</div>
+		</span>
 	</div>
 </div>

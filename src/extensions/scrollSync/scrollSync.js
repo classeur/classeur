@@ -24,12 +24,6 @@ angular.module('classeur.extensions.scrollSync', [])
 			}
 		};
 	})
-	.directive('clScrollSyncSettings', function() {
-		return {
-			restrict: 'E',
-			templateUrl: 'extensions/scrollSync/scrollSyncSettings.html'
-		};
-	})
 	.factory('clScrollSyncSvc', function(clEditorLayoutSvc, clEditorSvc, clSettingSvc) {
 		clSettingSvc.setDefaultValue('scrollSync', true);
 

@@ -26,16 +26,20 @@ angular.module('classeur.extensions.markdownExtra', [])
 			syntaxHighlighting: true
 		};
 
+		var previewElt;
+		var tocRegExp = new RegExp("^\\s*" + options.tocMarker + "\\s*$");
+
 		clEditorSvc.onInitConverter(50, function(converter) {
 			var isEnabled = clSettingSvc.values.markdownExtra;
+
 			function hasExtension(extensionName) {
 				return isEnabled && options.extensions.some(function(extension) {
-						return extension == extensionName;
-					});
+					return extension == extensionName;
+				});
 			}
 
 			var converterOptions = {};
-			if(isEnabled && options.intraword) {
+			if (isEnabled && options.intraword) {
 				converterOptions = {
 					_DoItalicsAndBold: function(text) {
 						text = text.replace(/([^\w*]|^)(\*\*|__)(?=\S)(.+?[*_]*)(?=\S)\2(?=[^\w*]|$)/g, "$1<strong>$3</strong>");
@@ -48,16 +52,16 @@ angular.module('classeur.extensions.markdownExtra', [])
 			}
 			converter.setOptions(converterOptions);
 
-			if(isEnabled) {
+			if (isEnabled) {
 				$window.Markdown.Extra.init(converter, {
 					extensions: options.extensions,
 					highlighter: 'prettify'
 				});
 
-				if(options.syntaxHighlighting) {
+				if (options.syntaxHighlighting) {
 					clEditorSvc.onAsyncPreview(function(cb) {
 						Array.prototype.forEach.call(document.querySelectorAll('.prettyprint > code'), function(elt) {
-							!elt.highlighted && Prism.highlightElement(elt);
+							!elt.highlighted && $window.Prism.highlightElement(elt);
 							elt.highlighted = true;
 						});
 						cb();
@@ -73,11 +77,10 @@ angular.module('classeur.extensions.markdownExtra', [])
 			});
 
 			// Set editor options
-			if(hasExtension('fenced_code_gfm')) {
+			if (hasExtension('fenced_code_gfm')) {
 				// Add new fenced code block delimiter with priority 25
 				clEditorSvc.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
-			}
-			else {
+			} else {
 				// Unset fenced code block delimiter
 				clEditorSvc.setSectionDelimiter(25, undefined);
 			}
@@ -87,6 +90,40 @@ angular.module('classeur.extensions.markdownExtra', [])
 				footnotes: hasExtension('footnotes'),
 				strikes: hasExtension('strikethrough'),
 				toc: isEnabled && options.toc
+			});
+
+			isEnabled && options.toc && clEditorSvc.onAsyncPreview(function(cb) {
+				// Build the TOC
+				var anchorHash = {};
+
+				function createAnchor(element) {
+					var id = element.id || Slug.slugify(element.textContent) || 'heading';
+					var anchor = id;
+					var index = 0;
+					while (anchorHash.hasOwnProperty(anchor)) {
+						anchor = id + "-" + (++index);
+					}
+					anchorHash[anchor] = true;
+					// Update the id of the element
+					element.id = anchor;
+					return anchor;
+				}
+
+				var elementList = [];
+				Array.prototype.forEach.call(previewElt.querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
+					elementList.push(new TocElement(elt.tagName, createAnchor(elt), elt.textContent));
+				});
+				elementList = groupTags(elementList);
+				var htmlToc = '<div class="toc">\n<ul>\n' + elementList.join("") + '</ul>\n</div>\n';
+
+				// Replace toc paragraphs
+				Array.prototype.slice.call(previewElt.getElementsByTagName('p')).forEach(function(elt) {
+					if (tocRegExp.test(elt.innerHTML)) {
+						elt.innerHTML = htmlToc;
+					}
+				});
+
+				cb();
 			});
 		});
 
@@ -100,7 +137,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 		}
 
 		TocElement.prototype.childrenToString = function() {
-			if(this.children.length === 0) {
+			if (this.children.length === 0) {
 				return "";
 			}
 			var result = "<ul>\n";
@@ -113,7 +150,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 
 		TocElement.prototype.toString = function() {
 			var result = "<li>";
-			if(this.anchor && this.text) {
+			if (this.anchor && this.text) {
 				result += '<a href="#' + this.anchor + '">' + this.text + '</a>';
 			}
 			result += this.childrenToString() + "</li>\n";
@@ -127,78 +164,37 @@ angular.module('classeur.extensions.markdownExtra', [])
 			var result = [];
 
 			var currentElement;
+
 			function pushCurrentElement() {
-				if(currentElement !== undefined) {
-					if(currentElement.children.length > 0) {
-						currentElement.children = groupTags(currentElement.children, level + 1);
-					}
-					result.push(currentElement);
+				if (currentElement.children.length > 0) {
+					currentElement.children = groupTags(currentElement.children, level + 1);
 				}
+				result.push(currentElement);
 			}
 
 			array.forEach(function(element) {
-				if(element.tagName != tagName) {
-					if(level !== options.tocMaxDepth) {
-						if(currentElement === undefined) {
-							currentElement = new TocElement();
-						}
+				if (element.tagName != tagName) {
+					if (level !== options.tocMaxDepth) {
+						currentElement = currentElement || new TocElement();
 						currentElement.children.push(element);
 					}
-				}
-				else {
-					pushCurrentElement();
+				} else {
+					currentElement && pushCurrentElement();
 					currentElement = element;
 				}
 			});
-			pushCurrentElement();
+			currentElement && pushCurrentElement();
 			return result;
 		}
 
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				var previewElt = element[0];
-				var tocExp = new RegExp("^\\s*" + options.tocMarker + "\\s*$");
+				previewElt = element[0];
 
 				scope.$watch('settingSvc.values.markdownExtra', function() {
 					clEditorSvc.initConverter();
 				});
-
-				scope.$watch('editorSvc.lastPreviewRefreshed', function() {
-					if(!clSettingSvc.values.markdownExtra || !options.toc) {
-						return;
-					}
-
-					// Build the TOC
-					var anchorList = {};
-					function createAnchor(element) {
-						var id = element.id || Slug.slugify(element.textContent) || 'heading';
-						var anchor = id;
-						var index = 0;
-						while (anchorList.hasOwnProperty(anchor)) {
-							anchor = id + "-" + (++index);
-						}
-						anchorList[anchor] = true;
-						// Update the id of the element
-						element.id = anchor;
-						return anchor;
-					}
-
-					var elementList = [];
-					Array.prototype.forEach.call(previewElt.querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
-						elementList.push(new TocElement(elt.tagName, createAnchor(elt), elt.textContent));
-					});
-					elementList = groupTags(elementList);
-					var htmlToc = '<div class="toc">\n<ul>\n' + elementList.join("") + '</ul>\n</div>\n';
-
-					// Replace toc paragraphs
-					Array.prototype.forEach.call(previewElt.getElementsByTagName('p'), function(elt) {
-						if(tocExp.test(elt.innerHTML)) {
-							elt.innerHTML = htmlToc;
-						}
-					});
-				});
-
 			}
 		};
 	});

@@ -74,8 +74,12 @@ angular.module('classeur.core.editor', [])
 						var srcElt = imgTokenElt.querySelector('.token.md-src');
 						if (srcElt) {
 							var imgElt = document.createElement('img');
+							imgElt.style.display = 'none';
 							var uri = srcElt.textContent;
 							if (clUriValidator(uri, true)) {
+								imgElt.onload = function() {
+									imgElt.style.display = '';
+								};
 								imgElt.src = uri;
 							}
 							imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);

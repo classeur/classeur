@@ -115,8 +115,8 @@ angular.module('classeur.extensions.btnBar', [])
 			margin: 25,
 			btnWidth: 30,
 			btnHeight: 32,
-			height: 70,
-			visibleHeight: 48,
+			height: 60,
+			visibleHeight: 46,
 			paperHoleWidth: 260
 		};
 
@@ -151,7 +151,7 @@ angular.module('classeur.extensions.btnBar', [])
 
 				var btnBarPanel = clPanel(element, '.btn-bar.panel').width(props.width).height(props.height).top(2000);
 				btnBarPanel.move().to(-props.width / 2, closedOffsetY).end();
-				clPanel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
+				//clPanel(element, '.hole.panel').width(props.paperHoleWidth).move().x(-props.paperHoleWidth / 2).end();
 
 				scope.$watch('editorLayoutSvc.pageWidth', animate);
 				scope.$watch('editorLayoutSvc.isEditorOpen', animate);

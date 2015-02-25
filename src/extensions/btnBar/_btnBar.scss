@@ -1,38 +1,29 @@
 .btn-bar.panel {
-	left: 50%;
-	.paper.hole {
-		left: 50%;
-		bottom: 5px;
-		height: 4px;
-	}
-}
-
-.btn-bar .btn {
-	top: 25px;
-	a {
-		color: #fff;
-		font-size: 25px;
-		line-height: 32px;
-	}
-	.mdi-navigation-more-horiz {
-		line-height: 1.4;
-	}
-}
-
-.clip {
-	border-bottom-left-radius: 12px;
-	border-bottom-right-radius: 12px;
-	background-color: #404040;
-	.light-1, .light-2 {
-		border-bottom-right-radius: 12px;
-		border-bottom: 70px solid transparentize(#000, 0.9);
-		right: 0;
-		border-left: 6px solid transparent;
-	}
-	.light-1 {
-		width: 100px;
-	}
-	.light-2 {
-		width: 375px;
-	}
+    left: 50%;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    background-color: #404040;
+    .light-1, .light-2 {
+        border-bottom-right-radius: 12px;
+        border-bottom: 60px solid transparentize(#000, 0.9);
+        right: 0;
+        border-left: 6px solid transparent;
+    }
+    .light-1 {
+        width: 100px;
+    }
+    .light-2 {
+        width: 380px;
+    }
+    .btn {
+        top: 20px;
+        a {
+            color: #fff;
+            font-size: 25px;
+            line-height: 32px;
+        }
+        .mdi-navigation-more-horiz {
+            line-height: 1.4;
+        }
+    }
 }
