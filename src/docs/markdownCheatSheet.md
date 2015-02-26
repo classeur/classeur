@@ -52,7 +52,7 @@ Create a link by wrapping link text in brackets (`[ ]`), and then wrapping the l
 
 Images are like links, but have an exclamation point in front of them.
 
-![Classeur Logo](http://app.classeur.io/images/logo.png)
+![Classeur Logo](/images/logo.png)
 
 
 # Tables
