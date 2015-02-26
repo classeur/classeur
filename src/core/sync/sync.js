@@ -1,8 +1,9 @@
 angular.module('classeur.core.sync', [])
-	.factory('clSyncSvc', function($rootScope, $location, $http, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
+	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
 		var lastCreateFileActivity = 0;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
 		var createFileTimeout = 30 * 1000; // 30 sec
+		var loadingTimeout = 30 * 1000; // 30 sec
 
 		var syncDataStore = clLocalStorageObject('syncData');
 
@@ -72,7 +73,7 @@ angular.module('classeur.core.sync', [])
 			readSyncDataStore();
 			checkUserChange(msg.user);
 			clFileSvc.files.forEach(function(fileDao) {
-				if(fileDao.userId === msg.user.id) {
+				if (fileDao.userId === msg.user.id) {
 					fileDao.userId = '';
 				}
 			});
@@ -329,11 +330,18 @@ angular.module('classeur.core.sync', [])
 				userActivities: {},
 				contentChanges: []
 			});
-			watchCtx.fileExists && clSocketSvc.sendMsg({
-				type: 'startWatchContent',
-				id: watchCtx.fileDao.id,
-				previousRev: watchCtx.rev
-			});
+			if (watchCtx.fileExists) {
+				clSocketSvc.sendMsg({
+					type: 'startWatchContent',
+					id: fileDao.id,
+					userId: fileDao.userId,
+					previousRev: watchCtx.rev
+				});
+				$timeout.cancel(fileDao.loadingTimeoutId);
+				fileDao.loadingTimeoutId = $timeout(function() {
+					setLoadingError(fileDao, 'Loading timeout.');
+				}, loadingTimeout);
+			}
 		}
 
 		function stopWatchContent() {
@@ -345,30 +353,64 @@ angular.module('classeur.core.sync', [])
 			}
 		}
 
-		clSocketSvc.addMsgHandler('content', function(msg) {
-			if (!watchCtx || watchCtx.fileDao.id !== msg.id) {
+		function setFileStateLoaded(fileDao) {
+			fileDao.contentDao.isLocal = '1';
+			fileDao.contentDao.discussions = {};
+			fileDao.contentDao.state = {};
+			fileDao.writeContent(true);
+			fileDao.state = 'loaded';
+			if (!clFileSvc.fileMap.hasOwnProperty(fileDao.id)) {
+				clFileSvc.fileMap[fileDao.id] = fileDao;
+				clFileSvc.fileIds.push(fileDao.id);
+			}
+			clFileSvc.init();
+		}
+
+		function setLoadingError(fileDao, error) {
+			if (fileDao.state === 'loading') {
+				fileDao.state = undefined;
+			}
+			clToast(error || 'The file is not accessible.');
+		}
+
+		clSocketSvc.addMsgHandler('file', function(msg) {
+			if (!watchCtx || !watchCtx.fileDao.state || watchCtx.fileDao.id !== msg.id) {
 				return;
 			}
-			var oldContent = msg.previous ? msg.previous.content : msg.latest.content;
-			var serverContent = msg.latest.content;
-			var localContent = watchCtx.fileDao.isLoaded ? clEditorSvc.cledit.getContent() : undefined;
-			var isServerChanges = oldContent !== serverContent;
-			var isLocalChanges = oldContent !== localContent;
-			var isSynchronized = serverContent === localContent;
-			if (!isSynchronized && isServerChanges && isLocalChanges) {
-				// TODO Deal with conflict
-				watchCtx.content = msg.latest.content;
-				watchCtx.rev = msg.latest.rev;
-				clEditorSvc.cledit.setContent(watchCtx.content);
+			var fileDao = watchCtx.fileDao;
+			$timeout.cancel(fileDao.loadingTimeoutId);
+			if (msg.error) {
+				return setLoadingError(fileDao);
+			}
+			if (fileDao.userId) {
+				fileDao.name = msg.name;
+				fileDao.sharing = msg.sharing;
+				fileDao.updated = msg.updated;
+				fileDao.write(fileDao.updated);
+			}
+			if (fileDao.state === 'loading') {
+				fileDao.contentDao.content = watchCtx.content;
+				setFileStateLoaded(fileDao);
+				$rootScope.$evalAsync();
 			} else {
-				watchCtx.content = msg.latest.content;
-				watchCtx.rev = msg.latest.rev;
-				if (!isSynchronized) {
-					if (isServerChanges) {
-						clEditorSvc.cledit.setContent(watchCtx.content);
-					} else if (watchCtx.fileDao.onLoaded) {
-						watchCtx.fileDao.contentDao.content = watchCtx.content;
-						watchCtx.fileDao.onLoaded();
+				var oldContent = msg.previous ? msg.previous.content : msg.latest.content;
+				var serverContent = msg.latest.content;
+				var localContent = clEditorSvc.cledit.getContent();
+				var isServerChanges = oldContent !== serverContent;
+				var isLocalChanges = oldContent !== localContent;
+				var isSynchronized = serverContent === localContent;
+				if (!isSynchronized && isServerChanges && isLocalChanges) {
+					// TODO Deal with conflict
+					watchCtx.content = msg.latest.content;
+					watchCtx.rev = msg.latest.rev;
+					clEditorSvc.cledit.setContent(watchCtx.content);
+				} else {
+					watchCtx.content = msg.latest.content;
+					watchCtx.rev = msg.latest.rev;
+					if (!isSynchronized) {
+						if (isServerChanges) {
+							clEditorSvc.cledit.setContent(watchCtx.content);
+						}
 					}
 				}
 			}
@@ -381,22 +423,23 @@ angular.module('classeur.core.sync', [])
 			if (!fileDao || !fileDao.userId) {
 				return;
 			}
-			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id)
+			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id, {
+					timeout: loadingTimeout
+				})
 				.success(function(res) {
 					fileDao.name = res.name;
-					fileDao.folderId = res.folderId;
 					fileDao.sharing = res.sharing;
-					fileDao.userId = res.userId;
 					fileDao.updated = res.updated;
-					if (fileDao.isLoaded) {
+					fileDao.write(fileDao.updated);
+					if (fileDao.state === 'loaded') {
 						clEditorSvc.cledit.setContent(res.content);
-					} else if (fileDao.onLoaded) {
+					} else if (fileDao.state === 'loading') {
 						fileDao.contentDao.content = res.content;
-						fileDao.onLoaded && fileDao.onLoaded();
+						setFileStateLoaded(fileDao);
 					}
 				})
-				.error(function(err) {
-					fileDao.onLoaded && fileDao.onLoaded(err);
+				.error(function() {
+					setLoadingError(fileDao);
 				});
 		}
 

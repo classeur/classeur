@@ -9,41 +9,63 @@ angular.module('classeur.core', [])
 
 		$routeProvider
 			.when('/file/:fileId', {
-				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
-					$rootScope.currentFileDao = clFileSvc.fileMap[$routeParams.fileId];
-					if(!$rootScope.currentFileDao) {
+				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
+				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
+					var fileDao = clFileSvc.fileMap[$routeParams.fileId];
+					if (!fileDao) {
+						clToast('Unknown file ID.');
 						return $location.url('');
 					}
-					$rootScope.currentFileDao.load(function(err) {
-						if(err) {
-							clToast(err);
+					$scope.setCurrentFileDao(fileDao);
+					if (!fileDao.load()) {
+						clToast('You appear to be offline.');
+						return $location.url('');
+					}
+					$scope.$watch('currentFileDao.state', function(state) {
+						if (!state) {
 							return $location.url('');
 						}
-						clEditorLayoutSvc.init();
+						if (state === 'loaded') {
+							clEditorLayoutSvc.init();
+							$scope.fileLoaded = true;
+						}
 					});
 				}
 			})
 			.when('/file/:userId/:fileId', {
-				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
-					$rootScope.currentFileDao = clFileSvc.fileMap[$routeParams.fileId] || clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
-					$rootScope.currentFileDao.load(function(err) {
-						if(err) {
-							clToast(err);
+				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
+				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clToast) {
+					var publicFileDao = clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
+					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
+					if (fileDao.userId !== publicFileDao.userId) {
+						return $scope.changeCurrentFile(fileDao);
+					}
+					$scope.setCurrentFileDao(fileDao);
+					if (!fileDao.load()) {
+						clToast('You appear to be offline.');
+						return $location.url('');
+					}
+					$scope.$watch('currentFileDao.state', function(state) {
+						if (!state) {
 							return $location.url('');
 						}
-						clEditorLayoutSvc.init(true);
+						if (state === 'loaded') {
+							clEditorLayoutSvc.init(true);
+							$scope.fileLoaded = true;
+						}
 					});
 				}
 			})
 			.when('/doc/:fileName', {
-				template: '<cl-editor-layout ng-if="currentFileDao.isLoaded"></cl-editor-layout>',
-				controller: function($rootScope, $routeParams, $timeout, clDocFileSvc, clEditorLayoutSvc) {
-					$rootScope.currentFileDao = clDocFileSvc($routeParams.fileName);
+				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
+				controller: function($scope, $routeParams, $timeout, clDocFileSvc, clEditorLayoutSvc) {
+					var fileDao = clDocFileSvc($routeParams.fileName);
+					$scope.setCurrentFileDao(fileDao);
 					$timeout(function() {
-						$rootScope.currentFileDao.isLoaded = true;
-						clEditorLayoutSvc.init();
+						if (fileDao === $scope.currentFileDao) {
+							clEditorLayoutSvc.init();
+							$scope.fileLoaded = true;
+						}
 					});
 				}
 			})
@@ -77,12 +99,16 @@ angular.module('classeur.core', [])
 
 		function saveAll() {
 			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
-			if($rootScope.currentFileDao && !$rootScope.currentFileDao.isLoaded && !$rootScope.currentFileDao.onLoaded) {
+			if ($rootScope.currentFileDao && !$rootScope.currentFileDao.state) {
 				// Close current file if it has been unloaded
-				setCurrentFile();
+				changeCurrentFile();
 				hasChanged = true;
 			}
 			return hasChanged;
+		}
+
+		function setCurrentFileDao(fileDao) {
+			$rootScope.currentFileDao = fileDao;
 		}
 
 		function unloadCurrentFile() {
@@ -90,7 +116,7 @@ angular.module('classeur.core', [])
 			$rootScope.currentFileDao = undefined;
 		}
 
-		function setCurrentFile(fileDao) {
+		function changeCurrentFile(fileDao) {
 			unloadCurrentFile();
 			$location.url(fileDao ? '/file/' + (fileDao.userId && fileDao.userId + '/') + fileDao.id : '');
 		}
@@ -108,13 +134,14 @@ angular.module('classeur.core', [])
 				['content', 'state', 'discussions'].forEach(function(attrName) {
 					newFileDao.contentDao[attrName] = oldFileDao.contentDao[attrName];
 				});
-				setCurrentFile(newFileDao);
+				changeCurrentFile(newFileDao);
 				clToast('Copy created.');
 			});
 		}
 
 		$rootScope.saveAll = saveAll;
-		$rootScope.setCurrentFile = setCurrentFile;
+		$rootScope.changeCurrentFile = changeCurrentFile;
+		$rootScope.setCurrentFileDao = setCurrentFileDao;
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 

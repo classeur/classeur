@@ -33,7 +33,7 @@ angular.module('classeur.core.files', [])
 		FileDao.prototype.readContent = function() {
 			this.contentDao.$readAttr('isLocal', '');
 			this.contentDao.$readAttr('lastChange', '0', parseInt);
-			if (this.isLoaded) {
+			if (this.state === 'loaded') {
 				this.contentDao.$readAttr('content', '');
 				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
 				this.contentDao.$readAttr('state', '{}', JSON.parse);
@@ -49,7 +49,7 @@ angular.module('classeur.core.files', [])
 
 		FileDao.prototype.writeContent = function(updateLastChange) {
 			this.contentDao.$writeAttr('isLocal');
-			if (this.isLoaded) {
+			if (this.state === 'loaded') {
 				updateLastChange |= this.contentDao.$writeAttr('content');
 				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
 				this.contentDao.$writeAttr('state', JSON.stringify);
@@ -63,75 +63,43 @@ angular.module('classeur.core.files', [])
 			}
 		};
 
-		FileDao.prototype.load = function(cb) {
-			if (this.isLoaded) {
-				cb();
-			} else if (this.contentDao.isLocal) {
-				$timeout((function() {
-					this.isLoaded = true;
-					this.readContent();
-					cb();
-				}).bind(this));
-			} else if (clSocketSvc.isReady) {
-				var timeoutId = $timeout((function() {
-					this.onLoaded = undefined;
-					return cb('A timeout occured.');
-				}).bind(this), 30000);
-				this.onLoaded = function() {
-					$timeout.cancel(timeoutId);
-					$timeout((function() {
-						this.onLoaded = undefined;
-						this.isLoaded = true;
-						this.contentDao.isLocal = '1';
-						// TODO fill these values in sync module
-						this.contentDao.discussions = {};
-						this.contentDao.state = {};
-						this.writeContent(true);
-						init();
-						cb();
-					}).bind(this));
-				};
-			} else if (this.userId) {
-				this.onLoaded = function(err) {
-					if(err) {
-						return cb(err.reason || 'You appear to be offline.');
-					}
-					$timeout((function() {
-						if (!clFileSvc.fileMap.hasOwnProperty(this.id)) {
-							clFileSvc.fileMap[this.id] = this;
-							clFileSvc.fileIds.push(this.id);
-						}
-						this.onLoaded = undefined;
-						this.isLoaded = true;
-						this.contentDao.isLocal = '1';
-						// TODO fill these values in sync module
-						this.contentDao.discussions = {};
-						this.contentDao.state = {};
-						this.write(this.updated);
-						this.writeContent(true);
-						init();
-						cb();
-					}).bind(this));
-				};
-			} else {
-				return cb('You appear to be offline.');
+		FileDao.prototype.load = function() {
+			if (this.state) {
+				return true;
 			}
+			this.state = 'loading';
+			if (this.contentDao.isLocal) {
+				$timeout((function() {
+					this.state = 'loaded';
+					this.readContent();
+				}).bind(this));
+				return true;
+			}
+			if (clSocketSvc.isReady) {
+				return true;
+			}
+			if (this.userId) {
+				return true;
+			}
+			this.state = undefined;
+			return false;
 		};
 
 		FileDao.prototype.unload = function() {
 			this.freeContent();
-			this.isLoaded = false;
+			this.state = undefined;
 		};
 
 		FileDao.prototype.loadExecUnload = function(cb) {
-			if (this.isLoaded) {
+			var state = this.state;
+			if (state === 'loaded') {
 				return cb();
 			}
-			this.isLoaded = true;
+			this.state = 'loaded';
 			this.readContent();
 			cb();
 			this.freeContent();
-			this.isLoaded = false;
+			this.state = state;
 		};
 
 		function ReadOnlyFile(name, content) {
@@ -143,6 +111,7 @@ angular.module('classeur.core.files', [])
 				discussions: {}
 			};
 			this.isReadOnly = true;
+			this.state = 'loaded';
 			this.unload = function() {};
 		}
 
@@ -258,7 +227,7 @@ angular.module('classeur.core.files', [])
 		}
 
 		function removeFiles(fileDaoList) {
-			if(!fileDaoList.length) {
+			if (!fileDaoList.length) {
 				return;
 			}
 			var fileIds = {};
