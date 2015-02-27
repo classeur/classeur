@@ -319,7 +319,7 @@ angular.module('classeur.core.sync', [])
 		clSocketSvc.addMsgHandler('signedInUser', unsetWatchCtx);
 
 		function watchContent(fileDao) {
-			if (!fileDao || (watchCtx && fileDao === watchCtx.fileDao && watchCtx.fileExists)) {
+			if (!fileDao || !fileDao.state || (watchCtx && fileDao === watchCtx.fileDao && watchCtx.fileExists)) {
 				return;
 			}
 			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
@@ -389,6 +389,8 @@ angular.module('classeur.core.sync', [])
 				fileDao.write(fileDao.updated);
 			}
 			if (fileDao.state === 'loading') {
+				watchCtx.content = msg.latest.content;
+				watchCtx.rev = msg.latest.rev;
 				fileDao.contentDao.content = watchCtx.content;
 				setFileStateLoaded(fileDao);
 				$rootScope.$evalAsync();
@@ -420,7 +422,7 @@ angular.module('classeur.core.sync', [])
 		});
 
 		function getPublicFile(fileDao) {
-			if (!fileDao || !fileDao.userId) {
+			if (!fileDao || !fileDao.state || !fileDao.userId) {
 				return;
 			}
 			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id, {

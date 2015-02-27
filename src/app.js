@@ -34,6 +34,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.mathJax',
 		'classeur.extensions.scrollSync',
 		'classeur.extensions.sharingDialog',
+		'classeur.extensions.spinner',
 		'classeur.extensions.stat',
 		'classeur.extensions.userActivity',
 		'classeur.extensions.zenMode',

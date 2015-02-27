@@ -40,11 +40,32 @@ Make an ordered list by preceding list items with a number.
 3. Item 3
 
 
+# Code formatting
+
+## Inline formats
+
+Use single backticks to format text in a special `monospace format`.
+
+## Multiple lines
+
+Indent four spaces or a tab to format text as its own distinct block.
+
+	var foo = 'bar'; // baz
+
+## Code highlighting
+
+Use triple backticks including the language identifier to have syntax highlighting.
+
+```javascript
+var foo = 'bar'; // baz
+```
+
+
 # Links and images
 
 ## Links
 
-Create a link by wrapping link text in brackets (`[ ]`), and then wrapping the link in parentheses (`( )`).
+Create a link by wrapping link text in brackets, and then wrapping the link in parentheses.
 
 [Visit Classeur](http://classeur.io)
 
@@ -57,7 +78,7 @@ Images are like links, but have an exclamation point in front of them.
 
 # Tables
 
-Create tables by assembling a list of words and dividing them with hyphens `-` (for the first row), and then separating each column with a pipe `|`.
+Create tables by assembling a list of words and dividing them with hyphens (for the first row), and then separating each column with a pipe.
 
 First Header  | Second Header
 ------------- | -------------
@@ -78,27 +99,6 @@ By including colons within the header row, you can define text to be left-aligne
 Insert a table of contents using the marker `[TOC]`.
 
 [TOC]
-
-
-# Code formatting
-
-## Inline formats
-
-Use single backticks to format text in a special `monospace format`.
-
-## Multiple lines
-
-Indent four spaces or a tab to format text as its own distinct block.
-
-	var foo = 'bar'; // baz
-
-## Code highlighting
-
-Use triple backticks including the language identifier to have syntax highlighting.
-
-```javascript
-var foo = 'bar'; // baz
-```
 
 
 # Maths

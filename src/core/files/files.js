@@ -65,24 +65,19 @@ angular.module('classeur.core.files', [])
 
 		FileDao.prototype.load = function() {
 			if (this.state) {
-				return true;
+				return;
 			}
-			this.state = 'loading';
 			if (this.contentDao.isLocal) {
+				this.state = 'loading';
 				$timeout((function() {
-					this.state = 'loaded';
-					this.readContent();
+					if(this.state === 'loading') {
+						this.state = 'loaded';
+						this.readContent();
+					}
 				}).bind(this));
-				return true;
+			} else if (clSocketSvc.isReady || this.userId) {
+				this.state = 'loading';
 			}
-			if (clSocketSvc.isReady) {
-				return true;
-			}
-			if (this.userId) {
-				return true;
-			}
-			this.state = undefined;
-			return false;
 		};
 
 		FileDao.prototype.unload = function() {

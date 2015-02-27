@@ -51,7 +51,7 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				});
 				scope.open = function() {
-					!scope.isEditing && scope.changeCurrentFile(scope.fileDao);
+					!scope.isEditing && scope.setCurrentFile(scope.fileDao);
 				};
 				scope.setEditing = function(value) {
 					scope.isEditing = value;
@@ -72,7 +72,7 @@ angular.module('classeur.core.explorerLayout', [])
 			templateUrl: 'core/explorerLayout/publicFileEntry.html',
 			link: function(scope) {
 				scope.open = function() {
-					scope.changeCurrentFile(scope.fileDao);
+					scope.setCurrentFile(scope.fileDao);
 				};
 			}
 		};
@@ -220,7 +220,7 @@ angular.module('classeur.core.explorerLayout', [])
 					if (clExplorerLayoutSvc.currentFolderDao) {
 						fileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
 					}
-					scope.changeCurrentFile(fileDao);
+					scope.setCurrentFile(fileDao);
 					clExplorerLayoutSvc.refreshFiles();
 				};
 			}
