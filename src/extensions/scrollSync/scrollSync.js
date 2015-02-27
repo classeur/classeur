@@ -28,7 +28,6 @@ angular.module('classeur.extensions.scrollSync', [])
 		clSettingSvc.setDefaultValue('scrollSync', true);
 
 		var editorElt, previewElt;
-		var scrollSyncOffset = 80;
 		var scrollTimeoutId;
 		var currentEndCb, skipAnimation;
 
@@ -87,11 +86,11 @@ angular.module('classeur.extensions.scrollSync', [])
 				// Scroll the preview
 				isScrollEditor = false;
 				lastEditorScrollTop = editorScrollTop;
-				editorScrollTop += scrollSyncOffset;
+				editorScrollTop += clEditorSvc.scrollOffset;
 				sectionDescList.some(function(sectionDesc) {
 					if(editorScrollTop < sectionDesc.editorDimension.endOffset) {
 						var posInSection = (editorScrollTop - sectionDesc.editorDimension.startOffset) / (sectionDesc.editorDimension.height || 1);
-						destScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - scrollSyncOffset;
+						destScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - clEditorSvc.scrollOffset;
 						return true;
 					}
 				});
@@ -118,11 +117,11 @@ angular.module('classeur.extensions.scrollSync', [])
 				// Scroll the editor
 				isScrollPreview = false;
 				lastPreviewScrollTop = previewScrollTop;
-				previewScrollTop += scrollSyncOffset;
+				previewScrollTop += clEditorSvc.scrollOffset;
 				sectionDescList.some(function(sectionDesc) {
 					if(previewScrollTop < sectionDesc.previewDimension.endOffset) {
 						var posInSection = (previewScrollTop - sectionDesc.previewDimension.startOffset) / (sectionDesc.previewDimension.height || 1);
-						destScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - scrollSyncOffset;
+						destScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - clEditorSvc.scrollOffset;
 						return true;
 					}
 				});
@@ -257,5 +256,4 @@ angular.module('classeur.extensions.scrollSync', [])
 				doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);
 			}
 		};
-
 	});

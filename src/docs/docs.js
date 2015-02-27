@@ -5,7 +5,9 @@ angular.module('classeur.core.docs', [])
 			name = name[0].toUpperCase() + name.slice(1);
 			var cacheEntry = $templateCache.get('docs/' + fileName + '.md');
 			if(cacheEntry) {
-				return clFileSvc.createReadOnlyFile(name, cacheEntry);
+				var fileDao = clFileSvc.createReadOnlyFile(name, cacheEntry);
+				fileDao.fileName = fileName;
+				return fileDao;
 			}
 		};
 	});

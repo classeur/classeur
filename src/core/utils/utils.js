@@ -174,7 +174,7 @@ angular.module('classeur.core.utils', [])
 
 		LocalStorageObject.prototype.$readLocalUpdate = function() {
 			this.updated = parseInt(localStorage[this.$localUpdateKey]);
-			if(isNaN(this.updated)) {
+			if (isNaN(this.updated)) {
 				this.updated = 0;
 			}
 		};
@@ -254,10 +254,12 @@ angular.module('classeur.core.utils', [])
 	})
 	.factory('clSetInterval', function($window, clUserSvc) {
 		var lastFocus, lastFocusKey = 'lastWindowFocus';
+
 		function setLastFocus() {
 			lastFocus = Date.now();
 			localStorage[lastFocusKey] = lastFocus;
 		}
+
 		function isWindowFocus() {
 			return localStorage[lastFocusKey] == lastFocus;
 		}
@@ -268,6 +270,20 @@ angular.module('classeur.core.utils', [])
 			setInterval(function() {
 				(!checkSignedIn || clUserSvc.isSignedIn()) && (!checkWindowFocus || isWindowFocus()) && cb();
 			}, interval);
+		};
+	})
+	.factory('clUrl', function() {
+		return {
+			file: function(fileDao, user) {
+				var userId = fileDao.userId || (user && user.id) || '';
+				if (fileDao.id) {
+					return '/file/' + (userId && userId + '/') + fileDao.id;
+				} else if (fileDao.fileName) {
+					return '/doc/' + fileDao.fileName;
+				} else {
+					return '';
+				}
+			}
 		};
 	})
 	.factory('clUriValidator', function($window) {

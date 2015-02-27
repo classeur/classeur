@@ -10,7 +10,7 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/file/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
+				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clEditorSvc, clToast) {
 					var fileDao = clFileSvc.fileMap[$routeParams.fileId];
 					if (!fileDao) {
 						clToast('Unknown file ID.');
@@ -30,15 +30,22 @@ angular.module('classeur.core', [])
 							$scope.fileLoaded = true;
 						}
 					});
+					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
+					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
+						if(value !== lastSectionMeasured) {
+							clEditorSvc.goToAnchor($location.hash());
+							unwatch();
+						}
+					});
 				}
 			})
 			.when('/file/:userId/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clToast) {
+				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clEditorSvc, clToast) {
 					var publicFileDao = clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
 					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 					if (fileDao.userId !== publicFileDao.userId) {
-						return $scope.setCurrentFile(fileDao);
+						return $scope.setCurrentFile(fileDao, $location.hash());
 					}
 					$scope.loadFile(fileDao);
 					if (!fileDao.state) {
@@ -54,11 +61,18 @@ angular.module('classeur.core', [])
 							$scope.fileLoaded = true;
 						}
 					});
+					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
+					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
+						if(value !== lastSectionMeasured) {
+							clEditorSvc.goToAnchor($location.hash());
+							unwatch();
+						}
+					});
 				}
 			})
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc) {
+				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc, clEditorSvc) {
 					var fileDao = clDocFileSvc($routeParams.fileName);
 					$scope.loadFile(fileDao);
 					$timeout(function() {
@@ -70,6 +84,13 @@ angular.module('classeur.core', [])
 					$scope.$watch('currentFileDao.state', function(state) {
 						if (!state) {
 							return $location.url('');
+						}
+					});
+					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
+					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
+						if(value !== lastSectionMeasured) {
+							clEditorSvc.goToAnchor($location.hash());
+							unwatch();
 						}
 					});
 				}
@@ -89,7 +110,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, $timeout, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval) {
+	.run(function($rootScope, $location, $timeout, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -118,10 +139,11 @@ angular.module('classeur.core', [])
 			$rootScope.currentFileDao = undefined;
 		}
 
-		function setCurrentFile(fileDao) {
+		function setCurrentFile(fileDao, anchor) {
 			unloadCurrentFile();
 			fileDao && $timeout(function() {
-				$location.url('/file/' + (fileDao.userId && fileDao.userId + '/') + fileDao.id);
+				$location.url(clUrl.file(fileDao));
+				$location.hash(anchor);
 			});
 		}
 

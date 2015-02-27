@@ -5,7 +5,7 @@ angular.module('classeur.extensions.markdownExtra', [])
 			templateUrl: 'extensions/markdownExtra/markdownExtraSettings.html'
 		};
 	})
-	.directive('clMarkdownExtra', function($window, clEditorSvc, clSettingSvc, Slug) {
+	.directive('clMarkdownExtra', function($window, clEditorSvc, clSettingSvc) {
 		clSettingSvc.setDefaultValue('markdownExtra', true);
 
 		var options = {
@@ -94,24 +94,9 @@ angular.module('classeur.extensions.markdownExtra', [])
 
 			isEnabled && options.toc && clEditorSvc.onAsyncPreview(function(cb) {
 				// Build the TOC
-				var anchorHash = {};
-
-				function createAnchor(element) {
-					var id = element.id || Slug.slugify(element.textContent) || 'heading';
-					var anchor = id;
-					var index = 0;
-					while (anchorHash.hasOwnProperty(anchor)) {
-						anchor = id + "-" + (++index);
-					}
-					anchorHash[anchor] = true;
-					// Update the id of the element
-					element.id = anchor;
-					return anchor;
-				}
-
 				var elementList = [];
 				Array.prototype.forEach.call(previewElt.querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
-					elementList.push(new TocElement(elt.tagName, createAnchor(elt), elt.textContent));
+					elementList.push(new TocElement(elt.tagName, elt.id, elt.textContent));
 				});
 				elementList = groupTags(elementList);
 				var htmlToc = '<div class="toc">\n<ul>\n' + elementList.join("") + '</ul>\n</div>\n';

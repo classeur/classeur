@@ -1,0 +1,40 @@
+.preview {
+    h1, h2, h3, h4, h5, h6 {
+        .heading-anchor {
+            position: absolute;
+            width: 26px;
+            margin-left: -26px;
+            font-size: 20px;
+            text-decoration: none;
+            color: #aaa;
+            display: none;
+        }
+        &:hover .heading-anchor {
+        	display: block;
+        }
+    }
+
+    h1 .heading-anchor {
+    	line-height: 52px;
+    }
+
+    h2 .heading-anchor {
+    	line-height: 39px;
+    }
+
+    h3 .heading-anchor {
+    	line-height: 30px;
+    }
+
+    h4 .heading-anchor {
+    	line-height: 26px;
+    }
+
+    h5 .heading-anchor {
+    	line-height: 21px;
+    }
+
+    h6 .heading-anchor {
+    	line-height: 20px;
+    }
+}

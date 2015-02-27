@@ -27,6 +27,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.fileName',
 		'classeur.extensions.folding',
 		'classeur.extensions.footer',
+		'classeur.extensions.headingAnchor',
 		'classeur.extensions.htmlSanitizer',
 		'classeur.extensions.readOnlyAlert',
 		'classeur.extensions.urlDialog',
