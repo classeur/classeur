@@ -1,6 +1,4 @@
-.read-only-alert.panel {
-	width: 230px;
-	height: 230px;
+.read-only-alert.panel, .write-premium-alert.panel {
 	left: 15px;
 	top: 15px;
 	font-size: 14px;
@@ -20,4 +18,14 @@
 			line-height: 30px;
 		}
 	}
+}
+
+.read-only-alert.panel {
+	width: 230px;
+	height: 230px;
+}
+
+.write-premium-alert.panel {
+	width: 200px;
+	height: 200px;
 }

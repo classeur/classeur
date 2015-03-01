@@ -102,6 +102,18 @@ angular.module('classeur.core.utils', [])
 			return panel;
 		};
 	})
+	.factory('clScrollBarWidth', function() {
+		var scrollDiv = document.createElement("div");
+		scrollDiv.style.width = '100px';
+		scrollDiv.style.height = '100px';
+		scrollDiv.style.overflow = 'scroll';
+		scrollDiv.style.position = 'absolute';
+		scrollDiv.style.top = '-9999px';
+		document.body.appendChild(scrollDiv);
+		var scrollBarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+		document.body.removeChild(scrollDiv);
+		return scrollBarWidth;
+	})
 	.factory('clLocalStorageObject', function() {
 
 		function LocalStorageObject(prefix) {

@@ -39,8 +39,4 @@ angular.module('classeur.app', [
 		'classeur.extensions.stat',
 		'classeur.extensions.userActivity',
 		'classeur.extensions.zenMode',
-	])
-	.config(function($locationProvider, $animateProvider) {
-		$locationProvider.hashPrefix('!');
-		$animateProvider.classNameFilter(/angular-animate/);
-	});
+	]);

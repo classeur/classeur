@@ -40,7 +40,6 @@ angular.module('classeur.extensions.mathJax', [])
 			"HTML-CSS": {
 				preferredFont: "TeX",
 				availableFonts: [
-					"STIX",
 					"TeX"
 				],
 				linebreaks: {
@@ -71,14 +70,14 @@ angular.module('classeur.extensions.mathJax', [])
 			messageStyle: "none"
 		};
 
-		if(clSettingSvc.values.mathJax) {
+		if (clSettingSvc.values.mathJax) {
 			init();
 		}
 
 		clEditorSvc.onInitConverter(75, function(converter) {
 			var isEnabled = clSettingSvc.values.mathJax;
 
-			if(isEnabled) {
+			if (isEnabled) {
 				init();
 				converter.hooks.chain("preConversion", removeMath);
 				converter.hooks.chain("postConversion", replaceMath);
@@ -86,14 +85,14 @@ angular.module('classeur.extensions.mathJax', [])
 				var cacheDict = {};
 				var encloseMath;
 				clEditorSvc.onAsyncPreview(function(cb) {
-					if(!UpdateMJ) {
+					if (!UpdateMJ) {
 						return cb();
 					}
-					if(!encloseMath && window.MathJax.Extension.tex2jax) {
+					if (!encloseMath && window.MathJax.Extension.tex2jax) {
 						encloseMath = window.MathJax.Extension.tex2jax.encloseMath;
 						window.MathJax.Extension.tex2jax.encloseMath = function(element) {
 							element = element.parentNode;
-							if(element) {
+							if (element) {
 								var className = element.className;
 								element.className = className ? className + ' contains-mathjax' : 'contains-mathjax';
 								element.htmlBeforeTypeSet = element.innerHTML;
@@ -105,7 +104,7 @@ angular.module('classeur.extensions.mathJax', [])
 						var entry, entries = cacheDict[elt.innerHTML];
 						do {
 							entry = entries && entries.pop();
-						} while(entry && document.contains(entry));
+						} while (entry && document.contains(entry));
 						entry && elt.parentNode.replaceChild(entry, elt);
 					});
 					typesetCallback = function() {
@@ -125,8 +124,7 @@ angular.module('classeur.extensions.mathJax', [])
 				delimiter = '^[ \\t]*\\n\\\\\\\\[[\\s\\S]*?\\\\\\\\]|' + delimiter; // \\[ \\] math block delimiters
 				delimiter = '^[ \\t]*\\n\\\\?\\\\begin\\{[a-z]*\\*?\\}[\\s\\S]*?\\\\end\\{[a-z]*\\*?\\}|' + delimiter; // \\begin{...} \\end{...} math block delimiters
 				clEditorSvc.setSectionDelimiter(10, delimiter);
-			}
-			else {
+			} else {
 				// Unset math block delimiter
 				clEditorSvc.setSectionDelimiter(10, undefined);
 			}
@@ -169,7 +167,7 @@ angular.module('classeur.extensions.mathJax', [])
 				.replace(/&/g, "&amp;")
 				.replace(/</g, "&lt;")
 				.replace(/>/g, "&gt;");
-			for(/* HUB.Browser.isMSIE && (block = block.replace(/(%[^\n]*)\n/g, "$1<br/>\n")) */; j > i;)
+			for ( /* HUB.Browser.isMSIE && (block = block.replace(/(%[^\n]*)\n/g, "$1<br/>\n")) */ ; j > i;)
 				blocks[j] = "", j--;
 			blocks[i] = "@@" + math.length + "@@";
 			unescape && (block = unescape(block));
@@ -181,14 +179,17 @@ angular.module('classeur.extensions.mathJax', [])
 			start = end = last = null;
 			math = [];
 			var unescape;
-			if(/`/.test(text)) {
+			if (/`/.test(text)) {
 				text = text.replace(/~/g, "~T").replace(/(^|[^\\])(`+)([^\n]*?[^`\n])\2(?!`)/gm, function(text) {
 					return text.replace(/\$/g, "~D");
 				});
 				unescape = function(text) {
 					return text.replace(/~([TD])/g,
 						function(match, n) {
-							return {T: "~", D: "$"}[n];
+							return {
+								T: "~",
+								D: "$"
+							}[n];
 						});
 				};
 			} else {
@@ -196,20 +197,20 @@ angular.module('classeur.extensions.mathJax', [])
 					return text;
 				};
 			}
-			blocks = split(text.replace(/\r\n?/g, "\n"), splitDelimiter);
-			for(var i = 1, m = blocks.length; i < m; i += 2) {
+			blocks = split(text, splitDelimiter);
+			for (var i = 1, m = blocks.length; i < m; i += 2) {
 				var block = blocks[i];
-				if("@" === block.charAt(0)) {
+				if ("@" === block.charAt(0)) {
 					//
 					//  Things that look like our math markers will get
 					//  stored and then retrieved along with the math.
 					//
 					blocks[i] = "@@" + math.length + "@@";
 					math.push(block);
-				} else if(start) {
+				} else if (start) {
 					// Ignore inline maths that are actually multiline (fixes #136)
-					if(end == inline && block.charAt(0) == '\n') {
-						if(last) {
+					if (end == inline && block.charAt(0) == '\n') {
+						if (last) {
 							i = last;
 							processMath(start, i, unescape);
 						}
@@ -221,22 +222,22 @@ angular.module('classeur.extensions.mathJax', [])
 					//    but don't go past double line breaks, and
 					//    and balance braces within the math.
 					//
-					else if(block === end) {
-						if(braces) {
+					else if (block === end) {
+						if (braces) {
 							last = i;
 						} else {
 							processMath(start, i, unescape);
 						}
 					} else {
-						if(block.match(/\n.*\n/)) {
-							if(last) {
+						if (block.match(/\n.*\n/)) {
+							if (last) {
 								i = last;
 								processMath(start, i, unescape);
 							}
 							start = end = last = null;
 							braces = 0;
 						} else {
-							if("{" === block) {
+							if ("{" === block) {
 								braces++;
 							} else {
 								"}" === block && braces && braces--;
@@ -244,12 +245,12 @@ angular.module('classeur.extensions.mathJax', [])
 						}
 					}
 				} else {
-					if(block === inline || "$$" === block) {
+					if (block === inline || "$$" === block) {
 						start = i;
 						end = block;
 						braces = 0;
 					} else {
-						if("begin" === block.substr(1, 5)) {
+						if ("begin" === block.substr(1, 5)) {
 							start = i;
 							end = "\\end" + block.substr(6);
 							braces = 0;
@@ -267,14 +268,26 @@ angular.module('classeur.extensions.mathJax', [])
 		//    and clear the math array (no need to keep it around).
 		//
 		function replaceMath(text) {
-			text = text.replace(/@@(\d+)@@/g, function(match, n) {
-				return math[n];
+			text = text.replace(/@@(\d+)@@/g, function(match, n, pos) {
+				var result = math[n];
+				// Quick workaround to prevent processing "$10 $20"
+				if (result.match(/^\$(?!\$)/)) {
+					var prefix = text[pos - 1] || '';
+					var suffix = text[pos + match.length] || '';
+					if (prefix.match(/\d/) || suffix.match(/\d/)) {
+						return '\\' + result;
+					}
+				}
+				return result;
 			});
 			math = null;
 			return text;
 		}
 
-		var ready = false, pending = false, inline = "$", blocks, start, end, last, braces, math;
+		var ready = false,
+			pending = false,
+			inline = "$",
+			blocks, start, end, last, braces, math;
 
 		//
 		//  The pattern for math delimiters and special symbols
@@ -283,14 +296,15 @@ angular.module('classeur.extensions.mathJax', [])
 		var splitDelimiter = /(\$\$?|\\(?:begin|end)\{[a-z]*\*?\}|\\[\\{}$]|[{}]|(?:\n\s*)+|@@\d+@@)/i;
 		var split;
 
-		if(3 === "aba".split(/(b)/).length) {
+		if (3 === "aba".split(/(b)/).length) {
 			split = function(text, delimiter) {
 				return text.split(delimiter);
 			};
 		} else {
 			split = function(text, delimiter) {
-				var b = [], c;
-				if(!delimiter.global) {
+				var b = [],
+					c;
+				if (!delimiter.global) {
 					c = delimiter.toString();
 					var d = "";
 					c = c.replace(/^\/(.*)\/([im]*)$/, function(a, c, b) {
@@ -300,7 +314,7 @@ angular.module('classeur.extensions.mathJax', [])
 					delimiter = RegExp(c, d + "g");
 				}
 				/*jshint -W084 */
-				for(var e = delimiter.lastIndex = 0; c = delimiter.exec(text);) {
+				for (var e = delimiter.lastIndex = 0; c = delimiter.exec(text);) {
 					b.push(text.substring(e, c.index));
 					b.push.apply(b, c.slice(1));
 					e = c.index + c[0].length;
@@ -333,7 +347,7 @@ angular.module('classeur.extensions.mathJax', [])
 			//    if we haven't done that already.
 			//
 			UpdateMJ = function() {
-				if(!pending /*benweet (we need to call our afterRefreshCallback) && ready */) {
+				if (!pending /*benweet (we need to call our afterRefreshCallback) && ready */ ) {
 					pending = true;
 					HUB.Cancel();
 					HUB.Queue(RestartMJ);
@@ -346,26 +360,37 @@ angular.module('classeur.extensions.mathJax', [])
 			HUB.Queue(function() {
 				ready = true;
 				HUB.processUpdateTime = 50;
-				HUB.Config({"HTML-CSS": {EqnChunk: 10, EqnChunkFactor: 1}, SVG: {EqnChunk: 10, EqnChunkFactor: 1}});
+				HUB.Config({
+					"HTML-CSS": {
+						EqnChunk: 10,
+						EqnChunkFactor: 1
+					},
+					SVG: {
+						EqnChunk: 10,
+						EqnChunkFactor: 1
+					}
+				});
 			});
 
-			if(!HUB.Cancel) {
+			if (!HUB.Cancel) {
 				HUB.cancelTypeset = !1;
 				HUB.Register.StartupHook("HTML-CSS Jax Config", function() {
-					var HTMLCSS = MathJax.OutputJax["HTML-CSS"], TRANSLATE = HTMLCSS.Translate;
+					var HTMLCSS = MathJax.OutputJax["HTML-CSS"],
+						TRANSLATE = HTMLCSS.Translate;
 					HTMLCSS.Augment({
 						Translate: function(script, state) {
-							if(HUB.cancelTypeset || state.cancelled)
+							if (HUB.cancelTypeset || state.cancelled)
 								throw Error("MathJax Canceled");
 							return TRANSLATE.call(HTMLCSS, script, state);
 						}
 					});
 				});
 				HUB.Register.StartupHook("SVG Jax Config", function() {
-					var SVG = MathJax.OutputJax.SVG, TRANSLATE = SVG.Translate;
+					var SVG = MathJax.OutputJax.SVG,
+						TRANSLATE = SVG.Translate;
 					SVG.Augment({
 						Translate: function(script, state) {
-							if(HUB.cancelTypeset || state.cancelled)
+							if (HUB.cancelTypeset || state.cancelled)
 								throw Error("MathJax Canceled");
 							return TRANSLATE.call(SVG,
 								script, state);
@@ -373,10 +398,11 @@ angular.module('classeur.extensions.mathJax', [])
 					});
 				});
 				HUB.Register.StartupHook("TeX Jax Config", function() {
-					var TEX = MathJax.InputJax.TeX, TRANSLATE = TEX.Translate;
+					var TEX = MathJax.InputJax.TeX,
+						TRANSLATE = TEX.Translate;
 					TEX.Augment({
 						Translate: function(script, state) {
-							if(HUB.cancelTypeset || state.cancelled)
+							if (HUB.cancelTypeset || state.cancelled)
 								throw Error("MathJax Canceled");
 							return TRANSLATE.call(TEX, script, state);
 						}
@@ -384,7 +410,7 @@ angular.module('classeur.extensions.mathJax', [])
 				});
 				var PROCESSERROR = HUB.processError;
 				HUB.processError = function(error, state, type) {
-					if("MathJax Canceled" !== error.message)
+					if ("MathJax Canceled" !== error.message)
 						return PROCESSERROR.call(HUB, error, state, type);
 					MathJax.Message.Clear(0, 0);
 					state.jaxIDs = [];

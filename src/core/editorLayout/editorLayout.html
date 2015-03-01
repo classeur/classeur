@@ -1,99 +1,117 @@
 <div class="toc panel">
-	<cl-toc></cl-toc>
+    <cl-toc></cl-toc>
 </div>
 
 <cl-button class="close-toc btn" opacity="0.2" opacity-hover="0.3" size="32" right="0">
-	<a class="mdi-content-clear" ng-click="editorLayoutSvc.toggleToc(false)" aria-label="Close TOC"></a>
+    <a class="mdi-content-clear" ng-click="editorLayoutSvc.toggleToc(false)" aria-label="Close TOC"></a>
 </cl-button>
 
 <div class="background panel md-whiteframe-z4 no-overflow">
 
-	<div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
-		<cl-preview></cl-preview>
-	</div>
+    <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
+        <cl-preview></cl-preview>
+    </div>
 
-	<div class="binder panel">
+    <div class="binder panel">
+        <div class="header panel background">
+            <div class="content">
+                <div class="btn-grp panel">
+                    <div class="close panel">
+                        <cl-button class="close btn" opacity="0.3" opacity-hover="0.6" size="32">
+                            <a class="mdi-content-clear" ng-click="saveAll(); setCurrentFile()" title="Close" aria-label="Close"></a>
+                        </cl-button>
+                    </div>
+                    <div class="scroll panel">
+                        <cl-button class="scroll btn" opacity="0.3" opacity-hover="0.6" size="32">
+                            <a class="mdi-navigation-arrow-back" ng-click="editorSvc.scrollToAnchor()" title="Back to top" aria-label="Back to top"></a>
+                        </cl-button>
+                    </div>
+                </div>
+                <cl-button class="sharing btn" opacity="0.3" opacity-hover="0.6" size="32">
+                    <a class="mdi-social-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" title="Share" aria-label="Share"></a>
+                </cl-button>
+                {{currentFileDao.name}}
+            </div>
+        </div>
 
-		<div class="edit btn btn-panel md-whiteframe-z4" ng-class="plasticClass">
-			<md-button ng-click="editorLayoutSvc.toggleEditor(true)">
-				Edit
-			</md-button>
-		</div>
+        <div class="edit btn btn-panel md-whiteframe-z4" ng-class="plasticClass">
+            <md-button ng-click="editorLayoutSvc.toggleEditor(true)">
+                Edit
+            </md-button>
+        </div>
 
-		<div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
+        <div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
 
-			<div class="menu content panel">
-				<cl-file-name></cl-file-name>
-				<div class="links">
-					<a ng-click="makeCurrentFileCopy()">Make a copy</a>
-				</div>
-				<div class="entry">Zoom</div>
-				<md-slider md-discrete ng-model="settingSvc.values.editorZoom" step="1" min="1" max="5"
-						   aria-label="Zoom">
-				</md-slider>
-				<div class="entry">Binder color</div>
-				<md-slider md-discrete ng-model="settingSvc.values.editorColor" step="1" min="1" max="6"
-						   aria-label="Binder color">
-				</md-slider>
-				<cl-btn-bar-settings></cl-btn-bar-settings>
-				<cl-zen-mode-settings></cl-zen-mode-settings>
-				<cl-markdown-extra-settings></cl-markdown-extra-settings>
-				<cl-math-jax-settings></cl-math-jax-settings>
-			</div>
+            <div class="menu content panel">
+                <cl-file-name></cl-file-name>
+                <div class="links">
+                    <a ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">Sharing</a>
+                    <a ng-click="makeCurrentFileCopy()">Make a copy</a>
+                </div>
+                <div class="entry">Zoom</div>
+                <md-slider md-discrete ng-model="settingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
+                </md-slider>
+                <div class="entry">Binder color</div>
+                <md-slider md-discrete ng-model="settingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
+                </md-slider>
+                <cl-btn-bar-settings></cl-btn-bar-settings>
+                <cl-zen-mode-settings></cl-zen-mode-settings>
+                <cl-markdown-extra-settings></cl-markdown-extra-settings>
+                <cl-math-jax-settings></cl-math-jax-settings>
+            </div>
 
 
-			<div class="btn-grp panel">
-				<cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
-					<a class="mdi-content-clear" ng-click="saveAll(); setCurrentFile()" title="Close editor" aria-label="Close editor"></a>
-				</cl-button>
-				<cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="34">
-					<a class="mdi-content-remove" ng-click="editorLayoutSvc.toggleEditor(false)" title="Hide editor" aria-label="Hide editor"></a>
-				</cl-button>
-				<cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="34">
-					<a class="mdi-image-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" title="Side preview" aria-label="Side preview"></a>
-				</cl-button>
-				<div class="menu btn btn-panel" ng-class="plasticClass">
-					<md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
-						<div class="rotate-90">
-							Menu
-						</div>
-					</md-button>
-				</div>
-			</div>
+            <div class="btn-grp panel">
+                <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
+                    <a class="mdi-content-clear" ng-click="saveAll(); setCurrentFile()" title="Close editor" aria-label="Close editor"></a>
+                </cl-button>
+                <cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="34">
+                    <a class="mdi-content-remove" ng-click="editorLayoutSvc.toggleEditor(false)" title="Hide editor" aria-label="Hide editor"></a>
+                </cl-button>
+                <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="34">
+                    <a class="mdi-image-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" title="Side preview" aria-label="Side preview"></a>
+                </cl-button>
+                <div class="menu btn btn-panel" ng-class="plasticClass">
+                    <md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
+                        <div class="rotate-90">
+                            Menu
+                        </div>
+                    </md-button>
+                </div>
+            </div>
 
-			<div class="page panel paper md-whiteframe-z1">
-				<div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-				<div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-				<cl-zen-mode></cl-zen-mode>
-				<div class="margin panel">
-				</div>
-				<cl-editor></cl-editor>
-			</div>
+            <div class="page panel paper md-whiteframe-z1">
+                <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+                <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+                <cl-zen-mode></cl-zen-mode>
+                <div class="margin panel">
+                </div>
+                <cl-editor></cl-editor>
+            </div>
 
-		</div>
+        </div>
 
-		<cl-btn-bar ng-if="settingSvc.values.btnBar"></cl-btn-bar>
+        <cl-btn-bar ng-if="settingSvc.values.btnBar"></cl-btn-bar>
 
-	</div>
+    </div>
 
-	<cl-stat></cl-stat>
+    <cl-stat></cl-stat>
 
-	<div ng-mouseenter="editorLayoutSvc.toggleCorner(true)"
-		 ng-mouseleave="editorLayoutSvc.toggleCorner(false)">
+    <div ng-mouseenter="editorLayoutSvc.toggleCorner(true)" ng-mouseleave="editorLayoutSvc.toggleCorner(false)">
 
-		<div class="corner panel md-whiteframe-z4 no-overflow">
-			<div class="shadow panel"></div>
-		</div>
+        <div class="corner panel md-whiteframe-z4 no-overflow">
+            <div class="shadow panel"></div>
+        </div>
 
-		<div ng-if="editorLayoutSvc.isCornerButtonVisible">
-			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="0" bottom="35">
-				<a class="mdi-communication-call-made" ng-click="editorLayoutSvc.toggleToc()" title="Toggle TOC" aria-label="Toggle TOC"></a>
-			</cl-button>
-			<cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="35" bottom="0">
-				<a class="mdi-communication-call-received" ng-click="editorLayoutSvc.toggleStat()" title="Toggle stats" aria-label="Toggle stats"></a>
-			</cl-button>
-		</div>
-	</div>
+        <div ng-if="editorLayoutSvc.isCornerButtonVisible">
+            <cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="0" bottom="35">
+                <a class="mdi-communication-call-made" ng-click="editorLayoutSvc.toggleToc()" title="Toggle TOC" aria-label="Toggle TOC"></a>
+            </cl-button>
+            <cl-button class="corner btn" opacity="0.3" opacity-hover="0.6" size="36" right="35" bottom="0">
+                <a class="mdi-communication-call-received" ng-click="editorLayoutSvc.toggleStat()" title="Toggle stats" aria-label="Toggle stats"></a>
+            </cl-button>
+        </div>
+    </div>
 
 </div>
 

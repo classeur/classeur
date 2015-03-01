@@ -319,29 +319,26 @@ angular.module('classeur.core.sync', [])
 		clSocketSvc.addMsgHandler('signedInUser', unsetWatchCtx);
 
 		function watchContent(fileDao) {
-			if (!fileDao || !fileDao.state || (watchCtx && fileDao === watchCtx.fileDao && watchCtx.fileExists)) {
+			if (!fileDao || !fileDao.state || (watchCtx && fileDao === watchCtx.fileDao)) {
 				return;
 			}
 			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
 			setWatchCtx({
 				fileDao: fileDao,
-				fileExists: syncDataStore.files.hasOwnProperty(fileDao.id),
 				rev: contentRevStore[fileDao.id],
 				userActivities: {},
 				contentChanges: []
 			});
-			if (watchCtx.fileExists) {
-				clSocketSvc.sendMsg({
-					type: 'startWatchContent',
-					id: fileDao.id,
-					userId: fileDao.userId,
-					previousRev: watchCtx.rev
-				});
-				$timeout.cancel(fileDao.loadingTimeoutId);
-				fileDao.loadingTimeoutId = $timeout(function() {
-					setLoadingError(fileDao, 'Loading timeout.');
-				}, loadingTimeout);
-			}
+			clSocketSvc.sendMsg({
+				type: 'startWatchContent',
+				id: fileDao.id,
+				userId: fileDao.userId,
+				previousRev: watchCtx.rev
+			});
+			$timeout.cancel(fileDao.loadingTimeoutId);
+			fileDao.loadingTimeoutId = $timeout(function() {
+				setLoadingError(fileDao, 'Loading timeout.');
+			}, loadingTimeout);
 		}
 
 		function stopWatchContent() {
@@ -405,13 +402,13 @@ angular.module('classeur.core.sync', [])
 					// TODO Deal with conflict
 					watchCtx.content = msg.latest.content;
 					watchCtx.rev = msg.latest.rev;
-					clEditorSvc.cledit.setContent(watchCtx.content);
+					clEditorSvc.setContent(watchCtx.content);
 				} else {
 					watchCtx.content = msg.latest.content;
 					watchCtx.rev = msg.latest.rev;
 					if (!isSynchronized) {
 						if (isServerChanges) {
-							clEditorSvc.cledit.setContent(watchCtx.content);
+							clEditorSvc.setContent(watchCtx.content);
 						}
 					}
 				}
@@ -434,7 +431,7 @@ angular.module('classeur.core.sync', [])
 					fileDao.updated = res.updated;
 					fileDao.write(fileDao.updated);
 					if (fileDao.state === 'loaded') {
-						clEditorSvc.cledit.setContent(res.content);
+						clEditorSvc.setContent(res.content);
 					} else if (fileDao.state === 'loading') {
 						fileDao.contentDao.content = res.content;
 						setFileStateLoaded(fileDao);
@@ -451,6 +448,10 @@ angular.module('classeur.core.sync', [])
 
 		function sendContentChange() {
 			if (!watchCtx || watchCtx.content === undefined || watchCtx.sentMsg) {
+				return;
+			}
+			// if(watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || clUserSvc.user.plan !== 'premium')) {
+			if(watchCtx.fileDao.userId && watchCtx.fileDao.sharing !== 'rw') {
 				return;
 			}
 			var newContent = clEditorSvc.cledit.getContent();
@@ -493,7 +494,7 @@ angular.module('classeur.core.sync', [])
 						} else {
 							localContent = serverContent;
 						}
-						var offset = clEditorSvc.cledit.setContent(localContent);
+						var offset = clEditorSvc.setContent(localContent);
 						var userActivity = watchCtx.userActivities[msg.userId] || {};
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;

@@ -1,5 +1,8 @@
 angular.module('classeur.core', [])
-	.config(function($mdThemingProvider, $routeProvider) {
+	.config(function($routeProvider, $anchorScrollProvider, $locationProvider, $animateProvider, $mdThemingProvider) {
+		$locationProvider.hashPrefix('!');
+		$animateProvider.classNameFilter(/angular-animate/);
+		$anchorScrollProvider.disableAutoScrolling();
 		$mdThemingProvider.theme('default')
 			.primaryPalette('blue')
 			.accentPalette('blue');
@@ -10,7 +13,7 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/file/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clEditorSvc, clToast) {
+				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
 					var fileDao = clFileSvc.fileMap[$routeParams.fileId];
 					if (!fileDao) {
 						clToast('Unknown file ID.');
@@ -30,18 +33,11 @@ angular.module('classeur.core', [])
 							$scope.fileLoaded = true;
 						}
 					});
-					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
-					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
-						if(value !== lastSectionMeasured) {
-							clEditorSvc.goToAnchor($location.hash());
-							unwatch();
-						}
-					});
 				}
 			})
 			.when('/file/:userId/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clEditorSvc, clToast) {
+				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clToast) {
 					var publicFileDao = clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
 					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 					if (fileDao.userId !== publicFileDao.userId) {
@@ -61,18 +57,11 @@ angular.module('classeur.core', [])
 							$scope.fileLoaded = true;
 						}
 					});
-					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
-					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
-						if(value !== lastSectionMeasured) {
-							clEditorSvc.goToAnchor($location.hash());
-							unwatch();
-						}
-					});
 				}
 			})
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc, clEditorSvc) {
+				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc) {
 					var fileDao = clDocFileSvc($routeParams.fileName);
 					$scope.loadFile(fileDao);
 					$timeout(function() {
@@ -84,13 +73,6 @@ angular.module('classeur.core', [])
 					$scope.$watch('currentFileDao.state', function(state) {
 						if (!state) {
 							return $location.url('');
-						}
-					});
-					var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
-					var unwatch = $scope.$watch('editorSvc.lastSectionMeasured', function(value) {
-						if(value !== lastSectionMeasured) {
-							clEditorSvc.goToAnchor($location.hash());
-							unwatch();
 						}
 					});
 				}
@@ -110,7 +92,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($rootScope, $location, $timeout, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl) {
+	.run(function($window, $rootScope, $location, $timeout, $route, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -174,14 +156,17 @@ angular.module('classeur.core', [])
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
+		$rootScope.$watch('currentFileDao.name', function(name) {
+			$window.document.title = name || 'Classeur';
+		});
+
 		clSetInterval(function() {
 			var hasChanged = saveAll();
 			hasChanged && $rootScope.$apply();
 		}, 1000);
 
-		window.addEventListener('beforeunload', function(evt) {
+		$window.addEventListener('beforeunload', function(evt) {
 			saveAll();
 			//evt.returnValue = 'Are you sure?';
 		});
-
 	});

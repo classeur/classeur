@@ -1,0 +1,23 @@
+<div class="write-premium-alert panel postit no-overflow md-whiteframe-z2">
+
+	<div class="content panel" layout="column" layout-align="space-between end">
+		<div>
+			<h2>Hold on!</h2>
+			<p>You need a premium account to collaborate on this file.</p>
+		</div>
+		<div layout="row" layout-align="end end">
+			<md-button ng-if="!clUserSvc.user" md-no-ink class="md-primary"
+					   ng-click="signin()">
+				Sign in
+			</md-button>
+			<md-button ng-if="clUserSvc.user" md-no-ink class="md-primary">
+				Go premium
+			</md-button>
+		</div>
+	</div>
+
+	<cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+		<a class="mdi-content-clear" ng-click="dismiss()" title="Close" aria-label="Close"></a>
+	</cl-button>
+
+</div>

@@ -38,6 +38,7 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.selectionRange = newSelectionRange;
 					scope.currentFileDao.contentDao.content = clEditorSvc.cledit.getContent();
 					saveState();
+					clEditorSvc.lastContentChange = Date.now();
 					scope.$apply();
 				}, 10);
 
@@ -139,7 +140,7 @@ angular.module('classeur.core.editor', [])
 				scope.$watch('editorSvc.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorSvc.previewSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
-					isVisible && clEditorSvc.measureSectionDimensions();
+					isVisible && state && clEditorSvc.measureSectionDimensions();
 				});
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
@@ -155,6 +156,15 @@ angular.module('classeur.core.editor', [])
 			templateUrl: 'core/editor/preview.html',
 			link: function(scope, element) {
 				clEditorSvc.setPreviewElt(element[0].querySelector('.preview.content'));
+				var containerElt = element[0].querySelector('.preview.container');
+				clEditorSvc.isPreviewTop = containerElt.scrollTop < 10;
+				containerElt.addEventListener('scroll', function() {
+					var isPreviewTop = containerElt.scrollTop < 10;
+					if(isPreviewTop !== clEditorSvc.isPreviewTop) {
+						clEditorSvc.isPreviewTop = isPreviewTop;
+						scope.$apply();
+					}
+				});
 			}
 		};
 	})
@@ -245,6 +255,7 @@ angular.module('classeur.core.editor', [])
 		});
 
 		var editorElt, previewElt, tocElt;
+		var filenameSpaceElt;
 		var linkDefinition;
 		var doFootnotes, hasFootnotes;
 		var sectionsToRemove, modifiedSections, insertBeforeSection;
@@ -260,6 +271,8 @@ angular.module('classeur.core.editor', [])
 		var clEditorSvc = {
 			options: {},
 			initConverter: function() {
+				// TODO check in the settings that footnotes are enabled
+				doFootnotes = clSettingSvc.values.markdownExtra;
 				clEditorSvc.converter = new $window.Markdown.Converter();
 				asyncPreviewListeners = [];
 				converterInitListeners.forEach(function(listener) {
@@ -291,6 +304,7 @@ angular.module('classeur.core.editor', [])
 			setPreviewElt: function(elt) {
 				previewElt = elt;
 				this.previewElt = elt;
+				filenameSpaceElt = elt.querySelector('.filename.space');
 			},
 			setTocElt: function(elt) {
 				tocElt = elt;
@@ -317,6 +331,12 @@ angular.module('classeur.core.editor', [])
 				});
 				clEditorSvc.pagedownEditor.run();
 			},
+			setContent: function(content) {
+				if(clEditorSvc.cledit) {
+					clEditorSvc.lastExternalChange = Date.now();
+					return clEditorSvc.cledit.setContent(content);
+				}
+			},
 			editorSize: function() {
 				return editorElt.clientWidth + 'x' + editorElt.clientHeight;
 			},
@@ -326,10 +346,10 @@ angular.module('classeur.core.editor', [])
 		};
 		clEditorSvc.initConverter();
 		clEditorSvc.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
-
+		clEditorSvc.lastExternalChange = 0;
 		clEditorSvc.scrollOffset = 80;
+		
 		var anchorHash = {};
-
 		var footnoteMap = {};
 		var footnoteFragment = document.createDocumentFragment();
 		// Store one footnote elt in the footnote map
@@ -445,7 +465,7 @@ angular.module('classeur.core.editor', [])
 
 			if (!footnoteContainerElt) {
 				footnoteContainerElt = document.createElement('div');
-				footnoteContainerElt.className = 'preview-content';
+				footnoteContainerElt.className = 'classeur-preview-section';
 				previewElt.appendChild(footnoteContainerElt);
 			}
 
@@ -656,18 +676,22 @@ angular.module('classeur.core.editor', [])
 
 				// Measure editor section
 				var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset;
+				newEditorSectionOffset = newEditorSectionOffset > editorSectionOffset ? newEditorSectionOffset : editorSectionOffset;
 				sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, newEditorSectionOffset);
 				editorSectionOffset = newEditorSectionOffset;
 
 				// Measure preview section
 				var newPreviewSectionOffset = nextSectionDesc.previewElt ? nextSectionDesc.previewElt.offsetTop : previewSectionOffset;
+				newPreviewSectionOffset = newPreviewSectionOffset > previewSectionOffset ? newPreviewSectionOffset : previewSectionOffset;
 				sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, newPreviewSectionOffset);
 				previewSectionOffset = newPreviewSectionOffset;
 
 				// Measure TOC section
 				var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight / 2 : tocSectionOffset;
+				newTocSectionOffset = newTocSectionOffset > tocSectionOffset ? newTocSectionOffset : tocSectionOffset;
 				sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, newTocSectionOffset);
 				tocSectionOffset = newTocSectionOffset;
+
 				sectionDesc = nextSectionDesc;
 			}
 
@@ -695,10 +719,11 @@ angular.module('classeur.core.editor', [])
 
 			function tick() {
 				var currentTime = Date.now();
-				var t = (currentTime - startTime) / 270;
+				var t = (currentTime - startTime) / 360;
 				var scrollTop = endValue;
 				if (t < 1) {
-					scrollTop = startValue + diff * (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+					// easeInOutCubic (https://gist.github.com/gre/1650294)
+					scrollTop = startValue + diff * (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1);
 					scrollTimeoutId = setTimeout(tick, 10);
 				}
 				elt.scrollTop = scrollTop;
@@ -707,20 +732,48 @@ angular.module('classeur.core.editor', [])
 			scrollTimeoutId = setTimeout(tick, 10);
 		}
 
-		clEditorSvc.goToAnchor = function(anchor) {
+		clEditorSvc.scrollToAnchor = function(anchor) {
+			var scrollTop = 0, scrollerElt = clEditorSvc.previewElt.parentNode;
 			var sectionDesc = anchorHash[anchor];
 			if (sectionDesc) {
-				var scrollTop, scrollerElt;
-				if (clEditorLayoutSvc.isEditorOpen) {
+				if (clEditorLayoutSvc.isPreviewVisible) {
+					scrollTop = sectionDesc.previewDimension.startOffset - filenameSpaceElt.offsetHeight;
+				} else {
 					scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset;
 					scrollerElt = clEditorSvc.editorElt.parentNode;
-				} else {
-					scrollTop = sectionDesc.previewDimension.startOffset;
-					scrollerElt = clEditorSvc.previewElt.parentNode;
 				}
-				scroll(scrollerElt, scrollerElt.scrollTop, scrollTop);
 			}
+			else {
+				var elt = document.getElementById(anchor);
+				if(elt) {
+					scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
+				}
+			}
+			scroll(scrollerElt, scrollerElt.scrollTop, scrollTop > 0 ? scrollTop : 0);
 		};
 
 		return clEditorSvc;
+	})
+	.run(function($rootScope, $location, $route, clEditorSvc) {
+
+		var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
+		var unwatch = $rootScope.$watch('editorSvc.lastSectionMeasured', function(value) {
+			var hash = $location.hash();
+			if (hash && value !== lastSectionMeasured) {
+				clEditorSvc.scrollToAnchor(hash);
+				unwatch();
+			}
+		});
+
+		$rootScope.$on('$locationChangeStart', function(evt, urlAfter, urlBefore) {
+			if (urlBefore !== urlAfter) {
+				var splitUrl = urlAfter.split(/#(?!\!)/);
+				var hash = splitUrl[1];
+				if (hash && urlBefore.slice(0, splitUrl[0].length) === splitUrl[0]) {
+					evt.preventDefault();
+					clEditorSvc.scrollToAnchor(hash);
+				}
+			}
+		});
+
 	});

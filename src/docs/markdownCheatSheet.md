@@ -1,18 +1,5 @@
 # Basic writing
 
-## Headings
-
-Create a heading by adding one or more `#` symbols before your heading text.
-
-##### Heading level 5
-###### Heading level 6
-
-## Blockquotes
-
-Indicate blockquotes with a `>`.
-
-> Blockquote
-
 ## Styling text
 
 Make text **bold** or *italic* by using either `*` or `_` around the text.
@@ -20,6 +7,30 @@ Make text **bold** or *italic* by using either `*` or `_` around the text.
 _This text will be italic_
 __This text will be bold__
 
+## Strikethrough
+
+Create strikethrough text by surrounding your text with `~~`.
+
+~~Mistaken text.~~
+
+## Blockquotes
+
+Indicate blockquotes with a `>`.
+
+> Blockquote
+
+## Headings
+
+Create a heading by adding one or more `#` symbols before your heading text.
+
+##### Heading level 5
+###### Heading level 6
+
+## Horizontal rule
+
+Insert a horizontal rule by putting three or more `-`, `*`, or `_` on a line by themselves.
+
+----------
 
 # Lists
 
@@ -74,6 +85,12 @@ Create a link by wrapping link text in brackets, and then wrapping the link in p
 Images are like links, but have an exclamation point in front of them.
 
 ![Classeur Logo](/images/logo.png)
+
+## Footnotes
+
+To create footnotes, add a label starting with a `^` between a set of square brackets like this[^footnote], and then, declare the linked content.
+
+  [^footnote]: Here is the content of the footnote.
 
 
 # Tables

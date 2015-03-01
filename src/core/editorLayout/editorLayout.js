@@ -1,13 +1,12 @@
 angular.module('classeur.core.editorLayout', [])
-	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clPanel) {
+	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clPanel, clScrollBarWidth) {
 		var hideOffsetY = 2000;
 
 		return {
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/editorLayout.html',
 			link: function(scope, element) {
-				$window.document.title = scope.currentFileDao.name;
-
+				
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
@@ -19,6 +18,10 @@ angular.module('classeur.core.editorLayout', [])
 				clPanel(element, '.editor .btn-grp.panel').width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth);
 				var cornerPanel = clPanel(element, '.corner.panel');
 				clPanel(element, '.corner .shadow.panel').move().rotate(-45).end();
+				var headerPanel = clPanel(element, '.header.panel').top(hideOffsetY);
+				var headerBtnGrpPanel = clPanel(headerPanel.$elt, '.btn-grp.panel');
+				var closeButtonPanel = clPanel(headerPanel.$elt, '.close.panel');
+				var scrollButtonPanel = clPanel(headerPanel.$elt, '.scroll.panel');
 
 				var previewSizeAdjust = 150;
 				var binderWidth, marginRight;
@@ -26,31 +29,30 @@ angular.module('classeur.core.editorLayout', [])
 
 				function updateLayout() {
 					binderWidth = document.body.clientWidth;
-					if(clEditorLayoutSvc.isTocOpen) {
+					if (clEditorLayoutSvc.isTocOpen) {
 						binderWidth -= clEditorLayoutSvc.tocWidth;
 					}
 					clEditorLayoutSvc.fontSize = 18;
 					var factor = 1 + (clSettingSvc.values.editorZoom - 3) * 0.1;
-					// Kind of responsive...
 					clEditorLayoutSvc.pageWidth = 990 * factor;
-					if(binderWidth < 1120) {
+					if (binderWidth < 1120) {
 						--clEditorLayoutSvc.fontSize;
 						clEditorLayoutSvc.pageWidth = 910 * factor;
 					}
-					if(binderWidth < 1040) {
+					if (binderWidth < 1040) {
 						clEditorLayoutSvc.pageWidth = 830 * factor;
 					}
 					marginRight = (binderWidth - clEditorLayoutSvc.pageWidth) / 2;
 					marginRight = marginRight > 0 ? marginRight : 0;
-					if(binderWidth + leftMarginOverflow < clEditorLayoutSvc.pageWidth) {
+					if (binderWidth + leftMarginOverflow < clEditorLayoutSvc.pageWidth) {
 						clEditorLayoutSvc.pageWidth = binderWidth + leftMarginOverflow;
 					}
-					if(clEditorLayoutSvc.pageWidth < 640) {
+					if (clEditorLayoutSvc.pageWidth < 640) {
 						--clEditorLayoutSvc.fontSize;
 					}
-					if(clEditorLayoutSvc.isSidePreviewOpen) {
+					if (clEditorLayoutSvc.isSidePreviewOpen) {
 						var maxWidth = binderWidth / 2 + clEditorLayoutSvc.editorBtnGrpWidth + leftMarginOverflow;
-						if(maxWidth < clEditorLayoutSvc.pageWidth) {
+						if (maxWidth < clEditorLayoutSvc.pageWidth) {
 							clEditorLayoutSvc.pageWidth = maxWidth;
 						}
 						marginRight = binderWidth / 2 - clEditorLayoutSvc.editorBtnGrpWidth;
@@ -61,6 +63,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.binderX = binderWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
 					clEditorLayoutSvc.binderX += clEditorLayoutSvc.isTocOpen ? clEditorLayoutSvc.tocWidth : 0;
 					clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000;
+					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust - clScrollBarWidth + 150;
 					clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX;
 					clEditorLayoutSvc.previewX += clEditorLayoutSvc.isSidePreviewOpen ? clEditorLayoutSvc.pageWidth - previewSizeAdjust / 2 : 0;
 					clEditorLayoutSvc.editorX = clEditorLayoutSvc.isMenuOpen ? 5 : 0;
@@ -71,14 +74,14 @@ angular.module('classeur.core.editorLayout', [])
 				}
 
 				function hidePreview() {
-					if(clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen) {
+					if (clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen) {
 						clEditorLayoutSvc.isPreviewVisible = false;
 						previewPanel.$elt.addClass('hidden');
 					}
 				}
 
 				function showPreview() {
-					if(!clEditorLayoutSvc.isEditorOpen || clEditorLayoutSvc.isSidePreviewOpen) {
+					if (!clEditorLayoutSvc.isEditorOpen || clEditorLayoutSvc.isSidePreviewOpen) {
 						clEditorLayoutSvc.isPreviewVisible = true;
 						previewPanel.$elt.removeClass('hidden');
 					}
@@ -89,6 +92,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.values.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
 					previewPanel.width(clEditorLayoutSvc.previewWidth).left(-clEditorLayoutSvc.previewWidth / 2);
+					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth);
 					pagePanel.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMargin);
 					hidePreview();
 				}
@@ -132,18 +136,22 @@ angular.module('classeur.core.editorLayout', [])
 				}
 
 				function animateCorner() {
-					if(!clEditorLayoutSvc.isCornerOpen) {
+					if (!clEditorLayoutSvc.isCornerOpen) {
 						clEditorLayoutSvc.isCornerButtonVisible = false;
 					}
 					cornerPanel.move(isInited && 'slow').scale(clEditorLayoutSvc.isCornerOpen ? 2.5 : 1).then(function() {
-						if(clEditorLayoutSvc.isCornerOpen) {
+						if (clEditorLayoutSvc.isCornerOpen) {
 							clEditorLayoutSvc.isCornerButtonVisible = true;
 							isInited && scope.$apply();
 						}
 					}).end();
 				}
 
-				animateCorner();
+				function animatePreviewButtons(isPreviewTop) {
+					headerBtnGrpPanel.css().move(isInited && 'slow').rotate(isPreviewTop ? 0 : 90).end();
+					closeButtonPanel.css('zIndex', isPreviewTop ? 0 : -1).move(isInited && 'slow').set('opacity', isPreviewTop ? 1 : 0).ease('in-out').end();
+					scrollButtonPanel.css('zIndex', isPreviewTop ? -1: 0).move(isInited && 'slow').set('opacity', isPreviewTop ? 0 : 1).ease('in-out').end();
+				}
 
 				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 400);
 				window.addEventListener('resize', debouncedAnimateLayout);
@@ -163,6 +171,7 @@ angular.module('classeur.core.editorLayout', [])
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					clEditorLayoutSvc.isMenuOpen = currentControl === 'menu';
 				});
+				scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons);
 			}
 		};
 	})
@@ -204,7 +213,7 @@ angular.module('classeur.core.editorLayout', [])
 		};
 
 		window.addEventListener('keydown', function(e) {
-			if(e.which === 27) {
+			if (e.which === 27) {
 				// Esc key
 				e.preventDefault();
 				clEditorLayoutSvc.currentControl = undefined;

@@ -1,18 +1,25 @@
 angular.module('classeur.extensions.headingAnchor', [])
-	.directive('clHeadingAnchor', function($window, clUserSvc, clUrl) {
+	.directive('clHeadingAnchor', function($window, clUserSvc, clUrl, clEditorLayoutSvc) {
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
+				var className = 'heading-anchor mdi-social-share';
+				element.on('click', function(evt) {
+					if (evt.target.className === className) {
+						clEditorLayoutSvc.currentControl = 'sharingDialog#' + evt.target.parentNode.id;
+						scope.$apply();
+					}
+				});
 				scope.$watch('editorSvc.lastPreviewRefreshed', function() {
 					Array.prototype.forEach.call(element[0].querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
-						if(elt.hasAnchor || !elt.id) {
+						if (!elt.id || elt.headingAnchor) {
 							return;
 						}
 						var anchorElt = $window.document.createElement('a');
-						anchorElt.className = 'heading-anchor mdi-editor-insert-link';
-						anchorElt.href= '#!' + clUrl.file(scope.currentFileDao, clUserSvc.user) + '#' + elt.id;
+						anchorElt.className = className;
+						anchorElt.title = 'Share';
 						elt.firstChild ? elt.insertBefore(anchorElt, elt.firstChild) : elt.appendChild(anchorElt);
-						elt.hasAnchor = true;
+						elt.headingAnchor = anchorElt;
 					});
 				});
 			}

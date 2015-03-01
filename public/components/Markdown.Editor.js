@@ -1054,7 +1054,6 @@
         if (!chunk.selection) {
             chunk.startTag = "## ";
             chunk.selection = this.getString("headingexample");
-            chunk.endTag = " ##";
             return;
         }
 

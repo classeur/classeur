@@ -47,9 +47,7 @@ angular.module('classeur.core.socket', [])
 		}
 
 		function openSocket() {
-			if (!isPendingAttempt()) {
-				nextConnectionAttempt = 1000;
-			} else if (Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
+			if (isPendingAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
 				attemptOpenSocket();
 				if (nextConnectionAttempt < 30000) {
 					// Exponential backoff

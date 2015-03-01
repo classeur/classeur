@@ -84,7 +84,6 @@ angular.module('classeur.core.explorerLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/explorerLayout.html',
 			link: function(scope, element) {
-				$window.document.title = 'Classeur';
 
 				var explorerPanel = clPanel(element, '.explorer.container');
 				var folderContainerPanel = clPanel(element, '.folder.container');
