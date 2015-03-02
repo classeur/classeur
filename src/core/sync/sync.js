@@ -319,7 +319,7 @@ angular.module('classeur.core.sync', [])
 		clSocketSvc.addMsgHandler('signedInUser', unsetWatchCtx);
 
 		function watchContent(fileDao) {
-			if (!fileDao || !fileDao.state || (watchCtx && fileDao === watchCtx.fileDao)) {
+			if (!fileDao || !fileDao.state || fileDao.isReadOnly || (watchCtx && fileDao === watchCtx.fileDao)) {
 				return;
 			}
 			contentRevStore.$readAttr(fileDao.id, '0', parseInt);

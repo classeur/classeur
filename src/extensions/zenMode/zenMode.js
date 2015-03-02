@@ -50,6 +50,7 @@ angular.module('classeur.extensions.zenMode', [])
 				document.addEventListener('mousemove', hideZenPanel);
 				document.addEventListener('click', hideZenPanel);
 
+				scope.$watch('editorLayoutSvc.isEditorOpen', hideZenPanel.bind(null, null));
 				scope.$on('$destroy', function() {
 					document.removeEventListener('mousemove', hideZenPanel);
 					document.removeEventListener('click', hideZenPanel);
