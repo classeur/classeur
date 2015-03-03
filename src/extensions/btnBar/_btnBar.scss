@@ -25,5 +25,9 @@
         .mdi-navigation-more-horiz {
             line-height: 1.4;
         }
+        &.active a {
+            cursor: auto;
+            color: #555;
+        }
     }
 }

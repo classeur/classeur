@@ -15,7 +15,7 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 				var content;
 				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.userId) {
 					scope.$watch('currentFileDao.contentDao.content', function(newContent) {
-						if (content === undefined) {
+						if (content === undefined || !scope.currentFileDao) {
 							content = newContent;
 							return;
 						}

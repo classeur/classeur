@@ -77,7 +77,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel, clConstants, clStateMgr) {
+	.directive('clExplorerLayout', function($window, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clUid, clPanel) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		return {
@@ -187,22 +187,6 @@ angular.module('classeur.core.explorerLayout', [])
 						.ok('Delete')
 						.cancel('Cancel');
 					$mdDialog.show(confirm).then(remove);
-				};
-
-				scope.signin = function() {
-					var params = {
-						client_id: clConstants.googleClientId,
-						response_type: 'code',
-						redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
-						scope: 'email',
-						state: clStateMgr.saveState({
-							url: '/newUser'
-						}),
-					};
-					params = Object.keys(params).map(function(key) {
-						return key + '=' + encodeURIComponent(params[key]);
-					}).join('&');
-					$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
 				};
 
 				scope.$watch('explorerLayoutSvc.currentFolderDao', function() {

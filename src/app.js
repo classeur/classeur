@@ -29,6 +29,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.footer',
 		'classeur.extensions.headingAnchor',
 		'classeur.extensions.htmlSanitizer',
+		'classeur.extensions.offlineAlert',
 		'classeur.extensions.readOnlyAlert',
 		'classeur.extensions.urlDialog',
 		'classeur.extensions.markdownExtra',

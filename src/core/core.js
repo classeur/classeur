@@ -92,7 +92,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl, clConstants) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -101,6 +101,7 @@ angular.module('classeur.core', [])
 		$rootScope.editorSvc = clEditorSvc;
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
+		$rootScope.socketSvc = clSocketSvc;
 		$rootScope.userSvc = clUserSvc;
 		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
@@ -150,14 +151,47 @@ angular.module('classeur.core', [])
 			clToast('Copy created.');
 		}
 
+		function signin() {
+			var params = {
+				client_id: clConstants.googleClientId,
+				response_type: 'code',
+				redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
+				scope: 'email',
+				state: clStateMgr.saveState({
+					url: '/newUser'
+				}),
+			};
+			params = Object.keys(params).map(function(key) {
+				return key + '=' + encodeURIComponent(params[key]);
+			}).join('&');
+			$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+		}
+
 		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.loadFile = loadFile;
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
+		$rootScope.signin = signin;
 
 		$rootScope.$watch('currentFileDao.name', function(name) {
 			$window.document.title = name || 'Classeur';
+		});
+
+		var hasToken = clSocketSvc.hasToken;
+		$rootScope.$watch('socketSvc.hasToken', function(value) {
+			if (!value && value !== hasToken) {
+				var clearDataDialog = $mdDialog.confirm()
+					.title('You\'ve been signed out')
+					.content('Would you like to clean all your local data?')
+					.ariaLabel('Clean local data')
+					.ok('Yes please')
+					.cancel('No thanks');
+				$mdDialog.show(clearDataDialog).then(function() {
+					localStorage.clear();
+				});
+			}
+			hasToken = value;
 		});
 
 		clSetInterval(function() {

@@ -14,14 +14,14 @@
                     </md-button>
                 </div>
             </div>
-            <div class="top" layout="row" layout-align="end start" ng-switch="!!userSvc.user">
-                <div ng-switch-when="false">
+            <div class="top" layout="row" layout-align="end start">
+                <div ng-if="!socketSvc.hasToken">
                     <md-button ng-click="signin()">
                         Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
                     </md-button>
                 </div>
-                <div ng-switch-when="true">
-                    <span class="links">Hi {{userSvc.user.name}}</span>
+                <div ng-if="userSvc.user">
+                    <span class="username">Hi <b>{{userSvc.user.name}}</b>!</span>
                     </span>
                     <md-button>
                         Go premium <span class="mdi-navigation-arrow-forward"></span>

@@ -1,0 +1,20 @@
+<div class="signin-alert panel postit no-overflow md-whiteframe-z2">
+
+	<div class="content panel" layout="column" layout-align="space-between end">
+		<div>
+			<h2>Disconnected</h2>
+			<p>Sign in to turn on auto-sync and to have your files safely stored.</p>
+		</div>
+		<div layout="row" layout-align="end end">
+			<md-button md-no-ink class="md-primary"
+					   ng-click="signin()">
+				Sign in with Google
+			</md-button>
+		</div>
+	</div>
+
+	<cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+		<a class="mdi-content-clear" ng-click="editorLayoutSvc.currentControl = undefined" title="Close" aria-label="Close"></a>
+	</cl-button>
+
+</div>

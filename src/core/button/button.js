@@ -19,6 +19,7 @@ angular.module('classeur.core.button', [])
 				});
 				var isActive, isHover, speed;
 				function toggle() {
+					buttonPanel.$elt.toggleClass('active', !!isActive);
 					if(isActive) {
 						buttonPanel.move(speed).set('opacity', opacityActive).ease('out').end();
 					}

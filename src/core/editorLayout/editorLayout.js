@@ -102,11 +102,6 @@ angular.module('classeur.core.editorLayout', [])
 					scope.$apply();
 				}, 90);
 
-				var isInited;
-				setTimeout(function() {
-					isInited = true;
-				}, 1);
-
 				function animateLayout() {
 					showPreview();
 					updateLayout();
@@ -122,10 +117,12 @@ angular.module('classeur.core.editorLayout', [])
 					showPreview();
 					updateLayout();
 					editorPanel.move(isInited && 'sslow').to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
-						hidePreview();
-						clEditorLayoutSvc.toggleSidePreview(false);
-						clEditorLayoutSvc.currentControl = undefined;
-						isInited && scope.$apply();
+						setTimeout(function() {
+							hidePreview();
+							clEditorLayoutSvc.toggleSidePreview(false);
+							clEditorLayoutSvc.currentControl = undefined;
+							isInited && scope.$apply();
+						}, 90);
 					}).end();
 				}
 
@@ -152,6 +149,11 @@ angular.module('classeur.core.editorLayout', [])
 					closeButtonPanel.css('zIndex', isPreviewTop ? 0 : -1).move(isInited && 'slow').set('opacity', isPreviewTop ? 1 : 0).ease('in-out').end();
 					scrollButtonPanel.css('zIndex', isPreviewTop ? -1: 0).move(isInited && 'slow').set('opacity', isPreviewTop ? 0 : 1).ease('in-out').end();
 				}
+
+				var isInited;
+				setTimeout(function() {
+					isInited = true;
+				}, 1);
 
 				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 400);
 				window.addEventListener('resize', debouncedAnimateLayout);

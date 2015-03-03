@@ -10,11 +10,14 @@ angular.module('classeur.core.socket', [])
 
 		function clearToken() {
 			localStorage.removeItem(socketTokenKey);
+			socketToken = undefined;
+			clSocketSvc.hasToken = false;
 		}
 
 		function checkToken() {
 			socketToken = localStorage[socketTokenKey];
-			return !!socketToken;
+			clSocketSvc.hasToken = !!socketToken;
+			return clSocketSvc.hasToken;
 		}
 
 		var lastConnectionAttempt = 0;
@@ -84,6 +87,7 @@ angular.module('classeur.core.socket', [])
 		});
 
 		var clSocketSvc = {
+			hasToken: false,
 			setToken: setToken,
 			clearToken: clearToken,
 			checkToken: checkToken,

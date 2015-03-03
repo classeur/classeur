@@ -1,0 +1,59 @@
+.offline.indicator {
+    top: 246px;
+    left: 0px;
+    height: 50px;
+    width: 26px;
+    background-color: #F0C877;
+    box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    button {
+        line-height: 34px;
+        width: 100%;
+        height: 100%;
+        font-size: 22px;
+        text-transform: none;
+        color: transparentize(#fff, 0.2);
+        &:hover {
+            color: #fff;
+        }
+    }
+    .rotate-90 {
+        position: absolute;
+        width: 50px;
+        left: -1px;
+        height: 0;
+    }
+}
+
+.offline-alert.panel, .signin-alert.panel {
+    left: 15px;
+    top: 15px;
+    font-size: 14px;
+
+    p {
+        line-height: 1.3;
+    }
+
+    .content.panel {
+        padding: 5px 20px 15px;
+    }
+
+    .close.btn {
+        right: 0;
+        a {
+            font-size: 22px;
+            line-height: 30px;
+        }
+    }
+}
+
+.offline-alert.panel {
+    width: 200px;
+    height: 200px;
+}
+
+.signin-alert.panel {
+    width: 220px;
+    height: 220px;
+}

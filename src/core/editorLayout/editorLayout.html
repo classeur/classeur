@@ -78,6 +78,7 @@
                         </div>
                     </md-button>
                 </div>
+                <cl-offline-indicator></cl-offline-indicator>
             </div>
 
             <div class="page panel paper md-whiteframe-z1">
@@ -118,6 +119,8 @@
 <cl-discussion ng-if="editorLayoutSvc.currentControl === 'discussion'"></cl-discussion>
 
 <cl-read-only-alert></cl-read-only-alert>
+
+<cl-offline-alert></cl-offline-alert>
 
 <cl-uri-dialog></cl-uri-dialog>
 

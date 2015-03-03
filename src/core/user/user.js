@@ -13,7 +13,7 @@ angular.module('classeur.core.user', [])
             clUserSvc.user = undefined;
         }
 
-        function isSignedIn() {
+        function isOnline() {
             if(clSocketSvc.checkToken()) {
                 clSocketSvc.openSocket();
                 return clSocketSvc.isReady;
@@ -40,7 +40,7 @@ angular.module('classeur.core.user', [])
         var clUserSvc = {
             signin: signin,
             signout: signout,
-            isSignedIn: isSignedIn,
+            isOnline: isOnline,
         };
 
         return clUserSvc;

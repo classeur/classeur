@@ -94,6 +94,7 @@ angular.module('classeur.core.sync', [])
 			}
 		})();
 
+
 		/******
 		Folders
 		******/
@@ -107,6 +108,7 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
+			var expectedFolderDeletions = [];
 			clSocketSvc.addMsgHandler('folderChanges', function(msg, ctx) {
 				if (readSyncDataStore(ctx)) {
 					return;
@@ -130,6 +132,10 @@ angular.module('classeur.core.sync', [])
 						};
 					}
 					syncDataStore.lastFolderSeq = change.seq;
+				});
+				expectedFolderDeletions.forEach(function(id) {
+					// Assume folder has been deleted, even if the server doesn't tell anything
+					delete syncDataStore.folders[id];
 				});
 				if (foldersToUpdate.length) {
 					clFolderSvc.updateFolders(foldersToUpdate);
@@ -161,8 +167,10 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.folders[folderDao.id] = syncData;
 				});
 				// Check deleted folders
+				expectedFolderDeletions = [];
 				angular.forEach(syncDataStore.folders, function(syncData, id) {
 					if (!clFolderSvc.folderMap.hasOwnProperty(id)) {
+						expectedFolderDeletions.push(id);
 						changes.push({
 							id: id,
 							deleted: true
@@ -178,6 +186,7 @@ angular.module('classeur.core.sync', [])
 			return retrieveChanges;
 		})();
 
+
 		/****
 		Files
 		****/
@@ -191,6 +200,7 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
+			var expectedFileDeletions = [];
 			clSocketSvc.addMsgHandler('fileChanges', function(msg, ctx) {
 				if (readSyncDataStore(ctx)) {
 					return;
@@ -214,6 +224,10 @@ angular.module('classeur.core.sync', [])
 						};
 					}
 					syncDataStore.lastFileSeq = change.seq;
+				});
+				expectedFileDeletions.forEach(function(id) {
+					// Assume file has been deleted, even if the server doesn't tell anything
+					delete syncDataStore.files[id];
 				});
 				if (filesToUpdate.length) {
 					clFileSvc.updateFiles(filesToUpdate);
@@ -247,8 +261,10 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.files[fileDao.id] = syncData;
 				});
 				// Check deleted files
+				expectedFileDeletions = [];
 				angular.forEach(syncDataStore.files, function(syncData, id) {
 					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
+						expectedFileDeletions.push(id);
 						changes.push({
 							id: id,
 							deleted: true
@@ -265,23 +281,26 @@ angular.module('classeur.core.sync', [])
 			return retrieveChanges;
 		})();
 
+
 		/********
 		New files
 		********/
+
+		function isFilePendingCreation(fileDao) {
+			return !fileDao.userId && fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
+		}
 
 		var expectedFileCreations = {};
 		var sendNewFiles = (function() {
 			function sendNewFiles() {
 				expectedFileCreations = {};
-				clFileSvc.files.filter(function(fileDao) {
-					return !fileDao.userId && fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
-				}).forEach(function(fileDao) {
+				clFileSvc.files.filter(isFilePendingCreation).forEach(function(fileDao) {
 					expectedFileCreations[fileDao.id] = true;
 					fileDao.loadExecUnload(function() {
 						clSocketSvc.sendMsg({
 							type: 'createFile',
 							id: fileDao.id,
-							content: fileDao.contentDao.content
+							content: fileDao.contentDao.content || '\n'
 						});
 					});
 				});
@@ -319,7 +338,7 @@ angular.module('classeur.core.sync', [])
 		clSocketSvc.addMsgHandler('signedInUser', unsetWatchCtx);
 
 		function watchContent(fileDao) {
-			if (!fileDao || !fileDao.state || fileDao.isReadOnly || (watchCtx && fileDao === watchCtx.fileDao)) {
+			if (!fileDao || !fileDao.state || fileDao.isReadOnly || isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
 				return;
 			}
 			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
@@ -332,7 +351,7 @@ angular.module('classeur.core.sync', [])
 			clSocketSvc.sendMsg({
 				type: 'startWatchContent',
 				id: fileDao.id,
-				userId: fileDao.userId,
+				userId: fileDao.userId || undefined,
 				previousRev: watchCtx.rev
 			});
 			$timeout.cancel(fileDao.loadingTimeoutId);
@@ -380,6 +399,7 @@ angular.module('classeur.core.sync', [])
 				return setLoadingError(fileDao);
 			}
 			if (fileDao.userId) {
+				// If file is from another user, that's the only chance we have to update its properties
 				fileDao.name = msg.name;
 				fileDao.sharing = msg.sharing;
 				fileDao.updated = msg.updated;
@@ -442,6 +462,7 @@ angular.module('classeur.core.sync', [])
 				});
 		}
 
+
 		/**************
 		Content changes
 		**************/
@@ -451,7 +472,7 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			// if(watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || clUserSvc.user.plan !== 'premium')) {
-			if(watchCtx.fileDao.userId && watchCtx.fileDao.sharing !== 'rw') {
+			if (watchCtx.fileDao.userId && watchCtx.fileDao.sharing !== 'rw') {
 				return;
 			}
 			var newContent = clEditorSvc.cledit.getContent();
@@ -518,7 +539,7 @@ angular.module('classeur.core.sync', [])
 				clFileSvc.removeFiles(filesToRemove);
 				$rootScope.$apply();
 			}
-			if (!clUserSvc.isSignedIn()) {
+			if (!clUserSvc.isOnline()) {
 				return;
 			}
 			if (Date.now() - syncDataStore.lastActivity > maxSyncInactivity) {
@@ -537,7 +558,7 @@ angular.module('classeur.core.sync', [])
 		}, 1000, false, true);
 
 		$rootScope.$watch('currentFileDao', function(currentFileDao) {
-			if (clUserSvc.isSignedIn()) {
+			if (clUserSvc.isOnline()) {
 				readSyncDataStore(clSocketSvc.ctx);
 				stopWatchContent();
 				watchContent(currentFileDao);

@@ -80,6 +80,9 @@ angular.module('classeur.core.utils', [])
 		var Hammer = $window.Hammer;
 		return function(elt, selector, x, y, rotation) {
 			rotation = rotation || 0;
+			elt.on('mousedown', function(evt) {
+				evt.preventDefault();
+			});
 			var panel = clPanel(elt, selector);
 			panel.move().rotate(rotation)
 				.then(function() {
@@ -277,10 +280,10 @@ angular.module('classeur.core.utils', [])
 		}
 		setLastFocus();
 		$window.addEventListener('focus', setLastFocus);
-		return function(cb, interval, checkSignedIn, checkWindowFocus) {
+		return function(cb, interval, checkUserOnline, checkWindowFocus) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
 			setInterval(function() {
-				(!checkSignedIn || clUserSvc.isSignedIn()) && (!checkWindowFocus || isWindowFocus()) && cb();
+				(!checkUserOnline || clUserSvc.isOnline()) && (!checkWindowFocus || isWindowFocus()) && cb();
 			}, interval);
 		};
 	})

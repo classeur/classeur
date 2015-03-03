@@ -31,7 +31,7 @@ angular.module('classeur.extensions.scrollSync', [])
 		var scrollTimeoutId;
 		var currentEndCb, skipAnimation;
 
-		function scroll(elt, startValue, endValue, stepCb, endCb, debounce) {
+		function scroll(elt, startValue, endValue, stepCb, endCb, skipAnimation, debounce) {
 			clearTimeout(scrollTimeoutId);
 			if(currentEndCb) {
 				currentEndCb();
@@ -74,6 +74,8 @@ angular.module('classeur.extensions.scrollSync', [])
 		var sectionDescList;
 
 		var doScrollSync = function(debounce) {
+			var localSkipAnimation = skipAnimation;
+			skipAnimation = false;
 			if(!clSettingSvc.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
@@ -110,7 +112,7 @@ angular.module('classeur.extensions.scrollSync', [])
 					lastPreviewScrollTop = currentScrollTop;
 				}, function() {
 					isPreviewMoving = false;
-				}, debounce);
+				}, localSkipAnimation, debounce);
 			}
 			else if(!clEditorLayoutSvc.isEditorOpen || isScrollPreview) {
 
@@ -141,9 +143,8 @@ angular.module('classeur.extensions.scrollSync', [])
 					lastEditorScrollTop = currentScrollTop;
 				}, function() {
 					isEditorMoving = false;
-				}, debounce);
+				}, localSkipAnimation, debounce);
 			}
-			skipAnimation = false;
 		};
 
 		// TODO
