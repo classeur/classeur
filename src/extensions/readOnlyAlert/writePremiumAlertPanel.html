@@ -6,11 +6,11 @@
 			<p>You need a premium account to collaborate on this file.</p>
 		</div>
 		<div layout="row" layout-align="end end">
-			<md-button ng-if="!clUserSvc.user" md-no-ink class="md-primary"
+			<md-button ng-if="!socketSvc.hasToken" md-no-ink class="md-primary"
 					   ng-click="signin()">
 				Sign in
 			</md-button>
-			<md-button ng-if="clUserSvc.user" md-no-ink class="md-primary">
+			<md-button ng-if="userSvc.user" md-no-ink class="md-primary">
 				Go premium
 			</md-button>
 		</div>

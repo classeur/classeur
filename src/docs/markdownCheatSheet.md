@@ -7,9 +7,7 @@ Make text **bold** or *italic* by using either `*` or `_` around the text.
 _This text will be italic_
 __This text will be bold__
 
-## Strikethrough
-
-Create strikethrough text by surrounding your text with `~~`.
+Create strikethrough text by using `~~`.
 
 ~~Mistaken text.~~
 

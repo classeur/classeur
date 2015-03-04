@@ -13,51 +13,11 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/file/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clEditorLayoutSvc, clToast) {
-					var fileDao = clFileSvc.fileMap[$routeParams.fileId];
-					if (!fileDao) {
-						clToast('Unknown file ID.');
-						return $location.url('');
-					}
-					$scope.loadFile(fileDao);
-					if (!fileDao.state) {
-						clToast('You appear to be offline.');
-						return $location.url('');
-					}
-					$scope.$watch('currentFileDao.state', function(state) {
-						if (!state) {
-							return $location.url('');
-						}
-						if (state === 'loaded') {
-							clEditorLayoutSvc.init();
-							$scope.fileLoaded = true;
-						}
-					});
-				}
+				controller: 'ClEditorController'
 			})
 			.when('/file/:userId/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, clFileSvc, clUserSvc, clEditorLayoutSvc, clToast) {
-					var publicFileDao = clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
-					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
-					if (fileDao.userId !== publicFileDao.userId) {
-						return $scope.setCurrentFile(fileDao, $location.hash());
-					}
-					$scope.loadFile(fileDao);
-					if (!fileDao.state) {
-						clToast('You appear to be offline.');
-						return $location.url('');
-					}
-					$scope.$watch('currentFileDao.state', function(state) {
-						if (!state) {
-							return $location.url('');
-						}
-						if (state === 'loaded') {
-							clEditorLayoutSvc.init(true);
-							$scope.fileLoaded = true;
-						}
-					});
-				}
+				controller: 'ClEditorController'
 			})
 			.when('/doc/:fileName', {
 				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
@@ -91,6 +51,28 @@ angular.module('classeur.core', [])
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
 
+	})
+	.controller('ClEditorController', function($scope, $routeParams, $location, $mdDialog, clToast, clFileSvc, clEditorLayoutSvc) {
+		var publicFileDao = $routeParams.userId && clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
+		var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
+		if (!fileDao) {
+			clToast('Unknown file ID.');
+			return $location.url('');
+		}
+		$scope.loadFile(fileDao);
+		if (!fileDao.state) {
+			clToast('You appear to be offline.');
+			return $location.url('');
+		}
+		$scope.$watch('currentFileDao.state', function(state) {
+			if (!state) {
+				return $location.url('');
+			}
+			if (state === 'loaded') {
+				clEditorLayoutSvc.init(!!publicFileDao);
+				$scope.fileLoaded = true;
+			}
+		});
 	})
 	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl, clConstants) {
 
@@ -143,7 +125,7 @@ angular.module('classeur.core', [])
 			newFileDao.state = 'loaded';
 			newFileDao.readContent();
 			newFileDao.name = oldFileDao.name;
-			['content', 'state', 'discussions'].forEach(function(attrName) {
+			['txt', 'state', 'discussions'].forEach(function(attrName) {
 				newFileDao.contentDao[attrName] = oldFileDao.contentDao[attrName];
 			});
 			newFileDao.writeContent();
@@ -183,7 +165,7 @@ angular.module('classeur.core', [])
 			if (!value && value !== hasToken) {
 				var clearDataDialog = $mdDialog.confirm()
 					.title('You\'ve been signed out')
-					.content('Would you like to clean all your local data?')
+					.content('Would you like to clean all your local files?')
 					.ariaLabel('Clean local data')
 					.ok('Yes please')
 					.cancel('No thanks');
@@ -192,6 +174,10 @@ angular.module('classeur.core', [])
 				});
 			}
 			hasToken = value;
+		});
+
+		$rootScope.$on('$routeChangeSuccess', function() {
+			$mdDialog.cancel();
 		});
 
 		clSetInterval(function() {

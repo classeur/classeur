@@ -8,7 +8,7 @@ angular.module('classeur.extensions.offlineAlert', [])
 				var timeoutId = $timeout(function() {
 					timeoutId = null;
 					setFlag();
-				}, 5000);
+				}, 3000);
 				function setFlag() {
 					scope.show = !clSocketSvc.isReady && !timeoutId;
 				}

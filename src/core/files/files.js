@@ -34,7 +34,7 @@ angular.module('classeur.core.files', [])
 			this.contentDao.$readAttr('isLocal', '');
 			this.contentDao.$readAttr('lastChange', '0', parseInt);
 			if (this.state === 'loaded') {
-				this.contentDao.$readAttr('content', '');
+				this.contentDao.$readAttr('txt', '');
 				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
 				this.contentDao.$readAttr('state', '{}', JSON.parse);
 			}
@@ -42,7 +42,7 @@ angular.module('classeur.core.files', [])
 		};
 
 		FileDao.prototype.freeContent = function() {
-			this.contentDao.$freeAttr('content');
+			this.contentDao.$freeAttr('txt');
 			this.contentDao.$freeAttr('discussions');
 			this.contentDao.$freeAttr('state');
 		};
@@ -50,7 +50,7 @@ angular.module('classeur.core.files', [])
 		FileDao.prototype.writeContent = function(updateLastChange) {
 			this.contentDao.$writeAttr('isLocal');
 			if (this.state === 'loaded') {
-				updateLastChange |= this.contentDao.$writeAttr('content');
+				updateLastChange |= this.contentDao.$writeAttr('txt');
 				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
 				this.contentDao.$writeAttr('state', JSON.stringify);
 			}
@@ -100,7 +100,7 @@ angular.module('classeur.core.files', [])
 		function ReadOnlyFile(name, content) {
 			this.name = name;
 			this.contentDao = {
-				content: content,
+				txt: content,
 				state: {},
 				users: {},
 				discussions: {}
@@ -124,7 +124,7 @@ angular.module('classeur.core.files', [])
 			u: true,
 			lastChange: true,
 			isLocal: true,
-			content: true,
+			txt: true,
 			users: true,
 			discussions: true,
 			state: true,

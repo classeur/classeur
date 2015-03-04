@@ -36,7 +36,7 @@ angular.module('classeur.core.editor', [])
 						state ? debouncedRefreshPreview() : refreshPreview();
 					}
 					clEditorSvc.selectionRange = newSelectionRange;
-					scope.currentFileDao.contentDao.content = clEditorSvc.cledit.getContent();
+					scope.currentFileDao.contentDao.txt = clEditorSvc.cledit.getContent();
 					saveState();
 					clEditorSvc.lastContentChange = Date.now();
 					scope.$apply();
@@ -107,7 +107,7 @@ angular.module('classeur.core.editor', [])
 					var options = clEditorSvc.options;
 					if (!isInited) {
 						options = angular.extend({}, options);
-						options.content = scope.currentFileDao.contentDao.content;
+						options.content = scope.currentFileDao.contentDao.txt;
 						if (options.content.slice(-1) !== '\n') {
 							options.content += '\n';
 						}

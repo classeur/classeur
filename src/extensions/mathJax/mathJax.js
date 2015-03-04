@@ -270,12 +270,12 @@ angular.module('classeur.extensions.mathJax', [])
 		function replaceMath(text) {
 			text = text.replace(/@@(\d+)@@/g, function(match, n, pos) {
 				var result = math[n];
-				// Quick workaround to prevent processing "$10 $20"
+				// Quick workaround to prevent processing "$10 $50 $100"
 				if (result.match(/^\$(?!\$)/)) {
 					var prefix = text[pos - 1] || '';
 					var suffix = text[pos + match.length] || '';
 					if (prefix.match(/\d/) || suffix.match(/\d/)) {
-						return '\\' + result;
+						return '\\$' + result.slice(1, -1) + '\\$';
 					}
 				}
 				return result;

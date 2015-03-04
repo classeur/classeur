@@ -300,7 +300,7 @@ angular.module('classeur.core.sync', [])
 						clSocketSvc.sendMsg({
 							type: 'createFile',
 							id: fileDao.id,
-							content: fileDao.contentDao.content || '\n'
+							txt: fileDao.contentDao.txt || '\n'
 						});
 					});
 				});
@@ -406,29 +406,29 @@ angular.module('classeur.core.sync', [])
 				fileDao.write(fileDao.updated);
 			}
 			if (fileDao.state === 'loading') {
-				watchCtx.content = msg.latest.content;
+				watchCtx.txt = msg.latest.txt;
 				watchCtx.rev = msg.latest.rev;
-				fileDao.contentDao.content = watchCtx.content;
+				fileDao.contentDao.txt = watchCtx.txt;
 				setFileStateLoaded(fileDao);
 				$rootScope.$evalAsync();
 			} else {
-				var oldContent = msg.previous ? msg.previous.content : msg.latest.content;
-				var serverContent = msg.latest.content;
-				var localContent = clEditorSvc.cledit.getContent();
-				var isServerChanges = oldContent !== serverContent;
-				var isLocalChanges = oldContent !== localContent;
-				var isSynchronized = serverContent === localContent;
-				if (!isSynchronized && isServerChanges && isLocalChanges) {
+				var oldTxt = msg.previous ? msg.previous.txt : msg.latest.txt;
+				var serverTxt = msg.latest.txt;
+				var localTxt = clEditorSvc.cledit.getContent();
+				var isServerTxtChanges = oldTxt !== serverTxt;
+				var isLocalTxtChanges = oldTxt !== localTxt;
+				var isTxtSynchronized = serverTxt === localTxt;
+				if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
 					// TODO Deal with conflict
-					watchCtx.content = msg.latest.content;
+					watchCtx.txt = msg.latest.txt;
 					watchCtx.rev = msg.latest.rev;
-					clEditorSvc.setContent(watchCtx.content);
+					clEditorSvc.setContent(watchCtx.txt);
 				} else {
-					watchCtx.content = msg.latest.content;
+					watchCtx.txt = msg.latest.txt;
 					watchCtx.rev = msg.latest.rev;
-					if (!isSynchronized) {
-						if (isServerChanges) {
-							clEditorSvc.setContent(watchCtx.content);
+					if (!isTxtSynchronized) {
+						if (isServerTxtChanges) {
+							clEditorSvc.setContent(watchCtx.txt);
 						}
 					}
 				}
@@ -451,9 +451,9 @@ angular.module('classeur.core.sync', [])
 					fileDao.updated = res.updated;
 					fileDao.write(fileDao.updated);
 					if (fileDao.state === 'loaded') {
-						clEditorSvc.setContent(res.content);
+						clEditorSvc.setContent(res.txt);
 					} else if (fileDao.state === 'loading') {
-						fileDao.contentDao.content = res.content;
+						fileDao.contentDao.txt = res.txt;
 						setFileStateLoaded(fileDao);
 					}
 				})
@@ -468,23 +468,23 @@ angular.module('classeur.core.sync', [])
 		**************/
 
 		function sendContentChange() {
-			if (!watchCtx || watchCtx.content === undefined || watchCtx.sentMsg) {
+			if (!watchCtx || watchCtx.txt === undefined || watchCtx.sentMsg) {
 				return;
 			}
 			// if(watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || clUserSvc.user.plan !== 'premium')) {
 			if (watchCtx.fileDao.userId && watchCtx.fileDao.sharing !== 'rw') {
 				return;
 			}
-			var newContent = clEditorSvc.cledit.getContent();
-			var changes = clSyncUtils.getPatches(watchCtx.content, newContent);
-			if (!changes.length) {
+			var newTxt = clEditorSvc.cledit.getContent();
+			var txtChanges = clSyncUtils.getPatches(watchCtx.txt, newTxt);
+			if (!txtChanges.length) {
 				return;
 			}
 			var newRev = watchCtx.rev + 1;
 			watchCtx.sentMsg = {
 				type: 'setContentChange',
 				rev: newRev,
-				changes: changes
+				txt: txtChanges
 			};
 			clSocketSvc.sendMsg(watchCtx.sentMsg);
 		}
@@ -494,28 +494,28 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			watchCtx.contentChanges[msg.rev] = msg;
-			var serverContent = watchCtx.content;
-			var localContent = clEditorSvc.cledit.getContent();
+			var serverTxt = watchCtx.txt;
+			var localTxt = clEditorSvc.cledit.getContent();
 			while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
 				watchCtx.rev = msg.rev;
 				watchCtx.contentChanges[msg.rev] = undefined;
-				var oldContent = serverContent;
+				var oldTxt = serverTxt;
 				if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
 					// This has to be the previously sent message
 					msg = watchCtx.sentMsg;
 				}
-				serverContent = clSyncUtils.applyPatches(serverContent, msg.changes);
+				serverTxt = clSyncUtils.applyPatches(serverTxt, msg.txt);
 				if (msg !== watchCtx.sentMsg) {
-					var isServerChanges = oldContent !== serverContent;
-					var isLocalChanges = oldContent !== localContent;
-					var isSynchronized = serverContent === localContent;
-					if (!isSynchronized && isServerChanges) {
-						if (isLocalChanges) {
-							localContent = clSyncUtils.quickPatch(oldContent, serverContent, localContent);
+					var isServerTxtChanges = oldTxt !== serverTxt;
+					var isLocalTxtChanges = oldTxt !== localTxt;
+					var isTxtSynchronized = serverTxt === localTxt;
+					if (!isTxtSynchronized && isServerTxtChanges) {
+						if (isLocalTxtChanges) {
+							localTxt = clSyncUtils.quickPatch(oldTxt, serverTxt, localTxt);
 						} else {
-							localContent = serverContent;
+							localTxt = serverTxt;
 						}
-						var offset = clEditorSvc.setContent(localContent);
+						var offset = clEditorSvc.setContent(localTxt);
 						var userActivity = watchCtx.userActivities[msg.userId] || {};
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;
@@ -524,7 +524,7 @@ angular.module('classeur.core.sync', [])
 				}
 				watchCtx.sentMsg = undefined;
 			}
-			watchCtx.content = serverContent;
+			watchCtx.txt = serverTxt;
 			contentRevStore[watchCtx.fileDao.id] = watchCtx.rev;
 			contentRevStore.$writeAttr(watchCtx.fileDao.id);
 		});
@@ -613,25 +613,25 @@ angular.module('classeur.core.sync', [])
 			return patches;
 		}
 
-		function applyPatches(content, patches) {
+		function applyPatches(txt, patches) {
 			if (!patches) {
-				return content;
+				return txt;
 			}
-			return patches.reduce(function(content, change) {
+			return patches.reduce(function(txt, change) {
 				if (change.ins) {
-					return content.slice(0, change.off) + change.ins + content.slice(change.off);
+					return txt.slice(0, change.off) + change.ins + txt.slice(change.off);
 				} else if (change.del) {
-					return content.slice(0, change.off) + content.slice(change.off + change.del.length);
+					return txt.slice(0, change.off) + txt.slice(change.off + change.del.length);
 				} else {
-					return content;
+					return txt;
 				}
-			}, content);
+			}, txt);
 		}
 
-		function quickPatch(oldContent, newContent, destContent) {
-			var diffs = diffMatchPatch.diff_main(oldContent, newContent);
-			var patches = diffMatchPatch.patch_make(oldContent, diffs);
-			var patchResult = diffMatchPatch.patch_apply(patches, destContent);
+		function quickPatch(oldTxt, newTxt, destTxt) {
+			var diffs = diffMatchPatch.diff_main(oldTxt, newTxt);
+			var patches = diffMatchPatch.patch_make(oldTxt, diffs);
+			var patchResult = diffMatchPatch.patch_apply(patches, destTxt);
 			return patchResult[0];
 		}
 

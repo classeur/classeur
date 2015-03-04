@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.readOnlyAlert', [])
-	.directive('clReadOnlyAlert', function(clEditorLayoutSvc, clSyncSvc, clUserSvc, clEditorSvc) {
+	.directive('clReadOnlyAlert', function(clEditorLayoutSvc, clSyncSvc, clUserSvc, clSocketSvc, clEditorSvc) {
 		return {
 			restrict: 'E',
 			scope: true,
@@ -12,11 +12,11 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 					clEditorLayoutSvc.currentControl = undefined;
 				};
 
-				var content;
+				var txt;
 				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.userId) {
-					scope.$watch('currentFileDao.contentDao.content', function(newContent) {
-						if (content === undefined || !scope.currentFileDao) {
-							content = newContent;
+					scope.$watch('currentFileDao.contentDao.txt', function(newTxt) {
+						if (txt === undefined || !scope.currentFileDao) {
+							txt = newTxt;
 							return;
 						}
 						if (wasDismissed) {
@@ -29,8 +29,8 @@ angular.module('classeur.extensions.readOnlyAlert', [])
 							clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 							return;
 						}
-						// if(!clUserSvc.user || clUserSvc.user.plan !== 'premium') {
-						if(!clUserSvc.user) {
+						// if(!clSocketSvc.hasToken || clUserSvc.user.plan !== 'premium') {
+						if(!clSocketSvc.hasToken) {
 							clEditorLayoutSvc.currentControl = 'writePremiumAlert';
 							return;
 						}

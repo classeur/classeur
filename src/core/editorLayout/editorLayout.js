@@ -159,6 +159,7 @@ angular.module('classeur.core.editorLayout', [])
 				window.addEventListener('resize', debouncedAnimateLayout);
 				scope.$on('$destroy', function() {
 					window.removeEventListener('resize', debouncedAnimateLayout);
+					clEditorLayoutSvc.clean();
 				});
 
 				scope.$watch('settingSvc.values.editorZoom', animateLayout);
@@ -190,7 +191,6 @@ angular.module('classeur.core.editorLayout', [])
 			init: function(hideEditor) {
 				this.isEditorOpen = !hideEditor;
 				this.isSidePreviewOpen = false;
-				this.currentControl = undefined;
 				this.isMenuOpen = false;
 				this.isCornerOpen = false;
 			},
@@ -211,6 +211,9 @@ angular.module('classeur.core.editorLayout', [])
 			},
 			toggleCorner: function(isOpen) {
 				this.isCornerOpen = isOpen === undefined ? !this.isCornerOpen : isOpen;
+			},
+			clean: function() {
+				this.currentControl = undefined;
 			}
 		};
 

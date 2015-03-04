@@ -197,6 +197,9 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.$watch('fileSvc.files', clExplorerLayoutSvc.refreshFiles);
 				scope.$watch('folderSvc.folders', clExplorerLayoutSvc.refreshFolders);
+				scope.$on('$destroy', function() {
+					clExplorerLayoutSvc.clean();
+				});
 
 				scope.newFile = function() {
 					var fileDao = clFileSvc.createFile();
@@ -251,6 +254,10 @@ angular.module('classeur.core.explorerLayout', [])
 			(folder && folder.id) ? localStorage.setItem(lastFolderKey, folder.id): localStorage.removeItem(lastFolderKey);
 		}
 
+		function clean() {
+    		clExplorerLayoutSvc.sharingDialogFileDao = undefined;			
+		}
+
 		var clExplorerLayoutSvc = {
 			folders: [],
 			files: [],
@@ -258,7 +265,8 @@ angular.module('classeur.core.explorerLayout', [])
 			createFolder: createFolder,
 			refreshFolders: refreshFolders,
 			refreshFiles: refreshFiles,
-			setCurrentFolder: setCurrentFolder
+			setCurrentFolder: setCurrentFolder,
+			clean: clean
 		};
 
 		return clExplorerLayoutSvc;
