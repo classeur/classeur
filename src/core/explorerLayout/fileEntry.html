@@ -6,13 +6,10 @@
     <md-input-container flex ng-click="open()">
         <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
     </md-input-container>
-    <cl-button class="edit filename btn" opacity="0.5" opacity-hover="0.75" opacity-active="1" active="isEditing">
+    <cl-button class="edit filename btn" active="isEditing">
         <a class="mdi-editor-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
     </cl-button>
-    <cl-button ng-if="socketSvc.hasToken && !fileDao.sharing" class="share file btn" opacity="0.5" opacity-hover="0.75" opacity-active="1" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
-        <a class="mdi-social-share" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
-    </cl-button>
-    <cl-button ng-if="socketSvc.hasToken && fileDao.sharing" class="share file btn" opacity="0.75" opacity-hover="1" opacity-active="1" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
-        <a class="mdi-social-share" ng-class="fileDao.sharing === 'rw' ? 'red' : 'blue'" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
+    <cl-button ng-if="socketSvc.hasToken" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
+        <a class="mdi-social-share" ng-class="{red: fileDao.sharing === 'rw', blue: fileDao.sharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
     </cl-button>
 </div>

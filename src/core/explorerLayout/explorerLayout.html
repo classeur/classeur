@@ -2,8 +2,12 @@
     <div class="explorer container panel">
         <div class="header" layout="column" layout-align="space-between">
             <div class="bottom" layout="row" layout-align="space-between end">
-                <div class="logo">
-                    <img src="images/logo.png" height="60">
+                <div class="classeur selector" layout="row" layout-align="start end">
+                    <div class="logo no-overflow">
+                        <img src="images/logo.png" height="60">
+                    </div>
+                    <div>
+                    </div>
                 </div>
                 <div class="links" flex>
                     <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
@@ -48,11 +52,15 @@
                         </md-button>
                     </div>
 
-                    <div class="nav" layout="row" ng-switch-when="false" layout-align="center center">
+                    <div ng-switch-when="false">
+
+                    <div class="nav" layout="row" layout-align="center center">
                         <md-input-container md-theme="classeur" flex>
                             <input class="folder name" value="Available offline" disabled>
                         </md-input-container>
+                    </div>
 
+                    <cl-recent-alert></cl-recent-alert>
                     </div>
 
                     <div class="new-file actions" layout="row" layout-align="end">

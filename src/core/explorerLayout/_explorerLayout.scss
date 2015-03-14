@@ -1,4 +1,11 @@
 .explorer.background {
+    .classeur.selector {
+        font-size: 32px;
+        .logo {
+            // width: 48px;
+            height: 64px;
+        }
+    }
     .explorer.container {
         left: 50%;
         min-height: 100%;

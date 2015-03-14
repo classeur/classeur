@@ -246,9 +246,9 @@ angular.module('classeur.core.files', [])
 					clFileSvc.fileMap[change.id] = fileDao;
 					clFileSvc.fileIds.push(change.id);
 				}
-				fileDao.name = change.name;
-				fileDao.folderId = change.folderId;
-				fileDao.sharing = change.sharing;
+				fileDao.name = change.name || '';
+				fileDao.folderId = change.folderId || '';
+				fileDao.sharing = change.sharing || '';
 				fileDao.write(change.updated);
 			});
 			init();

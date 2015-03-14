@@ -10,7 +10,7 @@ angular.module('classeur.extensions.offlineAlert', [])
 					setFlag();
 				}, 3000);
 				function setFlag() {
-					scope.show = !clSocketSvc.isReady && !timeoutId;
+					scope.show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && !timeoutId);
 				}
 				scope.$watch('socketSvc.isReady', setFlag);
 			}

@@ -1,0 +1,17 @@
+.recent-alert.panel {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    left: 10px;
+    top: -10px;
+    font-size: 14px;
+    cursor: auto;
+
+    p {
+        line-height: 1.3;
+    }
+
+    .content.panel {
+        padding: 15px 20px;
+    }
+}

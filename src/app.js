@@ -31,6 +31,7 @@ angular.module('classeur.app', [
 		'classeur.extensions.htmlSanitizer',
 		'classeur.extensions.offlineAlert',
 		'classeur.extensions.readOnlyAlert',
+		'classeur.extensions.recentAlert',
 		'classeur.extensions.urlDialog',
 		'classeur.extensions.markdownExtra',
 		'classeur.extensions.mathJax',

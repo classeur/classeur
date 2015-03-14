@@ -134,7 +134,7 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.lastFolderSeq = change.seq;
 				});
 				expectedFolderDeletions.forEach(function(id) {
-					// Assume folder has been deleted, even if the server doesn't tell anything
+					// Assume folders have been deleted, even if the server doesn't tell anything
 					delete syncDataStore.folders[id];
 				});
 				if (foldersToUpdate.length) {
@@ -226,7 +226,7 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.lastFileSeq = change.seq;
 				});
 				expectedFileDeletions.forEach(function(id) {
-					// Assume file has been deleted, even if the server doesn't tell anything
+					// Assume files have been deleted, even if the server doesn't tell anything
 					delete syncDataStore.files[id];
 				});
 				if (filesToUpdate.length) {
@@ -302,6 +302,7 @@ angular.module('classeur.core.sync', [])
 							id: fileDao.id,
 							txt: fileDao.contentDao.txt || '\n'
 						});
+						lastCreateFileActivity = Date.now();
 					});
 				});
 			}
