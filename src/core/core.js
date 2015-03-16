@@ -48,7 +48,10 @@ angular.module('classeur.core', [])
 				template: '<cl-new-user-form></cl-new-user-form>'
 			})
 			.otherwise({
-				template: '<cl-explorer-layout></cl-explorer-layout>'
+				template: '<cl-explorer-layout></cl-explorer-layout>',
+				controller: function(clExplorerLayoutSvc) {
+					clExplorerLayoutSvc.init();
+				}
 			});
 
 	})
@@ -74,7 +77,7 @@ angular.module('classeur.core', [])
 			}
 		});
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl, clConstants) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl, clConstants) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -83,13 +86,14 @@ angular.module('classeur.core', [])
 		$rootScope.editorSvc = clEditorSvc;
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
+		$rootScope.classeurSvc = clClasseurSvc;
 		$rootScope.socketSvc = clSocketSvc;
 		$rootScope.userSvc = clUserSvc;
 		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
 
 		function saveAll() {
-			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll();
+			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
 			return hasChanged;
 		}
 
@@ -183,7 +187,7 @@ angular.module('classeur.core', [])
 		clSetInterval(function() {
 			var hasChanged = saveAll();
 			hasChanged && $rootScope.$apply();
-		}, 1000);
+		}, 1100);
 
 		$window.addEventListener('beforeunload', function(evt) {
 			saveAll();

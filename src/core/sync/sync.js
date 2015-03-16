@@ -556,7 +556,7 @@ angular.module('classeur.core.sync', [])
 			if (syncDataStore.fileSyncReady && Date.now() - lastCreateFileActivity > createFileTimeout) {
 				sendNewFiles();
 			}
-		}, 1000, false, true);
+		}, 1100, false, true);
 
 		$rootScope.$watch('currentFileDao', function(currentFileDao) {
 			if (clUserSvc.isOnline()) {
@@ -573,7 +573,7 @@ angular.module('classeur.core.sync', [])
 			}
 			watchContent($rootScope.currentFileDao);
 			sendContentChange();
-		}, 500, true);
+		}, 250, true);
 
 		var clSyncSvc = {};
 		return clSyncSvc;

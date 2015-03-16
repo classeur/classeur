@@ -45,9 +45,9 @@ angular.module('classeur.core.folders', [])
 				var keyPrefix = /^F\.(\w+)\.(\w+)/;
 				for (var key in localStorage) {
 					var match = key.match(keyPrefix);
-					if(match) {
+					if (match) {
 						var folderDao = clFolderSvc.folderMap[match[1]];
-						if(!folderDao || !authorizedKeys.hasOwnProperty(match[2])) {
+						if (!folderDao || !authorizedKeys.hasOwnProperty(match[2])) {
 							localStorage.removeItem(key);
 						}
 					}
@@ -76,7 +76,7 @@ angular.module('classeur.core.folders', [])
 				}
 			});
 
-			if(checkFolderSvcUpdate || checkFolderUpdate) {
+			if (checkFolderSvcUpdate || checkFolderUpdate) {
 				init();
 				return true;
 			}
@@ -101,11 +101,10 @@ angular.module('classeur.core.folders', [])
 		function updateFolders(changes) {
 			changes.forEach(function(change) {
 				var folderDao = clFolderSvc.folderMap[change.id];
-				if(change.deleted && folderDao) {
+				if (change.deleted && folderDao) {
 					var index = clFolderSvc.folders.indexOf(folderDao);
 					clFolderSvc.folderIds.splice(index, 1);
-				}
-				else if(!folderDao) {
+				} else if (!folderDao) {
 					folderDao = new FolderDao(change.id);
 					clFolderSvc.folderMap[change.id] = folderDao;
 					clFolderSvc.folderIds.push(change.id);

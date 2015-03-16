@@ -1,0 +1,22 @@
+<div class="tile content panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 4)" ng-click="open()">
+    <div class="tab-1" ng-class="'plastic-' + (($index + 1) % 4)"></div>
+    <div class="tab-2" ng-class="'plastic-' + (($index + 2) % 4)"></div>
+    <div class="name">
+        <md-input-container>
+            <textarea ng-model="classeur.name" ng-blur="setEditing(false)" ng-disabled="!isEditing" columns="1" rows="1"></textarea>
+        </md-input-container>
+    </div>
+    <div class="info" ng-switch="classeur.folders.length > 1">
+        <div ng-show="classeur.isDefault">default</div>
+        <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
+        <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
+    </div>
+    <div class="footer panel">
+        <cl-button ng-if="!classeur.isDefault" class="remove classeur btn">
+            <a class="mdi-action-delete" ng-click="removeClasseur(classeur)" aria-label="Remove classeur" title="Remove classeur"></a>
+        </cl-button>
+        <cl-button class="edit classeur btn" active="isEditing">
+            <a class="mdi-editor-mode-edit" ng-click="setEditing(true)" aria-label="Edit name" title="Edit name"></a>
+        </cl-button>
+    </div>
+</div>

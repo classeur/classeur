@@ -8,6 +8,7 @@ angular.module('classeur.app', [
 		'classeur.templates',
 		'classeur.core',
 		'classeur.core.button',
+		'classeur.core.classeurs',
 		'classeur.core.constants',
 		'classeur.core.explorerLayout',
 		'classeur.core.docs',

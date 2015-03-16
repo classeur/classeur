@@ -60,7 +60,7 @@ angular.module('classeur.core.user', [])
                     ids: userIds,
                 });
             }
-        }, 1000, true);
+        }, 1100, true);
 
         clSocketSvc.addMsgHandler('userInfo', function(msg) {
             msg.users.forEach(function(user) {

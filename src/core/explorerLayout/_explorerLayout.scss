@@ -1,9 +1,24 @@
 .explorer.background {
     .classeur.selector {
-        font-size: 32px;
+        font-size: 38px;
+        letter-spacing: -0.04em;
+        font-weight: 300;
+        white-space: nowrap;
+        cursor: pointer;
         .logo {
-            // width: 48px;
+            width: 48px;
             height: 64px;
+            margin-right: 6px;
+        }
+        button {
+            font-size: 34px;
+            height: 42px;
+            width: 50px;
+        }
+        .toggle.icon {
+            position: relative;
+            height: 38px;
+            padding: 0 7px;
         }
     }
     .explorer.container {
@@ -30,6 +45,7 @@
     .links {
         font-size: 13px;
         text-align: right;
+        min-width: 190px;
         .md-button {
             padding: 4px;
         }
@@ -54,7 +70,7 @@
     .folder.content {
         padding: 30px 40px 110px;
         border-radius: 6px;
-        background-color: transparentize(#fff, 0.75);
+        background-color: rgba(255, 255, 255, 0.2);
     }
     .folder.name {
         font-size: 30px;
@@ -197,4 +213,100 @@
             }
         }
     }
+    .classeur.list {
+        .scroller {
+            overflow: auto;
+            padding: 0 50px 200px 0;
+            right: -50px;
+        }
+        .tile.content::before, .tab-1, .tab-2 {
+            content: '';
+            width: 10px;
+            right: -10px;
+            position: absolute;
+            top: 6px;
+            height: 40px;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .tab-1 {
+            top: 45px;
+            z-index: -1;
+        }
+        .tab-2 {
+            top: 84px;
+            z-index: -2;
+        }
+        .tile.container {
+            width: 33%;
+            height: 220px;
+            margin: 15px 0;
+            float: left;
+            position: relative;
+            @media screen and (max-width: 640px) {
+                width: 50%;
+            }
+            @media screen and (max-width: 480px) {
+                width: auto;
+                float: none;
+            }
+        }
+        .tile.content {
+            width: 84%;
+            left: 8%;
+            top: 0;
+            cursor: pointer;
+            &.new {
+                cursor: auto;
+            }
+            .name {
+                padding: 2px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.2);
+                margin: 25px 10px 15px;
+                font-size: 20px;
+                textarea {
+                    text-align: center;
+                    &:disabled {
+                        cursor: pointer;
+                        color: rgba(0, 0, 0, 0.87);
+                    }
+                }
+                md-input-container {
+                    padding-bottom: 2px;
+                }
+            }
+            &::before {
+                background-color: inherit;
+                width: 12px;
+                right: -12px;
+            }
+            .info {
+                text-align: center;
+                font-size: 12px;
+                line-height: 16px;
+                font-style: italic;
+                color: rgba(0, 0, 0, 0.35);
+            }
+        }
+        .footer.panel {
+            height: 42px;
+            font-size: 24px;
+            background-color: rgba(255, 255, 255, 0.2);
+            text-align: center;
+            cursor: auto;
+            .btn-panel {
+                height: 42px;
+                width: 34px;
+                display: inline-block;
+                position: static;
+                a {
+                    line-height: 42px;
+                }
+            }
+        }
+    }
+}
+.new.classeur.dialog {
+    min-width: 320px;
 }

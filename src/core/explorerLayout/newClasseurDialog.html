@@ -1,0 +1,17 @@
+<md-dialog class="new classeur dialog">
+    <md-content>
+        <h1>New classeur</h1>
+        <md-input-container>
+            <label>Name</label>
+            <input class="name" ng-model="name">
+        </md-input-container>
+    </md-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="create()" class="md-primary">
+            Create
+        </md-button>
+    </div>
+</md-dialog>

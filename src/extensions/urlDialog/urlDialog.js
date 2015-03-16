@@ -17,11 +17,10 @@ angular.module('classeur.extensions.urlDialog', [])
 			var inputElt = element[0].querySelector('input');
 			inputElt.addEventListener('keydown', function(e) {
 				// Check enter key
-				if(e.which !== 13) {
-					return;
+				if(e.which === 13) {
+					e.preventDefault();
+					scope.ok();
 				}
-				e.preventDefault();
-				scope.ok();
 			});
 			scope.focus = function() {
 				setTimeout(function() {

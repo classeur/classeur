@@ -2,11 +2,15 @@
     <div class="explorer container panel">
         <div class="header" layout="column" layout-align="space-between">
             <div class="bottom" layout="row" layout-align="space-between end">
-                <div class="classeur selector" layout="row" layout-align="start end">
+                <div class="classeur selector" layout="row" layout-align="start end" ng-click="explorerLayoutSvc.toggleExplorer()">
                     <div class="logo no-overflow">
                         <img src="images/logo.png" height="60">
                     </div>
-                    <div>
+                    <div class="no-overflow" flex>
+                        {{explorerLayoutSvc.currentClasseurDao.name}}
+                    </div>
+                    <div class="toggle icon">
+                        <span class="mdi-hardware-keyboard-arrow-down"></span>
                     </div>
                 </div>
                 <div class="links" flex>
@@ -33,6 +37,24 @@
                 </div>
             </div>
         </div>
+        <div class="classeur list panel no-overflow">
+            <div class="scroller panel">
+                <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs">
+                    <cl-classeur-entry></cl-classeur-entry>
+                </div>
+                <div class="tile container">
+                    <div class="new tile content panel md-whiteframe-z1" ng-class="'plastic-' + ((classeurSvc.classeurs.length) % 4)">
+                        <div class="tab-1" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 1) % 4)"></div>
+                        <div class="tab-2" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 2) % 4)"></div>
+                        <div class="footer panel">
+                            <cl-button>
+                                <a class="mdi-content-add" ng-click="createClasseur()" aria-label="Create classeur" title="Create classeur"></a>
+                            </cl-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
 
             <div class="hole panel background first"></div>
@@ -52,15 +74,10 @@
                         </md-button>
                     </div>
 
-                    <div ng-switch-when="false">
-
-                    <div class="nav" layout="row" layout-align="center center">
+                    <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
                         <md-input-container md-theme="classeur" flex>
                             <input class="folder name" value="Available offline" disabled>
                         </md-input-container>
-                    </div>
-
-                    <cl-recent-alert></cl-recent-alert>
                     </div>
 
                     <div class="new-file actions" layout="row" layout-align="end">
@@ -71,6 +88,7 @@
                             <span class="mdi-content-add"></span> Import
                         </md-button>
                     </div>
+
                     <div class="folder content" ng-if="explorerLayoutSvc.files.length">
 
                         <div class="file actions" ng-switch="hasSelection()">
@@ -95,6 +113,8 @@
                             <cl-file-entry cl-file-dragging-src ng-switch-when="true"></cl-file-entry>
                             <cl-public-file-entry ng-switch-when="false"></cl-public-file-entry>
                         </div>
+
+                        <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
 
                     </div>
 
