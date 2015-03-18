@@ -121,7 +121,7 @@ Insert a table of contents using the marker `[TOC]`.
 
 ## MathJax
 
-Render *LaTeX* mathematical expressions using **MathJax**:
+Render *LaTeX* mathematical expressions using [MathJax](https://www.mathjax.org/):
 
 The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
 

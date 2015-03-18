@@ -1,106 +1,105 @@
 .preview.container {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	overflow-y: scroll;
-	* {
-		line-height: 1.45;
-	}
-	img {
-		max-width: 100%;
-	}
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    overflow-y: scroll;
+    * {
+        line-height: 1.45;
+    }
+    img {
+        max-width: 100%;
+    }
 }
-
 .preview.content {
-	margin: 0;
-	padding: {
-		bottom: 360px;
-		left: 1060px;
-		right: 1020px;
-	}
-	& > .filename.space {
-		min-height: 43px;
-		font-size: 32px;
-		text-transform: uppercase;
-		border-bottom: 1px solid rgba(128,128,128,0.25);
-		padding: 5px 0;
-		line-height: 1;
-		text-align: right;
-		letter-spacing: -0.04em;
-		margin-bottom: 30px;
-		visibility: hidden;
-	}
-	.classeur-preview-section {
-		text-align: justify;
-	}
+    margin: 0;
+    padding: {
+        bottom: 360px;
+        left: 1060px;
+        right: 1020px;
+    }
+    & > .filename.space {
+        min-height: 43px;
+        font-size: 32px;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        padding: 5px 0;
+        line-height: 1;
+        text-align: right;
+        letter-spacing: -0.04em;
+        margin-bottom: 30px;
+        visibility: hidden;
+    }
+    .classeur-preview-section {
+        text-align: justify;
+    }
 }
-
 a {
-	color: $link-color;
+    color: $link-color;
 }
-
 code, kbd, pre, samp {
-	font-family: $font-family-monospace;
-	font-size: $font-size-monospace;
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
 }
-
 blockquote {
-	font-weight: 300;
+    font-weight: 300;
 }
-
 code {
-	padding: 2px 4px;
-	background-color: $code-bg;
-	border-radius: $border-radius-base;
+    padding: 2px 4px;
+    background-color: $code-bg;
+    border-radius: $border-radius-base;
 }
-
 hr {
-	border: 0;
-	border-top: 1px solid rgba(128,128,128,0.2);
+    border: 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
 }
-
 pre.prettyprint {
-	color: black;
-	padding: 0;
-	border: 0;
+    color: black;
+    padding: 0;
+    border: 0;
 }
-
 pre > code {
-	display: block;
-	overflow-x: auto;
-	padding: 0.5em;
-	background: #f0f0f0;
-	text-shadow: 0 1px white;
-	-webkit-text-size-adjust: none;
+    display: block;
+    overflow-x: auto;
+    padding: 0.5em;
+    background: #f0f0f0;
+    text-shadow: 0 1px white;
+    -webkit-text-size-adjust: none;
 }
-
 .toc ul {
-	list-style-type: none;
-	padding-left: 20px;
+    list-style-type: none;
+    padding-left: 20px;
 }
-
 table {
-	border-spacing: 0;
-	border-collapse: collapse;
-	background-color: transparent;
+    border-spacing: 0;
+    border-collapse: collapse;
+    background-color: transparent;
 }
-
 td, th {
-	padding: 8px;
+    padding: 8px;
 }
-
 tr:nth-child(even) td {
-	background-color: $code-bg;
+    background-color: $code-bg;
 }
-
 th {
-	background-color: $code-bg;
+    background-color: $code-bg;
 }
-
+kbd {
+    padding: .1em .6em;
+    border: 1px solid rgba(63, 63, 63, 0.25);
+    -webkit-box-shadow: 0 1px 0 rgba(63, 63, 63, 0.25);
+    box-shadow: 0 1px 0 rgba(63, 63, 63, 0.25);
+    font-size: .7em;
+    background-color: #fff;
+    color: #333;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 0 .1em;
+    white-space: nowrap;
+}
 .footnote {
-	vertical-align: top;
-	position: relative;
-	top: -0.25em;
-	font-size: .8em;
+    vertical-align: top;
+    position: relative;
+    top: -0.25em;
+    font-size: .8em;
 }

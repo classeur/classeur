@@ -1,24 +1,33 @@
 angular.module('classeur.extensions.sharingDialog', [])
-	.directive('clSharingDialog', function($mdDialog, clConstants, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl) {
+	.directive('clSharingDialog', function($mdDialog, clConstants, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc) {
 		return {
 			restrict: 'E',
 			link: function(scope) {
-				function closeDialog() {
-					clEditorLayoutSvc.currentControl = undefined;
-					clExplorerLayoutSvc.sharingDialogFileDao = undefined;
-					clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
-				}
 
-				function showDialog(objectDao, sharingUrl, isFile) {
+				function showDialog(objectDao, sharingUrl, isFile, folderDao) {
+					function closeDialog() {
+						if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
+							objectDao.sharing = objectDao.effectiveSharing;
+						} else {
+							objectDao.sharing = '';
+						}
+						clEditorLayoutSvc.currentControl = undefined;
+						clExplorerLayoutSvc.sharingDialogFileDao = undefined;
+						clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
+					}
 					$mdDialog.show({
 						templateUrl: 'extensions/sharingDialog/sharingDialog.html',
 						controller: function(scope) {
 							scope.isFile = isFile;
 							scope.objectDao = objectDao;
+							scope.folderDao = folderDao;
 						},
 						onComplete: function(scope, element) {
-							scope.close = function() {
+							scope.openFolder = function() {
 								$mdDialog.hide();
+							};
+							scope.close = function() {
+								$mdDialog.cancel();
 							};
 
 							var inputElt = element[0].querySelector('input.url');
@@ -32,18 +41,29 @@ angular.module('classeur.extensions.sharingDialog', [])
 								setTimeout(select, 100);
 							});
 						}
-					}).then(closeDialog, closeDialog);
+					}).then(function() {
+						closeDialog();
+						if (folderDao) {
+							showFolderDialog(folderDao);
+						}
+					}, closeDialog);
 				}
 
 				function showFileDialog(fileDao, anchor) {
+					fileDao.effectiveSharing = fileDao.sharing;
+					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
+					if (folderDao && folderDao.sharing > fileDao.sharing) {
+						fileDao.effectiveSharing = folderDao.sharing;
+					}
 					var sharingUrl = clConstants.serverUrl + '/#!' + clUrl.file(fileDao, clUserSvc.user);
 					if (anchor) {
 						sharingUrl += '#' + anchor;
 					}
-					showDialog(fileDao, sharingUrl, true);
+					showDialog(fileDao, sharingUrl, true, folderDao);
 				}
 
 				function showFolderDialog(folderDao) {
+					folderDao.effectiveSharing = folderDao.sharing;
 					var sharingUrl = clConstants.serverUrl + '/#!' + clUrl.folder(folderDao, clUserSvc.user);
 					showDialog(folderDao, sharingUrl);
 				}

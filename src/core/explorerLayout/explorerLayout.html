@@ -1,18 +1,20 @@
 <div class="explorer background panel">
     <div class="explorer container panel">
-        <div class="header" layout="column" layout-align="space-between">
-            <div class="bottom" layout="row" layout-align="space-between end">
-                <div class="classeur selector" layout="row" layout-align="start end" ng-click="explorerLayoutSvc.toggleExplorer()">
-                    <div class="logo no-overflow">
-                        <img src="images/logo.png" height="60">
+        <div class="header">
+            <div layout="row" layout-align="space-between end">
+                <md-button class="classeur selector" ng-click="explorerLayoutSvc.toggleExplorer()">
+                    <div layout="row" layout-align="start end">
+                        <div class="logo no-overflow">
+                            <img src="images/logo.png" height="60">
+                        </div>
+                        <div class="no-overflow" flex>
+                            {{explorerLayoutSvc.currentClasseurDao.name}}
+                        </div>
+                        <div class="toggle icon">
+                            <span class="mdi-hardware-keyboard-arrow-down"></span>
+                        </div>
                     </div>
-                    <div class="no-overflow" flex>
-                        {{explorerLayoutSvc.currentClasseurDao.name}}
-                    </div>
-                    <div class="toggle icon">
-                        <span class="mdi-hardware-keyboard-arrow-down"></span>
-                    </div>
-                </div>
+                </md-button>
                 <div class="links" flex>
                     <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
                         <span class="mdi-action-help"></span> Help
@@ -22,7 +24,7 @@
                     </md-button>
                 </div>
             </div>
-            <div class="top" layout="row" layout-align="end start">
+            <div layout="row" layout-align="end start">
                 <div ng-if="!socketSvc.hasToken">
                     <md-button ng-click="signin()">
                         Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
@@ -74,7 +76,7 @@
                                 <a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder" aria-label="Delete folder"></a>
                             </md-button>
                             <md-button ng-if="socketSvc.hasToken" class="share folder btn" md-no-ink>
-                                <a class="mdi-social-share" ng-class="{red: explorerLayoutSvc.currentFolderDao.sharing === 'rw', blue: explorerLayoutSvc.currentFolderDao.sharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder" title="Share folder"></a>
+                                <a class="mdi-social-share" ng-class="{red: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', blue: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder" title="Share folder"></a>
                             </md-button>
                         </div>
                     </div>

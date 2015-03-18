@@ -1,6 +1,9 @@
 .explorer.background {
     .classeur.selector {
+        padding: 8px 0 0;
+        height: 100%;
         font-size: 38px;
+        text-transform: none;
         letter-spacing: -0.04em;
         font-weight: 300;
         white-space: nowrap;
@@ -33,19 +36,17 @@
         & > div {
             position: absolute;
             width: 100%;
-        }
-        .top {
             top: 0;
-        }
-        .bottom {
-            bottom: 0;
+            &:first-child {
+                height: 100%;
+            }
         }
     }
     .links {
         font-size: 13px;
         text-align: right;
         min-width: 190px;
-        padding-bottom: 3px;
+        padding-bottom: 2px;
         .md-button {
             padding: 3px;
         }
@@ -202,8 +203,8 @@
                 font-size: 14px;
                 .rotate-90 {
                     position: absolute;
-                    width: 110px;
-                    left: -22px;
+                    width: 100px;
+                    left: -18px;
                     height: 0;
                 }
             }

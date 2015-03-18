@@ -274,6 +274,7 @@ angular.module('classeur.core.explorerLayout', [])
 							clExplorerLayoutSvc.setCurrentFolder(currentFolderDao);
 						}
 					}
+
 					if (!filesToRemove.length) {
 						// No confirmation
 						return remove();
@@ -348,6 +349,7 @@ angular.module('classeur.core.explorerLayout', [])
 					scope.selectNone();
 					setPlasticClass();
 				});
+				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
 				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
 
 				scope.$watch('explorerLayoutSvc.isExplorerOpen', animateLayout);
@@ -399,6 +401,20 @@ angular.module('classeur.core.explorerLayout', [])
 				} : function(fileDao1, fileDao2) {
 					return fileDao1.contentDao.lastChange < fileDao2.contentDao.lastChange;
 				});
+			setEffectiveSharing();
+		}
+
+		function setEffectiveSharing() {
+			if(clExplorerLayoutSvc.currentFolderDao) {
+				clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
+			}
+			clExplorerLayoutSvc.files.forEach(function(fileDao) {
+				fileDao.effectiveSharing = fileDao.sharing;
+				var folderDao = clFolderSvc.folderMap[fileDao.folderId];
+				if (folderDao && folderDao.sharing > fileDao.sharing) {
+					fileDao.effectiveSharing = folderDao.sharing;
+				}
+			});
 		}
 
 		function setCurrentClasseur(classeurDao) {
@@ -423,6 +439,7 @@ angular.module('classeur.core.explorerLayout', [])
 			createFolder: createFolder,
 			refreshFolders: refreshFolders,
 			refreshFiles: refreshFiles,
+			setEffectiveSharing: setEffectiveSharing,
 			setCurrentClasseur: setCurrentClasseur,
 			setCurrentFolder: setCurrentFolder,
 			init: function() {
