@@ -8,28 +8,30 @@ angular.module('classeur.core.classeurs', [])
 			this.folderIds = [];
 		}
 
+		clClasseurSvc.serializer = function(data) {
+			return JSON.stringify(data, function(id, value) {
+				return id[0] === '$' || id === 'folders' ? undefined : value;
+			});
+		};
+
 		clClasseurSvc.read = function() {
 			this.$readAttr('classeurs', '[]', JSON.parse);
 			this.$readLocalUpdate();
 		};
 
 		clClasseurSvc.write = function(updated) {
-			this.$writeAttr('classeurs', function(data) {
-				return JSON.stringify(data, function(id, value) {
-					return id === 'folders' ? undefined : value;
-				});
-			}, updated);
+			this.$writeAttr('classeurs', clClasseurSvc.serializer, updated);
 		};
 
 		function init() {
 			clClasseurSvc.defaultClasseur = undefined;
 			clClasseurSvc.classeurs.some(function(classeur) {
-				if(classeur.isDefault) {
+				if (classeur.isDefault) {
 					clClasseurSvc.defaultClasseur = classeur;
 					return true;
 				}
 			});
-			if(!clClasseurSvc.defaultClasseur) {
+			if (!clClasseurSvc.defaultClasseur) {
 				clClasseurSvc.defaultClasseur = new ClasseurDao(clUid(), 'Classeur');
 				clClasseurSvc.classeurs.push(clClasseurSvc.defaultClasseur);
 			}
@@ -41,7 +43,7 @@ angular.module('classeur.core.classeurs', [])
 				classeur.folders = [];
 				classeur.folderIds.forEach(function(folderId) {
 					var folderDao = clFolderSvc.folderMap[folderId];
-					if(folderDao) {
+					if (folderDao) {
 						classeur.folders.push(folderDao);
 						foldersInClasseur[folderId] = true;
 					}
@@ -55,7 +57,7 @@ angular.module('classeur.core.classeurs', [])
 			});
 			clClasseurSvc.defaultClasseur.isDefault = true;
 			clFolderSvc.folders.forEach(function(folderDao) {
-				if(!foldersInClasseur.hasOwnProperty(folderDao.id)) {
+				if (!foldersInClasseur.hasOwnProperty(folderDao.id)) {
 					clClasseurSvc.defaultClasseur.folders.push(folderDao);
 					clClasseurSvc.defaultClasseur.folderIds.push(folderDao.id);
 				}
@@ -72,16 +74,25 @@ angular.module('classeur.core.classeurs', [])
 			}
 		}
 
-		function createClasseur() {
+		function createClasseur(name) {
 			var classeurDao = new ClasseurDao(clUid());
+			classeurDao.name = name;
 			clClasseurSvc.classeurs.push(classeurDao);
 			init();
 			return classeurDao;
 		}
 
+		function removeClasseur(classeurToRemove) {
+			clClasseurSvc.classeurs = clClasseurSvc.classeurs.filter(function(classeurDao) {
+				return classeurDao !== classeurToRemove;
+			});
+			init();
+		}
+
 		clClasseurSvc.init = init;
 		clClasseurSvc.checkAll = checkAll;
 		clClasseurSvc.createClasseur = createClasseur;
+		clClasseurSvc.removeClasseur = removeClasseur;
 
 		clClasseurSvc.read();
 		init();

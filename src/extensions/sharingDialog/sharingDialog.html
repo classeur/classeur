@@ -15,13 +15,21 @@
             <a href="" target="_blank" class="fa fa-linkedin">
             </a>
         </div>
-        <md-radio-group ng-model="fileDao.sharing" ng-if="!fileDao.isReadOnly && !fileDao.userId">
+        <md-radio-group ng-model="objectDao.sharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="">Private</md-radio-button>
             <div class="help">Only you can access the file.</div>
             <md-radio-button value="r">Public (read only)</md-radio-button>
             <div class="help">Anyone with the link can read the file.</div>
             <md-radio-button value="rw">Public (read/write)</md-radio-button>
             <div class="help">Signed-in premium users can modify the file.</div>
+        </md-radio-group>
+        <md-radio-group ng-model="objectDao.sharing" ng-if="!isFile && !objectDao.isReadOnly && !objectDao.userId">
+            <md-radio-button value="">Private</md-radio-button>
+            <div class="help">Only you can access the folder.</div>
+            <md-radio-button value="r">Public (read only)</md-radio-button>
+            <div class="help">Anyone with the link can read the folder.</div>
+            <md-radio-button value="rw">Public (read/write)</md-radio-button>
+            <div class="help">Signed-in premium users can modify the folder.</div>
         </md-radio-group>
     </md-content>
     <div class="md-actions">

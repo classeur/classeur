@@ -1,6 +1,6 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clSettingSvc, clSocketSvc) {
-        clSettingSvc.setDefaultValue('defaultUserName', 'Anonymous');
+    .factory('clUserSvc', function($rootScope, $location, clLocalStorageObject, clSocketSvc) {
+        var clUserSvc = clLocalStorageObject('userSvc');
 
         function signin(token) {
             clSocketSvc.setToken(token);
@@ -10,38 +10,37 @@ angular.module('classeur.core.user', [])
         function signout() {
             clSocketSvc.clearToken();
             clSocketSvc.closeSocket();
-            clUserSvc.user = undefined;
+            clUserSvc.user = null;
         }
 
-        function isOnline() {
-            if(clSocketSvc.checkToken()) {
-                clSocketSvc.openSocket();
-                return clSocketSvc.isReady;
-            }
-            clSocketSvc.closeSocket();
-            if(clUserSvc.user) {
-                clUserSvc.user = undefined;
-                $rootScope.$evalAsync();
+        clUserSvc.read = function() {
+            this.$readAttr('user', null, JSON.parse);
+            this.$readLocalUpdate();
+        };
+
+        clUserSvc.write = function(updated) {
+            this.$writeAttr('user', JSON.stringify, updated);
+        };
+
+        function checkAll() {
+            if (clUserSvc.$checkGlobalUpdate()) {
+                clUserSvc.read();
+                return true;
+            } else {
+                clUserSvc.write();
             }
         }
 
-        clSocketSvc.addMsgHandler('signedInUser', function(msg, ctx) {
-            clUserSvc.user = msg.user;
-            ctx.user = msg.user;
-            clUserSvc.lastUserInfo = Date.now();
-            $rootScope.$evalAsync();
-        });
+        clUserSvc.read();
 
         clSocketSvc.addMsgHandler('invalidToken', function() {
             signout();
             $rootScope.$evalAsync();
         });
 
-        var clUserSvc = {
-            signin: signin,
-            signout: signout,
-            isOnline: isOnline,
-        };
+        clUserSvc.signin = signin;
+        clUserSvc.signout = signout;
+        clUserSvc.checkAll = checkAll;
 
         return clUserSvc;
     })
@@ -72,17 +71,21 @@ angular.module('classeur.core.user', [])
             $rootScope.$evalAsync();
         });
 
+        $rootScope.$watch('userSvc.user', function(user) {
+            if (user) {
+                clUserInfoSvc.users[user.id] = {
+                    id: user.id,
+                    name: user.name
+                };
+                clUserInfoSvc.lastUserInfo = Date.now();
+            }
+        });
+
         var clUserInfoSvc = {
             users: {},
             request: function(id) {
                 if (!clUserInfoSvc.hasOwnProperty(id)) {
-                    if (clUserSvc.user && clUserSvc.user.id === id) {
-                        clUserInfoSvc.users[clUserSvc.user.id] = {
-                            id: clUserSvc.user.id,
-                            name: clUserSvc.user.name
-                        };
-                    }
-                    else {
+                    if (!clUserSvc.user || clUserSvc.user.id !== id) {
                         requestedUserInfo[id] = true;
                     }
                 }

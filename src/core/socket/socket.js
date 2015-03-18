@@ -70,6 +70,14 @@ angular.module('classeur.core.socket', [])
 			clSocketSvc.ctx = undefined;
 		}
 
+		function isOnline() {
+			if (checkToken()) {
+                openSocket();
+                return clSocketSvc.isReady;
+            }
+            closeSocket();
+		}
+
 		function sendMsg(msg) {
 			clSocketSvc.isReady && socket.send(JSON.stringify(msg));
 		}
@@ -80,8 +88,9 @@ angular.module('classeur.core.socket', [])
 			msgHandlers[type] = typeHandlers;
 		}
 
-		addMsgHandler('signedInUser', function(msg) {
-			msg.token && setToken(msg.token);
+		addMsgHandler('userToken', function(msg, ctx) {
+			ctx.userId = msg.userId;
+			setToken(msg.token);
 			clSocketSvc.isReady = true;
 		});
 
@@ -89,9 +98,9 @@ angular.module('classeur.core.socket', [])
 			hasToken: false,
 			setToken: setToken,
 			clearToken: clearToken,
-			checkToken: checkToken,
 			openSocket: openSocket,
 			closeSocket: closeSocket,
+			isOnline: isOnline,
 			sendMsg: sendMsg,
 			addMsgHandler: addMsgHandler
 		};

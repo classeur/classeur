@@ -1,0 +1,18 @@
+<md-dialog class="delete classeur dialog">
+    <md-content>
+        <h1>Delete classeur</h1>
+        <p>Some folders are not linked to any other classeur.</p>
+        <p>Do you want to delete these folders or move them to the default classeur?</p>
+    </md-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="move()">
+            Move
+        </md-button>
+        <md-button ng-click="remove()" class="md-primary">
+            Delete
+        </md-button>
+    </div>
+</md-dialog>

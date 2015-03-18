@@ -57,10 +57,8 @@ md-slider.md-default-theme .md-thumb:after {
 	box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
 }
 
-md-dialog.transition-out {
-	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-	-webkit-transform: scale(0.8);
-	transform: scale(0.8);
+md-dialog.transition-in, md-dialog.transition-out {
+	transition: all 1ms;
 }
 
 md-dialog.md-default-theme {

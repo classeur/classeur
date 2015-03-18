@@ -92,11 +92,6 @@ angular.module('classeur.core', [])
 		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
 
-		function saveAll() {
-			var hasChanged = clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
-			return hasChanged;
-		}
-
 		function loadFile(fileDao) {
 			unloadCurrentFile();
 			$rootScope.currentFileDao = fileDao;
@@ -153,6 +148,10 @@ angular.module('classeur.core', [])
 			$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
 		}
 
+		function saveAll() {
+			return clUserSvc.checkAll() | clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
+		}
+
 		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.loadFile = loadFile;
@@ -185,8 +184,7 @@ angular.module('classeur.core', [])
 		});
 
 		clSetInterval(function() {
-			var hasChanged = saveAll();
-			hasChanged && $rootScope.$apply();
+			saveAll() && $rootScope.$apply();
 		}, 1100);
 
 		$window.addEventListener('beforeunload', function(evt) {

@@ -124,7 +124,7 @@ angular.module('classeur.extensions.commenting', [])
 			this.endMarker = new Marker(discussionDao.end);
 			this.comments = discussionDao.comments.map(function(commentModelObject) {
 				return {
-					user: fileDao.users[commentModelObject.user] || clSettingSvc.values.defaultUserName,
+					user: fileDao.users[commentModelObject.user],
 					content: commentModelObject.content
 				};
 			});

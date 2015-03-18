@@ -30,6 +30,7 @@ Insert a horizontal rule by putting three or more `-`, `*`, or `_` on a line by 
 
 ----------
 
+
 # Lists
 
 ## Unordered lists
@@ -65,7 +66,7 @@ Indent four spaces or a tab to format text as its own distinct block.
 
 Use triple backticks including the language identifier to have syntax highlighting.
 
-```javascript
+```js
 var foo = 'bar'; // baz
 ```
 
@@ -120,7 +121,7 @@ Insert a table of contents using the marker `[TOC]`.
 
 ## MathJax
 
-Render *LaTeX* mathematical expressions using **MathJax** as on StackExchange:
+Render *LaTeX* mathematical expressions using **MathJax**:
 
 The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
 

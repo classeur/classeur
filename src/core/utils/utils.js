@@ -267,7 +267,7 @@ angular.module('classeur.core.utils', [])
 		$window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
 	})
-	.factory('clSetInterval', function($window, clUserSvc) {
+	.factory('clSetInterval', function($window, clSocketSvc) {
 		var lastFocus, lastFocusKey = 'lastWindowFocus';
 
 		function setLastFocus() {
@@ -278,12 +278,13 @@ angular.module('classeur.core.utils', [])
 		function isWindowFocus() {
 			return localStorage[lastFocusKey] == lastFocus;
 		}
+
 		setLastFocus();
 		$window.addEventListener('focus', setLastFocus);
-		return function(cb, interval, checkUserOnline, checkWindowFocus) {
+		return function(cb, interval, checkOnline, checkWindowFocus) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
 			setInterval(function() {
-				(!checkUserOnline || clUserSvc.isOnline()) && (!checkWindowFocus || isWindowFocus()) && cb();
+				(!checkOnline || clSocketSvc.isOnline()) && (!checkWindowFocus || isWindowFocus()) && cb();
 			}, interval);
 		};
 	})
@@ -295,6 +296,14 @@ angular.module('classeur.core.utils', [])
 					return '/file/' + (userId && userId + '/') + fileDao.id;
 				} else if (fileDao.fileName) {
 					return '/doc/' + fileDao.fileName;
+				} else {
+					return '';
+				}
+			},
+			folder: function(folderDao, user) {
+				var userId = folderDao.userId || (user && user.id) || '';
+				if (folderDao.id) {
+					return '/folder/' + (userId && userId + '/') + folderDao.id;
 				} else {
 					return '';
 				}

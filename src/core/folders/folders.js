@@ -98,6 +98,20 @@ angular.module('classeur.core.folders', [])
 			return index;
 		}
 
+		function removeFolders(folderDaoList) {
+			if (!folderDaoList.length) {
+				return;
+			}
+			var folderIds = {};
+			folderDaoList.forEach(function(folderDao) {
+				folderIds[folderDao.id] = 1;
+			});
+			clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(folderId) {
+				return !folderIds.hasOwnProperty(folderId);
+			});
+			init();
+		}
+
 		function updateFolders(changes) {
 			changes.forEach(function(change) {
 				var folderDao = clFolderSvc.folderMap[change.id];
@@ -121,6 +135,7 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;
 		clFolderSvc.removeFolder = removeFolder;
+		clFolderSvc.removeFolders = removeFolders;
 		clFolderSvc.updateFolders = updateFolders;
 		clFolderSvc.folderMap = {};
 
