@@ -1,4 +1,3 @@
-$material-font-path: "bower_components/bootstrap-material-design/fonts";
 $plastic-color-0: #6BC3F7;
 $plastic-color-1: #EFD06D;
 $plastic-color-2: #6ED0BF;
@@ -9,10 +8,8 @@ $link-color: #316ED3;
 $editor-margin-width: 120px;
 $font-family: Roboto, 'Helvetica Neue', sans-serif;
 
-@import 'font-awesome';
 @import 'prism';
 @import 'fonts';
-@import 'icons-material-design';
 @import '../core/button/button';
 @import '../core/explorerLayout/explorerLayout';
 @import '../core/editor/editor';

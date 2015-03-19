@@ -1,4 +1,5 @@
 <div class="explorer background panel">
+
     <div class="explorer container panel">
         <div class="header">
             <div layout="row" layout-align="space-between end">
@@ -16,10 +17,10 @@
                     </div>
                 </md-button>
                 <div class="links" flex>
-                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
+                    <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
                         <span class="mdi-action-help"></span> Help
                     </md-button>
-                    <md-button md-no-ink class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
+                    <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
                         <span class="mdi-action-help"></span> Markdown Cheat Sheet
                     </md-button>
                 </div>
@@ -40,6 +41,12 @@
             </div>
         </div>
         <div class="classeur list panel no-overflow">
+            <div class="links">
+                <md-button ng-click="userSvc.signout()" ng-if="socketSvc.hasToken"><span class="mdi-hardware-keyboard-arrow-right"></span> Signout</md-button>
+                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Settings</md-button>
+                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Privacy Policy</md-button>
+                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Terms</md-button>
+            </div>
             <div class="scroller panel">
                 <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs">
                     <cl-classeur-entry></cl-classeur-entry>
@@ -57,6 +64,7 @@
                 </div>
             </div>
         </div>
+
         <div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
 
             <div class="hole panel background first"></div>
@@ -155,8 +163,6 @@
     </div>
 
     <cl-file-dragging></cl-file-dragging>
-
-    <cl-footer></cl-footer>
 </div>
 
 <cl-sharing-dialog></cl-sharing-dialog>

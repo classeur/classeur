@@ -30,6 +30,13 @@
     .explorer.content {
         border-radius: 3px;
     }
+    .links {
+        text-align: right;
+        min-width: 190px;
+        .md-button {
+            padding: 3px;
+        }
+    }
     .header {
         height: 75px;
         position: relative;
@@ -41,14 +48,9 @@
                 height: 100%;
             }
         }
-    }
-    .links {
-        font-size: 13px;
-        text-align: right;
-        min-width: 190px;
-        padding-bottom: 2px;
-        .md-button {
-            padding: 3px;
+        .links {
+            font-size: 13px;
+            padding-bottom: 2px;
         }
     }
     .username {
@@ -208,8 +210,8 @@
                 font-size: 14px;
                 .rotate-90 {
                     position: absolute;
-                    width: 100px;
-                    left: -18px;
+                    width: 110px;
+                    left: -22px;
                     height: 0;
                 }
             }
@@ -233,6 +235,10 @@
         }
     }
     .classeur.list {
+        .links {
+            padding: 20px 0 1px 40px;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+        }
         .scroller {
             overflow: auto;
             padding: 0 50px 200px 0;
