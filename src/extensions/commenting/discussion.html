@@ -1,15 +1,15 @@
 <div class="discussion panel postit no-overflow md-whiteframe-z2">
 	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30">
-		<a class="mdi-content-clear" ng-click="editorLayoutSvc.currentControl = undefined" title="Close discussion" aria-label="Close discussion"></a>
+		<a class="icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" title="Close discussion" aria-label="Close discussion"></a>
 	</cl-button>
 	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" top="30">
-		<a class="mdi-action-delete" ng-click="removeDiscussion(commentingSvc.currentDiscussion)" title="Delete discussion" aria-label="Delete discussion"></a>
+		<a class="icon-delete" ng-click="removeDiscussion(commentingSvc.currentDiscussion)" title="Delete discussion" aria-label="Delete discussion"></a>
 	</cl-button>
 	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" bottom="30">
-		<a class="mdi-navigation-arrow-back" ng-click="" title="Previous discussion" aria-label="Previous discussion"></a>
+		<a class="icon-arrow-back" ng-click="" title="Previous discussion" aria-label="Previous discussion"></a>
 	</cl-button>
 	<cl-button class="discussion btn" opacity="0.2" opacity-hover="0.3" size="30" bottom="0">
-		<a class="mdi-navigation-arrow-forward" ng-click="" title="Next discussion" aria-label="Next discussion"></a>
+		<a class="icon-arrow-forward" ng-click="" title="Next discussion" aria-label="Next discussion"></a>
 	</cl-button>
 	<div class="discussion content">
 	<div ng-repeat="comment in commentingSvc.currentDiscussion.comments" class="comment">

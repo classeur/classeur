@@ -9,14 +9,14 @@ angular.module('classeur.extensions.btnBar', [])
 		clSettingSvc.setDefaultValue('btnBar', true);
 
 		var btns = [{
-			icon: 'mdi-editor-format-bold',
+			icon: 'icon-format-bold',
 			label: 'Bold',
 			keystroke: 'Ctrl/Cmd+B',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('bold');
 			}
 		}, {
-			icon: 'mdi-editor-format-italic',
+			icon: 'icon-format-ital',
 			label: 'Italic',
 			keystroke: 'Ctrl/Cmd+I',
 			click: function() {
@@ -24,28 +24,28 @@ angular.module('classeur.extensions.btnBar', [])
 			}
 		}, {
 			separator: true,
-			icon: 'mdi-content-link',
+			icon: 'icon-link',
 			label: 'Link',
 			keystroke: 'Ctrl/Cmd+L',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('link');
 			}
 		}, {
-			icon: 'mdi-editor-format-quote',
+			icon: 'icon-format-quote',
 			label: 'Blockquote',
 			keystroke: 'Ctrl/Cmd+Q',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('quote');
 			}
 		}, {
-			icon: 'mdi-action-settings-ethernet',
+			icon: 'icon-settings-ethernet',
 			label: 'Code',
 			keystroke: 'Ctrl/Cmd+K',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('code');
 			}
 		}, {
-			icon: 'mdi-image-crop-original',
+			icon: 'icon-crop-original',
 			label: 'Image',
 			keystroke: 'Ctrl/Cmd+G',
 			click: function() {
@@ -53,28 +53,28 @@ angular.module('classeur.extensions.btnBar', [])
 			}
 		}, {
 			separator: true,
-			icon: 'mdi-editor-format-list-numbered',
+			icon: 'icon-format-list-numbered',
 			label: 'Numbered list',
 			keystroke: 'Ctrl/Cmd+O',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('olist');
 			}
 		}, {
-			icon: 'mdi-editor-format-list-bulleted',
+			icon: 'icon-format-list-bulleted',
 			label: 'Bullet list',
 			keystroke: 'Ctrl/Cmd+U',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('ulist');
 			}
 		}, {
-			icon: 'mdi-editor-format-size',
+			icon: 'icon-format-size',
 			label: 'Heading',
 			keystroke: 'Ctrl/Cmd+H',
 			click: function() {
 				clEditorSvc.pagedownEditor.uiManager.doClick('heading');
 			}
 		}, {
-			icon: 'mdi-navigation-more-horiz',
+			icon: 'icon-more-horiz',
 			label: 'Horizontal rule',
 			keystroke: 'Ctrl/Cmd+R',
 			click: function() {
@@ -84,7 +84,7 @@ angular.module('classeur.extensions.btnBar', [])
 
 		var undoButton = {
 			separator: true,
-			icon: 'mdi-content-undo',
+			icon: 'icon-undo',
 			label: 'Undo',
 			keystroke: 'Ctrl/Cmd+Z',
 			click: function() {
@@ -93,7 +93,7 @@ angular.module('classeur.extensions.btnBar', [])
 		};
 
 		var redoButton = {
-			icon: 'mdi-content-redo',
+			icon: 'icon-redo',
 			label: 'Redo',
 			keystroke: 'Ctrl/Cmd+Y',
 			click: function() {

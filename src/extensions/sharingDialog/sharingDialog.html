@@ -6,14 +6,14 @@
             <input class="url" ng-model="sharingUrl">
         </md-input-container>
         <div layout="row" layout-align="end" class="sharing">
-            <a href="" target="_blank" class="fa fa-twitter">
-            </a>
-            <a href="" target="_blank" class="fa fa-facebook">
-            </a>
-            <a href="" target="_blank" class="fa fa-google-plus">
-            </a>
-            <a href="" target="_blank" class="fa fa-linkedin">
-            </a>
+            <md-button class="md-fab icon-twitter">
+            </md-button>
+            <md-button class="md-fab icon-facebook">
+            </md-button>
+            <md-button class="md-fab icon-google-plus">
+            </md-button>
+            <md-button class="md-fab icon-linkedin">
+            </md-button>
         </div>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">Private</md-radio-button>
@@ -33,8 +33,8 @@
         </md-radio-group>
     </md-content>
     <div class="md-actions">
-        <div ng-if="folderDao" ng-click="openFolder()">
-            <md-button>See folder</md-button>
+        <div ng-if="folderDao">
+            <md-button ng-click="openFolder()">See folder</md-button>
         </div>
         <md-button ng-click="close()">
             Close

@@ -30,13 +30,6 @@
     .explorer.content {
         border-radius: 3px;
     }
-    .links {
-        text-align: right;
-        min-width: 190px;
-        .md-button {
-            padding: 3px;
-        }
-    }
     .header {
         height: 75px;
         position: relative;
@@ -51,6 +44,11 @@
         .links {
             font-size: 13px;
             padding-bottom: 2px;
+            text-align: right;
+            min-width: 190px;
+            .md-button {
+                padding: 3px;
+            }
         }
     }
     .username {
@@ -215,7 +213,7 @@
                     height: 0;
                 }
             }
-            .mdi-content-add {
+            .icon-add {
                 padding: 0;
                 font-size: 18px;
             }
@@ -234,13 +232,21 @@
             }
         }
     }
-    .classeur.list {
-        .links {
-            padding: 20px 0 1px 40px;
-            border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+    .menu.panel {
+        padding: 0 5px 0 25px;
+        font-size: 14px;
+        bottom: 0;
+        height: auto;
+        border-top: 1px solid rgba(128, 128, 128, 0.15);
+        & > div {
+            float: right;
+            padding-left: 25px;
         }
+    }
+    .classeur.list {
         .scroller {
             overflow: auto;
+            overflow-y: scroll;
             padding: 0 50px 200px 0;
             right: -50px;
         }
@@ -282,9 +288,6 @@
             top: 0;
             border-radius: 2px;
             cursor: pointer;
-            &.new {
-                cursor: auto;
-            }
             .name {
                 padding: 2px;
                 border-radius: 3px;
@@ -315,6 +318,7 @@
             }
         }
         .footer.panel {
+            bottom: 0;
             height: 42px;
             font-size: 24px;
             background-color: rgba(255, 255, 255, 0.2);

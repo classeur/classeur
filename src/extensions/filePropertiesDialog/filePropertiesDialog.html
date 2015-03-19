@@ -1,0 +1,23 @@
+<md-dialog class="file properties dialog">
+    <md-content>
+        <h1>Properties</h1>
+        <div layout="row">
+            <md-input-container>
+                <label>Key</label>
+                <input ng-model="property.key">
+            </md-input-container>
+            <md-input-container>
+                <label>Value</label>
+                <input ng-model="property.value">
+            </md-input-container>
+        </div>
+    </md-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="ok()">
+            Ok
+        </md-button>
+    </div>
+</md-dialog>

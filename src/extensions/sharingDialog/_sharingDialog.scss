@@ -4,29 +4,22 @@
         color: rgba(0, 0, 0, 0.87);
     }
     .sharing {
-        a {
-            background: #205D7A;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            border-radius: 20px;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            margin-left: 3px;
+        button {
+            width: 46px;
+            height: 46px;
+            margin-left: 4px;
         }
-        .fa-facebook {
-            background: #3b5998
+        .icon-facebook {
+            background-color: #3b5998 !important;
         }
-        .fa-linkedin {
-            background: #007bb6
+        .icon-linkedin {
+            background-color: #007bb6 !important;
         }
-        .fa-twitter {
-            background: #00aced
+        .icon-twitter {
+            background-color: #00aced !important;
         }
-        .fa-google-plus {
-            background: #dd4b39
+        .icon-google-plus {
+            background-color: #dd4b39 !important;
         }
     }
     .help {

@@ -6,62 +6,66 @@
                 <md-button class="classeur selector" ng-click="explorerLayoutSvc.toggleExplorer()">
                     <div layout="row" layout-align="start end">
                         <div class="logo no-overflow">
-                            <img src="images/logo.png" height="60">
+                            <img src="bower_components/classets/images/logo.png" height="60">
                         </div>
                         <div class="no-overflow" flex>
                             {{explorerLayoutSvc.currentClasseurDao.name}}
                         </div>
                         <div class="toggle icon">
-                            <span class="mdi-hardware-keyboard-arrow-down"></span>
+                            <span class="icon-keyboard-arrow-down"></span>
                         </div>
                     </div>
                 </md-button>
                 <div class="links" flex>
                     <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="mdi-action-help"></span> Help
+                        <span class="icon-help"></span> Help
                     </md-button>
                     <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="mdi-action-help"></span> Markdown Cheat Sheet
+                        <span class="icon-help"></span> Markdown Cheat Sheet
                     </md-button>
                 </div>
             </div>
             <div layout="row" layout-align="end start">
                 <div ng-if="!socketSvc.hasToken">
                     <md-button ng-click="signin()">
-                        Sign in with Google <span class="mdi-navigation-arrow-forward"></span>
+                        Sign in with Google <span class="icon-arrow-forward"></span>
                     </md-button>
                 </div>
                 <div ng-if="userSvc.user">
                     <span class="username">Hi <b>{{userSvc.user.name}}</b></span>
                     </span>
                     <md-button>
-                        Go premium <span class="mdi-navigation-arrow-forward"></span>
+                        Go premium <span class="icon-arrow-forward"></span>
                     </md-button>
                 </div>
             </div>
         </div>
         <div class="classeur list panel no-overflow">
-            <div class="links">
-                <md-button ng-click="userSvc.signout()" ng-if="socketSvc.hasToken"><span class="mdi-hardware-keyboard-arrow-right"></span> Signout</md-button>
-                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Settings</md-button>
-                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Privacy Policy</md-button>
-                <md-button><span class="mdi-hardware-keyboard-arrow-right"></span> Terms</md-button>
-            </div>
             <div class="scroller panel">
                 <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs">
                     <cl-classeur-entry></cl-classeur-entry>
                 </div>
                 <div class="tile container">
-                    <div class="new tile content panel md-whiteframe-z1" ng-class="'plastic-' + ((classeurSvc.classeurs.length) % 4)">
+                    <div class="new tile content panel md-whiteframe-z1" ng-class="'plastic-' + ((classeurSvc.classeurs.length) % 4)" ng-click="createClasseur()">
                         <div class="tab-1" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 1) % 4)"></div>
                         <div class="tab-2" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 2) % 4)"></div>
                         <div class="footer panel" layout="row" layout-align="center">
                             <cl-button class="btn">
-                                <a class="mdi-content-add" ng-click="createClasseur()" aria-label="Create classeur" title="Create classeur"></a>
+                                <a class="icon-add" ng-click="createClasseur()" aria-label="Create classeur" title="Create classeur"></a>
                             </cl-button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="menu panel background">
+            <div>
+                <md-button class="md-primary"><span class="icon-keyboard-arrow-right"></span> Settings</md-button>
+                <md-button class="md-primary" ng-click="userSvc.signout()" ng-if="socketSvc.hasToken"><span class="icon-keyboard-arrow-right"></span> Signout</md-button>
+            </div>
+            <div>
+                <md-button><span class="icon-keyboard-arrow-right"></span> Privacy Policy</md-button>
+                <md-button><span class="icon-keyboard-arrow-right"></span> Terms</md-button>
             </div>
         </div>
 
@@ -81,10 +85,10 @@
 
                         <div ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder" layout="row">
                             <md-button ng-if="socketSvc.hasToken" class="share folder btn" md-no-ink>
-                                <a class="mdi-social-share" ng-class="{red: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', blue: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder" title="Share folder"></a>
+                                <a class="icon-share" ng-class="{red: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', blue: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder" title="Share folder"></a>
                             </md-button>
                             <md-button class="delete folder btn" md-no-ink>
-                                <a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder" aria-label="Delete folder"></a>
+                                <a class="icon-delete" ng-click="deleteConfirm(true)" title="Delete folder" aria-label="Delete folder"></a>
                             </md-button>
                         </div>
                     </div>
@@ -97,10 +101,10 @@
 
                     <div class="new-file actions" layout="row" layout-align="end">
                         <md-button ng-click="createFile()">
-                            <span class="mdi-content-add"></span> New file
+                            <span class="icon-add"></span> New file
                         </md-button>
                         <md-button>
-                            <span class="mdi-content-add"></span> Import
+                            <span class="icon-add"></span> Import
                         </md-button>
                     </div>
 
@@ -109,17 +113,17 @@
                         <div class="file actions" ng-switch="hasSelection()">
                             <div ng-switch-when="false">
                                 <md-button md-no-ink class="md-primary" ng-click="selectAll()">
-                                    <span class="mdi-navigation-check"></span> Select all
+                                    <span class="icon-check"></span> Select all
                                 </md-button>
                             </div>
                             <div ng-switch-when="true">
                                 <md-button md-no-ink class="md-primary" ng-click="selectNone()">
-                                    <span class="mdi-toggle-check-box-outline-blank"></span> Select None
+                                    <span class="icon-check-box-outline-blank"></span> Select None
                                 </md-button>
                             </div>
                             <div ng-switch-when="true">
                                 <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
-                                    <span class="mdi-action-delete"></span> Delete
+                                    <span class="icon-delete"></span> Delete
                                 </md-button>
                             </div>
                         </div>
@@ -143,7 +147,7 @@
                             <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder">
                                 {{folderDao.name}}
                             </div>
-                            <div class="mdi-content-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
+                            <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
                         </md-button>
                     </div>
                 </div>

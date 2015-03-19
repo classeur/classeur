@@ -83,7 +83,7 @@ Create a link by wrapping link text in brackets, and then wrapping the link in p
 
 Images are like links, but have an exclamation point in front of them.
 
-![Classeur Logo](/images/logo.png)
+![Classeur Logo](/bower_components/classets/images/logo.png)
 
 ## Footnotes
 

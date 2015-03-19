@@ -44,7 +44,8 @@ var vendorJs = [
 ];
 
 var vendorCss = [
-	'public/bower_components/angular-material/angular-material.css'
+	'public/bower_components/angular-material/angular-material.css',
+	'public/bower_components/classets/icons/style.css'
 ];
 
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];

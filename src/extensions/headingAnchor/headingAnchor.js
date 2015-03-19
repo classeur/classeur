@@ -3,7 +3,7 @@ angular.module('classeur.extensions.headingAnchor', [])
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
-				var className = 'heading-anchor mdi-social-share';
+				var className = 'heading-anchor icon-share';
 				element.on('click', function(evt) {
 					if (evt.target.className === className) {
 						clEditorLayoutSvc.currentControl = 'sharingDialog#' + evt.target.parentNode.id;

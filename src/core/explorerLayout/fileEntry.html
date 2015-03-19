@@ -1,5 +1,5 @@
 <div class="file entry" layout="row">
-    <div class="drag"><span class="mdi-action-view-headline"></span>
+    <div class="drag"><span class="icon-view-headline"></span>
     </div>
     <md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
     </md-checkbox>
@@ -7,9 +7,9 @@
         <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
     </md-input-container>
     <cl-button class="edit filename btn" active="isEditing">
-        <a class="mdi-editor-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
+        <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
     </cl-button>
     <cl-button ng-if="socketSvc.hasToken" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
-        <a class="mdi-social-share" ng-class="{red: fileDao.effectiveSharing === 'rw', blue: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
+        <a class="icon-share" ng-class="{red: fileDao.effectiveSharing === 'rw', blue: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
     </cl-button>
 </div>
