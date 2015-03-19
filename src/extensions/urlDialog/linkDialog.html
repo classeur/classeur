@@ -1,7 +1,10 @@
 <md-dialog class="link dialog">
 	<md-content>
 		<h1>Add link</h1>
-		<md-text-float label="URL" ng-model="url"></md-text-float>
+        <md-input-container>
+            <label>URL</label>
+            <input ng-model="url">
+        </md-input-container>
 	</md-content>
 	<div class="md-actions">
 		<md-button ng-click="cancel()">

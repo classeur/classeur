@@ -48,10 +48,7 @@ angular.module('classeur.core', [])
 				template: '<cl-new-user-form></cl-new-user-form>'
 			})
 			.otherwise({
-				template: '<cl-explorer-layout></cl-explorer-layout>',
-				controller: function(clExplorerLayoutSvc) {
-					clExplorerLayoutSvc.init();
-				}
+				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
 
 	})
@@ -181,6 +178,7 @@ angular.module('classeur.core', [])
 
 		$rootScope.$on('$routeChangeSuccess', function() {
 			$mdDialog.cancel();
+			clExplorerLayoutSvc.init();
 		});
 
 		clSetInterval(function() {

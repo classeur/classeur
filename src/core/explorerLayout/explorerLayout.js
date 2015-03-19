@@ -11,19 +11,15 @@ angular.module('classeur.core.explorerLayout', [])
 
 				function animate() {
 					element.toggleClass('open', isOpen);
-					var y = scope.$index * 109;
+					var y = 129 + scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
 					buttonPanel.move(speed).translate(isOpen ? 0 : -4, y).ease('out').then(function() {
 						if (isOpen) {
 							// Adjust scrolling position
-							var minY = parentElt.scrollTop + 20;
-							var maxY = parentElt.scrollTop + parentElt.clientHeight - 360;
+							var maxY = parentElt.scrollTop + parentElt.clientHeight - 240;
 							if (y > maxY) {
 								parentElt.scrollTop += y - maxY;
-							}
-							if (y < minY) {
-								parentElt.scrollTop += y - minY;
 							}
 						}
 					}).end();
@@ -31,8 +27,12 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				scope.$watch('$index', animate);
-				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(isEqual) {
-					isOpen = isEqual;
+				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
+					if(clExplorerLayoutSvc.currentFolderDao === scope.folderDao) {
+						clExplorerLayoutSvc.currentFolderButtonElt = scope.folderDao && element[0];
+						clExplorerLayoutSvc.toggleHiddenBtn();
+					}
+					isOpen = value;
 					animate();
 				});
 			}
@@ -109,7 +109,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel) {
+	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -122,6 +122,16 @@ angular.module('classeur.core.explorerLayout', [])
 				var contentPanel = clPanel(element, '.explorer.content');
 				var toggleIconPanel = clPanel(element, '.toggle.icon');
 				var folderContainerPanel = clPanel(element, '.folder.container');
+
+				var btnGroupElt = angular.element(element[0].querySelector('.btn-grp'));
+				var scrollerElt = btnGroupElt[0].querySelector('.container');
+				var recentButtonElt = btnGroupElt[0].querySelector('.recent.btn');
+				clExplorerLayoutSvc.toggleHiddenBtn = function() {
+					btnGroupElt.toggleClass('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
+						clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < recentButtonElt.getBoundingClientRect().bottom - 1);
+				};
+
+				scrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleHiddenBtn);
 
 				function updateLayout() {
 					var explorerWidth = document.body.clientWidth;
@@ -177,18 +187,18 @@ angular.module('classeur.core.explorerLayout', [])
 					setPlasticClass();
 				};
 
-				function onCompleteFocus(cb) {
+				function onCompleteNameFocus(cb) {
 					return function(scope, element) {
 						scope.ok = function() {
 							if (!scope.name) {
-								return scope.focus();
+								return scope.nameFocus();
 							}
 							$mdDialog.hide(scope.name);
 						};
 						scope.cancel = function() {
 							$mdDialog.cancel();
 						};
-						var inputElt = element[0].querySelector('input');
+						var inputElt = element[0].querySelector('.name');
 						inputElt.addEventListener('keydown', function(e) {
 							// Check enter key
 							if (e.which === 13) {
@@ -196,12 +206,12 @@ angular.module('classeur.core.explorerLayout', [])
 								scope.ok();
 							}
 						});
-						scope.focus = function() {
+						scope.nameFocus = function() {
 							setTimeout(function() {
 								inputElt.focus();
 							}, 10);
 						};
-						scope.focus();
+						scope.nameFocus();
 						cb && cb(scope, element);
 					};
 				}
@@ -209,7 +219,42 @@ angular.module('classeur.core.explorerLayout', [])
 				function createFolder() {
 					$mdDialog.show({
 						templateUrl: 'core/explorerLayout/newFolderDialog.html',
-						onComplete: onCompleteFocus()
+						onComplete: onCompleteNameFocus(function(scope, element) {
+							scope.import = function() {
+								if (!scope.link) {
+									return scope.linkFocus();
+								}
+								$mdDialog.cancel();
+								if (scope.link.indexOf(clConstants.serverUrl) !== 0) {
+									return clToast('Invalid folder link.');
+								}
+								var components = scope.link.split('/');
+								var folderId = components.pop();
+								if (clExplorerLayoutSvc.currentClasseurDao.folderIds.indexOf(folderId) !== -1) {
+									return clToast('Folder is already in this classeur.');
+								}
+								var folderDao = clFolderSvc.folderMap[folderId];
+								if (folderDao) {
+									clExplorerLayoutSvc.currentClasseurDao.folderIds.push(folderDao.id);
+									clClasseurSvc.init();
+									clExplorerLayoutSvc.refreshFolders();
+									clExplorerLayoutSvc.setCurrentFolder(folderDao);
+								}
+							};
+							var inputElt = element[0].querySelector('.link');
+							inputElt.addEventListener('keydown', function(e) {
+								// Check enter key
+								if (e.which === 13) {
+									e.preventDefault();
+									scope.import();
+								}
+							});
+							scope.linkFocus = function() {
+								setTimeout(function() {
+									inputElt.focus();
+								}, 10);
+							};
+						})
 					}).then(function(name) {
 						var folderDao = clFolderSvc.createFolder();
 						folderDao.name = name;
@@ -223,7 +268,7 @@ angular.module('classeur.core.explorerLayout', [])
 				scope.createFile = function() {
 					$mdDialog.show({
 						templateUrl: 'core/explorerLayout/newFileDialog.html',
-						onComplete: onCompleteFocus()
+						onComplete: onCompleteNameFocus()
 					}).then(function(name) {
 						var fileDao = clFileSvc.createFile();
 						fileDao.name = name;
@@ -292,7 +337,7 @@ angular.module('classeur.core.explorerLayout', [])
 				scope.createClasseur = function() {
 					$mdDialog.show({
 						templateUrl: 'core/explorerLayout/newClasseurDialog.html',
-						onComplete: onCompleteFocus()
+						onComplete: onCompleteNameFocus()
 					}).then(function(name) {
 						var classeurDao = clClasseurSvc.createClasseur(name);
 						scope.setClasseur(classeurDao);
@@ -405,7 +450,7 @@ angular.module('classeur.core.explorerLayout', [])
 		}
 
 		function setEffectiveSharing() {
-			if(clExplorerLayoutSvc.currentFolderDao) {
+			if (clExplorerLayoutSvc.currentFolderDao) {
 				clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
 			}
 			clExplorerLayoutSvc.files.forEach(function(fileDao) {

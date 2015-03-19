@@ -78,7 +78,7 @@
     .folder.container, .file.entry {
         .btn a {
             &.blue {
-                color: $link-color;
+                color: #2164D3;
             }
             &.red {
                 color: #D35000;
@@ -160,17 +160,17 @@
         width: 2050px;
         right: -2050px;
         .container.panel {
-            top: 129px;
             overflow: auto;
         }
         .shadow.panel {
             z-index: 9999;
             left: -2050px;
+            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.25);
         }
         .recent.btn, .folder.btn {
             height: 130px;
             width: 44px;
-            box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
+            box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
             button {
                 text-transform: none;
                 line-height: 34px;
@@ -193,10 +193,15 @@
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
         }
+        .current.btn {
+            display: none;
+            top: 129px;
+            z-index: 10000;
+        }
         .folder.btn {
             height: 110px;
             width: 32px;
-            margin-bottom: 280px;
+            margin-bottom: 130px;
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
             .md-button {
@@ -216,6 +221,14 @@
         .open.btn {
             button {
                 color: #fff;
+            }
+        }
+        &.hidden-btn {
+            .current.btn {
+                display: block;
+            }
+            .open.btn {
+                visibility: hidden;
             }
         }
     }
@@ -313,4 +326,16 @@
 }
 .new.dialog {
     min-width: 320px;
+    .or {
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #bbb;
+        span {
+            font-weight: 300;
+        }
+    }
+    md-input-container:last-child {
+        padding-bottom: 0;
+    }
 }

@@ -72,11 +72,11 @@
                         </md-input-container>
 
                         <div ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder" layout="row">
-                            <md-button class="delete folder btn" md-no-ink>
-                                <a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder" aria-label="Delete folder"></a>
-                            </md-button>
                             <md-button ng-if="socketSvc.hasToken" class="share folder btn" md-no-ink>
                                 <a class="mdi-social-share" ng-class="{red: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', blue: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder" title="Share folder"></a>
+                            </md-button>
+                            <md-button class="delete folder btn" md-no-ink>
+                                <a class="mdi-action-delete" ng-click="deleteConfirm(true)" title="Delete folder" aria-label="Delete folder"></a>
                             </md-button>
                         </div>
                     </div>
@@ -139,12 +139,17 @@
                         </md-button>
                     </div>
                 </div>
+                <div class="current folder btn btn-panel plastic" ng-class="plasticClass">
+                    <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
+                        <div class="rotate-90">{{explorerLayoutSvc.currentFolderDao.name}}</div>
+                    </md-button>
+                </div>
                 <div cl-folder-button class="recent btn btn-panel plastic" ng-class="{open: !explorerLayoutSvc.currentFolderDao}">
                     <md-button ng-click="setFolder()" aria-label="Recent">
                         <div class="rotate-90">Recent</div>
                     </md-button>
                 </div>
-                <div class="shadow panel md-whiteframe-z2"></div>
+                <div class="shadow panel"></div>
             </div>
         </div>
     </div>

@@ -1,17 +1,29 @@
 <md-dialog class="new folder dialog">
     <md-content>
-        <h1>New folder</h1>
+        <h1>Add folder</h1>
         <md-input-container>
             <label>Name</label>
             <input class="name" ng-model="name">
+        </md-input-container>
+        <div layout="row" layout-align="end center">
+            <md-button ng-click="ok()" class="md-primary">
+                Create
+            </md-button>
+        </div>
+        <p class="or">
+                <span>—</span> or <span>—</span>
+        </p>
+        <md-input-container>
+            <label>Link</label>
+            <input class="link" ng-model="link">
         </md-input-container>
     </md-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
             Cancel
         </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Ok
+        <md-button ng-click="import()" class="md-primary">
+            Import
         </md-button>
     </div>
 </md-dialog>

@@ -7,6 +7,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var streamqueue = require('streamqueue');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
+var size = require('gulp-size');
 
 var vendorJs = [
 	'public/bower_components/angular/angular.js',
@@ -64,6 +65,9 @@ function jsStream() {
 }
 gulp.task('js', function() {
 	return jsStream()
+		.pipe(size({
+			//showFiles: true
+		}))
 		.pipe(ngAnnotate())
 		.pipe(uglify())
 		.pipe(concat('app-min.js', {
