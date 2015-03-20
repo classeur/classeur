@@ -515,12 +515,12 @@ angular.module('classeur.core.sync', [])
 				}
 				watchCtx.txt = msg.latest.txt;
 
-				// Properties
 				var valueHash = {},
 					valueArray = [];
+				// Hash local object first to preserve Angular indexes
+				var localPropertiesHash = clSyncUtils.hashObject(fileDao.contentDao.properties, valueHash, valueArray);
 				var oldPropertiesHash = clSyncUtils.hashObject(msg.previous ? msg.previous.properties : msg.latest.properties, valueHash, valueArray);
 				var serverPropertiesHash = clSyncUtils.hashObject(msg.latest.properties, valueHash, valueArray);
-				var localPropertiesHash = clSyncUtils.hashObject(fileDao.contentDao.properties, valueHash, valueArray);
 				if (oldPropertiesHash !== localPropertiesHash) {
 					localPropertiesHash = clSyncUtils.quickPatch(oldPropertiesHash, serverPropertiesHash, localPropertiesHash);
 					fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
@@ -631,9 +631,10 @@ angular.module('classeur.core.sync', [])
 			}
 			var valueHash = {},
 				valueArray = [];
+			// Hash local object first to preserve Angular indexes
+			var localPropertiesHash = clSyncUtils.hashObject(watchCtx.fileDao.contentDao.properties, valueHash, valueArray);
 			var oldPropertiesHash = clSyncUtils.hashObject(watchCtx.properties, valueHash, valueArray);
 			var serverPropertiesHash = clSyncUtils.hashObject(serverProperties, valueHash, valueArray);
-			var localPropertiesHash = clSyncUtils.hashObject(watchCtx.fileDao.contentDao.properties, valueHash, valueArray);
 			var isServerPropertiesChanges = oldPropertiesHash !== serverPropertiesHash;
 			var isLocalPropertiesChanges = oldPropertiesHash !== localPropertiesHash;
 			var isPropertiesSynchronized = serverPropertiesHash === localPropertiesHash;
@@ -750,11 +751,11 @@ angular.module('classeur.core.sync', [])
 					return;
 				}
 				changeHash.split('').forEach(function(objHash) {
-					var value = JSON.parse(valueArray[objHash.charCodeAt(0)]);
+					var obj = valueArray[objHash.charCodeAt(0)];
 					var patch = {
-						k: value[0]
+						k: obj[0]
 					};
-					patch[changeType === DIFF_DELETE ? 'd' : 'a'] = value[1];
+					patch[changeType === DIFF_DELETE ? 'd' : 'a'] = obj[1];
 					patches.push(patch);
 				});
 			});
@@ -785,10 +786,10 @@ angular.module('classeur.core.sync', [])
 			return result;
 		}
 
-		function quickPatch(oldTxt, newTxt, destTxt) {
-			var diffs = diffMatchPatch.diff_main(oldTxt, newTxt);
-			var patches = diffMatchPatch.patch_make(oldTxt, diffs);
-			var patchResult = diffMatchPatch.patch_apply(patches, destTxt);
+		function quickPatch(oldStr, newStr, destStr) {
+			var diffs = diffMatchPatch.diff_main(oldStr, newStr);
+			var patches = diffMatchPatch.patch_make(oldStr, diffs);
+			var patchResult = diffMatchPatch.patch_apply(patches, destStr);
 			return patchResult[0];
 		}
 
@@ -799,7 +800,7 @@ angular.module('classeur.core.sync', [])
 				var objHash;
 				if (!valueHash.hasOwnProperty(serializedObj)) {
 					objHash = valueArray.length;
-					valueArray.push(serializedObj);
+					valueArray.push(obj);
 					valueHash[serializedObj] = objHash;
 				} else {
 					objHash = valueHash[serializedObj];
@@ -811,8 +812,7 @@ angular.module('classeur.core.sync', [])
 
 		function unhashArray(hash, valueArray) {
 			return hash.split('').map(function(objHash) {
-				var serializedObj = valueArray[objHash.charCodeAt(0)];
-				return JSON.parse(serializedObj);
+				return valueArray[objHash.charCodeAt(0)];
 			});
 		}
 

@@ -10,7 +10,13 @@ angular.module('classeur.core.classeurs', [])
 
 		clClasseurSvc.serializer = function(data) {
 			return JSON.stringify(data, function(id, value) {
-				return id[0] === '$' || id === 'folders' ? undefined : value;
+				// Sort object keys and discard unwanted properties
+				return (value && value.id && {
+					folderIds: value.folderIds,
+					id: value.id,
+					isDefault: value.isDefault,
+					name: value.name
+				}) || value;
 			});
 		};
 
@@ -52,15 +58,18 @@ angular.module('classeur.core.classeurs', [])
 					return folderDao.id;
 				});
 			});
-			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
-				return classeurDao1.name > classeurDao2.name;
-			});
 			clClasseurSvc.defaultClasseur.isDefault = true;
 			clFolderSvc.folders.forEach(function(folderDao) {
 				if (!foldersInClasseur.hasOwnProperty(folderDao.id)) {
 					clClasseurSvc.defaultClasseur.folders.push(folderDao);
 					clClasseurSvc.defaultClasseur.folderIds.push(folderDao.id);
 				}
+			});
+			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
+				return classeurDao1.name > classeurDao2.name;
+			});
+			clClasseurSvc.classeurs.forEach(function(classeurDao) {
+				classeurDao.folderIds.sort();
 			});
 		}
 

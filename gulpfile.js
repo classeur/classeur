@@ -31,6 +31,7 @@ var vendorJs = [
 	'public/bower_components/cledit/scripts/cleditUtils.js',
 	'public/bower_components/cledit/scripts/cleditWatcher.js',
 	'public/bower_components/cledit/examples/markdownEditor/mdGrammar.js',
+	'public/bower_components/emojione/lib/js/emojione.js',
 	'public/bower_components/highlightjs/highlight.pack.js',
 	'public/bower_components/prism/components/prism-core.js',
 	'public/bower_components/prism/components/prism-markup.js',
@@ -45,7 +46,8 @@ var vendorJs = [
 
 var vendorCss = [
 	'public/bower_components/angular-material/angular-material.css',
-	'public/bower_components/classets/icons/style.css'
+	'public/bower_components/classets/icons/style.css',
+	'public/bower_components/emojione/assets/css/emojione.css',
 ];
 
 var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];

@@ -18,7 +18,6 @@
     "google-diff-match-patch-js": "~1.0.0",
     "rangy-official": "~1.3.0-alpha.20140921",
     "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
-    "MathJax": "~2.5.0",
     "cledit": "https://github.com/classeur/cledit.git#master",
     "angular-slugify": "~1.0.0",
     "movejs": "~0.4.0",
@@ -26,7 +25,8 @@
     "angular-messages": "~1.3.10",
     "hammerjs": "~2.0.4",
     "prism": "fd3bea7f0d471370f4dcb26b010c0952bdee14c0",
-    "classets": "https://github.com/classeur/classets.git#master"
+    "classets": "https://github.com/classeur/classets.git#master",
+    "emojione": "~1.3.0"
   },
   "resolutions": {
     "angular": "1.3.x"

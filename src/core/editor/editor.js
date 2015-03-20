@@ -6,8 +6,9 @@ angular.module('classeur.core.editor', [])
 			link: function(scope, element) {
 				var containerElt = element[0].querySelector('.editor.container');
 				var editorElt = element[0].querySelector('.editor.content');
+				clEditorSvc.initConverter();
 				clEditorSvc.setEditorElt(editorElt);
-
+				
 				var state;
 				scope.$on('$destroy', function() {
 					state = 'destroyed';
@@ -213,7 +214,7 @@ angular.module('classeur.core.editor', [])
 			}
 		};
 	})
-	.factory('clEditorSvc', function($window, clSettingSvc, clEditorLayoutSvc, Slug) {
+	.factory('clEditorSvc', function($window, $timeout, clSettingSvc, clEditorLayoutSvc, Slug) {
 		clSettingSvc.setDefaultValue('refreshPreviewDelay', 500);
 		clSettingSvc.setDefaultValue('measureSectionDelay', 1000);
 
@@ -344,11 +345,10 @@ angular.module('classeur.core.editor', [])
 				return previewElt.clientWidth + 'x' + previewElt.clientHeight;
 			}
 		};
-		clEditorSvc.initConverter();
 		clEditorSvc.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 		clEditorSvc.lastExternalChange = 0;
 		clEditorSvc.scrollOffset = 80;
-		
+
 		var anchorHash = {};
 		var footnoteMap = {};
 		var footnoteFragment = document.createDocumentFragment();

@@ -121,9 +121,9 @@ angular.module('classeur.core', [])
 			newFileDao.state = 'loaded';
 			newFileDao.readContent();
 			newFileDao.name = oldFileDao.name;
-			newFileDao.txt = oldFileDao.txt;
-			newFileDao.state = JSON.parse(JSON.stringify(oldFileDao.state));
-			newFileDao.properties = JSON.parse(JSON.stringify(oldFileDao.properties));
+			newFileDao.contentDao.txt = oldFileDao.contentDao.txt;
+			newFileDao.contentDao.state = JSON.parse(JSON.stringify(oldFileDao.contentDao.state));
+			newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties));
 			newFileDao.writeContent();
 			setCurrentFile(newFileDao);
 			clToast('Copy created.');
