@@ -56,7 +56,7 @@ angular.module('classeur.core', [])
 		var publicFileDao = $routeParams.userId && clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
 		var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 		if (!fileDao) {
-			clToast('Unknown file ID.');
+			clToast('Unknown file.');
 			return $location.url('');
 		}
 		$scope.loadFile(fileDao);
@@ -121,9 +121,9 @@ angular.module('classeur.core', [])
 			newFileDao.state = 'loaded';
 			newFileDao.readContent();
 			newFileDao.name = oldFileDao.name;
-			['txt', 'state', 'discussions'].forEach(function(attrName) {
-				newFileDao.contentDao[attrName] = oldFileDao.contentDao[attrName];
-			});
+			newFileDao.txt = oldFileDao.txt;
+			newFileDao.state = JSON.parse(JSON.stringify(oldFileDao.state));
+			newFileDao.properties = JSON.parse(JSON.stringify(oldFileDao.properties));
 			newFileDao.writeContent();
 			setCurrentFile(newFileDao);
 			clToast('Copy created.');

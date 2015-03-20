@@ -28,7 +28,7 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.$watch('$index', animate);
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
-					if(clExplorerLayoutSvc.currentFolderDao === scope.folderDao) {
+					if (clExplorerLayoutSvc.currentFolderDao === scope.folderDao) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.folderDao && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
@@ -132,6 +132,10 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				scrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleHiddenBtn);
+
+				element[0].querySelector('.new.tile .footer.panel').addEventListener('click', function(evt) {
+					evt.stopPropagation();
+				});
 
 				function updateLayout() {
 					var explorerWidth = document.body.clientWidth;

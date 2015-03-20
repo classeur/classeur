@@ -35,6 +35,7 @@ angular.module('classeur.core.files', [])
 			this.contentDao.$readAttr('lastChange', '0', parseInt);
 			if (this.state === 'loaded') {
 				this.contentDao.$readAttr('txt', '');
+				this.contentDao.$readAttr('properties', '{}', JSON.parse);
 				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
 				this.contentDao.$readAttr('state', '{}', JSON.parse);
 			}
@@ -43,6 +44,7 @@ angular.module('classeur.core.files', [])
 
 		FileDao.prototype.freeContent = function() {
 			this.contentDao.$freeAttr('txt');
+			this.contentDao.$freeAttr('properties');
 			this.contentDao.$freeAttr('discussions');
 			this.contentDao.$freeAttr('state');
 		};
@@ -51,6 +53,7 @@ angular.module('classeur.core.files', [])
 			this.contentDao.$writeAttr('isLocal');
 			if (this.state === 'loaded') {
 				updateLastChange |= this.contentDao.$writeAttr('txt');
+				updateLastChange |= this.contentDao.$writeAttr('properties', JSON.stringify);
 				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
 				this.contentDao.$writeAttr('state', JSON.stringify);
 			}
@@ -102,6 +105,7 @@ angular.module('classeur.core.files', [])
 			this.contentDao = {
 				txt: content,
 				state: {},
+				properties: {},
 				users: {},
 				discussions: {}
 			};
@@ -125,6 +129,7 @@ angular.module('classeur.core.files', [])
 			lastChange: true,
 			isLocal: true,
 			txt: true,
+			properties: true,
 			users: true,
 			discussions: true,
 			state: true,

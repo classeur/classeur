@@ -1,3 +1,9 @@
 .file.properties.dialog {
     min-width: 420px;
+    .md-button {
+    	margin-top: 20px;
+    }
+    md-input-container {
+    	padding-bottom: 0;
+    }
 }

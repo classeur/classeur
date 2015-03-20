@@ -1,7 +1,8 @@
 <md-dialog class="file properties dialog">
     <md-content>
         <h1>Properties</h1>
-        <div layout="row">
+        <div layout="row" ng-repeat="property in properties">
+            <md-button class="icon-remove" ng-click="deleteRow(property)"></md-button>
             <md-input-container>
                 <label>Key</label>
                 <input ng-model="property.key">
@@ -11,12 +12,13 @@
                 <input ng-model="property.value">
             </md-input-container>
         </div>
+        <md-button ng-click="addRow()"><span class="icon-add"></span> Add</md-button>
     </md-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
             Cancel
         </md-button>
-        <md-button ng-click="ok()">
+        <md-button ng-click="ok()" class="md-primary">
             Ok
         </md-button>
     </div>

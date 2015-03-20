@@ -380,7 +380,8 @@ angular.module('classeur.core.sync', [])
 						clSocketSvc.sendMsg({
 							type: 'createFile',
 							id: fileDao.id,
-							txt: fileDao.contentDao.txt || '\n'
+							txt: fileDao.contentDao.txt || '\n',
+							properties: fileDao.contentDao.properties || {}
 						});
 						lastCreateFileActivity = Date.now();
 					});
@@ -487,12 +488,15 @@ angular.module('classeur.core.sync', [])
 				fileDao.write(fileDao.updated);
 			}
 			if (fileDao.state === 'loading') {
+				fileDao.contentDao.txt = msg.latest.txt;
 				watchCtx.txt = msg.latest.txt;
-				watchCtx.rev = msg.latest.rev;
-				fileDao.contentDao.txt = watchCtx.txt;
+				fileDao.contentDao.properties = msg.latest.properties;
+				watchCtx.properties = msg.latest.properties;
 				setFileStateLoaded(fileDao);
 				$rootScope.$evalAsync();
 			} else {
+
+				// Text content
 				var oldTxt = msg.previous ? msg.previous.txt : msg.latest.txt;
 				var serverTxt = msg.latest.txt;
 				var localTxt = clEditorSvc.cledit.getContent();
@@ -501,19 +505,31 @@ angular.module('classeur.core.sync', [])
 				var isTxtSynchronized = serverTxt === localTxt;
 				if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
 					// TODO Deal with conflict
-					watchCtx.txt = msg.latest.txt;
-					watchCtx.rev = msg.latest.rev;
 					clEditorSvc.setContent(watchCtx.txt);
 				} else {
-					watchCtx.txt = msg.latest.txt;
-					watchCtx.rev = msg.latest.rev;
 					if (!isTxtSynchronized) {
 						if (isServerTxtChanges) {
 							clEditorSvc.setContent(watchCtx.txt);
 						}
 					}
 				}
+				watchCtx.txt = msg.latest.txt;
+
+				// Properties
+				var valueHash = {},
+					valueArray = [];
+				var oldPropertiesHash = clSyncUtils.hashObject(msg.previous ? msg.previous.properties : msg.latest.properties, valueHash, valueArray);
+				var serverPropertiesHash = clSyncUtils.hashObject(msg.latest.properties, valueHash, valueArray);
+				var localPropertiesHash = clSyncUtils.hashObject(fileDao.contentDao.properties, valueHash, valueArray);
+				if (oldPropertiesHash !== localPropertiesHash) {
+					localPropertiesHash = clSyncUtils.quickPatch(oldPropertiesHash, serverPropertiesHash, localPropertiesHash);
+					fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
+				} else {
+					fileDao.contentDao.properties = msg.latest.properties;
+				}
+				watchCtx.properties = msg.latest.properties;
 			}
+			watchCtx.rev = msg.latest.rev;
 			contentRevStore[msg.id] = watchCtx.rev;
 			contentRevStore.$writeAttr(msg.id);
 			msg.latest.userIds.forEach(clUserInfoSvc.request);
@@ -531,6 +547,9 @@ angular.module('classeur.core.sync', [])
 					fileDao.sharing = res.sharing;
 					fileDao.updated = res.updated;
 					fileDao.write(fileDao.updated);
+					if (fileDao.state) {
+						fileDao.contentDao.properties = res.properties;
+					}
 					if (fileDao.state === 'loaded') {
 						clEditorSvc.setContent(res.txt);
 					} else if (fileDao.state === 'loading') {
@@ -556,16 +575,19 @@ angular.module('classeur.core.sync', [])
 			if (watchCtx.fileDao.userId && watchCtx.fileDao.sharing !== 'rw') {
 				return;
 			}
-			var newTxt = clEditorSvc.cledit.getContent();
-			var txtChanges = clSyncUtils.getPatches(watchCtx.txt, newTxt);
-			if (!txtChanges.length) {
+			var txtChanges = clSyncUtils.getTxtPatches(watchCtx.txt, clEditorSvc.cledit.getContent());
+			txtChanges = txtChanges.length ? txtChanges : undefined;
+			var propertiesChanges = clSyncUtils.getPropertiesPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
+			propertiesChanges = propertiesChanges.length ? propertiesChanges : undefined;
+			if (!txtChanges && !propertiesChanges) {
 				return;
 			}
 			var newRev = watchCtx.rev + 1;
 			watchCtx.sentMsg = {
 				type: 'setContentChange',
 				rev: newRev,
-				txt: txtChanges
+				txt: txtChanges,
+				properties: propertiesChanges
 			};
 			clSocketSvc.sendMsg(watchCtx.sentMsg);
 		}
@@ -577,15 +599,17 @@ angular.module('classeur.core.sync', [])
 			watchCtx.contentChanges[msg.rev] = msg;
 			var serverTxt = watchCtx.txt;
 			var localTxt = clEditorSvc.cledit.getContent();
+			var serverProperties = watchCtx.properties;
 			while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
 				watchCtx.rev = msg.rev;
 				watchCtx.contentChanges[msg.rev] = undefined;
-				var oldTxt = serverTxt;
 				if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
 					// This has to be the previously sent message
 					msg = watchCtx.sentMsg;
 				}
-				serverTxt = clSyncUtils.applyPatches(serverTxt, msg.txt);
+				var oldTxt = serverTxt;
+				serverTxt = clSyncUtils.applyTxtPatches(serverTxt, msg.txt || []);
+				serverProperties = clSyncUtils.applyPropertiesPatches(serverProperties, msg.properties || []);
 				if (msg !== watchCtx.sentMsg) {
 					var isServerTxtChanges = oldTxt !== serverTxt;
 					var isLocalTxtChanges = oldTxt !== localTxt;
@@ -605,7 +629,24 @@ angular.module('classeur.core.sync', [])
 				}
 				watchCtx.sentMsg = undefined;
 			}
+			var valueHash = {},
+				valueArray = [];
+			var oldPropertiesHash = clSyncUtils.hashObject(watchCtx.properties, valueHash, valueArray);
+			var serverPropertiesHash = clSyncUtils.hashObject(serverProperties, valueHash, valueArray);
+			var localPropertiesHash = clSyncUtils.hashObject(watchCtx.fileDao.contentDao.properties, valueHash, valueArray);
+			var isServerPropertiesChanges = oldPropertiesHash !== serverPropertiesHash;
+			var isLocalPropertiesChanges = oldPropertiesHash !== localPropertiesHash;
+			var isPropertiesSynchronized = serverPropertiesHash === localPropertiesHash;
+			if (!isPropertiesSynchronized && isServerPropertiesChanges) {
+				if (isLocalPropertiesChanges) {
+					localPropertiesHash = clSyncUtils.quickPatch(oldPropertiesHash, serverPropertiesHash, localPropertiesHash);
+				} else {
+					localPropertiesHash = serverPropertiesHash;
+				}
+				watchCtx.fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
+			}
 			watchCtx.txt = serverTxt;
+			watchCtx.properties = serverProperties;
 			contentRevStore[watchCtx.fileDao.id] = watchCtx.rev;
 			contentRevStore.$writeAttr(watchCtx.fileDao.id);
 		});
@@ -665,8 +706,8 @@ angular.module('classeur.core.sync', [])
 		var DIFF_INSERT = 1;
 		var DIFF_EQUAL = 0;
 
-		function getPatches(oldContent, newContent) {
-			var diffs = diffMatchPatch.diff_main(oldContent, newContent);
+		function getTxtPatches(oldTxt, newTxt) {
+			var diffs = diffMatchPatch.diff_main(oldTxt, newTxt);
 			diffMatchPatch.diff_cleanupEfficiency(diffs);
 			var patches = [];
 			var startOffset = 0;
@@ -679,14 +720,14 @@ angular.module('classeur.core.sync', [])
 						break;
 					case DIFF_DELETE:
 						patches.push({
-							off: startOffset,
-							del: changeText
+							o: startOffset,
+							d: changeText
 						});
 						break;
 					case DIFF_INSERT:
 						patches.push({
-							off: startOffset,
-							ins: changeText
+							o: startOffset,
+							a: changeText
 						});
 						startOffset += changeText.length;
 						break;
@@ -695,19 +736,53 @@ angular.module('classeur.core.sync', [])
 			return patches;
 		}
 
-		function applyPatches(txt, patches) {
-			if (!patches) {
-				return txt;
-			}
-			return patches.reduce(function(txt, change) {
-				if (change.ins) {
-					return txt.slice(0, change.off) + change.ins + txt.slice(change.off);
-				} else if (change.del) {
-					return txt.slice(0, change.off) + txt.slice(change.off + change.del.length);
+		function getPropertiesPatches(oldProperties, newProperties) {
+			var valueHash = {},
+				valueArray = [];
+			oldProperties = hashObject(oldProperties, valueHash, valueArray);
+			newProperties = hashObject(newProperties, valueHash, valueArray);
+			var diffs = diffMatchPatch.diff_main(oldProperties, newProperties);
+			var patches = [];
+			diffs.forEach(function(change) {
+				var changeType = change[0];
+				var changeHash = change[1];
+				if (changeType === DIFF_EQUAL) {
+					return;
+				}
+				changeHash.split('').forEach(function(objHash) {
+					var value = JSON.parse(valueArray[objHash.charCodeAt(0)]);
+					var patch = {
+						k: value[0]
+					};
+					patch[changeType === DIFF_DELETE ? 'd' : 'a'] = value[1];
+					patches.push(patch);
+				});
+			});
+			return patches;
+		}
+
+		function applyTxtPatches(txt, patches) {
+			return patches.reduce(function(txt, patch) {
+				if (patch.a) {
+					return txt.slice(0, patch.o) + patch.a + txt.slice(patch.o);
+				} else if (patch.d) {
+					return txt.slice(0, patch.o) + txt.slice(patch.o + patch.d.length);
 				} else {
 					return txt;
 				}
 			}, txt);
+		}
+
+		function applyPropertiesPatches(properties, patches) {
+			var result = angular.extend({}, properties);
+			patches.forEach(function(patch) {
+				if (patch.a) {
+					result[patch.k] = patch.a;
+				} else if (patch.d) {
+					delete result[patch.k];
+				}
+			});
+			return result;
 		}
 
 		function quickPatch(oldTxt, newTxt, destTxt) {
@@ -717,9 +792,53 @@ angular.module('classeur.core.sync', [])
 			return patchResult[0];
 		}
 
+		function hashArray(arr, valueHash, valueArray) {
+			var hash = [];
+			arr.forEach(function(obj) {
+				var serializedObj = JSON.stringify(obj);
+				var objHash;
+				if (!valueHash.hasOwnProperty(serializedObj)) {
+					objHash = valueArray.length;
+					valueArray.push(serializedObj);
+					valueHash[serializedObj] = objHash;
+				} else {
+					objHash = valueHash[serializedObj];
+				}
+				hash.push(objHash);
+			});
+			return String.fromCharCode.apply(null, hash);
+		}
+
+		function unhashArray(hash, valueArray) {
+			return hash.split('').map(function(objHash) {
+				var serializedObj = valueArray[objHash.charCodeAt(0)];
+				return JSON.parse(serializedObj);
+			});
+		}
+
+		function hashObject(obj, valueHash, valueArray) {
+			return hashArray(Object.keys(obj || {}).sort().map(function(key) {
+				return [key, obj[key]];
+			}), valueHash, valueArray);
+		}
+
+		function unhashObject(hash, valueArray) {
+			var result = {};
+			unhashArray(hash, valueArray).forEach(function(value) {
+				result[value[0]] = value[1];
+			});
+			return result;
+		}
+
 		return {
-			getPatches: getPatches,
-			applyPatches: applyPatches,
-			quickPatch: quickPatch
+			getTxtPatches: getTxtPatches,
+			getPropertiesPatches: getPropertiesPatches,
+			applyTxtPatches: applyTxtPatches,
+			applyPropertiesPatches: applyPropertiesPatches,
+			quickPatch: quickPatch,
+			hashArray: hashArray,
+			unhashArray: unhashArray,
+			hashObject: hashObject,
+			unhashObject: unhashObject,
 		};
 	});
