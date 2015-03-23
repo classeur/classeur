@@ -11,15 +11,15 @@ angular.module('classeur.core', [])
 		menuTheme.foregroundShadow = '';
 
 		$routeProvider
-			.when('/file/:fileId', {
+			.when('/files/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
 				controller: 'ClEditorController'
 			})
-			.when('/file/:userId/:fileId', {
+			.when('/users/:userId/files/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
 				controller: 'ClEditorController'
 			})
-			.when('/doc/:fileName', {
+			.when('/docs/:fileName', {
 				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
 				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc) {
 					var fileDao = clDocFileSvc($routeParams.fileName);
@@ -37,7 +37,7 @@ angular.module('classeur.core', [])
 					});
 				}
 			})
-			.when('/state/:stateId', {
+			.when('/states/:stateId', {
 				template: '',
 				controller: function($location, clStateMgr) {
 					clStateMgr.token = $location.search().token;
@@ -111,7 +111,7 @@ angular.module('classeur.core', [])
 		function setDocFile(fileName) {
 			unloadCurrentFile();
 			$timeout(function() {
-				$location.url('/doc/' + fileName);
+				$location.url(clUrl.docFile(fileName));
 			});
 		}
 

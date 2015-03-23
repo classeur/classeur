@@ -325,12 +325,11 @@ angular.module('classeur.core.explorerLayout', [])
 						}
 					}
 
-					if (!filesToRemove.length) {
-						// No confirmation
-						return remove();
-					}
-
 					function deleteConfirm() {
+						if (!filesToRemove.length) {
+							// No confirmation
+							return remove();
+						}
 						var title = 'Delete files';
 						var confirm = $mdDialog.confirm()
 							.title(title)
@@ -353,14 +352,14 @@ angular.module('classeur.core.explorerLayout', [])
 								.title(title)
 								.ariaLabel(title)
 								.content('Do you want to remove the folder from all classeurs?')
-								.ok('All')
-								.cancel('This only');
-							return $mdDialog.show(confirm).then(deleteConfirm, function() {
+								.ok('This only')
+								.cancel('All');
+							return $mdDialog.show(confirm).then(function() {
 								var index = clExplorerLayoutSvc.currentClasseurDao.folderIds.indexOf(folderDao.id);
 								index !== -1 && clExplorerLayoutSvc.currentClasseurDao.folderIds.splice(index, 1);
 								clClasseurSvc.init();
 								clExplorerLayoutSvc.refreshFolders();
-							});
+							}, deleteConfirm);
 						}
 					}
 					deleteConfirm();

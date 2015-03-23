@@ -11,19 +11,21 @@
             </md-button>
         </div>
         <p class="or">
-                <span>—</span> or <span>—</span>
+            <span>—</span> or <span>—</span>
         </p>
         <md-input-container>
             <label>Link</label>
             <input class="link" ng-model="link">
         </md-input-container>
+        <div layout="row" layout-align="end center">
+            <md-button ng-click="import()" class="md-primary">
+                Import
+            </md-button>
+        </div>
     </md-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
             Cancel
-        </md-button>
-        <md-button ng-click="import()" class="md-primary">
-            Import
         </md-button>
     </div>
 </md-dialog>

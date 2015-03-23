@@ -293,17 +293,22 @@ angular.module('classeur.core.utils', [])
 			file: function(fileDao, user) {
 				var userId = fileDao.userId || (user && user.id) || '';
 				if (fileDao.id) {
-					return '/file/' + (userId && userId + '/') + fileDao.id;
+					return (userId && '/users/' + userId) + '/files/' + fileDao.id;
 				} else if (fileDao.fileName) {
-					return '/doc/' + fileDao.fileName;
+					return '/docs/' + fileDao.fileName;
 				} else {
 					return '';
 				}
 			},
+			docFile: function(fileName) {
+				return this.file({
+					fileName: fileName
+				});
+			},
 			folder: function(folderDao, user) {
 				var userId = folderDao.userId || (user && user.id) || '';
 				if (folderDao.id) {
-					return '/folder/' + (userId && userId + '/') + folderDao.id;
+					return (userId && '/users/' + userId) + '/folders/' + folderDao.id;
 				} else {
 					return '';
 				}
