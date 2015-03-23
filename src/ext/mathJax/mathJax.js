@@ -1,9 +1,8 @@
 angular.module('classeur.ext.mathJax', [])
 	.directive('clMathJax', function($window, clEditorSvc) {
-		var config, isInit;
-		var encloseMath, cacheDict = {};
-
+		var config, isInit, encloseMath, cacheDict;
 		clEditorSvc.onInitConverter(75, function(converter) {
+			cacheDict = {};
 
 			if (config) {
 				isInit || init();
@@ -247,7 +246,7 @@ angular.module('classeur.ext.mathJax', [])
 		}
 
 		function applyConfig() {
-			if(!config || !$window.MathJax) {
+			if (!config || !$window.MathJax) {
 				return;
 			}
 			$window.MathJax.Hub.Config(JSON.parse(JSON.stringify(config)));

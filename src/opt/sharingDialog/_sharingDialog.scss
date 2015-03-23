@@ -3,11 +3,12 @@
     .md-input[disabled] {
         color: rgba(0, 0, 0, 0.87);
     }
-    .sharing {
+    .btn-grp {
         button {
             width: 46px;
             height: 46px;
             margin-left: 4px;
+            font-size: 18px;
         }
         .icon-facebook {
             background-color: #3b5998 !important;

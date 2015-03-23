@@ -36,7 +36,7 @@ angular.module('classeur.core.sync', [])
 		function writeSyncDataStore(lastActivity) {
 			function serializeSyncData(data) {
 				return JSON.stringify(data, function(id, value) {
-					return (!value.s && value.r) || value;
+					return (value && !value.s && value.r) || value;
 				});
 			}
 			syncDataStore.lastActivity = lastActivity !== undefined ? lastActivity : Date.now();
@@ -106,7 +106,7 @@ angular.module('classeur.core.sync', [])
 			function retrieveChanges() {
 				clSocketSvc.sendMsg({
 					type: 'getUserData',
-					userUpdated: (syncDataStore.userData.user || {}).r,
+					userUpdated: clUserSvc.user && (syncDataStore.userData.user || {}).r,
 					classeursUpdated: (syncDataStore.userData.classeurs || {}).r
 				});
 			}
@@ -487,13 +487,14 @@ angular.module('classeur.core.sync', [])
 				fileDao.updated = msg.updated;
 				fileDao.write(fileDao.updated);
 			}
+			var apply;
 			if (fileDao.state === 'loading') {
 				fileDao.contentDao.txt = msg.latest.txt;
 				watchCtx.txt = msg.latest.txt;
 				fileDao.contentDao.properties = msg.latest.properties;
 				watchCtx.properties = msg.latest.properties;
 				setFileStateLoaded(fileDao);
-				$rootScope.$evalAsync();
+				apply = true;
 			} else {
 
 				// Text content
@@ -505,11 +506,11 @@ angular.module('classeur.core.sync', [])
 				var isTxtSynchronized = serverTxt === localTxt;
 				if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
 					// TODO Deal with conflict
-					clEditorSvc.setContent(watchCtx.txt);
+					clEditorSvc.setContent(msg.latest.txt, true);
 				} else {
 					if (!isTxtSynchronized) {
 						if (isServerTxtChanges) {
-							clEditorSvc.setContent(watchCtx.txt);
+							clEditorSvc.setContent(msg.latest.txt, true);
 						}
 					}
 				}
@@ -533,6 +534,8 @@ angular.module('classeur.core.sync', [])
 			contentRevStore[msg.id] = watchCtx.rev;
 			contentRevStore.$writeAttr(msg.id);
 			msg.latest.userIds.forEach(clUserInfoSvc.request);
+			// Evaluate scope synchronously to have cledit instantiated
+			apply && $rootScope.$apply();
 		});
 
 		function getPublicFile(fileDao) {
@@ -548,13 +551,13 @@ angular.module('classeur.core.sync', [])
 					fileDao.updated = res.updated;
 					fileDao.write(fileDao.updated);
 					if (fileDao.state) {
-						fileDao.contentDao.properties = res.properties;
-					}
-					if (fileDao.state === 'loaded') {
-						clEditorSvc.setContent(res.txt);
-					} else if (fileDao.state === 'loading') {
-						fileDao.contentDao.txt = res.txt;
-						setFileStateLoaded(fileDao);
+						fileDao.contentDao.properties = res.content.properties;
+						if (fileDao.state === 'loaded') {
+							clEditorSvc.setContent(res.content.txt, true);
+						} else if (fileDao.state === 'loading') {
+							fileDao.contentDao.txt = res.content.txt;
+							setFileStateLoaded(fileDao);
+						}
 					}
 				})
 				.error(function() {
@@ -620,7 +623,7 @@ angular.module('classeur.core.sync', [])
 						} else {
 							localTxt = serverTxt;
 						}
-						var offset = clEditorSvc.setContent(localTxt);
+						var offset = clEditorSvc.setContent(localTxt, true);
 						var userActivity = watchCtx.userActivities[msg.userId] || {};
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;

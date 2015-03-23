@@ -6,6 +6,7 @@ angular.module('classeur.core.editor', [])
 			link: function(scope, element) {
 				var containerElt = element[0].querySelector('.editor.container');
 				var editorElt = element[0].querySelector('.editor.content');
+				clEditorSvc.setCurrentFileDao(scope.currentFileDao);
 				clEditorSvc.initConverter();
 				clEditorSvc.setEditorElt(editorElt);
 				
@@ -103,9 +104,8 @@ angular.module('classeur.core.editor', [])
 				clKeystrokeSvc(clEditorSvc);
 
 				var isInited;
-				scope.$watch('editorSvc.options', function() {
+				scope.$watch('editorSvc.options', function(options) {
 					clEditorSvc.forcePreviewRefresh();
-					var options = clEditorSvc.options;
 					if (!isInited) {
 						options = angular.extend({}, options);
 						options.content = scope.currentFileDao.contentDao.txt;
@@ -268,12 +268,16 @@ angular.module('classeur.core.editor', [])
 		var converterInitListeners = [];
 		var asyncPreviewListeners = [];
 		var footnoteContainerElt;
+		var currentFileDao;
 
 		var clEditorSvc = {
 			options: {},
+			setCurrentFileDao: function(fileDao) {
+				currentFileDao = fileDao;
+			},
 			initConverter: function() {
-				// TODO check in the settings that footnotes are enabled
-				doFootnotes = clSettingSvc.values.markdownExtra;
+				var fileProperties = currentFileDao.contentDao.properties;
+				doFootnotes = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:footnotes'] !== '0';
 				clEditorSvc.converter = new $window.Markdown.Converter();
 				asyncPreviewListeners = [];
 				converterInitListeners.forEach(function(listener) {
@@ -332,10 +336,12 @@ angular.module('classeur.core.editor', [])
 				});
 				clEditorSvc.pagedownEditor.run();
 			},
-			setContent: function(content) {
+			setContent: function(content, isExternal) {
 				if(clEditorSvc.cledit) {
-					clEditorSvc.lastExternalChange = Date.now();
-					return clEditorSvc.cledit.setContent(content);
+					if(isExternal) {
+						clEditorSvc.lastExternalChange = Date.now();
+					}
+					return clEditorSvc.cledit.setContent(content, isExternal);
 				}
 			},
 			editorSize: function() {

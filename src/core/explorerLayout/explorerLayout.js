@@ -262,6 +262,7 @@ angular.module('classeur.core.explorerLayout', [])
 					}).then(function(name) {
 						var folderDao = clFolderSvc.createFolder();
 						folderDao.name = name;
+						// Classeurs are updated when evaluating folderSvc.folders
 						clExplorerLayoutSvc.currentClasseurDao.folderIds.push(folderDao.id);
 						$timeout(function() {
 							clExplorerLayoutSvc.setCurrentFolder(folderDao);
@@ -328,14 +329,41 @@ angular.module('classeur.core.explorerLayout', [])
 						// No confirmation
 						return remove();
 					}
-					var title = deleteFolder ? 'Delete folder' : 'Delete files';
-					var confirm = $mdDialog.confirm()
-						.title(title)
-						.ariaLabel(title)
-						.content('You\'re about to delete ' + filesToRemove.length + ' file(s). Are you sure?')
-						.ok('Delete')
-						.cancel('Cancel');
-					$mdDialog.show(confirm).then(remove);
+
+					function deleteConfirm() {
+						var title = 'Delete files';
+						var confirm = $mdDialog.confirm()
+							.title(title)
+							.ariaLabel(title)
+							.content('You\'re about to delete ' + filesToRemove.length + ' file(s). Are you sure?')
+							.ok('Delete')
+							.cancel('Cancel');
+						$mdDialog.show(confirm).then(remove);
+					}
+
+					if (deleteFolder) {
+						var folderDao = clExplorerLayoutSvc.currentFolderDao;
+						if (clClasseurSvc.classeurs.some(function(classeurDao) {
+								if (classeurDao !== clExplorerLayoutSvc.currentClasseurDao && classeurDao.folders.indexOf(folderDao) !== -1) {
+									return true;
+								}
+							})) {
+							var title = 'Delete folder';
+							var confirm = $mdDialog.confirm()
+								.title(title)
+								.ariaLabel(title)
+								.content('Do you want to remove the folder from all classeurs?')
+								.ok('All')
+								.cancel('This only');
+							return $mdDialog.show(confirm).then(deleteConfirm, function() {
+								var index = clExplorerLayoutSvc.currentClasseurDao.folderIds.indexOf(folderDao.id);
+								index !== -1 && clExplorerLayoutSvc.currentClasseurDao.folderIds.splice(index, 1);
+								clClasseurSvc.init();
+								clExplorerLayoutSvc.refreshFolders();
+							});
+						}
+					}
+					deleteConfirm();
 				};
 
 				scope.createClasseur = function() {

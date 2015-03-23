@@ -2,7 +2,7 @@
     <cl-toc></cl-toc>
 </div>
 
-<cl-button class="close-toc btn" opacity="0.4" opacity-hover="0.7" size="32" right="0">
+<cl-button class="close-toc btn" opacity="0.35" opacity-hover="0.7" size="32" right="0">
     <a class="icon-clear" ng-click="editorLayoutSvc.toggleToc(false)" aria-label="Close TOC"></a>
 </cl-button>
 
@@ -17,17 +17,17 @@
             <div class="content">
                 <div class="btn-grp panel">
                     <div class="close panel">
-                        <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="32">
+                        <cl-button class="close btn" opacity="0.35" opacity-hover="0.7" size="32">
                             <a class="icon-clear" ng-click="saveAll(); setCurrentFile()" title="Close" aria-label="Close"></a>
                         </cl-button>
                     </div>
                     <div class="scroll panel">
-                        <cl-button class="scroll btn" opacity="0.4" opacity-hover="0.7" size="32">
+                        <cl-button class="scroll btn" opacity="0.35" opacity-hover="0.7" size="32">
                             <a class="icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" title="Back to top" aria-label="Back to top"></a>
                         </cl-button>
                     </div>
                 </div>
-                <cl-button class="sharing btn" opacity="0.4" opacity-hover="0.7" size="32">
+                <cl-button class="sharing btn" opacity="0.35" opacity-hover="0.7" size="32">
                     <a class="icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" title="Share" aria-label="Share"></a>
                 </cl-button>
                 {{currentFileDao.name}}
@@ -104,10 +104,10 @@
         </div>
 
         <div ng-if="editorLayoutSvc.isCornerButtonVisible">
-            <cl-button class="corner btn" opacity="0.4" opacity-hover="0.7" size="36" right="0" bottom="35">
+            <cl-button class="corner btn" opacity="0.35" opacity-hover="0.7" size="36" right="0" bottom="35">
                 <a class="icon-call-made" ng-click="editorLayoutSvc.toggleToc()" title="Toggle TOC" aria-label="Toggle TOC"></a>
             </cl-button>
-            <cl-button class="corner btn" opacity="0.4" opacity-hover="0.7" size="36" right="35" bottom="0">
+            <cl-button class="corner btn" opacity="0.35" opacity-hover="0.7" size="36" right="35" bottom="0">
                 <a class="icon-call-received" ng-click="editorLayoutSvc.toggleStat()" title="Toggle stats" aria-label="Toggle stats"></a>
             </cl-button>
         </div>

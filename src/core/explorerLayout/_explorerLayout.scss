@@ -247,7 +247,7 @@
         .scroller {
             overflow: auto;
             overflow-y: scroll;
-            padding: 0 50px 200px 0;
+            padding: 0 70px 200px 0;
             right: -50px;
         }
         .tile.content::before, .tab-1, .tab-2 {
@@ -274,7 +274,7 @@
             margin: 15px 0;
             float: left;
             position: relative;
-            @media screen and (max-width: 640px) {
+            @media screen and (max-width: 720px) {
                 width: 50%;
             }
             @media screen and (max-width: 480px) {
@@ -341,6 +341,7 @@
         text-transform: uppercase;
         font-weight: bold;
         color: #bbb;
+        margin: 0;
         span {
             font-weight: 300;
         }

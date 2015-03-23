@@ -83,6 +83,7 @@ angular.module('classeur.ext.markdownExtra', [])
 				// Replace toc paragraphs
 				Array.prototype.slice.call(previewElt.getElementsByTagName('p')).forEach(function(elt) {
 					if (tocRegExp.test(elt.innerHTML)) {
+						elt.innerHTML = '';
 						elt.appendChild(divElt.cloneNode(true));
 					}
 				});

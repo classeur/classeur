@@ -1,3 +1,5 @@
-.zen.panel.hidden {
-    display: none;
+.zen.panel {
+    &.hidden {
+        display: none;
+    }
 }

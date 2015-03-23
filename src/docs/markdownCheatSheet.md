@@ -24,7 +24,7 @@ Create a heading by adding one or more `#` symbols before your heading text.
 ##### Heading level 5
 ###### Heading level 6
 
-## Horizontal rule
+## Horizontal rules
 
 Insert a horizontal rule by putting three or more `-`, `*`, or `_` on a line by themselves.
 
@@ -83,7 +83,7 @@ Create a link by wrapping link text in brackets, and then wrapping the link in p
 
 Images are like links, but have an exclamation point in front of them.
 
-![Classeur Logo](/bower_components/classets/images/logo.png)
+![Classeur Logo](http://classeur.io/images/logo.png)
 
 ## Footnotes
 
@@ -116,15 +116,3 @@ Insert a table of contents using the marker `[TOC]`.
 
 [TOC]
 
-
-# Maths
-
-## MathJax
-
-Render *LaTeX* mathematical expressions using [MathJax](https://www.mathjax.org/):
-
-The *Gamma function* satisfying $\Gamma(n) = (n-1)!\quad\forall n\in\mathbb N$ is via the Euler integral
-
-$$
-\Gamma(z) = \int_0^\infty t^{z-1}e^{-t}dt\,.
-$$

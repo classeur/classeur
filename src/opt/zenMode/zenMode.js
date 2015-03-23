@@ -12,7 +12,7 @@ angular.module('classeur.opt.zenMode', [])
 			restrict: 'E',
 			template: '<div class="zen panel background hidden"></div>',
 			link: function(scope, element) {
-				var zenPanel = clPanel(element, '.zen.panel').width(4000).left(-1500);
+				var zenPanel = clPanel(element, '.zen.panel').width(4000).right(-1500);
 				var parentNode = element[0].parentNode;
 
 				var timeout, enabled = true, lastClientX, lastClientY;

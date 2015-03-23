@@ -8,9 +8,14 @@ md-slider.md-default-theme .md-track {
     display: none;
 }
 md-switch {
-    margin: 5px 5px 0;
     .md-container {
         width: 60px;
+    }
+    .md-thumb {
+        left: 1px;
+        top: 1px;
+        height: 18px;
+        width: 18px;
     }
     &.md-default-theme .md-bar {
         width: 54px;
