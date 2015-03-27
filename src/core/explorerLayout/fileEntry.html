@@ -1,15 +1,17 @@
 <div class="file entry" layout="row">
-    <div class="drag"><span class="icon-view-headline"></span>
+    <div class="drag-space">
+        <div ng-if="!fileDao.userId" class="drag" cl-file-dragging-src><span class="icon-view-headline"></span>
+        </div>
     </div>
     <md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
     </md-checkbox>
     <md-input-container flex ng-click="open()">
         <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
     </md-input-container>
-    <cl-button class="edit filename btn" active="isEditing">
+    <cl-button ng-if="!fileDao.userId || fileDao.sharing === 'rw'" class="edit filename btn" active="isEditing">
         <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
     </cl-button>
-    <cl-button ng-if="socketSvc.hasToken" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
+    <cl-button ng-if="socketSvc.hasToken || fileDao.userId" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
         <a class="icon-share" ng-class="{red: fileDao.effectiveSharing === 'rw', blue: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
     </cl-button>
 </div>

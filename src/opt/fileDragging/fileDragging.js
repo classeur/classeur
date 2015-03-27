@@ -8,7 +8,7 @@ angular.module('classeur.opt.fileDragging', [])
 					evt.preventDefault();
 					clFileDraggingSvc.panel.move().to(evt.center.x + 10, evt.center.y).end();
 				}
-				var hammertime = new Hammer(element[0].querySelector('.drag'));
+				var hammertime = new Hammer(element[0]);
 				hammertime.get('pan').set({
 					direction: Hammer.DIRECTION_ALL,
 					threshold: 0

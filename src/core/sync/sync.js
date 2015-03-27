@@ -1,9 +1,11 @@
 angular.module('classeur.core.sync', [])
-	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
+	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
+		var clSyncSvc = {};
 		var lastCreateFileActivity = 0;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
 		var createFileTimeout = 30 * 1000; // 30 sec
 		var loadingTimeout = 30 * 1000; // 30 sec
+		var extFileRefreshAfter = 60 * 1000; // 60 sec
 
 		var syncDataStore = clLocalStorageObject('syncData');
 
@@ -362,6 +364,93 @@ angular.module('classeur.core.sync', [])
 		})();
 
 
+		/*************
+		External files
+		*************/
+
+		function updateExtFileMetadata(fileDao, metadata) {
+			fileDao.lastRefresh = Date.now();
+			if (metadata.updated && (!fileDao.lastUpdated || metadata.updated !== fileDao.lastUpdated)) {
+				fileDao.name = metadata.name;
+				fileDao.sharing = metadata.sharing;
+				fileDao.updated = metadata.updated;
+				fileDao.lastUpdated = metadata.updated;
+				fileDao.write(fileDao.updated);
+			}
+		}
+
+		var lastGetExtFileAttempt = 0;
+		clSyncSvc.getExtFilesMetadata = function() {
+			var currentDate = Date.now();
+			var filesToRefresh = clFileSvc.files.filter(function(fileDao) {
+				return fileDao.userId && (!fileDao.lastRefresh || currentDate - extFileRefreshAfter > fileDao.lastRefresh);
+			});
+			if (!filesToRefresh.length ||
+				currentDate - lastGetExtFileAttempt < extFileRefreshAfter ||
+				$window.navigator.onLine === false
+			) {
+				return;
+			}
+			lastGetExtFileAttempt = currentDate;
+			$http.get('/api/metadata/files', {
+					timeout: loadingTimeout,
+					params: {
+						id: filesToRefresh.map(function(fileDao) {
+							return fileDao.id;
+						}).join(','),
+						userId: filesToRefresh.map(function(fileDao) {
+							return fileDao.userId;
+						}).join(','),
+					}
+				})
+				.success(function(res) {
+					lastGetExtFileAttempt = 0;
+					res.forEach(function(item) {
+						var fileDao = clFileSvc.fileMap[item.id];
+						if (fileDao) {
+							updateExtFileMetadata(fileDao, item);
+							item.updated || clToast('File is not accessible: ' + fileDao.name);
+						}
+					});
+				});
+		};
+
+		clSyncSvc.getExtFolderMetadata = function(folderDao) {
+			var currentDate = Date.now();
+			var filesToRefresh = clFileSvc.files.filter(function(fileDao) {
+				return fileDao.userId && (!fileDao.lastRefresh || currentDate - extFileRefreshAfter > fileDao.lastRefresh);
+			});
+			if (!filesToRefresh.length ||
+				currentDate - lastGetExtFileAttempt < extFileRefreshAfter ||
+				$window.navigator.onLine === false
+			) {
+				return;
+			}
+			lastGetExtFileAttempt = currentDate;
+			$http.get('/api/metadata/files', {
+					timeout: loadingTimeout,
+					params: {
+						id: filesToRefresh.map(function(fileDao) {
+							return fileDao.id;
+						}).join(','),
+						userId: filesToRefresh.map(function(fileDao) {
+							return fileDao.userId;
+						}).join(','),
+					}
+				})
+				.success(function(res) {
+					lastGetExtFileAttempt = 0;
+					res.forEach(function(item) {
+						var fileDao = clFileSvc.fileMap[item.id];
+						if (fileDao) {
+							updateExtFileMetadata(fileDao, item);
+							item.updated || clToast('File is not accessible: ' + fileDao.name);
+						}
+					});
+				});
+		};
+
+
 		/********
 		New files
 		********/
@@ -419,39 +508,9 @@ angular.module('classeur.core.sync', [])
 		var unsetWatchCtx = setWatchCtx.bind(undefined, undefined);
 		clSocketSvc.addMsgHandler('userToken', unsetWatchCtx);
 
-		function watchContent(fileDao) {
-			if (!fileDao || !fileDao.state || fileDao.isReadOnly || isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
-				return;
-			}
-			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
-			setWatchCtx({
-				fileDao: fileDao,
-				rev: contentRevStore[fileDao.id],
-				userActivities: {},
-				contentChanges: []
-			});
-			clSocketSvc.sendMsg({
-				type: 'startWatchContent',
-				id: fileDao.id,
-				userId: fileDao.userId || undefined,
-				previousRev: watchCtx.rev
-			});
-			$timeout.cancel(fileDao.loadingTimeoutId);
-			fileDao.loadingTimeoutId = $timeout(function() {
-				setLoadingError(fileDao, 'Loading timeout.');
-			}, loadingTimeout);
-		}
-
-		function stopWatchContent() {
-			if (watchCtx && watchCtx.fileDao) {
-				clSocketSvc.sendMsg({
-					type: 'stopWatchContent'
-				});
-				unsetWatchCtx();
-			}
-		}
-
-		function setFileStateLoaded(fileDao) {
+		function setLoadedContent(fileDao, serverContent) {
+			fileDao.contentDao.txt = serverContent.txt;
+			fileDao.contentDao.properties = serverContent.properties;
 			fileDao.contentDao.isLocal = '1';
 			fileDao.contentDao.discussions = {};
 			fileDao.contentDao.state = {};
@@ -471,7 +530,79 @@ angular.module('classeur.core.sync', [])
 			clToast(error || 'The file is not accessible.');
 		}
 
-		clSocketSvc.addMsgHandler('file', function(msg) {
+		function getServerContent(content, contentChanges) {
+			return {
+				txt: contentChanges.reduce(function(serverTxt, contentChange) {
+					return clSyncUtils.applyTxtPatches(serverTxt, contentChange.txt || []);
+				}, content.txt),
+				properties: contentChanges.reduce(function(serverProperties, contentChange) {
+					return clSyncUtils.applyPropertiesPatches(serverProperties, contentChange.properties || []);
+				}, content.properties),
+				rev: content.rev + contentChanges.length
+			};
+		}
+
+		function applyServerContent(fileDao, oldContent, serverContent) {
+			var oldTxt = oldContent.txt;
+			var serverTxt = serverContent.txt;
+			var localTxt = clEditorSvc.cledit.getContent();
+			var isServerTxtChanges = oldTxt !== serverTxt;
+			var isLocalTxtChanges = oldTxt !== localTxt;
+			var isTxtSynchronized = serverTxt === localTxt;
+			if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
+				// TODO Deal with conflict
+				clEditorSvc.setContent(serverTxt, true);
+			} else if (!isTxtSynchronized && isServerTxtChanges) {
+				clEditorSvc.setContent(serverTxt, true);
+			}
+			var valueHash = {},
+				valueArray = [];
+			// Hash local object first to preserve Angular indexes
+			var localPropertiesHash = clSyncUtils.hashObject(fileDao.contentDao.properties, valueHash, valueArray);
+			var oldPropertiesHash = clSyncUtils.hashObject(oldContent.properties, valueHash, valueArray);
+			var serverPropertiesHash = clSyncUtils.hashObject(serverContent.properties, valueHash, valueArray);
+			if (oldPropertiesHash !== localPropertiesHash) {
+				localPropertiesHash = clSyncUtils.quickPatch(oldPropertiesHash, serverPropertiesHash, localPropertiesHash);
+				fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
+			} else {
+				fileDao.contentDao.properties = serverContent.properties;
+			}
+		}
+
+		function startWatchFile(fileDao) {
+			if (!fileDao || !fileDao.state || fileDao.isReadOnly || isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
+				return;
+			}
+			fileDao.loadPending = false;
+			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
+			setWatchCtx({
+				fileDao: fileDao,
+				rev: contentRevStore[fileDao.id] || undefined,
+				userActivities: {},
+				contentChanges: []
+			});
+			clSocketSvc.sendMsg({
+				type: 'startWatchFile',
+				id: fileDao.id,
+				userId: fileDao.userId || undefined,
+				from: watchCtx.rev
+			});
+			$timeout.cancel(fileDao.loadingTimeoutId);
+			fileDao.loadingTimeoutId = $timeout(function() {
+				setLoadingError(fileDao, 'Loading timeout.');
+			}, loadingTimeout);
+		}
+
+		function stopWatchFile() {
+			if (watchCtx && watchCtx.fileDao) {
+				clSocketSvc.sendMsg({
+					type: 'stopWatchFile'
+				});
+				unsetWatchCtx();
+			}
+		}
+
+		clSocketSvc.addMsgHandler('watchFile', function(msg) {
 			if (!watchCtx || !watchCtx.fileDao.state || watchCtx.fileDao.id !== msg.id) {
 				return;
 			}
@@ -481,84 +612,47 @@ angular.module('classeur.core.sync', [])
 				return setLoadingError(fileDao);
 			}
 			if (fileDao.userId) {
-				// If file is from another user, that's the only chance we have to update its properties
-				fileDao.name = msg.name;
-				fileDao.sharing = msg.sharing;
-				fileDao.updated = msg.updated;
-				fileDao.write(fileDao.updated);
+				updateExtFileMetadata(fileDao, msg);
 			}
-			var apply;
+			var apply, serverContent = getServerContent(msg.content, msg.contentChanges || []);
 			if (fileDao.state === 'loading') {
-				fileDao.contentDao.txt = msg.latest.txt;
-				watchCtx.txt = msg.latest.txt;
-				fileDao.contentDao.properties = msg.latest.properties;
-				watchCtx.properties = msg.latest.properties;
-				setFileStateLoaded(fileDao);
+				setLoadedContent(fileDao, serverContent);
 				apply = true;
 			} else {
-
-				// Text content
-				var oldTxt = msg.previous ? msg.previous.txt : msg.latest.txt;
-				var serverTxt = msg.latest.txt;
-				var localTxt = clEditorSvc.cledit.getContent();
-				var isServerTxtChanges = oldTxt !== serverTxt;
-				var isLocalTxtChanges = oldTxt !== localTxt;
-				var isTxtSynchronized = serverTxt === localTxt;
-				if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
-					// TODO Deal with conflict
-					clEditorSvc.setContent(msg.latest.txt, true);
-				} else {
-					if (!isTxtSynchronized) {
-						if (isServerTxtChanges) {
-							clEditorSvc.setContent(msg.latest.txt, true);
-						}
-					}
-				}
-				watchCtx.txt = msg.latest.txt;
-
-				var valueHash = {},
-					valueArray = [];
-				// Hash local object first to preserve Angular indexes
-				var localPropertiesHash = clSyncUtils.hashObject(fileDao.contentDao.properties, valueHash, valueArray);
-				var oldPropertiesHash = clSyncUtils.hashObject(msg.previous ? msg.previous.properties : msg.latest.properties, valueHash, valueArray);
-				var serverPropertiesHash = clSyncUtils.hashObject(msg.latest.properties, valueHash, valueArray);
-				if (oldPropertiesHash !== localPropertiesHash) {
-					localPropertiesHash = clSyncUtils.quickPatch(oldPropertiesHash, serverPropertiesHash, localPropertiesHash);
-					fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
-				} else {
-					fileDao.contentDao.properties = msg.latest.properties;
-				}
-				watchCtx.properties = msg.latest.properties;
+				applyServerContent(fileDao, msg.content, serverContent);
 			}
-			watchCtx.rev = msg.latest.rev;
-			contentRevStore[msg.id] = watchCtx.rev;
-			contentRevStore.$writeAttr(msg.id);
-			msg.latest.userIds.forEach(clUserInfoSvc.request);
+			watchCtx.txt = serverContent.txt;
+			watchCtx.properties = serverContent.properties;
+			watchCtx.rev = serverContent.rev;
+			contentRevStore[fileDao.id] = serverContent.rev;
+			contentRevStore.$writeAttr(fileDao.id);
 			// Evaluate scope synchronously to have cledit instantiated
 			apply && $rootScope.$apply();
 		});
 
 		function getPublicFile(fileDao) {
-			if (!fileDao || !fileDao.state || !fileDao.userId) {
+			if (!fileDao || !fileDao.state || !fileDao.loadPending || !fileDao.userId || $window.navigator.onLine === false) {
 				return;
 			}
-			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id, {
+			fileDao.loadPending = false;
+			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
+			var fromRev = contentRevStore[fileDao.id];
+			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id + (fromRev ? '/from/' + fromRev : ''), {
 					timeout: loadingTimeout
 				})
 				.success(function(res) {
-					fileDao.name = res.name;
-					fileDao.sharing = res.sharing;
-					fileDao.updated = res.updated;
-					fileDao.write(fileDao.updated);
-					if (fileDao.state) {
-						fileDao.contentDao.properties = res.content.properties;
-						if (fileDao.state === 'loaded') {
-							clEditorSvc.setContent(res.content.txt, true);
-						} else if (fileDao.state === 'loading') {
-							fileDao.contentDao.txt = res.content.txt;
-							setFileStateLoaded(fileDao);
-						}
+					updateExtFileMetadata(fileDao, res);
+					if (!fileDao.state) {
+						return;
 					}
+					var serverContent = getServerContent(res.content, res.contentChanges || []);
+					if (fileDao.state === 'loading') {
+						setLoadedContent(fileDao, serverContent);
+					} else {
+						applyServerContent(fileDao, res.content, serverContent);
+					}
+					contentRevStore[fileDao.id] = serverContent.rev;
+					contentRevStore.$writeAttr(fileDao.id);
 				})
 				.error(function() {
 					setLoadingError(fileDao);
@@ -659,7 +753,7 @@ angular.module('classeur.core.sync', [])
 			readSyncDataStore(clSocketSvc.ctx);
 			// Remove files that are not local and not going to be synced
 			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-				return !fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
+				return !fileDao.userId && !fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
 			});
 			if (filesToRemove.length) {
 				clFileSvc.removeFiles(filesToRemove);
@@ -682,26 +776,33 @@ angular.module('classeur.core.sync', [])
 			if (syncDataStore.fileSyncReady && Date.now() - lastCreateFileActivity > createFileTimeout) {
 				sendNewFiles();
 			}
-		}, 1100, false, true);
+		}, 1100, true);
 
 		$rootScope.$watch('currentFileDao', function(currentFileDao) {
+			if (currentFileDao) {
+				currentFileDao.loadPending = true;
+			}
 			if (clSocketSvc.isOnline()) {
 				readSyncDataStore(clSocketSvc.ctx);
-				stopWatchContent();
-				watchContent(currentFileDao);
-			} else {
+				stopWatchFile();
+				startWatchFile(currentFileDao);
+			} else if (!clSocketSvc.hasToken) {
 				getPublicFile(currentFileDao);
 			}
 		});
 		clSetInterval(function() {
-			if (readSyncDataStore(clSocketSvc.ctx)) {
-				stopWatchContent();
+			var currentFileDao = $rootScope.currentFileDao;
+			if (clSocketSvc.isOnline()) {
+				if (readSyncDataStore(clSocketSvc.ctx)) {
+					stopWatchFile();
+				}
+				startWatchFile(currentFileDao);
+				sendContentChange();
+			} else if (!clSocketSvc.hasToken) {
+				getPublicFile(currentFileDao);
 			}
-			watchContent($rootScope.currentFileDao);
-			sendContentChange();
 		}, 250, true);
 
-		var clSyncSvc = {};
 		return clSyncSvc;
 	})
 	.factory('clSyncUtils', function($window) {

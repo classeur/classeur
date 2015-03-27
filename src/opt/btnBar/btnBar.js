@@ -38,7 +38,7 @@ angular.module('classeur.opt.btnBar', [])
 				clEditorSvc.pagedownEditor.uiManager.doClick('quote');
 			}
 		}, {
-			icon: 'icon-settings-ethernet',
+			icon: 'icon-code',
 			label: 'Code',
 			keystroke: 'Ctrl/Cmd+K',
 			click: function() {
@@ -74,7 +74,7 @@ angular.module('classeur.opt.btnBar', [])
 				clEditorSvc.pagedownEditor.uiManager.doClick('heading');
 			}
 		}, {
-			icon: 'icon-more-horiz',
+			icon: 'icon-hr',
 			label: 'Horizontal rule',
 			keystroke: 'Ctrl/Cmd+R',
 			click: function() {

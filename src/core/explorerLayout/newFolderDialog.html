@@ -18,9 +18,10 @@
             <input class="link" ng-model="link">
         </md-input-container>
         <div layout="row" layout-align="end center">
-            <md-button ng-click="import()" class="md-primary">
+            <md-button ng-click="import()" class="md-primary" ng-show="!loading">
                 Import
             </md-button>
+            <md-progress-circular md-mode="indeterminate" ng-show="loading"></md-progress-circular>
         </div>
     </md-content>
     <div class="md-actions">

@@ -81,7 +81,7 @@
                 color: #2164D3;
             }
             &.red {
-                color: #D35000;
+                color: #D33800;
             }
         }
     }
@@ -102,6 +102,9 @@
     $file-entry-height: 40px;
     .file.entry {
         line-height: $file-entry-height;
+        .drag-space {
+            width: 12px;
+        }
         .drag {
             padding-left: 2px;
             padding-right: 2px;
@@ -218,7 +221,7 @@
                 font-size: 18px;
             }
         }
-        .open.btn {
+        .open.btn, .current.btn {
             button {
                 color: #fff;
             }

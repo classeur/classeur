@@ -22,8 +22,15 @@
             font-size: 25px;
             line-height: 32px;
         }
-        .icon-more-horiz {
-            line-height: 1.4;
+        .icon-code::before {
+            content: "\e8a7\e8a8";
+            letter-spacing: -0.54em;
+            margin-left: -0.6em;
+        }
+        .icon-hr::before {
+            font-family: $font-family;
+            content: "\00B7\00B7\00B7\00B7";
+            letter-spacing: -0.06em;
         }
         &.active a {
             cursor: auto;

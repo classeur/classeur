@@ -135,29 +135,19 @@ angular.module('classeur.core.files', [])
 			state: true,
 		};
 
-		function init(cleanStorage) {
-			if (!clFileSvc.fileIds) {
+		var isInited;
+		function init() {
+			if (!isInited) {
 				clFileSvc.$readAttr('fileIds', '[]', JSON.parse);
-			}
-			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
-				return clFileSvc.fileMap[id] || new FileDao(id);
-			});
-			clFileSvc.fileMap = {};
-			clFileSvc.localFiles = [];
-			clFileSvc.files.forEach(function(fileDao) {
-				clFileSvc.fileMap[fileDao.id] = fileDao;
-				fileDao.contentDao.isLocal && clFileSvc.localFiles.push(fileDao);
-			});
-
-			clFileSvc.localFiles.sort(function(fileDao1, fileDao2) {
-				return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
-			}).splice(maxLocalFiles).forEach(function(fileDao) {
-				fileDao.unload();
-				fileDao.contentDao.isLocal = '';
-				fileDao.writeContent();
-			});
-
-			if (cleanStorage) {
+				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
+					if(!clFileSvc.fileMap.hasOwnProperty(id)) {
+						var fileDao = new FileDao(id);
+						if(!fileDao.userId || fileDao.contentDao.isLocal) {
+							clFileSvc.fileMap[id] = fileDao;
+							return true;
+						}
+					}
+				});
 				var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
 				var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
 				for (var key in localStorage) {
@@ -177,7 +167,25 @@ angular.module('classeur.core.files', [])
 						}
 					}
 				}
+				isInited = true;
 			}
+			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
+				return clFileSvc.fileMap[id] || new FileDao(id);
+			});
+			clFileSvc.fileMap = {};
+			clFileSvc.localFiles = [];
+			clFileSvc.files.forEach(function(fileDao) {
+				clFileSvc.fileMap[fileDao.id] = fileDao;
+				fileDao.contentDao.isLocal && clFileSvc.localFiles.push(fileDao);
+			});
+
+			clFileSvc.localFiles.sort(function(fileDao1, fileDao2) {
+				return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
+			}).splice(maxLocalFiles).forEach(function(fileDao) {
+				fileDao.unload();
+				fileDao.contentDao.isLocal = '';
+				fileDao.writeContent();
+			});
 		}
 
 		function checkAll() {
@@ -279,6 +287,6 @@ angular.module('classeur.core.files', [])
 		clFileSvc.createPublicFile = createPublicFile;
 		clFileSvc.fileMap = {};
 
-		init(true);
+		init();
 		return clFileSvc;
 	});

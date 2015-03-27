@@ -267,7 +267,7 @@ angular.module('classeur.core.utils', [])
 		$window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
 	})
-	.factory('clSetInterval', function($window, clSocketSvc) {
+	.factory('clSetInterval', function($window) {
 		var lastFocus, lastFocusKey = 'lastWindowFocus';
 
 		function setLastFocus() {
@@ -281,10 +281,10 @@ angular.module('classeur.core.utils', [])
 
 		setLastFocus();
 		$window.addEventListener('focus', setLastFocus);
-		return function(cb, interval, checkOnline, checkWindowFocus) {
+		return function(cb, interval, checkWindowFocus) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
 			setInterval(function() {
-				(!checkOnline || clSocketSvc.isOnline()) && (!checkWindowFocus || isWindowFocus()) && cb();
+				(!checkWindowFocus || isWindowFocus()) && cb();
 			}, interval);
 		};
 	})

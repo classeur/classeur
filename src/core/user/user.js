@@ -44,32 +44,36 @@ angular.module('classeur.core.user', [])
 
         return clUserSvc;
     })
-    .factory('clUserInfoSvc', function($rootScope, clSocketSvc, clSetInterval, clUserSvc) {
+    .factory('clUserInfoSvc', function($rootScope, $window, $http, clSetInterval, clUserSvc) {
         var requestedUserInfo = {};
-        var userInfoTimeout = 30000;
+        var userInfoTimeout = 30 * 1000; // 30 sec
         var lastUserInfoAttempt = 0;
 
         clSetInterval(function() {
-            var currentDate = Date.now();
-            var userIds = Object.keys(requestedUserInfo);
-            if (userIds.length && currentDate - lastUserInfoAttempt > userInfoTimeout) {
-                lastUserInfoAttempt = currentDate;
-                clSocketSvc.sendMsg({
-                    type: 'getUserInfo',
-                    ids: userIds,
-                });
+            if($window.navigator.onLine === false) {
+                return;
             }
-        }, 1100, true);
-
-        clSocketSvc.addMsgHandler('userInfo', function(msg) {
-            msg.users.forEach(function(user) {
-                clUserInfoSvc.users[user.id] = user;
-                delete requestedUserInfo[user.id];
-            });
-            clUserInfoSvc.lastUserInfo = Date.now();
-            lastUserInfoAttempt = 0;
-            $rootScope.$evalAsync();
-        });
+            var currentDate = Date.now();
+            var ids = Object.keys(requestedUserInfo);
+            if (!ids.length || currentDate - lastUserInfoAttempt < userInfoTimeout) {
+                return;
+            }
+            lastUserInfoAttempt = currentDate;
+            $http.get('/api/metadata/users', {
+                    timeout: userInfoTimeout,
+                    params: {
+                        id: ids.join(',')
+                    }
+                })
+                .success(function(res) {
+                    lastUserInfoAttempt = 0;
+                    clUserInfoSvc.lastUserInfo = Date.now();
+                    res.forEach(function(user) {
+                        clUserInfoSvc.users[user.id] = user;
+                        delete requestedUserInfo[user.id];
+                    });
+                });
+        }, 1100);
 
         $rootScope.$watch('userSvc.user', function(user) {
             if (user) {
@@ -108,7 +112,7 @@ angular.module('classeur.core.user', [])
                         return;
                     }
                     scope.isLoading = true;
-                    $http.post('/api/users/new', {
+                    $http.post('/api/users', {
                             name: scope.newUser.name,
                             syncFilesAndSettings: scope.newUser.syncFilesAndSettings,
                             token: clStateMgr.token
