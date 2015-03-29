@@ -5,6 +5,7 @@
     </div>
     <md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
     </md-checkbox>
+    <div class="icon-publ" ng-show="fileDao.userId" ng-click="open()"></div>
     <md-input-container flex ng-click="open()">
         <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
     </md-input-container>

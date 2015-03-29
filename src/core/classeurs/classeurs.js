@@ -5,31 +5,65 @@ angular.module('classeur.core.classeurs', [])
 		function ClasseurDao(id, name) {
 			this.id = id;
 			this.name = name;
-			this.folderIds = [];
+			this.folders = [];
 		}
 
-		clClasseurSvc.serializer = function(data) {
-			return JSON.stringify(data, function(id, value) {
-				// Sort object keys and discard unwanted properties
-				return (value && value.id && {
-					folderIds: value.folderIds,
-					id: value.id,
-					isDefault: value.isDefault,
-					name: value.name
-				}) || value;
-			});
+		ClasseurDao.prototype.toStorable = function() {
+			return {
+				folders: this.folders.map(function(folderDao) {
+					return {
+						id: folderDao.id,
+						userId: folderDao.userId
+					};
+				}),
+				id: this.id,
+				isDefault: this.isDefault,
+				name: this.name
+			};
+		};
+
+		ClasseurDao.prototype.fromStorable = function(item) {
+			this.id = item.id;
+			this.name = item.name;
+			this.isDefault = item.isDefault;
+			this.folders = item.folders.reduce(function(result, folder) {
+				var folderDao = clFolderSvc.folderMap[folder.id];
+				if (!folderDao && folder.userId) {
+					folderDao = clFolderSvc.createPublicFolder(folder.userId, folder.id);
+				}
+				folderDao && result.push(folderDao);
+				return result;
+			}, []);
 		};
 
 		clClasseurSvc.read = function() {
-			this.$readAttr('classeurs', '[]', JSON.parse);
+			this.$readAttr('classeurs', '[]', function(data) {
+				return JSON.parse(data).reduce(function(result, item) {
+					var classeurDao = new ClasseurDao();
+					classeurDao.fromStorable(item);
+					result.push(classeurDao);
+					return result;
+				}, []);
+			});
 			this.$readLocalUpdate();
 		};
 
 		clClasseurSvc.write = function(updated) {
-			this.$writeAttr('classeurs', clClasseurSvc.serializer, updated);
+			this.$writeAttr('classeurs', function(data) {
+				return JSON.stringify(data, function(id, value) {
+					return value instanceof ClasseurDao ? value.toStorable() : value;
+				});
+			}, updated);
 		};
 
-		function init() {
+		function init(storedClasseurs) {
+			if (storedClasseurs) {
+				clClasseurSvc.classeurs = storedClasseurs.map(function(item) {
+					var classeurDao = new ClasseurDao();
+					classeurDao.fromStorable(item);
+					return classeurDao;
+				});
+			}
 			clClasseurSvc.defaultClasseur = undefined;
 			clClasseurSvc.classeurs.some(function(classeur) {
 				if (classeur.isDefault) {
@@ -46,30 +80,26 @@ angular.module('classeur.core.classeurs', [])
 			clClasseurSvc.classeurs.forEach(function(classeur) {
 				clClasseurSvc.classeurMap[classeur.id] = classeur;
 				classeur.isDefault = undefined;
-				classeur.folders = [];
-				classeur.folderIds.forEach(function(folderId) {
-					var folderDao = clFolderSvc.folderMap[folderId];
+				classeur.folders = classeur.folders.filter(function(folderDao) {
+					folderDao = clFolderSvc.folderMap[folderDao.id];
 					if (folderDao) {
-						classeur.folders.push(folderDao);
-						foldersInClasseur[folderId] = true;
+						foldersInClasseur[folderDao.id] = true;
+						return true;
 					}
-				});
-				classeur.folderIds = classeur.folders.map(function(folderDao) {
-					return folderDao.id;
 				});
 			});
 			clClasseurSvc.defaultClasseur.isDefault = true;
 			clFolderSvc.folders.forEach(function(folderDao) {
 				if (!foldersInClasseur.hasOwnProperty(folderDao.id)) {
 					clClasseurSvc.defaultClasseur.folders.push(folderDao);
-					clClasseurSvc.defaultClasseur.folderIds.push(folderDao.id);
 				}
 			});
 			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
 				return classeurDao1.name > classeurDao2.name;
-			});
-			clClasseurSvc.classeurs.forEach(function(classeurDao) {
-				classeurDao.folderIds.sort();
+			}).forEach(function(classeurDao) {
+				classeurDao.folders.sort(function(folder1, folder2) {
+					return folder1.id > folder2.id;
+				});
 			});
 		}
 

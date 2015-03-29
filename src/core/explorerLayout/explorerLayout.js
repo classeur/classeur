@@ -98,7 +98,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants) {
+	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clSyncSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -191,7 +191,7 @@ angular.module('classeur.core.explorerLayout', [])
 						scope.cancel = function() {
 							$mdDialog.cancel();
 						};
-						var inputElt = element[0].querySelector('.name');
+						var inputElt = element[0].querySelector('input.name');
 						inputElt.addEventListener('keydown', function(e) {
 							// Check enter key
 							if (e.which === 13) {
@@ -213,15 +213,50 @@ angular.module('classeur.core.explorerLayout', [])
 					$mdDialog.show({
 						templateUrl: 'core/explorerLayout/newFolderDialog.html',
 						onComplete: onCompleteNameFocus(function(scope, element) {
+							var namePanel = clPanel(element, '.name.panel');
+							var linkPanel = clPanel(element, '.link.panel');
+							var currentPanel = 'name';
+
+							function animate() {
+								namePanel.move('fast').set('height', currentPanel === 'name' ? '70px' : 0).end();
+								linkPanel.move('fast').set('height', currentPanel === 'link' ? '70px' : 0).end();
+							}
+
 							function importFolder(folderDao) {
-								clExplorerLayoutSvc.currentClasseurDao.folderIds.push(folderDao.id);
+								clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
 								clClasseurSvc.init();
 								clExplorerLayoutSvc.refreshFolders();
 								clExplorerLayoutSvc.setCurrentFolder(folderDao);
 								$mdDialog.cancel();
 							}
 
+							function importPublicFolder(userId, folderId) {
+								var folderDao = clFolderSvc.createPublicFolder(userId, folderId);
+								folderDao.removeOnFailure = true;
+								// Classeurs are updated when evaluating folderSvc.folders
+								clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
+								$timeout(function() {
+									clExplorerLayoutSvc.setCurrentFolder(folderDao);
+								});
+								$mdDialog.cancel();
+							}
+
+							var ok = scope.ok;
+							scope.ok = function() {
+								if (currentPanel !== 'name') {
+									currentPanel = 'name';
+									animate();
+									return scope.nameFocus();
+								}
+								ok();
+							};
+
 							scope.import = function() {
+								if (currentPanel !== 'link') {
+									currentPanel = 'link';
+									animate();
+									return scope.linkFocus();
+								}
 								if (!scope.link) {
 									return scope.linkFocus();
 								}
@@ -232,18 +267,16 @@ angular.module('classeur.core.explorerLayout', [])
 									clToast('Invalid folder link.');
 									return scope.linkFocus();
 								}
-								if (clExplorerLayoutSvc.currentClasseurDao.folderIds.indexOf(folderId) !== -1) {
+								if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
+									return folderDao.id === folderId;
+								})) {
 									clToast('Folder is already in this classeur.');
 									return $mdDialog.cancel();
 								}
 								var folderDao = clFolderSvc.folderMap[folderId];
-								if (folderDao) {
-									return importFolder(folderDao);
-								}
-								scope.loading = true;
-								$http.get()
+								folderDao ? importFolder(folderDao) : importPublicFolder(userId, folderId);
 							};
-							var inputElt = element[0].querySelector('.link');
+							var inputElt = element[0].querySelector('input.link');
 							inputElt.addEventListener('keydown', function(e) {
 								// Check enter key
 								if (e.which === 13) {
@@ -256,12 +289,13 @@ angular.module('classeur.core.explorerLayout', [])
 									inputElt.focus();
 								}, 10);
 							};
+
 						})
 					}).then(function(name) {
 						var folderDao = clFolderSvc.createFolder();
 						folderDao.name = name;
 						// Classeurs are updated when evaluating folderSvc.folders
-						clExplorerLayoutSvc.currentClasseurDao.folderIds.push(folderDao.id);
+						clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
 						$timeout(function() {
 							clExplorerLayoutSvc.setCurrentFolder(folderDao);
 						});
@@ -353,8 +387,9 @@ angular.module('classeur.core.explorerLayout', [])
 								.ok('This only')
 								.cancel('All');
 							return $mdDialog.show(confirm).then(function() {
-								var index = clExplorerLayoutSvc.currentClasseurDao.folderIds.indexOf(folderDao.id);
-								index !== -1 && clExplorerLayoutSvc.currentClasseurDao.folderIds.splice(index, 1);
+								clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
+									return folderInClasseur.id !== folderDao.id;
+								});
 								clClasseurSvc.init();
 								clExplorerLayoutSvc.refreshFolders();
 							}, deleteConfirm);
@@ -418,10 +453,11 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.toggleExplorer(true);
 				};
 
-				scope.$watch('explorerLayoutSvc.currentFolderDao', function() {
+				scope.$watch('explorerLayoutSvc.currentFolderDao', function(folderDao) {
 					clExplorerLayoutSvc.refreshFiles();
 					scope.selectNone();
 					setPlasticClass();
+					clSyncSvc.getExtFolder(folderDao);
 				});
 				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
 				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
@@ -466,7 +502,7 @@ angular.module('classeur.core.explorerLayout', [])
 				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
 					return !fileDao.userId && !clFolderSvc.folderMap.hasOwnProperty(fileDao.folderId);
 				} : function(fileDao) {
-					return !fileDao.userId && fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id;
+					return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id;
 				}) : clFileSvc.localFiles.slice();
 			clExplorerLayoutSvc.files.sort(
 				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {

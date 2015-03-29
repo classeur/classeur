@@ -73,7 +73,7 @@ angular.module('classeur.core.files', [])
 			if (this.contentDao.isLocal) {
 				this.state = 'loading';
 				$timeout((function() {
-					if(this.state === 'loading') {
+					if (this.state === 'loading') {
 						this.state = 'loaded';
 						this.readContent();
 					}
@@ -136,38 +136,41 @@ angular.module('classeur.core.files', [])
 		};
 
 		var isInited;
+
 		function init() {
-			if (!isInited) {
+			if (!clFileSvc.fileIds) {
 				clFileSvc.$readAttr('fileIds', '[]', JSON.parse);
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
-					if(!clFileSvc.fileMap.hasOwnProperty(id)) {
+					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
 						var fileDao = new FileDao(id);
-						if(!fileDao.userId || fileDao.contentDao.isLocal) {
+						if (!fileDao.userId || fileDao.contentDao.isLocal) {
 							clFileSvc.fileMap[id] = fileDao;
 							return true;
 						}
 					}
 				});
-				var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
-				var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
-				for (var key in localStorage) {
-					var fileDao, match = key.match(fileKeyPrefix);
-					if (match) {
-						fileDao = clFileSvc.fileMap[match[1]];
-						if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
-							localStorage.removeItem(key);
+				if (!isInited) {
+					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
+					var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
+					for (var key in localStorage) {
+						var fileDao, match = key.match(fileKeyPrefix);
+						if (match) {
+							fileDao = clFileSvc.fileMap[match[1]];
+							if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
+								localStorage.removeItem(key);
+							}
+							continue;
 						}
-						continue;
-					}
-					match = key.match(contentKeyPrefix);
-					if (match) {
-						fileDao = clFileSvc.fileMap[match[1]];
-						if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
-							localStorage.removeItem(key);
+						match = key.match(contentKeyPrefix);
+						if (match) {
+							fileDao = clFileSvc.fileMap[match[1]];
+							if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
+								localStorage.removeItem(key);
+							}
 						}
 					}
+					isInited = true;
 				}
-				isInited = true;
 			}
 			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
 				return clFileSvc.fileMap[id] || new FileDao(id);
@@ -234,6 +237,17 @@ angular.module('classeur.core.files', [])
 			return fileDao;
 		}
 
+		function createPublicFile(userId, id) {
+			var fileDao = new FileDao(id);
+			fileDao.userId = userId;
+			// File is added to the list by sync module
+			return fileDao;
+		}
+
+		function createReadOnlyFile(name, content) {
+			return new ReadOnlyFile(name, content);
+		}
+
 		function removeFiles(fileDaoList) {
 			if (!fileDaoList.length) {
 				return;
@@ -267,24 +281,14 @@ angular.module('classeur.core.files', [])
 			init();
 		}
 
-		function createReadOnlyFile(name, content) {
-			return new ReadOnlyFile(name, content);
-		}
-
-		function createPublicFile(userId, fileId) {
-			var fileDao = new FileDao(fileId);
-			fileDao.userId = userId;
-			return fileDao;
-		}
-
 		clFileSvc.fileDaoProto = fileDaoProto;
 		clFileSvc.init = init;
 		clFileSvc.checkAll = checkAll;
 		clFileSvc.createFile = createFile;
+		clFileSvc.createPublicFile = createPublicFile;
+		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.removeFiles = removeFiles;
 		clFileSvc.updateFiles = updateFiles;
-		clFileSvc.createReadOnlyFile = createReadOnlyFile;
-		clFileSvc.createPublicFile = createPublicFile;
 		clFileSvc.fileMap = {};
 
 		init();

@@ -1,10 +1,12 @@
 <md-dialog class="new folder dialog">
     <md-content>
         <h1>Add folder</h1>
-        <md-input-container>
-            <label>Name</label>
-            <input class="name" ng-model="name">
-        </md-input-container>
+        <div class="name panel">
+            <md-input-container>
+                <label>Name</label>
+                <input class="name" ng-model="name">
+            </md-input-container>
+        </div>
         <div layout="row" layout-align="end center">
             <md-button ng-click="ok()" class="md-primary">
                 Create
@@ -13,15 +15,16 @@
         <p class="or">
             <span>—</span> or <span>—</span>
         </p>
-        <md-input-container>
-            <label>Link</label>
-            <input class="link" ng-model="link">
-        </md-input-container>
+        <div class="link panel">
+            <md-input-container>
+                <label>Link</label>
+                <input class="link" ng-model="link">
+            </md-input-container>
+        </div>
         <div layout="row" layout-align="end center">
-            <md-button ng-click="import()" class="md-primary" ng-show="!loading">
+            <md-button ng-click="import()" class="md-primary">
                 Import
             </md-button>
-            <md-progress-circular md-mode="indeterminate" ng-show="loading"></md-progress-circular>
         </div>
     </md-content>
     <div class="md-actions">

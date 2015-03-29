@@ -53,6 +53,7 @@ angular.module('classeur.core', [])
 
 	})
 	.controller('ClEditorController', function($scope, $routeParams, $location, $mdDialog, clToast, clFileSvc, clEditorLayoutSvc) {
+		// TODO import current user file when not already synced
 		var publicFileDao = $routeParams.userId && clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
 		var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 		if (!fileDao) {
@@ -67,8 +68,7 @@ angular.module('classeur.core', [])
 		$scope.$watch('currentFileDao.state', function(state) {
 			if (!state) {
 				return $location.url('');
-			}
-			if (state === 'loaded') {
+			} else if (state === 'loaded') {
 				clEditorLayoutSvc.init(!!publicFileDao);
 				$scope.fileLoaded = true;
 			}
@@ -165,7 +165,7 @@ angular.module('classeur.core', [])
 			if (!value && value !== hasToken) {
 				var clearDataDialog = $mdDialog.confirm()
 					.title('You\'ve been signed out')
-					.content('Would you like to clean all your local files?')
+					.content('Would you like to clean all your local data?')
 					.ariaLabel('Clean local data')
 					.ok('Yes please')
 					.cancel('No thanks');

@@ -64,7 +64,7 @@ angular.module('classeur.opt.fileDragging', [])
 			}
 		};
 	})
-	.factory('clFileDraggingSvc', function(clExplorerLayoutSvc) {
+	.factory('clFileDraggingSvc', function(clExplorerLayoutSvc, clToast) {
 		function setFileSrc(fileDao) {
 			clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
 				return !fileDao.userId && fileDao.isSelected;
@@ -84,6 +84,9 @@ angular.module('classeur.opt.fileDragging', [])
 
 		function moveFiles() {
 			if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
+				if(clFileDraggingSvc.targetFolder.userId) {
+					return clToast('Unable to move files to public folder.');
+				}
 				clFileDraggingSvc.files.forEach(function(fileDao) {
 					fileDao.folderId = clFileDraggingSvc.targetFolder.id;
 				});

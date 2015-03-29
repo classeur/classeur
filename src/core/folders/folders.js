@@ -13,18 +13,21 @@ angular.module('classeur.core.folders', [])
 		FolderDao.prototype.read = function() {
 			this.$readAttr('name', '');
 			this.$readAttr('sharing', '');
+			this.$readAttr('userId', '');
 			this.$readLocalUpdate();
 		};
 
 		FolderDao.prototype.write = function(updated) {
 			this.$writeAttr('name', undefined, updated);
 			this.$writeAttr('sharing', undefined, updated);
+			this.$writeAttr('userId', undefined, updated);
 		};
 
 		var clFolderSvc = clLocalStorageObject('folderSvc');
 
 		var authorizedKeys = {
 			u: true,
+			userId: true,
 			name: true,
 			sharing: true,
 		};
@@ -82,11 +85,17 @@ angular.module('classeur.core.folders', [])
 			}
 		}
 
-		function createFolder() {
-			var id = clUid();
+		function createFolder(id) {
+			id = id || clUid();
 			clFolderSvc.folderIds.push(id);
 			init();
 			return clFolderSvc.folderMap[id];
+		}
+
+		function createPublicFolder(userId, id) {
+			var folderDao = createFolder(id);
+			folderDao.userId = userId;
+			return folderDao;
 		}
 
 		function removeFolder(folderDao) {
@@ -134,6 +143,7 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.init = init;
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;
+		clFolderSvc.createPublicFolder = createPublicFolder;
 		clFolderSvc.removeFolder = removeFolder;
 		clFolderSvc.removeFolders = removeFolders;
 		clFolderSvc.updateFolders = updateFolders;

@@ -54,16 +54,21 @@ angular.module('classeur.core.sync', [])
 
 		function checkUserChange(userId) {
 			if (userId !== syncDataStore.userId) {
-				// Clear sync data
 				var fileKeyPrefix = /^(cr\.|syncData\.)/;
 				for (var key in localStorage) {
 					if (key.match(fileKeyPrefix)) {
 						localStorage.removeItem(key);
 					}
 				}
-				// Remove files that are not local
 				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-					return !fileDao.contentDao.isLocal;
+					if (!fileDao.userId) {
+						if (!fileDao.contentDao.isLocal) {
+							return true;
+						}
+						fileDao.userId = syncDataStore.userId;
+					} else if (fileDao.userId === userId) {
+						fileDao.userId = '';
+					}
 				});
 				clFileSvc.removeFiles(filesToRemove);
 				readSyncDataStore();
@@ -133,8 +138,7 @@ angular.module('classeur.core.sync', [])
 				if (msg.classeurs) {
 					syncData = syncDataStore.userData.classeurs || {};
 					if (syncData.s !== msg.classeursUpdated) {
-						clClasseurSvc.classeurs = msg.classeurs;
-						clClasseurSvc.init();
+						clClasseurSvc.init(msg.classeurs);
 						clClasseurSvc.write(msg.classeursUpdated);
 						syncDataStore.lastClasseursUpdated = msg.classeursUpdated;
 						apply = true;
@@ -142,6 +146,7 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.userData.classeurs = {
 						r: msg.classeursUpdated
 					};
+					clSyncSvc.getExtFoldersMetadata();
 				}
 				apply && $rootScope.$evalAsync();
 				sendChanges();
@@ -161,7 +166,9 @@ angular.module('classeur.core.sync', [])
 				}
 				syncData = syncDataStore.userData.classeurs || {};
 				if (clClasseurSvc.updated !== syncData.r) {
-					msg.classeurs = JSON.parse(clClasseurSvc.serializer(clClasseurSvc.classeurs));
+					msg.classeurs = clClasseurSvc.classeurs.map(function(classeurDao) {
+						return classeurDao.toStorable();
+					});
 					msg.classeursUpdated = clClasseurSvc.updated;
 					syncData.s = clClasseurSvc.updated;
 					syncDataStore.userData.classeurs = syncData;
@@ -225,6 +232,8 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.lastFolderSeq = msg.lastSeq;
 					retrieveChanges();
 				} else {
+					// Sync user's classeurs once all folders are synced
+					syncUser();
 					sendChanges();
 				}
 				writeSyncDataStore();
@@ -237,14 +246,24 @@ angular.module('classeur.core.sync', [])
 					if (!folderDao.name || folderDao.updated == syncData.r) {
 						return;
 					}
-					changes.push({
-						id: folderDao.id,
-						name: folderDao.name,
-						sharing: folderDao.sharing || undefined,
-						updated: folderDao.updated
-					});
-					syncData.s = folderDao.updated;
-					syncDataStore.folders[folderDao.id] = syncData;
+					if (!folderDao.userId) {
+						changes.push({
+							id: folderDao.id,
+							name: folderDao.name,
+							sharing: folderDao.sharing || undefined,
+							updated: folderDao.updated
+						});
+						syncData.s = folderDao.updated;
+						syncDataStore.folders[folderDao.id] = syncData;
+					} else if (folderDao.lastUpdated && folderDao.updated !== folderDao.lastUpdated) {
+						changes.push({
+							id: folderDao.id,
+							userId: folderDao.userId,
+							name: folderDao.name,
+							updated: folderDao.updated,
+							lastUpdated: folderDao.lastUpdated
+						});
+					}
 				});
 				// Check deleted folders
 				expectedFolderDeletions = [];
@@ -328,19 +347,30 @@ angular.module('classeur.core.sync', [])
 				var changes = [];
 				clFileSvc.files.forEach(function(fileDao) {
 					var syncData = syncDataStore.files[fileDao.id] || {};
-					// Check that the file was previously created
-					if (!syncData.r || fileDao.userId || !fileDao.name || fileDao.updated == syncData.r) {
+					if (!fileDao.name || fileDao.updated == syncData.r) {
 						return;
 					}
-					changes.push({
-						id: fileDao.id,
-						name: fileDao.name,
-						folderId: fileDao.folderId || undefined,
-						sharing: fileDao.sharing || undefined,
-						updated: fileDao.updated
-					});
-					syncData.s = fileDao.updated;
-					syncDataStore.files[fileDao.id] = syncData;
+					// Check that the file was previously created
+					if (syncData.r && !fileDao.userId) {
+						changes.push({
+							id: fileDao.id,
+							name: fileDao.name,
+							folderId: fileDao.folderId || undefined,
+							sharing: fileDao.sharing || undefined,
+							updated: fileDao.updated
+						});
+						syncData.s = fileDao.updated;
+						syncDataStore.files[fileDao.id] = syncData;
+					} else if (fileDao.lastUpdated && fileDao.updated !== fileDao.lastUpdated) {
+						changes.push({
+							id: fileDao.id,
+							userId: fileDao.userId,
+							name: fileDao.name,
+							updated: fileDao.updated,
+							lastUpdated: fileDao.lastUpdated
+						});
+					}
+
 				});
 				// Check deleted files
 				expectedFileDeletions = [];
@@ -364,9 +394,9 @@ angular.module('classeur.core.sync', [])
 		})();
 
 
-		/*************
-		External files
-		*************/
+		/*********************
+		External files/folders
+		*********************/
 
 		function updateExtFileMetadata(fileDao, metadata) {
 			fileDao.lastRefresh = Date.now();
@@ -415,38 +445,75 @@ angular.module('classeur.core.sync', [])
 				});
 		};
 
-		clSyncSvc.getExtFolderMetadata = function(folderDao) {
-			var currentDate = Date.now();
-			var filesToRefresh = clFileSvc.files.filter(function(fileDao) {
-				return fileDao.userId && (!fileDao.lastRefresh || currentDate - extFileRefreshAfter > fileDao.lastRefresh);
+		function updateExtFolderMetadata(folderDao, metadata) {
+			if (metadata.updated && (!folderDao.lastUpdated || metadata.updated !== folderDao.lastUpdated)) {
+				folderDao.name = metadata.name;
+				folderDao.sharing = metadata.sharing;
+				folderDao.updated = metadata.updated;
+				folderDao.lastUpdated = metadata.updated;
+				folderDao.write(folderDao.updated);
+			}
+		}
+
+		clSyncSvc.getExtFoldersMetadata = function() {
+			var foldersToRefresh = clFolderSvc.folders.filter(function(folderDao) {
+				return folderDao.userId && !folderDao.name;
 			});
-			if (!filesToRefresh.length ||
-				currentDate - lastGetExtFileAttempt < extFileRefreshAfter ||
+			if (!foldersToRefresh.length ||
 				$window.navigator.onLine === false
 			) {
 				return;
 			}
-			lastGetExtFileAttempt = currentDate;
-			$http.get('/api/metadata/files', {
+			$http.get('/api/metadata/folders', {
 					timeout: loadingTimeout,
 					params: {
-						id: filesToRefresh.map(function(fileDao) {
-							return fileDao.id;
+						id: foldersToRefresh.map(function(folderDao) {
+							return folderDao.id;
 						}).join(','),
-						userId: filesToRefresh.map(function(fileDao) {
-							return fileDao.userId;
+						userId: foldersToRefresh.map(function(folderDao) {
+							return folderDao.userId;
 						}).join(','),
 					}
 				})
 				.success(function(res) {
-					lastGetExtFileAttempt = 0;
 					res.forEach(function(item) {
-						var fileDao = clFileSvc.fileMap[item.id];
-						if (fileDao) {
-							updateExtFileMetadata(fileDao, item);
-							item.updated || clToast('File is not accessible: ' + fileDao.name);
+						var folderDao = clFolderSvc.folderMap[item.id];
+						if (folderDao) {
+							updateExtFolderMetadata(folderDao, item);
 						}
 					});
+				});
+		};
+
+		clSyncSvc.getExtFolder = function(folderDao) {
+			if (!folderDao || !folderDao.userId ||
+				(folderDao.lastRefresh && Date.now() - folderDao.lastRefresh < extFileRefreshAfter) ||
+				$window.navigator.onLine === false
+			) {
+				return;
+			}
+			$http.get('/api/users/' + folderDao.userId + '/folders/' + folderDao.id, {
+					timeout: loadingTimeout
+				})
+				.success(function(res) {
+					folderDao.removeOnFailure = false;
+					folderDao.lastRefresh = Date.now();
+					updateExtFolderMetadata(folderDao, res);
+					res.files.forEach(function(item) {
+						var fileDao = clFileSvc.fileMap[item.id];
+						if (!fileDao) {
+							fileDao = clFileSvc.createPublicFile(item.userId, item.id);
+							clFileSvc.fileMap[fileDao.id] = fileDao;
+							clFileSvc.fileIds.push(fileDao.id);
+						}
+						fileDao.folderId = folderDao.id;
+						updateExtFileMetadata(fileDao, item);
+					});
+					clFileSvc.init();
+				})
+				.error(function() {
+					clToast('Folder is not accessible.');
+					folderDao.removeOnFailure && clFolderSvc.removeFolder(folderDao);
 				});
 		};
 
@@ -763,8 +830,7 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			if (Date.now() - syncDataStore.lastActivity > maxSyncInactivity) {
-				// Retrieve and send user/files/folders modifications
-				syncUser();
+				// Retrieve and send files/folders modifications
 				syncFolders();
 				syncFiles();
 				writeSyncDataStore();
@@ -790,6 +856,7 @@ angular.module('classeur.core.sync', [])
 				getPublicFile(currentFileDao);
 			}
 		});
+
 		clSetInterval(function() {
 			var currentFileDao = $rootScope.currentFileDao;
 			if (clSocketSvc.isOnline()) {

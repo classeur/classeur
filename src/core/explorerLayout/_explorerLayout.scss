@@ -73,9 +73,20 @@
             a {
                 color: #fff;
             }
+            &.icon-publ {
+                color: rgba(255, 255, 255, 0.3);
+                margin-bottom: 8px;
+            }
+        }
+        md-progress-circular {
+            position: relative;
+            top: 40px;
+            left: 50%;
+            margin-left: -25px;
         }
     }
-    .folder.container, .file.entry {
+    .folder.container,
+    .file.entry {
         .btn a {
             &.blue {
                 color: #2164D3;
@@ -127,6 +138,7 @@
         }
         md-input-container {
             padding-bottom: 8px;
+            cursor: pointer;
             .md-input {
                 line-height: 1;
                 &[disabled] {
@@ -135,13 +147,20 @@
                 }
             }
         }
-        .edit.filename.btn, .share.file.btn {
+        .edit.filename.btn,
+        .share.file.btn {
             width: 32px;
             height: $file-entry-height;
             font-size: 28px;
             a {
                 line-height: $file-entry-height;
             }
+        }
+        .icon-publ {
+            padding: 6px 4px;
+            font-size: 22px;
+            color: rgba(0, 0, 0, 0.6);
+            cursor: pointer;
         }
         &.public {
             padding-left: 16px;
@@ -170,7 +189,8 @@
             left: -2050px;
             box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.25);
         }
-        .recent.btn, .folder.btn {
+        .recent.btn,
+        .folder.btn {
             height: 130px;
             width: 44px;
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
@@ -221,7 +241,8 @@
                 font-size: 18px;
             }
         }
-        .open.btn, .current.btn {
+        .open.btn,
+        .current.btn {
             button {
                 color: #fff;
             }
@@ -253,7 +274,9 @@
             padding: 0 70px 200px 0;
             right: -50px;
         }
-        .tile.content::before, .tab-1, .tab-2 {
+        .tile.content::before,
+        .tab-1,
+        .tab-2 {
             content: '';
             width: 10px;
             right: -10px;
@@ -337,6 +360,7 @@
         }
     }
 }
+
 .new.dialog {
     min-width: 320px;
     .or {
@@ -351,5 +375,13 @@
     }
     md-input-container:last-child {
         padding-bottom: 0;
+    }
+    .panel {
+        position: relative;
+        overflow: hidden;
+        height: 70px;
+        &.link {
+            height: 0;
+        }
     }
 }
