@@ -7,10 +7,11 @@ angular.module('classeur.core.explorerLayout', [])
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
 				var speed;
-				var isOpen;
+				var isOpen, isSelected;
 
 				function animate() {
 					element.toggleClass('open', isOpen);
+					element.toggleClass('selected', isSelected);
 					var y = 129 + scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
@@ -28,11 +29,15 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.$watch('$index', animate);
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
-					if (clExplorerLayoutSvc.currentFolderDao === scope.folderDao) {
+					isOpen = value;
+					animate();
+				});
+				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(value) {
+					isSelected = value;
+					if(value) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.folderDao && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
-					isOpen = value;
 					animate();
 				});
 			}
@@ -61,6 +66,31 @@ angular.module('classeur.core.explorerLayout', [])
 						}, 10);
 					} else {
 						clExplorerLayoutSvc.refreshFiles();
+					}
+				};
+			}
+		};
+	})
+	.directive('clFolderName', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'core/explorerLayout/folderName.html',
+			link: function(scope, element) {
+				var nameInput = element[0].querySelector('input.name');
+				nameInput.addEventListener('keydown', function(e) {
+					if (e.which === 27 || e.which === 13) {
+						// Esc key
+						nameInput.blur();
+					}
+				});
+				scope.setEditing = function(value) {
+					scope.isEditing = value;
+					if (value) {
+						setTimeout(function() {
+							nameInput.focus();
+						}, 10);
+					} else {
+						scope.folderNameModified();
 					}
 				};
 			}
@@ -514,16 +544,14 @@ angular.module('classeur.core.explorerLayout', [])
 		}
 
 		function setEffectiveSharing() {
-			if (clExplorerLayoutSvc.currentFolderDao && !clExplorerLayoutSvc.currentFolderDao.userId) {
+			if (clExplorerLayoutSvc.currentFolderDao) {
 				clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
 			}
 			clExplorerLayoutSvc.files.forEach(function(fileDao) {
-				if (!fileDao.userId) {
-					fileDao.effectiveSharing = fileDao.sharing;
-					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
-					if (folderDao && folderDao.sharing > fileDao.sharing) {
-						fileDao.effectiveSharing = folderDao.sharing;
-					}
+				fileDao.effectiveSharing = fileDao.sharing;
+				var folderDao = clFolderSvc.folderMap[fileDao.folderId];
+				if (folderDao && folderDao.sharing > fileDao.sharing) {
+					fileDao.effectiveSharing = folderDao.sharing;
 				}
 			});
 		}
@@ -541,7 +569,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 			clExplorerLayoutSvc.currentFolderDao = folderDao;
 			folderDao && folderDao.id ? localStorage.setItem(lastFolderKey, folderDao.id) : localStorage.removeItem(lastFolderKey);
-			!folderDao && clSyncSvc.getExtFilesMetadata();
+			(!folderDao || folderDao === unclassifiedFolder) && clSyncSvc.getExtFilesMetadata();
 		}
 
 		var clExplorerLayoutSvc = {

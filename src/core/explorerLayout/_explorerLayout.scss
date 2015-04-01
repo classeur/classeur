@@ -88,11 +88,25 @@
     .folder.container,
     .file.entry {
         .btn a {
-            &.blue {
-                color: #2164D3;
+            &::after {
+                color: #fff;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                font-family: $font-family;
+                font-size: 12px;
+                font-weight: bold;
+                line-height: 1.1;
+                border-radius: 8px;
+                padding: 0 5px;
             }
-            &.red {
-                color: #D33800;
+            &.read::after {
+                content: 'r';
+                background-color: #2164D3;
+            }
+            &.read-write::after {
+                content: 'rw';
+                background-color: #D33800;
             }
         }
     }
@@ -251,7 +265,7 @@
             .current.btn {
                 display: block;
             }
-            .open.btn {
+            .selected.btn {
                 visibility: hidden;
             }
         }

@@ -1,5 +1,8 @@
-.zen.panel {
+.zen.panel.level-1 {
     &.hidden {
         display: none;
+    }
+    .level-2 {
+    	opacity: 0.8;
     }
 }

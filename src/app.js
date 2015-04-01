@@ -25,7 +25,6 @@ angular.module('classeur.app', [
 		'classeur.opt.btnBar',
 		'classeur.opt.commenting',
 		'classeur.opt.fileDragging',
-		'classeur.opt.fileName',
 		'classeur.opt.filePropertiesDialog',
 		'classeur.opt.folding',
 		'classeur.opt.headingAnchor',

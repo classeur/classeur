@@ -23,6 +23,25 @@
             background-color: #dd4b39 !important;
         }
     }
+    .label {
+        &.indicator {
+            position: absolute;
+            font-size: 13px;
+            padding: 0 6px;
+        }
+        font-size: 15px;
+        color: #fff;
+        font-weight: bold;
+        line-height: 1.25;
+        border-radius: 8px;
+        padding: 0 8px;
+        &.read {
+            background-color: #2164D3;
+        }
+        &.read-write {
+            background-color: #D33800;
+        }
+    }
     .help {
         color: rgba(0, 0, 0, 0.54);
         font-size: 12px;

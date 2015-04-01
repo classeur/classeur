@@ -53,11 +53,9 @@ angular.module('classeur.opt.sharingDialog', [])
 
 				function showFileDialog(fileDao, anchor) {
 					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
-					if (!fileDao.userId) {
-						fileDao.effectiveSharing = fileDao.sharing;
-						if (folderDao && folderDao.sharing > fileDao.sharing) {
-							fileDao.effectiveSharing = folderDao.sharing;
-						}
+					fileDao.effectiveSharing = fileDao.sharing;
+					if (folderDao && folderDao.sharing > fileDao.sharing) {
+						fileDao.effectiveSharing = folderDao.sharing;
 					}
 					var sharingUrl = clConstants.serverUrl + '/#!' + clUrl.file(fileDao, clUserSvc.user);
 					if (anchor) {
@@ -67,9 +65,7 @@ angular.module('classeur.opt.sharingDialog', [])
 				}
 
 				function showFolderDialog(folderDao) {
-					if (!folderDao.userId) {
-						folderDao.effectiveSharing = folderDao.sharing;
-					}
+					folderDao.effectiveSharing = folderDao.sharing;
 					var sharingUrl = clConstants.serverUrl + '/#!' + clUrl.folder(folderDao, clUserSvc.user);
 					showDialog(folderDao, sharingUrl);
 				}

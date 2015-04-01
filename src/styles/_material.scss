@@ -1,12 +1,15 @@
 input {
     border-width: 0;
 }
+
 md-slider.md-default-theme .md-track {
     background-color: #aaa;
 }
+
 .md-track-ticks {
     display: none;
 }
+
 md-switch {
     .md-container {
         width: 60px;
@@ -28,9 +31,11 @@ md-switch {
         width: 36px;
     }
 }
+
 md-radio-group {
     border: 0;
 }
+
 .md-button {
     font-weight: normal;
     &:hover, &:focus {
@@ -40,26 +45,41 @@ md-radio-group {
         background-color: transparent !important;
     }
 }
+
 md-switch .md-label {
     border-width: 0px;
 }
+
 md-switch.md-default-theme.md-checked.md-primary .md-bar {
     background-color: rgb(70, 173, 245);
 }
+
 md-slider.md-default-theme .md-track.md-track-fill {
     background-color: rgb(70, 173, 245);
 }
+
 md-slider.md-default-theme .md-thumb:after {
     box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
     border-color: rgb(33, 150, 243);
     background-color: rgb(33, 150, 243);
 }
+
 md-slider.md-default-theme.md-min .md-thumb:after {
     background-color: rgb(33, 150, 243);
 }
-md-dialog.transition-in, md-dialog.transition-out {
+
+md-dialog.transition-in,
+md-dialog.transition-out {
     transition: all 1ms;
 }
+
 md-dialog.md-default-theme {
     border-radius: 0;
+}
+
+md-input-container.md-classeur-theme .md-input[disabled],
+[disabled] md-input-container.md-classeur-theme .md-input {
+    color: #fff;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 33%, transparent 0%);
+    background-image: -ms-linear-gradient(left, transparent 0%, rgba(255, 255, 255, 0.6) 100%);
 }

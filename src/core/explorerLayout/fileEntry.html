@@ -13,6 +13,6 @@
         <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
     </cl-button>
     <cl-button ng-if="socketSvc.hasToken || fileDao.userId" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
-        <a class="icon-share" ng-class="{red: fileDao.effectiveSharing === 'rw', blue: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
+        <a class="icon-share" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
     </cl-button>
 </div>

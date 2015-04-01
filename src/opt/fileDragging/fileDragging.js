@@ -85,7 +85,7 @@ angular.module('classeur.opt.fileDragging', [])
 		function moveFiles() {
 			if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
 				if(clFileDraggingSvc.targetFolder.userId) {
-					return clToast('Unable to move files to public folder.');
+					return clToast('Cannot move files to public folder.');
 				}
 				clFileDraggingSvc.files.forEach(function(fileDao) {
 					fileDao.folderId = clFileDraggingSvc.targetFolder.id;

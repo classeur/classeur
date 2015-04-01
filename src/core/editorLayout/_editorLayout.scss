@@ -3,6 +3,7 @@
         display: none;
     }
 }
+
 .binder.panel {
     .header.panel {
         height: auto;
@@ -100,7 +101,8 @@
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
     }
-    .menu.btn, .edit.btn {
+    .menu.btn,
+    .edit.btn {
         button {
             line-height: 34px;
             width: 100%;
@@ -134,7 +136,17 @@
             margin: 7px 4px 0;
         }
     }
+    .file.name {
+        border-radius: 6px;
+        background-color: transparentize(#fff, 0.8);
+        padding: 5px 15px 10px;
+        margin: 0 -15px 15px;
+        input {
+            font-size: 20px;
+        }
+    }
 }
+
 .corner.panel {
     bottom: 0;
     right: 0;
@@ -150,6 +162,7 @@
         box-shadow: inset 0px 8px 17px rgba(0, 0, 0, 0.2);
     }
 }
+
 .corner.btn a {
     font-size: 28px;
     padding: 5px;

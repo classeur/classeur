@@ -10,57 +10,56 @@ angular.module('classeur.opt.zenMode', [])
 
 		return {
 			restrict: 'E',
-			template: '<div class="zen panel background hidden"></div>',
+			template: '<div class="zen panel level-1 hidden"><div class="zen panel level-2 background"></div></div>',
 			link: function(scope, element) {
-				var zenPanel = clPanel(element, '.zen.panel').width(4000).right(-1500);
-				zenPanel.move().set('opacity', 0).end();
+				var level1Panel = clPanel(element, '.level-1').width(4000).right(-1500);
+				var level2Panel = clPanel(element, '.level-2');
+				level1Panel.move().set('opacity', 0).end();
 				var parentNode = element[0].parentNode;
-
-				var currentLevel = 0,
-					lastClientX, lastClientY;
+				var lastClientX, lastClientY, isHidden = true;
 
 				function isEnabled() {
 					return clSettingSvc.values.zenMode && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !clEditorLayoutSvc.isMenuOpen;
 				}
 
-				var showPanel = $window.cledit.Utils.debounce(function() {
+				var showLevel1 = $window.cledit.Utils.debounce(function() {
 					if (!isEnabled()) {
 						return;
 					}
-					zenPanel.$elt.removeClass('hidden');
-					zenPanel.$$elt.offsetWidth;
-					zenPanel.move().set('opacity', 1).duration(1200).ease('in').end();
-					currentLevel = 2;
+					level1Panel.$elt.removeClass('hidden');
+					level1Panel.$$elt.offsetWidth;
+					level1Panel.move().set('opacity', 1).duration(1200).ease('in').end();
+					isHidden = false;
 				}, 4000);
 
+				var showLevel2 = $window.cledit.Utils.debounce(function() {
+					if (isEnabled()) {
+						level2Panel.move('sslow').set('opacity', 1).ease('in').end();
+					}
+				}, 400);
+
 				function hidePanel(evt) {
-					var level = 0;
-					if(isEnabled()) {
-						level = currentLevel;
+					var unhide = true;
+					if (isEnabled()) {
 						if (evt) {
 							if (evt.type === 'mousemove' && lastClientX === evt.clientX && lastClientY === evt.clientY) {
 								return;
 							}
 							lastClientX = evt.clientX;
 							lastClientY = evt.clientY;
-							level = 1;
 							var minLeft = parentNode.getBoundingClientRect().left + parentNode.offsetWidth;
-							if (evt.clientX > minLeft) {
-								level = 0;
+							if (evt.clientX < minLeft) {
+								unhide = false;
 							}
+							level2Panel.move('fast').set('opacity', 0.8).ease('out').end();
 						}
-						showPanel();
+						showLevel1();
+						showLevel2();
 					}
-					if (level !== currentLevel) {
-						if (level === 0) {
-							zenPanel.move('fast').set('opacity', 0).ease('out').end(function() {
-								!currentLevel && zenPanel.$elt.addClass('hidden');
-							});
-						} else if (level < currentLevel) {
-							zenPanel.move('fast').set('opacity', 0.8).ease('out').end();
-						}
-						currentLevel = level;
-					}
+					unhide && !isHidden && level1Panel.move('fast').set('opacity', 0).ease('out').end(function() {
+						isHidden = true;
+						level1Panel.$elt.addClass('hidden');
+					});
 				}
 
 				hidePanel();

@@ -1,4 +1,25 @@
 angular.module('classeur.core.editorLayout', [])
+	.directive('clFileName', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'core/editorLayout/fileName.html',
+			link: function(scope) {
+				var previousName;
+
+				function setDefaultName() {
+					scope.currentFileDao.name = scope.currentFileDao.name || 'Untitled';
+					previousName = scope.currentFileDao.name;
+				}
+				setDefaultName();
+				scope.setDefaultName = setDefaultName;
+				scope.cancel = function(e) {
+					if (e.keyCode == 27) {
+						scope.currentFileDao.name = previousName;
+					}
+				};
+			}
+		};
+	})
 	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clPanel, clScrollBarWidth) {
 		var hideOffsetY = 2000;
 
@@ -6,7 +27,7 @@ angular.module('classeur.core.editorLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/editorLayout.html',
 			link: function(scope, element) {
-				
+
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
@@ -147,7 +168,7 @@ angular.module('classeur.core.editorLayout', [])
 				function animatePreviewButtons(isPreviewTop) {
 					headerBtnGrpPanel.css().move(isInited && 'slow').rotate(isPreviewTop ? 0 : 90).end();
 					closeButtonPanel.css('zIndex', isPreviewTop ? 0 : -1).move(isInited && 'slow').set('opacity', isPreviewTop ? 1 : 0).ease('in-out').end();
-					scrollButtonPanel.css('zIndex', isPreviewTop ? -1: 0).move(isInited && 'slow').set('opacity', isPreviewTop ? 0 : 1).ease('in-out').end();
+					scrollButtonPanel.css('zIndex', isPreviewTop ? -1 : 0).move(isInited && 'slow').set('opacity', isPreviewTop ? 0 : 1).ease('in-out').end();
 				}
 
 				var isInited;

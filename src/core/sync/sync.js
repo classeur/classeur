@@ -255,7 +255,7 @@ angular.module('classeur.core.sync', [])
 						});
 						syncData.s = folderDao.updated;
 						syncDataStore.folders[folderDao.id] = syncData;
-					} else if (folderDao.lastUpdated && folderDao.updated !== folderDao.lastUpdated) {
+					} else if (folderDao.lastUpdated && folderDao.updated !== folderDao.lastUpdated && folderDao.sharing === 'rw') {
 						changes.push({
 							id: folderDao.id,
 							userId: folderDao.userId,
@@ -263,6 +263,7 @@ angular.module('classeur.core.sync', [])
 							updated: folderDao.updated,
 							lastUpdated: folderDao.lastUpdated
 						});
+						folderDao.lastUpdated = folderDao.updated;
 					}
 				});
 				// Check deleted folders
@@ -361,7 +362,7 @@ angular.module('classeur.core.sync', [])
 						});
 						syncData.s = fileDao.updated;
 						syncDataStore.files[fileDao.id] = syncData;
-					} else if (fileDao.lastUpdated && fileDao.updated !== fileDao.lastUpdated) {
+					} else if (fileDao.lastUpdated && fileDao.updated !== fileDao.lastUpdated && fileDao.sharing === 'rw') {
 						changes.push({
 							id: fileDao.id,
 							userId: fileDao.userId,
@@ -369,6 +370,7 @@ angular.module('classeur.core.sync', [])
 							updated: fileDao.updated,
 							lastUpdated: fileDao.lastUpdated
 						});
+						fileDao.lastUpdated = fileDao.updated;
 					}
 
 				});
@@ -400,9 +402,11 @@ angular.module('classeur.core.sync', [])
 
 		function updateExtFileMetadata(fileDao, metadata) {
 			fileDao.lastRefresh = Date.now();
-			if (metadata.updated && (!fileDao.lastUpdated || metadata.updated !== fileDao.lastUpdated)) {
+			// File permission can change without metadata update
+			if (metadata.updated && (!fileDao.lastUpdated || metadata.updated !== fileDao.lastUpdated || fileDao.sharing !== metadata.permission)) {
 				fileDao.name = metadata.name;
-				fileDao.sharing = metadata.sharing;
+				// For external files we take the permission as the file sharing
+				fileDao.sharing = metadata.permission;
 				fileDao.updated = metadata.updated;
 				fileDao.lastUpdated = metadata.updated;
 				fileDao.write(fileDao.updated);
@@ -499,7 +503,14 @@ angular.module('classeur.core.sync', [])
 					folderDao.removeOnFailure = false;
 					folderDao.lastRefresh = Date.now();
 					updateExtFolderMetadata(folderDao, res);
+					var filesToMove = {};
+					clFileSvc.files.forEach(function(fileDao) {
+						if(fileDao.folderId === folderDao.id) {
+							filesToMove[fileDao.id] = fileDao;
+						}
+					});
 					res.files.forEach(function(item) {
+						delete filesToMove[item.id];
 						var fileDao = clFileSvc.fileMap[item.id];
 						if (!fileDao) {
 							fileDao = clFileSvc.createPublicFile(item.userId, item.id);
@@ -509,9 +520,13 @@ angular.module('classeur.core.sync', [])
 						fileDao.folderId = folderDao.id;
 						updateExtFileMetadata(fileDao, item);
 					});
+					angular.forEach(filesToMove, function(fileDao) {
+						fileDao.folderId = '';
+					});
 					clFileSvc.init();
 				})
 				.error(function() {
+					folderDao.lastRefresh = 1; // Get rid of the spinner
 					clToast('Folder is not accessible.');
 					folderDao.removeOnFailure && clFolderSvc.removeFolder(folderDao);
 				});
