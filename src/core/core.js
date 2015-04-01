@@ -40,7 +40,7 @@ angular.module('classeur.core', [])
 			.when('/states/:stateId', {
 				template: '',
 				controller: function($location, clStateMgr) {
-					clStateMgr.token = $location.search().token;
+					clStateMgr.search = $location.search();
 					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
 			})
@@ -134,7 +134,7 @@ angular.module('classeur.core', [])
 				client_id: clConstants.googleClientId,
 				response_type: 'code',
 				redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
-				scope: 'email',
+				scope: 'profile',
 				state: clStateMgr.saveState({
 					url: '/newUser'
 				}),

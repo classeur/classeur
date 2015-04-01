@@ -5,9 +5,9 @@
         </div>
         <div class="md-whiteframe-z2 plastic">
             <div class="nav" layout="row" layout-align="space-between center">
-                <div class="title">
-                    New account
-                </div>
+                <md-input-container md-theme="classeur" flex>
+                    <input class="title" value="New account" disabled="disabled">
+                </md-input-container>
                 <md-button md-no-ink ng-click="close()">
                     <span class="icon-arrow-back"></span>
                 </md-button>
@@ -21,13 +21,6 @@
                             <div class="angular-animate" ng-message="required">This is required.</div>
                         </div>
                     </md-input-container>
-                    <md-input-container>
-                        <label>Email</label>
-                        <input ng-model="newUser.email" disabled>
-                    </md-input-container>
-                    <md-checkbox ng-model="newUser.syncFilesAndSettings" aria-label="Sync files">
-                        Sync files and settings
-                    </md-checkbox>
                     <div class="terms">
                         By clicking "Create account", you agree to the Terms of Service and confirm that you've read the Privacy Policy, including the "Cookies" section.
                     </div>

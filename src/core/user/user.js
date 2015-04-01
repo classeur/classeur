@@ -107,6 +107,9 @@ angular.module('classeur.core.user', [])
                     $location.url('');
                 };
 
+                if (!clStateMgr.search || (!clStateMgr.search.token && !clStateMgr.search.newUserToken)) {
+                    return scope.close();
+                }
                 scope.create = function() {
                     if (!scope.newUser.name) {
                         return;
@@ -114,8 +117,7 @@ angular.module('classeur.core.user', [])
                     scope.isLoading = true;
                     $http.post('/api/users', {
                             name: scope.newUser.name,
-                            syncFilesAndSettings: scope.newUser.syncFilesAndSettings,
-                            token: clStateMgr.token
+                            token: clStateMgr.search.newUserToken
                         })
                         .success(function(userToken) {
                             clUserSvc.signin(userToken);
@@ -126,24 +128,14 @@ angular.module('classeur.core.user', [])
                         });
                 };
 
-                if (!clStateMgr.token) {
+                if (clStateMgr.search.token) {
+                    clUserSvc.signin(clStateMgr.search.token);
                     return scope.close();
                 }
 
-                // Decode JWT
-                var data = clStateMgr.token && clStateMgr.token.split('.');
-                try {
-                    scope.newUser = JSON.parse(atob(data[1]));
-                } catch (e) {
-                    return scope.close();
-                }
-
-                if (scope.newUser.type === 'user') {
-                    clUserSvc.signin(clStateMgr.token);
-                    return scope.close();
-                }
-
-                scope.newUser.syncFilesAndSettings = true;
+                scope.newUser = {
+                    name: clStateMgr.search.name || ''
+                };
             }
         };
     });
