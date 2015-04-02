@@ -75,22 +75,24 @@ angular.module('classeur.core.classeurs', [])
 				clClasseurSvc.defaultClasseur = new ClasseurDao(clUid(), 'Classeur');
 				clClasseurSvc.classeurs.push(clClasseurSvc.defaultClasseur);
 			}
-			var foldersInClasseur = {};
+			var foldersInClasseurs = {};
 			clClasseurSvc.classeurMap = {};
 			clClasseurSvc.classeurs.forEach(function(classeur) {
 				clClasseurSvc.classeurMap[classeur.id] = classeur;
 				classeur.isDefault = undefined;
+				var foldersInClasseur = {};
 				classeur.folders = classeur.folders.filter(function(folderDao) {
 					folderDao = clFolderSvc.folderMap[folderDao.id];
-					if (folderDao) {
+					if (folderDao && !foldersInClasseur.hasOwnProperty(folderDao.id)) {
 						foldersInClasseur[folderDao.id] = true;
+						foldersInClasseurs[folderDao.id] = true;
 						return true;
 					}
 				});
 			});
 			clClasseurSvc.defaultClasseur.isDefault = true;
 			clFolderSvc.folders.forEach(function(folderDao) {
-				if (!foldersInClasseur.hasOwnProperty(folderDao.id)) {
+				if (!foldersInClasseurs.hasOwnProperty(folderDao.id)) {
 					clClasseurSvc.defaultClasseur.folders.push(folderDao);
 				}
 			});

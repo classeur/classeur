@@ -71,6 +71,13 @@ angular.module('classeur.core.sync', [])
 					}
 				});
 				clFileSvc.removeFiles(filesToRemove);
+				clFolderSvc.folders.forEach(function(folderDao) {
+					if (!folderDao.userId) {
+						folderDao.userId = syncDataStore.userId;
+					} else if (folderDao.userId === userId) {
+						folderDao.userId = '';
+					}
+				});
 				readSyncDataStore();
 				syncDataStore.userId = userId;
 				writeSyncDataStore(0);
@@ -505,7 +512,7 @@ angular.module('classeur.core.sync', [])
 					updateExtFolderMetadata(folderDao, res);
 					var filesToMove = {};
 					clFileSvc.files.forEach(function(fileDao) {
-						if(fileDao.folderId === folderDao.id) {
+						if (fileDao.folderId === folderDao.id) {
 							filesToMove[fileDao.id] = fileDao;
 						}
 					});

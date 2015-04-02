@@ -18,6 +18,7 @@ angular.module('classeur.app', [
 		'classeur.core.folders',
 		'classeur.core.keystrokes',
 		'classeur.core.settings',
+		'classeur.core.settingsLayout',
 		'classeur.core.sync',
 		'classeur.core.socket',
 		'classeur.core.user',

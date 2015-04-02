@@ -30,6 +30,12 @@ Insert a horizontal rule by putting three or more `-`, `*`, or `_` on a line by 
 
 ----------
 
+## Table of contents
+
+Insert a table of contents using the marker `[TOC]`.
+
+[TOC]
+
 
 # Lists
 
@@ -109,10 +115,4 @@ By including colons within the header row, you can define text to be left-aligne
 | col 2 is      | centered        |   $12 |
 | zebra stripes | are neat        |    $1 |
 
-
-# Table of contents
-
-Insert a table of contents using the marker `[TOC]`.
-
-[TOC]
 

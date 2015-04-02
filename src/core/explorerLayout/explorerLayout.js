@@ -7,11 +7,10 @@ angular.module('classeur.core.explorerLayout', [])
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
 				var speed;
-				var isOpen, isSelected;
+				var isOpen;
 
 				function animate() {
 					element.toggleClass('open', isOpen);
-					element.toggleClass('selected', isSelected);
 					var y = 129 + scope.$index * 109;
 					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
 					buttonPanel.css('z-index', z).$$elt.offsetWidth; // Force z-offset to refresh before the animation
@@ -28,16 +27,15 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				scope.$watch('$index', animate);
-				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
-					isOpen = value;
-					animate();
-				});
-				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(value) {
-					isSelected = value;
-					if(value) {
+				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(isSelected) {
+					element.toggleClass('selected', isSelected);
+					if(isSelected) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.folderDao && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
+				});
+				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
+					isOpen = value;
 					animate();
 				});
 			}
@@ -483,15 +481,6 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.toggleExplorer(true);
 				};
 
-				scope.$watch('explorerLayoutSvc.currentFolderDao', function(folderDao) {
-					clExplorerLayoutSvc.refreshFiles();
-					scope.selectNone();
-					setPlasticClass();
-					clSyncSvc.getExtFolder(folderDao);
-				});
-				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
-				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
-
 				scope.$watch('explorerLayoutSvc.isExplorerOpen', animateLayout);
 				scope.$watch('fileSvc.files', clExplorerLayoutSvc.refreshFiles);
 				scope.$watch('folderSvc.folders', function() {
@@ -499,6 +488,15 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.refreshFolders();
 				});
 				scope.$watch('classeurSvc.classeurs.length', clExplorerLayoutSvc.refreshFolders);
+				scope.$watch('explorerLayoutSvc.currentFolderDao', function(folderDao) {
+					clExplorerLayoutSvc.refreshFiles();
+					scope.selectNone();
+					setPlasticClass();
+					clSyncSvc.getExtFolder(folderDao);
+				});
+				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
+				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
+
 				scope.$on('$destroy', function() {
 					clExplorerLayoutSvc.clean();
 				});

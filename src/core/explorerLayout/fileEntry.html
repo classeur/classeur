@@ -9,10 +9,10 @@
     <md-input-container flex ng-click="open()">
         <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing">
     </md-input-container>
-    <cl-button ng-if="!fileDao.userId || fileDao.sharing === 'rw'" class="edit filename btn" active="isEditing">
+    <cl-button ng-if="!fileDao.userId || fileDao.sharing === 'rw'" class="edit filename btn" opacity="0.7" active="isEditing">
         <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" title="Edit filename"></a>
     </cl-button>
-    <cl-button ng-if="socketSvc.hasToken || fileDao.userId" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
+    <cl-button ng-if="socketSvc.hasToken || fileDao.userId" class="share file btn" opacity="0.7" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
         <a class="icon-share" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file" title="Share file"></a>
     </cl-button>
 </div>

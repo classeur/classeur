@@ -1,0 +1,18 @@
+.settings.layout.panel {
+    & > div {
+        width: 100%;
+        max-width: 640px;
+    }
+    .nav {
+    	height: auto;
+    	margin: 10px 0;
+    }
+    .title {
+    	color: rgba(0,0,0,0.87);
+        font-size: 30px;
+    }
+    .exit.btn {
+        font-size: 32px;
+        padding: 4px;
+    }
+}

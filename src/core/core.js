@@ -19,6 +19,33 @@ angular.module('classeur.core', [])
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
 				controller: 'ClEditorController'
 			})
+			.when('/users/:userId/folders/:folderId', {
+				template: '',
+				controller: function($location, $routeParams, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
+					clExplorerLayoutSvc.refreshFolders();
+					var folderDao = clFolderSvc.folderMap[$routeParams.folderId];
+					var classeurDao = clClasseurSvc.defaultClasseur;
+					if (!folderDao) {
+						folderDao = clFolderSvc.createPublicFolder($routeParams.userId, $routeParams.folderId);
+						folderDao.removeOnFailure = true;
+						classeurDao.folders.push(folderDao);
+					} else {
+						if (clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) !== -1) {
+							classeurDao = clExplorerLayoutSvc.currentClasseurDao;
+						} else {
+							clClasseurSvc.classeurs.some(function(classeurToScan) {
+								if (classeurToScan.folders.indexOf(folderDao) !== -1) {
+									classeurDao = classeurToScan;
+									return true;
+								}
+							});
+						}
+					}
+					clExplorerLayoutSvc.setCurrentClasseur(classeurDao);
+					clExplorerLayoutSvc.setCurrentFolder(folderDao);
+					return $location.url('');
+				}
+			})
 			.when('/docs/:fileName', {
 				template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
 				controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc) {
@@ -43,6 +70,9 @@ angular.module('classeur.core', [])
 					clStateMgr.search = $location.search();
 					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
+			})
+			.when('/settings', {
+				template: '<cl-settings-layout></cl-settings-layout>',
 			})
 			.when('/newUser', {
 				template: '<cl-new-user-form></cl-new-user-form>'

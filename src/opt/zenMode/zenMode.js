@@ -51,7 +51,7 @@ angular.module('classeur.opt.zenMode', [])
 							if (evt.clientX < minLeft) {
 								unhide = false;
 							}
-							level2Panel.move('fast').set('opacity', 0.8).ease('out').end();
+							level2Panel.move('fast').set('opacity', 0.9).ease('out').end();
 						}
 						showLevel1();
 						showLevel2();
