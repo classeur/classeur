@@ -8,6 +8,7 @@
         font-weight: 300;
         white-space: nowrap;
         cursor: pointer;
+        line-height: 1.15;
         .logo {
             width: 48px;
             height: 64px;
@@ -43,11 +44,10 @@
         }
         .links {
             font-size: 13px;
-            padding-bottom: 2px;
             text-align: right;
             min-width: 190px;
             .md-button {
-                padding: 3px;
+                padding: 4px;
             }
         }
     }
@@ -92,13 +92,13 @@
                 color: #fff;
                 position: absolute;
                 top: 0px;
-                right: 0px;
+                right: 1px;
                 font-family: $font-family;
                 font-size: 12px;
                 font-weight: bold;
                 line-height: 1.1;
                 border-radius: 8px;
-                padding: 0 5px;
+                padding: 0 4px;
             }
             &.read::after {
                 content: 'r';
@@ -285,7 +285,7 @@
         .scroller {
             overflow: auto;
             overflow-y: scroll;
-            padding: 0 70px 200px 0;
+            padding: 0 50px 200px 0;
             right: -50px;
         }
         .tile.content::before,

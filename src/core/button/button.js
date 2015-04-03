@@ -8,7 +8,7 @@ angular.module('classeur.core.button', [])
 			templateUrl: 'core/button/button.html',
 			link: function(scope, element, attrs) {
 				scope.class = attrs.class;
-				var opacity = parseFloat(attrs.opacity || 0.65);
+				var opacity = parseFloat(attrs.opacity || 0.7);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
 				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);				
 				var buttonPanel = clPanel(element, '.btn-panel');
