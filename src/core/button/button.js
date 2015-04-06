@@ -17,19 +17,28 @@ angular.module('classeur.core.button', [])
 					var attr = attrs[attrName];
 					attr && buttonPanel[attrName](attr);
 				});
-				var isActive, isHover, speed;
+				var isActive, isHover, isInited;
 				function toggle() {
-					buttonPanel.$elt.toggleClass('active', !!isActive);
+					buttonPanel.$jqElt.toggleClass('active', !!isActive);
+					var opacityToSet = opacity;
+					var easing = 'out';
 					if(isActive) {
-						buttonPanel.move(speed).set('opacity', opacityActive).ease('out').end();
+						opacityToSet = opacityActive;
 					}
 					else if(isHover) {
-						buttonPanel.move(speed).set('opacity', opacityHover).ease('out').end();
+						opacityToSet = opacityHover;
 					}
 					else {
-						buttonPanel.move(speed).set('opacity', opacity).ease('in').end();
+						opacityToSet = opacity;
+						easing = 'in';
 					}
-					speed = 'slow';
+					if(isInited) {
+						buttonPanel.move('slow').set('opacity', opacityToSet).ease(easing).end();
+					}
+					else {
+						buttonPanel.$elt.style.opacity = opacityToSet;
+						isInited = true;
+					}
 				}
 				element.on('mouseenter', function() {
 					isHover = true;

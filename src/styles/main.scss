@@ -82,27 +82,27 @@ body {
 }
 
 .plastic, .plastic-0 {
-	background-color: $plastic-color-0;
+	background-color: $plastic-color-0 !important;
 }
 
 .plastic-1 {
-	background-color: $plastic-color-1;
+	background-color: $plastic-color-1 !important;
 }
 
 .plastic-2 {
-	background-color: $plastic-color-2;
+	background-color: $plastic-color-2 !important;
 }
 
 .plastic-3 {
-	background-color: $plastic-color-3;
+	background-color: $plastic-color-3 !important;
 }
 
 .plastic-98 {
-	background-color: $plastic-color-98;
+	background-color: $plastic-color-98 !important;
 }
 
 .plastic-99 {
-	background-color: $plastic-color-99;
+	background-color: $plastic-color-99 !important;
 }
 
 .hole {
@@ -130,7 +130,7 @@ body {
 }
 
 .nav {
-	height: 110px;
+	height: 120px;
 	md-input-container {
 		padding-bottom: 10px;
 	}

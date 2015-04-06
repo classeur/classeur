@@ -3,7 +3,7 @@
         <div ng-if="!fileDao.userId" class="drag" cl-file-dragging-src><span class="icon-view-headline"></span>
         </div>
     </div>
-    <md-checkbox ng-model="fileDao.isSelected" aria-label="Select">
+    <md-checkbox md-no-ink ng-model="fileDao.isSelected" aria-label="Select">
     </md-checkbox>
     <div class="icon-publ" ng-show="fileDao.userId" ng-click="open()"></div>
     <md-input-container flex ng-click="open()">

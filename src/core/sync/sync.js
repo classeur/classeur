@@ -19,7 +19,7 @@ angular.module('classeur.core.sync', [])
 					} : value;
 				});
 			}
-			var checkSyncDataUpdate = syncDataStore.$checkGlobalUpdate();
+			var checkSyncDataUpdate = syncDataStore.$checkUpdate();
 			if (!init && !checkSyncDataUpdate) {
 				return;
 			}
@@ -31,6 +31,7 @@ angular.module('classeur.core.sync', [])
 			syncDataStore.$readAttr('userId', '');
 			syncDataStore.$readAttr('userData', '{}', parseSyncData);
 			syncDataStore.$readAttr('fileSyncReady', '');
+			syncDataStore.$readUpdate();
 			init = false;
 			return ctx && ctx.userId && checkUserChange(ctx.userId);
 		}
@@ -206,7 +207,11 @@ angular.module('classeur.core.sync', [])
 					return;
 				}
 				var foldersToUpdate = [];
-				msg.changes.forEach(function(change) {
+				expectedFolderDeletions.forEach(function(id) {
+					// Assume folders have been deleted
+					delete syncDataStore.folders[id];
+				});
+				(msg.changes || []).forEach(function(change) {
 					var folderDao = clFolderSvc.folderMap[change.id];
 					var syncData = syncDataStore.folders[change.id] || {};
 					if (syncData.s !== change.updated) {
@@ -226,10 +231,6 @@ angular.module('classeur.core.sync', [])
 						};
 					}
 					syncDataStore.lastFolderSeq = change.seq;
-				});
-				expectedFolderDeletions.forEach(function(id) {
-					// Assume folders have been deleted, even if the server doesn't tell anything
-					delete syncDataStore.folders[id];
 				});
 				if (foldersToUpdate.length) {
 					clFolderSvc.updateFolders(foldersToUpdate);
@@ -308,12 +309,20 @@ angular.module('classeur.core.sync', [])
 			}
 
 			var expectedFileDeletions = [];
+			var expectedFileRecoveries = [];
 			clSocketSvc.addMsgHandler('fileChanges', function(msg, ctx) {
 				if (readSyncDataStore(ctx)) {
 					return;
 				}
 				var filesToUpdate = [];
-				msg.changes.forEach(function(change) {
+				expectedFileDeletions.forEach(function(id) {
+					// Assume files have been deleted
+					delete syncDataStore.files[id];
+				});
+				expectedFileRecoveries.forEach(function(id) {
+					delete clSyncSvc.filesToRecover[id];
+				});
+				(msg.changes || []).forEach(function(change) {
 					var fileDao = clFileSvc.fileMap[change.id];
 					var syncData = syncDataStore.files[change.id] || {};
 					if (syncData.s !== change.updated) {
@@ -334,10 +343,6 @@ angular.module('classeur.core.sync', [])
 					}
 					syncDataStore.lastFileSeq = change.seq;
 				});
-				expectedFileDeletions.forEach(function(id) {
-					// Assume files have been deleted, even if the server doesn't tell anything
-					delete syncDataStore.files[id];
-				});
 				if (filesToUpdate.length) {
 					clFileSvc.updateFiles(filesToUpdate);
 					$rootScope.$evalAsync();
@@ -350,6 +355,8 @@ angular.module('classeur.core.sync', [])
 				}
 				writeSyncDataStore();
 			});
+
+			clSyncSvc.filesToRecover = {};
 
 			function sendChanges() {
 				var changes = [];
@@ -389,6 +396,20 @@ angular.module('classeur.core.sync', [])
 						changes.push({
 							id: id,
 							deleted: true
+						});
+					}
+				});
+				// Files to recover
+				expectedFileRecoveries = [];
+				angular.forEach(clSyncSvc.filesToRecover, function(file, id) {
+					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
+						expectedFileRecoveries.push(id);
+						changes.push({
+							id: id,
+							name: file.name,
+							folderId: file.folderId || undefined,
+							sharing: file.sharing || undefined,
+							updated: Date.now()
 						});
 					}
 				});
@@ -566,7 +587,7 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
-			clSocketSvc.addMsgHandler('contentRev', function(msg, ctx) {
+			clSocketSvc.addMsgHandler('createdFile', function(msg, ctx) {
 				if (readSyncDataStore(ctx)) {
 					return;
 				}
@@ -575,8 +596,10 @@ angular.module('classeur.core.sync', [])
 				syncDataStore.files[msg.id] = {
 					r: -1
 				};
-				contentRevStore[msg.id] = msg.rev;
-				contentRevStore.$writeAttr(msg.id);
+				if(msg.rev) {
+					contentRevStore[msg.id] = msg.rev;
+					contentRevStore.$writeAttr(msg.id);
+				}
 				writeSyncDataStore();
 			});
 

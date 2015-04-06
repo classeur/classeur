@@ -1,18 +1,62 @@
 .settings.layout.panel {
     & > div {
+        margin: auto;
         width: 100%;
+        height: 100%;
         max-width: 640px;
     }
     .nav {
-    	height: auto;
-    	margin: 10px 0;
+        height: auto;
+        margin-top: 10px;
     }
     .title {
-    	color: rgba(0,0,0,0.87);
+        color: rgba(0, 0, 0, 0.87);
         font-size: 30px;
     }
     .exit.btn {
-        font-size: 32px;
+        font-size: 30px;
         padding: 4px;
+    }
+    .tab {
+        padding: 40px 20px;
+    }
+    .small {
+        max-width: 180px;
+    }
+    .btn-grp {
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        .md-button {
+            padding: 14px 10px;
+            margin-left: 8px;
+            margin-right: 0;
+        }
+    }
+    md-tabs {
+        & md-tabs-content-wrapper, &:not(.md-no-tab-content) {
+            min-height: 0;
+        }
+    }
+    .file.entry {
+        line-height: 40px;
+        md-input-container {
+            padding-bottom: 8px;
+            .md-input {
+                line-height: 1;
+                &[disabled] {
+                    color: rgba(0, 0, 0, 0.87);
+                }
+            }
+        }
+        .md-button {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 24px;
+            padding: 6px 3px;
+        }
+    }
+    md-progress-circular {
+        position: relative;
+        top: 40px;
+        left: 50%;
+        margin-left: -25px;
     }
 }

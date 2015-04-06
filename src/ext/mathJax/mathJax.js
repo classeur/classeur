@@ -441,8 +441,8 @@ angular.module('classeur.ext.mathJax', [])
 				}
 
 				checkConfig();
-				scope.$watch('currentFileDao.contentDao.properties', function() {
-					if (scope.currentFileDao && checkConfig()) {
+				scope.$watch('currentFileDao.contentDao.properties', function(properties) {
+					if (properties && checkConfig()) {
 						clEditorSvc.initConverter();
 					}
 				});

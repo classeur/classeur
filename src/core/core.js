@@ -67,12 +67,12 @@ angular.module('classeur.core', [])
 			.when('/states/:stateId', {
 				template: '',
 				controller: function($location, clStateMgr) {
-					clStateMgr.search = $location.search();
 					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
 			})
 			.when('/settings', {
 				template: '<cl-settings-layout></cl-settings-layout>',
+				reloadOnSearch: false
 			})
 			.when('/newUser', {
 				template: '<cl-new-user-form></cl-new-user-form>'
@@ -104,7 +104,7 @@ angular.module('classeur.core', [])
 			}
 		});
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clStateMgr, clToast, clSetInterval, clUrl, clConstants) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -159,22 +159,6 @@ angular.module('classeur.core', [])
 			clToast('Copy created.');
 		}
 
-		function signin() {
-			var params = {
-				client_id: clConstants.googleClientId,
-				response_type: 'code',
-				redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
-				scope: 'profile',
-				state: clStateMgr.saveState({
-					url: '/newUser'
-				}),
-			};
-			params = Object.keys(params).map(function(key) {
-				return key + '=' + encodeURIComponent(params[key]);
-			}).join('&');
-			$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
-		}
-
 		function saveAll() {
 			return clUserSvc.checkAll() | clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
 		}
@@ -184,7 +168,6 @@ angular.module('classeur.core', [])
 		$rootScope.loadFile = loadFile;
 		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
-		$rootScope.signin = signin;
 
 		$rootScope.$watch('currentFileDao.name', function(name) {
 			$window.document.title = name || 'Classeur';

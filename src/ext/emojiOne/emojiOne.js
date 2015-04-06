@@ -25,8 +25,8 @@ angular.module('classeur.ext.emojiOne', [])
 				}
 
 				checkEnabled();
-				scope.$watch('currentFileDao.contentDao.properties', function() {
-					if (scope.currentFileDao && checkEnabled()) {
+				scope.$watch('currentFileDao.contentDao.properties', function(properties) {
+					if (properties && checkEnabled()) {
 						clEditorSvc.initConverter();
 					}
 				});

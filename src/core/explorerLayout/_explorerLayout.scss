@@ -50,23 +50,22 @@
                 padding: 4px;
             }
         }
-    }
-    .username {
-        font-size: 15px;
-        padding-right: 10px;
-    }
-    .folder.scroller {
-        overflow-x: hidden;
-        overflow-y: auto;
-        right: -40px;
-        top: 8px;
+        .user-info {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            background-color: #484848;
+            color: #fff;
+            padding: 0 12px;
+            font-size: 14px;
+            .username {
+                padding: 6px;
+                padding-right: 10px;
+            }
+        }
     }
     .folder.container {
-        margin-bottom: 150px;
-        &.no-padding .folder.content {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
+        top: 2px;
+        padding-bottom: 120px;
         .folder.btn {
             font-size: 32px;
             padding: 4px;
@@ -83,6 +82,42 @@
             top: 40px;
             left: 50%;
             margin-left: -25px;
+        }
+    }
+    .md-subheader {
+        padding: 0;
+        margin: 0;
+        &::after {
+            display: none;
+        }
+    }
+    .md-sticky-clone {
+        margin-left: 0 !important;
+        .file.actions > div {
+            border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+        }
+    }
+    .folder.container, .md-sticky-clone {
+        overflow-x: hidden;
+        overflow-y: scroll;
+        padding-left: 90px;
+        padding-right: 65px;
+    }
+    .no-padding {
+        .folder.container, .md-sticky-clone {
+            padding-left: 57px;
+            padding-right: 32px;
+        }
+        .folder.container {
+            .folder.content, .file.actions {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+        .md-sticky-clone {
+            .file.actions {
+                padding: 0 10px;
+            }
         }
     }
     .folder.container,
@@ -110,9 +145,23 @@
             }
         }
     }
+    .new-file.actions {
+        padding-top: 10px;
+    }
+    .file.actions {
+        & > div {
+            height: 75px;
+            padding: 20px 5px 0;
+        }
+        padding: 0 35px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
     .folder.content {
-        padding: 30px 40px 110px;
-        border-radius: 6px;
+        padding: 0 40px 110px;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
         background-color: rgba(255, 255, 255, 0.2);
     }
     .folder.name {
@@ -120,9 +169,6 @@
     }
     .new-file.actions button {
         color: #fff;
-    }
-    .file.actions {
-        min-height: 70px;
     }
     $file-entry-height: 40px;
     .file.entry {
@@ -272,13 +318,15 @@
     }
     .menu.panel {
         padding: 0 5px 0 25px;
-        font-size: 14px;
         bottom: 0;
         height: auto;
-        border-top: 1px solid rgba(128, 128, 128, 0.15);
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
         & > div {
             float: right;
             padding-left: 25px;
+        }
+        .md-button {
+            padding: 8px;
         }
     }
     .classeur.list {

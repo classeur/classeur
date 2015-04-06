@@ -183,8 +183,8 @@ angular.module('classeur.ext.markdownExtra', [])
 				}
 
 				checkOptions();
-				scope.$watch('currentFileDao.contentDao.properties', function() {
-					if (scope.currentFileDao && checkOptions()) {
+				scope.$watch('currentFileDao.contentDao.properties', function(properties) {
+					if (properties && checkOptions()) {
 						clEditorSvc.initConverter();
 					}
 				});

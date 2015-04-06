@@ -26,8 +26,8 @@ angular.module('classeur.opt.zenMode', [])
 					if (!isEnabled()) {
 						return;
 					}
-					level1Panel.$elt.removeClass('hidden');
-					level1Panel.$$elt.offsetWidth;
+					level1Panel.$jqElt.removeClass('hidden');
+					level1Panel.$elt.offsetWidth;
 					level1Panel.move().set('opacity', 1).duration(1200).ease('in').end();
 					isHidden = false;
 				}, 4000);
@@ -58,7 +58,7 @@ angular.module('classeur.opt.zenMode', [])
 					}
 					unhide && !isHidden && level1Panel.move('fast').set('opacity', 0).ease('out').end(function() {
 						isHidden = true;
-						level1Panel.$elt.addClass('hidden');
+						level1Panel.$jqElt.addClass('hidden');
 					});
 				}
 

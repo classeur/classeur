@@ -1,24 +1,49 @@
-<div class="settings layout panel background" layout="column" layout-align="start center">
-    <div>
-        <div class="nav" layout="row" layout-align="center center">
-            <md-input-container flex>
+<div class="settings layout panel background">
+    <div layout="column">
+        <div class="nav">
+            <md-input-container>
                 <input class="title" value="Settings" disabled>
             </md-input-container>
-            <md-button class="exit btn" md-no-ink ng-href="#!/">
-                <span class="icon-arrow-back"></span>
-            </md-button>
         </div>
-        <md-tabs md-selected="selectedIndex" md-border-bottom>
-            <md-tab label="User">
-                <div class="tab">
-                    <div>user</div>
-                </div>
-            </md-tab>
-            <md-tab label="UI">
+        <md-tabs md-selected="selectedTabIndex" md-border-bottom flex ng-switch="!!socketSvc.hasToken">
+            <md-tab label="App">
                 <div class="tab">
                     <div>editor</div>
                 </div>
             </md-tab>
+            <md-tab label="Trash" ng-switch-when="true">
+                <div class="tab">
+                    <div class="file entry" layout="row" ng-repeat="file in trashFiles" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
+                        <md-input-container flex>
+                            <input class="name" ng-model="file.name" disabled="disabled">
+                        </md-input-container>
+                        <md-button ng-if="!syncSvc.filesToRecover.hasOwnProperty(file.id)" md-no-ink class="icon-settings-backup-restore" ng-click="recoverFile(file)" aria-label="Recover"></md-button>
+                        <md-button md-no-ink class="icon-delete" ng-click="removeFile(file)" aria-label="Remove"></md-button>
+                    </div>
+                    <md-progress-circular md-mode="indeterminate" ng-if="getTrashFilesPending"></md-progress-circular>
+                    <br>
+                    <md-button ng-if="!getTrashFilesPending && lastDeleted" class="md-primary" ng-click="getTrashFiles()">More deleted files</md-button>
+                </div>
+            </md-tab>
+            <md-tab label="User" ng-switch-when="true">
+                <div class="tab">
+                    <form name="userForm">
+                        <md-input-container class="small">
+                            <label>User name</label>
+                            <input required name="name" ng-model="user.name">
+                            <div ng-messages="userForm.name.$error">
+                                <div class="angular-animate" ng-message="required">This is required.</div>
+                            </div>
+                        </md-input-container>
+                        Use another Google account for sign in:
+                        <md-button class="md-primary" ng-click="userSvc.startOAuth('/settings?tab=user')">Link now <span class="icon-arrow-forward"></span></md-button>
+                    </form>
+                </div>
+            </md-tab>
         </md-tabs>
+        <div class="btn-grp" layout="row" layout-align="end">
+            <md-button ng-click="cancel()">Cancel</md-button>
+            <md-button class="md-primary" ng-click="apply()">Apply</md-button>
+        </div>
     </div>
 </div>

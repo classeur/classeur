@@ -25,13 +25,14 @@
                 </div>
             </div>
             <div layout="row" layout-align="end start">
-                <div ng-if="!socketSvc.hasToken">
-                    <md-button ng-click="signin()">
+                <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken">
+                    <md-button ng-click="userSvc.startOAuth()">
                         Sign in with Google <span class="icon-arrow-forward"></span>
                     </md-button>
                 </div>
-                <div ng-if="userSvc.user">
-                    <span class="username">Hi <b>{{userSvc.user.name}}</b></span>
+                <div class="user-info md-whiteframe-z1" ng-if="userSvc.user">
+                    <span class="username">
+                        Hi <b>{{userSvc.user.name}}</b>!
                     </span>
                     <md-button>
                         Go premium <span class="icon-arrow-forward"></span>
@@ -59,7 +60,7 @@
         </div>
         <div class="menu panel background">
             <div layout="row">
-                <md-button class="md-primary" ng-href="#!/settings"><span class="icon-keyboard-arrow-right"></span> Settings</md-button>
+                <md-button class="md-primary" ng-href="#!/settings?tab=app"><span class="icon-keyboard-arrow-right"></span> Settings</md-button>
                 <md-button class="md-primary" ng-click="userSvc.signout()" ng-if="socketSvc.hasToken"><span class="icon-keyboard-arrow-right"></span> Signout</md-button>
             </div>
             <div layout="row">
@@ -70,41 +71,52 @@
         <div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
             <div class="hole panel background first"></div>
             <div class="hole panel background second"></div>
-            <div class="folder scroller panel">
-                <div class="folder container" ng-switch="!!explorerLayoutSvc.currentFolderDao">
-                    <cl-folder-name ng-switch-when="true"></cl-folder-name>
-                    <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
-                        <md-input-container md-theme="classeur" flex>
-                            <input class="folder name" value="Available offline" disabled>
-                        </md-input-container>
-                    </div>
-                    <div class="new-file actions" layout="row" layout-align="end">
-                        <md-button ng-click="createFile()">
-                            <span class="icon-add"></span> New file
-                        </md-button>
-                    </div>
-                    <div class="folder content" ng-if="explorerLayoutSvc.files.length">
-                        <div class="file actions" ng-switch="hasSelection()">
-                            <div ng-switch-when="false">
-                                <md-button md-no-ink class="md-primary" ng-click="selectAll()">
-                                    <span class="icon-check"></span> Select all
-                                </md-button>
-                            </div>
-                            <div ng-switch-when="true">
-                                <md-button md-no-ink class="md-primary" ng-click="selectNone()">
-                                    <span class="icon-check-box-outline-blank"></span> Select None
-                                </md-button>
-                            </div>
-                            <div ng-switch-when="true">
-                                <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
-                                    <span class="icon-delete"></span> Delete
-                                </md-button>
-                            </div>
+            <div class="panel no-overflow">
+                <div class="scrollbar panel">
+                    <md-content class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao">
+                        <cl-folder-name ng-switch-when="true"></cl-folder-name>
+                        <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
+                            <md-input-container md-theme="classeur" flex>
+                                <input class="folder name" value="Available offline" disabled>
+                            </md-input-container>
                         </div>
-                        <cl-file-entry ng-repeat="fileDao in explorerLayoutSvc.files"></cl-file-entry>
-                        <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
-                        <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
-                    </div>
+                        <section>
+                            <md-subheader>
+                            <div ng-class="plasticClass">
+                                <div class="new-file actions" layout="row" layout-align="end">
+                                    <md-button ng-click="createFile()">
+                                        <span class="icon-add"></span> New file
+                                    </md-button>
+                                </div>
+                                <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
+                                    <div>
+                                        <div ng-switch-when="false">
+                                            <md-button md-no-ink class="md-primary" ng-click="selectAll()">
+                                                <span class="icon-check"></span> Select all
+                                            </md-button>
+                                        </div>
+                                        <div ng-switch-when="true">
+                                            <md-button md-no-ink class="md-primary" ng-click="selectNone()">
+                                                <span class="icon-check-box-outline-blank"></span> Select None
+                                            </md-button>
+                                        </div>
+                                        <div ng-switch-when="true">
+                                            <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
+                                                <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
+                                            </md-button>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </md-subheader>
+                            <div class="folder content" ng-show="explorerLayoutSvc.files.length">
+                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.files | orderBy:'name'"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.files | orderBy:'-contentDao.lastChange'"></cl-file-entry>
+                                <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
+                                <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
+                            </div>
+                        </section>
+                    </md-content>
                 </div>
             </div>
             <div class="btn-grp panel background no-overflow">

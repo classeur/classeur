@@ -7,7 +7,7 @@
 		</div>
 		<div layout="row" layout-align="end end">
 			<md-button ng-if="!socketSvc.hasToken" md-no-ink class="md-primary"
-					   ng-click="signin()">
+					   ng-click="userSvc.startOAuth()">
 				Sign in
 			</md-button>
 			<md-button ng-if="userSvc.user" md-no-ink class="md-primary">

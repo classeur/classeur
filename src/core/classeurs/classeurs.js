@@ -45,7 +45,7 @@ angular.module('classeur.core.classeurs', [])
 					return result;
 				}, []);
 			});
-			this.$readLocalUpdate();
+			this.$readUpdate();
 		};
 
 		clClasseurSvc.write = function(updated) {
@@ -106,7 +106,7 @@ angular.module('classeur.core.classeurs', [])
 		}
 
 		function checkAll() {
-			if (clClasseurSvc.$checkGlobalUpdate()) {
+			if (clClasseurSvc.$checkUpdate()) {
 				clClasseurSvc.read();
 				init();
 				return true;

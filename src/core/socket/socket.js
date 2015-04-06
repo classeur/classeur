@@ -1,5 +1,5 @@
 angular.module('classeur.core.socket', [])
-	.factory('clSocketSvc', function($window, $location) {
+	.factory('clSocketSvc', function($window, $rootScope, $location) {
 		var socketTokenKey = 'socketToken';
 		var socket, msgHandlers = {};
 		var socketToken;
@@ -39,8 +39,7 @@ angular.module('classeur.core.socket', [])
 				});
 			};
 			socket.onclose = function() {
-				clSocketSvc.isReady = false;
-				clSocketSvc.ctx = undefined;
+				closeSocket();
 			};
 		}
 
@@ -68,6 +67,7 @@ angular.module('classeur.core.socket', [])
 			}
 			clSocketSvc.isReady = false;
 			clSocketSvc.ctx = undefined;
+			$rootScope.$evalAsync();
 		}
 
 		function isOnline() {
@@ -88,10 +88,21 @@ angular.module('classeur.core.socket', [])
 			msgHandlers[type] = typeHandlers;
 		}
 
+		function removeMsgHandler(type, handler) {
+			var typeHandlers = msgHandlers[type];
+			if(typeHandlers) {
+				typeHandlers = typeHandlers.filter(function(typeHandler) {
+					return typeHandler !== handler;
+				});
+				msgHandlers[type] = typeHandlers;
+			}
+		}
+
 		addMsgHandler('userToken', function(msg, ctx) {
 			ctx.userId = msg.userId;
 			setToken(msg.token);
 			clSocketSvc.isReady = true;
+			$rootScope.$evalAsync();
 		});
 
 		var clSocketSvc = {
@@ -102,7 +113,8 @@ angular.module('classeur.core.socket', [])
 			closeSocket: closeSocket,
 			isOnline: isOnline,
 			sendMsg: sendMsg,
-			addMsgHandler: addMsgHandler
+			addMsgHandler: addMsgHandler,
+			removeMsgHandler: removeMsgHandler,
 		};
 
 		openSocket();

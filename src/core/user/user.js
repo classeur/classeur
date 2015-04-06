@@ -1,6 +1,22 @@
 angular.module('classeur.core.user', [])
-    .factory('clUserSvc', function($rootScope, $location, clLocalStorageObject, clSocketSvc) {
+    .factory('clUserSvc', function($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConstants, clStateMgr) {
         var clUserSvc = clLocalStorageObject('userSvc');
+
+        function startOAuth(redirectUrl) {
+            var params = {
+                client_id: clConstants.googleClientId,
+                response_type: 'code',
+                redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
+                scope: 'profile',
+                state: clStateMgr.saveState({
+                    url: redirectUrl || '/newUser'
+                }),
+            };
+            params = Object.keys(params).map(function(key) {
+                return key + '=' + encodeURIComponent(params[key]);
+            }).join('&');
+            $window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+        }
 
         function signin(token) {
             clSocketSvc.setToken(token);
@@ -15,7 +31,7 @@ angular.module('classeur.core.user', [])
 
         clUserSvc.read = function() {
             this.$readAttr('user', null, JSON.parse);
-            this.$readLocalUpdate();
+            this.$readUpdate();
         };
 
         clUserSvc.write = function(updated) {
@@ -23,12 +39,19 @@ angular.module('classeur.core.user', [])
         };
 
         function checkAll() {
-            if (clUserSvc.$checkGlobalUpdate()) {
+            if (clUserSvc.$checkUpdate()) {
                 clUserSvc.read();
                 return true;
             } else {
                 clUserSvc.write();
             }
+        }
+
+        function updateUser(user) {
+            if (!user.name) {
+                throw 'User name can\'t be empty.';
+            }
+            clUserSvc.user = user;
         }
 
         clUserSvc.read();
@@ -38,9 +61,11 @@ angular.module('classeur.core.user', [])
             $rootScope.$evalAsync();
         });
 
+        clUserSvc.startOAuth = startOAuth;
         clUserSvc.signin = signin;
         clUserSvc.signout = signout;
         clUserSvc.checkAll = checkAll;
+        clUserSvc.updateUser = updateUser;
 
         return clUserSvc;
     })
@@ -107,9 +132,22 @@ angular.module('classeur.core.user', [])
                     $location.url('');
                 };
 
-                if (!clStateMgr.search || (!clStateMgr.search.token && !clStateMgr.search.newUserToken)) {
+                if (!clStateMgr.state) {
                     return scope.close();
                 }
+
+                var name = clStateMgr.state.$search.name;
+                var userToken = clStateMgr.state.$search.userToken;
+                var newUserToken = clStateMgr.state.$search.newUserToken;
+                if (!userToken && !newUserToken) {
+                    return scope.close();
+                }
+
+                if (userToken) {
+                    clUserSvc.signin(userToken);
+                    return scope.close();
+                }
+
                 scope.create = function() {
                     if (!scope.newUser.name) {
                         return;
@@ -117,7 +155,7 @@ angular.module('classeur.core.user', [])
                     scope.isLoading = true;
                     $http.post('/api/users', {
                             name: scope.newUser.name,
-                            token: clStateMgr.search.newUserToken
+                            token: newUserToken
                         })
                         .success(function(userToken) {
                             clUserSvc.signin(userToken);
@@ -128,13 +166,8 @@ angular.module('classeur.core.user', [])
                         });
                 };
 
-                if (clStateMgr.search.token) {
-                    clUserSvc.signin(clStateMgr.search.token);
-                    return scope.close();
-                }
-
                 scope.newUser = {
-                    name: clStateMgr.search.name || ''
+                    name: name || ''
                 };
             }
         };

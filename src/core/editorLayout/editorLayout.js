@@ -40,9 +40,9 @@ angular.module('classeur.core.editorLayout', [])
 				var cornerPanel = clPanel(element, '.corner.panel');
 				clPanel(element, '.corner .shadow.panel').move().rotate(-45).end();
 				var headerPanel = clPanel(element, '.header.panel').top(hideOffsetY);
-				var headerBtnGrpPanel = clPanel(headerPanel.$elt, '.btn-grp.panel');
-				var closeButtonPanel = clPanel(headerPanel.$elt, '.close.panel');
-				var scrollButtonPanel = clPanel(headerPanel.$elt, '.scroll.panel');
+				var headerBtnGrpPanel = clPanel(headerPanel.$jqElt, '.btn-grp.panel');
+				var closeButtonPanel = clPanel(headerPanel.$jqElt, '.close.panel');
+				var scrollButtonPanel = clPanel(headerPanel.$jqElt, '.scroll.panel');
 
 				var previewSizeAdjust = 150;
 				var binderWidth, marginRight;
@@ -97,14 +97,14 @@ angular.module('classeur.core.editorLayout', [])
 				function hidePreview() {
 					if (clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen) {
 						clEditorLayoutSvc.isPreviewVisible = false;
-						previewPanel.$elt.addClass('hidden');
+						previewPanel.$jqElt.addClass('hidden');
 					}
 				}
 
 				function showPreview() {
 					if (!clEditorLayoutSvc.isEditorOpen || clEditorLayoutSvc.isSidePreviewOpen) {
 						clEditorLayoutSvc.isPreviewVisible = true;
-						previewPanel.$elt.removeClass('hidden');
+						previewPanel.$jqElt.removeClass('hidden');
 					}
 				}
 

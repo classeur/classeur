@@ -1,6 +1,6 @@
 angular.module('classeur.core.folders', [])
 	.factory('clFolderSvc', function(clUid, clLocalStorageObject) {
-		var folderDaoProto = clLocalStorageObject('F');
+		var folderDaoProto = clLocalStorageObject('F', true);
 
 		function FolderDao(id) {
 			this.id = id;
@@ -14,7 +14,7 @@ angular.module('classeur.core.folders', [])
 			this.$readAttr('name', '');
 			this.$readAttr('sharing', '');
 			this.$readAttr('userId', '');
-			this.$readLocalUpdate();
+			this.$readUpdate();
 		};
 
 		FolderDao.prototype.write = function(updated) {
@@ -60,8 +60,8 @@ angular.module('classeur.core.folders', [])
 
 		function checkAll() {
 			// Check folder id list
-			var checkFolderSvcUpdate = clFolderSvc.$checkGlobalUpdate();
-			clFolderSvc.$readGlobalUpdate();
+			var checkFolderSvcUpdate = clFolderSvc.$checkUpdate();
+			clFolderSvc.$readUpdate();
 			if (checkFolderSvcUpdate && clFolderSvc.$checkAttr('folderIds', '[]')) {
 				clFolderSvc.folderIds = undefined;
 			} else {
@@ -72,7 +72,7 @@ angular.module('classeur.core.folders', [])
 			var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate();
 			folderDaoProto.$readGlobalUpdate();
 			clFolderSvc.folders.forEach(function(folderDao) {
-				if (checkFolderUpdate && folderDao.$checkLocalUpdate()) {
+				if (checkFolderUpdate && folderDao.$checkUpdate()) {
 					folderDao.read();
 				} else {
 					folderDao.write();
@@ -127,7 +127,7 @@ angular.module('classeur.core.folders', [])
 				if (change.deleted && folderDao) {
 					var index = clFolderSvc.folders.indexOf(folderDao);
 					clFolderSvc.folderIds.splice(index, 1);
-				} else if (!folderDao) {
+				} else if (!change.deleted && !folderDao) {
 					folderDao = new FolderDao(change.id);
 					clFolderSvc.folderMap[change.id] = folderDao;
 					clFolderSvc.folderIds.push(change.id);

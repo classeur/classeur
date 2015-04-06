@@ -29,8 +29,10 @@
         }
         .icon-hr::before {
             font-family: $font-family;
-            content: "\00B7\00B7\00B7\00B7";
+            font-size: 21px;
             letter-spacing: -0.06em;
+            font-weight: bold;
+            content: "\00B7\00B7\00B7\00B7";
         }
         &.active a {
             cursor: auto;

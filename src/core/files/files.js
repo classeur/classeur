@@ -1,8 +1,8 @@
 angular.module('classeur.core.files', [])
 	.factory('clFileSvc', function($window, $timeout, clUid, clLocalStorageObject, clSocketSvc) {
 		var maxLocalFiles = 3;
-		var fileDaoProto = clLocalStorageObject('f');
-		var contentDaoProto = clLocalStorageObject('c');
+		var fileDaoProto = clLocalStorageObject('f', true);
+		var contentDaoProto = clLocalStorageObject('c', true);
 
 		function FileDao(id) {
 			this.id = id;
@@ -20,7 +20,7 @@ angular.module('classeur.core.files', [])
 			this.$readAttr('folderId', '');
 			this.$readAttr('sharing', '');
 			this.$readAttr('userId', '');
-			this.$readLocalUpdate();
+			this.$readUpdate();
 		};
 
 		FileDao.prototype.write = function(updated) {
@@ -39,7 +39,7 @@ angular.module('classeur.core.files', [])
 				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
 				this.contentDao.$readAttr('state', '{}', JSON.parse);
 			}
-			this.contentDao.$readLocalUpdate();
+			this.contentDao.$readUpdate();
 		};
 
 		FileDao.prototype.freeContent = function() {
@@ -140,6 +140,7 @@ angular.module('classeur.core.files', [])
 		function init() {
 			if (!clFileSvc.fileIds) {
 				clFileSvc.$readAttr('fileIds', '[]', JSON.parse);
+				clFileSvc.fileMap = {};
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
 					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
 						var fileDao = new FileDao(id);
@@ -148,6 +149,9 @@ angular.module('classeur.core.files', [])
 							return true;
 						}
 					}
+				});
+				(clFileSvc.files || []).forEach(function(fileDao) {
+					!clFileSvc.fileMap.hasOwnProperty(fileDao.id) && fileDao.unload();
 				});
 				if (!isInited) {
 					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
@@ -193,8 +197,8 @@ angular.module('classeur.core.files', [])
 
 		function checkAll() {
 			// Check file id list
-			var checkFileSvcUpdate = clFileSvc.$checkGlobalUpdate();
-			clFileSvc.$readGlobalUpdate();
+			var checkFileSvcUpdate = clFileSvc.$checkUpdate();
+			clFileSvc.$readUpdate();
 			if (checkFileSvcUpdate && clFileSvc.$checkAttr('fileIds', '[]')) {
 				clFileSvc.fileIds = undefined;
 			} else {
@@ -207,12 +211,12 @@ angular.module('classeur.core.files', [])
 			var checkContentUpdate = contentDaoProto.$checkGlobalUpdate();
 			contentDaoProto.$readGlobalUpdate();
 			clFileSvc.files.forEach(function(fileDao) {
-				if (checkFileUpdate && fileDao.$checkLocalUpdate()) {
+				if (checkFileUpdate && fileDao.$checkUpdate()) {
 					fileDao.read();
 				} else {
 					fileDao.write();
 				}
-				if (checkContentUpdate && fileDao.contentDao.$checkLocalUpdate()) {
+				if (checkContentUpdate && fileDao.contentDao.$checkUpdate()) {
 					fileDao.unload();
 					fileDao.readContent();
 				} else {
@@ -254,6 +258,7 @@ angular.module('classeur.core.files', [])
 			}
 			var fileIds = {};
 			fileDaoList.forEach(function(fileDao) {
+				fileDao.unload();
 				fileIds[fileDao.id] = 1;
 			});
 			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(fileId) {
@@ -266,9 +271,10 @@ angular.module('classeur.core.files', [])
 			changes.forEach(function(change) {
 				var fileDao = clFileSvc.fileMap[change.id];
 				if (change.deleted && fileDao) {
+					fileDao.unload();
 					var index = clFileSvc.files.indexOf(fileDao);
 					clFileSvc.fileIds.splice(index, 1);
-				} else if (!fileDao) {
+				} else if (!change.deleted && !fileDao) {
 					fileDao = new FileDao(change.id);
 					clFileSvc.fileMap[change.id] = fileDao;
 					clFileSvc.fileIds.push(change.id);
