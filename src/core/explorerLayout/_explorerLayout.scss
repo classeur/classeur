@@ -85,10 +85,15 @@
         }
     }
     .md-subheader {
-        padding: 0;
         margin: 0;
+        padding: 0;
         &::after {
             display: none;
+        }
+        .md-subheader-inner {
+            padding: 0;
+            -webkit-animation: none;
+            animation: none;
         }
     }
     .md-sticky-clone {
@@ -97,7 +102,8 @@
             border-bottom: 1px solid rgba(128, 128, 128, 0.1);
         }
     }
-    .folder.container, .md-sticky-clone {
+    .folder.container,
+    .md-sticky-clone {
         overflow-x: hidden;
         overflow-y: scroll;
         padding-left: 90px;
@@ -150,7 +156,7 @@
     }
     .file.actions {
         & > div {
-            height: 75px;
+            height: 95px;
             padding: 20px 5px 0;
         }
         padding: 0 35px;

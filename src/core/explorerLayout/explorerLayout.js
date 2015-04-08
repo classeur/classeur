@@ -140,6 +140,7 @@ angular.module('classeur.core.explorerLayout', [])
 				var toggleIconPanel = clPanel(element, '.toggle.icon');
 				var scrollbarPanel = clPanel(element, '.scrollbar.panel');
 
+				var folderContentElt = element[0].querySelector('md-content');
 				var btnGroupElt = angular.element(element[0].querySelector('.btn-grp'));
 				var scrollerElt = btnGroupElt[0].querySelector('.container');
 				var recentButtonElt = btnGroupElt[0].querySelector('.recent.btn');
@@ -382,9 +383,9 @@ angular.module('classeur.core.explorerLayout', [])
 						var confirm = $mdDialog.confirm()
 							.title(title)
 							.ariaLabel(title)
-							.content('You\'re about to move ' + filesToRemove.length + ' file(s) to the trash.')
-							.ok('Ok')
-							.cancel('Cancel');
+							.content('You\'re about to delete ' + filesToRemove.length + ' file(s). Are you sure')
+							.ok('Yes')
+							.cancel('No');
 						$mdDialog.show(confirm).then(remove);
 					}
 
@@ -481,6 +482,7 @@ angular.module('classeur.core.explorerLayout', [])
 					scope.selectNone();
 					setPlasticClass();
 					clSyncSvc.getExtFolder(folderDao);
+					folderContentElt.scrollTop = 0;
 				});
 				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
 				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
