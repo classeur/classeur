@@ -861,16 +861,20 @@ angular.module('classeur.core.sync', [])
 			contentRevStore.$writeAttr(watchCtx.fileDao.id);
 		});
 
+		clSyncSvc.saveAll = function() {
+			return clUserSvc.checkAll() | clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
+		};
+
 		clSetInterval(function() {
 			readSyncDataStore(clSocketSvc.ctx);
+			// Need to save here to make sure we have `updated` attributes filled properly
+			var applyScope = clSyncSvc.saveAll();
 			// Remove files that are not local and not going to be synced
 			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
 				return !fileDao.userId && !fileDao.contentDao.isLocal && !syncDataStore.files.hasOwnProperty(fileDao.id);
 			});
-			if (filesToRemove.length) {
-				clFileSvc.removeFiles(filesToRemove);
-				$rootScope.$apply();
-			}
+			filesToRemove.length && clFileSvc.removeFiles(filesToRemove);
+			(applyScope || filesToRemove.length) && $rootScope.$apply();
 			if (!clSocketSvc.isOnline()) {
 				return;
 			}

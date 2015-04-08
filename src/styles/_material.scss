@@ -79,13 +79,16 @@ md-slider.md-default-theme.md-min .md-thumb:after {
     background-color: rgb(33, 150, 243);
 }
 
-md-dialog.transition-in,
-md-dialog.transition-out {
-    transition: all 1ms;
-}
+md-dialog {
+    max-width: 500px;
+    &.transition-in,
+    &.transition-out {
+        transition: all 1ms;
+    }
 
-md-dialog.md-default-theme {
-    border-radius: 0;
+    &.md-default-theme {
+        border-radius: 0;
+    }
 }
 
 md-input-container.md-classeur-theme .md-input[disabled],

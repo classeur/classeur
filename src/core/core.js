@@ -159,11 +159,6 @@ angular.module('classeur.core', [])
 			clToast('Copy created.');
 		}
 
-		function saveAll() {
-			return clUserSvc.checkAll() | clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
-		}
-
-		$rootScope.saveAll = saveAll;
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.loadFile = loadFile;
 		$rootScope.setDocFile = setDocFile;
@@ -195,11 +190,11 @@ angular.module('classeur.core', [])
 		});
 
 		clSetInterval(function() {
-			saveAll() && $rootScope.$apply();
+			clSyncSvc.saveAll() && $rootScope.$apply();
 		}, 1100);
 
 		$window.addEventListener('beforeunload', function(evt) {
-			saveAll();
+			clSyncSvc.saveAll();
 			//evt.returnValue = 'Are you sure?';
 		});
 	});

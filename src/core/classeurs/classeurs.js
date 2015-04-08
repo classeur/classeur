@@ -13,7 +13,7 @@ angular.module('classeur.core.classeurs', [])
 				folders: this.folders.map(function(folderDao) {
 					return {
 						id: folderDao.id,
-						userId: folderDao.userId
+						userId: folderDao.userId || undefined
 					};
 				}),
 				id: this.id,

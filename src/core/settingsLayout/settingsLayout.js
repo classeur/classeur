@@ -1,7 +1,15 @@
 angular.module('classeur.core.settingsLayout', [])
-	.directive('clSettingsLayout', function($location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc) {
-		clSocketSvc.addMsgHandler('userLinked', function(msg) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc) {
+
+		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
+		});
+
+		clSocketSvc.addMsgHandler('deletedUser', function() {
+			$location.url('/');
+			$rootScope.$apply();
+			clUserSvc.signout();
+			$rootScope.$apply();
 		});
 
 		return {
@@ -22,8 +30,12 @@ angular.module('classeur.core.settingsLayout', [])
 
 				var next;
 
-				function reset() {
+				function resetUser() {
 					scope.user = clone(clUserSvc.user);
+				}
+
+				function reset() {
+					resetUser();
 					next && next();
 				}
 
@@ -50,7 +62,7 @@ angular.module('classeur.core.settingsLayout', [])
 					}
 				}
 
-				reset();
+				scope.$watch('userSvc.user', resetUser);
 
 				scope.cancel = function() {
 					next = function() {
@@ -66,22 +78,6 @@ angular.module('classeur.core.settingsLayout', [])
 					apply();
 				};
 
-				var unwatchSocket = clStateMgr.state && scope.$watch('socketSvc.isReady', function(isReady) {
-					if (isReady) {
-						unwatchSocket();
-						if (clStateMgr.state) {
-							var newUserToken = clStateMgr.state.$search.newUserToken;
-							if (clStateMgr.state.$search.userToken) {
-								clToast('Account is already in use.');
-							} else if (newUserToken) {
-								clSocketSvc.sendMsg({
-									type: 'linkUser',
-									token: newUserToken
-								});
-							}
-						}
-					}
-				});
 
 				/****
 				Trash
@@ -119,7 +115,7 @@ angular.module('classeur.core.settingsLayout', [])
 								.ok('Yes')
 								.cancel('No'))
 							.then(function() {
-								clSocketSvc.isReady && clSocketSvc.sendMsg({
+								clSocketSvc.sendMsg({
 									type: 'deleteFile',
 									id: file.id
 								});
@@ -144,6 +140,47 @@ angular.module('classeur.core.settingsLayout', [])
 					});
 
 				})();
+
+
+
+				/***
+				User
+				***/
+
+				(function() {
+
+					scope.deleteUser = function() {
+						$mdDialog.show($mdDialog.confirm()
+								.title('Remove account')
+								.content('You\'re about to sign out. Your data will be removed within 7 days. Just sign in again if you change your mind.')
+								.ok('Ok')
+								.cancel('Cancel'))
+							.then(function() {
+								clSocketSvc.sendMsg({
+									type: 'deleteUser'
+								});
+							});
+					};
+
+					var unwatchSocket = clStateMgr.state && scope.$watch('socketSvc.isReady', function(isReady) {
+						if (isReady) {
+							unwatchSocket();
+							if (clStateMgr.state) {
+								var newUserToken = clStateMgr.state.$search.newUserToken;
+								if (clStateMgr.state.$search.userToken) {
+									clToast('Account is already in use.');
+								} else if (newUserToken) {
+									clSocketSvc.sendMsg({
+										type: 'linkUser',
+										token: newUserToken
+									});
+								}
+							}
+						}
+					});
+
+				})();
+
 
 				scope.$watch('selectedTabIndex', function(newIndex, oldIndex) {
 					next = undefined;

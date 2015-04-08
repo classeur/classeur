@@ -30,14 +30,24 @@
                 <div class="tab">
                     <form name="userForm">
                         <md-input-container class="small">
+                            <label>User ID</label>
+                            <input name="id" ng-model="user.id" disabled="disabled">
+                        </md-input-container>
+                        <md-input-container class="small">
                             <label>User name</label>
                             <input required name="name" ng-model="user.name">
                             <div ng-messages="userForm.name.$error">
                                 <div class="angular-animate" ng-message="required">This is required.</div>
                             </div>
                         </md-input-container>
-                        Use another Google account for sign in:
-                        <md-button class="md-primary" ng-click="userSvc.startOAuth('/settings?tab=user')">Link now <span class="icon-arrow-forward"></span></md-button>
+                        <p>
+                        Use another Google account for sign in:<br>
+                        <md-button class="md-primary" ng-click="userSvc.startOAuth('/settings?tab=user')">Link now</md-button>
+                        </p>
+                        <p>
+                        Delete your user account and all your data:<br>
+                        <md-button class="md-primary" ng-click="deleteUser()">Remove account</md-button>
+                        </p>
                     </form>
                 </div>
             </md-tab>

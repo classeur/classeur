@@ -18,7 +18,7 @@
                 <div class="btn-grp panel">
                     <div class="close panel">
                         <cl-button class="close btn" opacity="0.35" opacity-hover="0.7" size="32">
-                            <a class="icon-clear" ng-click="saveAll(); setCurrentFile()" title="Close" aria-label="Close"></a>
+                            <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" title="Close" aria-label="Close"></a>
                         </cl-button>
                     </div>
                     <div class="scroll panel">
@@ -62,7 +62,7 @@
 
             <div class="btn-grp panel">
                 <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
-                    <a class="icon-clear" ng-click="saveAll(); setCurrentFile()" title="Close editor" aria-label="Close editor"></a>
+                    <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" title="Close editor" aria-label="Close editor"></a>
                 </cl-button>
                 <cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="34">
                     <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" title="Hide editor" aria-label="Hide editor"></a>
