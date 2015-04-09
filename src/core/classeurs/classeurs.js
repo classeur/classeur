@@ -97,10 +97,10 @@ angular.module('classeur.core.classeurs', [])
 				}
 			});
 			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
-				return classeurDao1.name.toLowerCase() < classeurDao2.name.toLowerCase() ? -1 : 1;
+				return (classeurDao1.name + '\0' + classeurDao1.id).localeCompare(classeurDao2.name + '\0' + classeurDao2.id);
 			}).forEach(function(classeurDao) {
 				classeurDao.folders.sort(function(folder1, folder2) {
-					return folder1.id > folder2.id;
+					return folder1.id > folder2.id ? 1 : (folder1.id === folder2.id ? 0 : -1);
 				});
 			});
 		}

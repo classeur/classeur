@@ -108,10 +108,10 @@
                                                 </div>
                                             </div>
                                             <div class="page btns" ng-if="explorerLayoutSvc.pageCount > 1" layout="row">
-                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page-1)" ng-disabled="explorerLayoutSvc.page === 0">
+                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page-1)" ng-disabled="explorerLayoutSvc.page === 0" aria-label="Previous page">
                                                     <span class="icon-keyboard-arrow-left"></span>
                                                 </md-button>
-                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page+1)" ng-disabled="explorerLayoutSvc.page === explorerLayoutSvc.pageCount - 1">
+                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page+1)" ng-disabled="explorerLayoutSvc.page === explorerLayoutSvc.pageCount - 1" aria-label="Next page">
                                                     <span class="icon-keyboard-arrow-right"></span>
                                                 </md-button>
                                             </div>
@@ -120,8 +120,8 @@
                                 </div>
                             </md-subheader>
                             <div class="folder content" ng-show="explorerLayoutSvc.files.length">
-                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pageFiles"></cl-file-entry>
-                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pageFiles"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pageFiles track by fileDao.id"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pageFiles track by fileDao.id"></cl-file-entry>
                                 <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
                                 <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
                             </div>
@@ -131,7 +131,7 @@
             </div>
             <div class="btn-grp panel background no-overflow">
                 <div class="container panel">
-                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders" ng-class="'plastic-' + (($index + 1) % 4)">
+                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 1) % 4)">
                         <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                             <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder">
                                 {{folderDao.name}}

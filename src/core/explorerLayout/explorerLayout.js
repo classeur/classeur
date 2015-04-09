@@ -505,16 +505,18 @@ angular.module('classeur.core.explorerLayout', [])
 		var lastClasseurKey = 'lastClasseurId';
 		var lastFolderKey = 'lastFolderId';
 		var unclassifiedFolder = {
+			id: 'unclassified',
 			name: 'Unclassified'
 		};
 		var createFolder = {
+			id: 'create',
 			name: 'Create folder'
 		};
 
 		function refreshFolders() {
 			setCurrentClasseur(isInited ? clExplorerLayoutSvc.currentClasseurDao : clClasseurSvc.classeurMap[localStorage[lastClasseurKey]]);
 			clExplorerLayoutSvc.folders = clExplorerLayoutSvc.currentClasseurDao.folders.slice().sort(function(folder1, folder2) {
-				return folder1.name.toLowerCase() < folder2.name.toLowerCase() ? -1 : 1;
+				return folder1.name.localeCompare(folder2.name);
 			});
 			clExplorerLayoutSvc.folders.unshift(unclassifiedFolder);
 			clExplorerLayoutSvc.folders.push(createFolder);
@@ -548,7 +550,7 @@ angular.module('classeur.core.explorerLayout', [])
 				}) : clFileSvc.localFiles.slice();
 			clExplorerLayoutSvc.files.sort(
 				clExplorerLayoutSvc.currentFolderDao ? function(fileDao1, fileDao2) {
-					return fileDao1.name.toLowerCase() < fileDao2.name.toLowerCase() ? -1 : 1;
+					return fileDao1.name.localeCompare(fileDao2.name);
 				} : function(fileDao1, fileDao2) {
 					return fileDao1.contentDao.lastChange < fileDao2.contentDao.lastChange;
 				});
