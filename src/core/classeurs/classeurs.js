@@ -97,7 +97,7 @@ angular.module('classeur.core.classeurs', [])
 				}
 			});
 			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
-				return classeurDao1.name > classeurDao2.name;
+				return classeurDao1.name.toLowerCase() < classeurDao2.name.toLowerCase() ? -1 : 1;
 			}).forEach(function(classeurDao) {
 				classeurDao.folders.sort(function(folder1, folder2) {
 					return folder1.id > folder2.id;

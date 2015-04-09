@@ -65,7 +65,7 @@
     }
     .folder.container {
         top: 2px;
-        padding-bottom: 120px;
+        padding-bottom: 150px;
         .folder.btn {
             font-size: 32px;
             padding: 4px;
@@ -158,6 +158,15 @@
         & > div {
             height: 95px;
             padding: 20px 5px 0;
+        }
+        .page.btns {
+            font-size: 26px;
+            .md-button {
+                padding: 4px;
+                &[disabled] {
+                    color: rgba(0, 0, 0, 0.2);
+                }
+            }
         }
         padding: 0 35px;
         border-top-left-radius: 6px;

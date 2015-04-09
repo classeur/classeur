@@ -42,7 +42,7 @@
         </div>
         <div class="classeur list panel no-overflow">
             <div class="scroller panel">
-                <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs">
+                <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs track by classeur.id">
                     <cl-classeur-entry></cl-classeur-entry>
                 </div>
                 <div class="tile container">
@@ -82,36 +82,46 @@
                         </div>
                         <section>
                             <md-subheader>
-                            <div ng-class="plasticClass">
-                                <div class="new-file actions" layout="row" layout-align="end">
-                                    <md-button ng-click="createFile()">
-                                        <span class="icon-add"></span> New file
-                                    </md-button>
-                                </div>
-                                <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
-                                    <div>
-                                        <div ng-switch-when="false">
-                                            <md-button md-no-ink class="md-primary" ng-click="selectAll()">
-                                                <span class="icon-check"></span> Select all
-                                            </md-button>
-                                        </div>
-                                        <div ng-switch-when="true">
-                                            <md-button md-no-ink class="md-primary" ng-click="selectNone()">
-                                                <span class="icon-check-box-outline-blank"></span> Select None
-                                            </md-button>
-                                        </div>
-                                        <div ng-switch-when="true">
-                                            <md-button md-no-ink class="md-primary" ng-click="deleteConfirm()">
-                                                <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
-                                            </md-button>
+                                <div ng-class="plasticClass">
+                                    <div class="new-file actions" layout="row" layout-align="end">
+                                        <md-button ng-click="createFile()">
+                                            <span class="icon-add"></span> New file
+                                        </md-button>
+                                    </div>
+                                    <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
+                                        <div layout="row" layout-align="space-between start">
+                                            <div flex>
+                                                <div ng-switch-when="false">
+                                                    <md-button class="md-primary" ng-click="selectAll()">
+                                                        <span class="icon-check"></span> Select all
+                                                    </md-button>
+                                                </div>
+                                                <div ng-switch-when="true">
+                                                    <md-button class="md-primary" ng-click="selectNone()">
+                                                        <span class="icon-check-box-outline-blank"></span> Select None
+                                                    </md-button>
+                                                </div>
+                                                <div ng-switch-when="true">
+                                                    <md-button class="md-primary" ng-click="deleteConfirm()">
+                                                        <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
+                                                    </md-button>
+                                                </div>
+                                            </div>
+                                            <div class="page btns" ng-if="explorerLayoutSvc.pageCount > 1" layout="row">
+                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page-1)" ng-disabled="explorerLayoutSvc.page === 0">
+                                                    <span class="icon-keyboard-arrow-left"></span>
+                                                </md-button>
+                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page+1)" ng-disabled="explorerLayoutSvc.page === explorerLayoutSvc.pageCount - 1">
+                                                    <span class="icon-keyboard-arrow-right"></span>
+                                                </md-button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                </div>
                             </md-subheader>
                             <div class="folder content" ng-show="explorerLayoutSvc.files.length">
-                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.files | orderBy:'name'"></cl-file-entry>
-                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.files | orderBy:'-contentDao.lastChange'"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pageFiles"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pageFiles"></cl-file-entry>
                                 <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
                                 <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
                             </div>
