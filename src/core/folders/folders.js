@@ -46,7 +46,7 @@ angular.module('classeur.core.folders', [])
 
 			if (cleanStorage) {
 				var keyPrefix = /^F\.(\w+)\.(\w+)/;
-				for (var key in localStorage) {
+				Object.keys(localStorage).forEach(function(key) {
 					var match = key.match(keyPrefix);
 					if (match) {
 						var folderDao = clFolderSvc.folderMap[match[1]];
@@ -54,7 +54,7 @@ angular.module('classeur.core.folders', [])
 							localStorage.removeItem(key);
 						}
 					}
-				}
+				});
 			}
 		}
 

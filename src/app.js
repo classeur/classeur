@@ -1,4 +1,7 @@
-angular.module('classeur.app', [
+if (!window.WebSocket || !window.MutationObserver) {
+	window.alert('Unsupported browser version. Please upgrade to the latest.');
+} else {
+	angular.module('classeur.app', [
 		'ngRoute',
 		'ngMaterial',
 		'ngAnimate',
@@ -44,3 +47,4 @@ angular.module('classeur.app', [
 		'classeur.ext.markdownExtra',
 		'classeur.ext.mathJax',
 	]);
+}

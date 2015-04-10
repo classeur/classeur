@@ -56,11 +56,11 @@ angular.module('classeur.core.sync', [])
 		function checkUserChange(userId) {
 			if (userId !== syncDataStore.userId) {
 				var fileKeyPrefix = /^(cr\.|syncData\.)/;
-				for (var key in localStorage) {
+				Object.keys(localStorage).forEach(function(key) {
 					if (key.match(fileKeyPrefix)) {
 						localStorage.removeItem(key);
 					}
-				}
+				});
 				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
 					if (!fileDao.userId) {
 						if (!fileDao.contentDao.isLocal) {
@@ -100,7 +100,7 @@ angular.module('classeur.core.sync', [])
 
 		(function() {
 			var fileKeyPrefix = /^cr\.(\w\w+)/;
-			for (var key in localStorage) {
+			Object.keys(localStorage).forEach(function(key) {
 				var fileDao, match = key.match(fileKeyPrefix);
 				if (match) {
 					fileDao = clFileSvc.fileMap[match[1]];
@@ -108,7 +108,7 @@ angular.module('classeur.core.sync', [])
 						localStorage.removeItem(key);
 					}
 				}
-			}
+			});
 		})();
 
 
@@ -596,7 +596,7 @@ angular.module('classeur.core.sync', [])
 				syncDataStore.files[msg.id] = {
 					r: -1
 				};
-				if(msg.rev) {
+				if (msg.rev) {
 					contentRevStore[msg.id] = msg.rev;
 					contentRevStore.$writeAttr(msg.id);
 				}

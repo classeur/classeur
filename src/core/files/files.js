@@ -156,14 +156,14 @@ angular.module('classeur.core.files', [])
 				if (!isInited) {
 					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
 					var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
-					for (var key in localStorage) {
+					Object.keys(localStorage).forEach(function(key) {
 						var fileDao, match = key.match(fileKeyPrefix);
 						if (match) {
 							fileDao = clFileSvc.fileMap[match[1]];
 							if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
 								localStorage.removeItem(key);
 							}
-							continue;
+							return;
 						}
 						match = key.match(contentKeyPrefix);
 						if (match) {
@@ -172,7 +172,7 @@ angular.module('classeur.core.files', [])
 								localStorage.removeItem(key);
 							}
 						}
-					}
+					});
 					isInited = true;
 				}
 			}

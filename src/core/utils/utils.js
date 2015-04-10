@@ -118,7 +118,7 @@ angular.module('classeur.core.utils', [])
 		function LocalStorageObject(prefix, globalUpdate) {
 			this.$globalPrefix = prefix ? prefix + '.' : '';
 			this.$setId();
-			if(globalUpdate) {
+			if (globalUpdate) {
 				var self = this; // Make sure we update the __proto__ object
 				var globalUpdateKey = this.$globalPrefix + 'gu';
 				this.$checkGlobalUpdate = function() {
@@ -213,14 +213,14 @@ angular.module('classeur.core.utils', [])
 		var stateMaxAge = 3600000; // 1 hour
 
 		var currentDate = Date.now();
-		var keyPrefix = /^cl\.state\.(.+)/;
-		for (var key in localStorage) {
+		var keyPrefix = /^state\.(.+)/;
+		Object.keys(localStorage).forEach(function(key) {
 			var match = key.match(keyPrefix);
 			if (match) {
 				var stateAge = parseInt(match[1].split('.')[1] || 0);
 				(currentDate - stateAge > stateMaxAge) && localStorage.removeItem(key);
 			}
-		}
+		});
 
 		var clStateMgr = {
 			saveState: function(state) {
