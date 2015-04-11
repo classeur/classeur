@@ -3,6 +3,7 @@ var express = require('express');
 var serveStatic = require('serve-static');
 
 var app = express();
+app.use('/assets', serveStatic(__dirname + '/bower_components/classets'));
 app.use(serveStatic(__dirname + '/public'));
 
 if(!process.env.NO_CLUSTER && cluster.isMaster) {

@@ -164,7 +164,7 @@
             .md-button {
                 padding: 4px;
                 &[disabled] {
-                    color: rgba(0, 0, 0, 0.2);
+                    color: rgba(0, 0, 0, 0.15);
                 }
             }
         }
@@ -219,6 +219,8 @@
                 &[disabled] {
                     color: rgba(0, 0, 0, 0.87);
                     cursor: pointer;
+                    background-image: none;
+                    border-bottom-color: rgba(0,0,0,0.08);
                 }
             }
         }
@@ -269,7 +271,7 @@
             height: 130px;
             width: 44px;
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
-            button {
+            .md-button {
                 text-transform: none;
                 line-height: 34px;
                 width: 100%;
@@ -305,10 +307,8 @@
             .md-button {
                 font-size: 14px;
                 .rotate-90 {
-                    position: absolute;
-                    width: 110px;
-                    left: -22px;
-                    height: 0;
+                    width: 100px;
+                    left: -18px;
                 }
             }
             .icon-add {
