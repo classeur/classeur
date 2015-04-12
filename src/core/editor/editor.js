@@ -59,7 +59,7 @@ angular.module('classeur.core.editor', [])
 					}
 					refreshPreview();
 					scope.$apply();
-				}, clSettingSvc.values.refreshPreviewDelay);
+				}, 500);
 
 				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 					newSectionList = sectionList;
@@ -136,7 +136,7 @@ angular.module('classeur.core.editor', [])
 					}
 					clEditorSvc.measureSectionDimensions();
 					scope.$apply();
-				}, clSettingSvc.values.measureSectionDelay);
+				}, 1000);
 				scope.$watch('editorSvc.lastPreviewRefreshed', onPreviewRefreshed);
 				scope.$watch('editorSvc.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorSvc.previewSize()', debouncedMeasureSectionDimension);
@@ -215,8 +215,6 @@ angular.module('classeur.core.editor', [])
 		};
 	})
 	.factory('clEditorSvc', function($window, $timeout, clSettingSvc, clEditorLayoutSvc, Slug) {
-		clSettingSvc.setDefaultValue('refreshPreviewDelay', 500);
-		clSettingSvc.setDefaultValue('measureSectionDelay', 1000);
 
 		// Init rangy
 		$window.rangy.init();

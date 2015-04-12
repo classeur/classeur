@@ -58,17 +58,19 @@
                                 </div>
                             </md-input-container>
                         </form>
-                        <p>
-                            Use another Google account for sign in:
-                            <br>
-                            <md-button class="md-primary" ng-click="userSvc.startOAuth('/settings?tab=user')">
+                        <p class="group">
+                            <span class="label">
+                                Use another Google account for sign in
+                            </span>
+                            <md-button ng-click="userSvc.startOAuth('/settings?tab=user')">
                                 Link now
                             </md-button>
                         </p>
-                        <p>
-                            Delete your user account and all your data:
-                            <br>
-                            <md-button class="md-primary" ng-click="deleteUser()">
+                        <p class="group">
+                            <span class="label">
+                                Delete your user account and all your data
+                            </span>
+                            <md-button ng-click="deleteUser()">
                                 Remove account
                             </md-button>
                         </p>

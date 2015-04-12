@@ -5,9 +5,7 @@ angular.module('classeur.opt.btnBar', [])
 			templateUrl: 'opt/btnBar/btnBarSettings.html'
 		};
 	})
-	.directive('clBtnBar', function(clEditorSvc, clEditorLayoutSvc, clSettingSvc, clPanel) {
-		clSettingSvc.setDefaultValue('btnBar', true);
-
+	.directive('clBtnBar', function(clEditorSvc, clEditorLayoutSvc, clPanel) {
 		var btns = [{
 			icon: 'icon-format-bold',
 			label: 'Bold',

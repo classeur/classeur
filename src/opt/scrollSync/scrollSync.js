@@ -1,4 +1,10 @@
 angular.module('classeur.opt.scrollSync', [])
+	.directive('clScrollSyncSettings', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'opt/scrollSync/scrollSyncSettings.html'
+		};
+	})
 	.directive('clScrollSyncEditor', function(clScrollSyncSvc) {
 		return {
 			restrict: 'A',
@@ -20,13 +26,12 @@ angular.module('classeur.opt.scrollSync', [])
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
 					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
-				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.onMeasure);
+				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.forceScrollSync);
+				scope.$watch('settingSvc.localSettings.scrollSync', clScrollSyncSvc.forceScrollSync);
 			}
 		};
 	})
 	.factory('clScrollSyncSvc', function(clEditorLayoutSvc, clEditorSvc, clSettingSvc) {
-		clSettingSvc.setDefaultValue('scrollSync', true);
-
 		var editorElt, previewElt;
 		var scrollTimeoutId;
 		var currentEndCb, skipAnimation;
@@ -76,7 +81,7 @@ angular.module('classeur.opt.scrollSync', [])
 		var doScrollSync = function(debounce) {
 			var localSkipAnimation = skipAnimation;
 			skipAnimation = false;
-			if(!clSettingSvc.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
+			if(!clSettingSvc.localSettings.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;
@@ -246,7 +251,7 @@ angular.module('classeur.opt.scrollSync', [])
 				isScrollPreview = false;
 				skipAnimation = true;
 			},
-			onMeasure: function() {
+			forceScrollSync: function() {
 				if(isPreviewRefreshing) {
 					return;
 				}

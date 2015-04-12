@@ -7,7 +7,7 @@
         </md-input-container>
     </div>
     <div class="info" ng-switch="classeur.folders.length > 1">
-        <div ng-show="classeur.isDefault">default</div>
+        <div ng-show="classeur.isDefault"><b>default</b></div>
         <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
         <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
     </div>

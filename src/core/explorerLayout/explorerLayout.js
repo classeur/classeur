@@ -177,9 +177,9 @@ angular.module('classeur.core.explorerLayout', [])
 					explorerPanel
 						.width(clExplorerLayoutSvc.explorerWidth)
 						.move().x(-clExplorerLayoutSvc.explorerWidth / 2 - 44).end();
+					explorerPanel.$jqElt.toggleClass('no-padding', clExplorerLayoutSvc.noPadding);
 					contentPanel
 						.move(isInited && 'sslow').y(clExplorerLayoutSvc.contentY).ease(clExplorerLayoutSvc.isExplorerOpen ? 'out' : 'in').end();
-					contentPanel.$jqElt.toggleClass('no-padding', clExplorerLayoutSvc.noPadding);
 					scrollbarPanel.width(clExplorerLayoutSvc.explorerWidth + 50 - clScrollBarWidth);
 					toggleIconPanel.css().move(isInited && 'sslow').rotate(clExplorerLayoutSvc.isExplorerOpen ? 0 : -90).end();
 					isInited = true;

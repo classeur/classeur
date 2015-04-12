@@ -51,7 +51,7 @@ var vendorCss = [
 	'bower_components/emojione/assets/css/emojione.css',
 ];
 
-var templateCacheSrc = ['src/**/*.html', 'src/**/*.md'];
+var templateCacheSrc = ['src/**/*.{html,md,json}'];
 var jsSrc = ['src/**/*.js'];
 
 function jsStream() {

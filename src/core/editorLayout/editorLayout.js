@@ -54,7 +54,7 @@ angular.module('classeur.core.editorLayout', [])
 						binderWidth -= clEditorLayoutSvc.tocWidth;
 					}
 					clEditorLayoutSvc.fontSize = 18;
-					var factor = 1 + (clSettingSvc.values.editorZoom - 3) * 0.1;
+					var factor = 1 + (clSettingSvc.localSettings.editorZoom - 3) * 0.1;
 					clEditorLayoutSvc.pageWidth = 990 * factor;
 					if (binderWidth < 1120) {
 						--clEditorLayoutSvc.fontSize;
@@ -110,7 +110,7 @@ angular.module('classeur.core.editorLayout', [])
 
 				function updateLayoutSize() {
 					clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px';
-					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.values.editorZoom) / 10 + 'em';
+					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.localSettings.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
 					previewPanel.width(clEditorLayoutSvc.previewWidth).left(-clEditorLayoutSvc.previewWidth / 2);
 					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth);
@@ -183,8 +183,8 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.clean();
 				});
 
-				scope.$watch('settingSvc.values.editorZoom', animateLayout);
-				scope.$watch('settingSvc.values.editorColor', function(value) {
+				scope.$watch('settingSvc.localSettings.editorZoom', animateLayout);
+				scope.$watch('settingSvc.localSettings.editorColor', function(value) {
 					scope.plasticClass = 'plastic-' + (value + 97) % 100;
 				});
 				scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout);
@@ -199,10 +199,7 @@ angular.module('classeur.core.editorLayout', [])
 			}
 		};
 	})
-	.factory('clEditorLayoutSvc', function($rootScope, clSettingSvc) {
-		clSettingSvc.setDefaultValue('editorZoom', 3);
-		clSettingSvc.setDefaultValue('editorColor', 3);
-
+	.factory('clEditorLayoutSvc', function($rootScope) {
 		var clEditorLayoutSvc = {
 			pageMargin: 24,
 			editorBtnGrpWidth: 40,

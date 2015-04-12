@@ -99,7 +99,11 @@ angular.module('classeur.core', [])
 			if (!state) {
 				return $location.url('');
 			} else if (state === 'loaded') {
-				clEditorLayoutSvc.init(!!publicFileDao);
+				clEditorLayoutSvc.init(
+					publicFileDao &&
+					!$scope.currentFileDao.contentDao.state.selectionStart &&
+					!$scope.currentFileDao.contentDao.state.selectionEnd
+				);
 				$scope.fileLoaded = true;
 			}
 		});

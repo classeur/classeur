@@ -31,6 +31,14 @@
             margin-right: 0;
         }
     }
+    .group {
+        .label {
+            font-size: 12.5px;
+            padding: 2px;
+            display: block;
+            color: rgba(0,0,0,0.54);
+        }
+    }
     md-tabs {
         & md-tabs-content-wrapper, &:not(.md-no-tab-content) {
             min-height: 0;
