@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "node_modules/bower/bin/bower --allow-root install && node_modules/gulp/bin/gulp.js"
+    "install": "bower --allow-root install && gulp"
   },
   "author": "Benoit Schweblin",
   "license": "Apache",
