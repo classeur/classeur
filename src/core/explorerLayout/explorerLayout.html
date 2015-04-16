@@ -77,7 +77,7 @@
                         <cl-folder-name ng-switch-when="true"></cl-folder-name>
                         <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
                             <md-input-container md-theme="classeur" flex>
-                                <input class="folder name" value="Available offline" disabled="disabled">
+                                <input class="folder name" value="Recent files" disabled="disabled">
                             </md-input-container>
                         </div>
                         <section>
@@ -131,7 +131,7 @@
             </div>
             <div class="btn-grp panel background no-overflow">
                 <div class="container panel">
-                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 1) % 4)">
+                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 3) % 4)">
                         <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                             <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder">
                                 {{folderDao.name}}
@@ -145,9 +145,19 @@
                         <div class="rotate-90">{{explorerLayoutSvc.currentFolderDao.name}}</div>
                     </md-button>
                 </div>
-                <div cl-folder-button class="recent btn btn-panel plastic" ng-class="{open: !explorerLayoutSvc.currentFolderDao}">
-                    <md-button ng-click="setFolder()" aria-label="Recent">
-                        <div class="rotate-90">Recent</div>
+                <div cl-folder-button class="create folder btn btn-panel plastic-2" folder="explorerLayoutSvc.createFolder">
+                    <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder">
+                        <span class="icon-add"></span>
+                    </md-button>
+                </div>
+                <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel plastic-1" folder="explorerLayoutSvc.unclassifiedFolder">
+                    <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
+                        <span class="icon-list"></span>
+                    </md-button>
+                </div>
+                <div cl-folder-button class="recent folder btn btn-panel plastic-0">
+                    <md-button ng-click="setFolder()" aria-label="Recent files">
+                        <span class="icon-schedule"></span>
                     </md-button>
                 </div>
                 <div class="shadow panel"></div>

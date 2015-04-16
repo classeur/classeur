@@ -220,7 +220,7 @@
                     color: rgba(0, 0, 0, 0.87);
                     cursor: pointer;
                     background-image: none;
-                    border-bottom-color: rgba(0,0,0,0.08);
+                    border-bottom-color: rgba(0, 0, 0, 0.08);
                 }
             }
         }
@@ -264,57 +264,59 @@
         .shadow.panel {
             z-index: 9999;
             left: -2050px;
-            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.25);
+            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.38);
         }
-        .recent.btn,
         .folder.btn {
-            height: 130px;
-            width: 44px;
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
-            .md-button {
-                text-transform: none;
-                line-height: 34px;
-                width: 100%;
-                height: 100%;
-                font-size: 23px;
-                color: transparentize(#fff, 0.2);
-                &:hover {
-                    color: #fff;
-                }
-                .rotate-90 {
-                    position: absolute;
-                    width: 130px;
-                    left: -28px;
-                    height: 0;
-                }
-            }
-        }
-        .recent.btn {
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-        .current.btn {
-            display: none;
-            top: 129px;
-            z-index: 10000;
-        }
-        .folder.btn {
             height: 110px;
             width: 32px;
             margin-bottom: 130px;
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
             .md-button {
+                text-transform: none;
+                line-height: 34px;
+                width: 100%;
+                height: 100%;
                 font-size: 14px;
+                color: transparentize(#fff, 0.2);
+                &:hover {
+                    color: #fff;
+                }
                 .rotate-90 {
+                    position: absolute;
                     width: 100px;
                     left: -18px;
+                    height: 0;
                 }
             }
-            .icon-add {
+        }
+        .recent.btn,
+        .unclassified.btn,
+        .create.btn {
+            height: 44px;
+            width: 44px;
+            z-index: 9998;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            .md-button {
+                font-size: 24px;
                 padding: 0;
-                font-size: 18px;
+                span {
+                    line-height: 44px;
+                }
             }
+        }
+        .unclassified.btn {
+            top: 43px;
+        }
+        .create.btn {
+            top: 86px;
+        }
+        .current.btn {
+            display: none;
+            top: 129px;
+            z-index: 10000;
         }
         .open.btn,
         .current.btn {

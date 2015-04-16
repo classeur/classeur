@@ -2,17 +2,21 @@ angular.module('classeur.core.explorerLayout', [])
 	.directive('clFolderButton', function(clExplorerLayoutSvc, clPanel) {
 		return {
 			restrict: 'A',
-			link: function(scope, element) {
+			scope: true,
+			link: function(scope, element, attr) {
 				var elt = element[0];
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
 				var speed;
 				var isOpen;
+				if(attr.folder) {
+					scope.folderDao = scope.$eval(attr.folder);
+				}
 
 				function animate() {
 					element.toggleClass('open', isOpen);
-					var y = 129 + scope.$index * 109;
-					var z = isOpen ? 10000 : (scope.folderDao ? scope.explorerLayoutSvc.folders.length - scope.$index : 9998);
+					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
+					var z = isOpen ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
 					buttonPanel.css('z-index', z).$elt.offsetWidth; // Force z-offset to refresh before the animation
 					buttonPanel.move(speed).translate(isOpen ? 0 : -5, y).ease('out').then(function() {
 						if (isOpen) {
@@ -34,7 +38,7 @@ angular.module('classeur.core.explorerLayout', [])
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(isSelected) {
 					element.toggleClass('selected', isSelected);
 					if (isSelected) {
-						clExplorerLayoutSvc.currentFolderButtonElt = scope.folderDao && element[0];
+						clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
 				});
@@ -148,10 +152,10 @@ angular.module('classeur.core.explorerLayout', [])
 				var tabContainerElt = element[0].querySelector('.btn-grp .container');
 				var btnGroupElt = angular.element(element[0].querySelector('.btn-grp'));
 				var scrollerElt = btnGroupElt[0].querySelector('.container');
-				var recentButtonElt = btnGroupElt[0].querySelector('.recent.btn');
+				var createFolderButtonElt = btnGroupElt[0].querySelector('.create.folder.btn');
 				clExplorerLayoutSvc.toggleHiddenBtn = function() {
 					btnGroupElt.toggleClass('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
-						clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < recentButtonElt.getBoundingClientRect().bottom - 1);
+						clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1);
 				};
 
 				scrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleHiddenBtn);
@@ -191,11 +195,16 @@ angular.module('classeur.core.explorerLayout', [])
 				});
 
 				function setPlasticClass() {
-					scope.plasticClass = 'plastic';
+					var index = 0;
 					if (clExplorerLayoutSvc.currentFolderDao) {
-						var index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao);
-						scope.plasticClass = 'plastic-' + ((index + 1) % 4);
+						if(clExplorerLayoutSvc.currentFolderDao === clExplorerLayoutSvc.unclassifiedFolder) {
+							index = 1;
+						}
+						else {
+							index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) + 3;
+						}
 					}
+					scope.plasticClass = 'plastic-' + (index % 4);
 				}
 
 				scope.folderNameModified = function() {
@@ -521,7 +530,7 @@ angular.module('classeur.core.explorerLayout', [])
 		var lastFolderKey = 'lastFolderId';
 		var unclassifiedFolder = {
 			id: 'unclassified',
-			name: 'Unclassified'
+			name: 'My files'
 		};
 		var createFolder = {
 			id: 'create',
@@ -533,8 +542,6 @@ angular.module('classeur.core.explorerLayout', [])
 			clExplorerLayoutSvc.folders = clExplorerLayoutSvc.currentClasseurDao.folders.slice().sort(function(folder1, folder2) {
 				return folder1.name.localeCompare(folder2.name);
 			});
-			clExplorerLayoutSvc.folders.unshift(unclassifiedFolder);
-			clExplorerLayoutSvc.folders.push(createFolder);
 			setCurrentFolder(isInited ? clExplorerLayoutSvc.currentFolderDao : clFolderSvc.folderMap[localStorage[lastFolderKey]]);
 			isInited = true;
 		}
