@@ -2,7 +2,7 @@
     .classeur.selector {
         padding: 8px 0 0;
         height: 100%;
-        font-size: 38px;
+        font-size: 36px;
         text-transform: none;
         letter-spacing: -0.04em;
         font-weight: 300;
@@ -20,7 +20,7 @@
             height: 36px;
             padding: 0 6px;
             span {
-                line-height: 38px;
+                line-height: 36px;
             }
         }
     }
@@ -171,13 +171,13 @@
         padding: 0 35px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.25);
     }
     .folder.content {
         padding: 0 40px 110px;
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.25);
     }
     .folder.name {
         font-size: 30px;
@@ -278,7 +278,7 @@
                 line-height: 34px;
                 width: 100%;
                 height: 100%;
-                font-size: 14px;
+                font-size: 13px;
                 color: transparentize(#fff, 0.2);
                 &:hover {
                     color: #fff;
@@ -295,7 +295,7 @@
         .unclassified.btn,
         .create.btn {
             height: 44px;
-            width: 44px;
+            width: 40px;
             z-index: 9998;
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
