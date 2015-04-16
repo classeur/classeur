@@ -73,7 +73,7 @@
             <div class="hole panel background second"></div>
             <div class="panel no-overflow">
                 <div class="scrollbar panel">
-                    <md-content class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao">
+                    <md-content class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
                         <cl-folder-name ng-switch-when="true"></cl-folder-name>
                         <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
                             <md-input-container md-theme="classeur" flex>
@@ -83,7 +83,13 @@
                         <section>
                             <md-subheader>
                                 <div ng-class="plasticClass">
-                                    <div class="new-file actions" layout="row" layout-align="end">
+                                    <div class="new-file actions" layout="row" layout-align="space-between end">
+                                        <div>
+                                            <md-input-container md-theme="classeur" md-no-float ng-show="fileFilter || explorerLayoutSvc.files.length > 3">
+                                                <md-icon class="icon-search"></md-icon>
+                                                <input placeholder="Filter" ng-model="fileFilter">
+                                            </md-input-container>
+                                        </div>
                                         <md-button ng-click="createFile()">
                                             <span class="icon-add"></span> New file
                                         </md-button>
@@ -107,21 +113,13 @@
                                                     </md-button>
                                                 </div>
                                             </div>
-                                            <div class="page btns" ng-if="explorerLayoutSvc.pageCount > 1" layout="row">
-                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page-1)" ng-disabled="explorerLayoutSvc.page === 0" aria-label="Previous page">
-                                                    <span class="icon-keyboard-arrow-left"></span>
-                                                </md-button>
-                                                <md-button class="md-primary" ng-click="explorerLayoutSvc.setPage(explorerLayoutSvc.page+1)" ng-disabled="explorerLayoutSvc.page === explorerLayoutSvc.pageCount - 1" aria-label="Next page">
-                                                    <span class="icon-keyboard-arrow-right"></span>
-                                                </md-button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </md-subheader>
                             <div class="folder content" ng-show="explorerLayoutSvc.files.length">
-                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pageFiles track by fileDao.id"></cl-file-entry>
-                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pageFiles track by fileDao.id"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
+                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
                                 <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
                                 <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
                             </div>
@@ -152,7 +150,7 @@
                 </div>
                 <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel plastic-1" folder="explorerLayoutSvc.unclassifiedFolder">
                     <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
-                        <span class="icon-search"></span>
+                        <span class="icon-list"></span>
                     </md-button>
                 </div>
                 <div cl-folder-button class="recent folder btn btn-panel plastic-0">

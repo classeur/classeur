@@ -356,4 +356,21 @@ angular.module('classeur.core.utils', [])
 				return true;
 			}
 		};
+	})
+	.directive('clInfiniteScroll', function($timeout) {
+		return {
+			restrict: 'A',
+			link: function(scope, element, attr) {
+				var elt = element[0];
+				function trigger() {
+					if(elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300) {
+						scope.$eval(attr.clInfiniteScroll) && $timeout(trigger);
+					}
+				}
+				elt.addEventListener('scroll', trigger);
+				scope.triggerInfiniteScroll = function() {
+					$timeout(trigger);
+				};
+			}
+		};
 	});

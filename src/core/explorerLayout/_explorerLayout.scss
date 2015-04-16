@@ -152,21 +152,38 @@
         }
     }
     .new-file.actions {
-        padding-top: 10px;
+        height: 35px;
+        ::-webkit-input-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        :-moz-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            opacity: 1;
+        }
+        ::-moz-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            opacity: 1;
+        }
+        :-ms-input-placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        md-input-container {
+            md-icon {
+                color: rgba(255, 255, 255, 0.4);
+                font-size: 26px;
+            }
+            padding-bottom: 2px;
+            input {
+                margin-left: 35px;
+                font-size: 20px;
+                border-color: transparent !important;
+            }
+        }
     }
     .file.actions {
         & > div {
             height: 95px;
             padding: 20px 5px 0;
-        }
-        .page.btns {
-            font-size: 26px;
-            .md-button {
-                padding: 4px;
-                &[disabled] {
-                    color: rgba(0, 0, 0, 0.15);
-                }
-            }
         }
         padding: 0 35px;
         border-top-left-radius: 6px;
@@ -212,7 +229,8 @@
             }
         }
         md-input-container {
-            padding-bottom: 8px;
+            padding-top: 4px;
+            padding-bottom: 6px;
             cursor: pointer;
             .md-input {
                 line-height: 1;
@@ -295,7 +313,7 @@
         .unclassified.btn,
         .create.btn {
             height: 44px;
-            width: 40px;
+            width: 42px;
             z-index: 9998;
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
@@ -309,9 +327,14 @@
         }
         .unclassified.btn {
             top: 43px;
+            width: 40px;
         }
         .create.btn {
             top: 86px;
+            width: 38px;
+            .md-button {
+                font-size: 21px;
+            }
         }
         .current.btn {
             display: none;
