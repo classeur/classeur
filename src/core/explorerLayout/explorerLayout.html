@@ -2,7 +2,7 @@
     <div class="explorer container panel">
         <div class="header">
             <div layout="row" layout-align="space-between end">
-                <md-button class="classeur selector" ng-click="explorerLayoutSvc.toggleExplorer()">
+                <md-button class="classeur selector">
                     <div layout="row" layout-align="start end">
                         <div class="logo no-overflow">
                             <img src="assets/images/logo.png" height="60">
@@ -10,21 +10,26 @@
                         <div class="no-overflow" flex>
                             {{explorerLayoutSvc.currentClasseurDao.name}}
                         </div>
+                    </div>
+                </md-button>
+                <md-button ng-click="explorerLayoutSvc.toggleExplorer()">
+                    <div layout="row" layout-align="start end">
                         <div class="toggle icon">
                             <span class="icon-keyboard-arrow-down"></span>
                         </div>
+                        My classeurs
                     </div>
                 </md-button>
-                <div class="links" flex>
+            </div>
+            <div layout="row" layout-align="space-between start">
+                <div class="help no-overflow" flex>
                     <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
                         <span class="icon-help"></span> Help
                     </md-button>
-                    <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
+                    <md-button flex class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
                         <span class="icon-help"></span> Markdown Cheat Sheet
                     </md-button>
                 </div>
-            </div>
-            <div layout="row" layout-align="end start">
                 <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken">
                     <md-button ng-click="userSvc.startOAuth()">
                         Sign in with Google <span class="icon-arrow-forward"></span>

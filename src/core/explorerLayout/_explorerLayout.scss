@@ -42,12 +42,12 @@
                 height: 100%;
             }
         }
-        .links {
-            font-size: 13px;
-            text-align: right;
-            min-width: 190px;
-            .md-button {
-                padding: 4px;
+        .help {
+            margin-left: 52px;
+            font-size: 12px;
+            max-height: 25px;
+            button {
+                padding: 6px 4px;
             }
         }
         .user-info {
@@ -57,6 +57,7 @@
             color: #fff;
             padding: 0 12px;
             font-size: 14px;
+            margin-left: 10px;
             .username {
                 padding: 6px;
                 padding-right: 10px;
