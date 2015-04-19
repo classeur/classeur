@@ -2,34 +2,28 @@
     <div class="explorer container panel">
         <div class="header">
             <div layout="row" layout-align="space-between end">
-                <md-button class="classeur selector">
-                    <div layout="row" layout-align="start end">
-                        <div class="logo no-overflow">
-                            <img src="assets/images/logo.png" height="60">
-                        </div>
-                        <div class="no-overflow" flex>
-                            {{explorerLayoutSvc.currentClasseurDao.name}}
-                        </div>
+                <div class="classeur name" layout="row" layout-align="start end">
+                    <div class="logo no-overflow">
+                        <img src="assets/images/logo.png" height="60">
                     </div>
-                </md-button>
-                <md-button ng-click="explorerLayoutSvc.toggleExplorer()">
-                    <div layout="row" layout-align="start end">
-                        <div class="toggle icon">
+                    <div class="no-overflow" flex>
+                        {{explorerLayoutSvc.currentClasseurDao.name}}
+                    </div>
+                    <md-button class="classeur toggler" ng-click="explorerLayoutSvc.toggleExplorer()">
+                        <div layout="row" layout-align="start end">
+                            Switch
                             <span class="icon-keyboard-arrow-down"></span>
                         </div>
-                        My classeurs
+                    </md-button>
+                </div>
+                <md-button class="help md-primary" ng-href="#!/docs/markdownCheatSheet">
+                    <div layout="row" layout-align="start end">
+                        Help
+                        <span class="icon-help"></span>
                     </div>
                 </md-button>
             </div>
-            <div layout="row" layout-align="space-between start">
-                <div class="help no-overflow" flex>
-                    <md-button class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="icon-help"></span> Help
-                    </md-button>
-                    <md-button flex class="md-primary" ng-click="setDocFile('markdownCheatSheet')">
-                        <span class="icon-help"></span> Markdown Cheat Sheet
-                    </md-button>
-                </div>
+            <div layout="row" layout-align="end start">
                 <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken">
                     <md-button ng-click="userSvc.startOAuth()">
                         Sign in with Google <span class="icon-arrow-forward"></span>
@@ -51,22 +45,22 @@
                     <cl-classeur-entry></cl-classeur-entry>
                 </div>
                 <div class="tile container">
-                    <div class="new tile content panel md-whiteframe-z1" ng-class="'plastic-' + ((classeurSvc.classeurs.length) % 4)" ng-click="createClasseur()">
-                        <div class="tab-1" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 1) % 4)"></div>
-                        <div class="tab-2" ng-class="'plastic-' + ((classeurSvc.classeurs.length + 2) % 4)"></div>
-                        <div class="footer panel" layout="row" layout-align="center">
-                            <cl-button class="btn">
-                                <a class="icon-add" ng-click="createClasseur()" aria-label="Create classeur" title="Create classeur"></a>
-                            </cl-button>
+                    <cl-button class="btn">
+                        <div class="new tile content panel md-whiteframe-z1" aria-label="Create classeur" ng-click="createClasseur()">
+                            <div class="tab-1"></div>
+                            <div class="tab-2"></div>
+                            <div class="icon" layout="row" layout-align="center center">
+                                <a class="icon-add" aria-label="Create classeur"></a>
+                            </div>
                         </div>
-                    </div>
+                    </cl-button>
                 </div>
             </div>
         </div>
         <div class="menu panel background">
             <div layout="row">
                 <md-button class="md-primary" ng-href="#!/settings?tab=app"><span class="icon-keyboard-arrow-right"></span> Settings</md-button>
-                <md-button class="md-primary" ng-click="userSvc.signout()" ng-if="socketSvc.hasToken"><span class="icon-keyboard-arrow-right"></span> Signout</md-button>
+                <md-button class="md-primary" ng-click="signout()" ng-if="socketSvc.hasToken"><span class="icon-keyboard-arrow-right"></span> Signout</md-button>
             </div>
             <div layout="row">
                 <md-button><span class="icon-keyboard-arrow-right"></span> Privacy Policy</md-button>
@@ -96,7 +90,8 @@
                                             </md-input-container>
                                         </div>
                                         <md-button ng-click="createFile()">
-                                            <span class="icon-add"></span> New file
+                                            New file
+                                            <span class="icon-add"></span>
                                         </md-button>
                                     </div>
                                     <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">

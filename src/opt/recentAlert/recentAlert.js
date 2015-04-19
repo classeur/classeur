@@ -1,7 +1,7 @@
 angular.module('classeur.opt.recentAlert', [])
-	.directive('clRecentAlert', function() {
+	.directive('clRecentAlert', function(clLocalStorage) {
 		var dismissFlagKey = 'recentDismiss';
-		var dismissFlag = localStorage.hasOwnProperty(dismissFlagKey);
+		var dismissFlag = clLocalStorage.hasOwnProperty(dismissFlagKey);
 		return {
 			restrict: 'E',
 			template: '<cl-recent-alert-panel ng-if="show"></cl-recent-alert-panel>',
@@ -9,7 +9,7 @@ angular.module('classeur.opt.recentAlert', [])
 			link: function(scope) {
 				scope.show = !dismissFlag;
 				scope.dismiss = function() {
-					localStorage[dismissFlagKey] = 1;
+					clLocalStorage[dismissFlagKey] = 1;
 					dismissFlag = true;
 					scope.show = false;
 				};

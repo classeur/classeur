@@ -1,172 +1,175 @@
 $ced-color: #555;
-$font-family-monospace: "Inconsolata", monospace;
+$font-family-monospace: "Inconsolata",
+monospace;
 $font-size-monospace: 1em;
 $ced-color-lighter: transparentize($ced-color, 0.6);
 $ced-color-light: transparentize($ced-color, 0.4);
 $ced-color-dark: black;
 $code-bg: #eee;
 $border-radius-base: 4px;
-
 .editor.container {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .editor.content {
-	margin: 0;
-	padding: {
-		top: 80px;
-		bottom: 360px;
-		left: $editor-margin-width;
-		right: 20px;
-	}
-	* {
-		line-height: 1.6;
-	}
-	font-family: inherit;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-	word-break: normal;
-	.cledit-section {
-		font-family: inherit;
-	}
-
-	.code {
-		font: normal $font-size-monospace $font-family-monospace;
-	}
-
-	.pre {
-		color: $ced-color;
-		font: normal $font-size-monospace $font-family-monospace;
-		[class*="language-"] {
-			color: $ced-color-dark;
-		}
-	}
-
-	.tag {
-		color: $ced-color;
-		font: bold $font-size-monospace $font-family-monospace;
-		.punctuation,
-		.attr-value,
-		.attr-name {
-			font-weight: normal;
-		}
-	}
-
-	.latex, .math {
-		color: $ced-color;
-	}
-
-	.entity {
-		font: italic $font-size-monospace $font-family-monospace;
-		color: $ced-color;
-	}
-
-	.table {
-		font: normal $font-size-monospace $font-family-monospace;
-		* {
-			font-size: 1em;
-		}
-	}
-
-	.comment {
-		color: $ced-color-lighter;
-	}
-
-	.keyword {
-		color: $ced-color-dark;
-		font-weight: bold;
-	}
-
-	.code, .img, .imgref, .md-toc {
-		background-color: $code-bg;
-		border-radius: $border-radius-base;
-		padding: 0.15em 0;
-	}
-
-	.md-toc {
-		font-size: 2.8em;
-		padding: 0.2em;
-	}
-
-	.link, .linkref {
-		.md-underlined-text {
-			color: inherit;
-		}
-	}
-
-	.blockquote {
-		font-weight: 300;
-	}
-
-	.h1, .h2, .h3, .h4, .h5, .h6 {
-		font-weight: 600;
-	}
-
-	.h1, .h11 { font-size: 2em; }
-	.h2, .h22 { font-size: 1.5em; }
-	.h3 { font-size: 1.17em; }
-	.h4 { font-size: 1em; }
-	.h5 { font-size: 0.83em; }
-	.h6 { font-size: 0.75em; }
-
-	.md-hash {
-		color: $ced-color-lighter;
-	}
-
-	.md, .hr {
-		color: $ced-color-lighter;
-		font-style: normal;
-		font-weight: normal
-	}
-
-	.em,
-	.em .md {
-		font-style: italic;
-	}
-
-	.strong,
-	.strong .md {
-		font-weight: bold;
-	}
-
-	.md-strike-text {
-		text-decoration: line-through
-	}
-
-	.url,
-	.email,
-	.md-underlined-text {
-		text-decoration: underline;
-	}
-
-	.linkdef .url {
-		color: $ced-color-lighter;
-	}
-
-	.img {
-		display: inline-block;
-	}
-
-	img {
-		max-width: 100%;
-		padding: 5px;
-	}
-
-	.md-bang,
-	.md-alt,
-	.md-title {
-		color: $ced-color-lighter;
-	}
-
-	.discussion-highlight, .find-replace-highlight {
-		background-color: transparentize(#FFE400, 0.5);
-	}
-
-	.hide {
-		display: none;
-	}
+    margin: 0;
+    padding: {
+        top: 80px;
+        bottom: 360px;
+        left: $editor-margin-width;
+        right: 20px;
+    }
+    * {
+        line-height: 1.6;
+    }
+    font-family: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: normal;
+    .cledit-section {
+        font-family: inherit;
+    }
+    .discussion-highlight,
+    .find-replace-highlight {
+        background-color: transparentize(#FFE400, 0.5);
+    }
+    .hide {
+        display: none;
+    }
+    &.monospaced * {
+    	font-size: $font-size-monospace !important;
+    	font-family: $font-family-monospace !important;
+    }
+    &.highlighting {
+        .code {
+            font: normal $font-size-monospace $font-family-monospace;
+        }
+        .pre {
+            color: $ced-color;
+            font: normal $font-size-monospace $font-family-monospace;
+            [class*="language-"] {
+                color: $ced-color-dark;
+            }
+        }
+        .tag {
+            color: $ced-color;
+            font: bold $font-size-monospace $font-family-monospace;
+            .punctuation, .attr-value, .attr-name {
+                font-weight: normal;
+            }
+        }
+        .latex,
+        .math {
+            color: $ced-color;
+        }
+        .entity {
+            font: italic $font-size-monospace $font-family-monospace;
+            color: $ced-color;
+        }
+        .table {
+            font: normal $font-size-monospace $font-family-monospace;
+            * {
+                font-size: 1em;
+            }
+        }
+        .comment {
+            color: $ced-color-lighter;
+        }
+        .keyword {
+            color: $ced-color-dark;
+            font-weight: bold;
+        }
+        .code,
+        .img,
+        .imgref,
+        .md-toc {
+            background-color: $code-bg;
+            border-radius: $border-radius-base;
+            padding: 0.15em 0;
+        }
+        .md-toc {
+            font-size: 2.8em;
+            padding: 0.2em;
+        }
+        .link,
+        .linkref {
+            .md-underlined-text {
+                color: inherit;
+            }
+        }
+        .blockquote {
+            font-weight: 300;
+        }
+        .h1,
+        .h2,
+        .h3,
+        .h4,
+        .h5,
+        .h6 {
+            font-weight: 600;
+        }
+        .h1,
+        .h11 {
+            font-size: 2em;
+        }
+        .h2,
+        .h22 {
+            font-size: 1.5em;
+        }
+        .h3 {
+            font-size: 1.17em;
+        }
+        .h4 {
+            font-size: 1em;
+        }
+        .h5 {
+            font-size: 0.83em;
+        }
+        .h6 {
+            font-size: 0.75em;
+        }
+        .md-hash {
+            color: $ced-color-lighter;
+        }
+        .md,
+        .hr {
+            color: $ced-color-lighter;
+            font-style: normal;
+            font-weight: normal
+        }
+        .em,
+        .em .md {
+            font-style: italic;
+        }
+        .strong,
+        .strong .md {
+            font-weight: bold;
+        }
+        .md-strike-text {
+            text-decoration: line-through
+        }
+        .url,
+        .email,
+        .md-underlined-text {
+            text-decoration: underline;
+        }
+        .linkdef .url {
+            color: $ced-color-lighter;
+        }
+        .img {
+            display: inline-block;
+        }
+        img {
+            max-width: 100%;
+            padding: 5px;
+        }
+        .md-bang,
+        .md-alt,
+        .md-title {
+            color: $ced-color-lighter;
+        }
+    }
 }
-

@@ -1,5 +1,5 @@
 angular.module('classeur.core.settingsLayout', [])
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clSettingSvc, clFilePropertiesDialog) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -34,8 +34,16 @@ angular.module('classeur.core.settingsLayout', [])
 					scope.user = clone(clUserSvc.user);
 				}
 
+				function resetApp() {
+					scope.app = clone(clSettingSvc.settings.values);
+				}
+
+				scope.$watch('userSvc.user', resetUser);
+				scope.$watch('settings.values', resetApp);
+
 				function reset() {
 					resetUser();
+					resetApp();
 					next && next();
 				}
 
@@ -46,23 +54,49 @@ angular.module('classeur.core.settingsLayout', [])
 						scope.selectedTabIndex = tabs.indexOf('user');
 						return clToast(e);
 					}
+					try {
+						clSettingSvc.updateSettings(scope.app);
+					} catch (e) {
+						scope.selectedTabIndex = tabs.indexOf('app');
+						return clToast(e);
+					}
 					next && next();
 				}
 
 				function checkModifications(tabIndex) {
+					if (tabs[tabIndex] === 'app') {
+						if (serialize(scope.app) !== serialize(clSettingSvc.settings.values)) {
+							return $mdDialog.show($mdDialog.confirm()
+									.title('App settings')
+									.content('You\'ve modified your app settings.')
+									.ok('Apply')
+									.cancel('Ignore'))
+								.then(apply, reset);
+						}
+					}
 					if (tabs[tabIndex] === 'user') {
 						if (serialize(scope.user) !== serialize(clUserSvc.user)) {
-							var applyUser = $mdDialog.confirm()
-								.title('User settings')
-								.content('You\'ve modified your user settings.')
-								.ok('Apply')
-								.cancel('Cancel');
-							return $mdDialog.show(applyUser).then(apply, reset);
+							return $mdDialog.show($mdDialog.confirm()
+									.title('User settings')
+									.content('You\'ve modified your user settings.')
+									.ok('Apply')
+									.cancel('Ignore'))
+								.then(apply, reset);
 						}
 					}
 				}
 
-				scope.$watch('userSvc.user', resetUser);
+				scope.setDefault = function() {
+					$mdDialog.show($mdDialog.confirm()
+							.title('Default settings')
+							.content('You\'re about to reset your app settings. Are you sure?')
+							.ok('Yes')
+							.cancel('No'))
+						.then(function() {
+							clSettingSvc.setDefaultSettings();
+							resetApp();
+						});
+				};
 
 				scope.cancel = function() {
 					next = function() {
@@ -76,6 +110,13 @@ angular.module('classeur.core.settingsLayout', [])
 						$location.url('/');
 					};
 					apply();
+				};
+
+				scope.editFileProperties = function() {
+					clFilePropertiesDialog(scope.app.defaultFileProperties)
+						.then(function(properties) {
+							scope.app.defaultFileProperties = properties;
+						});
 				};
 
 
@@ -111,7 +152,7 @@ angular.module('classeur.core.settingsLayout', [])
 					scope.removeFile = function(file) {
 						$mdDialog.show($mdDialog.confirm()
 								.title('Remove from trash')
-								.content('This will remove the file permanently. Are you sure?')
+								.content('The file will be removed permanently. Are you sure?')
 								.ok('Yes')
 								.cancel('No'))
 							.then(function() {

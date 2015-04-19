@@ -1,6 +1,23 @@
 angular.module('classeur.core.classeurs', [])
 	.factory('clClasseurSvc', function(clUid, clLocalStorageObject, clFolderSvc) {
-		var clClasseurSvc = clLocalStorageObject('classeurSvc');
+		var clClasseurSvc = clLocalStorageObject('classeurSvc', {
+			classeurs: {
+				default: '[]',
+				serializer: function(data) {
+					return JSON.stringify(data, function(id, value) {
+						return value instanceof ClasseurDao ? value.toStorable() : value;
+					});
+				},
+				parser: function(data) {
+					return JSON.parse(data).reduce(function(result, item) {
+						var classeurDao = new ClasseurDao();
+						classeurDao.fromStorable(item);
+						result.push(classeurDao);
+						return result;
+					}, []);
+				}
+			}
+		});
 
 		function ClasseurDao(id, name) {
 			this.id = id;
@@ -37,23 +54,13 @@ angular.module('classeur.core.classeurs', [])
 		};
 
 		clClasseurSvc.read = function() {
-			this.$readAttr('classeurs', '[]', function(data) {
-				return JSON.parse(data).reduce(function(result, item) {
-					var classeurDao = new ClasseurDao();
-					classeurDao.fromStorable(item);
-					result.push(classeurDao);
-					return result;
-				}, []);
-			});
+			this.$read();
 			this.$readUpdate();
 		};
 
 		clClasseurSvc.write = function(updated) {
-			this.$writeAttr('classeurs', function(data) {
-				return JSON.stringify(data, function(id, value) {
-					return value instanceof ClasseurDao ? value.toStorable() : value;
-				});
-			}, updated);
+			this.$write();
+			updated && this.$writeUpdate(updated);
 		};
 
 		function init(storedClasseurs) {
@@ -97,6 +104,7 @@ angular.module('classeur.core.classeurs', [])
 				}
 			});
 			clClasseurSvc.classeurs.sort(function(classeurDao1, classeurDao2) {
+				// Sort deterministically
 				return (classeurDao1.name + '\0' + classeurDao1.id).localeCompare(classeurDao2.name + '\0' + classeurDao2.id);
 			}).forEach(function(classeurDao) {
 				classeurDao.folders.sort(function(folder1, folder2) {

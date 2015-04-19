@@ -71,34 +71,36 @@ angular.module('classeur.core.editor', [])
 					debouncedEditorChanged();
 				});
 
-				clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
-					section.imgTokenEltList = section.elt.getElementsByClassName('token img');
-					Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
-						var srcElt = imgTokenElt.querySelector('.token.md-src');
-						if (srcElt) {
-							var imgElt = $window.document.createElement('img');
-							imgElt.style.display = 'none';
-							var uri = srcElt.textContent;
-							if (clUriValidator(uri, true)) {
-								imgElt.onload = function() {
-									imgElt.style.display = '';
-								};
-								imgElt.src = uri;
-							}
-							imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
-						}
-					});
-				});
-
-				clEditorSvc.cledit.highlighter.on('domChanged', function(modifiedSections) {
-					modifiedSections.forEach(function(section) {
+				if(clSettingSvc.settings.values.editorInlineImg) {
+					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
+						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
-							if (imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
-								imgTokenElt.parentNode.removeChild(imgTokenElt);
+							var srcElt = imgTokenElt.querySelector('.token.md-src');
+							if (srcElt) {
+								var imgElt = $window.document.createElement('img');
+								imgElt.style.display = 'none';
+								var uri = srcElt.textContent;
+								if (clUriValidator(uri, true)) {
+									imgElt.onload = function() {
+										imgElt.style.display = '';
+									};
+									imgElt.src = uri;
+								}
+								imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
 							}
 						});
 					});
-				});
+
+					clEditorSvc.cledit.highlighter.on('domChanged', function(modifiedSections) {
+						modifiedSections.forEach(function(section) {
+							Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
+								if (imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
+									imgTokenElt.parentNode.removeChild(imgTokenElt);
+								}
+							});
+						});
+					});
+				}
 
 				// Add custom keystrokes
 				clKeystrokeSvc(clEditorSvc);
@@ -223,6 +225,7 @@ angular.module('classeur.core.editor', [])
 		var Prism = $window.Prism;
 		angular.forEach({
 			'js': 'javascript',
+			'json': 'javascript',
 			'html': 'markup',
 			'svg': 'markup',
 			'xml': 'markup',
@@ -294,6 +297,7 @@ angular.module('classeur.core.editor', [])
 			setPrismOptions: function(options) {
 				prismOptions = angular.extend(prismOptions, options);
 				var grammar = $window.mdGrammar(prismOptions);
+				// Create new object for watchers
 				this.options = angular.extend({}, this.options);
 				this.options.highlighter = function(text) {
 					return Prism.highlight(text, grammar);

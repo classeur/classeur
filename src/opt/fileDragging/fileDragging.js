@@ -1,6 +1,7 @@
 angular.module('classeur.opt.fileDragging', [])
-	.directive('clFileDraggingSrc', function(clFileDraggingSvc, clExplorerLayoutSvc, clScrollBarWidth) {
-		var Hammer = window.Hammer;
+	.directive('clFileDraggingSrc', function($window, clFileDraggingSvc, clExplorerLayoutSvc, clScrollBarWidth) {
+		var Hammer = $window.Hammer;
+		var bodyElt = angular.element($window.document.body);
 		return {
 			restrict: 'A',
 			link: function(scope, element) {
@@ -14,10 +15,11 @@ angular.module('classeur.opt.fileDragging', [])
 					threshold: 0
 				});
 				hammertime.on('panstart', function(evt) {
-					clFileDraggingSvc.setFolderTarget();
+					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
 					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.explorerWidth - clScrollBarWidth - (clExplorerLayoutSvc.noPadding ? 75 : 200));
 					movePanel(evt);
+					bodyElt.addClass('file dragging');
 					scope.$apply();
 				});
 				hammertime.on('panmove', function(evt) {
@@ -26,7 +28,8 @@ angular.module('classeur.opt.fileDragging', [])
 				hammertime.on('panend', function() {
 					clFileDraggingSvc.moveFiles();
 					clFileDraggingSvc.files = [];
-					clFileDraggingSvc.setFolderTarget();
+					clFileDraggingSvc.setTargetFolder();
+					bodyElt.removeClass('file dragging');
 					scope.$apply();
 				});
 			}
@@ -41,13 +44,13 @@ angular.module('classeur.opt.fileDragging', [])
 				}
 				element.on('mouseenter', function() {
 					if (clFileDraggingSvc.files.length) {
-						clFileDraggingSvc.setFolderTarget(scope.folderDao);
+						clFileDraggingSvc.setTargetFolder(scope.folderDao);
 						scope.$apply();
 					}
 				});
 				element.on('mouseleave', function() {
 					if (clFileDraggingSvc.targetFolder === scope.folderDao) {
-						clFileDraggingSvc.setFolderTarget();
+						clFileDraggingSvc.setTargetFolder();
 						scope.$apply();
 					}
 				});
@@ -71,7 +74,7 @@ angular.module('classeur.opt.fileDragging', [])
 			}) : [fileDao];
 		}
 
-		function setFolderTarget(folderDao) {
+		function setTargetFolder(folderDao) {
 			if (clFileDraggingSvc.targetFolder) {
 				clFileDraggingSvc.targetFolder.isDraggingTarget = false;
 				clFileDraggingSvc.targetFolder = undefined;
@@ -87,17 +90,28 @@ angular.module('classeur.opt.fileDragging', [])
 				if(clFileDraggingSvc.targetFolder.userId) {
 					return clToast('Cannot move files to public folder.');
 				}
-				clFileDraggingSvc.files.forEach(function(fileDao) {
-					fileDao.folderId = clFileDraggingSvc.targetFolder.id;
+				var files = clFileDraggingSvc.files;
+				files.forEach(function(fileDao) {
+					fileDao.oldFolderId = fileDao.folderId;
+					fileDao.folderId = clFileDraggingSvc.targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : clFileDraggingSvc.targetFolder.id;
 				});
 				clExplorerLayoutSvc.refreshFiles();
+				var msg = files.length;
+				msg += msg > 1 ? ' files moved to ' : ' file moved to ';
+				msg += clFileDraggingSvc.targetFolder.name + '.';
+				clToast(msg, 'Undo', function() {
+					files.forEach(function(fileDao) {
+						fileDao.folderId = fileDao.oldFolderId;
+					});
+					clExplorerLayoutSvc.refreshFiles();
+				});
 			}
 		}
 
 		var clFileDraggingSvc = {
 			files: [],
 			setFileSrc: setFileSrc,
-			setFolderTarget: setFolderTarget,
+			setTargetFolder: setTargetFolder,
 			moveFiles: moveFiles
 		};
 		return clFileDraggingSvc;

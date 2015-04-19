@@ -1,8 +1,35 @@
 angular.module('classeur.core.files', [])
-	.factory('clFileSvc', function($window, $timeout, clUid, clLocalStorageObject, clSocketSvc) {
+	.factory('clFileSvc', function($window, $timeout, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc) {
 		var maxLocalFiles = 3;
-		var fileDaoProto = clLocalStorageObject('f', true);
-		var contentDaoProto = clLocalStorageObject('c', true);
+		var fileDaoProto = clLocalStorageObject('f', {
+			name: {},
+			folderId: {},
+			sharing: {},
+			userId: {},
+		}, true);
+		var contentDaoProto = clLocalStorageObject('c', {
+			isLocal: {},
+			lastChange: {
+				default: '0',
+				parser: parseInt
+			},
+			txt: {},
+			properties: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			},
+			discussions: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			},
+			state: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			}
+		}, true);
 
 		function FileDao(id) {
 			this.id = id;
@@ -16,53 +43,48 @@ angular.module('classeur.core.files', [])
 		FileDao.prototype = fileDaoProto;
 
 		FileDao.prototype.read = function() {
-			this.$readAttr('name', '');
-			this.$readAttr('folderId', '');
-			this.$readAttr('sharing', '');
-			this.$readAttr('userId', '');
+			this.$read();
 			this.$readUpdate();
 		};
 
 		FileDao.prototype.write = function(updated) {
-			this.$writeAttr('name', undefined, updated);
-			this.$writeAttr('folderId', undefined, updated);
-			this.$writeAttr('sharing', undefined, updated);
-			this.$writeAttr('userId', undefined, updated);
+			this.$write();
+			updated && this.$writeUpdate(updated);
 		};
 
 		FileDao.prototype.readContent = function() {
-			this.contentDao.$readAttr('isLocal', '');
-			this.contentDao.$readAttr('lastChange', '0', parseInt);
+			this.contentDao.$read.isLocal();
+			this.contentDao.$read.lastChange();
 			if (this.state === 'loaded') {
-				this.contentDao.$readAttr('txt', '');
-				this.contentDao.$readAttr('properties', '{}', JSON.parse);
-				this.contentDao.$readAttr('discussions', '{}', JSON.parse);
-				this.contentDao.$readAttr('state', '{}', JSON.parse);
+				this.contentDao.$read.txt();
+				this.contentDao.$read.properties();
+				this.contentDao.$read.discussions();
+				this.contentDao.$read.state();
 			}
 			this.contentDao.$readUpdate();
 		};
 
 		FileDao.prototype.freeContent = function() {
-			this.contentDao.$freeAttr('txt');
-			this.contentDao.$freeAttr('properties');
-			this.contentDao.$freeAttr('discussions');
-			this.contentDao.$freeAttr('state');
+			this.contentDao.$free.txt();
+			this.contentDao.$free.properties();
+			this.contentDao.$free.discussions();
+			this.contentDao.$free.state();
 		};
 
 		FileDao.prototype.writeContent = function(updateLastChange) {
-			this.contentDao.$writeAttr('isLocal');
+			this.contentDao.$write.isLocal();
 			if (this.state === 'loaded') {
-				updateLastChange |= this.contentDao.$writeAttr('txt');
-				updateLastChange |= this.contentDao.$writeAttr('properties', JSON.stringify);
-				updateLastChange |= this.contentDao.$writeAttr('discussions', JSON.stringify);
-				this.contentDao.$writeAttr('state', JSON.stringify);
+				updateLastChange |= this.contentDao.$write.txt();
+				updateLastChange |= this.contentDao.$write.properties();
+				updateLastChange |= this.contentDao.$write.discussions();
+				this.contentDao.$write.state();
 			}
 			if (!this.contentDao.isLocal) {
-				this.contentDao.lastChange = '';
-				this.contentDao.$writeAttr('lastChange', undefined, 0);
+				this.contentDao.lastChange = 0;
+				this.contentDao.$write.lastChange();
 			} else if (updateLastChange) {
 				this.contentDao.lastChange = Date.now();
-				this.contentDao.$writeAttr('lastChange');
+				this.contentDao.$write.lastChange();
 			}
 		};
 
@@ -114,7 +136,13 @@ angular.module('classeur.core.files', [])
 			this.unload = function() {};
 		}
 
-		var clFileSvc = clLocalStorageObject('fileSvc');
+		var clFileSvc = clLocalStorageObject('fileSvc', {
+			fileIds: {
+				default: '[]',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			}
+		});
 
 		var fileAuthorizedKeys = {
 			u: true,
@@ -139,7 +167,7 @@ angular.module('classeur.core.files', [])
 
 		function init() {
 			if (!clFileSvc.fileIds) {
-				clFileSvc.$readAttr('fileIds', '[]', JSON.parse);
+				clFileSvc.$read();
 				clFileSvc.fileMap = {};
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
 					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
@@ -156,12 +184,12 @@ angular.module('classeur.core.files', [])
 				if (!isInited) {
 					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
 					var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
-					Object.keys(localStorage).forEach(function(key) {
+					Object.keys(clLocalStorage).forEach(function(key) {
 						var fileDao, match = key.match(fileKeyPrefix);
 						if (match) {
 							fileDao = clFileSvc.fileMap[match[1]];
 							if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
-								localStorage.removeItem(key);
+								clLocalStorage.removeItem(key);
 							}
 							return;
 						}
@@ -169,7 +197,7 @@ angular.module('classeur.core.files', [])
 						if (match) {
 							fileDao = clFileSvc.fileMap[match[1]];
 							if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
-								localStorage.removeItem(key);
+								clLocalStorage.removeItem(key);
 							}
 						}
 					});
@@ -199,10 +227,10 @@ angular.module('classeur.core.files', [])
 			// Check file id list
 			var checkFileSvcUpdate = clFileSvc.$checkUpdate();
 			clFileSvc.$readUpdate();
-			if (checkFileSvcUpdate && clFileSvc.$checkAttr('fileIds', '[]')) {
+			if (checkFileSvcUpdate && clFileSvc.$check()) {
 				clFileSvc.fileIds = undefined;
 			} else {
-				clFileSvc.$writeAttr('fileIds', JSON.stringify);
+				clFileSvc.$write();
 			}
 
 			// Check every file

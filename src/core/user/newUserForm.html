@@ -16,9 +16,10 @@
                 <form name="form">
                     <md-input-container>
                         <label>User name</label>
-                        <input required name="name" ng-model="newUser.name">
+                        <input required name="name" ng-model="newUser.name" md-maxlength="64">
                         <div ng-messages="form.name.$error">
                             <div class="angular-animate" ng-message="required">This is required.</div>
+                            <div class="angular-animate" ng-message="md-maxlength">That's too long.</div>
                         </div>
                     </md-input-container>
                     <div class="terms">

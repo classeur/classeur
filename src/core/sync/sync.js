@@ -1,64 +1,84 @@
 angular.module('classeur.core.sync', [])
-	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSocketSvc, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
+	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clLocalStorage, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
 		var clSyncSvc = {};
 		var lastCreateFileActivity = 0;
+		var nameMaxLength = 128;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
 		var createFileTimeout = 30 * 1000; // 30 sec
 		var loadingTimeout = 30 * 1000; // 30 sec
+		var sendMetadataAfter = clToast.hideDelay + 2000; // 8 sec (more than toast duration to handle undo)
 		var extFileRefreshAfter = 60 * 1000; // 60 sec
 
-		var syncDataStore = clLocalStorageObject('syncData');
+		function parseSyncData(data) {
+			return JSON.parse(data, function(id, value) {
+				return typeof value === 'number' && id !== 'r' && id !== 's' ? {
+					r: value
+				} : value;
+			});
+		}
+
+		function serializeSyncData(data) {
+			return JSON.stringify(data, function(id, value) {
+				return (value && !value.s && value.r) || value;
+			});
+		}
+
+		var syncDataStore = clLocalStorageObject('syncData', {
+			lastActivity: {
+				default: '0',
+				parser: parseInt
+			},
+			folders: {
+				default: '{}',
+				parser: parseSyncData,
+				serializer: serializeSyncData,
+			},
+			lastFolderSeq: {
+				default: '0',
+				parser: parseInt
+			},
+			files: {
+				default: '{}',
+				parser: parseSyncData,
+				serializer: serializeSyncData,
+			},
+			lastFileSeq: {
+				default: '0',
+				parser: parseInt
+			},
+			userId: {},
+			userData: {
+				default: '{}',
+				parser: parseSyncData,
+				serializer: serializeSyncData,
+			},
+			fileSyncReady: {},
+		});
 
 		var init = true;
 
 		function readSyncDataStore(ctx) {
-			function parseSyncData(data) {
-				return JSON.parse(data, function(id, value) {
-					return typeof value === 'number' && id !== 'r' && id !== 's' ? {
-						r: value
-					} : value;
-				});
-			}
 			var checkSyncDataUpdate = syncDataStore.$checkUpdate();
 			if (!init && !checkSyncDataUpdate) {
 				return;
 			}
-			syncDataStore.$readAttr('lastActivity', '0', parseInt);
-			syncDataStore.$readAttr('folders', '{}', parseSyncData);
-			syncDataStore.$readAttr('lastFolderSeq', '0', parseInt);
-			syncDataStore.$readAttr('files', '{}', parseSyncData);
-			syncDataStore.$readAttr('lastFileSeq', '0', parseInt);
-			syncDataStore.$readAttr('userId', '');
-			syncDataStore.$readAttr('userData', '{}', parseSyncData);
-			syncDataStore.$readAttr('fileSyncReady', '');
+			syncDataStore.$read();
 			syncDataStore.$readUpdate();
 			init = false;
 			return ctx && ctx.userId && checkUserChange(ctx.userId);
 		}
 
 		function writeSyncDataStore(lastActivity) {
-			function serializeSyncData(data) {
-				return JSON.stringify(data, function(id, value) {
-					return (value && !value.s && value.r) || value;
-				});
-			}
-			syncDataStore.lastActivity = lastActivity !== undefined ? lastActivity : Date.now();
-			syncDataStore.$writeAttr('lastActivity');
-			syncDataStore.$writeAttr('folders', serializeSyncData);
-			syncDataStore.$writeAttr('lastFolderSeq');
-			syncDataStore.$writeAttr('files', serializeSyncData);
-			syncDataStore.$writeAttr('lastFileSeq');
-			syncDataStore.$writeAttr('userId');
-			syncDataStore.$writeAttr('userData', serializeSyncData);
-			syncDataStore.$writeAttr('fileSyncReady');
+			syncDataStore.lastActivity = lastActivity || Date.now();
+			syncDataStore.$write();
 		}
 
 		function checkUserChange(userId) {
 			if (userId !== syncDataStore.userId) {
 				var fileKeyPrefix = /^(cr\.|syncData\.)/;
-				Object.keys(localStorage).forEach(function(key) {
+				Object.keys(clLocalStorage).forEach(function(key) {
 					if (key.match(fileKeyPrefix)) {
-						localStorage.removeItem(key);
+						clLocalStorage.removeItem(key);
 					}
 				});
 				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
@@ -81,7 +101,8 @@ angular.module('classeur.core.sync', [])
 				});
 				readSyncDataStore();
 				syncDataStore.userId = userId;
-				writeSyncDataStore(0);
+				// Force sync
+				writeSyncDataStore(1);
 				return true;
 			}
 		}
@@ -96,16 +117,25 @@ angular.module('classeur.core.sync', [])
 			});
 		});
 
-		var contentRevStore = clLocalStorageObject('cr');
+		var contentRevKeyPrefix = 'cr.';
+		var contentRevStore = {
+			setRev: function(fileId, rev) {
+				clLocalStorage.setItem(contentRevKeyPrefix + fileId, rev);
+			},
+			getRev: function(fileId) {
+				var rev = parseInt(clLocalStorage[contentRevKeyPrefix + fileId]);
+				return isNaN(rev) ? undefined : rev;
+			}
+		};
 
 		(function() {
 			var fileKeyPrefix = /^cr\.(\w\w+)/;
-			Object.keys(localStorage).forEach(function(key) {
+			Object.keys(clLocalStorage).forEach(function(key) {
 				var fileDao, match = key.match(fileKeyPrefix);
 				if (match) {
 					fileDao = clFileSvc.fileMap[match[1]];
 					if (!fileDao || !fileDao.contentDao.isLocal) {
-						localStorage.removeItem(key);
+						clLocalStorage.removeItem(key);
 					}
 				}
 			});
@@ -122,7 +152,8 @@ angular.module('classeur.core.sync', [])
 				clSocketSvc.sendMsg({
 					type: 'getUserData',
 					userUpdated: clUserSvc.user && (syncDataStore.userData.user || {}).r,
-					classeursUpdated: (syncDataStore.userData.classeurs || {}).r
+					classeursUpdated: (syncDataStore.userData.classeurs || {}).r,
+					settingsUpdated: (syncDataStore.userData.settings || {}).r
 				});
 			}
 
@@ -136,7 +167,6 @@ angular.module('classeur.core.sync', [])
 					if (syncData.s !== msg.userUpdated) {
 						clUserSvc.user = msg.user;
 						clUserSvc.write(msg.userUpdated);
-						syncDataStore.lastUserUpdated = msg.userUpdated;
 						apply = true;
 					}
 					syncDataStore.userData.user = {
@@ -148,13 +178,23 @@ angular.module('classeur.core.sync', [])
 					if (syncData.s !== msg.classeursUpdated) {
 						clClasseurSvc.init(msg.classeurs);
 						clClasseurSvc.write(msg.classeursUpdated);
-						syncDataStore.lastClasseursUpdated = msg.classeursUpdated;
 						apply = true;
 					}
 					syncDataStore.userData.classeurs = {
 						r: msg.classeursUpdated
 					};
 					clSyncSvc.getExtFoldersMetadata();
+				}
+				if (msg.settings) {
+					syncData = syncDataStore.userData.settings || {};
+					if (syncData.s !== msg.settingsUpdated) {
+						clSettingSvc.settings.values = msg.settings;
+						clSettingSvc.settings.write(msg.settingsUpdated);
+						apply = true;
+					}
+					syncDataStore.userData.settings = {
+						r: msg.settingsUpdated
+					};
 				}
 				apply && $rootScope.$evalAsync();
 				sendChanges();
@@ -180,6 +220,13 @@ angular.module('classeur.core.sync', [])
 					msg.classeursUpdated = clClasseurSvc.updated;
 					syncData.s = clClasseurSvc.updated;
 					syncDataStore.userData.classeurs = syncData;
+				}
+				syncData = syncDataStore.userData.settings || {};
+				if (clSettingSvc.settings.updated !== syncData.r) {
+					msg.settings = clSettingSvc.settings.values;
+					msg.settingsUpdated = clSettingSvc.settings.updated;
+					syncData.s = clSettingSvc.settings.updated;
+					syncDataStore.userData.settings = syncData;
 				}
 				Object.keys(msg).length > 1 && clSocketSvc.sendMsg(msg);
 			}
@@ -247,11 +294,21 @@ angular.module('classeur.core.sync', [])
 				writeSyncDataStore();
 			});
 
+			function checkChange(folderDao) {
+				if (folderDao.name) {
+					if (folderDao.name.length > nameMaxLength) {
+						folderDao.name = folderDao.name.slice(0, nameMaxLength);
+					} else {
+						return folderDao.updated < Date.now() - sendMetadataAfter;
+					}
+				}
+			}
+
 			function sendChanges() {
 				var changes = [];
 				clFolderSvc.folders.forEach(function(folderDao) {
 					var syncData = syncDataStore.folders[folderDao.id] || {};
-					if (!folderDao.name || folderDao.updated == syncData.r) {
+					if (folderDao.updated == syncData.r || !checkChange(folderDao)) {
 						return;
 					}
 					if (!folderDao.userId) {
@@ -356,13 +413,23 @@ angular.module('classeur.core.sync', [])
 				writeSyncDataStore();
 			});
 
+			function checkChange(fileDao) {
+				if (fileDao.name) {
+					if (fileDao.name.length > nameMaxLength) {
+						fileDao.name = fileDao.name.slice(0, nameMaxLength);
+					} else {
+						return fileDao.updated < Date.now() - sendMetadataAfter;
+					}
+				}
+			}
+
 			clSyncSvc.filesToRecover = {};
 
 			function sendChanges() {
 				var changes = [];
 				clFileSvc.files.forEach(function(fileDao) {
 					var syncData = syncDataStore.files[fileDao.id] || {};
-					if (!fileDao.name || fileDao.updated == syncData.r) {
+					if (fileDao.updated == syncData.r || !checkChange(fileDao)) {
 						return;
 					}
 					// Check that the file was previously created
@@ -393,7 +460,8 @@ angular.module('classeur.core.sync', [])
 				angular.forEach(syncDataStore.files, function(syncData, id) {
 					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
 						expectedFileDeletions.push(id);
-						changes.push({
+						// Check that file has metadata
+						(syncData.r > 0 || syncData.s) && changes.push({
 							id: id,
 							deleted: true
 						});
@@ -596,10 +664,7 @@ angular.module('classeur.core.sync', [])
 				syncDataStore.files[msg.id] = {
 					r: -1
 				};
-				if (msg.rev) {
-					contentRevStore[msg.id] = msg.rev;
-					contentRevStore.$writeAttr(msg.id);
-				}
+				msg.rev && contentRevStore.setRev(msg.id, msg.rev);
 				writeSyncDataStore();
 			});
 
@@ -686,10 +751,9 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			fileDao.loadPending = false;
-			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
 			setWatchCtx({
 				fileDao: fileDao,
-				rev: contentRevStore[fileDao.id] || undefined,
+				rev: contentRevStore.getRev(fileDao.id),
 				userActivities: {},
 				contentChanges: []
 			});
@@ -736,8 +800,7 @@ angular.module('classeur.core.sync', [])
 			watchCtx.txt = serverContent.txt;
 			watchCtx.properties = serverContent.properties;
 			watchCtx.rev = serverContent.rev;
-			contentRevStore[fileDao.id] = serverContent.rev;
-			contentRevStore.$writeAttr(fileDao.id);
+			contentRevStore.setRev(fileDao.id, serverContent.rev);
 			// Evaluate scope synchronously to have cledit instantiated
 			apply && $rootScope.$apply();
 		});
@@ -747,8 +810,7 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			fileDao.loadPending = false;
-			contentRevStore.$readAttr(fileDao.id, '0', parseInt);
-			var fromRev = contentRevStore[fileDao.id];
+			var fromRev = contentRevStore.getRev(fileDao.id);
 			$http.get('/api/users/' + fileDao.userId + '/files/' + fileDao.id + (fromRev ? '/from/' + fromRev : ''), {
 					timeout: loadingTimeout
 				})
@@ -763,8 +825,7 @@ angular.module('classeur.core.sync', [])
 					} else {
 						applyServerContent(fileDao, res.content, serverContent);
 					}
-					contentRevStore[fileDao.id] = serverContent.rev;
-					contentRevStore.$writeAttr(fileDao.id);
+					contentRevStore.setRev(fileDao.id, serverContent.rev);
 				})
 				.error(function() {
 					setLoadingError(fileDao);
@@ -857,17 +918,20 @@ angular.module('classeur.core.sync', [])
 			}
 			watchCtx.txt = serverTxt;
 			watchCtx.properties = serverProperties;
-			contentRevStore[watchCtx.fileDao.id] = watchCtx.rev;
-			contentRevStore.$writeAttr(watchCtx.fileDao.id);
+			contentRevStore.setRev(watchCtx.fileDao.id, watchCtx.rev);
 		});
 
 		clSyncSvc.saveAll = function() {
-			return clUserSvc.checkAll() | clFileSvc.checkAll() | clFolderSvc.checkAll() | clClasseurSvc.checkAll();
+			return clUserSvc.checkAll() |
+				clFileSvc.checkAll() |
+				clFolderSvc.checkAll() |
+				clClasseurSvc.checkAll() |
+				clSettingSvc.checkAll();
 		};
 
 		clSetInterval(function() {
 			readSyncDataStore(clSocketSvc.ctx);
-			// Need to save here to make sure we have `updated` attributes filled properly
+			// Need to save here to make sure we have `updated` attributes up to date
 			var applyScope = clSyncSvc.saveAll();
 			// Remove files that are not local and not going to be synced
 			var filesToRemove = clFileSvc.files.filter(function(fileDao) {
@@ -875,7 +939,7 @@ angular.module('classeur.core.sync', [])
 			});
 			filesToRemove.length && clFileSvc.removeFiles(filesToRemove);
 			(applyScope || filesToRemove.length) && $rootScope.$apply();
-			if (!clSocketSvc.isOnline()) {
+			if (!clUserActivity.isActive() || !clSocketSvc.isOnline()) {
 				return;
 			}
 			if (Date.now() - syncDataStore.lastActivity > maxSyncInactivity) {
@@ -891,7 +955,7 @@ angular.module('classeur.core.sync', [])
 			if (syncDataStore.fileSyncReady && Date.now() - lastCreateFileActivity > createFileTimeout) {
 				sendNewFiles();
 			}
-		}, 1100, true);
+		}, 1100);
 
 		$rootScope.$watch('currentFileDao', function(currentFileDao) {
 			if (currentFileDao) {
@@ -907,6 +971,9 @@ angular.module('classeur.core.sync', [])
 		});
 
 		clSetInterval(function() {
+			if (!clUserActivity.isActive()) {
+				return;
+			}
 			var currentFileDao = $rootScope.currentFileDao;
 			if (clSocketSvc.isOnline()) {
 				if (readSyncDataStore(clSocketSvc.ctx)) {
@@ -917,7 +984,7 @@ angular.module('classeur.core.sync', [])
 			} else if (!clSocketSvc.hasToken) {
 				getPublicFile(currentFileDao);
 			}
-		}, 250, true);
+		}, 250);
 
 		return clSyncSvc;
 	})

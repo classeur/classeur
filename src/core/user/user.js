@@ -1,6 +1,40 @@
 angular.module('classeur.core.user', [])
+    .factory('clUserActivity', function($window, clLocalStorage) {
+        var inactiveAfter = 180000; // 3 minutes
+        var lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus';
+
+        function setLastActivity() {
+            lastActivity = Date.now();
+        }
+
+        function setLastFocus() {
+            lastFocus = Date.now();
+            clLocalStorage[lastFocusKey] = lastFocus;
+            setLastActivity();
+        }
+
+        function isActive() {
+            return lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
+        }
+
+        setLastFocus();
+        $window.addEventListener('focus', setLastFocus);
+        $window.document.addEventListener('mousedown', setLastActivity);
+        $window.document.addEventListener('keydown', setLastActivity);
+        return {
+            isActive: isActive
+        };
+    })
     .factory('clUserSvc', function($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConstants, clStateMgr) {
-        var clUserSvc = clLocalStorageObject('userSvc');
+        var userNameMaxLength = 32;
+
+        var clUserSvc = clLocalStorageObject('userSvc', {
+                user: {
+                    default: null,
+                    parser: JSON.parse,
+                    serializer: JSON.stringify,
+                }
+            });
 
         function startOAuth(redirectUrl) {
             var params = {
@@ -30,12 +64,13 @@ angular.module('classeur.core.user', [])
         }
 
         clUserSvc.read = function() {
-            this.$readAttr('user', null, JSON.parse);
+            this.$read();
             this.$readUpdate();
         };
 
         clUserSvc.write = function(updated) {
-            this.$writeAttr('user', JSON.stringify, updated);
+            this.$write();
+            updated && this.$writeUpdate(updated);
         };
 
         function checkAll() {
@@ -50,6 +85,9 @@ angular.module('classeur.core.user', [])
         function updateUser(user) {
             if (!user.name) {
                 throw 'User name can\'t be empty.';
+            }
+            if (user.name.length > userNameMaxLength) {
+                throw 'User name is too.';
             }
             clUserSvc.user = user;
         }

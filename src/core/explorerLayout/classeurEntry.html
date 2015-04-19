@@ -12,11 +12,11 @@
         <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
     </div>
     <div class="footer panel" layout="row" layout-align="center">
-        <cl-button ng-if="!classeur.isDefault" class="btn">
-            <a class="icon-delete" ng-click="deleteClasseur(classeur)" aria-label="Delete classeur" title="Delete classeur"></a>
-        </cl-button>
         <cl-button class="btn" active="isEditing">
-            <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit name" title="Edit name"></a>
+            <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit name"></a>
+        </cl-button>
+        <cl-button ng-if="!classeur.isDefault" class="btn">
+            <a class="icon-delete" ng-click="deleteClasseur(classeur)" aria-label="Delete classeur"></a>
         </cl-button>
     </div>
 </div>

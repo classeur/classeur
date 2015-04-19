@@ -1,28 +1,67 @@
 angular.module('classeur.core.settings', [])
 	.factory('clSettingSvc', function($templateCache, clLocalStorageObject) {
-		var clSettingSvc = clLocalStorageObject('settingsSvc');
+		var defaultSettings = $templateCache.get('core/settings/defaultSettings.json');
 		var defaultLocalSettings = $templateCache.get('core/settings/defaultLocalSettings.json');
 
-		function serializer(data) {
-			var result = {};
-			// Sort object keys
-			Object.keys(data).sort().forEach(function(key) {
-				result[key] = data[key];
-			});
-			return JSON.stringify(result);
-		}
+		var settings = clLocalStorageObject('settings', {
+			values: {
+				default: defaultSettings,
+				parser: clLocalStorageObject.simpleObjectParser,
+				serializer: clLocalStorageObject.simpleObjectSerializer,
+			}
+		});
+		var localSettings = clLocalStorageObject('localSettings', {
+			values: {
+				default: defaultLocalSettings,
+				parser: clLocalStorageObject.simpleObjectParser,
+				serializer: clLocalStorageObject.simpleObjectSerializer,
+			}
+		});
 
-		clSettingSvc.read = function() {
-			this.$readAttr('settings', '{}', JSON.parse);
-			this.$readAttr('localSettings', defaultLocalSettings, JSON.parse);
+		settings.read = localSettings.read = function() {
+			this.$read();
 			this.$readUpdate();
 		};
 
-		clSettingSvc.write = function(updated) {
-			this.$writeAttr('settings', serializer, updated);
-			this.$writeAttr('localSettings', serializer, updated);
+		settings.write = localSettings.write = function(updated) {
+			this.$write();
+			updated && this.$writeUpdate(updated);
 		};
 
-		clSettingSvc.read();
+		function checkAll() {
+			var hasChanged = false;
+			if (settings.$checkUpdate()) {
+				settings.read();
+				hasChanged = true;
+			} else {
+				settings.write();
+			}
+			if (localSettings.$checkUpdate()) {
+				localSettings.read();
+				hasChanged = true;
+			} else {
+				localSettings.write();
+			}
+			return hasChanged;
+		}
+
+		function updateSettings(settings) {
+            clSettingSvc.settings.values = settings;
+		}
+
+		function setDefaultSettings() {
+            clSettingSvc.settings.values = JSON.parse(defaultSettings);
+            clSettingSvc.localSettings.values = JSON.parse(defaultLocalSettings);
+		}
+
+		var clSettingSvc = {};
+		clSettingSvc.settings = settings;
+		clSettingSvc.localSettings = localSettings;
+		clSettingSvc.checkAll = checkAll;
+		clSettingSvc.updateSettings = updateSettings;
+		clSettingSvc.setDefaultSettings = setDefaultSettings;
+
+		settings.read();
+		localSettings.read();
 		return clSettingSvc;
 	});

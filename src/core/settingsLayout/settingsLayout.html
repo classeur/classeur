@@ -8,7 +8,37 @@
         <md-tabs md-selected="selectedTabIndex" md-border-bottom flex>
             <md-tab label="App">
                 <div class="tab">
-                    <div>editor</div>
+                    <h2>Editor</h2> Font size factor
+                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
+                    </md-slider>
+                    Binder width factor
+                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
+                    </md-slider>
+                    <md-checkbox ng-model="app.editorHighlighting">
+                        Markdown highlighting
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorInlineImg">
+                        Inline images
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMonospacedFont">
+                        Use monospaced font only
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
+                        Markdown Cheat Sheet icon
+                    </md-checkbox>
+                    <br>
+                    <h2>Default file properties</h2>
+                    <p>
+                    <table>
+                        <tr ng-repeat="(key, value) in app.defaultFileProperties">
+                            <td><b>{{key}}</b></td>
+                            <td>{{value}}</td>
+                        </tr>
+                    </table>
+                    </p>
+                    <md-button class="md-primary" ng-click="editFileProperties()">
+                        Edit
+                    </md-button>
                 </div>
             </md-tab>
             <md-tab label="Trash">
@@ -78,9 +108,12 @@
                 </div>
             </md-tab>
         </md-tabs>
-        <div class="btn-grp" layout="row" layout-align="end">
-            <md-button ng-click="cancel()">Cancel</md-button>
-            <md-button class="md-primary" ng-click="apply()">Apply</md-button>
+        <div class="btn-grp" layout="row" layout-align="space-between">
+            <md-button ng-if="selectedTabIndex === 0" ng-click="setDefault()">Set default</md-button>
+            <div layout="row">
+                <md-button ng-click="cancel()">Cancel</md-button>
+                <md-button class="md-primary" ng-click="apply()">Apply</md-button>
+            </div>
         </div>
     </div>
 </div>

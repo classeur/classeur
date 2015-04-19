@@ -27,7 +27,7 @@ angular.module('classeur.opt.scrollSync', [])
 					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
 				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.forceScrollSync);
-				scope.$watch('settingSvc.localSettings.scrollSync', clScrollSyncSvc.forceScrollSync);
+				scope.$watch('localSettings.values.scrollSync', clScrollSyncSvc.forceScrollSync);
 			}
 		};
 	})
@@ -81,7 +81,7 @@ angular.module('classeur.opt.scrollSync', [])
 		var doScrollSync = function(debounce) {
 			var localSkipAnimation = skipAnimation;
 			skipAnimation = false;
-			if(!clSettingSvc.localSettings.scrollSync || !sectionDescList || sectionDescList.length === 0) {
+			if(!clSettingSvc.localSettings.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;

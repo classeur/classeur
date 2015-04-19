@@ -1,6 +1,10 @@
 angular.module('classeur.core.folders', [])
-	.factory('clFolderSvc', function(clUid, clLocalStorageObject) {
-		var folderDaoProto = clLocalStorageObject('F', true);
+	.factory('clFolderSvc', function(clLocalStorage, clUid, clLocalStorageObject) {
+		var folderDaoProto = clLocalStorageObject('F', {
+			name: {},
+			sharing: {},
+			userId: {},
+		}, true);
 
 		function FolderDao(id) {
 			this.id = id;
@@ -11,19 +15,22 @@ angular.module('classeur.core.folders', [])
 		FolderDao.prototype = folderDaoProto;
 
 		FolderDao.prototype.read = function() {
-			this.$readAttr('name', '');
-			this.$readAttr('sharing', '');
-			this.$readAttr('userId', '');
+			this.$read();
 			this.$readUpdate();
 		};
 
 		FolderDao.prototype.write = function(updated) {
-			this.$writeAttr('name', undefined, updated);
-			this.$writeAttr('sharing', undefined, updated);
-			this.$writeAttr('userId', undefined, updated);
+			this.$write();
+			updated && this.$writeUpdate(updated);
 		};
 
-		var clFolderSvc = clLocalStorageObject('folderSvc');
+		var clFolderSvc = clLocalStorageObject('folderSvc', {
+			folderIds: {
+				default: '[]',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			}
+		});
 
 		var authorizedKeys = {
 			u: true,
@@ -34,7 +41,7 @@ angular.module('classeur.core.folders', [])
 
 		function init(cleanStorage) {
 			if (!clFolderSvc.folderIds) {
-				clFolderSvc.$readAttr('folderIds', '[]', JSON.parse);
+				clFolderSvc.$read();
 			}
 			clFolderSvc.folders = clFolderSvc.folderIds.map(function(id) {
 				return clFolderSvc.folderMap[id] || new FolderDao(id);
@@ -46,12 +53,12 @@ angular.module('classeur.core.folders', [])
 
 			if (cleanStorage) {
 				var keyPrefix = /^F\.(\w+)\.(\w+)/;
-				Object.keys(localStorage).forEach(function(key) {
+				Object.keys(clLocalStorage).forEach(function(key) {
 					var match = key.match(keyPrefix);
 					if (match) {
 						var folderDao = clFolderSvc.folderMap[match[1]];
 						if (!folderDao || !authorizedKeys.hasOwnProperty(match[2])) {
-							localStorage.removeItem(key);
+							clLocalStorage.removeItem(key);
 						}
 					}
 				});
@@ -62,10 +69,10 @@ angular.module('classeur.core.folders', [])
 			// Check folder id list
 			var checkFolderSvcUpdate = clFolderSvc.$checkUpdate();
 			clFolderSvc.$readUpdate();
-			if (checkFolderSvcUpdate && clFolderSvc.$checkAttr('folderIds', '[]')) {
+			if (checkFolderSvcUpdate && clFolderSvc.$check()) {
 				clFolderSvc.folderIds = undefined;
 			} else {
-				clFolderSvc.$writeAttr('folderIds', JSON.stringify);
+				clFolderSvc.$write();
 			}
 
 			// Check every folder
@@ -132,8 +139,8 @@ angular.module('classeur.core.folders', [])
 					clFolderSvc.folderMap[change.id] = folderDao;
 					clFolderSvc.folderIds.push(change.id);
 				}
-				folderDao.name = change.name;
-				folderDao.sharing = change.sharing;
+				folderDao.name = change.name || '';
+				folderDao.sharing = change.sharing || '';
 				folderDao.write(change.updated);
 			});
 			init();

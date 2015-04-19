@@ -1,5 +1,9 @@
+body.file.dragging * {
+	cursor: move !important;
+}
+
 .file.dragging.panel {
 	opacity: 0.5;
 	top: 0;
-	left: 0
+	left: 0;
 }

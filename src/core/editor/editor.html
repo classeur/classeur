@@ -1,6 +1,5 @@
 <div cl-folding cl-scroll-sync-editor class="editor container" style="font-size: {{editorLayoutSvc.fontSizePx}};">
-	<pre class="editor content" ng-focus="editorLayoutSvc.currentControl = undefined" style="font-size: {{editorLayoutSvc.fontSizeEm}};">
-</pre>
+	<pre class="editor content" ng-class="::{highlighting: settings.values.editorHighlighting, monospaced: settings.values.editorMonospacedFont}" ng-focus="editorLayoutSvc.currentControl = undefined" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
 	<cl-commenting-gutter></cl-commenting-gutter>
 	<cl-folding-gutter></cl-folding-gutter>
 	<cl-user-activity ng-repeat="(userId, userActivity) in syncSvc.watchCtx.userActivities"></cl-user-activity>

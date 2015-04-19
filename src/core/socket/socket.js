@@ -1,20 +1,20 @@
 angular.module('classeur.core.socket', [])
-	.factory('clSocketSvc', function($window, $rootScope, $location) {
+	.factory('clSocketSvc', function($window, $rootScope, $location, clLocalStorage, clUserActivity) {
 		var socketTokenKey = 'socketToken';
 		var socket, msgHandlers = {};
 		var socketToken;
 
 		function setToken(token) {
-			localStorage[socketTokenKey] = token;
+			clLocalStorage[socketTokenKey] = token;
 		}
 
 		function clearToken() {
-			localStorage.removeItem(socketTokenKey);
+			clLocalStorage.removeItem(socketTokenKey);
 			clSocketSvc.hasToken = false;
 		}
 
 		function checkToken() {
-			socketToken = localStorage[socketTokenKey];
+			socketToken = clLocalStorage[socketTokenKey];
 			clSocketSvc.hasToken = !!socketToken;
 			return clSocketSvc.hasToken;
 		}
@@ -43,12 +43,12 @@ angular.module('classeur.core.socket', [])
 			};
 		}
 
-		function isPendingAttempt() {
-			return (!socket || socket.readyState > 1) && checkToken() && $window.navigator.onLine !== false;
+		function shouldAttempt() {
+			return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.isActive() && $window.navigator.onLine !== false;
 		}
 
 		function openSocket() {
-			if (isPendingAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
+			if (shouldAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
 				attemptOpenSocket();
 				if (nextConnectionAttempt < 30000) {
 					// Exponential backoff

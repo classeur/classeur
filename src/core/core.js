@@ -108,12 +108,11 @@ angular.module('classeur.core', [])
 			}
 		});
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
 		$rootScope.editorLayoutSvc = clEditorLayoutSvc;
-		$rootScope.settingSvc = clSettingSvc;
 		$rootScope.editorSvc = clEditorSvc;
 		$rootScope.fileSvc = clFileSvc;
 		$rootScope.folderSvc = clFolderSvc;
@@ -122,6 +121,8 @@ angular.module('classeur.core', [])
 		$rootScope.userSvc = clUserSvc;
 		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
+		$rootScope.settings = clSettingSvc.settings;
+		$rootScope.localSettings = clSettingSvc.localSettings;
 
 		function loadFile(fileDao) {
 			unloadCurrentFile();
@@ -142,13 +143,6 @@ angular.module('classeur.core', [])
 			});
 		}
 
-		function setDocFile(fileName) {
-			unloadCurrentFile();
-			$timeout(function() {
-				$location.url(clUrl.docFile(fileName));
-			});
-		}
-
 		function makeCurrentFileCopy() {
 			var oldFileDao = $rootScope.currentFileDao;
 			var newFileDao = clFileSvc.createFile();
@@ -165,7 +159,6 @@ angular.module('classeur.core', [])
 
 		$rootScope.setCurrentFile = setCurrentFile;
 		$rootScope.loadFile = loadFile;
-		$rootScope.setDocFile = setDocFile;
 		$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
 		$rootScope.$watch('currentFileDao.name', function(name) {
@@ -182,7 +175,8 @@ angular.module('classeur.core', [])
 					.ok('Yes please')
 					.cancel('No thanks');
 				$mdDialog.show(clearDataDialog).then(function() {
-					localStorage.clear();
+					clLocalStorage.clear();
+					clSyncSvc.saveAll();
 				});
 			}
 			hasToken = value;

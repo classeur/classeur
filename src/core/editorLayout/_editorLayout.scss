@@ -60,6 +60,7 @@
         }
     }
     .editor.panel .btn-grp {
+        height: 0; // prevent overlap with help button
         .btn a {
             line-height: 34px;
         }
@@ -129,7 +130,7 @@
                 display: block;
                 line-height: 1;
                 padding: 3px;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
         }
         md-switch {
@@ -137,13 +138,7 @@
         }
     }
     .file.name {
-        border-radius: 6px;
-        background-color: transparentize(#fff, 0.8);
-        padding: 5px 15px 10px;
-        margin: 0 -15px 15px;
-        input {
-            font-size: 20px;
-        }
+        font-size: 20px;
     }
 }
 
@@ -167,4 +162,9 @@
     font-size: 28px;
     padding: 5px;
     cursor: pointer;
+}
+
+.md-cheat-sheet.btn a {
+    font-size: 28px;
+    padding: 6px;
 }

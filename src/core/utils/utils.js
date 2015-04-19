@@ -13,14 +13,17 @@ angular.module('classeur.core.utils', [])
 		return clUid;
 	})
 	.factory('clToast', function($mdToast) {
-		return function(text) {
-			$mdToast.show(
-				$mdToast.simple()
+		var hideDelay = 6000;
+		var result = function(text, action, cb) {
+			var toast = $mdToast.simple()
 				.content(text)
+				.action(action)
 				.position('bottom right')
-				.hideDelay(6000)
-			);
+				.hideDelay(hideDelay);
+			$mdToast.show(toast).then(cb || function() {});
 		};
+		result.hideDelay = hideDelay;
+		return result;
 	})
 	.factory('clPanel', function($window) {
 		$window.move.defaults = {
@@ -113,24 +116,88 @@ angular.module('classeur.core.utils', [])
 		document.body.removeChild(scrollDiv);
 		return scrollBarWidth;
 	})
-	.factory('clLocalStorageObject', function() {
+	.factory('clLocalStorageObject', function(clLocalStorage) {
 
-		function LocalStorageObject(prefix, globalUpdate) {
+		function defaultParser(val) {
+			return val;
+		}
+
+		function defaultSerializer(val) {
+			return val.toString();
+		}
+
+		function simpleObjectSerializer(obj) {
+			return JSON.stringify(Object.keys(obj).sort().reduce(function(result, key) {
+				result[key] = obj[key];
+				return result;
+			}, {}), function(key, value) {
+				return key[0] === '$' ? undefined : value;
+			});
+		}
+
+		function LocalStorageObject(prefix, attrs, globalUpdate) {
+			this.$attrHelpers = Object.keys(attrs).reduce(function($attrHelpers, key) {
+				var sKey = '$_' + key;
+				var defaultValue = attrs[key].default === undefined ? '' : attrs[key].default;
+				var serializer = attrs[key].serializer || defaultSerializer;
+				var parser = attrs[key].parser || defaultParser;
+				$attrHelpers[key] = {
+					read: function() {
+						var exists = true;
+						var lsKey = this.$localPrefix + key;
+						var sValue = clLocalStorage.getItem(lsKey);
+						if (!sValue) {
+							sValue = defaultValue;
+							exists = false;
+						}
+						this[sKey] = sValue;
+						this[key] = parser(sValue);
+						return exists;
+					},
+					write: function() {
+						var sValue = serializer(this[key]);
+						if (sValue !== this[sKey]) {
+							this[sKey] = sValue;
+							var lsKey = this.$localPrefix + key;
+							if (!sValue || sValue === defaultValue) {
+								clLocalStorage.removeItem(lsKey);
+							} else {
+								clLocalStorage.setItem(lsKey, sValue);
+							}
+							var currentDate = Date.now();
+							this.$writeUpdate(currentDate);
+							this.$writeGlobalUpdate && this.$writeGlobalUpdate(currentDate);
+							return true;
+						}
+					},
+					check: function() {
+						var lsKey = this.$localPrefix + key;
+						var sValue = clLocalStorage.getItem(lsKey) || defaultValue;
+						return sValue !== this[sKey];
+					},
+					free: function() {
+						this[sKey] = undefined;
+						this[key] = undefined;
+					}
+				};
+				return $attrHelpers;
+			}, {});
+
 			this.$globalPrefix = prefix ? prefix + '.' : '';
 			this.$setId();
 			if (globalUpdate) {
 				var self = this; // Make sure we update the __proto__ object
 				var globalUpdateKey = this.$globalPrefix + 'gu';
 				this.$checkGlobalUpdate = function() {
-					return self.gUpdated != localStorage[globalUpdateKey];
+					return self.gUpdated != clLocalStorage[globalUpdateKey];
 				};
 				this.$readGlobalUpdate = function() {
-					self.gUpdated = parseInt(localStorage[globalUpdateKey]);
-					isNaN(self.gUpdated) && self.$setGlobalUpdate(Date.now());
+					self.gUpdated = parseInt(clLocalStorage[globalUpdateKey]);
+					isNaN(self.gUpdated) && self.$writeGlobalUpdate(Date.now());
 				};
-				this.$setGlobalUpdate = function(updated) {
+				this.$writeGlobalUpdate = function(updated) {
 					self.gUpdated = updated;
-					localStorage[globalUpdateKey] = updated;
+					clLocalStorage[globalUpdateKey] = updated;
 				};
 				this.$readGlobalUpdate();
 			}
@@ -140,92 +207,73 @@ angular.module('classeur.core.utils', [])
 			this.$localPrefix = this.$globalPrefix + (id ? id + '.' : '');
 			this.$updateKey = this.$localPrefix + 'u';
 			this.$readUpdate();
-		};
 
-		LocalStorageObject.prototype.$readAttr = function(name, defaultValue, parser) {
-			var exists = true;
-			var key = this.$localPrefix + name;
-			var value = localStorage[key];
-			if (value === undefined) {
-				exists = false;
-				value = defaultValue;
+			function attrOperation(operation) {
+				return function() {
+					var result;
+					Object.keys(this.$attrHelpers).forEach(function(key) {
+						result |= this.$attrHelpers[key][operation].call(this);
+					}, this);
+					return result;
+				};
 			}
-			this['$_' + name] = value;
-			value = parser ? parser(value) : value;
-			this[name] = value;
-			return exists;
-		};
-
-		LocalStorageObject.prototype.$checkAttr = function(name, defaultValue) {
-			var key = this.$localPrefix + name;
-			var value = localStorage[key] || defaultValue;
-			return value !== this['$_' + name];
-		};
-
-		LocalStorageObject.prototype.$writeAttr = function(name, serializer, updated) {
-			var value = serializer ? serializer(this[name]) : (this[name] || '').toString();
-			if ((updated !== undefined && updated != this.updated) || value !== this['$_' + name]) {
-				var key = this.$localPrefix + name;
-				if (!value) {
-					localStorage.removeItem(key);
-				} else {
-					localStorage[key] = value;
-				}
-				this['$_' + name] = value;
-				var currentDate = Date.now();
-				this.$setUpdate(updated !== undefined ? updated : currentDate);
-				this.$setGlobalUpdate && this.$setGlobalUpdate(currentDate);
-				return true;
-			}
-		};
-
-		LocalStorageObject.prototype.$freeAttr = function(name) {
-			this[name] = undefined;
-			this['$_' + name] = undefined;
+			this.$read = attrOperation('read');
+			this.$write = attrOperation('write');
+			this.$check = attrOperation('check');
+			this.$free = attrOperation('free');
+			Object.keys(this.$attrHelpers).forEach(function(key) {
+				this.$read[key] = this.$attrHelpers[key].read.bind(this);
+				this.$write[key] = this.$attrHelpers[key].write.bind(this);
+				this.$check[key] = this.$attrHelpers[key].check.bind(this);
+				this.$free[key] = this.$attrHelpers[key].free.bind(this);
+			}, this);
 		};
 
 		LocalStorageObject.prototype.$checkUpdate = function() {
-			return this.updated != (localStorage[this.$updateKey] || 0);
+			return this.updated != (clLocalStorage[this.$updateKey] || 0);
 		};
 
 		LocalStorageObject.prototype.$readUpdate = function() {
-			this.updated = parseInt(localStorage[this.$updateKey]);
+			this.updated = parseInt(clLocalStorage[this.$updateKey]);
 			if (isNaN(this.updated)) {
 				this.updated = 0;
 			}
 		};
 
-		LocalStorageObject.prototype.$setUpdate = function(updated) {
+		LocalStorageObject.prototype.$writeUpdate = function(updated) {
 			this.updated = updated;
 			if (!updated) {
-				localStorage.removeItem(this.$updateKey);
+				clLocalStorage.removeItem(this.$updateKey);
 			} else {
-				localStorage[this.$updateKey] = updated;
+				clLocalStorage[this.$updateKey] = updated;
 			}
 		};
 
-		return function(prefix, globalUpdate) {
-			return new LocalStorageObject(prefix, globalUpdate);
+		var clLocalStorageObject = function(prefix, attrs, globalUpdate) {
+			return new LocalStorageObject(prefix, attrs, globalUpdate);
 		};
+		clLocalStorageObject.simpleObjectSerializer = simpleObjectSerializer;
+		clLocalStorageObject.simpleObjectParser = JSON.parse;
+		return clLocalStorageObject;
 	})
-	.factory('clStateMgr', function($rootScope, $location, clUid) {
+	.factory('clStateMgr', function($rootScope, $location, clLocalStorage, clUid) {
 		var stateKeyPrefix = 'state.';
 		var stateMaxAge = 3600000; // 1 hour
 
 		var currentDate = Date.now();
 		var keyPrefix = /^state\.(.+)/;
-		Object.keys(localStorage).forEach(function(key) {
+		Object.keys(clLocalStorage).forEach(function(key) {
 			var match = key.match(keyPrefix);
 			if (match) {
 				var stateAge = parseInt(match[1].split('.')[1] || 0);
-				(currentDate - stateAge > stateMaxAge) && localStorage.removeItem(key);
+				(currentDate - stateAge > stateMaxAge) && clLocalStorage.removeItem(key);
 			}
 		});
 
 		var clStateMgr = {
 			saveState: function(state) {
 				var stateId = clUid() + '.' + Date.now();
-				localStorage[stateKeyPrefix + stateId] = JSON.stringify(state);
+				clLocalStorage[stateKeyPrefix + stateId] = JSON.stringify(state);
 				return stateId;
 			}
 		};
@@ -233,9 +281,9 @@ angular.module('classeur.core.utils', [])
 		function checkState(stateId) {
 			clStateMgr.state = undefined;
 			if (stateId) {
-				var storedState = localStorage[stateKeyPrefix + stateId];
+				var storedState = clLocalStorage[stateKeyPrefix + stateId];
 				if (storedState) {
-					localStorage.removeItem(stateKeyPrefix + stateId);
+					clLocalStorage.removeItem(stateKeyPrefix + stateId);
 					clStateMgr.checkedState = JSON.parse(storedState);
 					clStateMgr.checkedState.$search = $location.search();
 				}
@@ -266,25 +314,10 @@ angular.module('classeur.core.utils', [])
 		$window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
 	})
-	.factory('clSetInterval', function($window) {
-		var lastFocus, lastFocusKey = 'lastWindowFocus';
-
-		function setLastFocus() {
-			lastFocus = Date.now();
-			localStorage[lastFocusKey] = lastFocus;
-		}
-
-		function isWindowFocus() {
-			return localStorage[lastFocusKey] == lastFocus;
-		}
-
-		setLastFocus();
-		$window.addEventListener('focus', setLastFocus);
-		return function(cb, interval, checkWindowFocus) {
+	.factory('clSetInterval', function() {
+		return function(cb, interval) {
 			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
-			setInterval(function() {
-				(!checkWindowFocus || isWindowFocus()) && cb();
-			}, interval);
+			setInterval(cb, interval);
 		};
 	})
 	.factory('clUrl', function() {
@@ -362,8 +395,9 @@ angular.module('classeur.core.utils', [])
 			restrict: 'A',
 			link: function(scope, element, attr) {
 				var elt = element[0];
+
 				function trigger() {
-					if(elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300) {
+					if (elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300) {
 						scope.$eval(attr.clInfiniteScroll) && $timeout(trigger);
 					}
 				}
@@ -373,4 +407,12 @@ angular.module('classeur.core.utils', [])
 				};
 			}
 		};
+	})
+	.factory('clLocalStorage', function() {
+		var version = parseInt(localStorage.getItem('version'));
+		if (isNaN(version)) {
+			version = 1;
+		}
+		localStorage.setItem('version', version);
+		return localStorage;
 	});

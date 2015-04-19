@@ -14,7 +14,7 @@
     "tests"
   ],
   "dependencies": {
-    "angular-material": "1d4894b19eea937d9e619209d6c9302a55f56a9d",
+    "angular-material": "~0.9.0",
     "google-diff-match-patch-js": "~1.0.0",
     "rangy-official": "~1.3.0-alpha.20140921",
     "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
