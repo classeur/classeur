@@ -258,22 +258,38 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				function importFolder() {
-					makeInputDialog('core/explorerLayout/importFolderDialog.html')
-						.then(function(link) {
-							var components = link.split('/');
-							var folderId = components[components.length - 1];
-							var userId = components[components.length - 3];
-							if (!folderId || !userId || link.indexOf(clConstants.serverUrl) !== 0) {
-								clToast('Invalid folder link.');
-							}
-							if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
-									return folderDao.id === folderId;
-								})) {
-								clToast('Folder is already in the classeur.');
-							}
-							var folderDao = clFolderSvc.folderMap[folderId];
-							folderDao ? importExistingFolder(folderDao) : importPublicFolder(userId, folderId);
+					makeInputDialog('core/explorerLayout/importFolderDialog.html', function(scope) {
+						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.reduce(function(classeurFolders, folderDao) {
+							classeurFolders[folderDao.id] = folderDao;
+							return classeurFolders;
+						}, {});
+						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
+							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);
 						});
+						var ok = scope.ok;
+						scope.ok = function() {
+							if(scope.folderId) {
+								var folderDao = clFolderSvc.folderMap[scope.folderId];
+								folderDao && importExistingFolder(folderDao);
+								return $mdDialog.cancel();
+							}
+							ok();
+						};
+					}).then(function(link) {
+						var components = link.split('/');
+						var folderId = components[components.length - 1];
+						var userId = components[components.length - 3];
+						if (!folderId || !userId || link.indexOf(clConstants.serverUrl) !== 0) {
+							clToast('Invalid folder link.');
+						}
+						if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
+								return folderDao.id === folderId;
+							})) {
+							clToast('Folder is already in the classeur.');
+						}
+						var folderDao = clFolderSvc.folderMap[folderId];
+						folderDao ? importExistingFolder(folderDao) : importPublicFolder(userId, folderId);
+					});
 				}
 
 				function createFolder() {

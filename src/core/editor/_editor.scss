@@ -1,7 +1,5 @@
 $ced-color: #555;
-$font-family-monospace: "Inconsolata",
-monospace;
-$font-size-monospace: 1em;
+$font-size-monospace: 0.85em;
 $ced-color-lighter: transparentize($ced-color, 0.6);
 $ced-color-light: transparentize($ced-color, 0.4);
 $ced-color-dark: black;
@@ -42,9 +40,12 @@ $border-radius-base: 4px;
     .hide {
         display: none;
     }
-    &.monospaced * {
-    	font-size: $font-size-monospace !important;
-    	font-family: $font-family-monospace !important;
+    &.monospaced {
+        font-size: $font-size-monospace !important;
+        font-family: $font-family-monospace !important;
+        * {
+            font-size: 1em !important;
+        }
     }
     &.highlighting {
         .code {

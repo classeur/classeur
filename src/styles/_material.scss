@@ -7,7 +7,7 @@ input {
 }
 
 .md-button {
-    padding: 6px;
+    padding: 7px 9px;
     margin: 0;
     line-height: inherit;
     font-size: inherit;
@@ -53,6 +53,7 @@ md-radio-group {
 
 .md-button {
     font-weight: normal;
+    height: auto;
     &:hover, &:focus {
         background-color: transparent !important;
     }
@@ -99,10 +100,4 @@ md-input-container.md-classeur-theme .md-input[disabled],
     color: #fff;
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 33%, transparent 0%);
     background-image: -ms-linear-gradient(left, transparent 0%, rgba(255, 255, 255, 0.6) 100%);
-}
-
-md-content.md-default-theme,
-.md-subheader.md-default-theme {
-    background-color: transparent;
-    font-size: inherit;
 }

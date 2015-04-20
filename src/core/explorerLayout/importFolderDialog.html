@@ -5,13 +5,14 @@
             <label>Sharing link</label>
             <input class="link" ng-model="link">
         </md-input-container>
-        <p class="or">
-            <span>—</span> or <span>—</span>
-        </p>
-        <md-select placeholder="From other classeur" ng-model="folders">
-            <md-option value="1">One</md-option>
-            <md-option value="2">Two</md-option>
-        </md-select>
+        <div ng-if="folders.length">
+            <p class="or">
+                <span>—</span> or <span>—</span>
+            </p>
+            <md-select placeholder="From other classeur" ng-model="folderId">
+                <md-option ng-repeat="folderDao in folders track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
+            </md-select>
+        </div>
     </md-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">

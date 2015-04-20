@@ -207,11 +207,12 @@ angular.module('classeur.core.files', [])
 			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
 				return clFileSvc.fileMap[id] || new FileDao(id);
 			});
-			clFileSvc.fileMap = {};
-			clFileSvc.localFiles = [];
-			clFileSvc.files.forEach(function(fileDao) {
-				clFileSvc.fileMap[fileDao.id] = fileDao;
-				fileDao.contentDao.isLocal && clFileSvc.localFiles.push(fileDao);
+			clFileSvc.fileMap = clFileSvc.files.reduce(function(fileMap, fileDao) {
+				fileMap[fileDao.id] = fileDao;
+				return fileMap;
+			}, {});
+			clFileSvc.localFiles = clFileSvc.files.filter(function(fileDao) {
+				return fileDao.contentDao.isLocal;
 			});
 
 			clFileSvc.localFiles.sort(function(fileDao1, fileDao2) {

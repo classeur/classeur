@@ -34,7 +34,7 @@
             }
         }
         .help {
-            min-width: 60px;
+            min-width: 64px;
             span {
                 line-height: 12px;
             }
@@ -58,15 +58,21 @@
             .username {
                 display: inline-block;
                 position: relative;
-                padding: 6px;
+                padding: 7px;
+                padding-right: 10px;
                 line-height: 1;
             }
             .settings {
-                padding: 4px 6px;
+                padding: 5px 6px;
                 font-size: 18px;
                 line-height: 14px;
             }
         }
+    }
+    md-content.md-default-theme,
+    .md-subheader.md-default-theme {
+        background-color: transparent;
+        font-size: inherit;
     }
     .folder.container {
         top: 2px;
@@ -510,7 +516,7 @@
     }
     .import {
         position: absolute;
-        left: 16px;
-        bottom: 16px;
+        left: 24px;
+        bottom: 8px;
     }
 }

@@ -52,10 +52,6 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true">
-                        <md-input-container class="small">
-                            <label>User ID</label>
-                            <input name="id" ng-model="user.id" disabled="disabled">
-                        </md-input-container>
                         <form name="userForm">
                             <md-input-container class="small">
                                 <label>User name</label>
@@ -74,6 +70,11 @@
                                 Sign out
                             </md-button>
                         </p>
+                        <br>
+                        <md-input-container class="small">
+                            <label>User ID</label>
+                            <input name="id" ng-model="user.id" disabled="disabled">
+                        </md-input-container>
                         <p class="group">
                             <span class="label">
                                 Use another Google account for sign in

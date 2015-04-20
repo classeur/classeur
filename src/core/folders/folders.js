@@ -46,10 +46,10 @@ angular.module('classeur.core.folders', [])
 			clFolderSvc.folders = clFolderSvc.folderIds.map(function(id) {
 				return clFolderSvc.folderMap[id] || new FolderDao(id);
 			});
-			clFolderSvc.folderMap = {};
-			clFolderSvc.folders.forEach(function(folderDao) {
-				clFolderSvc.folderMap[folderDao.id] = folderDao;
-			});
+			clFolderSvc.folderMap = clFolderSvc.folders.reduce(function(folderMap, folderDao) {
+				folderMap[folderDao.id] = folderDao;
+				return folderMap;
+			}, {});
 
 			if (cleanStorage) {
 				var keyPrefix = /^F\.(\w+)\.(\w+)/;
