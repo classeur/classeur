@@ -24,15 +24,21 @@
                 </md-button>
             </div>
             <div layout="row" layout-align="end start">
-                <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken">
+                <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken" layout="row">
+                    <md-button class="settings" ng-href="#!/settings">
+                        <span class="icon-settings"></span>
+                    </md-button>
                     <md-button ng-click="userSvc.startOAuth()">
                         Sign in with Google <span class="icon-arrow-forward"></span>
                     </md-button>
                 </div>
-                <div class="user-info md-whiteframe-z1" ng-if="userSvc.user">
-                    <span class="username">
-                        Hi <b>{{userSvc.user.name}}</b>!
-                    </span>
+                <div class="user-info md-whiteframe-z1" ng-if="userSvc.user" layout="row">
+                    <div class="username">
+                        Hi <b>{{userSvc.user.name}}</b>
+                    </div>
+                    <md-button class="settings" ng-href="#!/settings?tab=user">
+                        <span class="icon-settings"></span>
+                    </md-button>
                     <md-button>
                         Go premium <span class="icon-arrow-forward"></span>
                     </md-button>
@@ -57,15 +63,13 @@
                 </div>
             </div>
         </div>
-        <div class="menu panel background">
-            <div layout="row">
-                <md-button class="md-primary" ng-href="#!/settings?tab=app"><span class="icon-keyboard-arrow-right"></span> Settings</md-button>
-                <md-button class="md-primary" ng-click="signout()" ng-if="socketSvc.hasToken"><span class="icon-keyboard-arrow-right"></span> Signout</md-button>
-            </div>
-            <div layout="row">
-                <md-button><span class="icon-keyboard-arrow-right"></span> Privacy Policy</md-button>
-                <md-button><span class="icon-keyboard-arrow-right"></span> Terms</md-button>
-            </div>
+        <div class="menu panel background" layout="row" layout-align="end">
+            <md-button>
+                Privacy Policy
+            </md-button>
+            <md-button>
+                Terms
+            </md-button>
         </div>
         <div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
             <div class="hole panel background first"></div>
@@ -131,8 +135,8 @@
                 <div class="container panel">
                     <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 3) % 4)">
                         <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
-                            <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder">
-                                {{folderDao.name}}
+                            <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
+                                <div>{{folderDao.name}}</div>
                             </div>
                             <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
                         </md-button>
@@ -140,7 +144,9 @@
                 </div>
                 <div class="current folder btn btn-panel plastic" ng-class="plasticClass">
                     <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
-                        <div class="rotate-90">{{explorerLayoutSvc.currentFolderDao.name}}</div>
+                        <div class="rotate-90" layout="row" layout-align="center center">
+                            <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
+                        </div>
                     </md-button>
                 </div>
                 <div cl-folder-button class="create folder btn btn-panel plastic-2" folder="explorerLayoutSvc.createFolder">

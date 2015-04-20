@@ -16,7 +16,7 @@ angular.module('classeur.core.settingsLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/settingsLayout/settingsLayout.html',
 			link: function(scope) {
-				var tabs = ['app', 'trash', 'user'];
+				var tabs = ['app', 'user', 'blogs', 'trash'];
 
 				function serialize(obj) {
 					return JSON.stringify(obj, function(key, value) {
@@ -119,6 +119,10 @@ angular.module('classeur.core.settingsLayout', [])
 						});
 				};
 
+				scope.signout = function() {
+					$location.url('/');
+					$timeout(clUserSvc.signout);
+				};
 
 				/****
 				Trash

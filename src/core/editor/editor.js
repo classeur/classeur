@@ -225,7 +225,6 @@ angular.module('classeur.core.editor', [])
 		var Prism = $window.Prism;
 		angular.forEach({
 			'js': 'javascript',
-			'json': 'javascript',
 			'html': 'markup',
 			'svg': 'markup',
 			'xml': 'markup',

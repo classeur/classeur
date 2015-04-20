@@ -23,7 +23,8 @@
                 margin-right: 6px;
             }
         }
-        .classeur.toggler, .help {
+        .classeur.toggler,
+        .help {
             font-size: 12px;
             margin-left: 4px;
             span {
@@ -55,8 +56,15 @@
             font-size: 14px;
             margin-left: 10px;
             .username {
+                display: inline-block;
+                position: relative;
                 padding: 6px;
-                padding-right: 10px;
+                line-height: 1;
+            }
+            .settings {
+                padding: 4px 6px;
+                font-size: 18px;
+                line-height: 14px;
             }
         }
     }
@@ -290,7 +298,8 @@
             border-bottom-right-radius: 10px;
             .md-button {
                 text-transform: none;
-                line-height: 34px;
+                line-height: 1;
+                padding: 0;
                 width: 100%;
                 height: 100%;
                 font-size: 13px;
@@ -300,9 +309,17 @@
                 }
                 .rotate-90 {
                     position: absolute;
-                    width: 100px;
-                    left: -18px;
-                    height: 0;
+                    width: 110px;
+                    height: 32px;
+                    left: 32px;
+                    top: 0;
+                    white-space: normal;
+                    padding: 0 4px;
+                    -webkit-transform-origin: 0 0;
+                    -moz-transform-origin: 0 0;
+                    -ms-transform-origin: 0 0;
+                    -o-transform-origin: 0 0;
+                    transform-origin: 0 0;
                 }
             }
         }
@@ -358,10 +375,6 @@
         bottom: 0;
         height: auto;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
-        & > div {
-            float: right;
-            padding-left: 25px;
-        }
         .md-button {
             padding: 8px;
         }
@@ -498,5 +511,6 @@
     .import {
         position: absolute;
         left: 16px;
+        bottom: 16px;
     }
 }

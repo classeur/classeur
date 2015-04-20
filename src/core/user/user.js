@@ -87,7 +87,7 @@ angular.module('classeur.core.user', [])
                 throw 'User name can\'t be empty.';
             }
             if (user.name.length > userNameMaxLength) {
-                throw 'User name is too.';
+                throw 'User name is too long.';
             }
             clUserSvc.user = user;
         }

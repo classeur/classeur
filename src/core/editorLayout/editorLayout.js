@@ -1,5 +1,5 @@
 angular.module('classeur.core.editorLayout', [])
-	.directive('clFileName', function() {
+	.directive('clFileName', function(clEditorLayoutSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/fileName.html',
@@ -12,9 +12,13 @@ angular.module('classeur.core.editorLayout', [])
 				}
 				setDefaultName();
 				scope.setDefaultName = setDefaultName;
-				scope.cancel = function(e) {
+				scope.keydown = function(e) {
 					if (e.keyCode == 27) {
 						scope.currentFileDao.name = previousName;
+						clEditorLayoutSvc.currentControl = undefined;
+					}
+					else if (e.which === 13) {
+						clEditorLayoutSvc.currentControl = undefined;
 					}
 				};
 			}
