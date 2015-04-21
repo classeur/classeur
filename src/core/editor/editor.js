@@ -1,5 +1,5 @@
 angular.module('classeur.core.editor', [])
-	.directive('clEditor', function($window, $timeout, clEditorSvc, clSettingSvc, clKeystrokeSvc, clUriValidator) {
+	.directive('clEditor', function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clSettingSvc, clKeystrokeSvc, clUriValidator) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/editor/editor.html',
@@ -9,6 +9,18 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.setCurrentFileDao(scope.currentFileDao);
 				clEditorSvc.initConverter();
 				clEditorSvc.setEditorElt(editorElt);
+				clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
+					clEditorSvc.linkDialogCallback = callback;
+					clEditorLayoutSvc.currentControl = 'linkDialog';
+					scope.$evalAsync();
+					return true;
+				});
+				clEditorSvc.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
+					clEditorSvc.imageDialogCallback = callback;
+					clEditorLayoutSvc.currentControl = 'imageDialog';
+					scope.$evalAsync();
+					return true;
+				});
 				
 				var state;
 				scope.$on('$destroy', function() {
@@ -324,16 +336,6 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.cledit = $window.cledit(elt, elt.parentNode);
 				clEditorSvc.pagedownEditor = new $window.Markdown.Editor(clEditorSvc.converter, {
 					input: Object.create(clEditorSvc.cledit)
-				});
-				clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
-					clEditorSvc.linkDialogCallback = callback;
-					clEditorLayoutSvc.currentControl = 'linkDialog';
-					return true;
-				});
-				clEditorSvc.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
-					clEditorSvc.imageDialogCallback = callback;
-					clEditorLayoutSvc.currentControl = 'imageDialog';
-					return true;
 				});
 				clEditorSvc.pagedownEditor.run();
 			},

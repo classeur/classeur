@@ -8,7 +8,7 @@ angular.module('classeur.opt.zenMode', [])
 	.directive('clZenMode', function($window, clPanel, clEditorLayoutSvc, clSettingSvc) {
 		return {
 			restrict: 'E',
-			template: '<div class="zen panel level-1 hidden"><div class="zen panel level-2 background"></div></div>',
+			template: '<div class="zen panel level-1 hidden"><div class="panel mask background"></div><div class="panel level-2 background"></div></div>',
 			link: function(scope, element) {
 				var level1Panel = clPanel(element, '.level-1').width(4000).right(-1500);
 				var level2Panel = clPanel(element, '.level-2');
@@ -49,7 +49,7 @@ angular.module('classeur.opt.zenMode', [])
 							if (evt.clientX < minLeft) {
 								unhide = false;
 							}
-							level2Panel.move('fast').set('opacity', 0.9).ease('out').end();
+							level2Panel.move('fast').set('opacity', 0.85).ease('out').end();
 						}
 						showLevel1();
 						showLevel2();
