@@ -27,11 +27,11 @@ angular.module('classeur.opt.scrollSync', [])
 					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
 				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.forceScrollSync);
-				scope.$watch('localSettings.values.scrollSync', clScrollSyncSvc.forceScrollSync);
+				scope.$watch('localSettingSvc.values.scrollSync', clScrollSyncSvc.forceScrollSync);
 			}
 		};
 	})
-	.factory('clScrollSyncSvc', function(clEditorLayoutSvc, clEditorSvc, clSettingSvc) {
+	.factory('clScrollSyncSvc', function(clEditorLayoutSvc, clEditorSvc, clLocalSettingSvc) {
 		var editorElt, previewElt;
 		var scrollTimeoutId;
 		var currentEndCb, skipAnimation;
@@ -81,7 +81,7 @@ angular.module('classeur.opt.scrollSync', [])
 		var doScrollSync = function(debounce) {
 			var localSkipAnimation = skipAnimation;
 			skipAnimation = false;
-			if(!clSettingSvc.localSettings.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
+			if(!clLocalSettingSvc.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 				return;
 			}
 			var editorScrollTop = editorElt.scrollTop;

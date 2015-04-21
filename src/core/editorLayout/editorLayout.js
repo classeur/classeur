@@ -24,7 +24,7 @@ angular.module('classeur.core.editorLayout', [])
 			}
 		};
 	})
-	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel, clScrollBarWidth) {
+	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel, clScrollBarWidth) {
 		var hideOffsetY = 2000;
 
 		return {
@@ -51,8 +51,8 @@ angular.module('classeur.core.editorLayout', [])
 				var previewSizeAdjust = 150;
 				var binderWidth, marginRight;
 				var leftMarginOverflow = 90;
-				var binderWidthFactor = (clSettingSvc.settings.values.editorBinderWidthFactor + 10) / 15;
-				var fontSizeFactor = (clSettingSvc.settings.values.editorFontSizeFactor + 10) / 15;
+				var binderWidthFactor = (clSettingSvc.values.editorBinderWidthFactor + 10) / 15;
+				var fontSizeFactor = (clSettingSvc.values.editorFontSizeFactor + 10) / 15;
 
 				function updateLayout() {
 					binderWidth = document.body.clientWidth;
@@ -60,7 +60,7 @@ angular.module('classeur.core.editorLayout', [])
 						binderWidth -= clEditorLayoutSvc.tocWidth;
 					}
 					clEditorLayoutSvc.fontSize = 18;
-					var factor = 1 + (clSettingSvc.localSettings.values.editorZoom - 3) * 0.1;
+					var factor = 1 + (clLocalSettingSvc.values.editorZoom - 3) * 0.1;
 					clEditorLayoutSvc.pageWidth = 990 * factor;
 					if (binderWidth < 1120) {
 						--clEditorLayoutSvc.fontSize;
@@ -100,7 +100,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -(clEditorLayoutSvc.menuWidth - 20) : 0;
 					clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -80 : 0;
 					clEditorLayoutSvc.pageRotate = clEditorLayoutSvc.isMenuOpen ? -2 : 0;
-					scope.showHelp = clSettingSvc.settings.values.editorMdCheatSheetBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
+					scope.showHelp = clSettingSvc.values.editorMdCheatSheetBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
 				}
 
 				function hidePreview() {
@@ -119,7 +119,7 @@ angular.module('classeur.core.editorLayout', [])
 
 				function updateLayoutSize() {
 					clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px';
-					clEditorLayoutSvc.fontSizeEm = (7 + clSettingSvc.localSettings.values.editorZoom) / 10 + 'em';
+					clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
 					previewPanel.width(clEditorLayoutSvc.previewWidth).left(-clEditorLayoutSvc.previewWidth / 2);
 					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth);
@@ -202,8 +202,8 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.clean();
 				});
 
-				scope.$watch('localSettings.values.editorZoom', animateLayout);
-				scope.$watch('localSettings.values.editorColor', function(value) {
+				scope.$watch('localSettingSvc.values.editorZoom', animateLayout);
+				scope.$watch('localSettingSvc.values.editorColor', function(value) {
 					scope.plasticClass = 'plastic-' + (value + 97) % 100;
 				});
 				scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout);

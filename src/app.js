@@ -9,6 +9,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'ngMessages',
 		'slugifier',
 		'classeur.templates',
+		'classeur.blog.github',
 		'classeur.core',
 		'classeur.core.button',
 		'classeur.core.classeurs',

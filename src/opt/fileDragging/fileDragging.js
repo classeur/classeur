@@ -87,24 +87,29 @@ angular.module('classeur.opt.fileDragging', [])
 
 		function moveFiles() {
 			if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
-				if(clFileDraggingSvc.targetFolder.userId) {
+				if (clFileDraggingSvc.targetFolder.userId) {
 					return clToast('Cannot move files to public folder.');
 				}
-				var files = clFileDraggingSvc.files;
-				files.forEach(function(fileDao) {
-					fileDao.oldFolderId = fileDao.folderId;
-					fileDao.folderId = clFileDraggingSvc.targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : clFileDraggingSvc.targetFolder.id;
+				var targetFolderId = clFileDraggingSvc.targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : clFileDraggingSvc.targetFolder.id;
+				var files = clFileDraggingSvc.files.filter(function(fileDao) {
+					if (fileDao.folderId !== targetFolderId) {
+						fileDao.oldFolderId = fileDao.folderId;
+						fileDao.folderId = targetFolderId;
+						return true;
+					}
 				});
-				clExplorerLayoutSvc.refreshFiles();
-				var msg = files.length;
-				msg += msg > 1 ? ' files moved to ' : ' file moved to ';
-				msg += clFileDraggingSvc.targetFolder.name + '.';
-				clToast(msg, 'Undo', function() {
-					files.forEach(function(fileDao) {
-						fileDao.folderId = fileDao.oldFolderId;
-					});
+				if (files.length) {
 					clExplorerLayoutSvc.refreshFiles();
-				});
+					var msg = files.length;
+					msg += msg > 1 ? ' files moved to ' : ' file moved to ';
+					msg += clFileDraggingSvc.targetFolder.name + '.';
+					clToast(msg, 'Undo', function() {
+						files.forEach(function(fileDao) {
+							fileDao.folderId = fileDao.oldFolderId;
+						});
+						clExplorerLayoutSvc.refreshFiles();
+					});
+				}
 			}
 		}
 

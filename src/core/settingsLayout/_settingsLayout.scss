@@ -71,3 +71,12 @@
         margin-left: -25px;
     }
 }
+
+.blog.dialog {
+    min-width: 320px;
+    .tip {
+        font-size: 12.5px;
+        display: block;
+        color: rgba(0, 0, 0, 0.54);
+    }
+}

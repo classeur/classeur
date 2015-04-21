@@ -2,6 +2,7 @@ angular.module('classeur.core.constants', [])
 	.factory('clConstants', function($location) {
 		var clConstants = {
 			googleClientId: '276184199763-tp3t95ddji4pfd6od4h0v14kaqvi8nb7.apps.googleusercontent.com',
+			githubClientId: 'f5d240421433802a0784',
 			serverUrl: 'http://localhost:11583'
 		};
 

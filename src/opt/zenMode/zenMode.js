@@ -5,7 +5,7 @@ angular.module('classeur.opt.zenMode', [])
 			templateUrl: 'opt/zenMode/zenModeSettings.html'
 		};
 	})
-	.directive('clZenMode', function($window, clPanel, clEditorLayoutSvc, clSettingSvc) {
+	.directive('clZenMode', function($window, clPanel, clEditorLayoutSvc, clLocalSettingSvc) {
 		return {
 			restrict: 'E',
 			template: '<div class="zen panel level-1 hidden"><div class="panel mask background"></div><div class="panel level-2 background"></div></div>',
@@ -17,7 +17,7 @@ angular.module('classeur.opt.zenMode', [])
 				var lastClientX, lastClientY, isHidden = true;
 
 				function isEnabled() {
-					return clSettingSvc.localSettings.values.zenMode && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !clEditorLayoutSvc.isMenuOpen;
+					return clLocalSettingSvc.values.zenMode && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !clEditorLayoutSvc.isMenuOpen;
 				}
 
 				var showLevel1 = $window.cledit.Utils.debounce(function() {

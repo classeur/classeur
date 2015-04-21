@@ -83,7 +83,7 @@ angular.module('classeur.core.editor', [])
 					debouncedEditorChanged();
 				});
 
-				if(clSettingSvc.settings.values.editorInlineImg) {
+				if(clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {

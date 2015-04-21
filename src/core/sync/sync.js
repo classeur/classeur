@@ -1,5 +1,5 @@
 angular.module('classeur.core.sync', [])
-	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clLocalStorage, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
+	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clLocalStorage, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject) {
 		var clSyncSvc = {};
 		var lastCreateFileActivity = 0;
 		var nameMaxLength = 128;
@@ -188,8 +188,8 @@ angular.module('classeur.core.sync', [])
 				if (msg.settings) {
 					syncData = syncDataStore.userData.settings || {};
 					if (syncData.s !== msg.settingsUpdated) {
-						clSettingSvc.settings.values = msg.settings;
-						clSettingSvc.settings.write(msg.settingsUpdated);
+						clSettingSvc.values = msg.settings;
+						clSettingSvc.write(msg.settingsUpdated);
 						apply = true;
 					}
 					syncDataStore.userData.settings = {
@@ -222,10 +222,10 @@ angular.module('classeur.core.sync', [])
 					syncDataStore.userData.classeurs = syncData;
 				}
 				syncData = syncDataStore.userData.settings || {};
-				if (clSettingSvc.settings.updated !== syncData.r) {
-					msg.settings = clSettingSvc.settings.values;
-					msg.settingsUpdated = clSettingSvc.settings.updated;
-					syncData.s = clSettingSvc.settings.updated;
+				if (clSettingSvc.updated !== syncData.r) {
+					msg.settings = clSettingSvc.values;
+					msg.settingsUpdated = clSettingSvc.updated;
+					syncData.s = clSettingSvc.updated;
 					syncDataStore.userData.settings = syncData;
 				}
 				Object.keys(msg).length > 1 && clSocketSvc.sendMsg(msg);
@@ -926,7 +926,8 @@ angular.module('classeur.core.sync', [])
 				clFileSvc.checkAll() |
 				clFolderSvc.checkAll() |
 				clClasseurSvc.checkAll() |
-				clSettingSvc.checkAll();
+				clSettingSvc.checkAll() |
+				clLocalSettingSvc.checkAll();
 		};
 
 		clSetInterval(function() {

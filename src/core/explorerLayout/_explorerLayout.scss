@@ -27,6 +27,7 @@
         .help {
             font-size: 12px;
             margin-left: 4px;
+            padding: 6px 8px;
             span {
                 font-size: 14px;
                 height: 12px;
@@ -79,7 +80,7 @@
         padding-bottom: 150px;
         .folder.btn {
             font-size: 32px;
-            padding: 4px;
+            padding: 2px;
             a {
                 color: #fff;
             }
@@ -109,9 +110,6 @@
     }
     .md-sticky-clone {
         margin-left: 0 !important;
-        .file.actions > div {
-            border-bottom: 1px solid rgba(128, 128, 128, 0.1);
-        }
     }
     .folder.container,
     .md-sticky-clone {
@@ -165,22 +163,22 @@
     .new-file.actions {
         height: 35px;
         ::-webkit-input-placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.45);
         }
         :-moz-placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.45);
             opacity: 1;
         }
         ::-moz-placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.45);
             opacity: 1;
         }
         :-ms-input-placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.45);
         }
         md-input-container {
             md-icon {
-                color: rgba(255, 255, 255, 0.4);
+                color: rgba(255, 255, 255, 0.45);
                 font-size: 26px;
             }
             padding-bottom: 2px;
@@ -193,16 +191,17 @@
     }
     .file.actions {
         & > div {
-            height: 95px;
-            padding: 20px 5px 0;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
         }
+        font-size: 14px;
         padding: 0 35px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
         background-color: rgba(255, 255, 255, 0.25);
     }
     .folder.content {
-        padding: 0 40px 110px;
+        padding: 15px 40px 80px;
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
         background-color: rgba(255, 255, 255, 0.25);
@@ -226,7 +225,7 @@
             height: $file-entry-height;
             span {
                 color: transparentize(#000, 0.5);
-                font-size: 28px;
+                font-size: 20px;
                 display: inline-block;
                 overflow: hidden;
                 width: 12px;
@@ -246,19 +245,20 @@
             .md-input {
                 line-height: 1;
                 font-size: 18px;
+                font-weight: 300;
                 &[disabled] {
                     color: rgba(0, 0, 0, 0.87);
                     cursor: pointer;
                     background-image: none;
-                    border-bottom-color: rgba(0, 0, 0, 0.08);
+                    border-bottom-color: rgba(0, 0, 0, 0.05);
                 }
             }
         }
         .edit.filename.btn,
         .share.file.btn {
-            width: 32px;
+            width: 30px;
             height: $file-entry-height;
-            font-size: 28px;
+            font-size: 30px;
             a {
                 line-height: $file-entry-height;
             }
@@ -451,9 +451,9 @@
                 padding: 2px;
                 border-radius: 3px;
                 background-color: rgba(255, 255, 255, 0.2);
-                margin: 25px 10px 15px;
-                font-size: 18px;
+                margin: 20px 5px 15px;
                 textarea {
+                    font-weight: 300;
                     text-align: center;
                     font-size: 20px;
                     &:disabled {
@@ -479,16 +479,16 @@
         }
         .footer.panel {
             bottom: 0;
-            height: 42px;
-            font-size: 24px;
+            height: 45px;
+            font-size: 26px;
             background-color: rgba(255, 255, 255, 0.2);
             text-align: center;
             cursor: auto;
             .btn {
-                height: 42px;
-                width: 36px;
+                height: 45px;
+                width: 32px;
                 a {
-                    line-height: 42px;
+                    line-height: 45px;
                 }
             }
         }

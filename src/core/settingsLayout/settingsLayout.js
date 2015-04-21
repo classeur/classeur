@@ -35,11 +35,11 @@ angular.module('classeur.core.settingsLayout', [])
 				}
 
 				function resetApp() {
-					scope.app = clone(clSettingSvc.settings.values);
+					scope.app = clone(clSettingSvc.values);
 				}
 
 				scope.$watch('userSvc.user', resetUser);
-				scope.$watch('settings.values', resetApp);
+				scope.$watch('settingSvc.values', resetApp);
 
 				function reset() {
 					resetUser();
@@ -65,7 +65,7 @@ angular.module('classeur.core.settingsLayout', [])
 
 				function checkModifications(tabIndex) {
 					if (tabs[tabIndex] === 'app') {
-						if (serialize(scope.app) !== serialize(clSettingSvc.settings.values)) {
+						if (serialize(scope.app) !== serialize(clSettingSvc.values)) {
 							return $mdDialog.show($mdDialog.confirm()
 									.title('App settings')
 									.content('You\'ve modified your app settings.')
@@ -122,6 +122,20 @@ angular.module('classeur.core.settingsLayout', [])
 				scope.signout = function() {
 					$location.url('/');
 					$timeout(clUserSvc.signout);
+				};
+
+				scope.addBlog = function() {
+					$mdDialog.show({
+						templateUrl: 'core/settingsLayout/blogDialog.html',
+						onComplete: function(scope, element) {
+							scope.ok = function() {
+								$mdDialog.hide();
+							};
+							scope.cancel = function() {
+								$mdDialog.cancel();
+							};
+						}
+					});
 				};
 
 				/****

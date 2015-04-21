@@ -54,10 +54,10 @@
                     <a ng-click="makeCurrentFileCopy()">Make a copy</a>
                 </div>
                 <div class="entry">Zoom</div>
-                <md-slider md-discrete ng-model="localSettings.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
+                <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
                 </md-slider>
                 <div class="entry">Binder color</div>
-                <md-slider md-discrete ng-model="localSettings.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
+                <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
                 </md-slider>
                 <cl-btn-bar-settings></cl-btn-bar-settings>
                 <cl-zen-mode-settings></cl-zen-mode-settings>
@@ -96,7 +96,7 @@
 
         </div>
 
-        <cl-btn-bar ng-if="localSettings.values.btnBar"></cl-btn-bar>
+        <cl-btn-bar ng-if="localSettingSvc.values.btnBar"></cl-btn-bar>
 
     </div>
 

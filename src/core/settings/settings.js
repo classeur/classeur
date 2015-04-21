@@ -1,16 +1,53 @@
 angular.module('classeur.core.settings', [])
 	.factory('clSettingSvc', function($templateCache, clLocalStorageObject) {
 		var defaultSettings = $templateCache.get('core/settings/defaultSettings.json');
-		var defaultLocalSettings = $templateCache.get('core/settings/defaultLocalSettings.json');
 
-		var settings = clLocalStorageObject('settings', {
+		var clSettingSvc = clLocalStorageObject('settings', {
 			values: {
 				default: defaultSettings,
 				parser: clLocalStorageObject.simpleObjectParser,
 				serializer: clLocalStorageObject.simpleObjectSerializer,
 			}
 		});
-		var localSettings = clLocalStorageObject('localSettings', {
+
+		clSettingSvc.read = function() {
+			this.$read();
+			this.$readUpdate();
+		};
+
+		clSettingSvc.write = function(updated) {
+			this.$write();
+			updated && this.$writeUpdate(updated);
+		};
+
+		function checkAll() {
+			if (clSettingSvc.$checkUpdate()) {
+				clSettingSvc.read();
+				return true;
+			} else {
+				clSettingSvc.write();
+			}
+		}
+
+		function updateSettings(values) {
+            clSettingSvc.values = values;
+		}
+
+		function setDefaultSettings() {
+            clSettingSvc.values = JSON.parse(defaultSettings);
+		}
+
+		clSettingSvc.checkAll = checkAll;
+		clSettingSvc.updateSettings = updateSettings;
+		clSettingSvc.setDefaultSettings = setDefaultSettings;
+
+		clSettingSvc.read();
+		return clSettingSvc;
+	})
+	.factory('clLocalSettingSvc', function($templateCache, clLocalStorageObject) {
+		var defaultLocalSettings = $templateCache.get('core/settings/defaultLocalSettings.json');
+
+		var clLocalSettingSvc = clLocalStorageObject('localSettings', {
 			values: {
 				default: defaultLocalSettings,
 				parser: clLocalStorageObject.simpleObjectParser,
@@ -18,50 +55,27 @@ angular.module('classeur.core.settings', [])
 			}
 		});
 
-		settings.read = localSettings.read = function() {
+		clLocalSettingSvc.read = function() {
 			this.$read();
 			this.$readUpdate();
 		};
 
-		settings.write = localSettings.write = function(updated) {
+		clLocalSettingSvc.write = function(updated) {
 			this.$write();
 			updated && this.$writeUpdate(updated);
 		};
 
 		function checkAll() {
-			var hasChanged = false;
-			if (settings.$checkUpdate()) {
-				settings.read();
-				hasChanged = true;
+			if (clLocalSettingSvc.$checkUpdate()) {
+				clLocalSettingSvc.read();
+				return true;
 			} else {
-				settings.write();
+				clLocalSettingSvc.write();
 			}
-			if (localSettings.$checkUpdate()) {
-				localSettings.read();
-				hasChanged = true;
-			} else {
-				localSettings.write();
-			}
-			return hasChanged;
 		}
 
-		function updateSettings(settings) {
-            clSettingSvc.settings.values = settings;
-		}
+		clLocalSettingSvc.checkAll = checkAll;
 
-		function setDefaultSettings() {
-            clSettingSvc.settings.values = JSON.parse(defaultSettings);
-            clSettingSvc.localSettings.values = JSON.parse(defaultLocalSettings);
-		}
-
-		var clSettingSvc = {};
-		clSettingSvc.settings = settings;
-		clSettingSvc.localSettings = localSettings;
-		clSettingSvc.checkAll = checkAll;
-		clSettingSvc.updateSettings = updateSettings;
-		clSettingSvc.setDefaultSettings = setDefaultSettings;
-
-		settings.read();
-		localSettings.read();
-		return clSettingSvc;
+		clLocalSettingSvc.read();
+		return clLocalSettingSvc;
 	});

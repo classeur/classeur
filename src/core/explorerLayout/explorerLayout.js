@@ -316,7 +316,7 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							newFileDao.contentDao.properties = clSettingSvc.settings.values.defaultFileProperties || {};
+							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
 							if (clExplorerLayoutSvc.currentFolderDao) {
 								newFileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;

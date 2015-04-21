@@ -108,7 +108,7 @@ angular.module('classeur.core', [])
 			}
 		});
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -121,8 +121,8 @@ angular.module('classeur.core', [])
 		$rootScope.userSvc = clUserSvc;
 		$rootScope.userInfoSvc = clUserInfoSvc;
 		$rootScope.syncSvc = clSyncSvc;
-		$rootScope.settings = clSettingSvc.settings;
-		$rootScope.localSettings = clSettingSvc.localSettings;
+		$rootScope.settingSvc = clSettingSvc;
+		$rootScope.localSettingSvc = clLocalSettingSvc;
 
 		function loadFile(fileDao) {
 			unloadCurrentFile();

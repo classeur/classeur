@@ -99,23 +99,21 @@
                                         </md-button>
                                     </div>
                                     <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
-                                        <div layout="row" layout-align="space-between start">
-                                            <div flex>
-                                                <div ng-switch-when="false">
-                                                    <md-button class="md-primary" ng-click="selectAll()">
-                                                        <span class="icon-check"></span> Select all
-                                                    </md-button>
-                                                </div>
-                                                <div ng-switch-when="true">
-                                                    <md-button class="md-primary" ng-click="selectNone()">
-                                                        <span class="icon-check-box-outline-blank"></span> Select None
-                                                    </md-button>
-                                                </div>
-                                                <div ng-switch-when="true">
-                                                    <md-button class="md-primary" ng-click="deleteConfirm()">
-                                                        <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
-                                                    </md-button>
-                                                </div>
+                                        <div layout="row">
+                                            <div ng-switch-when="false">
+                                                <md-button class="md-primary" ng-click="selectAll()">
+                                                    <span class="icon-check"></span> Select all
+                                                </md-button>
+                                            </div>
+                                            <div ng-switch-when="true">
+                                                <md-button class="md-primary" ng-click="selectNone()">
+                                                    <span class="icon-check-box-outline-blank"></span> Select None
+                                                </md-button>
+                                            </div>
+                                            <div ng-switch-when="true">
+                                                <md-button class="md-primary" ng-click="deleteConfirm()">
+                                                    <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
+                                                </md-button>
                                             </div>
                                         </div>
                                     </div>
