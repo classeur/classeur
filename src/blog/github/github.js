@@ -6,15 +6,27 @@ angular.module('classeur.blog.github', [])
 			link: function(scope) {
 				scope.githubBlog = clLocalSettingSvc.values.githubBlog;
 				if (!scope.githubBlog) {
-					scope.githubBlog = {};
+					scope.githubBlog = {
+						privateRepo: true
+					};
 					clLocalSettingSvc.values.githubBlog = scope.githubBlog;
 				}
 
-				scope.validate = function() {
+				scope.validateBlog(function() {
+					if (!scope.githubBlog.repoUrl) {
+						throw 'Repository URL can not be empty.';
+					}
+					var parsedRepo = scope.githubBlog.repoUrl.match(/[\/:]?([^\/:]+)\/([^\/]+?)(?:\.git)?$/);
+					if (!parsedRepo) {
+						throw 'Invalid repository URL format.';
+					}
+					return {
+						reponame: parsedRepo[2],
+						username: parsedRepo[1]
+					};
+				});
 
-				};
-
-				scope.create = function() {
+				scope.createBlog(function() {
 					var params = {
 						client_id: clConstants.githubClientId,
 						response_type: 'code',
@@ -28,11 +40,11 @@ angular.module('classeur.blog.github', [])
 						return key + '=' + encodeURIComponent(params[key]);
 					}).join('&');
 					$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
-				};
+				});
 
-				scope.update = function() {
+				scope.updateBlog(function() {
 
-				};
+				});
 			}
 		};
 	});

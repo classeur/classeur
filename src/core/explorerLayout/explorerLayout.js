@@ -8,15 +8,18 @@ angular.module('classeur.core.explorerLayout', [])
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
 				var speed;
-				var isOpen;
 				if (attr.folder) {
 					scope.folderDao = scope.$eval(attr.folder);
 				}
 
 				function animate() {
+					var isDraggingTarget = scope.folderDao && scope.folderDao.isDraggingTarget;
+					var isSelected = clExplorerLayoutSvc.currentFolderDao === scope.folderDao;
+					var isOpen = isSelected || isDraggingTarget;
+					element.toggleClass('selected', isSelected);
 					element.toggleClass('open', isOpen);
 					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
-					var z = isOpen && (!scope.folderDao || !scope.folderDao.isDraggingTarget) ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
+					var z = isOpen && !isDraggingTarget ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
 					buttonPanel.css('z-index', z).$elt.offsetWidth; // Force z-offset to refresh before the animation
 					buttonPanel.move(speed).translate(isOpen ? 0 : -5, y).ease('out').then(function() {
 						if (isOpen) {
@@ -36,14 +39,13 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.$watch('$index', animate);
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(isSelected) {
-					element.toggleClass('selected', isSelected);
 					if (isSelected) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
+					animate();
 				});
-				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao || folderDao.isDraggingTarget', function(value) {
-					isOpen = value;
+				scope.$watch('folderDao.isDraggingTarget', function() {
 					animate();
 				});
 			}

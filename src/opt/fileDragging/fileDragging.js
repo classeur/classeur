@@ -99,6 +99,9 @@ angular.module('classeur.opt.fileDragging', [])
 					}
 				});
 				if (files.length) {
+					if(clExplorerLayoutSvc.currentFolderDao === clExplorerLayoutSvc.unclassifiedFolder) {
+						clExplorerLayoutSvc.setCurrentFolder(clFileDraggingSvc.targetFolder);
+					}
 					clExplorerLayoutSvc.refreshFiles();
 					var msg = files.length;
 					msg += msg > 1 ? ' files moved to ' : ' file moved to ';

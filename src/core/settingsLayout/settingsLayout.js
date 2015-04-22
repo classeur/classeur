@@ -124,12 +124,29 @@ angular.module('classeur.core.settingsLayout', [])
 					$timeout(clUserSvc.signout);
 				};
 
-				scope.addBlog = function() {
+				scope.newBlog = function() {
 					$mdDialog.show({
-						templateUrl: 'core/settingsLayout/blogDialog.html',
-						onComplete: function(scope, element) {
+						templateUrl: 'core/settingsLayout/newBlogDialog.html',
+						onComplete: function(scope) {
+							var validateBlog, createBlog, updateBlog;
+							scope.validateBlog = function(cb) {
+								validateBlog = cb;
+							};
+							scope.createBlog = function(cb) {
+								createBlog = cb;
+							};
+							scope.updateBlog = function(cb) {
+								updateBlog = cb;
+							};
 							scope.ok = function() {
-								$mdDialog.hide();
+								if (validateBlog) {
+									try {
+										validateBlog();
+										$mdDialog.hide();
+									} catch (e) {
+										clToast(e);
+									}
+								}
 							};
 							scope.cancel = function() {
 								$mdDialog.cancel();
