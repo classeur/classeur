@@ -42,8 +42,8 @@
                 </div>
             </md-tab>
             <md-tab label="User">
-                <div class="tab" ng-switch="!!socketSvc.hasToken">
-                    <p class="group" ng-switch-when="false">
+                <div class="tab" ng-switch="socketSvc.hasToken">
+                    <p class="group" ng-switch-default>
                         <span class="label">
                             Sign in to manage your user account
                         </span>
@@ -95,8 +95,8 @@
                 </div>
             </md-tab>
             <md-tab label="Blogs">
-                <div class="tab" ng-switch="!!socketSvc.hasToken">
-                    <p class="group" ng-switch-when="false">
+                <div class="tab" ng-switch="socketSvc.hasToken">
+                    <p class="group" ng-switch-default>
                         <span class="label">
                             Sign in to manage your blogs
                         </span>
@@ -104,15 +104,25 @@
                             Sign in with Google
                         </md-button>
                     </p>
-                    <md-button class="md-primary" ng-click="newBlog()">
-                        New blog
-                        <span class="icon-add"></span>
-                    </md-button>
+                    <div ng-switch-when="true" ng-switch="getBlogsPending">
+                        <md-progress-circular md-mode="indeterminate" ng-switch-when="true"></md-progress-circular>
+                        <div ng-switch-default>
+                            <div class="blog entry" layout="row" ng-repeat="blog in blogs track by blog.id" ng-switch="::blog.platform">
+                                <cl-github-blog-entry ng-switch-when="github"></cl-github-blog-entry>
+                            </div>
+                            <div ng-if="!blogs.length">No blog yet.</div>
+                            <br>
+                            <md-button class="md-primary" ng-click="newBlog()">
+                                New blog
+                                <span class="icon-add"></span>
+                            </md-button>
+                        </div>
+                    </div>
                 </div>
             </md-tab>
             <md-tab label="Trash">
-                <div class="tab" ng-switch="!!socketSvc.hasToken">
-                    <p class="group" ng-switch-when="false">
+                <div class="tab" ng-switch="socketSvc.hasToken">
+                    <p class="group" ng-switch-default>
                         <span class="label">
                             Sign in to manage the file trash
                         </span>
@@ -121,7 +131,7 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true">
-                        <div class="file entry" layout="row" ng-repeat="file in trashFiles" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
+                        <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
                             <md-input-container flex>
                                 <input class="name" ng-model="file.name" disabled="disabled">
                             </md-input-container>

@@ -124,100 +124,6 @@ angular.module('classeur.core.settingsLayout', [])
 					$timeout(clUserSvc.signout);
 				};
 
-				scope.newBlog = function() {
-					$mdDialog.show({
-						templateUrl: 'core/settingsLayout/newBlogDialog.html',
-						onComplete: function(scope) {
-							var validateBlog, createBlog, updateBlog;
-							scope.validateBlog = function(cb) {
-								validateBlog = cb;
-							};
-							scope.createBlog = function(cb) {
-								createBlog = cb;
-							};
-							scope.updateBlog = function(cb) {
-								updateBlog = cb;
-							};
-							scope.ok = function() {
-								if (validateBlog) {
-									try {
-										validateBlog();
-										$mdDialog.hide();
-									} catch (e) {
-										clToast(e);
-									}
-								}
-							};
-							scope.cancel = function() {
-								$mdDialog.cancel();
-							};
-						}
-					});
-				};
-
-				/****
-				Trash
-				****/
-
-				(function() {
-
-					scope.getTrashFiles = function(reset) {
-						if (scope.getTrashFilesPending) {
-							return;
-						}
-						if (reset) {
-							scope.trashFiles = [];
-							scope.lastDeleted = undefined;
-						}
-						scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function(isReady) {
-							if (isReady) {
-								clSocketSvc.sendMsg({
-									type: 'getTrashFiles',
-									lastDeleted: scope.lastDeleted
-								});
-							}
-						});
-					};
-
-					scope.recoverFile = function(file) {
-						clSyncSvc.filesToRecover[file.id] = file;
-						clToast('File recovery is pending...');
-					};
-
-					scope.removeFile = function(file) {
-						$mdDialog.show($mdDialog.confirm()
-								.title('Remove from trash')
-								.content('The file will be removed permanently. Are you sure?')
-								.ok('Yes')
-								.cancel('No'))
-							.then(function() {
-								clSocketSvc.sendMsg({
-									type: 'deleteFile',
-									id: file.id
-								});
-								scope.trashFiles = scope.trashFiles.filter(function(deletedFile) {
-									return deletedFile.id !== file.id;
-								});
-							});
-					};
-
-					function trashFilesHandler(msg) {
-						if (scope.getTrashFilesPending) {
-							scope.trashFiles = scope.trashFiles.concat(msg.files);
-							scope.lastDeleted = msg.lastDeleted;
-							scope.getTrashFilesPending();
-							scope.getTrashFilesPending = undefined;
-							scope.$evalAsync();
-						}
-					}
-					clSocketSvc.addMsgHandler('trashFiles', trashFilesHandler);
-					scope.$on('$destroy', function() {
-						clSocketSvc.removeMsgHandler('trashFiles', trashFilesHandler);
-					});
-
-				})();
-
-
 
 				/***
 				User
@@ -258,12 +164,144 @@ angular.module('classeur.core.settingsLayout', [])
 				})();
 
 
+				/****
+				Blogs
+				****/
+
+				(function() {
+
+					scope.newBlog = function() {
+						$mdDialog.show({
+							templateUrl: 'core/settingsLayout/newBlogDialog.html',
+							onComplete: function(scope) {
+								var validator;
+								scope.setValidator = function(cb) {
+									validator = cb;
+								};
+								scope.ok = function() {
+									if (validator) {
+										try {
+											var blog = validator();
+											blog.platform = scope.platform;
+											clSocketSvc.sendMsg({
+												type: 'createBlog',
+												blog: blog
+											});
+											scope.getBlogsPending = true;
+											$mdDialog.hide();
+										} catch (e) {
+											clToast(e);
+										}
+									}
+								};
+								scope.cancel = function() {
+									$mdDialog.cancel();
+								};
+							}
+						});
+					};
+
+					scope.getBlogs = function() {
+						if (!scope.getBlogsPending) {
+							scope.getBlogsPending = scope.$watch('socketSvc.isReady', function(isReady) {
+								if (isReady) {
+									clSocketSvc.sendMsg({
+										type: 'getBlogs'
+									});
+								}
+							});
+						}
+					};
+
+					function blogsHandler(msg) {
+						if (scope.getBlogsPending) {
+							scope.blogs = msg.blogs;
+							scope.getBlogsPending();
+							scope.getBlogsPending = undefined;
+							scope.$evalAsync();
+						}
+					}
+
+					clSocketSvc.addMsgHandler('blogs', blogsHandler);
+					scope.$on('$destroy', function() {
+						clSocketSvc.removeMsgHandler('blogs', blogsHandler);
+					});
+
+				})();
+
+
+				/****
+				Trash
+				****/
+
+				(function() {
+
+					scope.getTrashFiles = function(reset) {
+						if (!scope.getTrashFilesPending) {
+							if (reset) {
+								scope.trashFiles = [];
+								scope.lastDeleted = undefined;
+							}
+							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function(isReady) {
+								if (isReady) {
+									clSocketSvc.sendMsg({
+										type: 'getTrashFiles',
+										lastDeleted: scope.lastDeleted
+									});
+								}
+							});
+						}
+					};
+
+					scope.recoverFile = function(file) {
+						clSyncSvc.filesToRecover[file.id] = file;
+						clToast('File recovery is pending...');
+					};
+
+					scope.removeFile = function(file) {
+						$mdDialog.show($mdDialog.confirm()
+								.title('Remove from trash')
+								.content('The file will be removed permanently. Are you sure?')
+								.ok('Yes')
+								.cancel('No'))
+							.then(function() {
+								clSocketSvc.sendMsg({
+									type: 'deleteFile',
+									id: file.id
+								});
+								scope.trashFiles = scope.trashFiles.filter(function(deletedFile) {
+									return deletedFile.id !== file.id;
+								});
+							});
+					};
+
+					function trashFilesHandler(msg) {
+						if (scope.getTrashFilesPending) {
+							scope.trashFiles = scope.trashFiles.concat(msg.files);
+							scope.lastDeleted = msg.lastDeleted;
+							scope.getTrashFilesPending();
+							scope.getTrashFilesPending = undefined;
+							scope.$evalAsync();
+						}
+					}
+
+					clSocketSvc.addMsgHandler('trashFiles', trashFilesHandler);
+					scope.$on('$destroy', function() {
+						clSocketSvc.removeMsgHandler('trashFiles', trashFilesHandler);
+					});
+
+				})();
+
+
 				scope.$watch('selectedTabIndex', function(newIndex, oldIndex) {
 					next = undefined;
 					oldIndex !== undefined && checkModifications(oldIndex);
 					var tab = tabs[newIndex];
 					if (tab === 'trash') {
 						scope.getTrashFiles(true);
+					}
+					else if (tab === 'blogs') {
+						scope.getBlogs();
 					}
 					$location.search('tab', tab);
 				});

@@ -53,6 +53,8 @@
             padding-bottom: 8px;
             .md-input {
                 line-height: 1;
+                font-size: 18px;
+                font-weight: 300;
                 &[disabled] {
                     color: rgba(0, 0, 0, 0.87);
                 }
@@ -62,6 +64,29 @@
             color: rgba(0, 0, 0, 0.7);
             font-size: 24px;
             padding: 6px 3px;
+        }
+    }
+    .blog.entry {
+        line-height: 40px;
+        font-size: 18px;
+        font-weight: 300;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+        & > *, .row {
+            width: 100%;
+        }
+        .icon {
+            font-size: 30px;
+            margin: 0 5px;
+            &::before {
+                vertical-align: middle;
+            }
+        }
+        .platform {
+            margin-right: 20px;
+            font-weight: normal;
+        }
+        .md-button {
+            font-size: 16px;
         }
     }
     md-progress-circular {

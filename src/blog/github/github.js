@@ -1,18 +1,20 @@
 angular.module('classeur.blog.github', [])
-	.directive('clGithubBlogForm', function($window, clLocalSettingSvc, clConstants, clStateMgr) {
+	.directive('clGithubBlogEntry', function() {
+		return {
+			restrict: 'E',
+			templateUrl: 'blog/github/githubBlogEntry.html'
+		};
+	})
+	.directive('clGithubBlogForm', function() {
 		return {
 			restrict: 'E',
 			templateUrl: 'blog/github/githubBlogForm.html',
 			link: function(scope) {
-				scope.githubBlog = clLocalSettingSvc.values.githubBlog;
-				if (!scope.githubBlog) {
-					scope.githubBlog = {
-						privateRepo: true
-					};
-					clLocalSettingSvc.values.githubBlog = scope.githubBlog;
-				}
+				scope.githubBlog = {
+					privateRepo: true
+				};
 
-				scope.validateBlog(function() {
+				scope.setValidator(function() {
 					if (!scope.githubBlog.repoUrl) {
 						throw 'Repository URL can not be empty.';
 					}
@@ -20,31 +22,53 @@ angular.module('classeur.blog.github', [])
 					if (!parsedRepo) {
 						throw 'Invalid repository URL format.';
 					}
-					return {
-						reponame: parsedRepo[2],
-						username: parsedRepo[1]
+					var result = {
+						repo: parsedRepo[2],
+						user: parsedRepo[1],
+						privateRepo: scope.githubBlog.privateRepo
 					};
+					if (result.repo.length > 128 || result.user.length > 128) {
+						throw 'Repository URL is too long.';
+					}
+					return result;
 				});
 
-				scope.createBlog(function() {
-					var params = {
-						client_id: clConstants.githubClientId,
-						response_type: 'code',
-						redirect_uri: clConstants.serverUrl + '/oauth/github/callback',
-						scope: scope.githubBlog.private ? 'repo' : 'public_repo',
-						state: clStateMgr.saveState({
-							url: redirectUrl || '/newBlog/github'
-						}),
-					};
-					params = Object.keys(params).map(function(key) {
-						return key + '=' + encodeURIComponent(params[key]);
-					}).join('&');
-					$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
-				});
+				scope.link(function() {})
 
-				scope.updateBlog(function() {
-
-				});
+				// scope.create(function() {
+				// 	var params = {
+				// 		client_id: clConstants.githubClientId,
+				// 		response_type: 'code',
+				// 		redirect_uri: clConstants.serverUrl + '/oauth/github/callback',
+				// 		scope: scope.githubBlog.private ? 'repo' : 'public_repo',
+				// 		state: clStateMgr.saveState({
+				// 			url: redirectUrl || '/newBlog/github'
+				// 		}),
+				// 	};
+				// 	params = Object.keys(params).map(function(key) {
+				// 		return key + '=' + encodeURIComponent(params[key]);
+				// 	}).join('&');
+				// 	$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+				// });
 			}
 		};
+	})
+	.factory('clGithubBlogSvc', function($window, clConstants) {
+
+		return {
+			startOAuth: function(blog, state) {
+				var params = {
+					client_id: clConstants.githubClientId,
+					response_type: 'code',
+					redirect_uri: clConstants.serverUrl + '/oauth/github/callback',
+					scope: blog.private ? 'repo' : 'public_repo',
+					state: state,
+				};
+				params = Object.keys(params).map(function(key) {
+					return key + '=' + encodeURIComponent(params[key]);
+				}).join('&');
+				$window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+			}
+		};
+
 	});
