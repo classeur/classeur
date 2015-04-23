@@ -93,8 +93,8 @@ md-dialog {
     &.md-default-theme {
         border-radius: 0;
     }
-    .md-title {
-        font-size: 1.5em;
+    .md-title, h2 {
+        font-size: 2em;
         font-weight: bold;
     }
 }

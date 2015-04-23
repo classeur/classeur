@@ -1,0 +1,11 @@
+<div class="blog entry" layout="row">
+    <div class="icon" ng-class="platform.icon"></div>
+    <div flex class="no-overflow">{{blog.name}}</div>
+    <div class="status" ng-class="{error: blog.status !== 'linked'}">{{blog.status | clBlogStatus}}</div>
+    <div>
+        <md-button ng-click="editBlog(blog)">Edit</md-button>
+    </div>
+    <div>
+        <md-button>Remove</md-button>
+    </div>
+</div>

@@ -69,21 +69,22 @@
     .blog.entry {
         line-height: 40px;
         font-size: 18px;
-        font-weight: 300;
         border-bottom: 1px solid rgba(128, 128, 128, 0.15);
-        & > *, .row {
-            width: 100%;
-        }
         .icon {
             font-size: 30px;
-            margin: 0 5px;
+            margin: 0 10px;
             &::before {
                 vertical-align: middle;
             }
         }
-        .platform {
-            margin-right: 20px;
-            font-weight: normal;
+        .status {
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 15px;
+            color: #008911;
+            &.error {
+                color: #D33800;
+            }
         }
         .md-button {
             font-size: 16px;

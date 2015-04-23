@@ -1,0 +1,8 @@
+<md-select placeholder="Platform" ng-model="form.platform" ng-if="!blog">
+    <md-option ng-repeat="platform in platforms" value="{{platform.id}}">{{platform.name}}</md-option>
+</md-select>
+<md-input-container>
+    <label>Blog name</label>
+    <input ng-model="form.name">
+</md-input-container>
+<cl-github-blog-form ng-if="form.platform === 'github'"></cl-github-blog-form>

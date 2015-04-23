@@ -106,15 +106,13 @@
                             Sign in with Google
                         </md-button>
                     </p>
-                    <div ng-switch-when="true" ng-switch="getBlogsPending">
+                    <div ng-switch-when="true" ng-switch="!!getBlogsPending">
                         <md-progress-circular md-mode="indeterminate" ng-switch-when="true"></md-progress-circular>
-                        <div ng-switch-default>
-                            <div class="blog entry" layout="row" ng-repeat="blog in blogs track by blog.id" ng-switch="::blog.platform">
-                                <cl-github-blog-entry ng-switch-when="github"></cl-github-blog-entry>
-                            </div>
+                        <div ng-switch-when="false">
+                            <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
                             <div ng-if="!blogs.length">No blog yet.</div>
                             <br>
-                            <md-button class="md-primary" ng-click="newBlog()">
+                            <md-button class="md-primary" ng-click="editBlog()">
                                 New blog
                                 <span class="icon-add"></span>
                             </md-button>

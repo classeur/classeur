@@ -1,8 +1,12 @@
 angular.module('classeur.core.settingsLayout', [])
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clSettingSvc, clFilePropertiesDialog) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
+		});
+
+		clSocketSvc.addMsgHandler('linkBlogToken', function(msg) {
+			clBlogSvc.startOAuth(msg.blog, msg.token);
 		});
 
 		clSocketSvc.addMsgHandler('deletedUser', function() {
@@ -170,28 +174,38 @@ angular.module('classeur.core.settingsLayout', [])
 
 				(function() {
 
-					scope.newBlog = function() {
+					scope.editBlog = function(blog) {
 						$mdDialog.show({
 							templateUrl: 'core/settingsLayout/newBlogDialog.html',
-							onComplete: function(scope) {
-								var validator;
-								scope.setValidator = function(cb) {
-									validator = cb;
+							controller: function($scope) {
+								$scope.blog = blog;
+								$scope.form = clBlogSvc.createForm(blog);
+								$scope.getNewForm = function() {
+									$scope.form = clBlogSvc.createForm(blog || {
+										platform: $scope.form.platform,
+										name: $scope.form.name
+									});
+									return $scope.form;
 								};
+							},
+							onComplete: function(scope) {
 								scope.ok = function() {
-									if (validator) {
-										try {
-											var blog = validator();
-											blog.platform = scope.platform;
+									var newBlog = clBlogSvc.createBlog(scope.form);
+									if (newBlog) {
+										if (blog) {
+											newBlog.id = blog.id;
+											clSocketSvc.sendMsg({
+												type: 'updateBlog',
+												blog: newBlog
+											});
+										} else {
 											clSocketSvc.sendMsg({
 												type: 'createBlog',
-												blog: blog
+												blog: newBlog
 											});
-											scope.getBlogsPending = true;
-											$mdDialog.hide();
-										} catch (e) {
-											clToast(e);
 										}
+										scope.getBlogsPending = true;
+										$mdDialog.hide();
 									}
 								};
 								scope.cancel = function() {
@@ -299,8 +313,7 @@ angular.module('classeur.core.settingsLayout', [])
 					var tab = tabs[newIndex];
 					if (tab === 'trash') {
 						scope.getTrashFiles(true);
-					}
-					else if (tab === 'blogs') {
+					} else if (tab === 'blogs') {
 						scope.getBlogs();
 					}
 					$location.search('tab', tab);
