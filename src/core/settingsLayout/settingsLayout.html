@@ -52,6 +52,7 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true">
+                        <h2>Basic</h2>
                         <form name="userForm">
                             <md-input-container class="small">
                                 <label>User name</label>
@@ -71,6 +72,7 @@
                             </md-button>
                         </p>
                         <br>
+                        <h2>Advanced</h2>
                         <md-input-container class="small">
                             <label>User ID</label>
                             <input name="id" ng-model="user.id" disabled="disabled">
@@ -87,7 +89,7 @@
                             <span class="label">
                                 Delete your user account and all your data
                             </span>
-                            <md-button ng-click="deleteUser()">
+                            <md-button class="md-warn" ng-click="deleteUser()">
                                 Remove account
                             </md-button>
                         </p>
