@@ -2,45 +2,10 @@
     <div layout="column">
         <div class="nav">
             <md-input-container>
-                <input class="title" value="Settings" disabled>
+                <input class="title" value="Settings" disabled="disabled" aria-label="Settings">
             </md-input-container>
         </div>
         <md-tabs md-selected="selectedTabIndex" md-border-bottom flex>
-            <md-tab label="App">
-                <div class="tab">
-                    <h2>Editor</h2> Font size factor
-                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
-                    </md-slider>
-                    Binder width factor
-                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
-                    </md-slider>
-                    <md-checkbox ng-model="app.editorHighlighting">
-                        Markdown highlighting
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorInlineImg">
-                        Inline images
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorMonospacedFont">
-                        Use monospaced font only
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
-                        Markdown Cheat Sheet icon
-                    </md-checkbox>
-                    <br>
-                    <h2>Default file properties</h2>
-                    <p>
-                        <table>
-                            <tr ng-repeat="(key, value) in app.defaultFileProperties">
-                                <td><b>{{key}}</b></td>
-                                <td>{{value}}</td>
-                            </tr>
-                        </table>
-                    </p>
-                    <md-button class="md-primary" ng-click="editFileProperties()">
-                        Edit
-                    </md-button>
-                </div>
-            </md-tab>
             <md-tab label="User">
                 <div class="tab" ng-switch="socketSvc.hasToken">
                     <p class="group" ng-switch-default>
@@ -96,6 +61,41 @@
                     </div>
                 </div>
             </md-tab>
+            <md-tab label="App">
+                <div class="tab">
+                    <h2>Editor</h2> Font size factor
+                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
+                    </md-slider>
+                    Binder width factor
+                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
+                    </md-slider>
+                    <md-checkbox ng-model="app.editorHighlighting">
+                        Markdown highlighting
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorInlineImg">
+                        Inline images
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMonospacedFont">
+                        Use monospaced font only
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
+                        Markdown Cheat Sheet icon
+                    </md-checkbox>
+                    <br>
+                    <h2>Default file properties</h2>
+                    <p>
+                        <table>
+                            <tr ng-repeat="(key, value) in app.defaultFileProperties">
+                                <td><b>{{key}}</b></td>
+                                <td>{{value}}</td>
+                            </tr>
+                        </table>
+                    </p>
+                    <md-button class="md-primary" ng-click="editFileProperties()">
+                        Edit
+                    </md-button>
+                </div>
+            </md-tab>
             <md-tab label="Blogs">
                 <div class="tab" ng-switch="socketSvc.hasToken">
                     <p class="group" ng-switch-default>
@@ -133,7 +133,7 @@
                     <div ng-switch-when="true">
                         <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
                             <md-input-container flex>
-                                <input class="name" ng-model="file.name" disabled="disabled">
+                                <input class="name" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                             </md-input-container>
                             <md-button ng-if="!syncSvc.filesToRecover.hasOwnProperty(file.id)" md-no-ink class="icon-settings-backup-restore" ng-click="recoverFile(file)" aria-label="Recover"></md-button>
                             <md-button md-no-ink class="icon-delete" ng-click="removeFile(file)" aria-label="Remove"></md-button>

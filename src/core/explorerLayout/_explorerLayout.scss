@@ -1,4 +1,8 @@
 .explorer.background {
+    .help.btn a {
+        font-size: 22px;
+        padding: 4px;
+    }
     .explorer.container {
         left: 50%;
         min-height: 100%;
@@ -23,8 +27,7 @@
                 margin-right: 6px;
             }
         }
-        .classeur.toggler,
-        .help {
+        .classeur.toggler {
             font-size: 12px;
             margin-left: 4px;
             padding: 6px 8px;
@@ -35,10 +38,8 @@
             }
         }
         .help {
-            min-width: 64px;
-            span {
-                line-height: 12px;
-            }
+            font-size: 18px;
+            padding: 2px 4px;
         }
         & > div {
             position: absolute;
@@ -192,7 +193,7 @@
     .file.actions {
         & > div {
             padding: 15px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.025);
         }
         padding: 0 35px;
         border-top-left-radius: 6px;

@@ -115,8 +115,13 @@
             }
         }
     }
+    .menu.scroller {
+        overflow: auto;
+        overflow-y: scroll;
+    }
     .menu.content {
-        padding: 20px 40px;
+        padding: 20px 40px 60px;
+        height: auto;
         color: #fff;
         .entry, .md-text {
             text-align: center;

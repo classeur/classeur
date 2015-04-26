@@ -47,8 +47,7 @@ angular.module('classeur.core.folders', [])
 				return clFolderSvc.folderMap[id] || new FolderDao(id);
 			});
 			clFolderSvc.folderMap = clFolderSvc.folders.reduce(function(folderMap, folderDao) {
-				folderMap[folderDao.id] = folderDao;
-				return folderMap;
+				return (folderMap[folderDao.id] = folderDao, folderMap);
 			}, {});
 
 			if (cleanStorage) {

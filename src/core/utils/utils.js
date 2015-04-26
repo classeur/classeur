@@ -128,8 +128,7 @@ angular.module('classeur.core.utils', [])
 
 		function simpleObjectSerializer(obj) {
 			return JSON.stringify(Object.keys(obj).sort().reduce(function(result, key) {
-				result[key] = obj[key];
-				return result;
+				return (result[key] = obj[key], result);
 			}, {}), function(key, value) {
 				return key[0] === '$' ? undefined : value;
 			});
@@ -141,7 +140,7 @@ angular.module('classeur.core.utils', [])
 				var defaultValue = attrs[key].default === undefined ? '' : attrs[key].default;
 				var serializer = attrs[key].serializer || defaultSerializer;
 				var parser = attrs[key].parser || defaultParser;
-				$attrHelpers[key] = {
+				return ($attrHelpers[key] = {
 					read: function() {
 						var exists = true;
 						var lsKey = this.$localPrefix + key;
@@ -179,8 +178,7 @@ angular.module('classeur.core.utils', [])
 						this[sKey] = undefined;
 						this[key] = undefined;
 					}
-				};
-				return $attrHelpers;
+				}, $attrHelpers);
 			}, {});
 
 			this.$globalPrefix = prefix ? prefix + '.' : '';

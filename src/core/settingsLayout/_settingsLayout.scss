@@ -62,32 +62,8 @@
         }
         .md-button {
             color: rgba(0, 0, 0, 0.7);
-            font-size: 24px;
+            font-size: 28px;
             padding: 6px 3px;
-        }
-    }
-    .blog.entry {
-        line-height: 40px;
-        font-size: 18px;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.15);
-        .icon {
-            font-size: 30px;
-            margin: 0 10px;
-            &::before {
-                vertical-align: middle;
-            }
-        }
-        .status {
-            font-size: 14px;
-            font-weight: bold;
-            margin-right: 15px;
-            color: #008911;
-            &.error {
-                color: #D33800;
-            }
-        }
-        .md-button {
-            font-size: 16px;
         }
     }
     md-progress-circular {
@@ -100,6 +76,9 @@
 
 .blog.dialog {
     min-width: 340px;
+    md-input-container {
+        padding-bottom: 8px;
+    }
     .tip {
         font-size: 12.5px;
         display: block;

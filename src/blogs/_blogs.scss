@@ -1,0 +1,43 @@
+.blog.entry {
+    line-height: 40px;
+    md-input-container {
+        padding-bottom: 8px;
+        .md-input {
+            line-height: 1;
+            font-size: 18px;
+            font-weight: 300;
+            &[disabled] {
+                color: rgba(0, 0, 0, 0.87);
+            }
+        }
+    }
+    .md-button {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 28px;
+        padding: 6px 3px;
+    }
+    .icon {
+        font-size: 30px;
+        &::before {
+            vertical-align: middle;
+        }
+    }
+    .status {
+        font-size: 13px;
+        font-weight: bold;
+        margin: 0 10px;
+        line-height: 1.5;
+        border-radius: 8px;
+        padding: 0 6px;
+        color: #fff;
+        background-color: #048E00;
+        &.error {
+            background-color: #D33800;
+        }
+    }
+}
+
+.blog.icon {
+    font-size: 28px;
+    vertical-align: middle;
+}

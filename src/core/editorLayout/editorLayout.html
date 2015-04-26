@@ -1,21 +1,16 @@
 <div class="toc panel">
     <cl-toc></cl-toc>
 </div>
-
 <cl-button class="close-toc btn" opacity="0.35" opacity-hover="0.7" size="32">
     <a class="icon-clear" ng-click="editorLayoutSvc.toggleToc(false)" aria-label="Close TOC"></a>
 </cl-button>
-
 <div class="background panel md-whiteframe-z4 no-overflow">
-
     <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
         <cl-preview></cl-preview>
     </div>
-
     <cl-button ng-if="showHelp" class="md-cheat-sheet btn" opacity="0.35" opacity-hover="0.7" size="40" right="0" bottom="50">
         <a class="icon-help" ng-href="#!/docs/markdownCheatSheet" target="_blank" aria-label="Markdown Cheat Sheet"></a>
     </cl-button>
-
     <div class="binder panel">
         <div class="header panel background">
             <div class="content">
@@ -37,34 +32,34 @@
                 {{currentFileDao.name}}
             </div>
         </div>
-
         <div class="edit btn btn-panel md-whiteframe-z4" ng-class="plasticClass">
             <md-button ng-click="editorLayoutSvc.toggleEditor(true)">
                 Edit
             </md-button>
         </div>
-
         <div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
-
-            <div class="menu content panel">
-                <cl-file-name></cl-file-name>
-                <div class="links">
-                    <a ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">Sharing</a>
-                    <a ng-click="editFileProperties()">Properties</a>
-                    <a ng-click="makeCurrentFileCopy()">Make a copy</a>
+            <div class="panel no-overflow">
+                <div class="menu scroller panel">
+                    <div class="menu content panel">
+                        <cl-file-name></cl-file-name>
+                        <div class="links">
+                            <a ng-click="editFileProperties()">Properties</a>
+                            <a ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">Sharing</a>
+                            <a ng-click="editorLayoutSvc.currentControl = 'postToBlog'">Post to blog</a>
+                            <a ng-click="makeCurrentFileCopy()">Make a copy</a>
+                        </div>
+                        <div class="entry">Zoom</div>
+                        <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
+                        </md-slider>
+                        <div class="entry">Binder color</div>
+                        <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
+                        </md-slider>
+                        <cl-btn-bar-settings></cl-btn-bar-settings>
+                        <cl-zen-mode-settings></cl-zen-mode-settings>
+                        <cl-scroll-sync-settings></cl-scroll-sync-settings>
+                    </div>
                 </div>
-                <div class="entry">Zoom</div>
-                <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
-                </md-slider>
-                <div class="entry">Binder color</div>
-                <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
-                </md-slider>
-                <cl-btn-bar-settings></cl-btn-bar-settings>
-                <cl-zen-mode-settings></cl-zen-mode-settings>
-                <cl-scroll-sync-settings></cl-scroll-sync-settings>
             </div>
-
-
             <div class="btn-grp panel">
                 <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
                     <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor"></a>
@@ -84,7 +79,6 @@
                 </div>
                 <cl-offline-indicator></cl-offline-indicator>
             </div>
-
             <div class="page panel paper md-whiteframe-z1">
                 <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
                 <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
@@ -93,21 +87,14 @@
                 </div>
                 <cl-editor></cl-editor>
             </div>
-
         </div>
-
         <cl-btn-bar ng-if="localSettingSvc.values.btnBar"></cl-btn-bar>
-
     </div>
-
     <cl-stat></cl-stat>
-
     <div ng-mouseenter="editorLayoutSvc.toggleCorner(true)" ng-mouseleave="editorLayoutSvc.toggleCorner(false)">
-
         <div class="corner panel md-whiteframe-z4 no-overflow">
             <div class="shadow panel"></div>
         </div>
-
         <div ng-if="editorLayoutSvc.isCornerButtonVisible">
             <cl-button class="corner btn" opacity="0.35" opacity-hover="0.7" size="36" right="0" bottom="35">
                 <a class="icon-call-made" ng-click="editorLayoutSvc.toggleToc()" aria-label="Toggle TOC"></a>
@@ -117,17 +104,11 @@
             </cl-button>
         </div>
     </div>
-
 </div>
-
 <cl-discussion ng-if="editorLayoutSvc.currentControl === 'discussion'"></cl-discussion>
-
 <cl-read-only-alert></cl-read-only-alert>
-
 <cl-offline-alert></cl-offline-alert>
-
 <cl-uri-dialog></cl-uri-dialog>
-
 <cl-sharing-dialog></cl-sharing-dialog>
-
 <cl-file-properties-dialog></cl-file-properties-dialog>
+<cl-post-to-blog></cl-post-to-blog>

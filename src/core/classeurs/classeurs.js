@@ -12,8 +12,7 @@ angular.module('classeur.core.classeurs', [])
 					return JSON.parse(data).reduce(function(result, item) {
 						var classeurDao = new ClasseurDao();
 						classeurDao.fromStorable(item);
-						result.push(classeurDao);
-						return result;
+						return result.push(classeurDao), result;
 					}, []);
 				}
 			}

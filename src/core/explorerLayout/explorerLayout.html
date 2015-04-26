@@ -1,7 +1,10 @@
 <div class="explorer background panel">
     <div class="explorer container panel">
+        <cl-button class="help btn" opacity="0.35" opacity-hover="0.7" size="30" right="-32">
+            <a class="icon-live-help" ng-href="#!/docs/markdownCheatSheet" target="_blank" aria-label="Markdown Cheat Sheet"></a>
+        </cl-button>
         <div class="header">
-            <div layout="row" layout-align="space-between end">
+            <div layout="row">
                 <div class="classeur name" layout="row" layout-align="start end">
                     <div class="logo no-overflow">
                         <img src="assets/images/logo.png" height="60">
@@ -16,12 +19,6 @@
                         </div>
                     </md-button>
                 </div>
-                <md-button class="help md-primary" ng-href="#!/docs/markdownCheatSheet">
-                    <div layout="row" layout-align="start end">
-                        Help
-                        <span class="icon-help"></span>
-                    </div>
-                </md-button>
             </div>
             <div layout="row" layout-align="end start">
                 <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken" layout="row">
@@ -36,7 +33,7 @@
                     <div class="username">
                         Hi <b>{{userSvc.user.name}}</b>
                     </div>
-                    <md-button class="settings" ng-href="#!/settings?tab=user">
+                    <md-button class="settings" ng-href="#!/settings?tab=user" aria-label="Settings">
                         <span class="icon-settings"></span>
                     </md-button>
                     <md-button>
@@ -80,7 +77,7 @@
                         <cl-folder-name ng-switch-when="true"></cl-folder-name>
                         <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
                             <md-input-container md-theme="classeur" flex>
-                                <input class="folder name" value="Recent files" disabled="disabled">
+                                <input class="folder name" value="Recent files" disabled="disabled" aria-label="Folder name">
                             </md-input-container>
                         </div>
                         <section>

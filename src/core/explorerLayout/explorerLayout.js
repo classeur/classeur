@@ -262,8 +262,7 @@ angular.module('classeur.core.explorerLayout', [])
 				function importFolder() {
 					makeInputDialog('core/explorerLayout/importFolderDialog.html', function(scope) {
 						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.reduce(function(classeurFolders, folderDao) {
-							classeurFolders[folderDao.id] = folderDao;
-							return classeurFolders;
+							return (classeurFolders[folderDao.id] = folderDao, classeurFolders);
 						}, {});
 						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
 							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);

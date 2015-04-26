@@ -1,0 +1,10 @@
+<md-select placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()" ng-if="!post">
+    <md-option ng-repeat="blog in blogs" value="{{blog.id}}"><span class="blog icon" ng-class="blog.platform.icon"></span> {{blog.name}}</md-option>
+</md-select>
+<div ng-if="form.blog">
+    <md-input-container>
+        <label>Platform</label>
+        <input ng-model="form.blog.platform.name" disabled="disabled">
+    </md-input-container>
+    <cl-github-blog-post-form ng-if="form.blog.platformId === 'github'"></cl-github-blog-post-form>
+</div>

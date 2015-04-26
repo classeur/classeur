@@ -208,8 +208,7 @@ angular.module('classeur.core.files', [])
 				return clFileSvc.fileMap[id] || new FileDao(id);
 			});
 			clFileSvc.fileMap = clFileSvc.files.reduce(function(fileMap, fileDao) {
-				fileMap[fileDao.id] = fileDao;
-				return fileMap;
+				return (fileMap[fileDao.id] = fileDao, fileMap);
 			}, {});
 			clFileSvc.localFiles = clFileSvc.files.filter(function(fileDao) {
 				return fileDao.contentDao.isLocal;

@@ -16,8 +16,7 @@ angular.module('classeur.core.editorLayout', [])
 					if (e.keyCode == 27) {
 						scope.currentFileDao.name = previousName;
 						clEditorLayoutSvc.currentControl = undefined;
-					}
-					else if (e.which === 13) {
+					} else if (e.which === 13) {
 						clEditorLayoutSvc.currentControl = undefined;
 					}
 				};
@@ -39,7 +38,8 @@ angular.module('classeur.core.editorLayout', [])
 				clPanel(element, '.edit.btn-panel').bottom(-hideOffsetY);
 				var editorPanel = clPanel(element, '.editor.panel').top(hideOffsetY);
 				var pagePanel = clPanel(element, '.page.panel').left(clEditorLayoutSvc.pageMargin / 2);
-				clPanel(element, '.menu.panel').width(clEditorLayoutSvc.menuWidth).right(0);
+				clPanel(element, '.menu.scroller').width(clEditorLayoutSvc.menuWidth + 50).right(-50);
+				clPanel(element, '.menu.content').width(clEditorLayoutSvc.menuWidth);
 				clPanel(element, '.editor .btn-grp.panel').width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth);
 				var cornerPanel = clPanel(element, '.corner.panel');
 				clPanel(element, '.corner .shadow.panel').move().rotate(-45).end();
@@ -181,12 +181,16 @@ angular.module('classeur.core.editorLayout', [])
 				}
 
 				scope.editFileProperties = function() {
+					clEditorLayoutSvc.currentControl = 'editProperties';
 					var fileDao = scope.currentFileDao;
 					clFilePropertiesDialog(fileDao.contentDao.properties)
 						.then(function(properties) {
+							clEditorLayoutSvc.currentControl = undefined;
 							if (fileDao === scope.currentFileDao) {
 								fileDao.contentDao.properties = properties;
 							}
+						}, function() {
+							clEditorLayoutSvc.currentControl = undefined;
 						});
 				};
 

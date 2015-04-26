@@ -20,7 +20,7 @@ angular.module('classeur.core.settingsLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/settingsLayout/settingsLayout.html',
 			link: function(scope) {
-				var tabs = ['app', 'user', 'blogs', 'trash'];
+				var tabs = ['user', 'app', 'blogs', 'trash'];
 
 				function serialize(obj) {
 					return JSON.stringify(obj, function(key, value) {
@@ -176,53 +176,66 @@ angular.module('classeur.core.settingsLayout', [])
 
 					scope.editBlog = function(blog) {
 						$mdDialog.show({
-							templateUrl: 'core/settingsLayout/newBlogDialog.html',
-							controller: function($scope) {
-								$scope.blog = blog;
-								$scope.form = clBlogSvc.createForm(blog);
-								$scope.getNewForm = function() {
-									$scope.form = clBlogSvc.createForm(blog || {
-										platform: $scope.form.platform,
-										name: $scope.form.name
-									});
-									return $scope.form;
-								};
-							},
-							onComplete: function(scope) {
-								scope.ok = function() {
-									var newBlog = clBlogSvc.createBlog(scope.form);
-									if (newBlog) {
-										if (blog) {
-											newBlog.id = blog.id;
-											clSocketSvc.sendMsg({
-												type: 'updateBlog',
-												blog: newBlog
-											});
-										} else {
-											clSocketSvc.sendMsg({
-												type: 'createBlog',
-												blog: newBlog
-											});
+								templateUrl: 'core/settingsLayout/editBlogDialog.html',
+								controller: function(scope) {
+									scope.blog = blog;
+									scope.form = angular.extend({}, blog);
+								},
+								onComplete: function(scope) {
+									scope.ok = function() {
+										var newBlog = clBlogSvc.createBlog(scope.form);
+										if (newBlog) {
+											if (blog) {
+												newBlog.id = blog.id;
+												clSocketSvc.sendMsg({
+													type: 'updateBlog',
+													blog: newBlog
+												});
+											} else {
+												clSocketSvc.sendMsg({
+													type: 'createBlog',
+													blog: newBlog
+												});
+											}
+											$mdDialog.hide();
 										}
-										scope.getBlogsPending = true;
-										$mdDialog.hide();
-									}
-								};
-								scope.cancel = function() {
-									$mdDialog.cancel();
-								};
-							}
-						});
+									};
+									scope.cancel = function() {
+										$mdDialog.cancel();
+									};
+								}
+							})
+							.then(function() {
+								scope.getBlogsPending = true;
+							});
+					};
+
+					scope.deleteBlog = function(blog) {
+						$mdDialog.show($mdDialog.confirm()
+								.title('Delete Blog')
+								.content('You\'re about to remove a blog and all its associated blog posts. Blog posts won\'t be removed from your actual websites.')
+								.ok('Ok')
+								.cancel('Cancel'))
+							.then(function() {
+								scope.blogs = scope.blogs.filter(function(remainingBlog) {
+									return remainingBlog.id !== blog.id;
+								});
+								var unwatch = scope.$watch('socketSvc.isReady', function(value) {
+									value && unwatch();
+									clSocketSvc.sendMsg({
+										type: 'deleteBlog',
+										id: blog.id
+									});
+								});
+							});
 					};
 
 					scope.getBlogs = function() {
 						if (!scope.getBlogsPending) {
-							scope.getBlogsPending = scope.$watch('socketSvc.isReady', function(isReady) {
-								if (isReady) {
-									clSocketSvc.sendMsg({
-										type: 'getBlogs'
-									});
-								}
+							scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
+								clSocketSvc.sendMsg({
+									type: 'getBlogs'
+								});
 							});
 						}
 					};
@@ -256,13 +269,11 @@ angular.module('classeur.core.settingsLayout', [])
 								scope.trashFiles = [];
 								scope.lastDeleted = undefined;
 							}
-							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function(isReady) {
-								if (isReady) {
-									clSocketSvc.sendMsg({
-										type: 'getTrashFiles',
-										lastDeleted: scope.lastDeleted
-									});
-								}
+							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function() {
+								clSocketSvc.sendMsg({
+									type: 'getTrashFiles',
+									lastDeleted: scope.lastDeleted
+								});
 							});
 						}
 					};

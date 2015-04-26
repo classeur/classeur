@@ -3,7 +3,7 @@
     <div class="tab-2" ng-class="'plastic-' + (($index + 2) % 4)"></div>
     <div class="name">
         <md-input-container>
-            <textarea ng-model="classeur.name" ng-blur="setEditing(false)" ng-disabled="!isEditing"></textarea>
+            <textarea ng-model="classeur.name" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Classeur name"></textarea>
         </md-input-container>
     </div>
     <div class="info" ng-switch="classeur.folders.length > 1">

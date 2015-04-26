@@ -61,13 +61,14 @@ angular.module('classeur.opt.zenMode', [])
 				}
 
 				hidePanel();
-				document.addEventListener('mousemove', hidePanel);
-				document.addEventListener('click', hidePanel);
+				var containerElt = document.querySelector('.background.panel');
+				containerElt.addEventListener('mousemove', hidePanel);
+				containerElt.addEventListener('click', hidePanel);
 
 				scope.$watch('editorLayoutSvc.isEditorOpen', hidePanel.bind(null, null));
 				scope.$on('$destroy', function() {
-					document.removeEventListener('mousemove', hidePanel);
-					document.removeEventListener('click', hidePanel);
+					containerElt.removeEventListener('mousemove', hidePanel);
+					containerElt.removeEventListener('click', hidePanel);
 				});
 			}
 		};
