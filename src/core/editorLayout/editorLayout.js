@@ -118,6 +118,20 @@ angular.module('classeur.core.editorLayout', [])
 				}
 
 				function updateLayoutSize() {
+					var eltToScroll = clEditorSvc.editorElt.parentNode, dimensionKey = 'editorDimension';
+					if(!clEditorLayoutSvc.isEditorOpen) {
+						eltToScroll = clEditorSvc.previewElt.parentNode, dimensionKey = 'previewDimension';
+					}
+					var scrollTop = eltToScroll.scrollTop + clEditorSvc.scrollOffset;
+					var scrollSectionDesc, posInSection;
+					clEditorSvc.lastSectionMeasured && clEditorSvc.sectionDescList.some(function(sectionDesc) {
+						if (scrollTop < sectionDesc[dimensionKey].endOffset) {
+							scrollSectionDesc = sectionDesc;
+							posInSection = (scrollTop - sectionDesc[dimensionKey].startOffset) / (sectionDesc[dimensionKey].height || 1);
+							return true;
+						}
+					});
+
 					clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px';
 					clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
@@ -125,6 +139,12 @@ angular.module('classeur.core.editorLayout', [])
 					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth);
 					pagePanel.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMargin);
 					hidePreview();
+
+					if (scrollSectionDesc) {
+						clEditorSvc.measureSectionDimensions();
+						var destScrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection;
+						eltToScroll.scrollTop = destScrollTop - clEditorSvc.scrollOffset;
+					}
 				}
 
 				var debouncedUpdatedLayoutSize = $window.cledit.Utils.debounce(function() {
