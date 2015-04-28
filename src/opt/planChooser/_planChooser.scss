@@ -6,9 +6,11 @@
         width: 100%;
         max-width: 840px;
     }
-    .actions {
-        img {
-        	margin: 5px 0;
+    .title {
+        text-align: center;
+        h1 {
+            font-size: 42px;
+            font-weight: 300;
         }
     }
     .plan.item {
@@ -51,8 +53,8 @@
             padding: 10px 15px;
             margin: 15px;
             .info {
-            	text-transform: none;
-	            font-size: 14px;
+                text-transform: none;
+                font-size: 14px;
             }
         }
     }
