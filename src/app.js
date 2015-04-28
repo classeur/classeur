@@ -36,6 +36,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.opt.headingAnchor',
 		'classeur.opt.htmlSanitizer',
 		'classeur.opt.offlineAlert',
+		'classeur.opt.planChooser',
 		'classeur.opt.postToBlog',
 		'classeur.opt.readOnlyAlert',
 		'classeur.opt.recentAlert',

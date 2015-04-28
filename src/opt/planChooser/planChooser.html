@@ -1,0 +1,85 @@
+<div class="plan chooser panel background">
+    <div>
+        <div class="actions" layout="row" layout-align="space-between end">
+            <img src="assets/images/logo.png" height="56">
+            <md-button ng-href="#!/">
+                Close <span class="icon-close"></span>
+            </md-button>
+        </div>
+        <div layout-gt-sm="row" layout="column">
+            <div flex class="plan item md-whiteframe-z1" layout="column">
+                <div class="header">
+                    <div class="name">
+                        Standard
+                    </div>
+                    <div class="price">
+                        Free
+                    </div>
+                </div>
+                <ul flex>
+                    <li>Unlimited files and folders</li>
+                    <li>Share publicly</li>
+                    <li>Unlimited blog posts</li>
+                    <li>Up to 3 blogs</li>
+                    <li>PDF export (10KB content limit)</li>
+                    <li>Public REST API</li>
+                </ul>
+                <md-button>
+                    Select
+                </md-button>
+            </div>
+            <div flex class="premium plan item md-whiteframe-z1" layout="column">
+                <div class="header">
+                    <div class="name">
+                        Premium
+                    </div>
+                    <div class="price">
+                        $5
+                    </div>
+                    <div class="interval">
+                        per month
+                    </div>
+                </div>
+                <ul flex>
+                    <li>Unlimited files and folders</li>
+                    <li>Share publicly</li>
+                    <li><b>Real-time collaboration</b></li>
+                    <li><b>Unlimited blogs and posts</b></li>
+                    <li>PDF export <b>(no content limit)</b></li>
+                    <li><b>User REST API</b></li>
+                </ul>
+                    <md-button ng-href="{{::subscribeLink}}">
+                        <span>Subscribe</span>
+                        <br>
+                        <span class="info">with PayPal</span>
+                    </md-button>
+            </div>
+            <div flex class="plan item md-whiteframe-z1" layout="column">
+                <div class="header">
+                    <div class="name">
+                        Dedicated instance
+                    </div>
+                    <div class="interval">
+                        From
+                    </div>
+                    <div class="price">
+                        $400
+                    </div>
+                    <div class="interval">
+                        per month
+                    </div>
+                </div>
+                <ul flex>
+                    <li><b>Unlimited premium and admin users</b></li>
+                    <li><b>Restricted user access</b></li>
+                    <li><b>Google Apps or ADFS login</b></li>
+                    <li><b>Custom subdomain</b></li>
+                    <li><b>Admin REST API</b></li>
+                </ul>
+                    <md-button>
+                        Contact us
+                    </md-button>
+            </div>
+        </div>
+    </div>
+</div>

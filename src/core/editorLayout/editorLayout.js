@@ -117,14 +117,17 @@ angular.module('classeur.core.editorLayout', [])
 					}
 				}
 
+				var sectionDescList;
+
 				function updateLayoutSize() {
-					var eltToScroll = clEditorSvc.editorElt.parentNode, dimensionKey = 'editorDimension';
-					if(!clEditorLayoutSvc.isEditorOpen) {
+					var eltToScroll = clEditorSvc.editorElt.parentNode,
+						dimensionKey = 'editorDimension';
+					if (!clEditorLayoutSvc.isEditorOpen) {
 						eltToScroll = clEditorSvc.previewElt.parentNode, dimensionKey = 'previewDimension';
 					}
 					var scrollTop = eltToScroll.scrollTop + clEditorSvc.scrollOffset;
 					var scrollSectionDesc, posInSection;
-					clEditorSvc.lastSectionMeasured && clEditorSvc.sectionDescList.some(function(sectionDesc) {
+					sectionDescList && sectionDescList.some(function(sectionDesc) {
 						if (scrollTop < sectionDesc[dimensionKey].endOffset) {
 							scrollSectionDesc = sectionDesc;
 							posInSection = (scrollTop - sectionDesc[dimensionKey].startOffset) / (sectionDesc[dimensionKey].height || 1);
@@ -239,6 +242,9 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.isMenuOpen = currentControl === 'menu';
 				});
 				scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons);
+				scope.$watch('editorSvc.lastSectionMeasured', function() {
+					sectionDescList = clEditorSvc.sectionDescList;
+				});
 			}
 		};
 	})

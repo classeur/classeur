@@ -1,4 +1,9 @@
 angular.module('classeur.core.user', [])
+    .config(function($routeProvider) {
+        $routeProvider.when('/newUser', {
+                template: '<cl-new-user-form></cl-new-user-form>'
+            });
+    })
     .factory('clUserActivity', function($window, clLocalStorage) {
         var inactiveAfter = 180000; // 3 minutes
         var lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus';

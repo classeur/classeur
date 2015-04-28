@@ -26,7 +26,10 @@ angular.module('classeur.opt.scrollSync', [])
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
 					isVisible && clScrollSyncSvc.onPreviewOpen();
 				});
-				scope.$watch('editorSvc.lastSectionMeasured', clScrollSyncSvc.forceScrollSync);
+				scope.$watch('editorSvc.lastSectionMeasured', function() {
+					clScrollSyncSvc.updateSectionDescList();
+					clScrollSyncSvc.forceScrollSync();
+				});
 				scope.$watch('localSettingSvc.values.scrollSync', clScrollSyncSvc.forceScrollSync);
 			}
 		};
@@ -251,11 +254,13 @@ angular.module('classeur.opt.scrollSync', [])
 				isScrollPreview = false;
 				skipAnimation = true;
 			},
+			updateSectionDescList: function() {
+				sectionDescList = clEditorSvc.sectionDescList;
+			},
 			forceScrollSync: function() {
 				if(isPreviewRefreshing) {
 					return;
 				}
-				sectionDescList = clEditorSvc.sectionDescList;
 				// Force Scroll Sync (-10 to have a gap > 9px)
 				lastEditorScrollTop = -10;
 				lastPreviewScrollTop = -10;

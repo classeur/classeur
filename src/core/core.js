@@ -70,13 +70,6 @@ angular.module('classeur.core', [])
 					$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 				}
 			})
-			.when('/settings', {
-				template: '<cl-settings-layout></cl-settings-layout>',
-				reloadOnSearch: false
-			})
-			.when('/newUser', {
-				template: '<cl-new-user-form></cl-new-user-form>'
-			})
 			.otherwise({
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});

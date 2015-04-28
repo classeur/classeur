@@ -1,0 +1,59 @@
+.plan.chooser.panel {
+    overflow: auto;
+    & > div {
+        margin: auto;
+        height: auto;
+        width: 100%;
+        max-width: 840px;
+    }
+    .actions {
+        img {
+        	margin: 5px 0;
+        }
+    }
+    .plan.item {
+        background-color: #fff;
+        margin: 0 5px 100px;
+        height: 520px;
+        text-align: center;
+        &.premium {
+            .header {
+                background-color: #3EB8A4;
+                color: #fff;
+            }
+        }
+        .header {
+            padding-top: 20px;
+            margin-bottom: 30px;
+            background-color: #ebebeb;
+            height: 175px;
+        }
+        .name {
+            font-size: 20px;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+        .price {
+            font-size: 40px;
+            line-height: 1;
+        }
+        ul {
+            margin: 0;
+            padding: 0;
+        }
+        li {
+            font-size: 14px;
+            padding: 6px 0;
+            list-style-type: none;
+        }
+        .md-button {
+            font-size: 22px;
+            padding: 10px 15px;
+            margin: 15px;
+            .info {
+            	text-transform: none;
+	            font-size: 14px;
+            }
+        }
+    }
+}

@@ -1,4 +1,10 @@
 angular.module('classeur.core.settingsLayout', [])
+	.config(function($routeProvider) {
+		$routeProvider.when('/settings', {
+			template: '<cl-settings-layout></cl-settings-layout>',
+			reloadOnSearch: false
+		});
+	})
 	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
