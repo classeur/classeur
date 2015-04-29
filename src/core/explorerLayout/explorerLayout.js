@@ -136,7 +136,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clSyncSvc, clSettingSvc, clScrollBarWidth) {
+	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clSyncSvc, clSettingSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -148,6 +148,7 @@ angular.module('classeur.core.explorerLayout', [])
 				var explorerPanel = clPanel(element, '.explorer.container');
 				var contentPanel = clPanel(element, '.explorer.content');
 				var scrollbarPanel = clPanel(element, '.scrollbar.panel');
+				var folderPanel = clPanel(element, '.folder.container');
 
 				var folderContentElt = element[0].querySelector('md-content');
 				var tabContainerElt = element[0].querySelector('.btn-grp .container');
@@ -181,7 +182,8 @@ angular.module('classeur.core.explorerLayout', [])
 					explorerPanel.$jqElt.toggleClass('no-padding', clExplorerLayoutSvc.noPadding);
 					contentPanel
 						.move(isInited && 'sslow').y(clExplorerLayoutSvc.contentY).ease(clExplorerLayoutSvc.isExplorerOpen ? 'out' : 'in').end();
-					scrollbarPanel.width(clExplorerLayoutSvc.explorerWidth + 50 - clScrollBarWidth);
+					scrollbarPanel.width(clExplorerLayoutSvc.explorerWidth + 50);
+					folderPanel.width(clExplorerLayoutSvc.explorerWidth + 20);
 					isInited = true;
 				}
 

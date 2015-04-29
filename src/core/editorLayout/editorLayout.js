@@ -125,9 +125,9 @@ angular.module('classeur.core.editorLayout', [])
 					if (!clEditorLayoutSvc.isEditorOpen) {
 						eltToScroll = clEditorSvc.previewElt.parentNode, dimensionKey = 'previewDimension';
 					}
-					var scrollTop = eltToScroll.scrollTop + clEditorSvc.scrollOffset;
+					var scrollTop = eltToScroll.scrollTop;
 					var scrollSectionDesc, posInSection;
-					sectionDescList && sectionDescList.some(function(sectionDesc) {
+					sectionDescList === clEditorSvc.sectionDescList && sectionDescList.some(function(sectionDesc) {
 						if (scrollTop < sectionDesc[dimensionKey].endOffset) {
 							scrollSectionDesc = sectionDesc;
 							posInSection = (scrollTop - sectionDesc[dimensionKey].startOffset) / (sectionDesc[dimensionKey].height || 1);
@@ -145,8 +145,7 @@ angular.module('classeur.core.editorLayout', [])
 
 					if (scrollSectionDesc) {
 						clEditorSvc.measureSectionDimensions();
-						var destScrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection;
-						eltToScroll.scrollTop = destScrollTop - clEditorSvc.scrollOffset;
+						eltToScroll.scrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection;
 					}
 				}
 

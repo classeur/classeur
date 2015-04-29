@@ -1,9 +1,11 @@
 <div class="settings layout panel background">
     <div layout="column">
-        <div class="nav">
-            <md-input-container>
-                <input class="title" value="Settings" disabled="disabled" aria-label="Settings">
-            </md-input-container>
+        <div layout="row" layout-align="space-between end">
+            <div class="title" flex>Settings</div>
+            <div layout="row">
+                <md-button ng-click="cancel()">Cancel <span class="icon-close"></span></md-button>
+                <md-button class="md-primary" ng-click="apply()">Apply <span class="icon-done"></md-button>
+            </div>
         </div>
         <md-tabs md-selected="selectedTabIndex" md-border-bottom flex>
             <md-tab label="User">
@@ -12,9 +14,9 @@
                         <span class="label">
                             Sign in to manage your user account
                         </span>
-                        <md-button class="md-primary" ng-click="userSvc.startOAuth()">
-                            Sign in with Google
-                        </md-button>
+                    <md-button class="md-primary" ng-click="userSvc.startOAuth()">
+                        Sign in with Google
+                    </md-button>
                     </p>
                     <div ng-switch-when="true">
                         <h2>Basic</h2>
@@ -32,7 +34,7 @@
                             <span class="label">
                                 Go premium or unsubscribe
                             </span>
-                            <md-button ng-href="#!/choosePlan">
+                            <md-button class="md-primary" ng-href="#!/choosePlan">
                                 Choose plan
                             </md-button>
                         </p>
@@ -54,7 +56,7 @@
                             <span class="label">
                                 Use another Google account for sign in
                             </span>
-                            <md-button ng-click="userSvc.startOAuth('/settings?tab=user')">
+                            <md-button class="md-primary" ng-click="userSvc.startOAuth('/settings?tab=user')">
                                 Link now
                             </md-button>
                         </p>
@@ -67,10 +69,16 @@
                             </md-button>
                         </p>
                     </div>
-                </div>
+            </div>
             </md-tab>
             <md-tab label="App">
                 <div class="tab">
+                    <p class="group">
+                        <span class="label">
+                            Reset app settings
+                        </span>
+                        <md-button class="md-primary" ng-click="setDefault()">Set default</md-button>
+                    </p>
                     <h2>Editor</h2> Font size factor
                     <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
                     </md-slider>
@@ -100,7 +108,7 @@
                         </table>
                     </p>
                     <md-button class="md-primary" ng-click="editFileProperties()">
-                        Edit
+                        Edit properties
                     </md-button>
                 </div>
             </md-tab>
@@ -153,15 +161,14 @@
                     </div>
                 </div>
             </md-tab>
-        </md-tabs>
-        <div class="btn-grp" layout="row" layout-align="space-between">
-            <div layout="row">
-                <md-button ng-if="selectedTabIndex === 0" ng-click="setDefault()">Set default</md-button>
-            </div>
-            <div layout="row">
-                <md-button ng-click="cancel()">Cancel</md-button>
-                <md-button class="md-primary" ng-click="apply()">Apply</md-button>
+            </md-tabs>
+            <div class="menu" layout="row">
+                <md-button>
+                    Privacy
+                </md-button>
+                <md-button>
+                    Terms
+                </md-button>
             </div>
         </div>
     </div>
-</div>

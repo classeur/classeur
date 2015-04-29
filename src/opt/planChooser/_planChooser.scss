@@ -1,17 +1,25 @@
 .plan.chooser.panel {
-    overflow: auto;
     & > div {
+        height: 100%;
         margin: auto;
-        height: auto;
-        width: 100%;
         max-width: 840px;
+    }
+    .scroller {
+        overflow: auto;
+    }
+    .menu {
+        font-size: 14px;
+        padding: 0 5px;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        .md-button {
+            padding: 8px;
+        }
     }
     .title {
         text-align: center;
-        h1 {
-            font-size: 42px;
-            font-weight: 300;
-        }
+        font-size: 42px;
+        font-weight: 300;
+        margin: 10px 0;
     }
     .plan.item {
         background-color: #fff;
@@ -53,6 +61,7 @@
             padding: 10px 15px;
             margin: 15px;
             .info {
+            	padding-top: 6px;
                 text-transform: none;
                 font-size: 14px;
             }
