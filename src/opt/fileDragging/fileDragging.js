@@ -1,5 +1,5 @@
 angular.module('classeur.opt.fileDragging', [])
-	.directive('clFileDraggingSrc', function($window, clFileDraggingSvc, clExplorerLayoutSvc, clScrollBarWidth) {
+	.directive('clFileDraggingSrc', function($window, clFileDraggingSvc, clExplorerLayoutSvc) {
 		var Hammer = $window.Hammer;
 		var bodyElt = angular.element($window.document.body);
 		return {
@@ -17,7 +17,7 @@ angular.module('classeur.opt.fileDragging', [])
 				hammertime.on('panstart', function(evt) {
 					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
-					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.explorerWidth - clScrollBarWidth - (clExplorerLayoutSvc.noPadding ? 75 : 200));
+					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 75 : 200));
 					movePanel(evt);
 					bodyElt.addClass('file dragging');
 					scope.$apply();

@@ -1,7 +1,7 @@
 .explorer.background {
     .help.btn a {
         font-size: 20px;
-        padding: 4px;
+        padding: 3px;
     }
     .explorer.container {
         left: 50%;
@@ -117,12 +117,12 @@
         overflow-x: hidden;
         overflow-y: scroll;
         padding-left: 90px;
-        padding-right: 65px;
+        padding-right: 95px;
     }
     .no-padding {
         .folder.container, .md-sticky-clone {
             padding-left: 57px;
-            padding-right: 32px;
+            padding-right: 62px;
         }
         .folder.container {
             .folder.content, .file.actions {
@@ -378,7 +378,6 @@
         }
     }
     .menu.panel {
-        font-size: 14px;
         padding: 0 5px;
         bottom: 0;
         height: auto;

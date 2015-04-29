@@ -23,7 +23,7 @@ angular.module('classeur.core.editorLayout', [])
 			}
 		};
 	})
-	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel, clScrollBarWidth) {
+	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel) {
 		var hideOffsetY = 2000;
 
 		return {
@@ -34,6 +34,7 @@ angular.module('classeur.core.editorLayout', [])
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
+				var previewContainerElt = element[0].querySelector('.preview.container');
 				var binderPanel = clPanel(element, '.binder.panel').top(-hideOffsetY);
 				clPanel(element, '.edit.btn-panel').bottom(-hideOffsetY);
 				var editorPanel = clPanel(element, '.editor.panel').top(hideOffsetY);
@@ -48,7 +49,7 @@ angular.module('classeur.core.editorLayout', [])
 				var closeButtonPanel = clPanel(headerPanel.$jqElt, '.close.panel');
 				var scrollButtonPanel = clPanel(headerPanel.$jqElt, '.scroll.panel');
 
-				var previewSizeAdjust = 150;
+				var previewSizeAdjust = 160;
 				var binderWidth, marginRight;
 				var leftMarginOverflow = 90;
 				var binderWidthFactor = (clSettingSvc.values.editorBinderWidthFactor + 10) / 15;
@@ -92,9 +93,9 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.binderX = binderWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
 					clEditorLayoutSvc.binderX += clEditorLayoutSvc.isTocOpen ? clEditorLayoutSvc.tocWidth : 0;
 					clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000;
-					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust - clScrollBarWidth + 150;
+					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 190;
 					clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX;
-					clEditorLayoutSvc.previewX += clEditorLayoutSvc.isSidePreviewOpen ? clEditorLayoutSvc.pageWidth - previewSizeAdjust / 2 : 0;
+					clEditorLayoutSvc.previewX += clEditorLayoutSvc.isSidePreviewOpen ? clEditorLayoutSvc.pageWidth - previewSizeAdjust / 2 : 20;
 					clEditorLayoutSvc.editorX = clEditorLayoutSvc.isMenuOpen ? 5 : 0;
 					clEditorLayoutSvc.editorY = clEditorLayoutSvc.isEditorOpen ? 0 : hideOffsetY;
 					clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -(clEditorLayoutSvc.menuWidth - 20) : 0;
@@ -114,12 +115,15 @@ angular.module('classeur.core.editorLayout', [])
 					if (!clEditorLayoutSvc.isEditorOpen || clEditorLayoutSvc.isSidePreviewOpen) {
 						clEditorLayoutSvc.isPreviewVisible = true;
 						previewPanel.$jqElt.removeClass('hidden');
+						// Update width according to scrollbar visibility
+						updateLayoutSize();
 					}
 				}
 
 				var sectionDescList;
 
 				function updateLayoutSize() {
+					var previewScrollbarWidth = previewContainerElt.offsetWidth - previewContainerElt.clientWidth;
 					var eltToScroll = clEditorSvc.editorElt.parentNode,
 						dimensionKey = 'editorDimension';
 					if (!clEditorLayoutSvc.isEditorOpen) {
@@ -139,7 +143,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em';
 					binderPanel.width(clEditorLayoutSvc.binderWidth).left(-clEditorLayoutSvc.binderWidth / 2);
 					previewPanel.width(clEditorLayoutSvc.previewWidth).left(-clEditorLayoutSvc.previewWidth / 2);
-					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth);
+					headerPanel.width(clEditorLayoutSvc.previewHeaderWidth - previewScrollbarWidth);
 					pagePanel.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMargin);
 					hidePreview();
 

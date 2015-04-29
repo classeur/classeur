@@ -7,7 +7,7 @@
 .binder.panel {
     .header.panel {
         height: auto;
-        padding: 0 90px;
+        padding: 0 105px;
         .content {
             position: relative;
             min-height: 43px;
@@ -19,6 +19,7 @@
             line-height: 1;
             text-align: right;
             letter-spacing: -0.04em;
+            overflow: hidden;
         }
         .panel {
             left: 0;

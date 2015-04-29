@@ -148,7 +148,7 @@ angular.module('classeur.core.explorerLayout', [])
 				var explorerPanel = clPanel(element, '.explorer.container');
 				var contentPanel = clPanel(element, '.explorer.content');
 				var scrollbarPanel = clPanel(element, '.scrollbar.panel');
-				var folderPanel = clPanel(element, '.folder.container');
+				var folderPanelElt = element[0].querySelector('.folder.container');
 
 				var folderContentElt = element[0].querySelector('md-content');
 				var tabContainerElt = element[0].querySelector('.btn-grp .container');
@@ -175,6 +175,7 @@ angular.module('classeur.core.explorerLayout', [])
 				var isInited;
 
 				function animateLayout() {
+					clExplorerLayoutSvc.scrollbarWidth = folderPanelElt.offsetWidth - folderPanelElt.clientWidth;
 					updateLayout();
 					explorerPanel
 						.width(clExplorerLayoutSvc.explorerWidth)
@@ -182,8 +183,7 @@ angular.module('classeur.core.explorerLayout', [])
 					explorerPanel.$jqElt.toggleClass('no-padding', clExplorerLayoutSvc.noPadding);
 					contentPanel
 						.move(isInited && 'sslow').y(clExplorerLayoutSvc.contentY).ease(clExplorerLayoutSvc.isExplorerOpen ? 'out' : 'in').end();
-					scrollbarPanel.width(clExplorerLayoutSvc.explorerWidth + 50);
-					folderPanel.width(clExplorerLayoutSvc.explorerWidth + 20);
+					scrollbarPanel.width(clExplorerLayoutSvc.explorerWidth + 50 + clExplorerLayoutSvc.scrollbarWidth);
 					isInited = true;
 				}
 
@@ -612,6 +612,7 @@ angular.module('classeur.core.explorerLayout', [])
 		}
 
 		var clExplorerLayoutSvc = {
+			scrollbarWidth: 0,
 			folders: [],
 			files: [],
 			unclassifiedFolder: unclassifiedFolder,

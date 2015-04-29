@@ -31,7 +31,7 @@
                         <div>Sign in</div>
                         <div class="info">with Google</div>
                     </md-button>
-                    <md-button ng-if="socketSvc.hasToken">
+                    <md-button ng-if="userSvc.user">
                         Select
                     </md-button>
                 </div>
@@ -59,7 +59,7 @@
                         <div>Sign in</div>
                         <div class="info">with Google</div>
                     </md-button>
-                    <md-button ng-if="socketSvc.hasToken" ng-href="{{::subscribeLink}}">
+                    <md-button ng-if="userSvc.user" ng-href="{{::subscribeLink}}">
                         <div>Subscribe</div>
                         <div class="info">with PayPal</div>
                     </md-button>
