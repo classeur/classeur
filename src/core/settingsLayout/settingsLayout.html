@@ -35,7 +35,7 @@
                                 Go premium or unsubscribe
                             </span>
                             <md-button class="md-primary" ng-href="#!/choosePlan">
-                                Choose plan
+                                Change plan
                             </md-button>
                         </p>
                         <p class="group">
@@ -50,8 +50,24 @@
                         <h2>Advanced</h2>
                         <md-input-container class="small">
                             <label>User ID</label>
-                            <input name="id" ng-model="user.id" disabled="disabled">
+                            <input ng-model="user.id" disabled="disabled">
                         </md-input-container>
+                        <div layout="row">
+                            <md-input-container class="large" flex>
+                                <label>API key</label>
+                                <input ng-model="apiKey" disabled="disabled">
+                            </md-input-container>
+                            <div class="renew-api-key-btn" layout="column" layout-align="center">
+                                <md-button ng-if="!getApiKeyPending" class="icon-refresh" ng-click="renewApiKey()" aria-label="Renew API key">
+                                </md-button>
+                            </div>
+                        </div>
+                        <p class="group">
+                            <span class="label">
+                                Roles
+                            </span>
+                            <md-chips ng-model="user.roles" readonly="true"></md-chips>
+                        </p>
                         <p class="group">
                             <span class="label">
                                 Use another Google account for sign in

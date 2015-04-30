@@ -1,8 +1,8 @@
 angular.module('classeur.core.user', [])
     .config(function($routeProvider) {
         $routeProvider.when('/newUser', {
-                template: '<cl-new-user-form></cl-new-user-form>'
-            });
+            template: '<cl-new-user-form></cl-new-user-form>'
+        });
     })
     .factory('clUserActivity', function($window, clLocalStorage) {
         var inactiveAfter = 180000; // 3 minutes
@@ -34,12 +34,18 @@ angular.module('classeur.core.user', [])
         var userNameMaxLength = 32;
 
         var clUserSvc = clLocalStorageObject('userSvc', {
-                user: {
-                    default: null,
-                    parser: JSON.parse,
-                    serializer: JSON.stringify,
-                }
-            });
+            user: {
+                default: null,
+                parser: JSON.parse,
+                serializer: JSON.stringify,
+            }
+        });
+
+        function makeQueryString(params) {
+            return Object.keys(params).map(function(key) {
+                return key + '=' + encodeURIComponent(params[key]);
+            }).join('&');
+        }
 
         function startOAuth(redirectUrl) {
             var params = {
@@ -51,10 +57,7 @@ angular.module('classeur.core.user', [])
                     url: redirectUrl || '/newUser'
                 }),
             };
-            params = Object.keys(params).map(function(key) {
-                return key + '=' + encodeURIComponent(params[key]);
-            }).join('&');
-            $window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + params;
+            $window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + makeQueryString(params);
         }
 
         function signin(token) {
@@ -97,6 +100,25 @@ angular.module('classeur.core.user', [])
             clUserSvc.user = user;
         }
 
+        function getSubscribeLink() {
+            if (clUserSvc.user) {
+                var params = {
+                    cmd: '_s-xclick',
+                    hosted_button_id: 'GQHCGWH49AEYE',
+                    custom: clUserSvc.user.id
+                };
+                return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+            }
+        }
+
+        function getUnsubscribeLink() {
+            var params = {
+                cmd: '_subscr-find',
+                alias: '75G2MNZ543JAN'
+            };
+            return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+        }
+
         clUserSvc.read();
 
         clSocketSvc.addMsgHandler('invalidToken', function() {
@@ -109,6 +131,8 @@ angular.module('classeur.core.user', [])
         clUserSvc.signout = signout;
         clUserSvc.checkAll = checkAll;
         clUserSvc.updateUser = updateUser;
+        clUserSvc.getSubscribeLink = getSubscribeLink;
+        clUserSvc.getUnsubscribeLink = getUnsubscribeLink;
 
         return clUserSvc;
     })
@@ -118,7 +142,7 @@ angular.module('classeur.core.user', [])
         var lastUserInfoAttempt = 0;
 
         clSetInterval(function() {
-            if($window.navigator.onLine === false) {
+            if ($window.navigator.onLine === false) {
                 return;
             }
             var currentDate = Date.now();

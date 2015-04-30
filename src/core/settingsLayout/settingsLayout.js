@@ -171,6 +171,47 @@ angular.module('classeur.core.settingsLayout', [])
 						}
 					});
 
+					scope.getApiKey = function() {
+						if (!scope.getApiKeyPending) {
+							scope.getApiKeyPending = scope.$watch('socketSvc.isReady', function() {
+								clSocketSvc.sendMsg({
+									type: 'getUserApiKey'
+								});
+							});
+						}
+					};
+
+					scope.renewApiKey = function() {
+						$mdDialog.show($mdDialog.confirm()
+								.title('Renew API key')
+								.content('You\'re about to renew your user API key. The current key won\'t be working anymore.')
+								.ok('Ok')
+								.cancel('Cancel'))
+							.then(function() {
+								if (!scope.getApiKeyPending) {
+									scope.getApiKeyPending = scope.$watch('socketSvc.isReady', function() {
+										clSocketSvc.sendMsg({
+											type: 'renewUserApiKey'
+										});
+									});
+								}
+							});
+					};
+
+					function apiKeyHandler(msg) {
+						if (scope.getApiKeyPending) {
+							scope.apiKey = msg.apiKey;
+							scope.getApiKeyPending();
+							scope.getApiKeyPending = undefined;
+							scope.$evalAsync();
+						}
+					}
+
+					clSocketSvc.addMsgHandler('userApiKey', apiKeyHandler);
+					scope.$on('$destroy', function() {
+						clSocketSvc.removeMsgHandler('userApiKey', apiKeyHandler);
+					});
+
 				})();
 
 
@@ -332,6 +373,8 @@ angular.module('classeur.core.settingsLayout', [])
 						scope.getTrashFiles(true);
 					} else if (tab === 'blogs') {
 						scope.getBlogs();
+					} else if (tab === 'user') {
+						scope.getApiKey();
 					}
 					$location.search('tab', tab);
 				});
