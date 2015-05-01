@@ -23,6 +23,12 @@
     .large {
         max-width: 340px;
     }
+    .colors {
+        input {
+            margin: 0 5px 30px;
+            background-color: transparent;
+        }
+    }
     md-slider {
         max-width: 250px;
     }

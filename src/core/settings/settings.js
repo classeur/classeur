@@ -42,6 +42,7 @@ angular.module('classeur.core.settings', [])
 		clSettingSvc.setDefaultSettings = setDefaultSettings;
 
 		clSettingSvc.read();
+		angular.extend(clSettingSvc.values, JSON.parse(defaultSettings), clSettingSvc.values);
 		return clSettingSvc;
 	})
 	.factory('clLocalSettingSvc', function($templateCache, clLocalStorageObject) {
@@ -77,5 +78,6 @@ angular.module('classeur.core.settings', [])
 		clLocalSettingSvc.checkAll = checkAll;
 
 		clLocalSettingSvc.read();
+		angular.extend(clLocalSettingSvc.values, JSON.parse(defaultLocalSettings), clLocalSettingSvc.values);
 		return clLocalSettingSvc;
 	});

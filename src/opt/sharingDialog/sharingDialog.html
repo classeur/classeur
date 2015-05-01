@@ -21,17 +21,17 @@
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">private</md-radio-button>
             <div class="help">Only you can access the file.</div>
-            <md-radio-button value="r" ng-disabled="folderDao.sharing.length > 1"><div class="read label">read only</div></md-radio-button>
+            <md-radio-button value="r" ng-disabled="folderDao.sharing.length > 1">public <span class="read label">read only</span></md-radio-button>
             <div class="help">Anyone with the link can read the file.</div>
-            <md-radio-button value="rw"><div class="read-write label">read/write</div></md-radio-button>
+            <md-radio-button value="rw">public <span class="read-write label">read/write</span></md-radio-button>
             <div class="help">Signed-in premium users can modify the file.</div>
         </md-radio-group>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="!isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="">private</md-radio-button>
             <div class="help">Only you can access the folder.</div>
-            <md-radio-button value="r"><div class="read label">read only</div></md-radio-button>
+            <md-radio-button value="r">public <span class="read label">read only</span></md-radio-button>
             <div class="help">Anyone with the link can read the folder.</div>
-            <md-radio-button value="rw"><div class="read-write label">read/write</div></md-radio-button>
+            <md-radio-button value="rw">public <span class="read-write label">read/write</span></md-radio-button>
             <div class="help">Signed-in premium users can modify the folder.</div>
         </md-radio-group>
     </md-content>
