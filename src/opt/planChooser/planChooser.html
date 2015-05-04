@@ -1,13 +1,14 @@
 <div class="plan chooser panel background">
     <div layout="column">
         <div flex class="scroller">
-            <div class="title">
-            Pricing
-            </div>
-            <div layout="row" layout-align="end">
+            <div layout="row" layout-align="space-between end">
+                <img src="assets/images/logo.png" height="64">
                 <md-button ng-href="#!/">
                     Close <span class="icon-close"></span>
                 </md-button>
+            </div>
+            <div class="title">
+                Pricing
             </div>
             <div layout-gt-sm="row" layout="column">
                 <div flex class="plan item md-whiteframe-z1" layout="column">
@@ -31,7 +32,7 @@
                         <div>Sign in</div>
                         <div class="info">with Google</div>
                     </md-button>
-                    <md-button ng-if="unsubscribeLink" ng-href="{{::unsubscribeLink}}">
+                    <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
                         Select
                     </md-button>
                 </div>
@@ -89,7 +90,7 @@
                         <li><b>Custom subdomain</b></li>
                         <li><b>Admin REST API</b></li>
                     </ul>
-                    <md-button>
+                    <md-button ng-href="mailto:contact@classeur.io">
                         Contact us
                     </md-button>
                 </div>
