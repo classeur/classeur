@@ -350,7 +350,7 @@ angular.module('classeur.core.settingsLayout', [])
 					function trashFilesHandler(msg) {
 						if (scope.getTrashFilesPending) {
 							scope.trashFiles = scope.trashFiles.concat(msg.files);
-							scope.lastDeleted = msg.lastDeleted;
+							scope.lastDeleted = msg.hasMore && scope.trashFiles[scope.trashFiles.length - 1].deleted;
 							scope.getTrashFilesPending();
 							scope.getTrashFilesPending = undefined;
 							scope.$evalAsync();

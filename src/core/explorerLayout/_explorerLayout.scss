@@ -116,6 +116,9 @@
     .md-sticky-clone {
         overflow-x: hidden;
         overflow-y: scroll;
+        &::-webkit-scrollbar {
+            display: none;
+        }
         padding-left: 90px;
         padding-right: 95px;
     }
@@ -198,13 +201,13 @@
         padding: 0 35px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.3);
     }
     .folder.content {
         padding: 15px 40px 80px;
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.3);
     }
     .folder.name {
         font-size: 30px;
@@ -294,7 +297,7 @@
         .shadow.panel {
             z-index: 9999;
             left: -2050px;
-            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.38);
+            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.4);
         }
         .folder.btn {
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
@@ -339,7 +342,7 @@
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
             .md-button {
-                font-size: 24px;
+                font-size: 22px;
                 padding: 0;
                 span {
                     line-height: 44px;
@@ -354,7 +357,7 @@
             top: 86px;
             width: 38px;
             .md-button {
-                font-size: 21px;
+                font-size: 20px;
             }
         }
         .current.btn {
@@ -390,6 +393,9 @@
         .scroller {
             overflow: auto;
             overflow-y: scroll;
+            &::-webkit-scrollbar {
+                display: none;
+            }
             padding: 0 50px 200px 0;
             right: -50px;
         }

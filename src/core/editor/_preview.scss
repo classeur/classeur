@@ -4,6 +4,9 @@
     height: 100%;
     overflow: auto;
     overflow-y: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
     * {
         line-height: 1.45;
     }

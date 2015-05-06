@@ -290,8 +290,7 @@ angular.module('classeur.core.sync', [])
 					clFolderSvc.updateFolders(foldersToUpdate);
 					$rootScope.$evalAsync();
 				}
-				if (msg.lastSeq) {
-					clSyncDataSvc.lastFolderSeq = msg.lastSeq;
+				if (msg.hasMore) {
 					retrieveChanges();
 				} else {
 					// Sync user's classeurs once all folders are synced
@@ -410,8 +409,7 @@ angular.module('classeur.core.sync', [])
 					clFileSvc.updateFiles(filesToUpdate);
 					$rootScope.$evalAsync();
 				}
-				if (msg.lastSeq) {
-					clSyncDataSvc.lastFileSeq = msg.lastSeq;
+				if (msg.hasMore) {
 					retrieveChanges();
 				} else {
 					sendChanges();

@@ -201,7 +201,7 @@ angular.module('classeur.core.explorerLayout', [])
 							index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) + 3;
 						}
 					}
-					scope.plasticClass = 'plastic-' + (index % 4);
+					scope.plasticClass = 'plastic-' + (index % 6);
 				}
 
 				scope.folderNameModified = function() {

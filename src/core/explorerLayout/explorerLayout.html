@@ -128,7 +128,7 @@
             </div>
             <div class="btn-grp panel background no-overflow">
                 <div class="container panel">
-                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 3) % 4)">
+                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 3) % 6)">
                         <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                             <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
                                 <div>{{folderDao.name}}</div>
@@ -137,7 +137,7 @@
                         </md-button>
                     </div>
                 </div>
-                <div class="current folder btn btn-panel plastic" ng-class="plasticClass">
+                <div class="current folder btn btn-panel" ng-class="plasticClass">
                     <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
                         <div class="rotate-90" layout="row" layout-align="center center">
                             <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
