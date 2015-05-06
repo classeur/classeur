@@ -192,13 +192,15 @@ angular.module('classeur.core.explorerLayout', [])
 					window.removeEventListener('resize', animateLayout);
 				});
 
+				scope.classeurIndex = 0;
+
 				function setPlasticClass() {
-					var index = 0;
+					var index = scope.classeurIndex;
 					if (clExplorerLayoutSvc.currentFolderDao) {
 						if (clExplorerLayoutSvc.currentFolderDao === clExplorerLayoutSvc.unclassifiedFolder) {
-							index = 1;
+							index++;
 						} else {
-							index = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) + 3;
+							index += clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) + 3;
 						}
 					}
 					scope.plasticClass = 'plastic-' + (index % 6);
@@ -489,7 +491,10 @@ angular.module('classeur.core.explorerLayout', [])
 					clClasseurSvc.init();
 					clExplorerLayoutSvc.refreshFolders();
 				});
-				scope.$watch('classeurSvc.classeurs.length', clExplorerLayoutSvc.refreshFolders);
+				scope.$watch('classeurSvc.classeurs.length', function() {
+					clExplorerLayoutSvc.refreshFolders();
+					scope.classeurIndex = clClasseurSvc.classeurs.indexOf(clExplorerLayoutSvc.currentClasseurDao);
+				});
 				scope.$watch('explorerLayoutSvc.currentFolderDao', function(folderDao) {
 					scope.fileFilter = undefined;
 					refreshFiles();
@@ -501,7 +506,10 @@ angular.module('classeur.core.explorerLayout', [])
 					refreshFiles();
 				});
 				scope.$watch('explorerLayoutSvc.files', scope.triggerInfiniteScroll);
-				scope.$watch('explorerLayoutSvc.currentClasseurDao', setPlasticClass);
+				scope.$watch('explorerLayoutSvc.currentClasseurDao', function() {
+					scope.classeurIndex = clClasseurSvc.classeurs.indexOf(clExplorerLayoutSvc.currentClasseurDao);
+					setPlasticClass();
+				});
 				scope.$watch('explorerLayoutSvc.currentFolderDao.sharing', clExplorerLayoutSvc.setEffectiveSharing);
 
 				// Refresh selectedFiles on every digest and add 1 cycle when length changes

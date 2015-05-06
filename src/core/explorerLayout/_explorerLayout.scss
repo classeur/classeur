@@ -24,7 +24,7 @@
             .logo {
                 width: 48px;
                 height: 64px;
-                margin-right: 6px;
+                margin-right: 5px;
             }
         }
         .classeur.toggler {
@@ -71,6 +71,7 @@
             }
         }
     }
+
     md-content.md-default-theme,
     .md-subheader.md-default-theme {
         background-color: transparent;
@@ -137,6 +138,9 @@
             .file.actions {
                 padding: 0 10px;
             }
+        }
+        .header .classeur.name .logo {
+            visibility: hidden;
         }
     }
     .folder.container,
@@ -456,7 +460,7 @@
             .name {
                 padding: 2px;
                 border-radius: 3px;
-                background-color: rgba(255, 255, 255, 0.2);
+                background-color: rgba(255, 255, 255, 0.3);
                 margin: 20px 5px 15px;
                 textarea {
                     font-weight: 300;
@@ -485,16 +489,16 @@
         }
         .footer.panel {
             bottom: 0;
-            height: 45px;
+            height: 44px;
             font-size: 26px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.3);
             text-align: center;
             cursor: auto;
             .btn {
-                height: 45px;
+                height: 44px;
                 width: 32px;
                 a {
-                    line-height: 45px;
+                    line-height: 44px;
                 }
             }
         }

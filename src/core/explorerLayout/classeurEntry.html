@@ -1,6 +1,6 @@
-<div class="tile content panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 4)" ng-click="open()">
-    <div class="tab-1" ng-class="'plastic-' + (($index + 1) % 4)"></div>
-    <div class="tab-2" ng-class="'plastic-' + (($index + 2) % 4)"></div>
+<div class="tile content panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
+    <div class="tab-1" ng-class="'plastic-' + (($index + 1) % 6)"></div>
+    <div class="tab-2" ng-class="'plastic-' + (($index + 2) % 6)"></div>
     <div class="name">
         <md-input-container>
             <textarea ng-model="classeur.name" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Classeur name"></textarea>

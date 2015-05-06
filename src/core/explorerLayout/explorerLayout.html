@@ -128,7 +128,7 @@
             </div>
             <div class="btn-grp panel background no-overflow">
                 <div class="container panel">
-                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + (($index + 3) % 6)">
+                    <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
                         <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                             <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
                                 <div>{{folderDao.name}}</div>
@@ -144,17 +144,17 @@
                         </div>
                     </md-button>
                 </div>
-                <div cl-folder-button class="create folder btn btn-panel plastic-2" folder="explorerLayoutSvc.createFolder">
+                <div cl-folder-button class="create folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
                     <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder">
                         <span class="icon-add"></span>
                     </md-button>
                 </div>
-                <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel plastic-1" folder="explorerLayoutSvc.unclassifiedFolder">
+                <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
                     <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
                         <span class="icon-list"></span>
                     </md-button>
                 </div>
-                <div cl-folder-button class="recent folder btn btn-panel plastic-0">
+                <div cl-folder-button class="recent folder btn btn-panel" ng-class="'plastic-' + (classeurIndex % 6)">
                     <md-button ng-click="setFolder()" aria-label="Recent files">
                         <span class="icon-schedule"></span>
                     </md-button>
