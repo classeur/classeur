@@ -1,5 +1,5 @@
 angular.module('classeur.core.sync', [])
-	.factory('clSyncDataSvc', function(clLocalStorage, clLocalStorageObject, clFileSvc, clFolderSvc) {
+	.factory('clSyncDataSvc', function(clLocalStorage, clLocalStorageObject, clFileSvc, clFolderSvc, clSocketSvc) {
 
 		function parseSyncData(data) {
 			return JSON.parse(data, function(id, value) {
@@ -99,7 +99,16 @@ angular.module('classeur.core.sync', [])
 			clSyncDataSvc.$write();
 		}
 
-		clSyncDataSvc.checkUserChange = checkUserChange;
+		clSocketSvc.addMsgHandler('userToken', function(msg) {
+			read();
+			checkUserChange(msg.userId);
+			clFileSvc.files.forEach(function(fileDao) {
+				if (fileDao.userId === msg.userId) {
+					fileDao.userId = '';
+				}
+			});
+		});
+
 		clSyncDataSvc.read = read;
 		clSyncDataSvc.write = write;
 		return clSyncDataSvc;
@@ -128,7 +137,7 @@ angular.module('classeur.core.sync', [])
 			}
 		};
 	})
-	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clLocalStorage, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clEditorSvc, clSyncUtils, clLocalStorageObject, clSyncDataSvc, clContentRevSvc) {
+	.factory('clSyncSvc', function($rootScope, $location, $http, $timeout, $window, clToast, clUserSvc, clUserInfoSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clEditorSvc, clSyncUtils, clSyncDataSvc, clContentRevSvc) {
 		var clSyncSvc = {};
 		var lastCreateFileActivity = 0;
 		var nameMaxLength = 128;
@@ -137,16 +146,6 @@ angular.module('classeur.core.sync', [])
 		var loadingTimeout = 30 * 1000; // 30 sec
 		var sendMetadataAfter = clToast.hideDelay + 2000; // 8 sec (more than toast duration to handle undo)
 		var extFileRefreshAfter = 60 * 1000; // 60 sec
-
-		clSocketSvc.addMsgHandler('userToken', function(msg) {
-			clSyncDataSvc.read();
-			clSyncDataSvc.checkUserChange(msg.userId);
-			clFileSvc.files.forEach(function(fileDao) {
-				if (fileDao.userId === msg.userId) {
-					fileDao.userId = '';
-				}
-			});
-		});
 
 
 		/***
@@ -331,7 +330,8 @@ angular.module('classeur.core.sync', [])
 							id: folderDao.id,
 							userId: folderDao.userId,
 							name: folderDao.name,
-							updated: folderDao.updated
+							updated: folderDao.updated,
+							lastUpdated: folderDao.lastUpdated
 						});
 						folderDao.lastUpdated = folderDao.updated;
 					}
@@ -452,7 +452,8 @@ angular.module('classeur.core.sync', [])
 							id: fileDao.id,
 							userId: fileDao.userId,
 							name: fileDao.name,
-							updated: fileDao.updated
+							updated: fileDao.updated,
+							lastUpdated: fileDao.lastUpdated
 						});
 						fileDao.lastUpdated = fileDao.updated;
 					}

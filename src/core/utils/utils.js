@@ -2,12 +2,15 @@ angular.module('classeur.core.utils', [])
 	.factory('clUid', function() {
 		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 		var radix = alphabet.length;
-		var length = 16;
+		var length = 20;
 		var mapper = Array.apply(null, new Array(length));
 
 		function clUid() {
+			var currentDate = Date.now();
 			return mapper.map(function() {
-				return alphabet[Math.random() * radix | 0];
+				var result =  alphabet[(currentDate + Math.random() * radix) % radix | 0];
+				currentDate = Math.floor(currentDate / radix);
+				return result;
 			}).join('');
 		}
 		return clUid;

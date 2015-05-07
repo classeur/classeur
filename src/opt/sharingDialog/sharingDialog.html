@@ -1,5 +1,5 @@
 <md-dialog class="sharing dialog">
-    <md-content>
+    <md-dialog-content>
         <h2>Sharing
         <span class="read indicator label" ng-show="objectDao.effectiveSharing === 'r'">read only</span>
         <span class="read-write indicator label" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
@@ -34,7 +34,7 @@
             <md-radio-button value="rw">public <span class="read-write label">read/write</span></md-radio-button>
             <div class="help">Signed-in premium users can modify the folder.</div>
         </md-radio-group>
-    </md-content>
+    </md-dialog-content>
     <div class="md-actions">
         <div ng-if="folderDao">
             <md-button ng-click="openFolder()">See folder</md-button>

@@ -7,11 +7,12 @@ input {
 }
 
 .md-button {
-    padding: 7px 9px;
+    padding: 8px 10px;
     margin: 0;
     line-height: inherit;
     font-size: inherit;
     min-width: 0;
+    min-height: 0;
     &, &.md-fab {
         line-height: 1;
     }

@@ -1,15 +1,17 @@
 <md-dialog class="new folder dialog">
-    <md-content>
+    <md-dialog-content>
         <h2>New folder</h2>
         <md-input-container>
             <label>Name</label>
             <input ng-model="value">
         </md-input-container>
-    </md-content>
+    </md-dialog-content>
     <div class="md-actions">
-        <md-button ng-click="import()" class="import">
+    <div flex>
+        <md-button ng-click="import()">
             Import
         </md-button>
+        </div>
         <md-button ng-click="cancel()">
             Cancel
         </md-button>

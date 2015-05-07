@@ -1,5 +1,5 @@
 <md-dialog class="new folder dialog">
-    <md-content>
+    <md-dialog-content>
         <h2>Import folder</h2>
         <md-input-container>
             <label>Sharing link</label>
@@ -13,7 +13,7 @@
                 <md-option ng-repeat="folderDao in folders | orderBy:'name' track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
             </md-select>
         </div>
-    </md-content>
+    </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
             Cancel

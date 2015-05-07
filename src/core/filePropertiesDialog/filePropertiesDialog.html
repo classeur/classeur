@@ -1,5 +1,5 @@
 <md-dialog class="file properties dialog">
-    <md-content>
+    <md-dialog-content>
         <h2>File properties</h2>
         <div layout="row" ng-repeat="property in properties">
             <md-button class="icon-remove" ng-click="deleteRow(property)"></md-button>
@@ -16,7 +16,7 @@
             Add
             <span class="icon-add"></span>
         </md-button>
-    </md-content>
+    </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">
             Cancel

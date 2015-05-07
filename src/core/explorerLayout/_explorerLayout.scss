@@ -1,6 +1,6 @@
 .explorer.background {
     .help.btn a {
-        font-size: 20px;
+        font-size: 22px;
         padding: 3px;
     }
     .explorer.container {
@@ -65,7 +65,7 @@
                 line-height: 1;
             }
             .settings {
-                padding: 5px 6px;
+                padding: 6px;
                 font-size: 18px;
                 line-height: 14px;
             }
@@ -257,7 +257,7 @@
                     color: rgba(0, 0, 0, 0.87);
                     cursor: pointer;
                     background-image: none;
-                    border-bottom-color: rgba(0, 0, 0, 0.05);
+                    border-bottom-color: rgba(0, 0, 0, 0.066);
                 }
             }
         }
@@ -524,10 +524,5 @@
         &.link {
             height: 0;
         }
-    }
-    .import {
-        position: absolute;
-        left: 24px;
-        bottom: 8px;
     }
 }
