@@ -5,7 +5,7 @@ angular.module('classeur.core.files', [])
 			name: {},
 			folderId: {},
 			sharing: {},
-			userId: {},
+			isPublic: {},
 		}, true);
 		var contentDaoProto = clLocalStorageObject('c', {
 			isLocal: {},
@@ -100,7 +100,7 @@ angular.module('classeur.core.files', [])
 						this.readContent();
 					}
 				}).bind(this));
-			} else if (clSocketSvc.isReady || (this.userId && $window.navigator.onLine !== false)) {
+			} else if (clSocketSvc.isReady || (this.isPublic && $window.navigator.onLine !== false)) {
 				this.state = 'loading';
 			}
 		};
@@ -146,7 +146,7 @@ angular.module('classeur.core.files', [])
 
 		var fileAuthorizedKeys = {
 			u: true,
-			userId: true,
+			isPublic: true,
 			name: true,
 			sharing: true,
 			folderId: true,
@@ -172,7 +172,7 @@ angular.module('classeur.core.files', [])
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
 					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
 						var fileDao = new FileDao(id);
-						if (!fileDao.userId || fileDao.contentDao.isLocal) {
+						if (!fileDao.isPublic || fileDao.contentDao.isLocal) {
 							clFileSvc.fileMap[id] = fileDao;
 							return true;
 						}
@@ -269,9 +269,9 @@ angular.module('classeur.core.files', [])
 			return fileDao;
 		}
 
-		function createPublicFile(userId, id) {
+		function createPublicFile(id) {
 			var fileDao = new FileDao(id);
-			fileDao.userId = userId;
+			fileDao.isPublic = '1';
 			// File is added to the list by sync module
 			return fileDao;
 		}

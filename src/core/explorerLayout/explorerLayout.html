@@ -119,7 +119,7 @@
                             <div class="folder content" ng-show="explorerLayoutSvc.files.length">
                                 <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
                                 <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
-                                <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
+                                <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.isPublic && !explorerLayoutSvc.currentFolderDao.lastRefresh"></md-progress-circular>
                                 <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
                             </div>
                         </section>

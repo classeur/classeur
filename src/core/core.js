@@ -13,21 +13,36 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/files/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: 'ClEditorController'
+				controller: function($scope, $routeParams, $location, $mdDialog, clToast, clFileSvc, clEditorLayoutSvc) {
+					var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
+					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
+					$scope.loadFile(fileDao);
+					if (!fileDao.state) {
+						clToast('You appear to be offline.');
+						return $location.url('');
+					}
+					$scope.$watch('currentFileDao.state', function(state) {
+						if (!state) {
+							return $location.url('');
+						} else if (state === 'loaded') {
+							clEditorLayoutSvc.init(
+								fileDao === publicFileDao &&
+								!$scope.currentFileDao.contentDao.state.selectionStart &&
+								!$scope.currentFileDao.contentDao.state.selectionEnd
+							);
+							$scope.fileLoaded = true;
+						}
+					});
+				}
 			})
-			.when('/users/:userId/files/:fileId', {
-				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: 'ClEditorController'
-			})
-			.when('/users/:userId/folders/:folderId', {
+			.when('/folders/:folderId', {
 				template: '',
 				controller: function($location, $routeParams, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
 					clExplorerLayoutSvc.refreshFolders();
 					var folderDao = clFolderSvc.folderMap[$routeParams.folderId];
 					var classeurDao = clClasseurSvc.defaultClasseur;
 					if (!folderDao) {
-						folderDao = clFolderSvc.createPublicFolder($routeParams.userId, $routeParams.folderId);
-						folderDao.removeOnFailure = true;
+						folderDao = clFolderSvc.createPublicFolder($routeParams.folderId);
 						classeurDao.folders.push(folderDao);
 					} else {
 						if (clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) !== -1) {
@@ -74,32 +89,6 @@ angular.module('classeur.core', [])
 				template: '<cl-explorer-layout></cl-explorer-layout>'
 			});
 
-	})
-	.controller('ClEditorController', function($scope, $routeParams, $location, $mdDialog, clToast, clFileSvc, clEditorLayoutSvc) {
-		// TODO import current user file when not already synced
-		var publicFileDao = $routeParams.userId && clFileSvc.createPublicFile($routeParams.userId, $routeParams.fileId);
-		var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
-		if (!fileDao) {
-			clToast('Unknown file.');
-			return $location.url('');
-		}
-		$scope.loadFile(fileDao);
-		if (!fileDao.state) {
-			clToast('You appear to be offline.');
-			return $location.url('');
-		}
-		$scope.$watch('currentFileDao.state', function(state) {
-			if (!state) {
-				return $location.url('');
-			} else if (state === 'loaded') {
-				clEditorLayoutSvc.init(
-					publicFileDao &&
-					!$scope.currentFileDao.contentDao.state.selectionStart &&
-					!$scope.currentFileDao.contentDao.state.selectionEnd
-				);
-				$scope.fileLoaded = true;
-			}
-		});
 	})
 	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
 

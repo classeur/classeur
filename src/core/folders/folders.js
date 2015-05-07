@@ -3,7 +3,7 @@ angular.module('classeur.core.folders', [])
 		var folderDaoProto = clLocalStorageObject('F', {
 			name: {},
 			sharing: {},
-			userId: {},
+			isPublic: {},
 		}, true);
 
 		function FolderDao(id) {
@@ -34,7 +34,7 @@ angular.module('classeur.core.folders', [])
 
 		var authorizedKeys = {
 			u: true,
-			userId: true,
+			isPublic: true,
 			name: true,
 			sharing: true,
 		};
@@ -98,9 +98,9 @@ angular.module('classeur.core.folders', [])
 			return clFolderSvc.folderMap[id];
 		}
 
-		function createPublicFolder(userId, id) {
+		function createPublicFolder(id) {
 			var folderDao = createFolder(id);
-			folderDao.userId = userId;
+			folderDao.isPublic = '1';
 			return folderDao;
 		}
 

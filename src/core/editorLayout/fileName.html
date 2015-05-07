@@ -1,4 +1,4 @@
 <md-input-container md-theme="classeur" class="file name">
 	<label>Filename</label>
-	<input ng-model="currentFileDao.name" ng-blur="setDefaultName()" ng-keydown="keydown($event)" ng-disabled="currentFileDao.isReadOnly || (currentFileDao.userId && currentFileDao.sharing !== 'rw')">
+	<input ng-model="currentFileDao.name" ng-blur="setDefaultName()" ng-keydown="keydown($event)" ng-disabled="currentFileDao.isReadOnly || (currentFileDao.isPublic && currentFileDao.sharing !== 'rw')">
 </md-input-container>

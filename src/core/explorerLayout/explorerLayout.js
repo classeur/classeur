@@ -252,9 +252,8 @@ angular.module('classeur.core.explorerLayout', [])
 					$mdDialog.cancel();
 				}
 
-				function importPublicFolder(userId, folderId) {
-					var folderDao = clFolderSvc.createPublicFolder(userId, folderId);
-					folderDao.removeOnFailure = true;
+				function importPublicFolder(folderId) {
+					var folderDao = clFolderSvc.createPublicFolder(folderId);
 					// Classeurs are updated when evaluating folderSvc.folders
 					clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
 					$timeout(function() {
@@ -269,7 +268,7 @@ angular.module('classeur.core.explorerLayout', [])
 							return (classeurFolders[folderDao.id] = folderDao, classeurFolders);
 						}, {});
 						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
-							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);
+							return !filterDao.isPublic && !classeurFolders.hasOwnProperty(filterDao.id);
 						});
 						var ok = scope.ok;
 						scope.ok = function() {
@@ -283,8 +282,7 @@ angular.module('classeur.core.explorerLayout', [])
 					}).then(function(link) {
 						var components = link.split('/');
 						var folderId = components[components.length - 1];
-						var userId = components[components.length - 3];
-						if (!folderId || !userId || link.indexOf(clConstants.serverUrl) !== 0) {
+						if (!folderId || link.indexOf(clConstants.serverUrl) !== 0) {
 							clToast('Invalid folder link.');
 						}
 						if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
@@ -293,7 +291,7 @@ angular.module('classeur.core.explorerLayout', [])
 							clToast('Folder is already in the classeur.');
 						}
 						var folderDao = clFolderSvc.folderMap[folderId];
-						folderDao ? importExistingFolder(folderDao) : importPublicFolder(userId, folderId);
+						folderDao ? importExistingFolder(folderDao) : importPublicFolder(folderId);
 					});
 				}
 
@@ -563,7 +561,7 @@ angular.module('classeur.core.explorerLayout', [])
 		function refreshFiles() {
 			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
 				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
-					return !fileDao.userId && filterFile(fileDao);
+					return !fileDao.isPublic && filterFile(fileDao);
 				} : function(fileDao) {
 					return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id && filterFile(fileDao);
 				}).sort(function(fileDao1, fileDao2) {

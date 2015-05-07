@@ -51,28 +51,26 @@ angular.module('classeur.core.sync', [])
 
 		function checkUserChange(userId) {
 			if (userId !== clSyncDataSvc.userId) {
-				var fileKeyPrefix = /^(cr\.|syncData\.)/;
-				Object.keys(clLocalStorage).forEach(function(key) {
-					if (key.match(fileKeyPrefix)) {
-						clLocalStorage.removeItem(key);
-					}
-				});
 				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-					if (!fileDao.userId) {
+					if (clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
 						if (!fileDao.contentDao.isLocal) {
 							return true;
 						}
-						fileDao.userId = clSyncDataSvc.userId;
-					} else if (fileDao.userId === userId) {
-						fileDao.userId = '';
+						fileDao.isPublic = '1';
 					}
 				});
 				clFileSvc.removeFiles(filesToRemove);
 				clFolderSvc.folders.forEach(function(folderDao) {
-					if (!folderDao.userId) {
-						folderDao.userId = clSyncDataSvc.userId;
-					} else if (folderDao.userId === userId) {
-						folderDao.userId = '';
+					if (clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
+						folderDao.isPublic = '1';
+					}
+				});
+				// TODO write changes in local storage
+
+				var fileKeyPrefix = /^(cr\.|syncData\.)/;
+				Object.keys(clLocalStorage).forEach(function(key) {
+					if (key.match(fileKeyPrefix)) {
+						clLocalStorage.removeItem(key);
 					}
 				});
 				read();
@@ -593,11 +591,10 @@ angular.module('classeur.core.sync', [])
 			) {
 				return;
 			}
-			$http.get('/api/users/' + folderDao.userId + '/folders/' + folderDao.id, {
+			$http.get('/api/folders/' + folderDao.id, {
 					timeout: loadingTimeout
 				})
 				.success(function(res) {
-					folderDao.removeOnFailure = false;
 					folderDao.lastRefresh = Date.now();
 					updateExtFolderMetadata(folderDao, res);
 					var filesToMove = {};
@@ -625,7 +622,7 @@ angular.module('classeur.core.sync', [])
 				.error(function() {
 					folderDao.lastRefresh = 1; // Get rid of the spinner
 					clToast('Folder is not accessible.');
-					folderDao.removeOnFailure && clFolderSvc.removeFolder(folderDao);
+					!folderDao.name && clFolderSvc.removeFolder(folderDao);
 				});
 		};
 

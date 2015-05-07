@@ -27,10 +27,7 @@ angular.module('classeur.core.classeurs', [])
 		ClasseurDao.prototype.toStorable = function() {
 			return {
 				folders: this.folders.map(function(folderDao) {
-					return {
-						id: folderDao.id,
-						userId: folderDao.userId || undefined
-					};
+					return folderDao.id;
 				}),
 				id: this.id,
 				isDefault: this.isDefault,
@@ -42,10 +39,10 @@ angular.module('classeur.core.classeurs', [])
 			this.id = item.id;
 			this.name = item.name;
 			this.isDefault = item.isDefault;
-			this.folders = item.folders.reduce(function(result, folder) {
-				var folderDao = clFolderSvc.folderMap[folder.id];
-				if (!folderDao && folder.userId) {
-					folderDao = clFolderSvc.createPublicFolder(folder.userId, folder.id);
+			this.folders = item.folders.reduce(function(result, folderId) {
+				var folderDao = clFolderSvc.folderMap[folderId];
+				if (!folderDao) {
+					folderDao = clFolderSvc.createPublicFolder(folderId);
 				}
 				folderDao && result.push(folderDao);
 				return result;
