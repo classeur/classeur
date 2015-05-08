@@ -163,53 +163,27 @@ angular.module('classeur.core.files', [])
 			state: true,
 		};
 
-		var isInited;
+		var isInitialized;
 
 		function init() {
 			if (!clFileSvc.fileIds) {
 				clFileSvc.$read();
-				clFileSvc.fileMap = {};
-				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
-					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
-						var fileDao = new FileDao(id);
-						if (!fileDao.isPublic || fileDao.contentDao.isLocal) {
-							clFileSvc.fileMap[id] = fileDao;
-							return true;
-						}
-					}
-				});
-				(clFileSvc.files || []).forEach(function(fileDao) {
-					!clFileSvc.fileMap.hasOwnProperty(fileDao.id) && fileDao.unload();
-				});
-				if (!isInited) {
-					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
-					var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
-					Object.keys(clLocalStorage).forEach(function(key) {
-						var fileDao, match = key.match(fileKeyPrefix);
-						if (match) {
-							fileDao = clFileSvc.fileMap[match[1]];
-							if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
-								clLocalStorage.removeItem(key);
-							}
-							return;
-						}
-						match = key.match(contentKeyPrefix);
-						if (match) {
-							fileDao = clFileSvc.fileMap[match[1]];
-							if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
-								clLocalStorage.removeItem(key);
-							}
-						}
-					});
-					isInited = true;
-				}
 			}
-			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
-				return clFileSvc.fileMap[id] || new FileDao(id);
+
+			var fileMap = {};
+			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
+				return !fileMap.hasOwnProperty(id) && (fileMap[id] = clFileSvc.fileMap[id] || new FileDao(id));
 			});
-			clFileSvc.fileMap = clFileSvc.files.reduce(function(fileMap, fileDao) {
-				return (fileMap[fileDao.id] = fileDao, fileMap);
-			}, {});
+
+			clFileSvc.files.forEach(function(fileDao) {
+				!fileMap.hasOwnProperty(fileDao.id) && fileDao.unload();
+			});
+
+			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
+				return fileMap[id];
+			});
+			clFileSvc.fileMap = fileMap;
+
 			clFileSvc.localFiles = clFileSvc.files.filter(function(fileDao) {
 				return fileDao.contentDao.isLocal;
 			});
@@ -221,6 +195,29 @@ angular.module('classeur.core.files', [])
 				fileDao.contentDao.isLocal = '';
 				fileDao.writeContent();
 			});
+
+			if (!isInitialized) {
+				var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
+				var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
+				Object.keys(clLocalStorage).forEach(function(key) {
+					var fileDao, match = key.match(fileKeyPrefix);
+					if (match) {
+						fileDao = clFileSvc.fileMap[match[1]];
+						if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
+							clLocalStorage.removeItem(key);
+						}
+						return;
+					}
+					match = key.match(contentKeyPrefix);
+					if (match) {
+						fileDao = clFileSvc.fileMap[match[1]];
+						if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
+							clLocalStorage.removeItem(key);
+						}
+					}
+				});
+				isInitialized = true;
+			}
 		}
 
 		function checkAll() {
@@ -284,11 +281,9 @@ angular.module('classeur.core.files', [])
 			if (!fileDaoList.length) {
 				return;
 			}
-			var fileIds = {};
-			fileDaoList.forEach(function(fileDao) {
-				fileDao.unload();
-				fileIds[fileDao.id] = 1;
-			});
+			var fileIds = fileDaoList.reduce(function(fileIds, fileDao) {
+				return (fileIds[fileDao.id] = 1, fileIds);
+			}, {});
 			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(fileId) {
 				return !fileIds.hasOwnProperty(fileId);
 			});

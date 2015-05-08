@@ -39,18 +39,24 @@ angular.module('classeur.core.folders', [])
 			sharing: true,
 		};
 
-		function init(cleanStorage) {
+		var isInitialized;
+
+		function init() {
 			if (!clFolderSvc.folderIds) {
 				clFolderSvc.$read();
 			}
-			clFolderSvc.folders = clFolderSvc.folderIds.map(function(id) {
-				return clFolderSvc.folderMap[id] || new FolderDao(id);
-			});
-			clFolderSvc.folderMap = clFolderSvc.folders.reduce(function(folderMap, folderDao) {
-				return (folderMap[folderDao.id] = folderDao, folderMap);
-			}, {});
 
-			if (cleanStorage) {
+			var folderMap = {};
+			clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(id) {
+				return !folderMap.hasOwnProperty(id) && (folderMap[id] = clFolderSvc.folderMap[id] || new FolderDao(id));
+			});
+			clFolderSvc.folderMap = folderMap;
+
+			clFolderSvc.folders = clFolderSvc.folderIds.map(function(id) {
+				return folderMap[id];
+			});
+
+			if (!isInitialized) {
 				var keyPrefix = /^F\.(\w+)\.(\w+)/;
 				Object.keys(clLocalStorage).forEach(function(key) {
 					var match = key.match(keyPrefix);
@@ -61,6 +67,7 @@ angular.module('classeur.core.folders', [])
 						}
 					}
 				});
+				isInitialized = true;
 			}
 		}
 
@@ -155,6 +162,6 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.updateFolders = updateFolders;
 		clFolderSvc.folderMap = {};
 
-		init(true);
+		init();
 		return clFolderSvc;
 	});

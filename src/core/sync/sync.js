@@ -53,19 +53,19 @@ angular.module('classeur.core.sync', [])
 			if (userId !== clSyncDataSvc.userId) {
 				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
 					if (clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
-						if (!fileDao.contentDao.isLocal) {
-							return true;
-						}
 						fileDao.isPublic = '1';
+						return !fileDao.contentDao.isLocal;
 					}
 				});
 				clFileSvc.removeFiles(filesToRemove);
+				clFileSvc.checkAll();
+
 				clFolderSvc.folders.forEach(function(folderDao) {
 					if (clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
 						folderDao.isPublic = '1';
 					}
 				});
-				// TODO write changes in local storage
+				clFolderSvc.checkAll();
 
 				var fileKeyPrefix = /^(cr\.|syncData\.)/;
 				Object.keys(clLocalStorage).forEach(function(key) {
@@ -86,9 +86,20 @@ angular.module('classeur.core.sync', [])
 			if (initialized && !checkSyncDataUpdate) {
 				return;
 			}
+
 			clSyncDataSvc.$read();
 			clSyncDataSvc.$readUpdate();
-			initialized = true;
+
+			if (!initialized) {
+				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
+					if (clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
+						fileDao.isPublic = '';
+					}
+					return fileDao.isPublic && !fileDao.contentDao.isLocal;
+				});
+				clFileSvc.removeFiles(filesToRemove);
+				initialized = true;
+			}
 			return ctx && ctx.userId && checkUserChange(ctx.userId);
 		}
 
@@ -109,6 +120,8 @@ angular.module('classeur.core.sync', [])
 
 		clSyncDataSvc.read = read;
 		clSyncDataSvc.write = write;
+
+		read();
 		return clSyncDataSvc;
 	})
 	.factory('clContentRevSvc', function(clLocalStorage, clFileSvc) {
