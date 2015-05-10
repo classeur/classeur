@@ -6,7 +6,7 @@ angular.module('classeur.opt.sharingDialog', [])
 
 				function showDialog(objectDao, sharingUrl, isFile, folderDao) {
 					function closeDialog() {
-						if (!objectDao.userId) {
+						if (!objectDao.isPublic) {
 							if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
 								objectDao.sharing = objectDao.effectiveSharing;
 							} else {

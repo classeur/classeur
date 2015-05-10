@@ -13,7 +13,7 @@ angular.module('classeur.opt.readOnlyAlert', [])
 				};
 
 				var txt;
-				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.userId) {
+				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.isPublic) {
 					scope.$watch('currentFileDao.contentDao.txt', function(newTxt) {
 						if (txt === undefined || !scope.currentFileDao) {
 							txt = newTxt;

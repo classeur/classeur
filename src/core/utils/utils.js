@@ -311,10 +311,9 @@ angular.module('classeur.core.utils', [])
 	})
 	.factory('clUrl', function() {
 		return {
-			file: function(fileDao, user) {
-				var userId = fileDao.userId || (user && user.id) || '';
+			file: function(fileDao) {
 				if (fileDao.id) {
-					return (userId && '/users/' + userId) + '/files/' + fileDao.id;
+					return '/files/' + fileDao.id;
 				} else if (fileDao.fileName) {
 					return '/docs/' + fileDao.fileName;
 				} else {
@@ -326,10 +325,9 @@ angular.module('classeur.core.utils', [])
 					fileName: fileName
 				});
 			},
-			folder: function(folderDao, user) {
-				var userId = folderDao.userId || (user && user.id) || '';
+			folder: function(folderDao) {
 				if (folderDao.id) {
-					return (userId && '/users/' + userId) + '/folders/' + folderDao.id;
+					return '/folders/' + folderDao.id;
 				} else {
 					return '';
 				}

@@ -220,13 +220,21 @@ angular.module('classeur.core.files', [])
 			}
 		}
 
-		function checkAll() {
+		function write() {
+			clFileSvc.$write();
+			clFileSvc.files.forEach(function(fileDao) {
+				fileDao.write();
+				fileDao.writeContent();
+			});
+		}
+
+		function checkAll(skipWrite) {
 			// Check file id list
 			var checkFileSvcUpdate = clFileSvc.$checkUpdate();
 			clFileSvc.$readUpdate();
 			if (checkFileSvcUpdate && clFileSvc.$check()) {
 				clFileSvc.fileIds = undefined;
-			} else {
+			} else if(!skipWrite) {
 				clFileSvc.$write();
 			}
 
@@ -238,13 +246,13 @@ angular.module('classeur.core.files', [])
 			clFileSvc.files.forEach(function(fileDao) {
 				if (checkFileUpdate && fileDao.$checkUpdate()) {
 					fileDao.read();
-				} else {
+				} else if(!skipWrite) {
 					fileDao.write();
 				}
 				if (checkContentUpdate && fileDao.contentDao.$checkUpdate()) {
 					fileDao.unload();
 					fileDao.readContent();
-				} else {
+				} else if(!skipWrite) {
 					fileDao.writeContent();
 				}
 			});
@@ -290,11 +298,12 @@ angular.module('classeur.core.files', [])
 			init();
 		}
 
-		function updateFiles(changes) {
+		function updateUserFiles(changes) {
 			changes.forEach(function(change) {
 				var fileDao = clFileSvc.fileMap[change.id];
 				if (change.deleted && fileDao) {
 					fileDao.unload();
+					clFileSvc.fileMap[change.id] = undefined;
 					var index = clFileSvc.files.indexOf(fileDao);
 					clFileSvc.fileIds.splice(index, 1);
 				} else if (!change.deleted && !fileDao) {
@@ -305,6 +314,7 @@ angular.module('classeur.core.files', [])
 				fileDao.name = change.name || '';
 				fileDao.folderId = change.folderId || '';
 				fileDao.sharing = change.sharing || '';
+				fileDao.isPublic = '';
 				fileDao.write(change.updated);
 			});
 			init();
@@ -312,12 +322,13 @@ angular.module('classeur.core.files', [])
 
 		clFileSvc.fileDaoProto = fileDaoProto;
 		clFileSvc.init = init;
+		clFileSvc.write = write;
 		clFileSvc.checkAll = checkAll;
 		clFileSvc.createFile = createFile;
 		clFileSvc.createPublicFile = createPublicFile;
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.removeFiles = removeFiles;
-		clFileSvc.updateFiles = updateFiles;
+		clFileSvc.updateUserFiles = updateUserFiles;
 		clFileSvc.fileMap = {};
 
 		init();

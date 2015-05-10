@@ -1,5 +1,5 @@
 angular.module('classeur.opt.userActivity', [])
-	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserInfoSvc, clEditorSvc, clSyncSvc) {
+	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserInfoSvc, clEditorSvc, clContentSyncSvc) {
 		var colors = [
 			'F15D45',
 			'EF4A53',
@@ -136,8 +136,8 @@ angular.module('classeur.opt.userActivity', [])
 					endMarker = new Marker(offset.end);
 					setHighlighting();
 					timeoutId = $timeout(function() {
-						if (clSyncSvc.watchCtx) {
-							delete clSyncSvc.watchCtx.userActivities[scope.userId];
+						if (clContentSyncSvc.watchCtx) {
+							delete clContentSyncSvc.watchCtx.userActivities[scope.userId];
 						}
 					}, 30000);
 				}

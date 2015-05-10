@@ -71,13 +71,20 @@ angular.module('classeur.core.folders', [])
 			}
 		}
 
-		function checkAll() {
+		function write() {
+			clFolderSvc.$write();
+			clFolderSvc.folders.forEach(function(folderDao) {
+				folderDao.write();
+			});
+		}
+
+		function checkAll(skipWrite) {
 			// Check folder id list
 			var checkFolderSvcUpdate = clFolderSvc.$checkUpdate();
 			clFolderSvc.$readUpdate();
 			if (checkFolderSvcUpdate && clFolderSvc.$check()) {
 				clFolderSvc.folderIds = undefined;
-			} else {
+			} else if (!skipWrite) {
 				clFolderSvc.$write();
 			}
 
@@ -87,7 +94,7 @@ angular.module('classeur.core.folders', [])
 			clFolderSvc.folders.forEach(function(folderDao) {
 				if (checkFolderUpdate && folderDao.$checkUpdate()) {
 					folderDao.read();
-				} else {
+				} else if (!skipWrite) {
 					folderDao.write();
 				}
 			});
@@ -134,7 +141,7 @@ angular.module('classeur.core.folders', [])
 			init();
 		}
 
-		function updateFolders(changes) {
+		function updateUserFolders(changes) {
 			changes.forEach(function(change) {
 				var folderDao = clFolderSvc.folderMap[change.id];
 				if (change.deleted && folderDao) {
@@ -147,6 +154,7 @@ angular.module('classeur.core.folders', [])
 				}
 				folderDao.name = change.name || '';
 				folderDao.sharing = change.sharing || '';
+				folderDao.isPublic = '';
 				folderDao.write(change.updated);
 			});
 			init();
@@ -154,12 +162,13 @@ angular.module('classeur.core.folders', [])
 
 		clFolderSvc.folderDaoProto = folderDaoProto;
 		clFolderSvc.init = init;
+		clFolderSvc.write = write;
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;
 		clFolderSvc.createPublicFolder = createPublicFolder;
 		clFolderSvc.removeFolder = removeFolder;
 		clFolderSvc.removeFolders = removeFolders;
-		clFolderSvc.updateFolders = updateFolders;
+		clFolderSvc.updateUserFolders = updateUserFolders;
 		clFolderSvc.folderMap = {};
 
 		init();

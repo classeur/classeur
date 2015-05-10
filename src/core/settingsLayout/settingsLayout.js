@@ -326,7 +326,7 @@ angular.module('classeur.core.settingsLayout', [])
 					};
 
 					scope.recoverFile = function(file) {
-						clSyncSvc.filesToRecover[file.id] = file;
+						clSyncSvc.recoverFile(file);
 						clToast('File recovery is pending...');
 					};
 
