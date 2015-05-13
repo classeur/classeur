@@ -9,11 +9,11 @@ angular.module('classeur.core.classeurs', [])
 					});
 				},
 				parser: function(data) {
-					return JSON.parse(data).reduce(function(result, item) {
+					return JSON.parse(data).map(function(item) {
 						var classeurDao = new ClasseurDao();
 						classeurDao.fromStorable(item);
-						return result.push(classeurDao), result;
-					}, []);
+						return classeurDao;
+					});
 				}
 			}
 		});

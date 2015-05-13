@@ -136,7 +136,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clSyncSvc, clSettingSvc) {
+	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -497,7 +497,7 @@ angular.module('classeur.core.explorerLayout', [])
 					scope.fileFilter = undefined;
 					refreshFiles();
 					setPlasticClass();
-					clSyncSvc.getExtFolder(folderDao);
+					clPublicSyncSvc.getFolder(folderDao);
 				});
 				scope.$watch('fileFilter', function(value) {
 					clExplorerLayoutSvc.setFileFilter(value);
@@ -519,7 +519,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.factory('clExplorerLayoutSvc', function($rootScope, clLocalStorage, clFolderSvc, clFileSvc, clClasseurSvc, clSyncSvc) {
+	.factory('clExplorerLayoutSvc', function($rootScope, clLocalStorage, clFolderSvc, clFileSvc, clClasseurSvc) {
 		var isInited, pageSize = 20;
 		var lastClasseurKey = 'lastClasseurId';
 		var lastFolderKey = 'lastFolderId';
@@ -614,7 +614,6 @@ angular.module('classeur.core.explorerLayout', [])
 			clExplorerLayoutSvc.currentFolderDao = folderDao;
 			clExplorerLayoutSvc.currentClasseurDao.lastFolder = folderDao;
 			folderDao && folderDao.id ? clLocalStorage.setItem(lastFolderKey, folderDao.id) : clLocalStorage.removeItem(lastFolderKey);
-			(!folderDao || folderDao === unclassifiedFolder) && clSyncSvc.getExtFilesMetadata();
 		}
 
 		var clExplorerLayoutSvc = {

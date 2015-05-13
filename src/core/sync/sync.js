@@ -1,5 +1,6 @@
 angular.module('classeur.core.sync', [])
 	.factory('clSyncDataSvc', function(clLocalStorage, clLocalStorageObject, clFileSvc, clFolderSvc, clSocketSvc) {
+		var cleanPublicFileAfter = 86400000; // 1 day
 
 		function parseSyncData(data) {
 			return JSON.parse(data, function(id, value) {
@@ -45,6 +46,12 @@ angular.module('classeur.core.sync', [])
 				serializer: serializeSyncData,
 			},
 			fileSyncReady: {},
+			publicFolders: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			}
+
 		});
 
 		function reset() {
@@ -107,6 +114,23 @@ angular.module('classeur.core.sync', [])
 					}
 					return folders;
 				}, {});
+
+				// Clean up public files
+				var currentDate = Date.now();
+				Object.keys(clSyncDataSvc.publicFolders).forEach(function(folderId) {
+					if (currentDate - clSyncDataSvc.publicFolders[folderId] > cleanPublicFileAfter) {
+						delete clSyncDataSvc.publicFolders[folderId];
+					}
+				});
+				clFileSvc.removeFiles(clFileSvc.files.filter(function(fileDao) {
+					if (fileDao.isPublic &&
+						!fileDao.contentDao.isLocal &&
+						(!fileDao.folderId || !clSyncDataSvc.publicFolders.hasOwnProperty(fileDao.folderId))
+					) {
+						return true;
+					}
+				}));
+
 				initialized = true;
 			}
 
@@ -128,7 +152,7 @@ angular.module('classeur.core.sync', [])
 		}
 
 		function updatePublicFileMetadata(fileDao, metadata) {
-			fileDao.lastRefresh = Date.now();
+			fileDao.refreshed = Date.now();
 			// File permission can change without metadata update
 			if (metadata.updated && (!fileDao.lastUpdated || metadata.updated !== fileDao.lastUpdated || fileDao.sharing !== metadata.permission)) {
 				fileDao.name = metadata.name;
@@ -143,7 +167,7 @@ angular.module('classeur.core.sync', [])
 			if (metadata.updated && (!folderDao.lastUpdated || metadata.updated !== folderDao.lastUpdated)) {
 				folderDao.name = metadata.name;
 				folderDao.sharing = metadata.sharing;
-				folderDao.updated = metadata.updated;
+				folderDao.updated = Date.now();
 				folderDao.write(folderDao.updated);
 			}
 		}
@@ -160,10 +184,6 @@ angular.module('classeur.core.sync', [])
 	})
 	.factory('clContentRevSvc', function(clLocalStorage, clFileSvc) {
 		var contentRevKeyPrefix = 'cr.';
-
-		clFileSvc.removeFiles(clFileSvc.files.filter(function(fileDao) {
-			return fileDao.isPublic && !fileDao.contentDao.isLocal;
-		}));
 
 		var fileKeyPrefix = /^cr\.(\w\w+)/;
 		Object.keys(clLocalStorage).forEach(function(key) {
@@ -193,7 +213,6 @@ angular.module('classeur.core.sync', [])
 		var createFileTimeout = 30 * 1000; // 30 sec
 		var recoverFileTimeout = 30 * 1000; // 30 sec
 		var sendMetadataAfter = clToast.hideDelay + 2000; // 8 sec (more than toast duration to handle undo)
-		var publicFileRefreshAfter = 60 * 1000; // 60 sec
 
 
 		/***
@@ -237,7 +256,7 @@ angular.module('classeur.core.sync', [])
 					clSyncDataSvc.userData.classeurs = {
 						r: msg.classeursUpdated
 					};
-					clSyncSvc.getExtFoldersMetadata();
+					getPublicFoldersMetadata();
 				}
 				if (msg.settings) {
 					syncData = clSyncDataSvc.userData.settings || {};
@@ -292,6 +311,33 @@ angular.module('classeur.core.sync', [])
 		/******
 		Folders
 		******/
+
+		function getPublicFoldersMetadata() {
+			var foldersToRefresh = clFolderSvc.folders.filter(function(folderDao) {
+				return folderDao.isPublic && !folderDao.name;
+			});
+			if (!foldersToRefresh.length ||
+				$window.navigator.onLine === false
+			) {
+				return;
+			}
+			$http.get('/api/metadata/folders', {
+					timeout: clSyncDataSvc.loadingTimeout,
+					params: {
+						id: foldersToRefresh.map(function(folderDao) {
+							return folderDao.id;
+						}).join(','),
+					}
+				})
+				.success(function(res) {
+					res.forEach(function(item) {
+						var folderDao = clFolderSvc.folderMap[item.id];
+						if (folderDao) {
+							clSyncDataSvc.updatePublicFolderMetadata(folderDao, item);
+						}
+					});
+				});
+		}
 
 		var syncFolders = (function() {
 
@@ -490,113 +536,6 @@ angular.module('classeur.core.sync', [])
 		})();
 
 
-		/*********************
-		External files/folders
-		*********************/
-
-		var lastGetExtFileAttempt = 0;
-		clSyncSvc.getExtFilesMetadata = function() {
-			var currentDate = Date.now();
-			var filesToRefresh = clFileSvc.files.filter(function(fileDao) {
-				return fileDao.isPublic && (!fileDao.lastRefresh || currentDate - publicFileRefreshAfter > fileDao.lastRefresh);
-			});
-			if (!filesToRefresh.length ||
-				currentDate - lastGetExtFileAttempt < publicFileRefreshAfter ||
-				$window.navigator.onLine === false
-			) {
-				return;
-			}
-			lastGetExtFileAttempt = currentDate;
-			$http.get('/api/metadata/files', {
-					timeout: clSyncDataSvc.loadingTimeout,
-					params: {
-						id: filesToRefresh.map(function(fileDao) {
-							return fileDao.id;
-						}).join(',')
-					}
-				})
-				.success(function(res) {
-					lastGetExtFileAttempt = 0;
-					res.forEach(function(item) {
-						var fileDao = clFileSvc.fileMap[item.id];
-						if (fileDao) {
-							clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
-							item.updated || clToast('File is not accessible: ' + fileDao.name);
-						}
-					});
-				});
-		};
-
-		clSyncSvc.getExtFoldersMetadata = function() {
-			var foldersToRefresh = clFolderSvc.folders.filter(function(folderDao) {
-				return folderDao.isPublic && !folderDao.name;
-			});
-			if (!foldersToRefresh.length ||
-				$window.navigator.onLine === false
-			) {
-				return;
-			}
-			$http.get('/api/metadata/folders', {
-					timeout: clSyncDataSvc.loadingTimeout,
-					params: {
-						id: foldersToRefresh.map(function(folderDao) {
-							return folderDao.id;
-						}).join(','),
-					}
-				})
-				.success(function(res) {
-					res.forEach(function(item) {
-						var folderDao = clFolderSvc.folderMap[item.id];
-						if (folderDao) {
-							clSyncDataSvc.updatePublicFolderMetadata(folderDao, item);
-						}
-					});
-				});
-		};
-
-		clSyncSvc.getExtFolder = function(folderDao) {
-			if (!folderDao || !folderDao.isPublic ||
-				(folderDao.lastRefresh && Date.now() - folderDao.lastRefresh < publicFileRefreshAfter) ||
-				$window.navigator.onLine === false
-			) {
-				return;
-			}
-			$http.get('/api/folders/' + folderDao.id, {
-					timeout: clSyncDataSvc.loadingTimeout
-				})
-				.success(function(res) {
-					folderDao.lastRefresh = Date.now();
-					clSyncDataSvc.updatePublicFolderMetadata(folderDao, res);
-					var filesToMove = {};
-					clFileSvc.files.forEach(function(fileDao) {
-						if (fileDao.folderId === folderDao.id) {
-							filesToMove[fileDao.id] = fileDao;
-						}
-					});
-					res.files.forEach(function(item) {
-						delete filesToMove[item.id];
-						var fileDao = clFileSvc.fileMap[item.id];
-						if (!fileDao) {
-							fileDao = clFileSvc.createPublicFile(item.id);
-							clFileSvc.fileMap[fileDao.id] = fileDao;
-							clFileSvc.fileIds.push(fileDao.id);
-						}
-						fileDao.folderId = folderDao.id;
-						clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
-					});
-					angular.forEach(filesToMove, function(fileDao) {
-						fileDao.folderId = '';
-					});
-					clFileSvc.init();
-				})
-				.error(function() {
-					folderDao.lastRefresh = 1; // Get rid of the spinner
-					clToast('Folder is not accessible.');
-					!folderDao.name && clFolderSvc.removeFolder(folderDao);
-				});
-		};
-
-
 		/********
 		New files
 		********/
@@ -686,6 +625,92 @@ angular.module('classeur.core.sync', [])
 		}, 1100);
 
 		return clSyncSvc;
+	})
+	.factory('clPublicSyncSvc', function($window, $http, clSyncDataSvc, clFileSvc, clFolderSvc, clToast) {
+		var publicFileRefreshAfter = 60 * 1000; // 60 sec
+		var lastGetExtFileAttempt = 0;
+
+		function getLocalFiles() {
+			var currentDate = Date.now();
+			var filesToRefresh = clFileSvc.localFiles.filter(function(fileDao) {
+				return fileDao.isPublic && (!fileDao.refreshed || currentDate - publicFileRefreshAfter > fileDao.refreshed);
+			});
+			if (!filesToRefresh.length ||
+				currentDate - lastGetExtFileAttempt < publicFileRefreshAfter
+			) {
+				return;
+			}
+			lastGetExtFileAttempt = currentDate;
+			$http.get('/api/metadata/files', {
+					timeout: clSyncDataSvc.loadingTimeout,
+					params: {
+						id: filesToRefresh.map(function(fileDao) {
+							return fileDao.id;
+						}).join(',')
+					}
+				})
+				.success(function(res) {
+					lastGetExtFileAttempt = 0;
+					res.forEach(function(item) {
+						var fileDao = clFileSvc.fileMap[item.id];
+						if (fileDao) {
+							clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
+							item.updated || clToast('File is not accessible: ' + fileDao.name);
+						}
+					});
+				});
+		}
+
+		function getPublicFolder(folderDao) {
+			if (!folderDao || !folderDao.isPublic ||
+				(folderDao.lastRefresh && Date.now() - folderDao.lastRefresh < publicFileRefreshAfter)
+			) {
+				return;
+			}
+			$http.get('/api/folders/' + folderDao.id, {
+					timeout: clSyncDataSvc.loadingTimeout
+				})
+				.success(function(res) {
+					var currentDate = Date.now();
+					clSyncDataSvc.publicFolders[folderDao.id] = currentDate;
+					folderDao.lastRefresh = currentDate;
+					clSyncDataSvc.updatePublicFolderMetadata(folderDao, res);
+					var filesToMove = {};
+					clFileSvc.files.forEach(function(fileDao) {
+						if (fileDao.folderId === folderDao.id) {
+							filesToMove[fileDao.id] = fileDao;
+						}
+					});
+					res.files.forEach(function(item) {
+						delete filesToMove[item.id];
+						var fileDao = clFileSvc.fileMap[item.id];
+						if (!fileDao) {
+							fileDao = clFileSvc.createPublicFile(item.id);
+							clFileSvc.fileMap[fileDao.id] = fileDao;
+							clFileSvc.fileIds.push(fileDao.id);
+						}
+						fileDao.folderId = folderDao.id;
+						clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
+					});
+					angular.forEach(filesToMove, function(fileDao) {
+						fileDao.folderId = '';
+					});
+					clFileSvc.init();
+				})
+				.error(function() {
+					folderDao.lastRefresh = 1; // Get rid of the spinner
+					clToast('Folder is not accessible.');
+					!folderDao.name && clFolderSvc.removeFolder(folderDao);
+				});
+		}
+
+		return {
+			getFolder: function(folderDao) {
+				if ($window.navigator.onLine !== false) {
+					folderDao ? getPublicFolder(folderDao) : getLocalFiles();
+				}
+			}
+		};
 	})
 	.factory('clContentSyncSvc', function($window, $rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clSyncUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc) {
 		var clContentSyncSvc = {};
@@ -778,7 +803,7 @@ angular.module('classeur.core.sync', [])
 			$timeout.cancel(fileDao.loadingTimeoutId);
 			fileDao.loadingTimeoutId = $timeout(function() {
 				setLoadingError(fileDao, 'Loading timeout.');
-			}, clSyncDataSvc.clSyncDataSvc);
+			}, clSyncDataSvc.loadingTimeout);
 		}
 
 		function stopWatchFile() {
