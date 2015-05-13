@@ -47,6 +47,16 @@ angular.module('classeur.core.sync', [])
 			fileSyncReady: {},
 		});
 
+		function reset() {
+			var fileKeyPrefix = /^syncData\./;
+			Object.keys(clLocalStorage).forEach(function(key) {
+				if (key.match(fileKeyPrefix)) {
+					clLocalStorage.removeItem(key);
+				}
+			});
+			read();
+		}
+
 		var initialized;
 
 		function checkUserChange(userId) {
@@ -57,7 +67,7 @@ angular.module('classeur.core.sync', [])
 						return !fileDao.contentDao.isLocal;
 					}
 				});
-				clFileSvc.removeFiles(filesToRemove);
+				clFileSvc.removeFiles(filesToRemove); // Free up some space
 				clFileSvc.checkAll();
 
 				clFolderSvc.folders.forEach(function(folderDao) {
@@ -67,13 +77,7 @@ angular.module('classeur.core.sync', [])
 				});
 				clFolderSvc.checkAll();
 
-				var fileKeyPrefix = /^(cr\.|syncData\.)/;
-				Object.keys(clLocalStorage).forEach(function(key) {
-					if (key.match(fileKeyPrefix)) {
-						clLocalStorage.removeItem(key);
-					}
-				});
-				read();
+				reset();
 				clSyncDataSvc.userId = userId;
 				// Force sync
 				write(1);
@@ -91,20 +95,21 @@ angular.module('classeur.core.sync', [])
 			clSyncDataSvc.$readUpdate();
 
 			if (!initialized) {
-				var filesToRemove = clFileSvc.files.filter(function(fileDao) {
-					if (clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
-						fileDao.isPublic = '';
+				clSyncDataSvc.files = Object.keys(clSyncDataSvc.files).reduce(function(files, id) {
+					if (clFileSvc.fileMap.hasOwnProperty(id)) {
+						files[id] = clSyncDataSvc.files[id];
 					}
-					return fileDao.isPublic && !fileDao.contentDao.isLocal;
-				});
-				clFileSvc.removeFiles(filesToRemove);
-				clFolderSvc.folders.forEach(function(folderDao) {
-					if (clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
-						folderDao.isPublic = '';
+					return files;
+				}, {});
+				clSyncDataSvc.folders = Object.keys(clSyncDataSvc.folders).reduce(function(folders, id) {
+					if (clFolderSvc.folderMap.hasOwnProperty(id)) {
+						folders[id] = clSyncDataSvc.folders[id];
 					}
-				});
+					return folders;
+				}, {});
 				initialized = true;
 			}
+
 			return ctx && ctx.userId && checkUserChange(ctx.userId);
 		}
 
@@ -130,7 +135,6 @@ angular.module('classeur.core.sync', [])
 				// For external files we take the permission as the file sharing
 				fileDao.sharing = metadata.permission;
 				fileDao.updated = metadata.updated;
-				fileDao.lastUpdated = metadata.updated;
 				fileDao.write(fileDao.updated);
 			}
 		}
@@ -140,7 +144,6 @@ angular.module('classeur.core.sync', [])
 				folderDao.name = metadata.name;
 				folderDao.sharing = metadata.sharing;
 				folderDao.updated = metadata.updated;
-				folderDao.lastUpdated = metadata.updated;
 				folderDao.write(folderDao.updated);
 			}
 		}
@@ -157,6 +160,10 @@ angular.module('classeur.core.sync', [])
 	})
 	.factory('clContentRevSvc', function(clLocalStorage, clFileSvc) {
 		var contentRevKeyPrefix = 'cr.';
+
+		clFileSvc.removeFiles(clFileSvc.files.filter(function(fileDao) {
+			return fileDao.isPublic && !fileDao.contentDao.isLocal;
+		}));
 
 		var fileKeyPrefix = /^cr\.(\w\w+)/;
 		Object.keys(clLocalStorage).forEach(function(key) {
@@ -184,6 +191,7 @@ angular.module('classeur.core.sync', [])
 		var nameMaxLength = 128;
 		var maxSyncInactivity = 30 * 1000; // 30 sec
 		var createFileTimeout = 30 * 1000; // 30 sec
+		var recoverFileTimeout = 30 * 1000; // 30 sec
 		var sendMetadataAfter = clToast.hideDelay + 2000; // 8 sec (more than toast duration to handle undo)
 		var publicFileRefreshAfter = 60 * 1000; // 60 sec
 
@@ -294,27 +302,22 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
-			var expectedFolderDeletions = [];
 			clSocketSvc.addMsgHandler('folderChanges', function(msg, ctx) {
 				if (clSyncDataSvc.read(ctx)) {
 					return;
 				}
 				var apply = clFolderSvc.checkAll(true);
 				var foldersToUpdate = [];
-				expectedFolderDeletions.forEach(function(id) {
-					// Assume folders have been deleted
-					delete clSyncDataSvc.folders[id];
-				});
 				(msg.changes || []).forEach(function(change) {
 					var folderDao = clFolderSvc.folderMap[change.id];
 					var syncData = clSyncDataSvc.folders[change.id] || {};
-					/*jshint -W018 */
-					if (!change.deleted === !folderDao ||
+					if (
+						(change.deleted && folderDao) ||
+						(!change.deleted && !folderDao) ||
 						(folderDao && folderDao.updated != change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
 					) {
 						foldersToUpdate.push(change);
 					}
-					/*jshint +W018 */
 					if (change.deleted) {
 						delete clSyncDataSvc.folders[change.id];
 					} else {
@@ -351,45 +354,28 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function sendChanges() {
-				var changes = [];
 				clFolderSvc.folders.forEach(function(folderDao) {
 					var syncData = clSyncDataSvc.folders[folderDao.id] || {};
-					if (folderDao.updated == syncData.r || !checkChange(folderDao)) {
+					if (folderDao.updated == syncData.r || !checkChange(folderDao) || (folderDao.isPublic && folderDao.sharing !== 'rw')) {
 						return;
 					}
-					if (!folderDao.isPublic) {
-						changes.push({
+					if (folderDao.sharing[0] === '-') {
+						clSocketSvc.sendMsg({
+							type: 'deleteFolder',
+							id: folderDao.id
+						});
+					} else {
+						clSocketSvc.sendMsg({
+							type: 'setFolderMetadata',
 							id: folderDao.id,
 							name: folderDao.name,
 							sharing: folderDao.sharing || undefined,
-							updated: folderDao.updated
-						});
-						syncData.s = folderDao.updated;
-						clSyncDataSvc.folders[folderDao.id] = syncData;
-					} else if (folderDao.isPublic && folderDao.lastUpdated && folderDao.updated !== folderDao.lastUpdated && folderDao.sharing === 'rw') {
-						changes.push({
-							id: folderDao.id,
-							name: folderDao.name,
 							updated: folderDao.updated,
-							lastUpdated: folderDao.lastUpdated
-						});
-						folderDao.lastUpdated = folderDao.updated;
-					}
-				});
-				// Check deleted folders
-				expectedFolderDeletions = [];
-				angular.forEach(clSyncDataSvc.folders, function(syncData, id) {
-					if (!clFolderSvc.folderMap.hasOwnProperty(id)) {
-						expectedFolderDeletions.push(id);
-						changes.push({
-							id: id,
-							deleted: true
+							lastUpdated: syncData.r
 						});
 					}
-				});
-				changes.length && clSocketSvc.sendMsg({
-					type: 'setFolderChanges',
-					changes: changes
+					syncData.s = folderDao.updated;
+					clSyncDataSvc.folders[folderDao.id] = syncData;
 				});
 			}
 
@@ -410,25 +396,15 @@ angular.module('classeur.core.sync', [])
 				});
 			}
 
-			var expectedFileDeletions = [];
-			var expectedFileRecoveries = [];
 			clSocketSvc.addMsgHandler('fileChanges', function(msg, ctx) {
 				if (clSyncDataSvc.read(ctx)) {
 					return;
 				}
 				var apply = clFileSvc.checkAll(true);
 				var filesToUpdate = [];
-				expectedFileDeletions.forEach(function(id) {
-					// Assume files have been deleted
-					delete clSyncDataSvc.files[id];
-				});
-				expectedFileRecoveries.forEach(function(id) {
-					delete clSyncSvc.fileRecoveryDates[id];
-				});
 				(msg.changes || []).forEach(function(change) {
 					var fileDao = clFileSvc.fileMap[change.id];
 					var syncData = clSyncDataSvc.files[change.id] || {};
-					/*jshint -W018 */
 					if (
 						(change.deleted && fileDao && !fileDao.isPublic) ||
 						(!change.deleted && !fileDao) ||
@@ -436,7 +412,6 @@ angular.module('classeur.core.sync', [])
 					) {
 						filesToUpdate.push(change);
 					}
-					/*jshint +W018 */
 					if (change.deleted) {
 						delete clSyncDataSvc.files[change.id];
 					} else {
@@ -473,56 +448,25 @@ angular.module('classeur.core.sync', [])
 			clSyncSvc.fileRecoveryDates = {};
 
 			function sendChanges() {
-				var changes = [];
 				clFileSvc.files.forEach(function(fileDao) {
 					var syncData = clSyncDataSvc.files[fileDao.id] || {};
-					if (fileDao.updated == syncData.r || !checkChange(fileDao)) {
+					// The file has been created
+					if (!syncData.r || fileDao.updated == syncData.r || !checkChange(fileDao) || (fileDao.isPublic && fileDao.sharing !== 'rw')) {
 						return;
 					}
-					// Check that the file was previously created
-					if (syncData.r && !fileDao.isPublic) {
-						clSocketSvc.sendMsg({
-							type: 'setFileChange',
-							id: file.id,
-							name: file.name,
-							folderId: file.folderId || undefined,
-							sharing: file.sharing || undefined,
-							updated: currentDate
-						});
-						changes.push({
-							id: fileDao.id,
-							name: fileDao.name,
-							folderId: fileDao.folderId || undefined,
-							sharing: fileDao.sharing || undefined,
-							updated: fileDao.updated
-						});
-						syncData.s = fileDao.updated;
-						clSyncDataSvc.files[fileDao.id] = syncData;
-					} else if (fileDao.isPublic && fileDao.lastUpdated && fileDao.updated !== fileDao.lastUpdated && fileDao.sharing === 'rw') {
-						changes.push({
-							id: fileDao.id,
-							name: fileDao.name,
-							updated: fileDao.updated,
-							lastUpdated: fileDao.lastUpdated
-						});
-						fileDao.lastUpdated = fileDao.updated;
-					}
-				});
-				// Check deleted files
-				expectedFileDeletions = [];
-				angular.forEach(clSyncDataSvc.files, function(syncData, id) {
-					if (!clFileSvc.fileMap.hasOwnProperty(id)) {
-						expectedFileDeletions.push(id);
-						// Check that file has metadata
-						(syncData.r > 0 || syncData.s) && changes.push({
-							id: id,
-							deleted: true
-						});
-					}
-				});
-				changes.length && clSocketSvc.sendMsg({
-					type: 'setFileChanges',
-					changes: changes
+					var deleted = fileDao.sharing[0] === '-' ? fileDao.updated : undefined;
+					clSocketSvc.sendMsg({
+						type: 'setFileMetadata',
+						id: fileDao.id,
+						name: fileDao.name,
+						folderId: fileDao.folderId || undefined,
+						sharing: (deleted ? fileDao.sharing.slice(1) : fileDao.sharing) || undefined,
+						updated: fileDao.updated,
+						deleted: deleted,
+						lastUpdated: !deleted ? syncData.r : undefined
+					});
+					syncData.s = fileDao.updated;
+					clSyncDataSvc.files[fileDao.id] = syncData;
 				});
 				clSyncDataSvc.fileSyncReady = '1';
 			}
@@ -717,6 +661,13 @@ angular.module('classeur.core.sync', [])
 
 			// Need to save here to have the `updated` attributes up to date
 			clSyncSvc.saveAll() && $rootScope.$apply();
+
+			var currentDate = Date.now();
+			Object.keys(clSyncSvc.fileRecoveryDates).forEach(function(fileId) {
+				if (clSyncSvc.fileRecoveryDates[fileId] + recoverFileTimeout < currentDate) {
+					delete clSyncSvc.fileRecoveryDates[fileId];
+				}
+			});
 
 			if (!clUserActivity.isActive() || !clSocketSvc.isOnline()) {
 				return;
@@ -1003,6 +954,8 @@ angular.module('classeur.core.sync', [])
 				getPublicFile(currentFileDao);
 			}
 		}, 200);
+
+		return clContentSyncSvc;
 	})
 	.factory('clSyncUtils', function($window) {
 		var diffMatchPatch = new $window.diff_match_patch();

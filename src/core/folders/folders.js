@@ -169,6 +169,7 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.removeFolder = removeFolder;
 		clFolderSvc.removeFolders = removeFolders;
 		clFolderSvc.updateUserFolders = updateUserFolders;
+		clFolderSvc.folders = [];
 		clFolderSvc.folderMap = {};
 
 		init();

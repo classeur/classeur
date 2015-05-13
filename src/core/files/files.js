@@ -329,6 +329,7 @@ angular.module('classeur.core.files', [])
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.removeFiles = removeFiles;
 		clFileSvc.updateUserFiles = updateUserFiles;
+		clFileSvc.files = [];
 		clFileSvc.fileMap = {};
 
 		init();
