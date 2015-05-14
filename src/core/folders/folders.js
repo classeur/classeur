@@ -198,7 +198,9 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.setDeletedFolder = setDeletedFolder;
 		clFolderSvc.updateUserFolders = updateUserFolders;
 		clFolderSvc.folders = [];
+		clFolderSvc.deletedFolders = [];
 		clFolderSvc.folderMap = {};
+		clFolderSvc.deletedFolderMap = {};
 
 		init();
 		return clFolderSvc;

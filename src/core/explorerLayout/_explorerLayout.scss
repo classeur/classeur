@@ -50,13 +50,16 @@
             }
         }
         .user-info {
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
             background-color: #484848;
             color: #fff;
             padding: 0 12px;
-            font-size: 14px;
+            font-size: 15px;
             margin-left: 10px;
+            .md-button {
+                padding: 7px 10px;
+            }
             .username {
                 display: inline-block;
                 position: relative;
@@ -67,7 +70,7 @@
             .settings {
                 padding: 6px;
                 font-size: 18px;
-                line-height: 14px;
+                line-height: 0;
             }
         }
     }

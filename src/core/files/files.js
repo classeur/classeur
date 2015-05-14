@@ -355,6 +355,7 @@ angular.module('classeur.core.files', [])
 		clFileSvc.setDeletedFiles = setDeletedFiles;
 		clFileSvc.updateUserFiles = updateUserFiles;
 		clFileSvc.files = [];
+		clFileSvc.deletedFiles = [];
 		clFileSvc.fileMap = {};
 		clFileSvc.deletedFileMap = {};
 
