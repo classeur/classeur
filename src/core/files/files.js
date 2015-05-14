@@ -6,6 +6,10 @@ angular.module('classeur.core.files', [])
 			folderId: {},
 			sharing: {},
 			isPublic: {},
+			deleted: {
+				default: '0',
+				parser: parseInt
+			},
 		}, true);
 		var contentDaoProto = clLocalStorageObject('c', {
 			isLocal: {},
@@ -150,6 +154,7 @@ angular.module('classeur.core.files', [])
 			name: true,
 			sharing: true,
 			folderId: true,
+			deleted: true,
 		};
 
 		var contentAuthorizedKeys = {
@@ -171,18 +176,26 @@ angular.module('classeur.core.files', [])
 			}
 
 			var fileMap = {};
+			var deletedFileMap = {};
 			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
-				return !fileMap.hasOwnProperty(id) && (fileMap[id] = clFileSvc.fileMap[id] || new FileDao(id));
+				var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id);
+				return (!fileDao.deleted && !fileMap.hasOwnProperty(id) && (fileMap[id] = fileDao)) ||
+				(fileDao.deleted && !deletedFileMap.hasOwnProperty(id) && (deletedFileMap[id] = fileDao));
 			});
 
 			clFileSvc.files.forEach(function(fileDao) {
 				!fileMap.hasOwnProperty(fileDao.id) && fileDao.unload();
 			});
 
-			clFileSvc.files = clFileSvc.fileIds.map(function(id) {
+			clFileSvc.files = Object.keys(fileMap).map(function(id) {
 				return fileMap[id];
 			});
 			clFileSvc.fileMap = fileMap;
+
+			clFileSvc.deletedFiles = Object.keys(deletedFileMap).map(function(id) {
+				return deletedFileMap[id];
+			});
+			clFileSvc.deletedFileMap = deletedFileMap;
 
 			clFileSvc.localFiles = clFileSvc.files.filter(function(fileDao) {
 				return fileDao.contentDao.isLocal;
@@ -202,7 +215,7 @@ angular.module('classeur.core.files', [])
 				Object.keys(clLocalStorage).forEach(function(key) {
 					var fileDao, match = key.match(fileKeyPrefix);
 					if (match) {
-						fileDao = clFileSvc.fileMap[match[1]];
+						fileDao = clFileSvc.fileMap[match[1]] || clFileSvc.deletedFileMap[match[1]];
 						if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
 							clLocalStorage.removeItem(key);
 						}
@@ -298,6 +311,17 @@ angular.module('classeur.core.files', [])
 			init();
 		}
 
+		function setDeletedFiles(fileDaoList) {
+			if (!fileDaoList.length) {
+				return;
+			}
+			var currentDate = Date.now();
+			fileDaoList.forEach(function(fileDao) {
+				fileDao.deleted = currentDate;
+			});
+			init();
+		}
+
 		function updateUserFiles(changes) {
 			changes.forEach(function(change) {
 				var fileDao = clFileSvc.fileMap[change.id];
@@ -328,9 +352,11 @@ angular.module('classeur.core.files', [])
 		clFileSvc.createPublicFile = createPublicFile;
 		clFileSvc.createReadOnlyFile = createReadOnlyFile;
 		clFileSvc.removeFiles = removeFiles;
+		clFileSvc.setDeletedFiles = setDeletedFiles;
 		clFileSvc.updateUserFiles = updateUserFiles;
 		clFileSvc.files = [];
 		clFileSvc.fileMap = {};
+		clFileSvc.deletedFileMap = {};
 
 		init();
 		return clFileSvc;

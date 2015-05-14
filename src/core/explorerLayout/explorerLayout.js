@@ -367,8 +367,8 @@ angular.module('classeur.core.explorerLayout', [])
 					var filesToRemove = clExplorerLayoutSvc.selectedFiles;
 
 					function remove() {
-						clFileSvc.removeFiles(filesToRemove);
-						if (deleteFolder && clFolderSvc.removeFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
+						clFileSvc.setDeletedFiles(filesToRemove);
+						if (deleteFolder && clFolderSvc.setDeletedFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
 							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
 							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
 							clExplorerLayoutSvc.setCurrentFolder(currentFolderDao);
@@ -449,8 +449,8 @@ angular.module('classeur.core.explorerLayout', [])
 						templateUrl: 'core/explorerLayout/deleteClasseurDialog.html',
 						onComplete: function(scope) {
 							scope.remove = function() {
-								clFileSvc.removeFiles(filesToRemove);
-								clFolderSvc.removeFolders(foldersToRemove);
+								clFileSvc.setDeletedFiles(filesToRemove);
+								clFolderSvc.setDeletedFolders(foldersToRemove);
 								$mdDialog.hide();
 							};
 							scope.move = function() {

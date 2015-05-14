@@ -157,7 +157,7 @@ angular.module('classeur.core.sync', [])
 		});
 
 		function isFilePendingCreation(fileDao) {
-			return !fileDao.isPublic && fileDao.contentDao.isLocal && !clSyncDataSvc.files.hasOwnProperty(fileDao.id);
+			return (!fileDao.isPublic || fileDao.sharing === 'rw') && fileDao.contentDao.isLocal && !clSyncDataSvc.files.hasOwnProperty(fileDao.id);
 		}
 
 		function updatePublicFileMetadata(fileDao, metadata) {
@@ -427,12 +427,17 @@ angular.module('classeur.core.sync', [])
 							id: folderDao.id,
 							name: folderDao.name,
 							sharing: folderDao.sharing || undefined,
-							updated: folderDao.updated,
-							lastUpdated: syncData.r
+							updated: folderDao.updated
 						});
 					}
 					syncData.s = folderDao.updated;
 					clSyncDataSvc.folders[folderDao.id] = syncData;
+				});
+				clFolderSvc.foldersToRemove.forEach(function(folderId) {
+					clSocketSvc.sendMsg({
+						type: 'deleteFolder',
+						id: folderId
+					});
 				});
 			}
 
@@ -509,16 +514,13 @@ angular.module('classeur.core.sync', [])
 					if (!syncData.r || fileDao.updated == syncData.r || !checkChange(fileDao) || (fileDao.isPublic && fileDao.sharing !== 'rw')) {
 						return;
 					}
-					var deleted = fileDao.sharing[0] === '-' ? fileDao.updated : undefined;
 					clSocketSvc.sendMsg({
 						type: 'setFileMetadata',
 						id: fileDao.id,
 						name: fileDao.name,
 						folderId: fileDao.folderId || undefined,
-						sharing: (deleted ? fileDao.sharing.slice(1) : fileDao.sharing) || undefined,
-						updated: fileDao.updated,
-						deleted: deleted,
-						lastUpdated: !deleted ? syncData.r : undefined
+						sharing: fileDao.sharing,
+						updated: fileDao.updated
 					});
 					syncData.s = fileDao.updated;
 					clSyncDataSvc.files[fileDao.id] = syncData;
@@ -710,7 +712,7 @@ angular.module('classeur.core.sync', [])
 				.error(function() {
 					folderDao.lastRefresh = 1; // Get rid of the spinner
 					clToast('Folder is not accessible.');
-					!folderDao.name && clFolderSvc.removeFolder(folderDao);
+					!folderDao.name && clFolderSvc.removeFolders([folderDao]);
 				});
 		}
 

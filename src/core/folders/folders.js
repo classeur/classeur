@@ -4,6 +4,10 @@ angular.module('classeur.core.folders', [])
 			name: {},
 			sharing: {},
 			isPublic: {},
+			deleted: {
+				default: '0',
+				parser: parseInt
+			},
 		}, true);
 
 		function FolderDao(id) {
@@ -29,6 +33,11 @@ angular.module('classeur.core.folders', [])
 				default: '[]',
 				parser: JSON.parse,
 				serializer: JSON.stringify,
+			},
+			foldersToRemove: {
+				default: '[]',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
 			}
 		});
 
@@ -37,6 +46,7 @@ angular.module('classeur.core.folders', [])
 			isPublic: true,
 			name: true,
 			sharing: true,
+			deleted: true
 		};
 
 		var isInitialized;
@@ -47,13 +57,20 @@ angular.module('classeur.core.folders', [])
 			}
 
 			var folderMap = {};
+			var deletedFolderMap = {};
 			clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(id) {
-				return !folderMap.hasOwnProperty(id) && (folderMap[id] = clFolderSvc.folderMap[id] || new FolderDao(id));
+				var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id] || new FolderDao(id);
+				return (!folderDao.deleted && !folderMap.hasOwnProperty(id) && (folderMap[id] = folderDao)) ||
+					(folderDao.deleted && !deletedFolderMap.hasOwnProperty(id) && (deletedFolderMap[id] = folderDao));
 			});
 			clFolderSvc.folderMap = folderMap;
+			clFolderSvc.deletedFolderMap = deletedFolderMap;
 
-			clFolderSvc.folders = clFolderSvc.folderIds.map(function(id) {
+			clFolderSvc.folders = Object.keys(folderMap).map(function(id) {
 				return folderMap[id];
+			});
+			clFolderSvc.deletedFolders = Object.keys(deletedFolderMap).map(function(id) {
+				return deletedFolderMap[id];
 			});
 
 			if (!isInitialized) {
@@ -61,7 +78,7 @@ angular.module('classeur.core.folders', [])
 				Object.keys(clLocalStorage).forEach(function(key) {
 					var match = key.match(keyPrefix);
 					if (match) {
-						var folderDao = clFolderSvc.folderMap[match[1]];
+						var folderDao = clFolderSvc.folderMap[match[1]] || clFolderSvc.deletedFolderMap[match[1]];
 						if (!folderDao || !authorizedKeys.hasOwnProperty(match[2])) {
 							clLocalStorage.removeItem(key);
 						}
@@ -118,15 +135,6 @@ angular.module('classeur.core.folders', [])
 			return folderDao;
 		}
 
-		function removeFolder(folderDao) {
-			var index = clFolderSvc.folders.indexOf(folderDao);
-			if (index !== -1) {
-				clFolderSvc.folderIds.splice(index, 1);
-				init();
-			}
-			return index;
-		}
-
 		function removeFolders(folderDaoList) {
 			if (!folderDaoList.length) {
 				return;
@@ -139,6 +147,25 @@ angular.module('classeur.core.folders', [])
 				return !folderIds.hasOwnProperty(folderId);
 			});
 			init();
+		}
+
+		function setDeletedFolders(folderDaoList) {
+			if (!folderDaoList.length) {
+				return;
+			}
+			var currentDate = Date.now();
+			folderDaoList.forEach(function(folderDao) {
+				folderDao.deleted = currentDate;
+			});
+			init();
+		}
+
+		function setDeletedFolder(folderDao) {
+			var index = clFolderSvc.folders.indexOf(folderDao);
+			if (index !== -1) {
+				setDeletedFolders([folderDao]);
+			}
+			return index;
 		}
 
 		function updateUserFolders(changes) {
@@ -166,8 +193,9 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.checkAll = checkAll;
 		clFolderSvc.createFolder = createFolder;
 		clFolderSvc.createPublicFolder = createPublicFolder;
-		clFolderSvc.removeFolder = removeFolder;
 		clFolderSvc.removeFolders = removeFolders;
+		clFolderSvc.setDeletedFolders = setDeletedFolders;
+		clFolderSvc.setDeletedFolder = setDeletedFolder;
 		clFolderSvc.updateUserFolders = updateUserFolders;
 		clFolderSvc.folders = [];
 		clFolderSvc.folderMap = {};
