@@ -90,7 +90,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncSvc, clContentSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
+	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -102,6 +102,7 @@ angular.module('classeur.core', [])
 		$rootScope.socketSvc = clSocketSvc;
 		$rootScope.userSvc = clUserSvc;
 		$rootScope.userInfoSvc = clUserInfoSvc;
+		$rootScope.syncDataSvc = clSyncDataSvc;
 		$rootScope.syncSvc = clSyncSvc;
 		$rootScope.contentSyncSvc = clContentSyncSvc;
 		$rootScope.settingSvc = clSettingSvc;

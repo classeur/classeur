@@ -46,12 +46,21 @@ angular.module('classeur.core.sync', [])
 				serializer: serializeSyncData,
 			},
 			fileSyncReady: {},
-			publicFolders: {
+			fileCreationDates: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			},
+			folderRefreshDates: {
+				default: '{}',
+				parser: JSON.parse,
+				serializer: JSON.stringify,
+			},
+			fileRecoveryDates: {
 				default: '{}',
 				parser: JSON.parse,
 				serializer: JSON.stringify,
 			}
-
 		});
 
 		function reset() {
@@ -117,15 +126,15 @@ angular.module('classeur.core.sync', [])
 
 				// Clean up public files
 				var currentDate = Date.now();
-				Object.keys(clSyncDataSvc.publicFolders).forEach(function(folderId) {
-					if (currentDate - clSyncDataSvc.publicFolders[folderId] > cleanPublicFileAfter) {
-						delete clSyncDataSvc.publicFolders[folderId];
+				Object.keys(clSyncDataSvc.folderRefreshDates).forEach(function(folderId) {
+					if (currentDate - clSyncDataSvc.folderRefreshDates[folderId] > cleanPublicFileAfter) {
+						delete clSyncDataSvc.folderRefreshDates[folderId];
 					}
 				});
 				clFileSvc.removeFiles(clFileSvc.files.filter(function(fileDao) {
 					if (fileDao.isPublic &&
 						!fileDao.contentDao.isLocal &&
-						(!fileDao.folderId || !clSyncDataSvc.publicFolders.hasOwnProperty(fileDao.folderId))
+						(!fileDao.folderId || !clSyncDataSvc.folderRefreshDates.hasOwnProperty(fileDao.folderId))
 					) {
 						return true;
 					}
@@ -153,10 +162,11 @@ angular.module('classeur.core.sync', [])
 
 		function updatePublicFileMetadata(fileDao, metadata) {
 			fileDao.refreshed = Date.now();
+			var syncData = clSyncDataSvc.files[fileDao.id] || {};
 			// File permission can change without metadata update
-			if (metadata.updated && (!fileDao.lastUpdated || metadata.updated !== fileDao.lastUpdated || fileDao.sharing !== metadata.permission)) {
+			if (metadata.updated && ((metadata.updated !== syncData.r && metadata.updated !== syncData.s) || fileDao.sharing !== metadata.permission)) {
 				fileDao.name = metadata.name;
-				// For external files we take the permission as the file sharing
+				// For public files we take the permission as the file sharing
 				fileDao.sharing = metadata.permission;
 				fileDao.updated = metadata.updated;
 				fileDao.write(fileDao.updated);
@@ -164,10 +174,11 @@ angular.module('classeur.core.sync', [])
 		}
 
 		function updatePublicFolderMetadata(folderDao, metadata) {
-			if (metadata.updated && (!folderDao.lastUpdated || metadata.updated !== folderDao.lastUpdated)) {
+			var syncData = clSyncDataSvc.folders[folderDao.id] || {};
+			if (metadata.updated && metadata.updated !== syncData.r && metadata.updated !== syncData.s) {
 				folderDao.name = metadata.name;
 				folderDao.sharing = metadata.sharing;
-				folderDao.updated = Date.now();
+				folderDao.updated = metadata.updated;
 				folderDao.write(folderDao.updated);
 			}
 		}
@@ -491,8 +502,6 @@ angular.module('classeur.core.sync', [])
 				}
 			}
 
-			clSyncSvc.fileRecoveryDates = {};
-
 			function sendChanges() {
 				clFileSvc.files.forEach(function(fileDao) {
 					var syncData = clSyncDataSvc.files[fileDao.id] || {};
@@ -517,42 +526,41 @@ angular.module('classeur.core.sync', [])
 				clSyncDataSvc.fileSyncReady = '1';
 			}
 
-			clSyncSvc.recoverFile = function(file) {
-				var currentDate = Date.now();
-				clSyncSvc.fileRecoveryDates[file.id] = currentDate;
-				if (!clFileSvc.fileMap.hasOwnProperty(file.id)) {
-					clSocketSvc.sendMsg({
-						type: 'setFileChange',
-						id: file.id,
-						name: file.name,
-						folderId: file.folderId || undefined,
-						sharing: file.sharing || undefined,
-						updated: currentDate
-					});
-				}
-			};
-
 			return retrieveChanges;
 		})();
+
+		clSyncSvc.recoverFile = function(file) {
+			var currentDate = Date.now();
+			clSyncDataSvc.fileRecoveryDates[file.id] = currentDate;
+			if (!clFileSvc.fileMap.hasOwnProperty(file.id)) {
+				clSocketSvc.sendMsg({
+					type: 'setFileMetadata',
+					id: file.id,
+					name: file.name,
+					folderId: file.folderId || undefined,
+					sharing: file.sharing || undefined,
+					updated: currentDate
+				});
+			}
+		};
 
 
 		/********
 		New files
 		********/
 
-		var fileCreationDates = {};
 		var sendNewFiles = (function() {
 			function sendNewFiles() {
 				var currentDate = Date.now();
-				Object.keys(fileCreationDates).forEach(function(fileId) {
-					if (fileCreationDates[fileId] + createFileTimeout < currentDate) {
-						delete fileCreationDates[fileId];
+				Object.keys(clSyncDataSvc.fileCreationDates).forEach(function(fileId) {
+					if (clSyncDataSvc.fileCreationDates[fileId] + createFileTimeout < currentDate) {
+						delete clSyncDataSvc.fileCreationDates[fileId];
 					}
 				});
 				clFileSvc.files.filter(function(fileDao) {
-					return clSyncDataSvc.isFilePendingCreation(fileDao) && !fileCreationDates.hasOwnProperty(fileDao.id);
+					return clSyncDataSvc.isFilePendingCreation(fileDao) && !clSyncDataSvc.fileCreationDates.hasOwnProperty(fileDao.id);
 				}).forEach(function(fileDao) {
-					fileCreationDates[fileDao.id] = currentDate;
+					clSyncDataSvc.fileCreationDates[fileDao.id] = currentDate;
 					fileDao.loadExecUnload(function() {
 						clSocketSvc.sendMsg({
 							type: 'createFile',
@@ -569,7 +577,7 @@ angular.module('classeur.core.sync', [])
 				if (clSyncDataSvc.read(ctx)) {
 					return;
 				}
-				delete fileCreationDates[msg.id];
+				delete clSyncDataSvc.fileCreationDates[msg.id];
 				var fileDao = clFileSvc.fileMap[msg.id];
 				if (!fileDao) {
 					return;
@@ -601,17 +609,19 @@ angular.module('classeur.core.sync', [])
 			// Need to save here to have the `updated` attributes up to date
 			clSyncSvc.saveAll() && $rootScope.$apply();
 
-			var currentDate = Date.now();
-			Object.keys(clSyncSvc.fileRecoveryDates).forEach(function(fileId) {
-				if (clSyncSvc.fileRecoveryDates[fileId] + recoverFileTimeout < currentDate) {
-					delete clSyncSvc.fileRecoveryDates[fileId];
-				}
-			});
-
 			if (!clUserActivity.isActive() || !clSocketSvc.isOnline()) {
 				return;
 			}
-			if (Date.now() - clSyncDataSvc.lastActivity > maxSyncInactivity) {
+
+			var currentDate = Date.now();
+
+			Object.keys(clSyncDataSvc.fileRecoveryDates).forEach(function(fileId) {
+				if (clSyncDataSvc.fileRecoveryDates[fileId] + recoverFileTimeout < currentDate) {
+					delete clSyncDataSvc.fileRecoveryDates[fileId];
+				}
+			});
+
+			if (currentDate - clSyncDataSvc.lastActivity > maxSyncInactivity) {
 				// Retrieve and send files/folders modifications
 				syncFolders();
 				syncFiles();
@@ -672,7 +682,7 @@ angular.module('classeur.core.sync', [])
 				})
 				.success(function(res) {
 					var currentDate = Date.now();
-					clSyncDataSvc.publicFolders[folderDao.id] = currentDate;
+					clSyncDataSvc.folderRefreshDates[folderDao.id] = currentDate;
 					folderDao.lastRefresh = currentDate;
 					clSyncDataSvc.updatePublicFolderMetadata(folderDao, res);
 					var filesToMove = {};
