@@ -78,8 +78,8 @@ angular.module('classeur.core.folders', [])
 				Object.keys(clLocalStorage).forEach(function(key) {
 					var match = key.match(keyPrefix);
 					if (match) {
-						var folderDao = clFolderSvc.folderMap[match[1]] || clFolderSvc.deletedFolderMap[match[1]];
-						if (!folderDao || !authorizedKeys.hasOwnProperty(match[2])) {
+						if ((!clFolderSvc.folderMap.hasOwnProperty(match[1]) && !clFolderSvc.deletedFolderMap.hasOwnProperty(match[1])) ||
+							!authorizedKeys.hasOwnProperty(match[2])) {
 							clLocalStorage.removeItem(key);
 						}
 					}
@@ -124,9 +124,13 @@ angular.module('classeur.core.folders', [])
 
 		function createFolder(id) {
 			id = id || clUid();
+			var folderDao = clFolderSvc.deletedFolderMap[id] || new FolderDao(id);
+			folderDao.deleted = 0;
 			clFolderSvc.folderIds.push(id);
+			clFolderSvc.folderMap[id] = folderDao;
 			init();
-			return clFolderSvc.folderMap[id];
+			return folderDao;
+
 		}
 
 		function createPublicFolder(id) {

@@ -180,7 +180,7 @@ angular.module('classeur.core.files', [])
 			clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
 				var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id);
 				return (!fileDao.deleted && !fileMap.hasOwnProperty(id) && (fileMap[id] = fileDao)) ||
-				(fileDao.deleted && !deletedFileMap.hasOwnProperty(id) && (deletedFileMap[id] = fileDao));
+					(fileDao.deleted && !deletedFileMap.hasOwnProperty(id) && (deletedFileMap[id] = fileDao));
 			});
 
 			clFileSvc.files.forEach(function(fileDao) {
@@ -215,8 +215,8 @@ angular.module('classeur.core.files', [])
 				Object.keys(clLocalStorage).forEach(function(key) {
 					var fileDao, match = key.match(fileKeyPrefix);
 					if (match) {
-						fileDao = clFileSvc.fileMap[match[1]] || clFileSvc.deletedFileMap[match[1]];
-						if (!fileDao || !fileAuthorizedKeys.hasOwnProperty(match[2])) {
+						if ((!clFileSvc.fileMap.hasOwnProperty(match[1]) && !clFileSvc.deletedFileMap.hasOwnProperty(match[1])) || 
+							!fileAuthorizedKeys.hasOwnProperty(match[2])) {
 							clLocalStorage.removeItem(key);
 						}
 						return;
@@ -247,7 +247,7 @@ angular.module('classeur.core.files', [])
 			clFileSvc.$readUpdate();
 			if (checkFileSvcUpdate && clFileSvc.$check()) {
 				clFileSvc.fileIds = undefined;
-			} else if(!skipWrite) {
+			} else if (!skipWrite) {
 				clFileSvc.$write();
 			}
 
@@ -259,13 +259,13 @@ angular.module('classeur.core.files', [])
 			clFileSvc.files.forEach(function(fileDao) {
 				if (checkFileUpdate && fileDao.$checkUpdate()) {
 					fileDao.read();
-				} else if(!skipWrite) {
+				} else if (!skipWrite) {
 					fileDao.write();
 				}
 				if (checkContentUpdate && fileDao.contentDao.$checkUpdate()) {
 					fileDao.unload();
 					fileDao.readContent();
-				} else if(!skipWrite) {
+				} else if (!skipWrite) {
 					fileDao.writeContent();
 				}
 			});
@@ -278,19 +278,21 @@ angular.module('classeur.core.files', [])
 
 		function createFile(id) {
 			id = id || clUid();
-			var fileDao = new FileDao(id);
+			var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
+			fileDao.deleted = 0;
 			fileDao.contentDao.isLocal = '1';
 			fileDao.writeContent(true);
-			clFileSvc.fileMap[id] = fileDao;
 			clFileSvc.fileIds.push(id);
+			clFileSvc.fileMap[id] = fileDao;
 			init();
 			return fileDao;
 		}
 
 		function createPublicFile(id) {
-			var fileDao = new FileDao(id);
+			var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
+			fileDao.deleted = 0;
 			fileDao.isPublic = '1';
-			// File is added to the list by sync module
+			// Added to the list by sync module
 			return fileDao;
 		}
 
