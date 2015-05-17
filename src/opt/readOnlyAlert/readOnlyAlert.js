@@ -12,17 +12,17 @@ angular.module('classeur.opt.readOnlyAlert', [])
 					clEditorLayoutSvc.currentControl = undefined;
 				};
 
-				var txt;
+				var text;
 				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.isPublic) {
-					scope.$watch('currentFileDao.contentDao.txt', function(newTxt) {
-						if (txt === undefined || !scope.currentFileDao) {
-							txt = newTxt;
+					scope.$watch('currentFileDao.contentDao.text', function(newtext) {
+						if (text === undefined || !scope.currentFileDao) {
+							text = newtext;
 							return;
 						}
 						if (wasDismissed) {
 							return;
 						}
-						if(clEditorSvc.lastContentChange - clEditorSvc.lastExternalChange < 500) {
+						if(clEditorSvc.lastContentChange - clEditorSvc.lastExternalChange < 1500) {
 							return;
 						}
 						if (scope.currentFileDao.isReadOnly || scope.currentFileDao.sharing !== 'rw') {

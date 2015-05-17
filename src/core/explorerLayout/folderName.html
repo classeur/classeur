@@ -4,14 +4,12 @@
         <input ng-model="explorerLayoutSvc.currentFolderDao.name" class="folder name" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <div ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder" layout="row">
-        <md-button ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" class="edit folder btn" md-no-ink>
-            <a class="icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit folder name"></a>
-        </md-button>
-        <md-button ng-if="socketSvc.hasToken" class="share folder btn" md-no-ink>
+            <cl-button class="folder btn" ng-show="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" active="isEditing">
+                <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit folder name" ng-if="!isEditing"></a>
+                <a class="angular-animate bounce icon-delete" ng-click="deleteConfirm(true)" aria-label="Delete folder" ng-if="isEditing"></a>
+            </cl-button>
+        <cl-button ng-if="socketSvc.hasToken" class="share folder btn" active="explorerLayoutSvc.sharingDialogFolderDao === explorerLayoutSvc.currentFolderDao">
             <a class="icon-share" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder"></a>
-        </md-button>
-        <md-button class="delete folder btn" md-no-ink>
-            <a class="icon-delete" ng-click="deleteConfirm(true)" aria-label="Delete folder"></a>
-        </md-button>
+        </cl-button>
     </div>
 </div>

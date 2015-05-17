@@ -51,7 +51,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clFileEntry', function(clExplorerLayoutSvc) {
+	.directive('clFileEntry', function($timeout, clExplorerLayoutSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/fileEntry.html',
@@ -66,20 +66,25 @@ angular.module('classeur.core.explorerLayout', [])
 				scope.open = function() {
 					!scope.isEditing && scope.setCurrentFile(scope.fileDao);
 				};
+				var unsetTimeout;
 				scope.setEditing = function(value) {
-					scope.isEditing = value;
+					$timeout.cancel(unsetTimeout);
 					if (value) {
+						scope.isEditing = true;
 						setTimeout(function() {
 							nameInput.focus();
 						}, 10);
 					} else {
+						unsetTimeout = $timeout(function() {
+							scope.isEditing = false;
+						}, 250);
 						clExplorerLayoutSvc.refreshFiles();
 					}
 				};
 			}
 		};
 	})
-	.directive('clFolderName', function() {
+	.directive('clFolderName', function($timeout) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/folderName.html',
@@ -91,20 +96,25 @@ angular.module('classeur.core.explorerLayout', [])
 						nameInput.blur();
 					}
 				});
+				var unsetTimeout;
 				scope.setEditing = function(value) {
-					scope.isEditing = value;
+					$timeout.cancel(unsetTimeout);
 					if (value) {
+						scope.isEditing = true;
 						setTimeout(function() {
 							nameInput.focus();
 						}, 10);
 					} else {
+						unsetTimeout = $timeout(function() {
+							scope.isEditing = false;
+						}, 250);
 						scope.folderNameModified();
 					}
 				};
 			}
 		};
 	})
-	.directive('clClasseurEntry', function(clClasseurSvc) {
+	.directive('clClasseurEntry', function($timeout, clClasseurSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/classeurEntry.html',
@@ -119,13 +129,18 @@ angular.module('classeur.core.explorerLayout', [])
 				scope.open = function() {
 					!scope.isEditing && scope.setClasseur(scope.classeur);
 				};
+				var unsetTimeout;
 				scope.setEditing = function(value) {
-					scope.isEditing = value;
+					$timeout.cancel(unsetTimeout);
 					if (value) {
+						scope.isEditing = true;
 						setTimeout(function() {
 							nameInput.focus();
 						}, 10);
 					} else {
+						unsetTimeout = $timeout(function() {
+							scope.isEditing = false;
+						}, 250);
 						scope.classeur.name = scope.classeur.name || 'Untitled';
 						clClasseurSvc.init();
 					}
@@ -272,7 +287,7 @@ angular.module('classeur.core.explorerLayout', [])
 						});
 						var ok = scope.ok;
 						scope.ok = function() {
-							if(scope.folderId) {
+							if (scope.folderId) {
 								var folderDao = clFolderSvc.folderMap[scope.folderId];
 								folderDao && importExistingFolder(folderDao);
 								return $mdDialog.cancel();
@@ -321,8 +336,9 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.name = name;
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
-							if (clExplorerLayoutSvc.currentFolderDao) {
+							if (clExplorerLayoutSvc.currentFolderDao && clFolderSvc.folderMap.hasOwnProperty(clExplorerLayoutSvc.currentFolderDao.id)) {
 								newFileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
+								newFileDao.isPublic = clExplorerLayoutSvc.currentFolderDao.isPublic;
 							}
 							scope.setCurrentFile(newFileDao);
 						});
@@ -361,15 +377,13 @@ angular.module('classeur.core.explorerLayout', [])
 					});
 				};
 
-				scope.deleteConfirm = function(deleteFolder) {
-					deleteFolder && scope.selectAll();
-					clExplorerLayoutSvc.updateSelectedFiles(); // updateSelectedFiles is called automatically but later
-					var filesToRemove = clExplorerLayoutSvc.selectedFiles;
+				(function() {
+					var filesToRemove, folderToRemove;
 
 					function remove() {
 						clFileSvc.setDeletedFiles(filesToRemove);
-						if (deleteFolder && clFolderSvc.setDeletedFolder(clExplorerLayoutSvc.currentFolderDao) >= 0) {
-							var newIndex = clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolderDao) - 1;
+						if (folderToRemove && clFolderSvc.setDeletedFolder(folderToRemove) >= 0) {
+							var newIndex = clExplorerLayoutSvc.folders.indexOf(folderToRemove) - 1;
 							var currentFolderDao = clExplorerLayoutSvc.folders[newIndex] || clExplorerLayoutSvc.unclassifiedFolder;
 							clExplorerLayoutSvc.setCurrentFolder(currentFolderDao);
 						}
@@ -380,7 +394,7 @@ angular.module('classeur.core.explorerLayout', [])
 							// No confirmation
 							return remove();
 						}
-						var title = 'Delete files';
+						var title = folderToRemove ? 'Delete folder' : 'Delete files';
 						var confirm = $mdDialog.confirm()
 							.title(title)
 							.ariaLabel(title)
@@ -390,31 +404,47 @@ angular.module('classeur.core.explorerLayout', [])
 						$mdDialog.show(confirm).then(remove);
 					}
 
-					if (deleteFolder) {
-						var folderDao = clExplorerLayoutSvc.currentFolderDao;
-						if (clClasseurSvc.classeurs.some(function(classeurDao) {
-								if (classeurDao !== clExplorerLayoutSvc.currentClasseurDao && classeurDao.folders.indexOf(folderDao) !== -1) {
-									return true;
-								}
-							})) {
-							var title = 'Delete folder';
-							var confirm = $mdDialog.confirm()
-								.title(title)
-								.ariaLabel(title)
-								.content('Do you want to remove the folder from all classeurs?')
-								.ok('This only')
-								.cancel('All');
-							return $mdDialog.show(confirm).then(function() {
-								clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
-									return folderInClasseur.id !== folderDao.id;
-								});
-								clClasseurSvc.init();
-								clExplorerLayoutSvc.refreshFolders();
-							}, deleteConfirm);
+					scope.deleteFile = function(fileDao) {
+						folderToRemove = null;
+						filesToRemove = [fileDao];
+						deleteConfirm();
+					};
+
+					scope.deleteConfirm = function(deleteFolder) {
+						folderToRemove = null;
+						if (deleteFolder) {
+							folderToRemove = clExplorerLayoutSvc.currentFolderDao;
+							!clExplorerLayoutSvc.currentFolderDao.isPublic && scope.selectAll();
 						}
-					}
-					deleteConfirm();
-				};
+						clExplorerLayoutSvc.updateSelectedFiles(); // updateSelectedFiles is called automatically but later
+						filesToRemove = clExplorerLayoutSvc.selectedFiles;
+
+						if (folderToRemove) {
+							if (clClasseurSvc.classeurs.some(function(classeurDao) {
+									if (classeurDao !== clExplorerLayoutSvc.currentClasseurDao && classeurDao.folders.indexOf(folderToRemove) !== -1) {
+										return true;
+									}
+								})) {
+								var title = 'Delete folder';
+								var confirm = $mdDialog.confirm()
+									.title(title)
+									.ariaLabel(title)
+									.content('Do you want to remove the folder from all classeurs?')
+									.ok('This only')
+									.cancel('All');
+								return $mdDialog.show(confirm).then(function() {
+									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
+										return folderInClasseur.id !== folderToRemove.id;
+									});
+									clClasseurSvc.init();
+									clExplorerLayoutSvc.refreshFolders();
+								}, deleteConfirm);
+							}
+						}
+						deleteConfirm();
+					};
+
+				})();
 
 				scope.createClasseur = function() {
 					makeInputDialog('core/explorerLayout/newClasseurDialog.html')

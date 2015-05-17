@@ -6,13 +6,6 @@ angular.module('classeur.opt.sharingDialog', [])
 
 				function showDialog(objectDao, sharingUrl, isFile, folderDao) {
 					function closeDialog() {
-						if (!objectDao.isPublic) {
-							if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
-								objectDao.sharing = objectDao.effectiveSharing;
-							} else {
-								objectDao.sharing = '';
-							}
-						}
 						clEditorLayoutSvc.currentControl = undefined;
 						clExplorerLayoutSvc.sharingDialogFileDao = undefined;
 						clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
@@ -38,6 +31,15 @@ angular.module('classeur.opt.sharingDialog', [])
 								inputElt.setSelectionRange(0, sharingUrl.length);
 							}
 							inputElt.addEventListener('focus', select);
+							scope.$watch('objectDao.effectiveSharing', function() {
+								if (!objectDao.isPublic) {
+									if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
+										objectDao.sharing = objectDao.effectiveSharing;
+									} else {
+										objectDao.sharing = '';
+									}
+								}
+							});
 							scope.$watch('sharingUrl', function() {
 								scope.sharingUrl = sharingUrl;
 								setTimeout(select, 100);

@@ -5,7 +5,7 @@ angular.module('classeur.core.settingsLayout', [])
 			reloadOnSearch: false
 		});
 	})
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -184,7 +184,7 @@ angular.module('classeur.core.settingsLayout', [])
 					scope.renewApiKey = function() {
 						$mdDialog.show($mdDialog.confirm()
 								.title('Renew API key')
-								.content('You\'re about to renew your user API key. The current key won\'t be working anymore.')
+								.content('You\'re about to renew your user API key. The current key won\'t work anymore.')
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
@@ -313,7 +313,8 @@ angular.module('classeur.core.settingsLayout', [])
 					scope.getTrashFiles = function(reset) {
 						if (!scope.getTrashFilesPending) {
 							if (reset) {
-								scope.trashFiles = [];
+								scope.trashFiles = clFileSvc.deletedFileMap;
+								scope.trashEmpty = clFileSvc.deletedFiles.length === 0;
 								scope.lastDeleted = undefined;
 							}
 							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function() {
@@ -341,16 +342,23 @@ angular.module('classeur.core.settingsLayout', [])
 									type: 'deleteFile',
 									id: file.id
 								});
-								scope.trashFiles = scope.trashFiles.filter(function(deletedFile) {
-									return deletedFile.id !== file.id;
-								});
+								scope.trashFiles = Object.keys(scope.trashFiles).reduce(function(trashFiles, id) {
+									if(id !== file.id) {
+										trashFiles[file.id] = scope.trashFiles[id];
+									}
+									return trashFiles;
+								}, {});
 							});
 					};
 
 					function trashFilesHandler(msg) {
 						if (scope.getTrashFilesPending) {
-							scope.trashFiles = scope.trashFiles.concat(msg.files);
-							scope.lastDeleted = msg.hasMore && scope.trashFiles[scope.trashFiles.length - 1].deleted;
+							msg.files.forEach(function(item) {
+								scope.trashFiles[item.id] = item;
+								scope.lastDeleted = item.deleted;
+								scope.trashEmpty = false;
+							});
+							scope.lastDeleted = msg.hasMore && scope.lastDeleted;
 							scope.getTrashFilesPending();
 							scope.getTrashFilesPending = undefined;
 							scope.$evalAsync();

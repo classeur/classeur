@@ -89,63 +89,76 @@ body {
 		background-color: lighten(desaturate($c, 14%), 18%) !important;
 	}
 }
-
 .hole {
-	box-shadow: inset 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
-	border-radius: 10px;
+    box-shadow: inset 0px 2px 5px 0 rgba(0, 0, 0, 0.26);
+    border-radius: 10px;
 }
 
 .postit {
-	background-color: #FFF7B2;
-	cursor: move;
+    background-color: #FFF7B2;
+    cursor: move;
 }
 
 .gutter {
-	position: absolute;
-	top: 0;
-	width: $editor-margin-width;
-	div {
-		position: absolute;
-		cursor: pointer;
-		color: transparentize(#000, 0.75);
-		&:hover {
-			color: transparentize(#000, 0.6);
-		}
-	}
+    position: absolute;
+    top: 0;
+    width: $editor-margin-width;
+    div {
+        position: absolute;
+        cursor: pointer;
+        color: transparentize(#000, 0.75);
+        &:hover {
+            color: transparentize(#000, 0.6);
+        }
+    }
 }
 
 .nav {
-	height: 120px;
-	md-input-container {
-		padding-bottom: 10px;
-	}
+    height: 120px;
+    md-input-container {
+        padding-bottom: 10px;
+    }
 }
 
 .margin {
-	background-color: #FFE5E1;
+    background-color: #FFE5E1;
 }
 
 .rotate-90 {
-	-webkit-transform: rotate(90deg);
-	-moz-transform: rotate(90deg);
-	-ms-transform: rotate(90deg);
-	-o-transform: rotate(90deg);
-	transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
 .rotate-180 {
-	-webkit-transform: rotate(180deg);
-	-moz-transform: rotate(180deg);
-	-ms-transform: rotate(180deg);
-	-o-transform: rotate(180deg);
-	transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .rotate-270 {
-	-webkit-transform: rotate(270deg);
-	-moz-transform: rotate(270deg);
-	-ms-transform: rotate(270deg);
-	-o-transform: rotate(270deg);
-	transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
 }
 
+.bounce.ng-enter {
+    -webkit-transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
+    transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+
+.bounce.ng-enter.ng-enter-active {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+.bounce.ng-leave {
+    -webkit-transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
+    transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+.bounce.ng-leave.ng-leave-active {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}

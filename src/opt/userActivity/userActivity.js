@@ -60,7 +60,7 @@ angular.module('classeur.opt.userActivity', [])
 
 		$rootScope.$watch('userInfoSvc.lastUserInfo', refreshClasses);
 
-		var Marker = window.cledit.Marker;
+		var Marker = $window.cledit.Marker;
 
 		return {
 			restrict: 'E',
@@ -144,7 +144,9 @@ angular.module('classeur.opt.userActivity', [])
 				scope.$watch('userActivity.offset', highlightOffset);
 
 				function restoreHighlighting() {
-					if (highlightedOffset === scope.userActivity.offset && !rangyRange.isValid()) {
+					if (highlightedOffset === scope.userActivity.offset &&
+						(!$window.document.contains(rangyRange.startContainer) || $window.document.contains(rangyRange.endContainer))
+					) {
 						unsetHighlighting();
 						setHighlighting();
 					}

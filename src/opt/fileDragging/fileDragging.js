@@ -17,7 +17,7 @@ angular.module('classeur.opt.fileDragging', [])
 				hammertime.on('panstart', function(evt) {
 					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
-					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 75 : 200));
+					clFileDraggingSvc.panel.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 215));
 					movePanel(evt);
 					bodyElt.addClass('file dragging');
 					scope.$apply();
@@ -67,7 +67,7 @@ angular.module('classeur.opt.fileDragging', [])
 			}
 		};
 	})
-	.factory('clFileDraggingSvc', function(clExplorerLayoutSvc, clToast) {
+	.factory('clFileDraggingSvc', function($mdDialog, clExplorerLayoutSvc, clToast) {
 		function setFileSrc(fileDao) {
 			clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
 				return !fileDao.isPublic && fileDao.isSelected;
@@ -85,34 +85,47 @@ angular.module('classeur.opt.fileDragging', [])
 			}
 		}
 
+		function doMoveFiles(targetFolder, files) {
+			var targetFolderId = targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : targetFolder.id;
+			files = files.filter(function(fileDao) {
+				if (fileDao.folderId !== targetFolderId) {
+					fileDao.oldFolderId = fileDao.folderId;
+					fileDao.folderId = targetFolderId;
+					return true;
+				}
+			});
+			if (files.length) {
+				clExplorerLayoutSvc.refreshFiles();
+				var msg = files.length;
+				msg += msg > 1 ? ' files moved to ' : ' file moved to ';
+				msg += targetFolder.name + '.';
+				clToast(msg, 'Undo', function() {
+					files.forEach(function(fileDao) {
+						fileDao.folderId = fileDao.oldFolderId;
+						fileDao.isPublic = targetFolder.isPublic;
+					});
+					clExplorerLayoutSvc.refreshFiles();
+				});
+			}
+		}
+
 		function moveFiles() {
 			if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
 				if (clFileDraggingSvc.targetFolder.isPublic) {
-					return clToast('Cannot move files to public folder.');
-				}
-				var targetFolderId = clFileDraggingSvc.targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : clFileDraggingSvc.targetFolder.id;
-				var files = clFileDraggingSvc.files.filter(function(fileDao) {
-					if (fileDao.folderId !== targetFolderId) {
-						fileDao.oldFolderId = fileDao.folderId;
-						fileDao.folderId = targetFolderId;
-						return true;
+					if (clFileDraggingSvc.targetFolder.sharing === 'rw') {
+						var title = 'Change ownership';
+						var confirm = $mdDialog.confirm()
+							.title(title)
+							.ariaLabel(title)
+							.content('You\'re about to change the ownership of your file(s). Are you sure?')
+							.ok('Yes')
+							.cancel('No');
+						return $mdDialog.show(confirm).then(doMoveFiles.bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
+					} else {
+						return clToast('Cannot move files to read only folder.');
 					}
-				});
-				if (files.length) {
-					if(clExplorerLayoutSvc.currentFolderDao === clExplorerLayoutSvc.unclassifiedFolder) {
-						clExplorerLayoutSvc.setCurrentFolder(clFileDraggingSvc.targetFolder);
-					}
-					clExplorerLayoutSvc.refreshFiles();
-					var msg = files.length;
-					msg += msg > 1 ? ' files moved to ' : ' file moved to ';
-					msg += clFileDraggingSvc.targetFolder.name + '.';
-					clToast(msg, 'Undo', function() {
-						files.forEach(function(fileDao) {
-							fileDao.folderId = fileDao.oldFolderId;
-						});
-						clExplorerLayoutSvc.refreshFiles();
-					});
 				}
+				doMoveFiles(clFileDraggingSvc.targetFolder, clFileDraggingSvc.files);
 			}
 		}
 

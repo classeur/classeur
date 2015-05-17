@@ -65,7 +65,6 @@
                 position: relative;
                 padding: 7px;
                 padding-right: 10px;
-                line-height: 1;
             }
             .settings {
                 padding: 6px;
@@ -84,13 +83,16 @@
         top: 2px;
         padding-bottom: 150px;
         .folder.btn {
+            width: 34px;
+            height: 42px;
             font-size: 32px;
-            padding: 2px;
             a {
+                position: absolute;
+                line-height: 42px;
                 color: #fff;
             }
             &.icon-publ {
-                color: rgba(255, 255, 255, 0.3);
+                color: rgba(255, 255, 255, 0.6);
                 margin-bottom: 8px;
             }
         }
@@ -270,13 +272,14 @@
             height: $file-entry-height;
             font-size: 30px;
             a {
+                position: absolute;
                 line-height: $file-entry-height;
             }
         }
         .icon-publ {
-            padding: 6px 4px;
+            padding: 8px 2px;
             font-size: 22px;
-            color: rgba(0, 0, 0, 0.6);
+            color: rgba(0, 0, 0, 0.5);
             cursor: pointer;
         }
         &.public {
@@ -501,6 +504,7 @@
                 height: 44px;
                 width: 32px;
                 a {
+                    position: absolute;
                     line-height: 44px;
                 }
             }

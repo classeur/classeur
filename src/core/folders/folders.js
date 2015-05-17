@@ -108,7 +108,7 @@ angular.module('classeur.core.folders', [])
 			// Check every folder
 			var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate();
 			folderDaoProto.$readGlobalUpdate();
-			clFolderSvc.folders.forEach(function(folderDao) {
+			clFolderSvc.folders.concat(clFolderSvc.deletedFolders).forEach(function(folderDao) {
 				if (checkFolderUpdate && folderDao.$checkUpdate()) {
 					folderDao.read();
 				} else if (!skipWrite) {

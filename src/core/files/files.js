@@ -17,7 +17,7 @@ angular.module('classeur.core.files', [])
 				default: '0',
 				parser: parseInt
 			},
-			txt: {},
+			text: {},
 			properties: {
 				default: '{}',
 				parser: JSON.parse,
@@ -60,7 +60,7 @@ angular.module('classeur.core.files', [])
 			this.contentDao.$read.isLocal();
 			this.contentDao.$read.lastChange();
 			if (this.state === 'loaded') {
-				this.contentDao.$read.txt();
+				this.contentDao.$read.text();
 				this.contentDao.$read.properties();
 				this.contentDao.$read.discussions();
 				this.contentDao.$read.state();
@@ -69,7 +69,7 @@ angular.module('classeur.core.files', [])
 		};
 
 		FileDao.prototype.freeContent = function() {
-			this.contentDao.$free.txt();
+			this.contentDao.$free.text();
 			this.contentDao.$free.properties();
 			this.contentDao.$free.discussions();
 			this.contentDao.$free.state();
@@ -78,7 +78,7 @@ angular.module('classeur.core.files', [])
 		FileDao.prototype.writeContent = function(updateLastChange) {
 			this.contentDao.$write.isLocal();
 			if (this.state === 'loaded') {
-				updateLastChange |= this.contentDao.$write.txt();
+				updateLastChange |= this.contentDao.$write.text();
 				updateLastChange |= this.contentDao.$write.properties();
 				updateLastChange |= this.contentDao.$write.discussions();
 				this.contentDao.$write.state();
@@ -129,7 +129,7 @@ angular.module('classeur.core.files', [])
 		function ReadOnlyFile(name, content) {
 			this.name = name;
 			this.contentDao = {
-				txt: content,
+				text: content,
 				state: {},
 				properties: {},
 				users: {},
@@ -161,7 +161,7 @@ angular.module('classeur.core.files', [])
 			u: true,
 			lastChange: true,
 			isLocal: true,
-			txt: true,
+			text: true,
 			properties: true,
 			users: true,
 			discussions: true,
@@ -256,7 +256,7 @@ angular.module('classeur.core.files', [])
 			fileDaoProto.$readGlobalUpdate();
 			var checkContentUpdate = contentDaoProto.$checkGlobalUpdate();
 			contentDaoProto.$readGlobalUpdate();
-			clFileSvc.files.forEach(function(fileDao) {
+			clFileSvc.files.concat(clFileSvc.deletedFiles).forEach(function(fileDao) {
 				if (checkFileUpdate && fileDao.$checkUpdate()) {
 					fileDao.read();
 				} else if (!skipWrite) {
@@ -280,6 +280,7 @@ angular.module('classeur.core.files', [])
 			id = id || clUid();
 			var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
 			fileDao.deleted = 0;
+			fileDao.isSelected = false;
 			fileDao.contentDao.isLocal = '1';
 			fileDao.writeContent(true);
 			clFileSvc.fileIds.push(id);
@@ -291,6 +292,7 @@ angular.module('classeur.core.files', [])
 		function createPublicFile(id) {
 			var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
 			fileDao.deleted = 0;
+			fileDao.isSelected = false;
 			fileDao.isPublic = '1';
 			// Added to the list by sync module
 			return fileDao;
@@ -334,6 +336,7 @@ angular.module('classeur.core.files', [])
 					clFileSvc.fileIds.splice(index, 1);
 				} else if (!change.deleted && !fileDao) {
 					fileDao = new FileDao(change.id);
+					fileDao.deleted = 0;
 					clFileSvc.fileMap[change.id] = fileDao;
 					clFileSvc.fileIds.push(change.id);
 				}

@@ -170,14 +170,14 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true">
-                        <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
+                        <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
                             <md-input-container flex>
                                 <input class="name" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                             </md-input-container>
                             <md-button ng-if="!syncDataSvc.fileRecoveryDates.hasOwnProperty(file.id)" md-no-ink class="icon-settings-backup-restore" ng-click="recoverFile(file)" aria-label="Recover"></md-button>
                             <md-button md-no-ink class="icon-delete" ng-click="removeFile(file)" aria-label="Remove"></md-button>
                         </div>
-                        <div ng-if="!getTrashFilesPending && !trashFiles.length">Trash is empty.</div>
+                        <div ng-if="!getTrashFilesPending && trashEmpty">Trash is empty.</div>
                         <md-progress-circular md-mode="indeterminate" ng-if="getTrashFilesPending"></md-progress-circular>
                         <br>
                         <md-button ng-if="!getTrashFilesPending && lastDeleted" class="md-primary" ng-click="getTrashFiles()">More deleted files</md-button>

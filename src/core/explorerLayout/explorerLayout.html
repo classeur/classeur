@@ -90,7 +90,7 @@
                                                 <input placeholder="Filter" ng-model="fileFilter">
                                             </md-input-container>
                                         </div>
-                                        <md-button ng-click="createFile()">
+                                        <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'">
                                             New file
                                             <span class="icon-add"></span>
                                         </md-button>

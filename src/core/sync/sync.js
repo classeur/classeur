@@ -91,7 +91,7 @@ angular.module('classeur.core.sync', [])
 						folderDao.isPublic = '1';
 					}
 				});
-				clFolderSvc.removeFiles(clFolderSvc.deletedFolders);
+				clFolderSvc.removeFolders(clFolderSvc.deletedFolders);
 				clFolderSvc.checkAll();
 
 				reset();
@@ -182,22 +182,28 @@ angular.module('classeur.core.sync', [])
 			var syncData = clSyncDataSvc.files[fileDao.id] || {};
 			// File permission can change without metadata update
 			if (metadata.updated && ((metadata.updated !== syncData.r && metadata.updated !== syncData.s) || fileDao.sharing !== metadata.permission)) {
-				fileDao.name = metadata.name;
+				fileDao.name = metadata.name || '';
 				// For public files we take the permission as the file sharing
-				fileDao.sharing = metadata.permission;
+				fileDao.sharing = metadata.permission || '';
 				fileDao.updated = metadata.updated;
+				fileDao.userId = metadata.userId;
 				fileDao.write(fileDao.updated);
 			}
+			syncData.r = metadata.updated;
+			clSyncDataSvc.files[fileDao.id] = syncData;
 		}
 
 		function updatePublicFolderMetadata(folderDao, metadata) {
 			var syncData = clSyncDataSvc.folders[folderDao.id] || {};
 			if (metadata.updated && metadata.updated !== syncData.r && metadata.updated !== syncData.s) {
-				folderDao.name = metadata.name;
-				folderDao.sharing = metadata.sharing;
+				folderDao.name = metadata.name || '';
+				folderDao.sharing = metadata.sharing || '';
 				folderDao.updated = metadata.updated;
+				folderDao.userId = metadata.userId;
 				folderDao.write(folderDao.updated);
 			}
+			syncData.r = metadata.updated;
+			clSyncDataSvc.folders[folderDao.id] = syncData;
 		}
 
 		clSyncDataSvc.read = read;
@@ -402,10 +408,9 @@ angular.module('classeur.core.sync', [])
 				});
 				if (foldersToUpdate.length) {
 					clFolderSvc.updateUserFolders(foldersToUpdate);
-					clFolderSvc.write();
 					apply = true;
 				}
-				clSyncDataSvc.nextFolderSeq = msg.nextSeq;
+				clSyncDataSvc.nextFolderSeq = msg.nextSeq || clSyncDataSvc.nextFolderSeq;
 				if (msg.hasMore) {
 					retrieveChanges();
 				} else {
@@ -501,10 +506,9 @@ angular.module('classeur.core.sync', [])
 				});
 				if (filesToUpdate.length) {
 					clFileSvc.updateUserFiles(filesToUpdate);
-					clFileSvc.write();
 					apply = true;
 				}
-				clSyncDataSvc.nextFileSeq = msg.nextSeq;
+				clSyncDataSvc.nextFileSeq = msg.nextSeq || clSyncDataSvc.nextFileSeq;
 				if (msg.hasMore) {
 					retrieveChanges();
 				} else {
@@ -537,7 +541,7 @@ angular.module('classeur.core.sync', [])
 							id: fileDao.id,
 							name: fileDao.name,
 							folderId: fileDao.folderId || undefined,
-							sharing: fileDao.sharing,
+							sharing: fileDao.sharing || undefined,
 							updated: fileDao.updated
 						});
 						syncData.s = fileDao.updated;
@@ -547,13 +551,13 @@ angular.module('classeur.core.sync', [])
 				clFileSvc.deletedFiles.forEach(function(fileDao) {
 					var syncData = clSyncDataSvc.files[fileDao.id];
 					// File has been synchronized
-					if (syncData && checkUpdated(fileDao, syncData)) {
+					if (syncData && checkUpdated(fileDao, syncData) && !clSyncDataSvc.fileRecoveryDates.hasOwnProperty(fileDao.id)) {
 						clSocketSvc.sendMsg({
 							type: 'setFileMetadata',
 							id: fileDao.id,
 							name: fileDao.name,
 							folderId: fileDao.folderId || undefined,
-							sharing: fileDao.sharing,
+							sharing: fileDao.sharing || undefined,
 							updated: fileDao.updated,
 							deleted: fileDao.deleted
 						});
@@ -602,9 +606,14 @@ angular.module('classeur.core.sync', [])
 						clSocketSvc.sendMsg({
 							type: 'createFile',
 							id: fileDao.id,
-							folderId: fileDao.folderId,
-							txt: fileDao.contentDao.txt || '\n',
-							properties: fileDao.contentDao.properties || {}
+							name: fileDao.name,
+							folderId: fileDao.folderId || undefined,
+							sharing: fileDao.sharing || undefined,
+							updated: fileDao.updated,
+							content: {
+								text: fileDao.contentDao.text || '\n',
+								properties: fileDao.contentDao.properties || {}
+							}
 						});
 					});
 				});
@@ -621,11 +630,13 @@ angular.module('classeur.core.sync', [])
 				}
 				fileDao.folderId = msg.folderId || '';
 				fileDao.isPublic = msg.isPublic ? '1' : '';
+				fileDao.userId = msg.userId;
+				fileDao.write();
 				clSyncDataSvc.files[msg.id] = {
-					r: -1
+					r: msg.updated
 				};
 				msg.rev && clContentRevSvc.setRev(msg.id, msg.rev);
-				clSyncDataSvc.write();
+				clSyncDataSvc.write(clSyncDataSvc.lastActivity);
 			});
 
 			return sendNewFiles;
@@ -771,7 +782,7 @@ angular.module('classeur.core.sync', [])
 		clSocketSvc.addMsgHandler('userToken', unsetWatchCtx);
 
 		function setLoadedContent(fileDao, serverContent) {
-			fileDao.contentDao.txt = serverContent.txt;
+			fileDao.contentDao.text = serverContent.text;
 			fileDao.contentDao.properties = serverContent.properties;
 			fileDao.contentDao.isLocal = '1';
 			fileDao.contentDao.discussions = {};
@@ -793,29 +804,43 @@ angular.module('classeur.core.sync', [])
 		}
 
 		function getServerContent(content, contentChanges) {
+			var chars = content.text.reduce(function(chars, item) {
+				return chars.concat(item[1].split('').map(function(c) {
+					return [item[0], c];
+				}));
+			}, []);
+			var properties = Object.keys(content.properties).reduce(function(properties, key) {
+				return (properties[key] = content.properties[key][1]), properties;
+			}, {});
+			var userId;
+			chars = contentChanges.reduce(function(chars, contentChange) {
+				userId = contentChange.userId || userId;
+				properties = clSyncUtils.applyPropertiesPatches(properties, contentChange.properties || []);
+				return clSyncUtils.applyCharPatches(chars, contentChange.text || [], userId);
+			}, chars);
+			var text = chars.map(function(item) {
+				return item[1];
+			}).join('');
 			return {
-				txt: contentChanges.reduce(function(serverTxt, contentChange) {
-					return clSyncUtils.applyTxtPatches(serverTxt, contentChange.txt || []);
-				}, content.txt),
-				properties: contentChanges.reduce(function(serverProperties, contentChange) {
-					return clSyncUtils.applyPropertiesPatches(serverProperties, contentChange.properties || []);
-				}, content.properties),
+				chars: chars,
+				text: text,
+				properties: properties,
 				rev: content.rev + contentChanges.length
 			};
 		}
 
 		function applyServerContent(fileDao, oldContent, serverContent) {
-			var oldTxt = oldContent.txt;
-			var serverTxt = serverContent.txt;
-			var localTxt = clEditorSvc.cledit.getContent();
-			var isServerTxtChanges = oldTxt !== serverTxt;
-			var isLocalTxtChanges = oldTxt !== localTxt;
-			var isTxtSynchronized = serverTxt === localTxt;
-			if (!isTxtSynchronized && isServerTxtChanges && isLocalTxtChanges) {
+			var oldtext = oldContent.text;
+			var servertext = serverContent.text;
+			var localtext = clEditorSvc.cledit.getContent();
+			var isServertextChanges = oldtext !== servertext;
+			var isLocaltextChanges = oldtext !== localtext;
+			var istextSynchronized = servertext === localtext;
+			if (!istextSynchronized && isServertextChanges && isLocaltextChanges) {
 				// TODO Deal with conflict
-				clEditorSvc.setContent(serverTxt, true);
-			} else if (!isTxtSynchronized && isServerTxtChanges) {
-				clEditorSvc.setContent(serverTxt, true);
+				clEditorSvc.setContent(servertext, true);
+			} else if (!istextSynchronized && isServertextChanges) {
+				clEditorSvc.setContent(servertext, true);
 			}
 			var valueHash = {},
 				valueArray = [];
@@ -879,7 +904,8 @@ angular.module('classeur.core.sync', [])
 			} else {
 				applyServerContent(fileDao, msg.content, serverContent);
 			}
-			watchCtx.txt = serverContent.txt;
+			watchCtx.chars = serverContent.chars;
+			watchCtx.text = serverContent.text;
 			watchCtx.properties = serverContent.properties;
 			watchCtx.rev = serverContent.rev;
 			clContentRevSvc.setRev(fileDao.id, serverContent.rev);
@@ -915,25 +941,25 @@ angular.module('classeur.core.sync', [])
 		}
 
 		function sendContentChange() {
-			if (!watchCtx || watchCtx.txt === undefined || watchCtx.sentMsg) {
+			if (!watchCtx || watchCtx.text === undefined || watchCtx.sentMsg) {
 				return;
 			}
 			// if(watchCtx.fileDao.isPublic && (watchCtx.fileDao.sharing !== 'rw' || clUserSvc.user.plan !== 'premium')) {
 			if (watchCtx.fileDao.isPublic && watchCtx.fileDao.sharing !== 'rw') {
 				return;
 			}
-			var txtChanges = clSyncUtils.getTxtPatches(watchCtx.txt, clEditorSvc.cledit.getContent());
-			txtChanges = txtChanges.length ? txtChanges : undefined;
+			var textChanges = clSyncUtils.gettextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
+			textChanges = textChanges.length ? textChanges : undefined;
 			var propertiesChanges = clSyncUtils.getPropertiesPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
 			propertiesChanges = propertiesChanges.length ? propertiesChanges : undefined;
-			if (!txtChanges && !propertiesChanges) {
+			if (!textChanges && !propertiesChanges) {
 				return;
 			}
 			var newRev = watchCtx.rev + 1;
 			watchCtx.sentMsg = {
 				type: 'setContentChange',
 				rev: newRev,
-				txt: txtChanges,
+				text: textChanges,
 				properties: propertiesChanges
 			};
 			clSocketSvc.sendMsg(watchCtx.sentMsg);
@@ -944,30 +970,33 @@ angular.module('classeur.core.sync', [])
 				return;
 			}
 			watchCtx.contentChanges[msg.rev] = msg;
-			var serverTxt = watchCtx.txt;
-			var localTxt = clEditorSvc.cledit.getContent();
+			var servertext = watchCtx.text;
+			var localtext = clEditorSvc.cledit.getContent();
 			var serverProperties = watchCtx.properties;
 			while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
 				watchCtx.rev = msg.rev;
 				watchCtx.contentChanges[msg.rev] = undefined;
 				if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
-					// This has to be the previously sent message
+					// It ought to be the previously sent message
 					msg = watchCtx.sentMsg;
 				}
-				var oldTxt = serverTxt;
-				serverTxt = clSyncUtils.applyTxtPatches(serverTxt, msg.txt || []);
+				var oldtext = servertext;
+				watchCtx.chars = clSyncUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.userId);
+				servertext = watchCtx.chars.map(function(item) {
+					return item[1];
+				}).join('');
 				serverProperties = clSyncUtils.applyPropertiesPatches(serverProperties, msg.properties || []);
 				if (msg !== watchCtx.sentMsg) {
-					var isServerTxtChanges = oldTxt !== serverTxt;
-					var isLocalTxtChanges = oldTxt !== localTxt;
-					var isTxtSynchronized = serverTxt === localTxt;
-					if (!isTxtSynchronized && isServerTxtChanges) {
-						if (isLocalTxtChanges) {
-							localTxt = clSyncUtils.quickPatch(oldTxt, serverTxt, localTxt);
+					var isServertextChanges = oldtext !== servertext;
+					var isLocaltextChanges = oldtext !== localtext;
+					var istextSynchronized = servertext === localtext;
+					if (!istextSynchronized && isServertextChanges) {
+						if (isLocaltextChanges) {
+							localtext = clSyncUtils.quickPatch(oldtext, servertext, localtext);
 						} else {
-							localTxt = serverTxt;
+							localtext = servertext;
 						}
-						var offset = clEditorSvc.setContent(localTxt, true);
+						var offset = clEditorSvc.setContent(localtext, true);
 						var userActivity = watchCtx.userActivities[msg.userId] || {};
 						userActivity.offset = offset;
 						watchCtx.userActivities[msg.userId] = userActivity;
@@ -993,7 +1022,7 @@ angular.module('classeur.core.sync', [])
 				}
 				watchCtx.fileDao.contentDao.properties = clSyncUtils.unhashObject(localPropertiesHash, valueArray);
 			}
-			watchCtx.txt = serverTxt;
+			watchCtx.text = servertext;
 			watchCtx.properties = serverProperties;
 			clContentRevSvc.setRev(watchCtx.fileDao.id, watchCtx.rev);
 		});
@@ -1035,8 +1064,8 @@ angular.module('classeur.core.sync', [])
 		var DIFF_INSERT = 1;
 		var DIFF_EQUAL = 0;
 
-		function getTxtPatches(oldTxt, newTxt) {
-			var diffs = diffMatchPatch.diff_main(oldTxt, newTxt);
+		function gettextPatches(oldtext, newtext) {
+			var diffs = diffMatchPatch.diff_main(oldtext, newtext);
 			diffMatchPatch.diff_cleanupEfficiency(diffs);
 			var patches = [];
 			var startOffset = 0;
@@ -1090,16 +1119,18 @@ angular.module('classeur.core.sync', [])
 			return patches;
 		}
 
-		function applyTxtPatches(txt, patches) {
-			return patches.reduce(function(txt, patch) {
+		function applyCharPatches(chars, patches, userId) {
+			return patches.reduce(function(chars, patch) {
 				if (patch.a) {
-					return txt.slice(0, patch.o) + patch.a + txt.slice(patch.o);
+					return chars.slice(0, patch.o).concat(patch.a.split('').map(function(c) {
+						return [userId, c];
+					})).concat(chars.slice(patch.o));
 				} else if (patch.d) {
-					return txt.slice(0, patch.o) + txt.slice(patch.o + patch.d.length);
+					return chars.slice(0, patch.o).concat(chars.slice(patch.o + patch.d.length));
 				} else {
-					return txt;
+					return chars;
 				}
-			}, txt);
+			}, chars);
 		}
 
 		function applyPropertiesPatches(properties, patches) {
@@ -1159,9 +1190,9 @@ angular.module('classeur.core.sync', [])
 		}
 
 		return {
-			getTxtPatches: getTxtPatches,
+			gettextPatches: gettextPatches,
 			getPropertiesPatches: getPropertiesPatches,
-			applyTxtPatches: applyTxtPatches,
+			applyCharPatches: applyCharPatches,
 			applyPropertiesPatches: applyPropertiesPatches,
 			quickPatch: quickPatch,
 			hashArray: hashArray,

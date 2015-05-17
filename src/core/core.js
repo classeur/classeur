@@ -133,7 +133,7 @@ angular.module('classeur.core', [])
 			newFileDao.state = 'loaded';
 			newFileDao.readContent();
 			newFileDao.name = oldFileDao.name;
-			newFileDao.contentDao.txt = oldFileDao.contentDao.txt;
+			newFileDao.contentDao.text = oldFileDao.contentDao.text;
 			newFileDao.contentDao.state = JSON.parse(JSON.stringify(oldFileDao.contentDao.state));
 			newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties));
 			newFileDao.writeContent();
