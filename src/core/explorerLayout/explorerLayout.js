@@ -328,6 +328,7 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				scope.createFile = function() {
+					var folderDao = clExplorerLayoutSvc.currentFolderDao;
 					makeInputDialog('core/explorerLayout/newFileDialog.html')
 						.then(function(name) {
 							var newFileDao = clFileSvc.createFile();
@@ -336,9 +337,9 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.name = name;
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
-							if (clExplorerLayoutSvc.currentFolderDao && clFolderSvc.folderMap.hasOwnProperty(clExplorerLayoutSvc.currentFolderDao.id)) {
-								newFileDao.folderId = clExplorerLayoutSvc.currentFolderDao.id;
-								newFileDao.isPublic = clExplorerLayoutSvc.currentFolderDao.isPublic;
+							if (folderDao && clFolderSvc.folderMap.hasOwnProperty(folderDao.id)) {
+								newFileDao.folderId = folderDao.id;
+								newFileDao.isPublic = folderDao.isPublic;
 							}
 							scope.setCurrentFile(newFileDao);
 						});
