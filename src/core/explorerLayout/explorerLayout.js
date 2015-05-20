@@ -58,11 +58,22 @@ angular.module('classeur.core.explorerLayout', [])
 			link: function(scope, element) {
 				var nameInput = element[0].querySelector('input.name');
 				nameInput.addEventListener('keydown', function(e) {
-					if (e.which === 27 || e.which === 13) {
-						// Esc key
+					if (e.which == 27) {
+						scope.form.$rollbackViewValue();
+						nameInput.blur();
+					} else if (e.which === 13) {
 						nameInput.blur();
 					}
 				});
+				scope.name = function(name) {
+					if (name) {
+						scope.fileDao.name = name;
+					} else if (!scope.fileDao.name) {
+						scope.fileDao.name = 'Untitled';
+					}
+					return scope.fileDao.name;
+				};
+				scope.name();
 				scope.open = function() {
 					!scope.isEditing && scope.setCurrentFile(scope.fileDao);
 				};
@@ -77,25 +88,36 @@ angular.module('classeur.core.explorerLayout', [])
 					} else {
 						unsetTimeout = $timeout(function() {
 							scope.isEditing = false;
+							clExplorerLayoutSvc.refreshFiles();
 						}, 250);
-						clExplorerLayoutSvc.refreshFiles();
 					}
 				};
 			}
 		};
 	})
-	.directive('clFolderName', function($timeout) {
+	.directive('clFolderName', function($timeout, clExplorerLayoutSvc) {
 		return {
 			restrict: 'E',
 			templateUrl: 'core/explorerLayout/folderName.html',
 			link: function(scope, element) {
 				var nameInput = element[0].querySelector('input.name');
 				nameInput.addEventListener('keydown', function(e) {
-					if (e.which === 27 || e.which === 13) {
-						// Esc key
+					if (e.which == 27) {
+						scope.form.$rollbackViewValue();
+						nameInput.blur();
+					} else if (e.which === 13) {
 						nameInput.blur();
 					}
 				});
+				scope.name = function(name) {
+					if (name) {
+						clExplorerLayoutSvc.currentFolderDao.name = name;
+					} else if (!clExplorerLayoutSvc.currentFolderDao.name) {
+						clExplorerLayoutSvc.currentFolderDao.name = 'Untitled';
+					}
+					return clExplorerLayoutSvc.currentFolderDao.name;
+				};
+				scope.name();
 				var unsetTimeout;
 				scope.setEditing = function(value) {
 					$timeout.cancel(unsetTimeout);
@@ -107,8 +129,8 @@ angular.module('classeur.core.explorerLayout', [])
 					} else {
 						unsetTimeout = $timeout(function() {
 							scope.isEditing = false;
+							scope.folderNameModified();
 						}, 250);
-						scope.folderNameModified();
 					}
 				};
 			}
@@ -121,11 +143,22 @@ angular.module('classeur.core.explorerLayout', [])
 			link: function(scope, element) {
 				var nameInput = element[0].querySelector('.name textarea');
 				nameInput.addEventListener('keydown', function(e) {
-					if (e.which === 27 || e.which === 13) {
-						// Esc key
+					if (e.which == 27) {
+						scope.form.$rollbackViewValue();
+						nameInput.blur();
+					} else if (e.which === 13) {
 						nameInput.blur();
 					}
 				});
+				scope.name = function(name) {
+					if (name) {
+						scope.classeur.name = name;
+					} else if (!scope.classeur.name) {
+						scope.classeur.name = 'Untitled';
+					}
+					return scope.classeur.name;
+				};
+				scope.name();
 				scope.open = function() {
 					!scope.isEditing && scope.setClasseur(scope.classeur);
 				};
@@ -140,9 +173,8 @@ angular.module('classeur.core.explorerLayout', [])
 					} else {
 						unsetTimeout = $timeout(function() {
 							scope.isEditing = false;
+							clClasseurSvc.init();
 						}, 250);
-						scope.classeur.name = scope.classeur.name || 'Untitled';
-						clClasseurSvc.init();
 					}
 				};
 				element[0].querySelector('.footer.panel').addEventListener('click', function(evt) {
