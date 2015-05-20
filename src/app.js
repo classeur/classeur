@@ -45,6 +45,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.opt.sharingDialog',
 		'classeur.opt.spinner',
 		'classeur.opt.stat',
+		'classeur.opt.tour',
 		'classeur.opt.userActivity',
 		'classeur.opt.zenMode',
 		'classeur.ext.emojiOne',

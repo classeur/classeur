@@ -370,6 +370,7 @@ angular.module('classeur.core.sync', [])
 							clSyncDataSvc.updatePublicFolderMetadata(folderDao, item);
 						}
 					});
+					clFolderSvc.init(); // Refresh tabs order
 				});
 		}
 
@@ -753,6 +754,7 @@ angular.module('classeur.core.sync', [])
 					angular.forEach(filesToMove, function(fileDao) {
 						fileDao.folderId = '';
 					});
+					clFolderSvc.init(); // Refresh tabs order
 					clFileSvc.init();
 				})
 				.error(function() {

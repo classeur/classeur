@@ -1,0 +1,13 @@
+<div class="tour panel" ng-show="show" ng-switch="localSettingSvc.values.tourStep" layout="row" layout-align="center center">
+    <div class="tour overlay"></div>
+    <div class="tour helper"></div>
+    <div class="tour step step1" ng-switch-when="1">
+        <h1>Welcome!</h1>
+        <p>Hi, this is a beta version of Classeur.</p>
+        <p>Please click <b>Next</b> to take a tour.</p>
+        <div class="actions" layout="row" layout-align="end">
+            <md-button ng-click="hide()">Close</md-button>
+            <md-button class="md-primary">Next</md-button>
+        </div>
+    </div>
+</div>
