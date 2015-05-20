@@ -4,17 +4,18 @@ angular.module('classeur.core.editorLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/fileName.html',
 			link: function(scope) {
-				var previousName;
-
-				function setDefaultName() {
-					scope.currentFileDao.name = scope.currentFileDao.name || 'Untitled';
-					previousName = scope.currentFileDao.name;
-				}
-				setDefaultName();
-				scope.setDefaultName = setDefaultName;
+				scope.name = function(name) {
+					if (name) {
+						scope.currentFileDao.name = name;
+					} else if (!scope.currentFileDao.name) {
+						scope.currentFileDao.name = 'Untitled';
+					}
+					return scope.currentFileDao.name;
+				};
+				scope.name();
 				scope.keydown = function(e) {
-					if (e.keyCode == 27) {
-						scope.currentFileDao.name = previousName;
+					if (e.which == 27) {
+						scope.nameForm.$rollbackViewValue();
 						clEditorLayoutSvc.currentControl = undefined;
 					} else if (e.which === 13) {
 						clEditorLayoutSvc.currentControl = undefined;

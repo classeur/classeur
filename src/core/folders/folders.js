@@ -191,6 +191,10 @@ angular.module('classeur.core.folders', [])
 			init();
 		}
 
+		function getLastUpdated() {
+			return folderDaoProto.gUpdated;
+		}
+
 		clFolderSvc.folderDaoProto = folderDaoProto;
 		clFolderSvc.init = init;
 		clFolderSvc.write = write;
@@ -201,6 +205,7 @@ angular.module('classeur.core.folders', [])
 		clFolderSvc.setDeletedFolders = setDeletedFolders;
 		clFolderSvc.setDeletedFolder = setDeletedFolder;
 		clFolderSvc.updateUserFolders = updateUserFolders;
+		clFolderSvc.getLastUpdated = getLastUpdated;
 		clFolderSvc.folders = [];
 		clFolderSvc.deletedFolders = [];
 		clFolderSvc.folderMap = {};

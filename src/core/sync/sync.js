@@ -30,12 +30,20 @@ angular.module('classeur.core.sync', [])
 				default: '0',
 				parser: parseInt
 			},
+			folderLastUpdated: {
+				default: '0',
+				parser: parseInt
+			},
 			files: {
 				default: '{}',
 				parser: parseSyncData,
 				serializer: serializeSyncData,
 			},
 			nextFileSeq: {
+				default: '0',
+				parser: parseInt
+			},
+			fileLastUpdated: {
 				default: '0',
 				parser: parseInt
 			},
@@ -243,10 +251,10 @@ angular.module('classeur.core.sync', [])
 	.factory('clSyncSvc', function($rootScope, $location, $http, $window, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncUtils, clSyncDataSvc, clContentRevSvc) {
 		var clSyncSvc = {};
 		var nameMaxLength = 128;
-		var maxSyncInactivity = 30 * 1000; // 30 sec
+		var longInactivityThreshold = 60 * 1000; // 60 sec
+		var shortInactivityThreshold = 10 * 1000; // 10 sec
 		var createFileTimeout = 30 * 1000; // 30 sec
 		var recoverFileTimeout = 30 * 1000; // 30 sec
-		var sendMetadataAfter = clToast.hideDelay + 2000; // 8 sec (more than toast duration to handle undo)
 
 
 		/***
@@ -430,7 +438,7 @@ angular.module('classeur.core.sync', [])
 					if (folderDao.name.length > nameMaxLength) {
 						folderDao.name = folderDao.name.slice(0, nameMaxLength);
 					} else {
-						return folderDao.updated < Date.now() - sendMetadataAfter;
+						return true;
 					}
 				}
 			}
@@ -461,6 +469,7 @@ angular.module('classeur.core.sync', [])
 						syncData.s = folderDao.updated;
 					}
 				});
+				clSyncDataSvc.folderLastUpdated = clFolderSvc.getLastUpdated();
 			}
 
 			return retrieveChanges;
@@ -526,7 +535,7 @@ angular.module('classeur.core.sync', [])
 					if (fileDao.name.length > nameMaxLength) {
 						fileDao.name = fileDao.name.slice(0, nameMaxLength);
 					} else {
-						return fileDao.updated < Date.now() - sendMetadataAfter;
+						return true;
 					}
 				}
 			}
@@ -564,6 +573,7 @@ angular.module('classeur.core.sync', [])
 						syncData.s = fileDao.updated;
 					}
 				});
+				clSyncDataSvc.fileLastUpdated = clFileSvc.getLastUpdated();
 				clSyncDataSvc.fileSyncReady = '1';
 			}
 
@@ -669,7 +679,21 @@ angular.module('classeur.core.sync', [])
 				}
 			});
 
-			if (currentDate - clSyncDataSvc.lastActivity > maxSyncInactivity) {
+			var inactivityThreshold = longInactivityThreshold;
+			var userSyncData = clSyncDataSvc.userData.user || {};
+			var classeursSyncData = clSyncDataSvc.userData.classeurs || {};
+			var settingsSyncData = clSyncDataSvc.userData.settings || {};
+			if (
+				clSyncDataSvc.fileLastUpdated !== clFileSvc.getLastUpdated() ||
+				clSyncDataSvc.folderLastUpdated !== clFolderSvc.getLastUpdated() ||
+				(clUserSvc.updated !== userSyncData.r && clUserSvc.updated !== userSyncData.s) ||
+				(clClasseurSvc.updated !== classeursSyncData.r && clClasseurSvc.updated !== classeursSyncData.s) ||
+				(clSettingSvc.updated !== settingsSyncData.r && clSettingSvc.updated !== settingsSyncData.s)
+			) {
+				inactivityThreshold = shortInactivityThreshold;
+			}
+
+			if (currentDate - clSyncDataSvc.lastActivity > inactivityThreshold) {
 				// Retrieve and send files/folders modifications
 				syncFolders();
 				syncFiles();

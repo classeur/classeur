@@ -89,7 +89,6 @@ angular.module('classeur.opt.fileDragging', [])
 			var targetFolderId = targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : targetFolder.id;
 			files = files.filter(function(fileDao) {
 				if (fileDao.folderId !== targetFolderId) {
-					fileDao.oldFolderId = fileDao.folderId;
 					fileDao.folderId = targetFolderId;
 					return true;
 				}
@@ -99,13 +98,7 @@ angular.module('classeur.opt.fileDragging', [])
 				var msg = files.length;
 				msg += msg > 1 ? ' files moved to ' : ' file moved to ';
 				msg += targetFolder.name + '.';
-				clToast(msg, 'Undo', function() {
-					files.forEach(function(fileDao) {
-						fileDao.folderId = fileDao.oldFolderId;
-						fileDao.isPublic = targetFolder.isPublic;
-					});
-					clExplorerLayoutSvc.refreshFiles();
-				});
+				clToast(msg);
 			}
 		}
 

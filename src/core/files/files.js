@@ -349,6 +349,10 @@ angular.module('classeur.core.files', [])
 			init();
 		}
 
+		function getLastUpdated() {
+			return fileDaoProto.gUpdated || 0;
+		}
+
 		clFileSvc.fileDaoProto = fileDaoProto;
 		clFileSvc.init = init;
 		clFileSvc.write = write;
@@ -359,6 +363,7 @@ angular.module('classeur.core.files', [])
 		clFileSvc.removeFiles = removeFiles;
 		clFileSvc.setDeletedFiles = setDeletedFiles;
 		clFileSvc.updateUserFiles = updateUserFiles;
+		clFileSvc.getLastUpdated = getLastUpdated;
 		clFileSvc.files = [];
 		clFileSvc.deletedFiles = [];
 		clFileSvc.fileMap = {};

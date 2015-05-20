@@ -1,7 +1,7 @@
 <div class="nav" layout="row" layout-align="center center">
     <div class="folder btn icon-publ" ng-show="explorerLayoutSvc.currentFolderDao.isPublic"></div>
     <md-input-container md-theme="classeur" flex>
-        <input ng-model="explorerLayoutSvc.currentFolderDao.name" class="folder name" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
+        <input class="folder name" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <div ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder" layout="row">
             <cl-button class="folder btn" ng-show="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" active="isEditing">

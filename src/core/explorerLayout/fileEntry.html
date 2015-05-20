@@ -7,7 +7,7 @@
     </md-checkbox>
     <div class="icon-publ" ng-show="fileDao.isPublic" ng-click="open()"></div>
     <md-input-container flex ng-click="open()">
-        <input class="name" ng-model="fileDao.name" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
+        <input class="name" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
     </md-input-container>
     <cl-button ng-if="!fileDao.isPublic || fileDao.sharing === 'rw'" class="edit filename btn" active="isEditing">
         <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" ng-if="!isEditing"></a>
