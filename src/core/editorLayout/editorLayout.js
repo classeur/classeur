@@ -4,13 +4,14 @@ angular.module('classeur.core.editorLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/editorLayout/fileName.html',
 			link: function(scope) {
+				var fileDao = scope.currentFileDao;
 				scope.name = function(name) {
 					if (name) {
-						scope.currentFileDao.name = name;
-					} else if (!scope.currentFileDao.name) {
-						scope.currentFileDao.name = 'Untitled';
+						fileDao.name = name;
+					} else if (!fileDao.name) {
+						fileDao.name = 'Untitled';
 					}
-					return scope.currentFileDao.name;
+					return fileDao.name;
 				};
 				scope.name();
 				scope.keydown = function(e) {

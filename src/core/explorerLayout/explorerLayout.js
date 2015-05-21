@@ -183,7 +183,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc) {
+	.directive('clExplorerLayout', function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -367,6 +367,9 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
+							if(clLocalSettingSvc.values.tourStep === 4) {
+								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
+							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
 							if (folderDao && clFolderSvc.folderMap.hasOwnProperty(folderDao.id)) {

@@ -61,6 +61,12 @@
                 </div>
             </div>
             <div class="btn-grp panel">
+                <div class="tour-step-container">
+                    <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 4">
+                        <p>Classeur supports Markdown syntax.</p>
+                        <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
+                    </md-tooltip>
+                </div>
                 <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
                     <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor"></a>
                 </cl-button>
@@ -68,7 +74,7 @@
                     <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Hide editor"></a>
                 </cl-button>
                 <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="34">
-                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" aria-label="Side preview"></a>
+                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="5" aria-label="Side preview"></a>
                 </cl-button>
                 <div class="menu btn btn-panel" ng-class="plasticClass">
                     <md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">

@@ -1,12 +1,13 @@
 angular.module('classeur.opt.tour', [])
+	.run(function(clLocalSettingSvc) {
+		if (!clLocalSettingSvc.values.tourStep || clLocalSettingSvc.values.tourStep < 5) {
+			clLocalSettingSvc.values.tourStep = 0;
+		}
+	})
 	.directive('clTour', function($timeout, clDialog, clLocalSettingSvc) {
 		return {
 			restrict: 'E',
 			link: function() {
-				clLocalSettingSvc.values.tourStep = 0;
-				if (clLocalSettingSvc.values.tourStep !== -1) {
-					clLocalSettingSvc.values.tourStep = 0;
-				}
 				if (!clLocalSettingSvc.values.tourStep) {
 					$timeout(function() {
 						clDialog.show({
@@ -24,7 +25,7 @@ angular.module('classeur.opt.tour', [])
 						}, function() {
 							clLocalSettingSvc.values.tourStep = -1;
 						});
-					}, 200);
+					}, 100);
 				}
 			}
 		};
@@ -55,9 +56,6 @@ angular.module('classeur.opt.tour', [])
 				var nextStep = parseInt(attr.clTourNext);
 				element.on('click', function() {
 					clLocalSettingSvc.values.tourStep === nextStep - 1 && clLocalSettingSvc.values.tourStep++;
-					if (clLocalSettingSvc.values.tourStep > 3) {
-						clLocalSettingSvc.values.tourStep = -1;
-					}
 				});
 			}
 		};
