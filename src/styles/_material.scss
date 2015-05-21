@@ -88,16 +88,50 @@ md-slider.md-default-theme.md-min .md-thumb:after {
 
 md-dialog {
     max-width: 500px;
-    &.transition-in, &.transition-out {
-        transition: all 1ms;
+    &.transition-in {
+        -webkit-transition: opacity 0.3s ease-out;
+        transition: opacity 0.3s ease-out;
+    }
+    &.transition-out {
+        -webkit-transition: all 1ms linear;
+        transition: all 1ms linear;
     }
     &.md-default-theme {
         border-radius: 0;
+        background-color: #F4F4F4;
     }
-    .md-title, h2 {
+    .md-title,
+    h2 {
         font-size: 1.8em;
         font-weight: bold;
     }
+}
+
+md-backdrop.md-opaque.md-default-theme {
+    background-color: #000;
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.25)), color-stop(100%, rgba(0, 0, 0, 0.75)));
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
+    background: radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
+}
+
+md-backdrop.ng-enter {
+    -webkit-transition: opacity 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
+    opacity: 0;
+}
+
+md-backdrop.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+
+md-backdrop.ng-leave {
+    -webkit-transition: opacity 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
+    opacity: 1;
+}
+
+md-backdrop.ng-leave.ng-leave-active {
+    opacity: 0;
 }
 
 md-input-container.md-classeur-theme .md-input[disabled],
@@ -115,4 +149,23 @@ md-checkbox.md-default-theme .md-icon {
 md-checkbox.md-default-theme.md-checked .md-icon {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+md-tooltip {
+    border-radius: 6px;
+    p {
+        margin: 0.5em 0;
+        font-size: 12px;
+    }
+    p:first-child {
+        font-size: 18px;
+        margin: 0.25em 0 1em;
+    }
+    &.md-default-theme .md-background {
+        background-color: rgba(40, 40, 40, 0.9);
+    }
+    .md-content {
+        padding: 12px 16px;
+        white-space: inherit;
+    }
 }

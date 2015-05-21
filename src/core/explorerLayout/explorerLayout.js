@@ -183,7 +183,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $mdDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc) {
+	.directive('clExplorerLayout', function($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -260,17 +260,17 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				function makeInputDialog(templateUrl, onComplete) {
-					return $mdDialog.show({
+					return clDialog.show({
 						templateUrl: templateUrl,
 						onComplete: function(scope, element) {
 							scope.ok = function() {
 								if (!scope.value) {
 									return scope.inputFocus();
 								}
-								$mdDialog.hide(scope.value);
+								clDialog.hide(scope.value);
 							};
 							scope.cancel = function() {
-								$mdDialog.cancel();
+								clDialog.cancel();
 							};
 							var inputElt = element[0].querySelector('input');
 							inputElt.addEventListener('keydown', function(e) {
@@ -296,7 +296,7 @@ angular.module('classeur.core.explorerLayout', [])
 					clClasseurSvc.init();
 					clExplorerLayoutSvc.refreshFolders();
 					clExplorerLayoutSvc.setCurrentFolder(folderDao);
-					$mdDialog.cancel();
+					clDialog.cancel();
 				}
 
 				function importPublicFolder(folderId) {
@@ -306,7 +306,7 @@ angular.module('classeur.core.explorerLayout', [])
 					$timeout(function() {
 						clExplorerLayoutSvc.setCurrentFolder(folderDao);
 					});
-					$mdDialog.cancel();
+					clDialog.cancel();
 				}
 
 				function importFolder() {
@@ -322,7 +322,7 @@ angular.module('classeur.core.explorerLayout', [])
 							if (scope.folderId) {
 								var folderDao = clFolderSvc.folderMap[scope.folderId];
 								folderDao && importExistingFolder(folderDao);
-								return $mdDialog.cancel();
+								return clDialog.cancel();
 							}
 							ok();
 						};
@@ -345,7 +345,7 @@ angular.module('classeur.core.explorerLayout', [])
 				function createFolder() {
 					makeInputDialog('core/explorerLayout/newFolderDialog.html', function(scope) {
 						scope.import = function() {
-							$mdDialog.cancel();
+							clDialog.cancel();
 							importFolder();
 						};
 					}).then(function(name) {
@@ -428,13 +428,13 @@ angular.module('classeur.core.explorerLayout', [])
 							return remove();
 						}
 						var title = folderToRemove ? 'Delete folder' : 'Delete files';
-						var confirm = $mdDialog.confirm()
+						var confirm = clDialog.confirm()
 							.title(title)
 							.ariaLabel(title)
 							.content('You\'re about to delete ' + filesToRemove.length + ' file(s). Are you sure?')
 							.ok('Yes')
 							.cancel('No');
-						$mdDialog.show(confirm).then(remove);
+						clDialog.show(confirm).then(remove);
 					}
 
 					scope.deleteFile = function(fileDao) {
@@ -459,13 +459,13 @@ angular.module('classeur.core.explorerLayout', [])
 									}
 								})) {
 								var title = 'Delete folder';
-								var confirm = $mdDialog.confirm()
+								var confirm = clDialog.confirm()
 									.title(title)
 									.ariaLabel(title)
 									.content('Do you want to remove the folder from all classeurs?')
 									.ok('This only')
 									.cancel('All');
-								return $mdDialog.show(confirm).then(function() {
+								return clDialog.show(confirm).then(function() {
 									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
 										return folderInClasseur.id !== folderToRemove.id;
 									});
@@ -508,19 +508,19 @@ angular.module('classeur.core.explorerLayout', [])
 						return remove();
 					}
 
-					$mdDialog.show({
+					clDialog.show({
 						templateUrl: 'core/explorerLayout/deleteClasseurDialog.html',
 						onComplete: function(scope) {
 							scope.remove = function() {
 								clFileSvc.setDeletedFiles(filesToRemove);
 								clFolderSvc.setDeletedFolders(foldersToRemove);
-								$mdDialog.hide();
+								clDialog.hide();
 							};
 							scope.move = function() {
-								$mdDialog.hide();
+								clDialog.hide();
 							};
 							scope.cancel = function() {
-								$mdDialog.cancel();
+								clDialog.cancel();
 							};
 						}
 					}).then(remove);

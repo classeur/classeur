@@ -8,12 +8,32 @@ angular.module('classeur.core.utils', [])
 		function clUid() {
 			var currentDate = Date.now();
 			return mapper.map(function() {
-				var result =  alphabet[(currentDate + Math.random() * radix) % radix | 0];
+				var result = alphabet[(currentDate + Math.random() * radix) % radix | 0];
 				currentDate = Math.floor(currentDate / radix);
 				return result;
 			}).join('');
 		}
 		return clUid;
+	})
+	.factory('clDialog', function($window, $rootScope, $q, $mdDialog) {
+		var mdDialogShow = $mdDialog.show;
+		$rootScope.isDialogOpen = 0;
+		$mdDialog.show = function(optionsOrPreset) {
+			$rootScope.isDialogOpen++;
+
+			function close() {
+				$rootScope.isDialogOpen--;
+			}
+			return mdDialogShow.call($mdDialog, optionsOrPreset)
+				.then(function(res) {
+					close();
+					return res;
+				}, function(err) {
+					close();
+					return $q.reject(err);
+				});
+		};
+		return $mdDialog;
 	})
 	.factory('clToast', function($mdToast) {
 		var hideDelay = 6000;

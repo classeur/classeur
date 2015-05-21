@@ -5,7 +5,7 @@ angular.module('classeur.core.settingsLayout', [])
 			reloadOnSearch: false
 		});
 	})
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, $mdDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -76,7 +76,7 @@ angular.module('classeur.core.settingsLayout', [])
 				function checkModifications(tabIndex) {
 					if (tabs[tabIndex] === 'app') {
 						if (serialize(scope.app) !== serialize(clSettingSvc.values)) {
-							return $mdDialog.show($mdDialog.confirm()
+							return clDialog.show(clDialog.confirm()
 									.title('App settings')
 									.content('You\'ve modified your app settings.')
 									.ok('Apply')
@@ -86,7 +86,7 @@ angular.module('classeur.core.settingsLayout', [])
 					}
 					if (tabs[tabIndex] === 'user') {
 						if (serialize(scope.user) !== serialize(clUserSvc.user)) {
-							return $mdDialog.show($mdDialog.confirm()
+							return clDialog.show(clDialog.confirm()
 									.title('User settings')
 									.content('You\'ve modified your user settings.')
 									.ok('Apply')
@@ -97,7 +97,7 @@ angular.module('classeur.core.settingsLayout', [])
 				}
 
 				scope.setDefault = function() {
-					$mdDialog.show($mdDialog.confirm()
+					clDialog.show(clDialog.confirm()
 							.title('Default settings')
 							.content('You\'re about to reset your app settings. Are you sure?')
 							.ok('Yes')
@@ -142,7 +142,7 @@ angular.module('classeur.core.settingsLayout', [])
 				(function() {
 
 					scope.deleteUser = function() {
-						$mdDialog.show($mdDialog.confirm()
+						clDialog.show(clDialog.confirm()
 								.title('Remove account')
 								.content('You\'re about to sign out. Your data will be removed within 7 days. Just sign in again if you change your mind.')
 								.ok('Ok')
@@ -182,7 +182,7 @@ angular.module('classeur.core.settingsLayout', [])
 					};
 
 					scope.renewApiKey = function() {
-						$mdDialog.show($mdDialog.confirm()
+						clDialog.show(clDialog.confirm()
 								.title('Renew API key')
 								.content('You\'re about to renew your user API key. The current key won\'t work anymore.')
 								.ok('Ok')
@@ -222,7 +222,7 @@ angular.module('classeur.core.settingsLayout', [])
 				(function() {
 
 					scope.editBlog = function(blog) {
-						$mdDialog.show({
+						clDialog.show({
 								templateUrl: 'core/settingsLayout/editBlogDialog.html',
 								controller: function(scope) {
 									scope.blog = blog;
@@ -244,11 +244,11 @@ angular.module('classeur.core.settingsLayout', [])
 													blog: newBlog
 												});
 											}
-											$mdDialog.hide();
+											clDialog.hide();
 										}
 									};
 									scope.cancel = function() {
-										$mdDialog.cancel();
+										clDialog.cancel();
 									};
 								}
 							})
@@ -258,7 +258,7 @@ angular.module('classeur.core.settingsLayout', [])
 					};
 
 					scope.deleteBlog = function(blog) {
-						$mdDialog.show($mdDialog.confirm()
+						clDialog.show(clDialog.confirm()
 								.title('Delete Blog')
 								.content('You\'re about to remove a blog and all its associated blog posts. Blog posts won\'t be removed from your actual websites.')
 								.ok('Ok')
@@ -332,7 +332,7 @@ angular.module('classeur.core.settingsLayout', [])
 					};
 
 					scope.removeFile = function(file) {
-						$mdDialog.show($mdDialog.confirm()
+						clDialog.show(clDialog.confirm()
 								.title('Remove from trash')
 								.content('The file will be removed permanently. Are you sure?')
 								.ok('Yes')

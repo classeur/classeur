@@ -1,5 +1,5 @@
 angular.module('classeur.opt.postToBlog', [])
-	.directive('clPostToBlog', function($mdDialog, clEditorLayoutSvc, clBlogSvc, clSocketSvc) {
+	.directive('clPostToBlog', function(clDialog, clEditorLayoutSvc, clBlogSvc, clSocketSvc) {
 		return {
 			restrict: 'E',
 			link: function(scope) {
@@ -13,7 +13,7 @@ angular.module('classeur.opt.postToBlog', [])
 				}
 
 				function editPost(post) {
-					return $mdDialog.show({
+					return clDialog.show({
 						templateUrl: 'opt/postToBlog/editBlogPostDialog.html',
 						controller: function(scope) {
 							scope.post = post;
@@ -35,11 +35,11 @@ angular.module('classeur.opt.postToBlog', [])
 									// 		blogPost: newBlogPost
 									// 	});
 									// }
-									$mdDialog.hide();
+									clDialog.hide();
 								}
 							};
 							scope.cancel = function() {
-								$mdDialog.cancel();
+								clDialog.cancel();
 							};
 						}
 					}).then(function() {

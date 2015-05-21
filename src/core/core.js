@@ -1,7 +1,7 @@
 angular.module('classeur.core', [])
 	.config(function($routeProvider, $anchorScrollProvider, $locationProvider, $animateProvider, $mdThemingProvider) {
 		$locationProvider.hashPrefix('!');
-		$animateProvider.classNameFilter(/angular-animate/);
+		$animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop/);
 		$anchorScrollProvider.disableAutoScrolling();
 		$mdThemingProvider.theme('default')
 			.primaryPalette('blue')
@@ -13,7 +13,7 @@ angular.module('classeur.core', [])
 		$routeProvider
 			.when('/files/:fileId', {
 				template: '<cl-spinner ng-if="!fileLoaded"></cl-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-				controller: function($scope, $routeParams, $location, $mdDialog, clToast, clFileSvc, clEditorLayoutSvc) {
+				controller: function($scope, $routeParams, $location, clToast, clFileSvc, clEditorLayoutSvc) {
 					var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
 					var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 					$scope.loadFile(fileDao);
@@ -90,7 +90,7 @@ angular.module('classeur.core', [])
 			});
 
 	})
-	.run(function($window, $rootScope, $location, $timeout, $route, $mdDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
+	.run(function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
 
 		// Globally accessible services
 		$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -152,13 +152,13 @@ angular.module('classeur.core', [])
 		var hasToken = clSocketSvc.hasToken;
 		$rootScope.$watch('socketSvc.hasToken', function(value) {
 			if (!value && value !== hasToken) {
-				var clearDataDialog = $mdDialog.confirm()
+				var clearDataDialog = clDialog.confirm()
 					.title('You\'ve been signed out')
 					.content('Would you like to clean all your local data?')
 					.ariaLabel('Clean local data')
 					.ok('Yes please')
 					.cancel('No thanks');
-				$mdDialog.show(clearDataDialog).then(function() {
+				clDialog.show(clearDataDialog).then(function() {
 					clLocalStorage.clear();
 					clSyncSvc.saveAll();
 				});
@@ -167,7 +167,7 @@ angular.module('classeur.core', [])
 		});
 
 		$rootScope.$on('$routeChangeSuccess', function() {
-			$mdDialog.cancel();
+			clDialog.cancel();
 			clExplorerLayoutSvc.init();
 		});
 

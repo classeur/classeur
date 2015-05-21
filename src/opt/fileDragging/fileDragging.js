@@ -67,7 +67,7 @@ angular.module('classeur.opt.fileDragging', [])
 			}
 		};
 	})
-	.factory('clFileDraggingSvc', function($mdDialog, clExplorerLayoutSvc, clToast) {
+	.factory('clFileDraggingSvc', function(clDialog, clExplorerLayoutSvc, clToast) {
 		function setFileSrc(fileDao) {
 			clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
 				return !fileDao.isPublic && fileDao.isSelected;
@@ -107,13 +107,13 @@ angular.module('classeur.opt.fileDragging', [])
 				if (clFileDraggingSvc.targetFolder.isPublic) {
 					if (clFileDraggingSvc.targetFolder.sharing === 'rw') {
 						var title = 'Change ownership';
-						var confirm = $mdDialog.confirm()
+						var confirm = clDialog.confirm()
 							.title(title)
 							.ariaLabel(title)
 							.content('You\'re about to change the ownership of your file(s). Are you sure?')
 							.ok('Yes')
 							.cancel('No');
-						return $mdDialog.show(confirm).then(doMoveFiles.bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
+						return clDialog.show(confirm).then(doMoveFiles.bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
 					} else {
 						return clToast('Cannot move files to read only folder.');
 					}

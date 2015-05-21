@@ -1,5 +1,5 @@
 angular.module('classeur.core.filePropertiesDialog', [])
-	.factory('clFilePropertiesDialog', function($mdDialog, clToast) {
+	.factory('clFilePropertiesDialog', function(clDialog, clToast) {
 		return function(properties) {
 			properties = properties || {};
 			properties = Object.keys(properties).sort().map(function(key) {
@@ -8,7 +8,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 					value: properties[key]
 				};
 			});
-			return $mdDialog.show({
+			return clDialog.show({
 				templateUrl: 'core/filePropertiesDialog/filePropertiesDialog.html',
 				controller: function(scope) {
 					scope.properties = properties;
@@ -42,10 +42,10 @@ angular.module('classeur.core.filePropertiesDialog', [])
 							})) {
 							return;
 						}
-						$mdDialog.hide(properties);
+						clDialog.hide(properties);
 					};
 					scope.cancel = function() {
-						$mdDialog.cancel();
+						clDialog.cancel();
 					};
 				},
 			});

@@ -1,23 +1,23 @@
 angular.module('classeur.opt.urlDialog', [])
-	.directive('clUriDialog', function($mdDialog, $http, clToast, clEditorLayoutSvc, clEditorSvc) {
+	.directive('clUriDialog', function(clDialog, $http, clToast, clEditorLayoutSvc, clEditorSvc) {
 		var maxImageSize = 10000000;
 
 		function onLinkDialog(scope, element) {
 
 			scope.ok = function() {
-				if(!scope.url) {
+				if (!scope.url) {
 					return scope.focus();
 				}
-				$mdDialog.hide(scope.url);
+				clDialog.hide(scope.url);
 			};
 			scope.cancel = function() {
-				$mdDialog.cancel();
+				clDialog.cancel();
 			};
 
 			var inputElt = element[0].querySelector('input');
 			inputElt.addEventListener('keydown', function(e) {
 				// Check enter key
-				if(e.which === 13) {
+				if (e.which === 13) {
 					e.preventDefault();
 					scope.ok();
 				}
@@ -44,7 +44,7 @@ angular.module('classeur.opt.urlDialog', [])
 
 				var files = (evt.dataTransfer || evt.target).files;
 				var file = files[0];
-				if(!file) {
+				if (!file) {
 					return;
 				}
 				evt.stopPropagation();
@@ -53,11 +53,11 @@ angular.module('classeur.opt.urlDialog', [])
 				reader.onload = function(e) {
 					var bytes = new Uint8Array(e.target.result);
 					var len = bytes.byteLength;
-					if(len === maxImageSize) {
+					if (len === maxImageSize) {
 						return clToast('Image is too big.');
 					}
 					var binary = '';
-					for(var i = 0; i < len; i++) {
+					for (var i = 0; i < len; i++) {
 						binary += String.fromCharCode(bytes[i]);
 					}
 					var b64 = window.btoa(binary);
@@ -78,7 +78,7 @@ angular.module('classeur.opt.urlDialog', [])
 					scope.isUploading = true;
 					$http(req)
 						.success(function(result) {
-							$mdDialog.hide(result.data.link);
+							clDialog.hide(result.data.link);
 						})
 						.error(function(err) {
 							scope.isUploading = false;
@@ -95,8 +95,8 @@ angular.module('classeur.opt.urlDialog', [])
 			restrict: 'E',
 			link: function(scope) {
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
-					if(currentControl === 'linkDialog') {
-						$mdDialog.show({
+					if (currentControl === 'linkDialog') {
+						clDialog.show({
 							templateUrl: 'opt/urlDialog/linkDialog.html',
 							onComplete: onLinkDialog
 						}).then(function(url) {
@@ -106,9 +106,8 @@ angular.module('classeur.opt.urlDialog', [])
 							clEditorLayoutSvc.currentControl = undefined;
 							clEditorSvc.linkDialogCallback && clEditorSvc.linkDialogCallback(null);
 						});
-					}
-					else if(currentControl === 'imageDialog') {
-						$mdDialog.show({
+					} else if (currentControl === 'imageDialog') {
+						clDialog.show({
 							templateUrl: 'opt/urlDialog/imageDialog.html',
 							onComplete: onImageDialog
 						}).then(function(url) {

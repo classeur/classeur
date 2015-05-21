@@ -1,5 +1,5 @@
 angular.module('classeur.opt.sharingDialog', [])
-	.directive('clSharingDialog', function($mdDialog, clConstants, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc) {
+	.directive('clSharingDialog', function(clDialog, clConstants, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc) {
 		return {
 			restrict: 'E',
 			link: function(scope) {
@@ -10,7 +10,7 @@ angular.module('classeur.opt.sharingDialog', [])
 						clExplorerLayoutSvc.sharingDialogFileDao = undefined;
 						clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
 					}
-					$mdDialog.show({
+					clDialog.show({
 						templateUrl: 'opt/sharingDialog/sharingDialog.html',
 						controller: function(scope) {
 							scope.isFile = isFile;
@@ -19,10 +19,10 @@ angular.module('classeur.opt.sharingDialog', [])
 						},
 						onComplete: function(scope, element) {
 							scope.openFolder = function() {
-								$mdDialog.hide();
+								clDialog.hide();
 							};
 							scope.close = function() {
-								$mdDialog.cancel();
+								clDialog.cancel();
 							};
 
 							var inputElt = element[0].querySelector('input.url');
