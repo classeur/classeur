@@ -1,6 +1,7 @@
+var CL_TOUR_LAST_STEP = 5;
 angular.module('classeur.opt.tour', [])
 	.run(function(clLocalSettingSvc) {
-		if (!clLocalSettingSvc.values.tourStep || clLocalSettingSvc.values.tourStep < 5) {
+		if (!clLocalSettingSvc.values.tourStep || clLocalSettingSvc.values.tourStep < CL_TOUR_LAST_STEP) {
 			clLocalSettingSvc.values.tourStep = 0;
 		}
 	})
@@ -23,7 +24,7 @@ angular.module('classeur.opt.tour', [])
 						}).then(function() {
 							clLocalSettingSvc.values.tourStep = 1;
 						}, function() {
-							clLocalSettingSvc.values.tourStep = -1;
+							clLocalSettingSvc.values.tourStep = CL_TOUR_LAST_STEP;
 						});
 					}, 100);
 				}
