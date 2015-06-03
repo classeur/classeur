@@ -14,7 +14,6 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core',
 		'classeur.core.button',
 		'classeur.core.classeurs',
-		'classeur.core.constants',
 		'classeur.core.explorerLayout',
 		'classeur.core.docs',
 		'classeur.core.editor',

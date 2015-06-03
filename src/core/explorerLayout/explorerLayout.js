@@ -183,7 +183,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		};
 	})
-	.directive('clExplorerLayout', function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConstants, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
+	.directive('clExplorerLayout', function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
 		var explorerMaxWidth = 740;
 		var noPaddingWidth = 560;
 		var hideOffsetY = 2000;
@@ -329,7 +329,7 @@ angular.module('classeur.core.explorerLayout', [])
 					}).then(function(link) {
 						var components = link.split('/');
 						var folderId = components[components.length - 1];
-						if (!folderId || link.indexOf(clConstants.serverUrl) !== 0) {
+						if (!folderId || link.indexOf(clConfig.appUri) !== 0) {
 							clToast('Invalid folder link.');
 						}
 						if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {

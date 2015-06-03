@@ -4,6 +4,12 @@
         margin: auto;
         max-width: 840px;
     }
+    .logo {
+        width: 180px;
+        height: 64px;
+        background-image: url('assets/images/logo.png');
+        background-size: 180px 60px;
+    }
     .scroller {
         overflow: auto;
     }
@@ -60,7 +66,7 @@
             padding: 10px 15px;
             margin: 15px;
             .info {
-            	padding-top: 6px;
+                padding-top: 6px;
                 text-transform: none;
                 font-size: 14px;
             }

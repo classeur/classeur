@@ -1,5 +1,11 @@
 .new-user-form.panel {
     overflow: auto;
+    .logo {
+        width: 180px;
+        height: 64px;
+        background-image: url('assets/images/logo.png');
+        background-size: 180px 60px;
+    }
     & > * {
         max-width: 500px;
     }

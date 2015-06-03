@@ -11,7 +11,7 @@ angular.module('classeur.blogs.github', [])
 			templateUrl: 'blogs/github/githubBlogPostForm.html'
 		};
 	})
-	.factory('clGithubBlogPlatform', function(clBlogPlatform, clConstants) {
+	.factory('clGithubBlogPlatform', function(clBlogPlatform, clConfig) {
 		var clGithubBlogPlatform = clBlogPlatform({
 			id: 'github',
 			name: 'GitHub',
@@ -81,9 +81,9 @@ angular.module('classeur.blogs.github', [])
 
 		clGithubBlogPlatform.getAuthorizeParams = function(blog) {
 			return {
-				client_id: clConstants.githubClientId,
+				client_id: clConfig.githubClientId,
 				response_type: 'code',
-				redirect_uri: clConstants.serverUrl + '/oauth/github/callback',
+				redirect_uri: clConfig.appUri + '/oauth/github/callback',
 				scope: blog.private ? 'repo' : 'public_repo'
 			};
 		};

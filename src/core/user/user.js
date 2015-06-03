@@ -30,7 +30,7 @@ angular.module('classeur.core.user', [])
             isActive: isActive
         };
     })
-    .factory('clUserSvc', function($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConstants, clStateMgr) {
+    .factory('clUserSvc', function($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConfig, clStateMgr) {
         var userNameMaxLength = 32;
 
         var clUserSvc = clLocalStorageObject('userSvc', {
@@ -49,9 +49,9 @@ angular.module('classeur.core.user', [])
 
         function startOAuth(redirectUrl) {
             var params = {
-                client_id: clConstants.googleClientId,
+                client_id: clConfig.googleClientId,
                 response_type: 'code',
-                redirect_uri: clConstants.serverUrl + '/oauth/google/callback',
+                redirect_uri: clConfig.appUri + '/oauth/google/callback',
                 scope: 'profile',
                 state: clStateMgr.saveState({
                     url: redirectUrl || '/newUser'

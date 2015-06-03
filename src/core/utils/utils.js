@@ -1,4 +1,7 @@
 angular.module('classeur.core.utils', [])
+	.factory('clConfig', function($window) {
+		return $window.CL_CONFIG || {};
+	})
 	.factory('clUid', function() {
 		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 		var radix = alphabet.length;
