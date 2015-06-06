@@ -124,7 +124,7 @@
                                     <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
                                     <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
                                     <md-progress-circular md-mode="indeterminate" ng-if="explorerLayoutSvc.currentFolderDao.isPublic && !explorerLayoutSvc.currentFolderDao.refreshed"></md-progress-circular>
-                                    <cl-recent-alert ng-if="!explorerLayoutSvc.currentFolderDao"></cl-recent-alert>
+                                    <cl-recent-alert></cl-recent-alert>
                                 </div>
                                 <md-tooltip md-delay="99999999" md-visible="show" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3" style="top: 50px">
                                     <p>This is your folder.</p>

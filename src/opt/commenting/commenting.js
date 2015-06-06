@@ -101,7 +101,7 @@ angular.module('classeur.opt.commenting', [])
 			}
 		};
 	})
-	.factory('clCommentingSvc', function(clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
+	.factory('clCommentingSvc', function(clEditorSvc, clEditorLayoutSvc) {
 		var commentButtonHeight = 30;
 		var yList = [];
 

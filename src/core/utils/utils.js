@@ -2,6 +2,12 @@ angular.module('classeur.core.utils', [])
 	.factory('clConfig', function($window) {
 		return $window.CL_CONFIG || {};
 	})
+	.factory('clSetInterval', function() {
+		return function(cb, interval) {
+			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
+			setInterval(cb, interval);
+		};
+	})
 	.factory('clUid', function() {
 		var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 		var radix = alphabet.length;
@@ -326,10 +332,88 @@ angular.module('classeur.core.utils', [])
 		$window.addEventListener('contextmenu', saveSelection);
 		return clSelectionListeningSvc;
 	})
-	.factory('clSetInterval', function() {
-		return function(cb, interval) {
-			interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0;
-			setInterval(cb, interval);
+	.factory('clClassApplier', function($window) {
+		var Marker = $window.cledit.Marker;
+		return function(cledit) {
+			var rangyRange;
+			var startMarker, endMarker;
+			function setHighlighting() {
+				var start = startMarker.offset;
+				var end = endMarker.offset;
+				var content = cledit.getContent();
+				while (end && content[end - 1] === '\n') {
+					end--;
+				}
+				if (start >= end) {
+					start = end ? end - 1 : end;
+				}
+				content = content.substring(start, end);
+				start += content.lastIndexOf('\n') + 1;
+				if (start === end) {
+					return;
+				}
+				startMarker = new Marker(start);
+				endMarker = new Marker(end);
+				clEditorSvc.cledit.addMarker(startMarker);
+				clEditorSvc.cledit.addMarker(endMarker);
+				var range = clEditorSvc.cledit.selectionMgr.createRange(startMarker.offset, endMarker.offset);
+				// Create rangy range
+				rangyRange = $window.rangy.createRange();
+				rangyRange.setStart(range.startContainer, range.startOffset);
+				rangyRange.setEnd(range.endContainer, range.endOffset);
+				var classApplier = $window.rangy.createClassApplier(className, {
+					elementProperties: {
+						className: 'user-activity'
+					},
+					tagNames: ['span'],
+					normalize: false
+				});
+				classApplier.applyToRange(rangyRange);
+				// Keep only one span
+				var undoElt;
+				Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
+					if (undoElt) {
+						undoElt.classList.remove(className);
+					}
+					undoElt = elt;
+				});
+				clEditorSvc.cledit.selectionMgr.restoreSelection();
+			}
+
+			function unsetHighlighting() {
+				startMarker && clEditorSvc.cledit.removeMarker(startMarker);
+				endMarker && clEditorSvc.cledit.removeMarker(endMarker);
+				Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
+					elt.classList.remove(className);
+				});
+			}
+
+			function highlightOffset(offset) {
+				$timeout.cancel(timeoutId);
+				unsetHighlighting();
+				highlightedOffset = offset;
+				if (!offset) {
+					return;
+				}
+				startMarker = new Marker(offset.start);
+				endMarker = new Marker(offset.end);
+				setHighlighting();
+				timeoutId = $timeout(function() {
+					if (clContentSyncSvc.watchCtx) {
+						delete clContentSyncSvc.watchCtx.userActivities[scope.userId];
+					}
+				}, 30000);
+			}
+			scope.$watch('userActivity.offset', highlightOffset);
+
+			function restoreHighlighting() {
+				if (highlightedOffset === scope.userActivity.offset &&
+					(!$window.document.contains(rangyRange.startContainer) || $window.document.contains(rangyRange.endContainer))
+				) {
+					unsetHighlighting();
+					setHighlighting();
+				}
+			}
 		};
 	})
 	.factory('clUrl', function() {

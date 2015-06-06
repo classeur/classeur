@@ -65,6 +65,8 @@
             .username {
                 display: inline-block;
                 position: relative;
+                white-space: nowrap;
+                overflow: hidden;
                 padding: 7px;
                 padding-right: 10px;
             }
