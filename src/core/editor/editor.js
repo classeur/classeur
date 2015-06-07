@@ -21,7 +21,7 @@ angular.module('classeur.core.editor', [])
 					scope.$evalAsync();
 					return true;
 				});
-				
+
 				var state;
 				scope.$on('$destroy', function() {
 					state = 'destroyed';
@@ -83,7 +83,7 @@ angular.module('classeur.core.editor', [])
 					debouncedEditorChanged();
 				});
 
-				if(clSettingSvc.values.editorInlineImg) {
+				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
@@ -175,7 +175,7 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.isPreviewTop = containerElt.scrollTop < 10;
 				containerElt.addEventListener('scroll', function() {
 					var isPreviewTop = containerElt.scrollTop < 10;
-					if(isPreviewTop !== clEditorSvc.isPreviewTop) {
+					if (isPreviewTop !== clEditorSvc.isPreviewTop) {
 						clEditorSvc.isPreviewTop = isPreviewTop;
 						scope.$apply();
 					}
@@ -340,8 +340,8 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.pagedownEditor.run();
 			},
 			setContent: function(content, isExternal) {
-				if(clEditorSvc.cledit) {
-					if(isExternal) {
+				if (clEditorSvc.cledit) {
+					if (isExternal) {
 						clEditorSvc.lastExternalChange = Date.now();
 					}
 					return clEditorSvc.cledit.setContent(content, isExternal);
@@ -603,7 +603,7 @@ angular.module('classeur.core.editor', [])
 						recursiveCall(callbackList);
 					});
 				}
-				var html = Array.prototype.reduce.call(previewElt.children, function(html, elt) {
+				var html = Array.prototype.reduce.call(previewElt.querySelectorAll('.classeur-preview-section'), function(html, elt) {
 					if (!elt.exportableHtml || elt === footnoteContainerElt) {
 						var clonedElt = elt.cloneNode(true);
 						Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
@@ -742,7 +742,8 @@ angular.module('classeur.core.editor', [])
 		}
 
 		clEditorSvc.scrollToAnchor = function(anchor) {
-			var scrollTop = 0, scrollerElt = clEditorSvc.previewElt.parentNode;
+			var scrollTop = 0,
+				scrollerElt = clEditorSvc.previewElt.parentNode;
 			var sectionDesc = anchorHash[anchor];
 			if (sectionDesc) {
 				if (clEditorLayoutSvc.isPreviewVisible) {
@@ -751,15 +752,27 @@ angular.module('classeur.core.editor', [])
 					scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset;
 					scrollerElt = clEditorSvc.editorElt.parentNode;
 				}
-			}
-			else {
+			} else {
 				var elt = document.getElementById(anchor);
-				if(elt) {
+				if (elt) {
 					scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
 				}
 			}
 			scroll(scrollerElt, scrollerElt.scrollTop, scrollTop > 0 ? scrollTop : 0);
 		};
+
+		clEditorSvc.applyTemplate = function(template) {
+			var view = {
+				file: {
+					name: currentFileDao.name,
+					md: currentFileDao.contentDao.text,
+					html: clEditorSvc.previewHtml,
+					properties: currentFileDao.contentDao.properties
+				}
+			};
+			return $window.Mustache.render(template, view);
+		};
+
 
 		return clEditorSvc;
 	})

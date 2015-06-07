@@ -1,6 +1,10 @@
 angular.module('classeur.core.settings', [])
 	.factory('clSettingSvc', function($templateCache, clLocalStorageObject) {
 		var defaultSettings = $templateCache.get('core/settings/defaultSettings.json');
+		defaultSettings = JSON.parse(defaultSettings);
+		defaultSettings.exportTemplates['Styled HTML'] = $templateCache.get('core/settings/exportTemplateStyledHtml.html');
+		defaultSettings.exportTemplates.PDF = $templateCache.get('core/settings/exportTemplatePdf.html');
+		defaultSettings = JSON.stringify(defaultSettings);
 
 		var clSettingSvc = clLocalStorageObject('settings', {
 			values: {

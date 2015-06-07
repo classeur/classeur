@@ -1,12 +1,8 @@
 $plastic-colors: #3498db, lighten(desaturate(#f1c40f, 15%), 2.5%), lighten(desaturate(#1abc9c, 30%), 5%), lighten(desaturate(#e74c3c, 10%), 2.5%), darken(#95a5a6, 2.5%), lighten(#34495e, 15%);
-$link-color: #316ED3;
 $editor-margin-width: 120px;
-$font-family: Roboto, sans-serif;
-$font-family-monospace: Cousine, monospace;
 
 
-@import 'prism';
-@import 'fonts';
+@import 'base';
 @import '../blogs/blogs';
 @import '../core/button/button';
 @import '../core/editor/editor';
@@ -19,6 +15,7 @@ $font-family-monospace: Cousine, monospace;
 @import '../core/user/user';
 @import '../opt/btnBar/btnBar';
 @import '../opt/commenting/commenting';
+@import '../opt/exportToDisk/exportToDisk';
 @import '../opt/fileDragging/fileDragging';
 @import '../opt/folding/folding';
 @import '../opt/headingAnchor/headingAnchor';

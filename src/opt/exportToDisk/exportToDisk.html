@@ -1,0 +1,19 @@
+<md-dialog class="export-to-disk dialog">
+    <md-dialog-content>
+        <h2>Export to disk
+        </h2>
+        <md-radio-group ng-model="config.format">
+            <md-radio-button value="markdown" class="md-primary">Markdown</md-radio-button>
+            <md-radio-button value="formatted">Formatted</md-radio-button>
+            <md-radio-button value="pdf">PDF</md-radio-button>
+        </md-radio-group>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="export()" class="md-primary">
+            Ok
+        </md-button>
+    </div>
+</md-dialog>

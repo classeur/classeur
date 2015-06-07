@@ -43,12 +43,17 @@ var vendorJs = [
 	'bower_components/cldown/Markdown.Converter.js',
 	'bower_components/cldown/Markdown.Editor.js',
 	'bower_components/pagedown-extra/Markdown.Extra.js',
+	'bower_components/mustache/mustache.js',
+	'bower_components/file-saver.js/FileSaver.js',
+];
+
+var vendorBaseCss = [
+	'bower_components/emojione/assets/css/emojione.css',
 ];
 
 var vendorCss = [
 	'bower_components/angular-material/angular-material.css',
 	'bower_components/classets/icons/style.css',
-	'bower_components/emojione/assets/css/emojione.css',
 ];
 
 var templateCacheSrc = ['src/**/*.{html,md,json}'];
@@ -96,6 +101,7 @@ function cssStream() {
 	return streamqueue({
 			objectMode: true
 		},
+		gulp.src(vendorBaseCss),
 		gulp.src(vendorCss)
 		.pipe(replace(/@import\s.*/g, '')),
 		gulp.src('src/styles/main.scss')
@@ -116,6 +122,19 @@ gulp.task('sass-dev', function() {
 		.pipe(sass())
 		.pipe(concat('app-min.css'))
 		.pipe(sourcemaps.write('.'))
+		.pipe(gulp.dest('public'));
+});
+gulp.task('sass-base', function() {
+	return streamqueue({
+				objectMode: true
+			},
+			gulp.src(vendorBaseCss),
+			gulp.src('src/styles/base.scss')
+		)
+		.pipe(sass({
+			outputStyle: 'compressed'
+		}))
+		.pipe(concat('base-min.css'))
 		.pipe(gulp.dest('public'));
 });
 
@@ -144,5 +163,6 @@ gulp.task('run', [
 
 gulp.task('default', [
 	'sass',
+	'sass-base',
 	'js'
 ]);

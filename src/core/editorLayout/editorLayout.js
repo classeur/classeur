@@ -227,7 +227,7 @@ angular.module('classeur.core.editorLayout', [])
 					isInited = true;
 				}, 1);
 
-				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 400);
+				var debouncedAnimateLayout = window.cledit.Utils.debounce(animateLayout, 50);
 				window.addEventListener('resize', debouncedAnimateLayout);
 				scope.$on('$destroy', function() {
 					window.removeEventListener('resize', debouncedAnimateLayout);
