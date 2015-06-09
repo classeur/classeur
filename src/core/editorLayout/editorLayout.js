@@ -38,7 +38,7 @@ angular.module('classeur.core.editorLayout', [])
 				var previewPanel = clPanel(element, '.preview.panel');
 				var previewContainerElt = element[0].querySelector('.preview.container');
 				var binderPanel = clPanel(element, '.binder.panel').top(-hideOffsetY);
-				clPanel(element, '.edit.btn-panel').bottom(-hideOffsetY);
+				var editBtnPanel = clPanel(element, '.edit.btn-panel').bottom(-hideOffsetY - 20);
 				var editorPanel = clPanel(element, '.editor.panel').top(hideOffsetY);
 				var pagePanel = clPanel(element, '.page.panel').left(clEditorLayoutSvc.pageMargin / 2);
 				clPanel(element, '.menu.scroller').width(clEditorLayoutSvc.menuWidth + 50).right(-50);
@@ -175,6 +175,7 @@ angular.module('classeur.core.editorLayout', [])
 					showPreview();
 					updateLayout();
 					editorPanel.move(isInited && 'sslow').to(clEditorLayoutSvc.editorX, clEditorLayoutSvc.editorY).ease(clEditorLayoutSvc.isEditorOpen ? 'out' : 'in').then(function() {
+						editBtnPanel.move('slow').y(clEditorLayoutSvc.isEditorOpen ? 100 : 0).ease('ease-out-back').end();
 						setTimeout(function() {
 							hidePreview();
 							clEditorLayoutSvc.toggleSidePreview(false);

@@ -17,7 +17,7 @@ angular.module('classeur.opt.exportToDisk', [])
 		});
 
 		var config = {
-			format: 'markdown'
+			format: 'text'
 		};
 
 		return {
@@ -40,7 +40,7 @@ angular.module('classeur.opt.exportToDisk', [])
 						}
 					}).then(function() {
 						closeDialog();
-						if (config.format === 'markdown') {
+						if (config.format === 'text') {
 							saveAs(scope.currentFileDao.contentDao.text, scope.currentFileDao.name, 'text/plain');
 						}
 						else if (config.format === 'formatted') {
