@@ -1,0 +1,15 @@
+.template.manager.dialog {
+    min-width: 420px;
+    .md-button {
+        margin-top: 10px;
+    }
+    pre {
+    	font-size: 14px;
+        background-color: #fff;
+        border: 1px solid rgba(0,0,0,0.12);
+        width: 100%;
+        min-height: 160px;
+        word-wrap: normal;
+        overflow: auto;
+    }
+}

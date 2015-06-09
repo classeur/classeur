@@ -37,13 +37,9 @@ angular.module('classeur.core.settings', [])
             clSettingSvc.values = values;
 		}
 
-		function setDefaultSettings() {
-            clSettingSvc.values = JSON.parse(defaultSettings);
-		}
-
 		clSettingSvc.checkAll = checkAll;
 		clSettingSvc.updateSettings = updateSettings;
-		clSettingSvc.setDefaultSettings = setDefaultSettings;
+		clSettingSvc.defaultValues = JSON.parse(defaultSettings);
 
 		clSettingSvc.read();
 		angular.extend(clSettingSvc.values, JSON.parse(defaultSettings), clSettingSvc.values);

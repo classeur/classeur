@@ -8,15 +8,72 @@
             </div>
         </div>
         <md-tabs md-selected="selectedTabIndex" md-border-bottom flex>
+            <md-tab label="App">
+                <div class="tab">
+                    <h2>Editor</h2> Font size factor
+                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
+                    </md-slider>
+                    Binder width factor
+                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
+                    </md-slider>
+                    <md-checkbox ng-model="app.editorHighlighting">
+                        Markdown highlighting
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorInlineImg">
+                        Inline images
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMonospacedFont">
+                        Use monospaced font only
+                    </md-checkbox>
+                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
+                        Markdown Cheat Sheet icon
+                    </md-checkbox>
+                    <br>
+                    <h2>Default file properties</h2>
+                    <p class="group">
+                        <span class="label">
+                            Properties added to new files
+                        </span>
+                    <md-button class="md-primary" ng-click="editFileProperties()">
+                        Edit properties
+                    </md-button>
+                    </p>
+                    <p>
+                        <table>
+                            <tr ng-repeat="(key, value) in app.defaultFileProperties">
+                                <td><b>{{key}}</b></td>
+                                <td>{{value}}</td>
+                            </tr>
+                        </table>
+                    </p>
+                    <h2>Templates</h2>
+                    <p class="group">
+                        <span class="label">
+                            Export and post formats
+                        </span>
+                        <md-button class="md-primary" ng-click="manageTemplates()">
+                            Manage templates
+                        </md-button>
+                    </p>
+                    <br>
+                    <br>
+                    <p class="group">
+                        <span class="label">
+                            Reset app settings
+                        </span>
+                        <md-button class="md-primary" ng-click="loadDefault()">Load default</md-button>
+                    </p>
+            </div>
+            </md-tab>
             <md-tab label="User">
                 <div class="tab" ng-switch="socketSvc.hasToken">
                     <p class="group" ng-switch-default>
                         <span class="label">
                             Sign in to manage your user account
                         </span>
-                    <md-button class="md-primary" ng-click="userSvc.startOAuth()">
-                        Sign in with Google
-                    </md-button>
+                        <md-button class="md-primary" ng-click="userSvc.startOAuth()">
+                            Sign in with Google
+                        </md-button>
                     </p>
                     <div ng-switch-when="true">
                         <h2>Basic</h2>
@@ -85,47 +142,6 @@
                             </md-button>
                         </p>
                     </div>
-            </div>
-            </md-tab>
-            <md-tab label="App">
-                <div class="tab">
-                    <p class="group">
-                        <span class="label">
-                            Reset app settings
-                        </span>
-                        <md-button class="md-primary" ng-click="setDefault()">Set default</md-button>
-                    </p>
-                    <h2>Editor</h2> Font size factor
-                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
-                    </md-slider>
-                    Binder width factor
-                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
-                    </md-slider>
-                    <md-checkbox ng-model="app.editorHighlighting">
-                        Markdown highlighting
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorInlineImg">
-                        Inline images
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorMonospacedFont">
-                        Use monospaced font only
-                    </md-checkbox>
-                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
-                        Markdown Cheat Sheet icon
-                    </md-checkbox>
-                    <br>
-                    <h2>Default file properties</h2>
-                    <p>
-                        <table>
-                            <tr ng-repeat="(key, value) in app.defaultFileProperties">
-                                <td><b>{{key}}</b></td>
-                                <td>{{value}}</td>
-                            </tr>
-                        </table>
-                    </p>
-                    <md-button class="md-primary" ng-click="editFileProperties()">
-                        Edit properties
-                    </md-button>
                 </div>
             </md-tab>
             <md-tab label="Blogs">

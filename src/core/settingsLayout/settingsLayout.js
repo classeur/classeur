@@ -5,7 +5,7 @@ angular.module('classeur.core.settingsLayout', [])
 			reloadOnSearch: false
 		});
 	})
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clBlogSvc) {
+	.directive('clSettingsLayout', function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
 
 		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -26,7 +26,7 @@ angular.module('classeur.core.settingsLayout', [])
 			restrict: 'E',
 			templateUrl: 'core/settingsLayout/settingsLayout.html',
 			link: function(scope) {
-				var tabs = ['user', 'app', 'blogs', 'trash'];
+				var tabs = ['app', 'user', 'blogs', 'trash'];
 
 				function serialize(obj) {
 					return JSON.stringify(obj, function(key, value) {
@@ -96,16 +96,8 @@ angular.module('classeur.core.settingsLayout', [])
 					}
 				}
 
-				scope.setDefault = function() {
-					clDialog.show(clDialog.confirm()
-							.title('Default settings')
-							.content('You\'re about to reset your app settings. Are you sure?')
-							.ok('Yes')
-							.cancel('No'))
-						.then(function() {
-							clSettingSvc.setDefaultSettings();
-							resetApp();
-						});
+				scope.loadDefault = function() {
+					scope.app = clone(clSettingSvc.defaultValues);
 				};
 
 				scope.cancel = function() {
@@ -126,6 +118,13 @@ angular.module('classeur.core.settingsLayout', [])
 					clFilePropertiesDialog(scope.app.defaultFileProperties)
 						.then(function(properties) {
 							scope.app.defaultFileProperties = properties;
+						});
+				};
+
+				scope.manageTemplates = function() {
+					clTemplateManagerDialog(scope.app.exportTemplates)
+						.then(function(templates) {
+							scope.app.exportTemplates = templates;
 						});
 				};
 
@@ -224,10 +223,10 @@ angular.module('classeur.core.settingsLayout', [])
 					scope.editBlog = function(blog) {
 						clDialog.show({
 								templateUrl: 'core/settingsLayout/editBlogDialog.html',
-								controller: function(scope) {
+								controller: ['$scope', function(scope) {
 									scope.blog = blog;
 									scope.form = angular.extend({}, blog);
-								},
+								}],
 								onComplete: function(scope) {
 									scope.ok = function() {
 										var newBlog = clBlogSvc.createBlog(scope.form);

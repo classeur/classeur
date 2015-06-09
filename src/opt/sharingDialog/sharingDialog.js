@@ -12,11 +12,11 @@ angular.module('classeur.opt.sharingDialog', [])
 					}
 					clDialog.show({
 						templateUrl: 'opt/sharingDialog/sharingDialog.html',
-						controller: function(scope) {
+						controller: ['$scope', function(scope) {
 							scope.isFile = isFile;
 							scope.objectDao = objectDao;
 							scope.folderDao = folderDao;
-						},
+						}],
 						onComplete: function(scope, element) {
 							scope.openFolder = function() {
 								clDialog.hide();

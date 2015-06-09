@@ -1,13 +1,13 @@
-$font-family: Roboto,
-sans-serif;
-$font-family-monospace: Cousine,
-monospace;
+$font-family: Roboto, sans-serif;
+$font-family-monospace: Cousine, monospace;
 $font-size-monospace: 0.85em;
 $link-color: #316ED3;
 $code-bg: #eee;
 $border-radius-base: 4px;
+
 @import 'prism';
 @import 'fonts';
+
 html {
     font-family: $font-family;
 }

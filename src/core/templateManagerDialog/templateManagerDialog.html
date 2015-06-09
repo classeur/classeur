@@ -1,0 +1,34 @@
+<md-dialog class="template manager dialog">
+    <md-dialog-content>
+        <h2>Templates</h2>
+        <div layout="row">
+            <md-select placeholder="New template" ng-model="selectedKey">
+                <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
+            </md-select>
+        </div>
+        <md-input-container>
+            <label>Name</label>
+            <input ng-model="templateKey">
+        </md-input-container>
+        <pre class="prettyprint"></pre>
+        <div layout="row" layout-align="end">
+            <md-button ng-if="selectedKey" ng-click="remove()">
+                Remove
+            </md-button>
+            <md-button ng-if="selectedKey" ng-click="addOrReplace()" class="md-primary">
+                Replace
+            </md-button>
+            <md-button ng-if="!selectedKey" ng-click="addOrReplace()" class="md-primary">
+                Add
+            </md-button>
+        </div>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()">
+            Cancel
+        </md-button>
+        <md-button ng-click="ok()" class="md-primary">
+            Ok
+        </md-button>
+    </div>
+</md-dialog>

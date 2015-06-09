@@ -10,7 +10,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 			});
 			return clDialog.show({
 				templateUrl: 'core/filePropertiesDialog/filePropertiesDialog.html',
-				controller: function(scope) {
+				controller: ['$scope', function(scope) {
 					scope.properties = properties;
 					scope.deleteRow = function(propertyToDelete) {
 						scope.properties = scope.properties.filter(function(property) {
@@ -47,7 +47,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 					scope.cancel = function() {
 						clDialog.cancel();
 					};
-				},
+				}],
 			});
 		};
 	});

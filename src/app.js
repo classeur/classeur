@@ -26,6 +26,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.settingsLayout',
 		'classeur.core.sync',
 		'classeur.core.socket',
+		'classeur.core.templateManagerDialog',
 		'classeur.core.user',
 		'classeur.core.utils',
 		'classeur.opt.btnBar',

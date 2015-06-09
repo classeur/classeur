@@ -1,5 +1,5 @@
 angular.module('classeur.opt.postToBlog', [])
-	.directive('clPostToBlog', function(clDialog, clEditorLayoutSvc, clBlogSvc, clSocketSvc) {
+	.directive('clPostToBlog', function(clDialog, clEditorLayoutSvc, clBlogSvc) {
 		return {
 			restrict: 'E',
 			link: function(scope) {
@@ -15,10 +15,10 @@ angular.module('classeur.opt.postToBlog', [])
 				function editPost(post) {
 					return clDialog.show({
 						templateUrl: 'opt/postToBlog/editBlogPostDialog.html',
-						controller: function(scope) {
+						controller: ['$scope', function(scope) {
 							scope.post = post;
 							scope.form = angular.extend({}, post);
-						},
+						}],
 						onComplete: function(scope) {
 							scope.ok = function() {
 								var newPost = clBlogSvc.createPost(scope.form);
