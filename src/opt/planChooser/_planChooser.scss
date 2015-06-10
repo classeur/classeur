@@ -38,7 +38,6 @@
             }
         }
         .header {
-            padding-top: 20px;
             margin-bottom: 30px;
             background-color: #ebebeb;
             height: 175px;
@@ -47,6 +46,10 @@
             font-size: 20px;
             font-weight: 300;
             margin-bottom: 15px;
+            &.big {
+                margin-top: 15px;
+                font-size: 24px;
+            }
         }
         .price {
             font-size: 40px;

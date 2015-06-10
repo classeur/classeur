@@ -28,9 +28,13 @@ angular.module('classeur.opt.sharingDialog', [])
 							var inputElt = element[0].querySelector('input.url');
 
 							function select() {
-								inputElt.setSelectionRange(0, sharingUrl.length);
+								setTimeout(function() {
+									inputElt.setSelectionRange(0, sharingUrl.length);
+								}, 100);
 							}
 							inputElt.addEventListener('focus', select);
+							inputElt.addEventListener('click', select);
+							inputElt.addEventListener('keyup', select);
 							scope.$watch('objectDao.effectiveSharing', function() {
 								if (!objectDao.isPublic) {
 									if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
@@ -42,7 +46,7 @@ angular.module('classeur.opt.sharingDialog', [])
 							});
 							scope.$watch('sharingUrl', function() {
 								scope.sharingUrl = sharingUrl;
-								setTimeout(select, 100);
+								select();
 							});
 						}
 					}).then(function() {
