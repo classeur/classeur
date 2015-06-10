@@ -1,7 +1,7 @@
 angular.module('classeur.core.templateManagerDialog', [])
-	.factory('clTemplateManagerDialog', function($window, clDialog) {
+	.factory('clTemplateManagerDialog', function($window, clDialog, clSettingSvc) {
 		return function(templates) {
-			templates = JSON.parse(JSON.stringify(templates || {}));
+			templates = clSettingSvc.sanitizeExportTemplates(templates);
 			return clDialog.show({
 				templateUrl: 'core/templateManagerDialog/templateManagerDialog.html',
 				onComplete: function(scope, element) {
@@ -15,6 +15,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 					});
 					var lastSelectedKey;
 					scope.$watch('selectedKey', function(selectedKey) {
+						scope.canBeRemoved = selectedKey && !clSettingSvc.defaultValues.exportTemplates.hasOwnProperty(selectedKey);
 						if (lastSelectedKey !== selectedKey) {
 							lastSelectedKey = selectedKey;
 							scope.templateKey = selectedKey;
@@ -30,10 +31,11 @@ angular.module('classeur.core.templateManagerDialog', [])
 					scope.remove = function() {
 						delete templates[scope.templateKey];
 						scope.templateKey = undefined;
+						scope.selectedKey = undefined;
 						cledit.setContent('');
 					};
 					scope.addOrReplace = function() {
-						var templateValue = cledit.getContent().trim();
+						var templateValue = cledit.getContent();
 						if(!scope.templateKey || !templateValue) {
 							return;
 						}
@@ -42,7 +44,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 					};
 					scope.ok = function() {
 						scope.addOrReplace();
-						clDialog.hide(templates);
+						clDialog.hide(clSettingSvc.sanitizeExportTemplates(templates));
 					};
 					scope.cancel = function() {
 						clDialog.cancel();

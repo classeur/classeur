@@ -20,6 +20,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 					scope.addRow = function() {
 						scope.properties.push({});
 					};
+					scope.addRow();
 					scope.ok = function() {
 						var properties = {};
 						if (scope.properties.some(function(property) {

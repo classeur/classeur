@@ -29,34 +29,23 @@
                         Markdown Cheat Sheet icon
                     </md-checkbox>
                     <br>
-                    <h2>Default file properties</h2>
+                    <h2>Utils</h2>
                     <p class="group">
                         <span class="label">
-                            Properties added to new files
+                            Default properties for new files
                         </span>
                     <md-button class="md-primary" ng-click="editFileProperties()">
                         Edit properties
                     </md-button>
                     </p>
-                    <p>
-                        <table>
-                            <tr ng-repeat="(key, value) in app.defaultFileProperties">
-                                <td><b>{{key}}</b></td>
-                                <td>{{value}}</td>
-                            </tr>
-                        </table>
-                    </p>
-                    <h2>Templates</h2>
                     <p class="group">
                         <span class="label">
-                            Export and post formats
+                            Export and post formatting
                         </span>
                         <md-button class="md-primary" ng-click="manageTemplates()">
                             Manage templates
                         </md-button>
                     </p>
-                    <br>
-                    <br>
                     <p class="group">
                         <span class="label">
                             Reset app settings

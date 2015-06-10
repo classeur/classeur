@@ -12,7 +12,7 @@
         </md-input-container>
         <pre class="prettyprint"></pre>
         <div layout="row" layout-align="end">
-            <md-button ng-if="selectedKey" ng-click="remove()">
+            <md-button ng-if="canBeRemoved" ng-click="remove()">
                 Remove
             </md-button>
             <md-button ng-if="selectedKey" ng-click="addOrReplace()" class="md-primary">
@@ -22,6 +22,16 @@
                 Add
             </md-button>
         </div>
+        <p>
+            <b>Tip:</b> Classeur uses Mustache to substitute tags. For instance:
+        </p>
+        <pre class="example" ng-non-bindable>
+{{file.name}}
+{{file.text}}
+{{{file.html}}}</pre>
+            <md-button>
+                More about templates...
+            </md-button>
     </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()">

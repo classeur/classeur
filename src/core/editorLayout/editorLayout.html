@@ -45,8 +45,8 @@
                         <div class="links">
                             <a ng-click="editFileProperties()">Properties</a>
                             <a ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">Sharing</a>
+                            <a ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">Export</a>
                             <a ng-click="editorLayoutSvc.currentControl = 'postToBlog'">Post to blog</a>
-                            <a ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">Export to disk</a>
                             <a ng-click="makeCurrentFileCopy()">Make a copy</a>
                         </div>
                         <div class="entry">Zoom</div>
@@ -68,13 +68,13 @@
                         <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
                     </md-tooltip>
                 </div>
-                <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="34">
+                <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="32">
                     <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor"></a>
                 </cl-button>
-                <cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="34">
+                <cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="32">
                     <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Hide editor"></a>
                 </cl-button>
-                <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="34">
+                <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="32">
                     <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="5" aria-label="Side preview"></a>
                 </cl-button>
                 <div class="menu btn btn-panel" ng-class="plasticClass">

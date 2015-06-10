@@ -1,9 +1,16 @@
 angular.module('classeur.core.settings', [])
 	.factory('clSettingSvc', function($templateCache, clLocalStorageObject) {
 		var defaultSettings = $templateCache.get('core/settings/defaultSettings.json');
+
+		var defaultTemplatePaths = {
+			'HTML': 'core/settings/exportTemplateHtml.html',
+			'Styled HTML': 'core/settings/exportTemplateStyledHtml.html',
+			'PDF': 'core/settings/exportTemplatePdf.html',
+		};
 		defaultSettings = JSON.parse(defaultSettings);
-		defaultSettings.exportTemplates['Styled HTML'] = $templateCache.get('core/settings/exportTemplateStyledHtml.html');
-		defaultSettings.exportTemplates.PDF = $templateCache.get('core/settings/exportTemplatePdf.html');
+		Object.keys(defaultTemplatePaths).forEach(function(key) {
+			defaultSettings.exportTemplates[key] = $templateCache.get(defaultTemplatePaths[key]);
+		});
 		defaultSettings = JSON.stringify(defaultSettings);
 
 		var clSettingSvc = clLocalStorageObject('settings', {
@@ -33,13 +40,24 @@ angular.module('classeur.core.settings', [])
 			}
 		}
 
-		function updateSettings(values) {
-            clSettingSvc.values = values;
+		function sanitizeExportTemplates(exportTemplates) {
+			// Add default templates if not present
+			exportTemplates = exportTemplates || {};
+			return Object.keys(exportTemplates).concat(Object.keys(defaultTemplatePaths)).sort().reduce(function(result, key) {
+				result[key] = exportTemplates.hasOwnProperty(key) ? exportTemplates[key] : clSettingSvc.defaultValues.exportTemplates[key];
+				return result;
+			}, {});
 		}
 
+		function updateSettings(values) {
+			values.exportTemplates = sanitizeExportTemplates(values.exportTemplates);
+			clSettingSvc.values = values;
+		}
+
+		clSettingSvc.defaultValues = JSON.parse(defaultSettings);
 		clSettingSvc.checkAll = checkAll;
 		clSettingSvc.updateSettings = updateSettings;
-		clSettingSvc.defaultValues = JSON.parse(defaultSettings);
+		clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates;
 
 		clSettingSvc.read();
 		angular.extend(clSettingSvc.values, JSON.parse(defaultSettings), clSettingSvc.values);

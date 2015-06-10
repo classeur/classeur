@@ -12,9 +12,18 @@
                 <input ng-model="property.value">
             </md-input-container>
         </div>
-        <md-button ng-click="addRow()">
-            Add
-            <span class="icon-add"></span>
+        <div layout="row" layout-align="end">
+            <md-button ng-click="addRow()">
+                Add
+                <span class="icon-add"></span>
+            </md-button>
+        </div>
+        <p>
+            <b>Tip:</b> Activate MathJax extension:
+        </p>
+        <pre class="example">ext:MathJax  1</pre>
+        <md-button>
+            More about extensions...
         </md-button>
     </md-dialog-content>
     <div class="md-actions">

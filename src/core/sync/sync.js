@@ -303,7 +303,7 @@ angular.module('classeur.core.sync', [])
 				if (msg.settings) {
 					syncData = clSyncDataSvc.userData.settings || {};
 					if (syncData.s !== msg.settingsUpdated) {
-						clSettingSvc.values = msg.settings;
+						clSettingSvc.updateSettings(msg.settings);
 						clSettingSvc.write(msg.settingsUpdated);
 						apply = true;
 					}

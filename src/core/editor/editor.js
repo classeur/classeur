@@ -765,7 +765,7 @@ angular.module('classeur.core.editor', [])
 			var view = {
 				file: {
 					name: currentFileDao.name,
-					md: currentFileDao.contentDao.text,
+					text: currentFileDao.contentDao.text,
 					html: clEditorSvc.previewHtml,
 					properties: currentFileDao.contentDao.properties
 				}

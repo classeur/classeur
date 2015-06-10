@@ -1,15 +1,14 @@
 .template.manager.dialog {
-    min-width: 420px;
-    .md-button {
-        margin-top: 10px;
-    }
-    pre {
-    	font-size: 14px;
+    min-width: 360px;
+    pre.prettyprint {
         background-color: #fff;
-        border: 1px solid rgba(0,0,0,0.12);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         width: 100%;
         min-height: 160px;
         word-wrap: normal;
         overflow: auto;
+    }
+    pre.example {
+        padding-left: 50px;
     }
 }
