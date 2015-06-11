@@ -144,7 +144,7 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true" ng-switch="!!getBlogsPending">
-                        <md-progress-circular md-mode="indeterminate" ng-switch-when="true"></md-progress-circular>
+                        <cl-spinner ng-switch-when="true"></cl-spinner>
                         <div ng-switch-when="false">
                             <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
                             <div ng-if="!blogs.length">No blog yet.</div>
@@ -176,7 +176,7 @@
                             <md-button md-no-ink class="icon-delete" ng-click="removeFile(file)" aria-label="Remove"></md-button>
                         </div>
                         <div ng-if="!getTrashFilesPending && trashEmpty">Trash is empty.</div>
-                        <md-progress-circular md-mode="indeterminate" ng-if="getTrashFilesPending"></md-progress-circular>
+                        <cl-spinner ng-if="getTrashFilesPending"></cl-spinner>
                         <br>
                         <md-button ng-if="!getTrashFilesPending && lastDeleted" class="md-primary" ng-click="getTrashFiles()">More deleted files</md-button>
                     </div>

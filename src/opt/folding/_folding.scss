@@ -12,7 +12,7 @@
         content: "\e715";
         padding: 3px;
         font-size: 15px;
-        left: 97px;
+        left: ($editor-margin-width - 22);
         color: transparentize(#000, 0.75);
         cursor: pointer;
     }

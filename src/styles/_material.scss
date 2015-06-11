@@ -108,9 +108,11 @@ md-dialog {
 }
 
 md-backdrop.md-opaque.md-default-theme {
-    background-color: #000;
+    background: -moz-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.25)), color-stop(100%, rgba(0, 0, 0, 0.75)));
     background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
+    background: -o-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
+    background: -ms-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
 }
 

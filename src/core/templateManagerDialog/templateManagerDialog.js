@@ -7,7 +7,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 				onComplete: function(scope, element) {
 					scope.templates = templates;
 					var preElt = element[0].querySelector('pre');
-					var cledit = $window.cledit(preElt, preElt);
+					var cledit = $window.cledit(preElt);
 					cledit.init({
 						highlighter: function(text) {
 							return $window.Prism.highlight(text, $window.Prism.languages.markup);

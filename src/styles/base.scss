@@ -109,15 +109,17 @@ kbd {
     font-size: .8em;
 }
 
-body .container {
+.export-container {
     margin-bottom: 180px;
-    text-align: justify;
     margin-right: auto;
     margin-left: auto;
+    & > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+        text-align: justify;
+    }
 }
 
 @media (min-width: 768px) {
-    .container {
+    .export-container {
         width: 750px;
     }
 }

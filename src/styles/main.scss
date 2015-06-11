@@ -1,5 +1,5 @@
 $plastic-colors: #3498db, lighten(desaturate(#f1c40f, 15%), 2.5%), lighten(desaturate(#1abc9c, 30%), 5%), lighten(desaturate(#e74c3c, 10%), 2.5%), darken(#95a5a6, 2.5%), lighten(#34495e, 15%);
-$editor-margin-width: 120px;
+$editor-margin-width: 110px;
 
 
 @import 'base';
@@ -95,20 +95,6 @@ body {
 .postit {
     background-color: #FFF7B2;
     cursor: move;
-}
-
-.gutter {
-    position: absolute;
-    top: 0;
-    width: $editor-margin-width;
-    div {
-        position: absolute;
-        cursor: pointer;
-        color: transparentize(#000, 0.75);
-        &:hover {
-            color: transparentize(#000, 0.6);
-        }
-    }
 }
 
 .nav {

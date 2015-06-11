@@ -1,8 +1,5 @@
 .export-to-disk.dialog {
     min-width: 360px;
-    .md-select-label {
-        padding-top: 0;
-    }
     .options {
         margin-left: 50px;
         .label {
@@ -10,9 +7,11 @@
             padding: 2px;
             display: block;
             color: rgba(0, 0, 0, 0.54);
+            margin-bottom: -15px;
+
         }
         textarea {
-            max-height: 85px;
+            max-height: 65px;
             font-size: 14px;
             line-height: inherit;
         }

@@ -1,3 +1,17 @@
+.gutter {
+    position: absolute;
+    top: 0;
+    width: $editor-margin-width;
+    div {
+        position: absolute;
+        cursor: pointer;
+        color: transparentize(#000, 0.75);
+        &:hover {
+            color: transparentize(#000, 0.6);
+        }
+    }
+}
+
 .commenting.gutter {
 	div {
 		right: 24px;

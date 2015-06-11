@@ -1,8 +1,15 @@
 angular.module('classeur.opt.spinner', [])
+	.directive('clCenteredSpinner', function() {
+		return {
+			restrict: 'E',
+			scope: true,
+			template: '<div class="centered spinner"><cl-spinner></cl-spinner></div>'
+		};
+	})
 	.directive('clSpinner', function() {
 		return {
 			restrict: 'E',
 			scope: true,
-			templateUrl: 'opt/spinner/spinner.html'
+			template: '<md-progress-circular class="md-accent md-hue-2" md-mode="indeterminate"></md-progress-circular>'
 		};
 	});
