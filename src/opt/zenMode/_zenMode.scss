@@ -1,4 +1,5 @@
 .zen.panel.level-1 {
+	pointer-events: none;
     &.hidden {
         display: none;
     }

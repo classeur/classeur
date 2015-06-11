@@ -1,12 +1,12 @@
 angular.module('classeur.opt.htmlSanitizer', [])
-	.directive('clHtmlSanitizer', function(clEditorSvc, clUriValidator) {
+	.directive('clHtmlSanitizer', function(clEditorSvc, $$sanitizeUri) {
 
 		var buf;
 		clEditorSvc.onInitConverter(90, function(converter) {
 			converter.hooks.chain("postConversion", function(html) {
 				buf = [];
 				htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
-					return clUriValidator(uri, isImage);
+					return !/^unsafe/.test($$sanitizeUri(uri, isImage));
 				}));
 				return buf.join('');
 			});
@@ -14,24 +14,18 @@ angular.module('classeur.opt.htmlSanitizer', [])
 
 		// Regular Expressions for parsing tags and attributes
 		var START_TAG_REGEXP =
-				/^<\s*([\w:-]+)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*>/,
-			END_TAG_REGEXP = /^<\s*\/\s*([\w:-]+)[^>]*>/,
+			/^<((?:[a-zA-Z])[\w:-]*)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*(>?)/,
+			END_TAG_REGEXP = /^<\/\s*([\w:-]+)[^>]*>/,
 			ATTR_REGEXP = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g,
 			BEGIN_TAG_REGEXP = /^</,
-			BEGING_END_TAGE_REGEXP = /^<\s*\//,
+			BEGING_END_TAGE_REGEXP = /^<\//,
 			COMMENT_REGEXP = /<!--(.*?)-->/g,
 			DOCTYPE_REGEXP = /<!DOCTYPE([^>]*?)>/i,
 			CDATA_REGEXP = /<!\[CDATA\[(.*?)]]>/g,
-		// Match everything outside of normal chars and " (quote character)
+			SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+			// Match everything outside of normal chars and " (quote character)
 			NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g;
 
-		function makeMap(str) {
-			var obj = {}, items = str.split(','), i;
-			for(i = 0; i < items.length; i++) {
-				obj[items[i]] = true;
-			}
-			return obj;
-		}
 
 		// Good source of info about elements and attributes
 		// http://dev.w3.org/html5/spec/Overview.html#semantics
@@ -51,47 +45,84 @@ angular.module('classeur.opt.htmlSanitizer', [])
 
 		// Safe Block Elements - HTML5
 		var blockElements = angular.extend({}, optionalEndTagBlockElements, makeMap("address,article," +
-		"aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5," +
-		"h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul"));
-
-		// Inline Elements - HTML5
-		var inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a,abbr,acronym,b," +
-		"bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
-		"samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
-
-
-		// Special Elements (can contain anything)
-		var specialElements = makeMap("script,style");
+			"aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5," +
+			"h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,script,section,table,ul"));
 
 		// benweet: Add iframe
 		blockElements.iframe = true;
+
+		// Inline Elements - HTML5
+		var inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a,abbr,acronym,b," +
+			"bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
+			"samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
+
+		// SVG Elements
+		// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Elements
+		// Note: the elements animate,animateColor,animateMotion,animateTransform,set are intentionally omitted.
+		// They can potentially allow for arbitrary javascript to be executed. See #11290
+		var svgElements = makeMap("circle,defs,desc,ellipse,font-face,font-face-name,font-face-src,g,glyph," +
+			"hkern,image,linearGradient,line,marker,metadata,missing-glyph,mpath,path,polygon,polyline," +
+			"radialGradient,rect,stop,svg,switch,text,title,tspan,use");
+
+		// Special Elements (can contain anything)
+		var specialElements = makeMap("script,style");
 
 		var validElements = angular.extend({},
 			voidElements,
 			blockElements,
 			inlineElements,
-			optionalEndTagElements);
+			optionalEndTagElements,
+			svgElements);
 
 		//Attributes that have href and hence need to be sanitized
-		var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap");
-		var validAttrs = angular.extend({}, uriAttrs, makeMap(
-			'abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
+		var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap,xlink:href");
+
+		var htmlAttrs = makeMap('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
 			'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,' +
 			'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,' +
-			'scope,scrolling,shape,size,span,start,summary,target,title,type,' +
-			'valign,value,vspace,width'));
+			'scope,scrolling,shape,size,span,start,summary,tabindex,target,title,type,' +
+			'valign,value,vspace,width');
+
+		// SVG attributes (without "id" and "name" attributes)
+		// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Attributes
+		var svgAttrs = makeMap('accent-height,accumulate,additive,alphabetic,arabic-form,ascent,' +
+			'baseProfile,bbox,begin,by,calcMode,cap-height,class,color,color-rendering,content,' +
+			'cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,font-size,font-stretch,' +
+			'font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,gradientUnits,hanging,' +
+			'height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,keySplines,keyTimes,lang,' +
+			'marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mathematical,' +
+			'max,min,offset,opacity,orient,origin,overline-position,overline-thickness,panose-1,' +
+			'path,pathLength,points,preserveAspectRatio,r,refX,refY,repeatCount,repeatDur,' +
+			'requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,stemv,stop-color,' +
+			'stop-opacity,strikethrough-position,strikethrough-thickness,stroke,stroke-dasharray,' +
+			'stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,' +
+			'stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,underline-position,' +
+			'underline-thickness,unicode,unicode-range,units-per-em,values,version,viewBox,visibility,' +
+			'width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,xlink:show,xlink:title,' +
+			'xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,zoomAndPan', true);
+
+		var validAttrs = angular.extend({},
+			uriAttrs,
+			svgAttrs,
+			htmlAttrs);
 
 		// benweet: Add id and allowfullscreen (YouTube iframe)
 		validAttrs.id = true;
 		validAttrs.allowfullscreen = true;
 
-		/*
-		 * HTML Parser By Misko Hevery (misko@hevery.com)
-		 * based on:  HTML Parser By John Resig (ejohn.org)
-		 * Original code by Erik Arvidsson, Mozilla Public License
-		 * http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
-		 *
-		 * // Use like so:
+		function makeMap(str, lowercaseKeys) {
+			var obj = {},
+				items = str.split(','),
+				i;
+			for (i = 0; i < items.length; i++) {
+				obj[lowercaseKeys ? angular.lowercase(items[i]) : items[i]] = true;
+			}
+			return obj;
+		}
+
+
+		/**
+		 * @example
 		 * htmlParser(htmlString, {
 		 *     start: function(tag, attrs, unary) {},
 		 *     end: function(tag) {},
@@ -99,139 +130,93 @@ angular.module('classeur.opt.htmlSanitizer', [])
 		 *     comment: function(text) {}
 		 * });
 		 *
+		 * @param {string} html string
+		 * @param {object} handler
 		 */
-		/* jshint -W083 */
 		function htmlParser(html, handler) {
-			var index, chars, match, stack = [], last = html;
+			if (typeof html !== 'string') {
+				if (html === null || typeof html === 'undefined') {
+					html = '';
+				} else {
+					html = '' + html;
+				}
+			}
+			var index, chars, match, stack = [],
+				last = html,
+				text;
 			stack.last = function() {
 				return stack[stack.length - 1];
 			};
 
-			function parseStartTag(tag, tagName, rest, unary) {
-				tagName = tagName && tagName.toLowerCase();
-				if(blockElements[tagName]) {
-					while(stack.last() && inlineElements[stack.last()]) {
-						parseEndTag("", stack.last());
-					}
-				}
-
-				if(optionalEndTagElements[tagName] && stack.last() == tagName) {
-					parseEndTag("", tagName);
-				}
-
-				unary = voidElements[tagName] || !!unary;
-
-				if(!unary) {
-					stack.push(tagName);
-				}
-
-				var attrs = {};
-
-				rest.replace(ATTR_REGEXP,
-					function(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
-						var value = doubleQuotedValue ||
-							singleQuotedValue ||
-							unquotedValue ||
-							'';
-
-						attrs[name] = decodeEntities(value);
-					});
-				if(handler.start) {
-					handler.start(tagName, attrs, unary);
-				}
-			}
-
-			function parseEndTag(tag, tagName) {
-				var pos = 0, i;
-				tagName = tagName && tagName.toLowerCase();
-				if(tagName) {
-					// Find the closest opened tag of the same type
-					for(pos = stack.length - 1; pos >= 0; pos--) {
-						if(stack[pos] == tagName) {
-							break;
-						}
-					}
-				}
-
-				if(pos >= 0) {
-					// Close all the open elements, up the stack
-					for(i = stack.length - 1; i >= pos; i--) {
-						if(handler.end) {
-							handler.end(stack[i]);
-						}
-					}
-
-					// Remove the open elements from the stack
-					stack.length = pos;
-				}
-			}
-
-			while(html) {
+			while (html) {
+				text = '';
 				chars = true;
 
 				// Make sure we're not in a script or style element
-				if(!stack.last() || !specialElements[stack.last()]) {
+				if (!stack.last() || !specialElements[stack.last()]) {
 
 					// Comment
-					if(html.indexOf("<!--") === 0) {
+					if (html.indexOf("<!--") === 0) {
 						// comments containing -- are not allowed unless they terminate the comment
 						index = html.indexOf("--", 4);
 
-						if(index >= 0 && html.lastIndexOf("-->", index) === index) {
-							if(handler.comment) {
-								handler.comment(html.substring(4, index));
-							}
+						if (index >= 0 && html.lastIndexOf("-->", index) === index) {
+							if (handler.comment) handler.comment(html.substring(4, index));
 							html = html.substring(index + 3);
 							chars = false;
 						}
 						// DOCTYPE
-					} else if(DOCTYPE_REGEXP.test(html)) {
+					} else if (DOCTYPE_REGEXP.test(html)) {
 						match = html.match(DOCTYPE_REGEXP);
 
-						if(match) {
+						if (match) {
 							html = html.replace(match[0], '');
 							chars = false;
 						}
 						// end tag
-					} else if(BEGING_END_TAGE_REGEXP.test(html)) {
+					} else if (BEGING_END_TAGE_REGEXP.test(html)) {
 						match = html.match(END_TAG_REGEXP);
 
-						if(match) {
+						if (match) {
 							html = html.substring(match[0].length);
 							match[0].replace(END_TAG_REGEXP, parseEndTag);
 							chars = false;
 						}
 
 						// start tag
-					} else if(BEGIN_TAG_REGEXP.test(html)) {
+					} else if (BEGIN_TAG_REGEXP.test(html)) {
 						match = html.match(START_TAG_REGEXP);
 
-						if(match) {
-							html = html.substring(match[0].length);
-							match[0].replace(START_TAG_REGEXP, parseStartTag);
+						if (match) {
+							// We only have a valid start-tag if there is a '>'.
+							if (match[4]) {
+								html = html.substring(match[0].length);
+								match[0].replace(START_TAG_REGEXP, parseStartTag);
+							}
 							chars = false;
+						} else {
+							// no ending tag found --- this piece should be encoded as an entity.
+							text += '<';
+							html = html.substring(1);
 						}
 					}
 
-					if(chars) {
+					if (chars) {
 						index = html.indexOf("<");
 
-						var text = index < 0 ? html : html.substring(0, index);
+						text += index < 0 ? html : html.substring(0, index);
 						html = index < 0 ? "" : html.substring(index);
 
-						if(handler.chars) {
-							handler.chars(decodeEntities(text));
-						}
+						if (handler.chars) handler.chars(decodeEntities(text));
 					}
 
 				} else {
-					html = html.replace(new RegExp("(.*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", 'i'),
+					// IE versions 9 and 10 do not understand the regex '[^]', so using a workaround with [\W\w].
+					html = html.replace(new RegExp("([\\W\\w]*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", 'i'),
 						function(all, text) {
 							text = text.replace(COMMENT_REGEXP, "$1").replace(CDATA_REGEXP, "$1");
 
-							if(handler.chars) {
-								handler.chars(decodeEntities(text));
-							}
+							if (handler.chars) handler.chars(decodeEntities(text));
 
 							return "";
 						});
@@ -239,51 +224,82 @@ angular.module('classeur.opt.htmlSanitizer', [])
 					parseEndTag("", stack.last());
 				}
 
-				if(html == last) {
-					//throw new Error("The sanitizer was unable to parse the following block of html: " + html);
-					stack.reverse();
-					return stack.forEach(function(tag) {
-						buf.push('</');
-						buf.push(tag);
-						buf.push('>');
-					});
+				if (html == last) {
+					throw $sanitizeMinErr('badparse', "The sanitizer was unable to parse the following block " +
+						"of html: {0}", html);
 				}
 				last = html;
 			}
 
 			// Clean up any remaining tags
 			parseEndTag();
+
+			function parseStartTag(tag, tagName, rest, unary) {
+				tagName = angular.lowercase(tagName);
+				if (blockElements[tagName]) {
+					while (stack.last() && inlineElements[stack.last()]) {
+						parseEndTag("", stack.last());
+					}
+				}
+
+				if (optionalEndTagElements[tagName] && stack.last() == tagName) {
+					parseEndTag("", tagName);
+				}
+
+				unary = voidElements[tagName] || !!unary;
+
+				if (!unary) {
+					stack.push(tagName);
+				}
+
+				var attrs = {};
+
+				rest.replace(ATTR_REGEXP,
+					function(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
+						var value = doubleQuotedValue || singleQuotedValue || unquotedValue || '';
+
+						attrs[name] = decodeEntities(value);
+					});
+				if (handler.start) handler.start(tagName, attrs, unary);
+			}
+
+			function parseEndTag(tag, tagName) {
+				var pos = 0,
+					i;
+				tagName = angular.lowercase(tagName);
+				if (tagName) {
+					// Find the closest opened tag of the same type
+					for (pos = stack.length - 1; pos >= 0; pos--) {
+						if (stack[pos] == tagName) break;
+					}
+				}
+
+				if (pos >= 0) {
+					// Close all the open elements, up the stack
+					for (i = stack.length - 1; i >= pos; i--)
+						if (handler.end) handler.end(stack[i]);
+
+						// Remove the open elements from the stack
+					stack.length = pos;
+				}
+			}
 		}
 
 		var hiddenPre = document.createElement("pre");
-		var spaceRe = /^(\s*)([\s\S]*?)(\s*)$/;
-
 		/**
 		 * decodes all entities into regular string
 		 * @param value
 		 * @returns {string} A string with decoded entities.
 		 */
 		function decodeEntities(value) {
-			if(!value) {
+			if (!value) {
 				return '';
 			}
 
-			// Note: IE8 does not preserve spaces at the start/end of innerHTML
-			// so we must capture them and reattach them afterward
-			var parts = spaceRe.exec(value);
-			var spaceBefore = parts[1];
-			var spaceAfter = parts[3];
-			var content = parts[2];
-			if(content) {
-				hiddenPre.innerHTML = content.replace(/</g, "&lt;");
-				// innerText depends on styling as it doesn't display hidden elements.
-				// Therefore, it's better to use textContent not to cause unnecessary
-				// reflows. However, IE<9 don't support textContent so the innerText
-				// fallback is necessary.
-				content = 'textContent' in hiddenPre ?
-					hiddenPre.textContent : hiddenPre.innerText;
-			}
-			return spaceBefore + content + spaceAfter;
+			hiddenPre.innerHTML = value.replace(/</g, "&lt;");
+			// innerText depends on styling as it doesn't display hidden elements.
+			// Therefore, it's better to use textContent not to cause unnecessary reflows.
+			return hiddenPre.textContent;
 		}
 
 		/**
@@ -295,41 +311,45 @@ angular.module('classeur.opt.htmlSanitizer', [])
 		 */
 		function encodeEntities(value) {
 			return value.
-				replace(/&/g, '&amp;').
-				replace(NON_ALPHANUMERIC_REGEXP, function(value) {
-					return '&#' + value.charCodeAt(0) + ';';
-				}).
-				replace(/</g, '&lt;').
-				replace(/>/g, '&gt;');
+			replace(/&/g, '&amp;').
+			replace(SURROGATE_PAIR_REGEXP, function(value) {
+				var hi = value.charCodeAt(0);
+				var low = value.charCodeAt(1);
+				return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
+			}).
+			replace(NON_ALPHANUMERIC_REGEXP, function(value) {
+				return '&#' + value.charCodeAt(0) + ';';
+			}).
+			replace(/</g, '&lt;').
+			replace(/>/g, '&gt;');
 		}
-
 
 		/**
 		 * create an HTML/XML writer which writes to buffer
 		 * @param {Array} buf use buf.jain('') to get out sanitized html string
 		 * @returns {object} in the form of {
-	 *     start: function(tag, attrs, unary) {},
-	 *     end: function(tag) {},
-	 *     chars: function(text) {},
-	 *     comment: function(text) {}
-	 * }
+		 *     start: function(tag, attrs, unary) {},
+		 *     end: function(tag) {},
+		 *     chars: function(text) {},
+		 *     comment: function(text) {}
+		 * }
 		 */
 		function htmlSanitizeWriter(buf, uriValidator) {
 			var ignore = false;
 			var out = angular.bind(buf, buf.push);
 			return {
 				start: function(tag, attrs, unary) {
-					tag = tag && tag.toLowerCase();
-					if(!ignore && specialElements[tag]) {
+					tag = angular.lowercase(tag);
+					if (!ignore && specialElements[tag]) {
 						ignore = tag;
 					}
-					if(!ignore && validElements[tag] === true) {
+					if (!ignore && validElements[tag] === true) {
 						out('<');
 						out(tag);
 						angular.forEach(attrs, function(value, key) {
-							var lkey = key && key.toLowerCase();
+							var lkey = angular.lowercase(key);
 							var isImage = (tag === 'img' && lkey === 'src') || (lkey === 'background');
-							if(validAttrs[lkey] === true &&
+							if (validAttrs[lkey] === true &&
 								(uriAttrs[lkey] !== true || uriValidator(value, isImage))) {
 								out(' ');
 								out(key);
@@ -342,23 +362,23 @@ angular.module('classeur.opt.htmlSanitizer', [])
 					}
 				},
 				end: function(tag) {
-					tag = tag && tag.toLowerCase();
-					if(!ignore && validElements[tag] === true) {
+					tag = angular.lowercase(tag);
+					if (!ignore && validElements[tag] === true) {
 						out('</');
 						out(tag);
 						out('>');
 					}
-					if(tag == ignore) {
+					if (tag == ignore) {
 						ignore = false;
 					}
 				},
 				chars: function(chars) {
-					if(!ignore) {
+					if (!ignore) {
 						out(encodeEntities(chars));
 					}
 				},
 				comment: function(comment) {
-					if(!ignore) {
+					if (!ignore) {
 						out('<!--');
 						out(encodeEntities(comment));
 						out('-->');
