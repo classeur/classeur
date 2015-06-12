@@ -49,8 +49,12 @@ $ced-color-dark: black;
         .pre {
             color: $ced-color;
             font: normal $font-size-monospace $font-family-monospace;
+            word-break: break-all;
             [class*="language-"] {
                 color: $ced-color-dark;
+            }
+            * {
+                font-size: 1em !important;
             }
         }
         .tag {

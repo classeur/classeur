@@ -17,7 +17,7 @@
             padding: 8px 0 0;
             height: 100%;
             font-size: 36px;
-            letter-spacing: -0.04em;
+            letter-spacing: -0.03em;
             font-weight: 300;
             white-space: nowrap;
             line-height: 1.15;
@@ -224,6 +224,7 @@
     }
     .folder.name {
         font-size: 30px;
+        letter-spacing: -0.02em;
     }
     .new-file.actions button {
         color: #fff;
@@ -339,6 +340,7 @@
                     top: 0;
                     white-space: normal;
                     padding: 0 4px;
+                    letter-spacing: 0;
                     -webkit-transform-origin: 0 0;
                     -moz-transform-origin: 0 0;
                     -ms-transform-origin: 0 0;

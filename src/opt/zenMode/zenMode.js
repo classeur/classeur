@@ -64,6 +64,12 @@ angular.module('classeur.opt.zenMode', [])
 				var containerElt = document.querySelector('.background.panel');
 				containerElt.addEventListener('mousemove', hidePanel);
 				containerElt.addEventListener('click', hidePanel);
+				level1Panel.$elt.addEventListener('mousemove', function(evt) {
+					console.log('zen panel caught a mousemove event', evt)
+				});
+				level1Panel.$elt.addEventListener('click', function(evt) {
+					console.log('zen panel caught a click event', evt)
+				});
 
 				scope.$watch('editorLayoutSvc.isEditorOpen', hidePanel.bind(null, null));
 				scope.$on('$destroy', function() {

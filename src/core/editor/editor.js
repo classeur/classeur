@@ -102,16 +102,6 @@ angular.module('classeur.core.editor', [])
 							}
 						});
 					});
-
-					clEditorSvc.cledit.highlighter.on('domChanged', function(modifiedSections) {
-						modifiedSections.forEach(function(section) {
-							Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
-								if (imgTokenElt.firstElementChild && imgTokenElt.firstElementChild.tagName !== 'IMG') {
-									imgTokenElt.parentNode.removeChild(imgTokenElt);
-								}
-							});
-						});
-					});
 				}
 
 				// Add custom keystrokes
@@ -226,6 +216,66 @@ angular.module('classeur.core.editor', [])
 					onClick(e);
 				});
 			}
+		};
+	})
+	.factory('clEditorClassApplier', function($window, clEditorSvc) {
+		function ClassApplier(classes, offsetGetter) {
+			var rangyRange, self = this;
+			$window.cledit.Utils.createEventHooks(this);
+			var firstClass = classes[0];
+			var otherClasses = classes.slice(1);
+			this.elts = clEditorSvc.editorElt.getElementsByClassName(firstClass);
+			var lastEltCount;
+
+			function applyClass() {
+				var offset = offsetGetter();
+				if(!offset) {
+					return;
+				}
+				var range = clEditorSvc.cledit.selectionMgr.createRange(offset.start, offset.end);
+				// Create rangy range
+				rangyRange = $window.rangy.createRange();
+				rangyRange.setStart(range.startContainer, range.startOffset);
+				rangyRange.setEnd(range.endContainer, range.endOffset);
+				var classApplier = $window.rangy.createClassApplier(firstClass, {
+					elementProperties: {
+						className: otherClasses.join(' ')
+					},
+					tagNames: ['span'],
+					normalize: false
+				});
+				classApplier.applyToRange(rangyRange);
+				self.$trigger('classApplied');
+				clEditorSvc.cledit.selectionMgr.restoreSelection();
+				lastEltCount = self.elts.length;
+			}
+
+			function removeClass() {
+				Array.prototype.slice.call(self.elts).forEach(function(elt) {
+					classes.forEach(function(className) {
+						elt.classList.remove(className);
+					});
+				});
+			}
+
+			function restoreClass() {
+				if (self.elts.length !== lastEltCount) {
+					removeClass();
+					applyClass();
+				}
+			}
+
+			this.stop = function() {
+				clEditorSvc.cledit.off('contentChanged', restoreClass);
+				removeClass();
+			};
+
+			clEditorSvc.cledit.on('contentChanged', restoreClass);
+			applyClass();
+		}
+
+		return function(classes, offsetGetter) {
+			return new ClassApplier(classes, offsetGetter);
 		};
 	})
 	.factory('clEditorSvc', function($window, $timeout, clSettingSvc, clEditorLayoutSvc, Slug) {
@@ -780,73 +830,6 @@ angular.module('classeur.core.editor', [])
 			return $window.Mustache.render(template, view);
 		};
 
-		function ClassApplier(classes, offsetGetter) {
-			var rangyRange, self = this;
-			$window.cledit.Utils.createEventHooks(this);
-			var firstClass = classes[0];
-			var otherClasses = classes.slice(1);
-			var elts = clEditorSvc.editorElt.getElementsByClassName(firstClass);
-
-			function applyClass() {
-				var offset = offsetGetter();
-				var range = clEditorSvc.cledit.selectionMgr.createRange(offset.start, offset.end);
-				// Create rangy range
-				rangyRange = $window.rangy.createRange();
-				rangyRange.setStart(range.startContainer, range.startOffset);
-				rangyRange.setEnd(range.endContainer, range.endOffset);
-				var classApplier = $window.rangy.createClassApplier(firstClass, {
-					elementProperties: {
-						className: otherClasses.join(' ')
-					},
-					tagNames: ['span'],
-					normalize: false
-				});
-				classApplier.applyToRange(rangyRange);
-				self.$trigger('classApplied');
-				clEditorSvc.cledit.selectionMgr.restoreSelection();
-			}
-
-			function removeClass() {
-				Array.prototype.slice.call(elts).forEach(function(elt) {
-					classes.forEach(function(className) {
-						elt.classList.remove(className);
-					});
-				});
-			}
-
-			this.stop = function() {
-				removeClass();
-			};
-
-			function highlightOffset(offset) {
-				$timeout.cancel(timeoutId);
-				unsetHighlighting();
-				highlightedOffset = offset;
-				if (!offset) {
-					return;
-				}
-				startMarker = new Marker(offset.start);
-				endMarker = new Marker(offset.end);
-				setHighlighting();
-				timeoutId = $timeout(function() {
-					if (clContentSyncSvc.watchCtx) {
-						delete clContentSyncSvc.watchCtx.userActivities[scope.userId];
-					}
-				}, 30000);
-			}
-			scope.$watch('userActivity.offset', highlightOffset);
-
-			function restoreHighlighting() {
-				if (highlightedOffset === scope.userActivity.offset &&
-					(!$window.document.contains(rangyRange.startContainer) || $window.document.contains(rangyRange.endContainer))
-				) {
-					unsetHighlighting();
-					setHighlighting();
-				}
-			}
-		};
-
-		clEditorSvc.ClassApplier = ClassApplier;
 		return clEditorSvc;
 	})
 	.run(function($rootScope, $location, $route, clEditorSvc) {

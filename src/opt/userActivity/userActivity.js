@@ -1,5 +1,5 @@
 angular.module('classeur.opt.userActivity', [])
-	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserInfoSvc, clEditorSvc, clContentSyncSvc) {
+	.directive('clUserActivity', function($window, $timeout, $rootScope, clUserInfoSvc, clEditorSvc, clEditorClassApplier, clContentSyncSvc) {
 		var colors = [
 			'F15D45',
 			'EF4A53',
@@ -66,75 +66,43 @@ angular.module('classeur.opt.userActivity', [])
 			restrict: 'E',
 			link: function(scope) {
 				createUserClass(scope.userId);
-				var timeoutId;
-				var rangyRange;
-				var highlightedOffset;
-				var startMarker, endMarker;
-				// Live collection
-				var className = 'user-activity-' + scope.userId;
-				var userActivityElts = clEditorSvc.editorElt.getElementsByClassName(className);
-
-				function setHighlighting() {
-					var start = startMarker.offset;
-					var end = endMarker.offset;
-					var content = clEditorSvc.cledit.getContent();
-					while (end && content[end - 1] === '\n') {
-						end--;
-					}
-					if (start >= end) {
-						start = end ? end - 1 : end;
-					}
-					content = content.substring(start, end);
-					start += content.lastIndexOf('\n') + 1;
-					if (start === end) {
-						return;
-					}
-					startMarker = new Marker(start);
-					endMarker = new Marker(end);
-					clEditorSvc.cledit.addMarker(startMarker);
-					clEditorSvc.cledit.addMarker(endMarker);
-					var range = clEditorSvc.cledit.selectionMgr.createRange(startMarker.offset, endMarker.offset);
-					// Create rangy range
-					rangyRange = $window.rangy.createRange();
-					rangyRange.setStart(range.startContainer, range.startOffset);
-					rangyRange.setEnd(range.endContainer, range.endOffset);
-					var classApplier = $window.rangy.createClassApplier(className, {
-						elementProperties: {
-							className: 'user-activity'
-						},
-						tagNames: ['span'],
-						normalize: false
-					});
-					classApplier.applyToRange(rangyRange);
-					// Keep only one span
-					var undoElt;
-					Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
-						if (undoElt) {
-							undoElt.classList.remove(className);
-						}
-						undoElt = elt;
-					});
-					clEditorSvc.cledit.selectionMgr.restoreSelection();
-				}
+				var classApplier, startMarker, endMarker, timeoutId;
 
 				function unsetHighlighting() {
 					startMarker && clEditorSvc.cledit.removeMarker(startMarker);
 					endMarker && clEditorSvc.cledit.removeMarker(endMarker);
-					Array.prototype.slice.call(userActivityElts).forEach(function(elt) {
-						elt.classList.remove(className);
-					});
+					classApplier && classApplier.stop();
+					$timeout.cancel(timeoutId);
 				}
 
 				function highlightOffset(offset) {
-					$timeout.cancel(timeoutId);
 					unsetHighlighting();
-					highlightedOffset = offset;
 					if (!offset) {
 						return;
 					}
 					startMarker = new Marker(offset.start);
 					endMarker = new Marker(offset.end);
-					setHighlighting();
+					clEditorSvc.cledit.addMarker(startMarker);
+					clEditorSvc.cledit.addMarker(endMarker);
+					classApplier = clEditorClassApplier(['user-activity-' + scope.userId, 'user-activity'], function() {
+						var start = startMarker.offset;
+						var end = endMarker.offset;
+						var content = clEditorSvc.cledit.getContent();
+						while (end && content[end - 1] === '\n') {
+							end--;
+						}
+						if (start >= end) {
+							start = end ? end - 1 : end;
+						}
+						content = content.substring(start, end);
+						start += content.lastIndexOf('\n') + 1;
+						if (start !== end) {
+							return {
+								start: start,
+								end: end
+							};
+						}
+					});
 					timeoutId = $timeout(function() {
 						if (clContentSyncSvc.watchCtx) {
 							delete clContentSyncSvc.watchCtx.userActivities[scope.userId];
@@ -143,20 +111,8 @@ angular.module('classeur.opt.userActivity', [])
 				}
 				scope.$watch('userActivity.offset', highlightOffset);
 
-				function restoreHighlighting() {
-					if (highlightedOffset === scope.userActivity.offset &&
-						(!$window.document.contains(rangyRange.startContainer) || $window.document.contains(rangyRange.endContainer))
-					) {
-						unsetHighlighting();
-						setHighlighting();
-					}
-				}
-
-				clEditorSvc.cledit.on('contentChanged', restoreHighlighting);
-
 				scope.$on('$destroy', function() {
 					unsetHighlighting();
-					clEditorSvc.cledit.off('contentChanged', restoreHighlighting);
 				});
 			}
 		};
