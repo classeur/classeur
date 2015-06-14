@@ -1,8 +1,24 @@
 @import 'variables';
-
 .preview.panel {
     &.hidden {
         display: none;
+    }
+}
+
+.side-bar.panel {
+    right: 0;
+    md-tab-content {
+        overflow-x: hidden;
+    }
+    .md-tab {
+        padding: 12px 18px;
+    }
+    md-tabs md-tabs-wrapper {
+        border-width: 1px 0 0;
+        border-style: solid;
+    }
+    md-ink-bar {
+        top: 0;
     }
 }
 
@@ -181,4 +197,13 @@
 .md-cheat-sheet.btn a {
     font-size: 28px;
     padding: 6px;
+}
+
+.close-side-bar.btn {
+    top: 5px;
+    right: 10px;
+    a {
+        font-size: 26px;
+        line-height: 32px;
+    }
 }

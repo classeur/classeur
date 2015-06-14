@@ -18,6 +18,27 @@ body {
 	box-sizing: border-box;
 }
 
+* {
+	-ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+*::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+*::-webkit-scrollbar:vertical {
+    width: 7px;
+}
+
+*::-webkit-scrollbar:horizontal {
+    height: 7px;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .25);
+}
+
 :focus {
 	outline: none;
 }

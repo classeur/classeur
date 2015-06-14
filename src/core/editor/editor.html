@@ -1,5 +1,5 @@
-<div cl-folding cl-scroll-sync-editor class="editor container" style="font-size: {{editorLayoutSvc.fontSizePx}};">
-	<pre class="editor content" ng-class="::{highlighting: settingSvc.values.editorHighlighting, monospaced: settingSvc.values.editorMonospacedFont}" ng-focus="editorLayoutSvc.currentControl = undefined" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
-	<cl-commenting-gutter></cl-commenting-gutter>
-	<cl-user-activity ng-repeat="(userId, userActivity) in contentSyncSvc.watchCtx.userActivities"></cl-user-activity>
+<div cl-folding cl-scroll-sync-editor cl-new-comment-button class="editor container" style="font-size: {{editorLayoutSvc.fontSizePx}};">
+    <pre class="editor content" ng-class="::{highlighting: settingSvc.values.editorHighlighting, monospaced: settingSvc.values.editorMonospacedFont}" ng-focus="editorLayoutSvc.currentControl = undefined" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
+    <cl-user-activity ng-repeat="(userId, userActivity) in contentSyncSvc.watchCtx.userActivities"></cl-user-activity>
+    <cl-new-comment-button></cl-new-comment-button>
 </div>

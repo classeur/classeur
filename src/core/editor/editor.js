@@ -192,13 +192,14 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.setTocElt(tocElt);
 
 				var isMousedown;
+				var scrollerElt = tocElt.parentNode.parentNode.parentNode;
 
 				function onClick(e) {
 					if (!isMousedown) {
 						return;
 					}
 					e.preventDefault();
-					var y = e.clientY + tocElt.parentNode.scrollTop;
+					var y = e.clientY + scrollerElt.scrollTop;
 
 					clEditorSvc.sectionDescList.some(function(sectionDesc) {
 						if (y < sectionDesc.tocDimension.endOffset) {
@@ -230,6 +231,7 @@ angular.module('classeur.core.editor', [])
 	.factory('clEditorClassApplier',
 		function($window, clEditorSvc) {
 			function ClassApplier(classes, offsetGetter) {
+				classes = typeof classes === 'string' ? [classes] : classes;
 				var rangyRange, self = this;
 				$window.cledit.Utils.createEventHooks(this);
 				var firstClass = classes[0];
@@ -249,7 +251,7 @@ angular.module('classeur.core.editor', [])
 					rangyRange.setEnd(range.endContainer, range.endOffset);
 					var classApplier = $window.rangy.createClassApplier(firstClass, {
 						elementProperties: {
-							className: otherClasses.join(' ')
+							className: otherClasses.length ? otherClasses.join(' ') : undefined
 						},
 						tagNames: ['span'],
 						normalize: false

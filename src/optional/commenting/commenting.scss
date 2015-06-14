@@ -1,64 +1,14 @@
 @import 'variables';
-
-.gutter {
-    position: absolute;
-    top: 0;
-    width: $editor-margin-width;
-    div {
-        position: absolute;
-        cursor: pointer;
-        color: transparentize(#000, 0.75);
-        &:hover {
-            color: transparentize(#000, 0.6);
-        }
+.new-comment-btn {
+    font-size: 25px;
+    width: 28px;
+    height: 25px;
+    background-color: #fff;
+    border-radius: 3px;
+    &.hide {
+    	display: none;
     }
-}
-
-.commenting.gutter {
-	div {
-		right: 24px;
-		padding: 3px 2px;
-		font-size: 24px;
-		&:hover {
-			color: rgba(33, 150, 243, 0.75);
-		}
-		&.current {
-			color: rgb(33, 150, 243);
-		}
-	}
-}
-
-.discussion.panel {
-	width: 240px;
-	height: 240px;
-	left: 15px;
-	top: 15px;
-}
-
-.discussion.content {
-	padding: 10px;
-	padding-right: 75px;
-	margin-right: -40px;
-	overflow-y: auto;
-	font-size: 14px;
-	.comment {
-		margin-top: 10px;
-		margin-bottom: 5px;
-	}
-	.user {
-		font-size: 15px;
-		font-weight: bold;
-	}
-	textarea {
-		width: 100%;
-	}
-}
-
-
-.discussion.btn {
-	right: 0;
-	a {
-		font-size: 22px;
-		line-height: 30px;
-	}
+    a {
+        color: nth($plastic-colors, 2);
+    }
 }

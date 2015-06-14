@@ -75,6 +75,6 @@ angular.module('classeur.optional.stat', [])
 				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('selectionListener.range', computeHtml);
 				scope.$watch('editorLayoutSvc.isStatOpen', move);
-				scope.$watch('editorLayoutSvc.isTocOpen', move);
+				scope.$watch('editorLayoutSvc.isSideBarOpen', move);
 			}
 		});

@@ -39,8 +39,7 @@ angular.module('classeur.core.editorLayout', [])
 			};
 
 			function link(scope, element) {
-
-				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
+				clPanel(element, '.side-bar.panel').width(clEditorLayoutSvc.sideBarWidth);
 				var backgroundPanel = clPanel(element, '.background.panel');
 				var previewPanel = clPanel(element, '.preview.panel');
 				var previewContainerElt = element[0].querySelector('.preview.container');
@@ -58,49 +57,57 @@ angular.module('classeur.core.editorLayout', [])
 				var closeButtonPanel = clPanel(headerPanel.$jqElt, '.close.panel');
 				var scrollButtonPanel = clPanel(headerPanel.$jqElt, '.scroll.panel');
 
+				var binderMinWidth = 280;
 				var previewSizeAdjust = 160;
-				var binderWidth, marginRight;
 				var leftMarginOverflow = 90;
 				var binderWidthFactor = (clSettingSvc.values.editorBinderWidthFactor + 10) / 15;
 				var fontSizeFactor = (clSettingSvc.values.editorFontSizeFactor + 10) / 15;
 
 				function updateLayout() {
-					binderWidth = document.body.clientWidth;
-					if (clEditorLayoutSvc.isTocOpen) {
-						binderWidth -= clEditorLayoutSvc.tocWidth;
+					var bgWidth = document.body.clientWidth;
+					if (clEditorLayoutSvc.isSideBarOpen) {
+						bgWidth -= clEditorLayoutSvc.sideBarWidth;
 					}
 					clEditorLayoutSvc.fontSize = 18;
 					var factor = 1 + (clLocalSettingSvc.values.editorZoom - 3) * 0.1;
 					clEditorLayoutSvc.pageWidth = 990 * factor;
-					if (binderWidth < 1120) {
+					if (bgWidth < 1120) {
 						--clEditorLayoutSvc.fontSize;
 						clEditorLayoutSvc.pageWidth = 910 * factor;
 					}
-					if (binderWidth < 1040) {
+					if (bgWidth < 1040) {
 						clEditorLayoutSvc.pageWidth = 830 * factor;
 					}
+					if (bgWidth < binderMinWidth) {
+						bgWidth = binderMinWidth;
+					}
 					clEditorLayoutSvc.pageWidth *= binderWidthFactor;
-					marginRight = (binderWidth - clEditorLayoutSvc.pageWidth) / 2;
+					var marginRight = (bgWidth - clEditorLayoutSvc.pageWidth) / 2;
 					marginRight = marginRight > 0 ? marginRight : 0;
-					if (binderWidth + leftMarginOverflow < clEditorLayoutSvc.pageWidth) {
-						clEditorLayoutSvc.pageWidth = binderWidth + leftMarginOverflow;
+					if (bgWidth + leftMarginOverflow < clEditorLayoutSvc.pageWidth) {
+						clEditorLayoutSvc.pageWidth = bgWidth + leftMarginOverflow;
 					}
 					if (clEditorLayoutSvc.pageWidth < 640) {
 						--clEditorLayoutSvc.fontSize;
 					}
 					clEditorLayoutSvc.fontSize *= fontSizeFactor;
 					if (clEditorLayoutSvc.isSidePreviewOpen) {
-						var maxWidth = binderWidth / 2 + clEditorLayoutSvc.editorBtnGrpWidth + leftMarginOverflow;
-						if (maxWidth < clEditorLayoutSvc.pageWidth) {
-							clEditorLayoutSvc.pageWidth = maxWidth;
+						if (bgWidth / 2 < binderMinWidth) {
+							clEditorLayoutSvc.isSidePreviewOpen = false;
+						} else {
+							var maxWidth = bgWidth / 2 + clEditorLayoutSvc.editorBtnGrpWidth + leftMarginOverflow;
+
+							if (maxWidth < clEditorLayoutSvc.pageWidth) {
+								clEditorLayoutSvc.pageWidth = maxWidth;
+							}
+							marginRight = bgWidth / 2 - clEditorLayoutSvc.editorBtnGrpWidth;
 						}
-						marginRight = binderWidth / 2 - clEditorLayoutSvc.editorBtnGrpWidth;
 					}
 
-					clEditorLayoutSvc.backgroundX = clEditorLayoutSvc.isTocOpen ? -clEditorLayoutSvc.tocWidth : 0;
+					clEditorLayoutSvc.backgroundX = clEditorLayoutSvc.isSideBarOpen ? -clEditorLayoutSvc.sideBarWidth : 0;
 					clEditorLayoutSvc.binderWidth = clEditorLayoutSvc.pageWidth - clEditorLayoutSvc.editorBtnGrpWidth;
-					clEditorLayoutSvc.binderX = binderWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
-					clEditorLayoutSvc.binderX += clEditorLayoutSvc.isTocOpen ? clEditorLayoutSvc.tocWidth : 0;
+					clEditorLayoutSvc.binderX = bgWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
+					clEditorLayoutSvc.binderX += clEditorLayoutSvc.isSideBarOpen ? clEditorLayoutSvc.sideBarWidth : 0;
 					clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000;
 					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 190;
 					clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX;
@@ -165,7 +172,7 @@ angular.module('classeur.core.editorLayout', [])
 				var debouncedUpdatedLayoutSize = $window.cledit.Utils.debounce(function() {
 					updateLayoutSize();
 					scope.$apply();
-				}, 90);
+				}, 180);
 
 				function animateLayout() {
 					showPreview();
@@ -230,6 +237,14 @@ angular.module('classeur.core.editorLayout', [])
 						});
 				};
 
+				var tabs = ['comments', 'toc'];
+				scope.$watch('editorLayoutSvc.sideBarTab', function(tab) {
+					scope.selectedTabIndex = tabs.indexOf(tab);
+				});
+				scope.$watch('selectedTabIndex', function(index) {
+					clEditorLayoutSvc.sideBarTab = tabs[index || 0];
+				});
+
 				var isInited;
 				setTimeout(function() {
 					isInited = true;
@@ -249,7 +264,7 @@ angular.module('classeur.core.editorLayout', [])
 				scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout);
 				scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor);
 				scope.$watch('editorLayoutSvc.isMenuOpen', animateMenu);
-				scope.$watch('editorLayoutSvc.isTocOpen', animateLayout);
+				scope.$watch('editorLayoutSvc.isSideBarOpen', animateLayout);
 				scope.$watch('editorLayoutSvc.isCornerOpen', animateCorner);
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					clEditorLayoutSvc.isMenuOpen = currentControl === 'menu';
@@ -266,11 +281,12 @@ angular.module('classeur.core.editorLayout', [])
 				pageMargin: 22,
 				editorBtnGrpWidth: 40,
 				menuWidth: 320,
-				tocWidth: 250,
+				sideBarWidth: 260,
 				statHeight: 30,
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;
 					this.isSidePreviewOpen = false;
+					this.sideBarTab = 'comments';
 					this.isMenuOpen = false;
 					this.isCornerOpen = false;
 				},
@@ -283,8 +299,8 @@ angular.module('classeur.core.editorLayout', [])
 				toggleMenu: function() {
 					this.currentControl = this.currentControl === 'menu' ? undefined : 'menu';
 				},
-				toggleToc: function(isOpen) {
-					this.isTocOpen = isOpen === undefined ? !this.isTocOpen : isOpen;
+				toggleSideBar: function(isOpen) {
+					this.isSideBarOpen = isOpen === undefined ? !this.isSideBarOpen : isOpen;
 				},
 				toggleStat: function(isOpen) {
 					this.isStatOpen = isOpen === undefined ? !this.isStatOpen : isOpen;

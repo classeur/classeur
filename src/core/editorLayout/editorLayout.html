@@ -1,8 +1,14 @@
-<div class="toc panel">
-    <cl-toc></cl-toc>
+<div class="side-bar panel" layout="column">
+    <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" flex>
+        <md-tab label="Comments">
+        </md-tab>
+        <md-tab label="TOC">
+            <cl-toc></cl-toc>
+        </md-tab>
+    </md-tabs>
 </div>
-<cl-button class="close-toc btn" opacity="0.35" opacity-hover="0.7" size="32">
-    <a class="icon-clear" ng-click="editorLayoutSvc.toggleToc(false)" aria-label="Close TOC"></a>
+<cl-button class="close-side-bar btn" opacity="0.35" opacity-hover="0.7" size="32">
+    <a class="icon-clear" ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar"></a>
 </cl-button>
 <div class="background panel md-whiteframe-z4 no-overflow">
     <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
@@ -55,7 +61,7 @@
                         <div class="entry">Binder color</div>
                         <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
                         </md-slider>
-                        <cl-btn-bar-settings></cl-btn-bar-settings>
+                        <cl-button-bar-settings></cl-button-bar-settings>
                         <cl-zen-mode-settings></cl-zen-mode-settings>
                         <cl-scroll-sync-settings></cl-scroll-sync-settings>
                     </div>
@@ -104,7 +110,7 @@
         </div>
         <div ng-if="editorLayoutSvc.isCornerButtonVisible">
             <cl-button class="corner btn" opacity="0.35" opacity-hover="0.7" size="36" right="0" bottom="35">
-                <a class="icon-call-made" ng-click="editorLayoutSvc.toggleToc()" aria-label="Toggle TOC"></a>
+                <a class="icon-call-made" ng-click="editorLayoutSvc.toggleSideBar()" aria-label="Toggle side bar"></a>
             </cl-button>
             <cl-button class="corner btn" opacity="0.35" opacity-hover="0.7" size="36" right="35" bottom="0">
                 <a class="icon-call-received" ng-click="editorLayoutSvc.toggleStat()" aria-label="Toggle stats"></a>
