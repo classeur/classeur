@@ -1,31 +1,36 @@
 angular.module('classeur.core.settingsLayout', [])
-	.config(function($routeProvider) {
-		$routeProvider.when('/settings', {
-			template: '<cl-settings-layout></cl-settings-layout>',
-			reloadOnSearch: false
-		});
-	})
-	.directive('clSettingsLayout', function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
+	.config(
+		function($routeProvider) {
+			$routeProvider.when('/settings', {
+				template: '<cl-settings-layout></cl-settings-layout>',
+				reloadOnSearch: false
+			});
+		})
+	.directive('clSettingsLayout',
+		function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
 
-		clSocketSvc.addMsgHandler('linkedUser', function(msg) {
-			clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
-		});
+			clSocketSvc.addMsgHandler('linkedUser', function(msg) {
+				clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
+			});
 
-		clSocketSvc.addMsgHandler('linkBlogToken', function(msg) {
-			clBlogSvc.startOAuth(msg.blog, msg.token);
-		});
+			clSocketSvc.addMsgHandler('linkBlogToken', function(msg) {
+				clBlogSvc.startOAuth(msg.blog, msg.token);
+			});
 
-		clSocketSvc.addMsgHandler('deletedUser', function() {
-			$location.url('/');
-			$rootScope.$apply();
-			clUserSvc.signout();
-			$rootScope.$apply();
-		});
+			clSocketSvc.addMsgHandler('deletedUser', function() {
+				$location.url('/');
+				$rootScope.$apply();
+				clUserSvc.signout();
+				$rootScope.$apply();
+			});
 
-		return {
-			restrict: 'E',
-			templateUrl: 'core/settingsLayout/settingsLayout.html',
-			link: function(scope) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/settingsLayout/settingsLayout.html',
+				link: link
+			};
+
+			function link(scope) {
 				var tabs = ['app', 'user', 'blogs', 'trash'];
 
 				function serialize(obj) {
@@ -342,7 +347,7 @@ angular.module('classeur.core.settingsLayout', [])
 									id: file.id
 								});
 								scope.trashFiles = Object.keys(scope.trashFiles).reduce(function(trashFiles, id) {
-									if(id !== file.id) {
+									if (id !== file.id) {
 										trashFiles[file.id] = scope.trashFiles[id];
 									}
 									return trashFiles;
@@ -392,5 +397,4 @@ angular.module('classeur.core.settingsLayout', [])
 				scope.$on('$locationChangeSuccess', applyLocationSearch);
 				applyLocationSearch();
 			}
-		};
-	});
+		});

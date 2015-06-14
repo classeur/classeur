@@ -1,0 +1,543 @@
+@import 'variables';
+
+.explorer.background {
+    .help.btn a {
+        font-size: 26px;
+        padding: 2px;
+    }
+    .explorer.container {
+        left: 50%;
+        min-height: 100%;
+    }
+    .explorer.content {
+        border-radius: 3px;
+    }
+    .header {
+        height: 70px;
+        position: relative;
+        .classeur.name {
+            padding: 8px 0 0;
+            height: 100%;
+            font-size: 36px;
+            letter-spacing: -0.03em;
+            font-weight: 300;
+            white-space: nowrap;
+            line-height: 1.15;
+            .logo {
+                width: 48px;
+                height: 64px;
+                background-image: url('assets/images/logo.png');
+                background-size: 180px 60px;
+                margin-right: 5px;
+            }
+        }
+        .classeur.toggler {
+            font-size: 12px;
+            margin-left: 4px;
+            padding: 6px 8px;
+            span {
+                font-size: 14px;
+                height: 12px;
+                padding-left: 2px;
+            }
+        }
+        .help {
+            font-size: 18px;
+            padding: 2px 4px;
+        }
+        & > div {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            &:first-child {
+                height: 100%;
+            }
+        }
+        .user-info {
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            background-color: #484848;
+            color: #fff;
+            padding: 0 12px;
+            font-size: 15px;
+            margin-left: 10px;
+            .md-button {
+                padding: 7px 10px;
+            }
+            .username {
+                display: inline-block;
+                position: relative;
+                white-space: nowrap;
+                overflow: hidden;
+                padding: 7px 10px;
+                line-height: 1.1;
+            }
+            .settings {
+                padding: 6px;
+                font-size: 18px;
+                line-height: 0;
+            }
+        }
+    }
+
+    md-content.md-default-theme,
+    .md-subheader.md-default-theme {
+        background-color: transparent;
+        font-size: inherit;
+    }
+    .folder.container {
+        top: 2px;
+        padding-bottom: 150px;
+        .folder.btn {
+            width: 34px;
+            height: 42px;
+            font-size: 32px;
+            a {
+                position: absolute;
+                line-height: 42px;
+                color: #fff;
+            }
+            &.icon-publ {
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 8px;
+            }
+        }
+        md-progress-circular {
+            position: relative;
+            top: 40px;
+            left: 50%;
+            margin-left: -25px;
+        }
+    }
+    .md-subheader {
+        margin: 0;
+        padding: 0;
+        &::after {
+            display: none;
+        }
+        .md-subheader-inner {
+            padding: 0;
+            -webkit-animation: none;
+            animation: none;
+        }
+    }
+    .md-sticky-clone {
+        margin-left: 0 !important;
+    }
+    .folder.container,
+    .md-sticky-clone {
+        overflow-x: hidden;
+        overflow-y: scroll;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        padding-left: 90px;
+        padding-right: 95px;
+    }
+    .no-padding {
+        .folder.container, .md-sticky-clone {
+            padding-left: 57px;
+            padding-right: 62px;
+        }
+        .folder.container {
+            .folder.content, .file.actions {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+        .md-sticky-clone {
+            .file.actions {
+                padding: 0 10px;
+            }
+        }
+        .header .classeur.name .logo {
+            visibility: hidden;
+        }
+    }
+    .folder.container,
+    .file.entry {
+        .btn a {
+            &::after {
+                color: #fff;
+                position: absolute;
+                top: 0px;
+                right: 1px;
+                font-family: $font-family;
+                font-size: 12px;
+                font-weight: bold;
+                line-height: 1.1;
+                border-radius: 8px;
+                padding: 0 4px;
+            }
+            &.read::after {
+                content: 'r';
+                background-color: #2164D3;
+            }
+            &.read-write::after {
+                content: 'rw';
+                background-color: #D33800;
+            }
+        }
+    }
+    .new-file.actions {
+        height: 35px;
+        ::-webkit-input-placeholder {
+            color: rgba(255, 255, 255, 0.45);
+        }
+        :-moz-placeholder {
+            color: rgba(255, 255, 255, 0.45);
+            opacity: 1;
+        }
+        ::-moz-placeholder {
+            color: rgba(255, 255, 255, 0.45);
+            opacity: 1;
+        }
+        :-ms-input-placeholder {
+            color: rgba(255, 255, 255, 0.45);
+        }
+        md-input-container {
+            md-icon {
+                color: rgba(255, 255, 255, 0.45);
+                font-size: 26px;
+            }
+            padding-bottom: 2px;
+            input {
+                margin-left: 35px;
+                font-size: 20px;
+                border-color: transparent !important;
+            }
+        }
+    }
+    .file.actions {
+        & > div {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.025);
+        }
+        padding: 0 35px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+    .folder.content {
+        padding: 15px 40px 80px;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+    .folder.name {
+        font-size: 30px;
+        letter-spacing: -0.02em;
+    }
+    .new-file.actions button {
+        color: #fff;
+    }
+    $file-entry-height: 40px;
+    .file.entry {
+        line-height: $file-entry-height;
+        .drag-space {
+            width: 12px;
+        }
+        .drag {
+            padding-left: 2px;
+            padding-right: 2px;
+            cursor: move;
+            height: $file-entry-height;
+            span {
+                color: transparentize(#000, 0.5);
+                font-size: 20px;
+                display: inline-block;
+                overflow: hidden;
+                width: 12px;
+                line-height: $file-entry-height;
+            }
+        }
+        md-checkbox {
+            margin: 0 10px;
+            .md-label {
+                display: none;
+            }
+        }
+        md-input-container {
+            padding-top: 4px;
+            padding-bottom: 6px;
+            cursor: pointer;
+            .md-input {
+                line-height: 1;
+                font-size: 18px;
+                font-weight: 300;
+                &[disabled] {
+                    color: rgba(0, 0, 0, 0.87);
+                    cursor: pointer;
+                    background-image: none;
+                    border-bottom-color: rgba(0, 0, 0, 0.066);
+                }
+            }
+        }
+        .edit.filename.btn,
+        .share.file.btn {
+            width: 30px;
+            height: $file-entry-height;
+            font-size: 30px;
+            a {
+                position: absolute;
+                line-height: $file-entry-height;
+            }
+        }
+        .icon-publ {
+            padding: 8px 2px;
+            font-size: 22px;
+            color: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+        &.public {
+            padding-left: 16px;
+        }
+    }
+    .hole.panel {
+        left: 22px;
+        width: 20px;
+        height: 20px;
+        &.first {
+            top: 22%;
+        }
+        &.second {
+            bottom: 22%;
+        }
+    }
+    .btn-grp.panel {
+        top: 8px;
+        width: 2050px;
+        right: -2050px;
+        .container.panel {
+            overflow: auto;
+        }
+        .shadow.panel {
+            z-index: 9999;
+            left: -2050px;
+            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.4);
+        }
+        .folder.btn {
+            box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
+            height: 110px;
+            width: 32px;
+            margin-bottom: 130px;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            .md-button {
+                text-transform: none;
+                line-height: 1;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                font-size: 13px;
+                color: transparentize(#fff, 0.2);
+                &:hover {
+                    color: #fff;
+                }
+                .rotate-90 {
+                    position: absolute;
+                    width: 110px;
+                    height: 32px;
+                    left: 32px;
+                    top: 0;
+                    white-space: normal;
+                    padding: 0 4px;
+                    letter-spacing: 0;
+                    -webkit-transform-origin: 0 0;
+                    -moz-transform-origin: 0 0;
+                    -ms-transform-origin: 0 0;
+                    -o-transform-origin: 0 0;
+                    transform-origin: 0 0;
+                }
+            }
+        }
+        .recent.btn,
+        .unclassified.btn,
+        .create.btn {
+            height: 44px;
+            width: 42px;
+            z-index: 9998;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            .md-button {
+                font-size: 22px;
+                padding: 0;
+                span {
+                    line-height: 44px;
+                }
+            }
+        }
+        .unclassified.btn {
+            top: 43px;
+            width: 40px;
+        }
+        .create.btn {
+            top: 86px;
+            width: 38px;
+            .md-button {
+                font-size: 20px;
+            }
+        }
+        .current.btn {
+            display: none;
+            top: 129px;
+            z-index: 10000;
+        }
+        .open.btn,
+        .current.btn {
+            button {
+                color: #fff;
+            }
+        }
+        &.hidden-btn {
+            .current.btn {
+                display: block;
+            }
+            .selected.btn {
+                visibility: hidden;
+            }
+        }
+    }
+    .menu.panel {
+        padding: 0 5px;
+        bottom: 0;
+        height: auto;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        .md-button {
+            padding: 8px;
+        }
+    }
+    .classeur.list {
+        .scroller {
+            overflow: auto;
+            overflow-y: scroll;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+            padding: 0 50px 200px 0;
+            right: -50px;
+        }
+        .tile.content::before,
+        .tab-1,
+        .tab-2 {
+            content: '';
+            width: 10px;
+            right: -10px;
+            position: absolute;
+            top: 6px;
+            height: 40px;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .new.tile {
+            .icon {
+                height: 100%;
+                font-size: 48px;
+                a {
+                    color: #a0a0a0;
+                }
+            }
+            &,
+            & .tab-1,
+            & .tab-2 {
+                background-color: #e8e8e8;
+            }
+        }
+        .tab-1 {
+            top: 45px;
+            z-index: -1;
+        }
+        .tab-2 {
+            top: 84px;
+            z-index: -2;
+        }
+        .tile.container {
+            width: 33%;
+            height: 220px;
+            margin: 15px 0;
+            float: left;
+            position: relative;
+            @media screen and (max-width: 720px) {
+                width: 50%;
+            }
+            @media screen and (max-width: 480px) {
+                width: auto;
+                float: none;
+            }
+        }
+        .tile.content {
+            width: 84%;
+            left: 8%;
+            top: 0;
+            border-radius: 2px;
+            cursor: pointer;
+            .name {
+                padding: 2px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.3);
+                margin: 20px 5px 15px;
+                textarea {
+                    font-weight: 300;
+                    text-align: center;
+                    font-size: 20px;
+                    &:disabled {
+                        cursor: pointer;
+                        color: rgba(0, 0, 0, 0.87);
+                    }
+                }
+                md-input-container {
+                    padding-bottom: 2px;
+                }
+            }
+            &::before {
+                background-color: inherit;
+                width: 12px;
+                right: -12px;
+            }
+            .info {
+                text-align: center;
+                font-size: 12px;
+                line-height: 16px;
+                color: rgba(0, 0, 0, 0.35);
+            }
+        }
+        .footer.panel {
+            bottom: 0;
+            height: 44px;
+            font-size: 26px;
+            background-color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            cursor: auto;
+            .btn {
+                height: 44px;
+                width: 32px;
+                a {
+                    position: absolute;
+                    line-height: 44px;
+                }
+            }
+        }
+    }
+}
+
+.new.dialog {
+    min-width: 320px;
+    .or {
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        color: #bbb;
+        margin: 0;
+        span {
+            font-weight: 300;
+        }
+    }
+    .panel {
+        position: relative;
+        overflow: hidden;
+        height: 70px;
+        &.link {
+            height: 0;
+        }
+    }
+}

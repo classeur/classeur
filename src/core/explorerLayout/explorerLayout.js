@@ -1,9 +1,13 @@
 angular.module('classeur.core.explorerLayout', [])
-	.directive('clFolderButton', function(clExplorerLayoutSvc, clPanel) {
-		return {
-			restrict: 'A',
-			scope: true,
-			link: function(scope, element, attr) {
+	.directive('clFolderButton',
+		function(clExplorerLayoutSvc, clPanel) {
+			return {
+				restrict: 'A',
+				scope: true,
+				link: link
+			};
+
+			function link(scope, element, attr) {
 				var elt = element[0];
 				var parentElt = elt.parentNode;
 				var buttonPanel = clPanel(element);
@@ -49,13 +53,16 @@ angular.module('classeur.core.explorerLayout', [])
 					animate();
 				});
 			}
-		};
-	})
-	.directive('clFileEntry', function($timeout, clExplorerLayoutSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'core/explorerLayout/fileEntry.html',
-			link: function(scope, element) {
+		})
+	.directive('clFileEntry',
+		function($timeout, clExplorerLayoutSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/explorerLayout/fileEntry.html',
+				link: link
+			};
+
+			function link(scope, element) {
 				var nameInput = element[0].querySelector('input.name');
 				nameInput.addEventListener('keydown', function(e) {
 					if (e.which == 27) {
@@ -93,13 +100,16 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				};
 			}
-		};
-	})
-	.directive('clFolderName', function($timeout, clExplorerLayoutSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'core/explorerLayout/folderName.html',
-			link: function(scope, element) {
+		})
+	.directive('clFolderName',
+		function($timeout, clExplorerLayoutSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/explorerLayout/folderName.html',
+				link: link
+			};
+
+			function link(scope, element) {
 				var nameInput = element[0].querySelector('input.name');
 				nameInput.addEventListener('keydown', function(e) {
 					if (e.which == 27) {
@@ -134,13 +144,16 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				};
 			}
-		};
-	})
-	.directive('clClasseurEntry', function($timeout, clClasseurSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'core/explorerLayout/classeurEntry.html',
-			link: function(scope, element) {
+		})
+	.directive('clClasseurEntry',
+		function($timeout, clClasseurSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/explorerLayout/classeurEntry.html',
+				link: link
+			};
+
+			function link(scope, element) {
 				var nameInput = element[0].querySelector('.name textarea');
 				nameInput.addEventListener('keydown', function(e) {
 					if (e.which == 27) {
@@ -181,16 +194,19 @@ angular.module('classeur.core.explorerLayout', [])
 					evt.stopPropagation();
 				});
 			}
-		};
-	})
-	.directive('clExplorerLayout', function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
-		var explorerMaxWidth = 740;
-		var noPaddingWidth = 560;
-		var hideOffsetY = 2000;
-		return {
-			restrict: 'E',
-			templateUrl: 'core/explorerLayout/explorerLayout.html',
-			link: function(scope, element) {
+		})
+	.directive('clExplorerLayout',
+		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
+			var explorerMaxWidth = 740;
+			var noPaddingWidth = 560;
+			var hideOffsetY = 2000;
+			return {
+				restrict: 'E',
+				templateUrl: 'core/explorerLayout/explorerLayout.html',
+				link: link
+			};
+
+			function link(scope, element) {
 
 				var explorerPanel = clPanel(element, '.explorer.container');
 				var contentPanel = clPanel(element, '.explorer.content');
@@ -367,7 +383,7 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							if(clLocalSettingSvc.values.tourStep === 4) {
+							if (clLocalSettingSvc.values.tourStep === 4) {
 								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
 							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
@@ -583,130 +599,130 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.clean();
 				});
 			}
-		};
-	})
-	.factory('clExplorerLayoutSvc', function($rootScope, clLocalStorage, clFolderSvc, clFileSvc, clClasseurSvc) {
-		var isInited, pageSize = 20;
-		var lastClasseurKey = 'lastClasseurId';
-		var lastFolderKey = 'lastFolderId';
-		var unclassifiedFolder = {
-			id: 'unclassified',
-			name: 'My files'
-		};
-		var createFolder = {
-			id: 'create',
-			name: 'Create folder'
-		};
+		})
+	.factory('clExplorerLayoutSvc',
+		function($rootScope, clLocalStorage, clFolderSvc, clFileSvc, clClasseurSvc) {
+			var isInited, pageSize = 20;
+			var lastClasseurKey = 'lastClasseurId';
+			var lastFolderKey = 'lastFolderId';
+			var unclassifiedFolder = {
+				id: 'unclassified',
+				name: 'My files'
+			};
+			var createFolder = {
+				id: 'create',
+				name: 'Create folder'
+			};
 
-		function refreshFolders() {
-			setCurrentClasseur(isInited ? clExplorerLayoutSvc.currentClasseurDao : clClasseurSvc.classeurMap[clLocalStorage[lastClasseurKey]]);
-			clExplorerLayoutSvc.folders = clExplorerLayoutSvc.currentClasseurDao.folders.slice().sort(function(folder1, folder2) {
-				return folder1.name.localeCompare(folder2.name);
-			});
-			setCurrentFolder(isInited ? clExplorerLayoutSvc.currentFolderDao : clFolderSvc.folderMap[clLocalStorage[lastFolderKey]]);
-			isInited = true;
-		}
-
-		var endFileIndex, fileFilter;
-
-		function moreFiles(reset) {
-			if (reset) {
-				endFileIndex = 0;
+			function refreshFolders() {
+				setCurrentClasseur(isInited ? clExplorerLayoutSvc.currentClasseurDao : clClasseurSvc.classeurMap[clLocalStorage[lastClasseurKey]]);
+				clExplorerLayoutSvc.folders = clExplorerLayoutSvc.currentClasseurDao.folders.slice().sort(function(folder1, folder2) {
+					return folder1.name.localeCompare(folder2.name);
+				});
+				setCurrentFolder(isInited ? clExplorerLayoutSvc.currentFolderDao : clFolderSvc.folderMap[clLocalStorage[lastFolderKey]]);
+				isInited = true;
 			}
-			if (endFileIndex < clExplorerLayoutSvc.files.length) {
-				endFileIndex += pageSize;
-				clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
-				return true;
-			}
-		}
 
-		function filterFile(fileDao) {
-			return !fileFilter || fileDao.name.toLowerCase().indexOf(fileFilter) !== -1;
-		}
+			var endFileIndex, fileFilter;
 
-		function refreshFiles() {
-			clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
-				clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
-					return !fileDao.isPublic && filterFile(fileDao);
-				} : function(fileDao) {
-					return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id && filterFile(fileDao);
-				}).sort(function(fileDao1, fileDao2) {
-				return fileDao1.name.localeCompare(fileDao2.name);
-			}) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
-				return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
-			});
-			clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
-			setEffectiveSharing();
-		}
-
-		function setFileFilter(value) {
-			if (fileFilter !== value) {
-				fileFilter = value && value.toLowerCase();
-				refreshFiles();
-			}
-		}
-
-		function updateSelectedFiles() {
-			clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.filter(function(fileDao) {
-				return fileDao.isSelected;
-			});
-			return clExplorerLayoutSvc.selectedFiles;
-		}
-
-		function setEffectiveSharing() {
-			if (clExplorerLayoutSvc.currentFolderDao) {
-				clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
-			}
-			clExplorerLayoutSvc.files.forEach(function(fileDao) {
-				fileDao.effectiveSharing = fileDao.sharing;
-				var folderDao = clFolderSvc.folderMap[fileDao.folderId];
-				if (folderDao && folderDao.sharing > fileDao.sharing) {
-					fileDao.effectiveSharing = folderDao.sharing;
+			function moreFiles(reset) {
+				if (reset) {
+					endFileIndex = 0;
 				}
-			});
-		}
-
-		function setCurrentClasseur(classeurDao) {
-			classeurDao = (classeurDao && clClasseurSvc.classeurMap[classeurDao.id]) || clClasseurSvc.defaultClasseur;
-			clExplorerLayoutSvc.currentClasseurDao = classeurDao;
-			clLocalStorage.setItem(lastClasseurKey, classeurDao.id);
-		}
-
-		function setCurrentFolder(folderDao) {
-			folderDao = folderDao === unclassifiedFolder ? folderDao : (folderDao && clFolderSvc.folderMap[folderDao.id]);
-			if (folderDao && folderDao !== unclassifiedFolder && clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) === -1) {
-				folderDao = undefined;
+				if (endFileIndex < clExplorerLayoutSvc.files.length) {
+					endFileIndex += pageSize;
+					clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
+					return true;
+				}
 			}
-			clExplorerLayoutSvc.currentFolderDao = folderDao;
-			clExplorerLayoutSvc.currentClasseurDao.lastFolder = folderDao;
-			folderDao && folderDao.id ? clLocalStorage.setItem(lastFolderKey, folderDao.id) : clLocalStorage.removeItem(lastFolderKey);
-		}
 
-		var clExplorerLayoutSvc = {
-			scrollbarWidth: 0,
-			folders: [],
-			files: [],
-			unclassifiedFolder: unclassifiedFolder,
-			createFolder: createFolder,
-			refreshFolders: refreshFolders,
-			refreshFiles: refreshFiles,
-			moreFiles: moreFiles,
-			setFileFilter: setFileFilter,
-			updateSelectedFiles: updateSelectedFiles,
-			setEffectiveSharing: setEffectiveSharing,
-			setCurrentClasseur: setCurrentClasseur,
-			setCurrentFolder: setCurrentFolder,
-			init: function() {
-				this.isExplorerOpen = true;
-			},
-			clean: function() {
-				clExplorerLayoutSvc.sharingDialogFileDao = undefined;
-			},
-			toggleExplorer: function(isOpen) {
-				this.isExplorerOpen = isOpen === undefined ? !this.isExplorerOpen : isOpen;
+			function filterFile(fileDao) {
+				return !fileFilter || fileDao.name.toLowerCase().indexOf(fileFilter) !== -1;
 			}
-		};
-		moreFiles(true);
 
-		return clExplorerLayoutSvc;
-	});
+			function refreshFiles() {
+				clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
+					clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
+						return !fileDao.isPublic && filterFile(fileDao);
+					} : function(fileDao) {
+						return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id && filterFile(fileDao);
+					}).sort(function(fileDao1, fileDao2) {
+					return fileDao1.name.localeCompare(fileDao2.name);
+				}) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
+					return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
+				});
+				clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
+				setEffectiveSharing();
+			}
+
+			function setFileFilter(value) {
+				if (fileFilter !== value) {
+					fileFilter = value && value.toLowerCase();
+					refreshFiles();
+				}
+			}
+
+			function updateSelectedFiles() {
+				clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.filter(function(fileDao) {
+					return fileDao.isSelected;
+				});
+				return clExplorerLayoutSvc.selectedFiles;
+			}
+
+			function setEffectiveSharing() {
+				if (clExplorerLayoutSvc.currentFolderDao) {
+					clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
+				}
+				clExplorerLayoutSvc.files.forEach(function(fileDao) {
+					fileDao.effectiveSharing = fileDao.sharing;
+					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
+					if (folderDao && folderDao.sharing > fileDao.sharing) {
+						fileDao.effectiveSharing = folderDao.sharing;
+					}
+				});
+			}
+
+			function setCurrentClasseur(classeurDao) {
+				classeurDao = (classeurDao && clClasseurSvc.classeurMap[classeurDao.id]) || clClasseurSvc.defaultClasseur;
+				clExplorerLayoutSvc.currentClasseurDao = classeurDao;
+				clLocalStorage.setItem(lastClasseurKey, classeurDao.id);
+			}
+
+			function setCurrentFolder(folderDao) {
+				folderDao = folderDao === unclassifiedFolder ? folderDao : (folderDao && clFolderSvc.folderMap[folderDao.id]);
+				if (folderDao && folderDao !== unclassifiedFolder && clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) === -1) {
+					folderDao = undefined;
+				}
+				clExplorerLayoutSvc.currentFolderDao = folderDao;
+				clExplorerLayoutSvc.currentClasseurDao.lastFolder = folderDao;
+				folderDao && folderDao.id ? clLocalStorage.setItem(lastFolderKey, folderDao.id) : clLocalStorage.removeItem(lastFolderKey);
+			}
+
+			var clExplorerLayoutSvc = {
+				scrollbarWidth: 0,
+				folders: [],
+				files: [],
+				unclassifiedFolder: unclassifiedFolder,
+				createFolder: createFolder,
+				refreshFolders: refreshFolders,
+				refreshFiles: refreshFiles,
+				moreFiles: moreFiles,
+				setFileFilter: setFileFilter,
+				updateSelectedFiles: updateSelectedFiles,
+				setEffectiveSharing: setEffectiveSharing,
+				setCurrentClasseur: setCurrentClasseur,
+				setCurrentFolder: setCurrentFolder,
+				init: function() {
+					this.isExplorerOpen = true;
+				},
+				clean: function() {
+					clExplorerLayoutSvc.sharingDialogFileDao = undefined;
+				},
+				toggleExplorer: function(isOpen) {
+					this.isExplorerOpen = isOpen === undefined ? !this.isExplorerOpen : isOpen;
+				}
+			};
+			moreFiles(true);
+
+			return clExplorerLayoutSvc;
+		});

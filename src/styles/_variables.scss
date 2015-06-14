@@ -1,0 +1,12 @@
+$font-family: sans-serif;
+$font-family-monospace: monospace;
+$font-size-monospace: 0.92em;
+$link-color: #316ED3;
+$code-bg: #eee;
+$border-radius-base: 4px;
+$plastic-colors: #3498db, lighten(desaturate(#f1c40f, 15%), 2.5%), lighten(desaturate(#1abc9c, 30%), 5%), lighten(desaturate(#e74c3c, 10%), 2.5%), darken(#95a5a6, 2.5%), lighten(#34495e, 15%);
+$editor-margin-width: 110px;
+$ced-color: #555;
+$ced-color-lighter: transparentize($ced-color, 0.6);
+$ced-color-light: transparentize($ced-color, 0.4);
+$ced-color-dark: black;

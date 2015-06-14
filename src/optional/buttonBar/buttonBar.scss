@@ -1,0 +1,44 @@
+@import 'variables';
+
+.button-bar.panel {
+    left: 50%;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    background-color: #404040;
+    .light-1, .light-2 {
+        border-bottom-right-radius: 16px;
+        border-bottom: 60px solid transparentize(#000, 0.9);
+        right: 0;
+        border-left: 6px solid transparent;
+    }
+    .light-1 {
+        width: 100px;
+    }
+    .light-2 {
+        width: 380px;
+    }
+    .btn {
+        top: 20px;
+        a {
+            color: #fff;
+            font-size: 25px;
+            line-height: 32px;
+        }
+        .icon-code::before {
+            content: "\e8a7\e8a8";
+            letter-spacing: -0.54em;
+            margin-left: -0.6em;
+        }
+        .icon-hr::before {
+            font-family: $font-family;
+            font-size: 21px;
+            letter-spacing: -0.06em;
+            font-weight: bold;
+            content: "\00B7\00B7\00B7\00B7";
+        }
+        &.active a {
+            cursor: auto;
+            color: #555;
+        }
+    }
+}

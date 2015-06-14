@@ -1,16 +1,19 @@
 angular.module('classeur.core.button', [])
-	.directive('clButton', function(clPanel) {
+	.directive('clButton',
+		function(clPanel) {
+			return {
+				restrict: 'E',
+				scope: true,
+				transclude: true,
+				templateUrl: 'core/button/button.html',
+				link: link
+			};
 
-		return {
-			restrict: 'E',
-			scope: true,
-			transclude: true,
-			templateUrl: 'core/button/button.html',
-			link: function(scope, element, attrs) {
+			function link(scope, element, attrs) {
 				scope.class = attrs.class;
 				var opacity = parseFloat(attrs.opacity || 0.7);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
-				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);				
+				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);
 				var buttonPanel = clPanel(element, '.btn-panel');
 				attrs.size && buttonPanel.width(attrs.size).height(attrs.size);
 				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
@@ -18,24 +21,22 @@ angular.module('classeur.core.button', [])
 					attr && buttonPanel[attrName](attr);
 				});
 				var isActive, isHover, isInited;
+
 				function toggle() {
 					buttonPanel.$jqElt.toggleClass('active', !!isActive);
 					var opacityToSet = opacity;
 					var easing = 'out';
-					if(isActive) {
+					if (isActive) {
 						opacityToSet = opacityActive;
-					}
-					else if(isHover) {
+					} else if (isHover) {
 						opacityToSet = opacityHover;
-					}
-					else {
+					} else {
 						opacityToSet = opacity;
 						easing = 'in';
 					}
-					if(isInited) {
+					if (isInited) {
 						buttonPanel.move('slow').set('opacity', opacityToSet).ease(easing).end();
-					}
-					else {
+					} else {
 						buttonPanel.$elt.style.opacity = opacityToSet;
 						isInited = true;
 					}
@@ -53,5 +54,4 @@ angular.module('classeur.core.button', [])
 					toggle();
 				}) : toggle();
 			}
-		};
-	});
+		});

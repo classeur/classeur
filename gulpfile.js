@@ -95,7 +95,7 @@ gulp.task('js-dev', function() {
 		.pipe(gulp.dest('public'));
 });
 
-var sassSrc = ['src/**/*.scss'];
+var sassSrc = ['src/**/!(base).scss'];
 
 function cssStream() {
 	return streamqueue({
@@ -104,22 +104,25 @@ function cssStream() {
 		gulp.src(vendorBaseCss),
 		gulp.src(vendorCss)
 		.pipe(replace(/@import\s.*/g, '')),
-		gulp.src('src/styles/main.scss')
+		gulp.src(sassSrc)
 	);
 }
 
 gulp.task('sass', function() {
 	return cssStream()
 		.pipe(sass({
+			includePaths: 'src/styles',
 			outputStyle: 'compressed'
-		}))
+		}).on('error', sass.logError))
 		.pipe(concat('app-min.css'))
 		.pipe(gulp.dest('public'));
 });
 gulp.task('sass-dev', function() {
-	return cssStream()
+	cssStream()
 		.pipe(sourcemaps.init())
-		.pipe(sass())
+		.pipe(sass({
+			includePaths: 'src/styles'
+		}).on('error', sass.logError))
 		.pipe(concat('app-min.css'))
 		.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('public'));
@@ -133,18 +136,18 @@ gulp.task('sass-base', function() {
 		)
 		.pipe(sass({
 			outputStyle: 'compressed'
-		}))
+		}).on('error', sass.logError))
 		.pipe(concat('base-min.css'))
 		.pipe(gulp.dest('public'));
 });
 
-gulp.task('express', function() {
+gulp.task('connect', function() {
 	process.env.NO_CLUSTER = true;
 	require('./index');
 });
 
 gulp.task('watch', function() {
-	watch(sassSrc, function(files, cb) {
+	watch(['src/**/*.scss'], function(files, cb) {
 		gulp.start('sass-dev');
 		cb();
 	});
@@ -158,7 +161,7 @@ gulp.task('watch', function() {
 
 gulp.task('run', [
 	'watch',
-	'express'
+	'connect'
 ]);
 
 gulp.task('default', [

@@ -1,10 +1,4 @@
-$font-family: sans-serif;
-$font-family-monospace: monospace;
-$font-size-monospace: 0.92em;
-$link-color: #316ED3;
-$code-bg: #eee;
-$border-radius-base: 4px;
-
+@import 'variables';
 @import 'prism';
 @import 'fonts';
 

@@ -1,36 +1,4 @@
-$plastic-colors: #3498db, lighten(desaturate(#f1c40f, 15%), 2.5%), lighten(desaturate(#1abc9c, 30%), 5%), lighten(desaturate(#e74c3c, 10%), 2.5%), darken(#95a5a6, 2.5%), lighten(#34495e, 15%);
-$editor-margin-width: 110px;
-
-
 @import 'base';
-@import '../blogs/blogs';
-@import '../core/button/button';
-@import '../core/editor/editor';
-@import '../core/editor/preview';
-@import '../core/editor/toc';
-@import '../core/editorLayout/editorLayout';
-@import '../core/explorerLayout/explorerLayout';
-@import '../core/filePropertiesDialog/filePropertiesDialog';
-@import '../core/settingsLayout/settingsLayout';
-@import '../core/templateManagerDialog/templateManagerDialog';
-@import '../core/user/user';
-@import '../opt/btnBar/btnBar';
-@import '../opt/commenting/commenting';
-@import '../opt/exportToDisk/exportToDisk';
-@import '../opt/fileDragging/fileDragging';
-@import '../opt/folding/folding';
-@import '../opt/headingAnchor/headingAnchor';
-@import '../opt/offlineAlert/offlineAlert';
-@import '../opt/planChooser/planChooser';
-@import '../opt/readOnlyAlert/readOnlyAlert';
-@import '../opt/recentAlert/recentAlert';
-@import '../opt/urlDialog/urlDialog';
-@import '../opt/sharingDialog/sharingDialog';
-@import '../opt/spinner/spinner';
-@import '../opt/stat/stat';
-@import '../opt/userActivity/userActivity';
-@import '../opt/zenMode/zenMode';
-@import '../ext/emojiOne/emojiOne';
 @import 'material';
 
 body {

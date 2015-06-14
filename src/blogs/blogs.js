@@ -1,23 +1,31 @@
 angular.module('classeur.blogs', [])
-	.filter('clBlogStatus', function() {
-		return function(status) {
-			return status || 'not linked';
-		};
-	})
-	.directive('clBlogEntry', function(clBlogSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'blogs/blogEntry.html',
-			link: function(scope) {
+	.filter('clBlogStatus',
+		function() {
+			return function(status) {
+				return status || 'not linked';
+			};
+		})
+	.directive('clBlogEntry',
+		function(clBlogSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'blogs/blogEntry.html',
+				link: link
+			};
+
+			function link(scope) {
 				scope.platform = clBlogSvc.platformMap[scope.blog.platformId];
 			}
-		};
-	})
-	.directive('clBlogForm', function(clBlogSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'blogs/blogForm.html',
-			link: function(scope) {
+		})
+	.directive('clBlogForm',
+		function(clBlogSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'blogs/blogForm.html',
+				link: link
+			};
+
+			function link(scope) {
 				scope.platforms = clBlogSvc.platformMap;
 				scope.$watch('form.platformId', function(platformId) {
 					scope.form.subForm = scope.blog ?
@@ -26,13 +34,16 @@ angular.module('classeur.blogs', [])
 					clBlogSvc.fillBlogSubForm(platformId, scope.form.subForm);
 				});
 			}
-		};
-	})
-	.directive('clBlogPostForm', function($q, clBlogSvc, clSocketSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'blogs/blogPostForm.html',
-			link: function(scope) {
+		})
+	.directive('clBlogPostForm',
+		function($q, clBlogSvc, clSocketSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'blogs/blogPostForm.html',
+				link: link
+			};
+
+			function link(scope) {
 				var blogMap = {};
 				if (!scope.post) {
 					var loading = $q(function(resolve) {
@@ -74,81 +85,81 @@ angular.module('classeur.blogs', [])
 					clBlogSvc.fillPostSubForm(blog, scope.form.subForm);
 				});
 			}
-		};
-	})
-	.factory('clBlogPlatform', function() {
-		function BlogPlatform(options) {
-			angular.extend(this, options);
-		}
-		var result = function(options) {
-			return new BlogPlatform(options);
-		};
-		result.BlogPlatform = BlogPlatform;
-		return result;
-	})
-	.factory('clBlogSvc', function(clGithubBlogPlatform, $window, clToast, clBlogPlatform) {
-		var platformMap = Array.prototype.reduce.call(arguments, function(platformMap, arg) {
-			if (arg instanceof clBlogPlatform.BlogPlatform) {
-				platformMap[arg.id] = arg;
+		})
+	.factory('clBlogPlatform',
+		function() {
+			function BlogPlatform(options) {
+				angular.extend(this, options);
 			}
-			return platformMap;
-		}, {});
-
-		return {
-			platformMap: platformMap,
-			createBlogSubForm: function(platformId) {
-				return angular.extend({}, platformId && platformMap[platformId].defaultBlogSubForm);
-			},
-			fillBlogSubForm: function(platformId, subForm) {
-				platformId && platformMap[platformId].fillBlogSubForm && platformMap[platformId].fillBlogSubForm(subForm);
-			},
-			createBlog: function(form) {
-				var platform = platformMap[form.platformId];
-				try {
-					if (!platform) {
-						throw 'Please select a platform.';
-					}
-					if (!form.name) {
-						throw 'Blog name is required.';
-					}
-					if (form.name.length > 128) {
-						throw 'Blog name is too long.';
-					}
-					var blog = platform.createBlogFromSubForm(form.subForm);
-					blog.name = form.name;
-					blog.platformId = form.platformId;
-					return blog;
-				} catch (e) {
-					clToast(e);
+			var result = function(options) {
+				return new BlogPlatform(options);
+			};
+			result.BlogPlatform = BlogPlatform;
+			return result;
+		})
+	.factory('clBlogSvc',
+		function(clGithubBlogPlatform, $window, clToast, clBlogPlatform) {
+			var platformMap = Array.prototype.reduce.call(arguments, function(platformMap, arg) {
+				if (arg instanceof clBlogPlatform.BlogPlatform) {
+					platformMap[arg.id] = arg;
 				}
-			},
-			createPostSubForm: function(blog) {
-				return angular.extend({}, blog && platformMap[blog.platformId].defaultPostSubForm);
-			},
-			fillPostSubForm: function(blog, subForm) {
-				blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm);
-			},
-			createPost: function(form) {
-				var blog = form.blog;
-				try {
-					if (!blog) {
-						throw 'Please select a blog.';
-					}
-					var post = blog.platform.createPostFromSubForm(form.subForm);
-					post.blogId = blog.id;
-					return post;
-				} catch (e) {
-					clToast(e);
-				}
-			},
-			startOAuth: function(blog, state) {
-				var platform = platformMap[blog.platformId];
-				var params = platform.getAuthorizeParams(blog);
-				params.state = state;
-				$window.location.href = platform.authorizeUrl + '?' + Object.keys(params).map(function(key) {
-					return key + '=' + encodeURIComponent(params[key]);
-				}).join('&');
-			}
-		};
+				return platformMap;
+			}, {});
 
-	});
+			return {
+				platformMap: platformMap,
+				createBlogSubForm: function(platformId) {
+					return angular.extend({}, platformId && platformMap[platformId].defaultBlogSubForm);
+				},
+				fillBlogSubForm: function(platformId, subForm) {
+					platformId && platformMap[platformId].fillBlogSubForm && platformMap[platformId].fillBlogSubForm(subForm);
+				},
+				createBlog: function(form) {
+					var platform = platformMap[form.platformId];
+					try {
+						if (!platform) {
+							throw 'Please select a platform.';
+						}
+						if (!form.name) {
+							throw 'Blog name is required.';
+						}
+						if (form.name.length > 128) {
+							throw 'Blog name is too long.';
+						}
+						var blog = platform.createBlogFromSubForm(form.subForm);
+						blog.name = form.name;
+						blog.platformId = form.platformId;
+						return blog;
+					} catch (e) {
+						clToast(e);
+					}
+				},
+				createPostSubForm: function(blog) {
+					return angular.extend({}, blog && platformMap[blog.platformId].defaultPostSubForm);
+				},
+				fillPostSubForm: function(blog, subForm) {
+					blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm);
+				},
+				createPost: function(form) {
+					var blog = form.blog;
+					try {
+						if (!blog) {
+							throw 'Please select a blog.';
+						}
+						var post = blog.platform.createPostFromSubForm(form.subForm);
+						post.blogId = blog.id;
+						return post;
+					} catch (e) {
+						clToast(e);
+					}
+				},
+				startOAuth: function(blog, state) {
+					var platform = platformMap[blog.platformId];
+					var params = platform.getAuthorizeParams(blog);
+					params.state = state;
+					$window.location.href = platform.authorizeUrl + '?' + Object.keys(params).map(function(key) {
+						return key + '=' + encodeURIComponent(params[key]);
+					}).join('&');
+				}
+			};
+		});

@@ -1,9 +1,13 @@
 angular.module('classeur.core.editorLayout', [])
-	.directive('clFileName', function(clEditorLayoutSvc) {
-		return {
-			restrict: 'E',
-			templateUrl: 'core/editorLayout/fileName.html',
-			link: function(scope) {
+	.directive('clFileName',
+		function(clEditorLayoutSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/editorLayout/fileName.html',
+				link: link
+			};
+
+			function link(scope) {
 				var fileDao = scope.currentFileDao;
 				scope.name = function(name) {
 					if (name) {
@@ -23,15 +27,18 @@ angular.module('classeur.core.editorLayout', [])
 					}
 				};
 			}
-		};
-	})
-	.directive('clEditorLayout', function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel) {
-		var hideOffsetY = 2000;
+		})
+	.directive('clEditorLayout',
+		function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clPanel) {
+			var hideOffsetY = 2000;
 
-		return {
-			restrict: 'E',
-			templateUrl: 'core/editorLayout/editorLayout.html',
-			link: function(scope, element) {
+			return {
+				restrict: 'E',
+				templateUrl: 'core/editorLayout/editorLayout.html',
+				link: link
+			};
+
+			function link(scope, element) {
 
 				clPanel(element, '.toc.panel').width(clEditorLayoutSvc.tocWidth + 50).right(-50);
 				var backgroundPanel = clPanel(element, '.background.panel');
@@ -252,52 +259,52 @@ angular.module('classeur.core.editorLayout', [])
 					sectionDescList = clEditorSvc.sectionDescList;
 				});
 			}
-		};
-	})
-	.factory('clEditorLayoutSvc', function($rootScope) {
-		var clEditorLayoutSvc = {
-			pageMargin: 22,
-			editorBtnGrpWidth: 40,
-			menuWidth: 320,
-			tocWidth: 250,
-			statHeight: 30,
-			init: function(hideEditor) {
-				this.isEditorOpen = !hideEditor;
-				this.isSidePreviewOpen = false;
-				this.isMenuOpen = false;
-				this.isCornerOpen = false;
-			},
-			toggleEditor: function(isOpen) {
-				this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;
-			},
-			toggleSidePreview: function(isOpen) {
-				this.isSidePreviewOpen = isOpen === undefined ? !this.isSidePreviewOpen : isOpen;
-			},
-			toggleMenu: function() {
-				this.currentControl = this.currentControl === 'menu' ? undefined : 'menu';
-			},
-			toggleToc: function(isOpen) {
-				this.isTocOpen = isOpen === undefined ? !this.isTocOpen : isOpen;
-			},
-			toggleStat: function(isOpen) {
-				this.isStatOpen = isOpen === undefined ? !this.isStatOpen : isOpen;
-			},
-			toggleCorner: function(isOpen) {
-				this.isCornerOpen = isOpen === undefined ? !this.isCornerOpen : isOpen;
-			},
-			clean: function() {
-				this.currentControl = undefined;
-			}
-		};
+		})
+	.factory('clEditorLayoutSvc',
+		function($rootScope) {
+			var clEditorLayoutSvc = {
+				pageMargin: 22,
+				editorBtnGrpWidth: 40,
+				menuWidth: 320,
+				tocWidth: 250,
+				statHeight: 30,
+				init: function(hideEditor) {
+					this.isEditorOpen = !hideEditor;
+					this.isSidePreviewOpen = false;
+					this.isMenuOpen = false;
+					this.isCornerOpen = false;
+				},
+				toggleEditor: function(isOpen) {
+					this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen;
+				},
+				toggleSidePreview: function(isOpen) {
+					this.isSidePreviewOpen = isOpen === undefined ? !this.isSidePreviewOpen : isOpen;
+				},
+				toggleMenu: function() {
+					this.currentControl = this.currentControl === 'menu' ? undefined : 'menu';
+				},
+				toggleToc: function(isOpen) {
+					this.isTocOpen = isOpen === undefined ? !this.isTocOpen : isOpen;
+				},
+				toggleStat: function(isOpen) {
+					this.isStatOpen = isOpen === undefined ? !this.isStatOpen : isOpen;
+				},
+				toggleCorner: function(isOpen) {
+					this.isCornerOpen = isOpen === undefined ? !this.isCornerOpen : isOpen;
+				},
+				clean: function() {
+					this.currentControl = undefined;
+				}
+			};
 
-		window.addEventListener('keydown', function(e) {
-			if (e.which === 27) {
-				// Esc key
-				e.preventDefault();
-				clEditorLayoutSvc.currentControl = undefined;
-				$rootScope.$apply();
-			}
+			window.addEventListener('keydown', function(e) {
+				if (e.which === 27) {
+					// Esc key
+					e.preventDefault();
+					clEditorLayoutSvc.currentControl = undefined;
+					$rootScope.$apply();
+				}
+			});
+
+			return clEditorLayoutSvc;
 		});
-
-		return clEditorLayoutSvc;
-	});
