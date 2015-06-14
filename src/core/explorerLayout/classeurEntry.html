@@ -13,8 +13,8 @@
     </div>
     <div class="footer panel" layout="row" layout-align="center">
         <cl-button class="btn" active="isEditing">
-            <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit name" ng-if="classeur.isDefault || !isEditing"></a>
-            <a class="angular-animate bounce icon-delete" ng-click="deleteClasseur(classeur)" aria-label="Delete classeur" ng-if="!classeur.isDefault && isEditing"></a>
+            <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit name" ng-show="classeur.isDefault || !isEditing"></a>
+            <a class="angular-animate bounce icon-delete ng-hide" ng-click="deleteClasseur(classeur)" aria-label="Delete classeur" ng-show="!classeur.isDefault && isEditing"></a>
         </cl-button>
     </div>
 </div>

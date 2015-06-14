@@ -123,26 +123,18 @@ body {
     transform: rotate(270deg);
 }
 
-.bounce.ng-enter {
-    -webkit-transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
-    transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
-    -webkit-transform: scale(0);
-    transform: scale(0);
-}
-
-.bounce.ng-enter.ng-enter-active {
+.bounce {
     -webkit-transform: scale(1);
     transform: scale(1);
 }
 
-.bounce.ng-leave {
+.bounce.ng-hide-add.ng-hide-add-active,
+.bounce.ng-hide-remove.ng-hide-remove-active {
     -webkit-transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
     transition: 0.16s cubic-bezier(0.5, -0.5, 0.5, 1.5) all;
-    -webkit-transform: scale(1);
-    transform: scale(1);
 }
 
-.bounce.ng-leave.ng-leave-active {
+.bounce.ng-hide {
     -webkit-transform: scale(0);
     transform: scale(0);
 }

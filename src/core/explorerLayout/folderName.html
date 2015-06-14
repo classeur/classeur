@@ -5,8 +5,8 @@
     </md-input-container>
     <div ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder" layout="row">
             <cl-button class="folder btn" ng-show="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" active="isEditing">
-                <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit folder name" ng-if="!isEditing"></a>
-                <a class="angular-animate bounce icon-delete" ng-click="deleteConfirm(true)" aria-label="Delete folder" ng-if="isEditing"></a>
+                <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit folder name" ng-show="!isEditing"></a>
+                <a class="angular-animate bounce icon-delete ng-hide" ng-click="deleteConfirm(true)" aria-label="Delete folder" ng-show="isEditing"></a>
             </cl-button>
         <cl-button ng-if="socketSvc.hasToken" class="share folder btn" active="explorerLayoutSvc.sharingDialogFolderDao === explorerLayoutSvc.currentFolderDao">
             <a class="icon-share" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao" aria-label="Share folder"></a>
