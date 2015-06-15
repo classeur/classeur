@@ -393,6 +393,7 @@ angular.module('classeur.core.editor', [])
 					this.tocElt = elt;
 				},
 				setEditorElt: function(elt) {
+					// console.watch(elt.parentNode, "scrollTop");
 					editorElt = elt;
 					this.editorElt = elt;
 					clEditorSvc.sectionDescList = [];

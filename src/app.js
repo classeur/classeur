@@ -30,7 +30,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.user',
 		'classeur.core.utils',
 		'classeur.optional.buttonBar',
-		'classeur.optional.commenting',
+		'classeur.optional.discussions',
 		'classeur.optional.exportToDisk',
 		'classeur.optional.fileDragging',
 		'classeur.optional.folding',

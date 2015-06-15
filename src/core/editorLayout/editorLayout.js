@@ -164,8 +164,11 @@ angular.module('classeur.core.editorLayout', [])
 					hidePreview();
 
 					if (scrollSectionDesc) {
-						clEditorSvc.measureSectionDimensions();
-						eltToScroll.scrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection;
+						setTimeout(function() {
+							clEditorSvc.measureSectionDimensions();
+							scrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection;
+							eltToScroll.scrollTop = scrollTop;
+						}, 10);
 					}
 				}
 
