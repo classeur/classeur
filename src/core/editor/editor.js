@@ -90,7 +90,7 @@ angular.module('classeur.core.editor', [])
 				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
-						Array.prototype.forEach.call(section.imgTokenEltList, function(imgTokenElt) {
+						Array.prototype.slice.call(section.imgTokenEltList).forEach(function(imgTokenElt) {
 							var srcElt = imgTokenElt.querySelector('.token.md-src');
 							if (srcElt) {
 								var imgElt = $window.document.createElement('img');
@@ -230,13 +230,11 @@ angular.module('classeur.core.editor', [])
 		})
 	.factory('clEditorClassApplier',
 		function($window, clEditorSvc) {
-			function ClassApplier(classes, offsetGetter) {
+			function ClassApplier(classes, offsetGetter, properties) {
 				classes = typeof classes === 'string' ? [classes] : classes;
-				var rangyRange, self = this;
+				var self = this;
 				$window.cledit.Utils.createEventHooks(this);
-				var firstClass = classes[0];
-				var otherClasses = classes.slice(1);
-				this.elts = clEditorSvc.editorElt.getElementsByClassName(firstClass);
+				this.elts = clEditorSvc.editorElt.getElementsByClassName(classes[0]);
 				var lastEltCount;
 
 				function applyClass() {
@@ -244,28 +242,62 @@ angular.module('classeur.core.editor', [])
 					if (!offset) {
 						return;
 					}
-					var range = clEditorSvc.cledit.selectionMgr.createRange(offset.start, offset.end);
-					// Create rangy range
-					rangyRange = $window.rangy.createRange();
-					rangyRange.setStart(range.startContainer, range.startOffset);
-					rangyRange.setEnd(range.endContainer, range.endOffset);
-					var classApplier = $window.rangy.createClassApplier(firstClass, {
-						elementProperties: {
-							className: otherClasses.length ? otherClasses.join(' ') : undefined
-						},
-						tagNames: ['span'],
-						normalize: false
+					var range = clEditorSvc.cledit.selectionMgr.createRange(
+						Math.min(offset.start, offset.end),
+						Math.max(offset.start, offset.end)
+					);
+					properties = properties || {};
+					properties.className = classes.join(' ');
+					var rangeLength = ('' + range).length;
+					var wrappedLength = 0;
+					var treeWalker = $window.document.createTreeWalker(clEditorSvc.editorElt, NodeFilter.SHOW_TEXT);
+					var startOffset = range.startOffset;
+					treeWalker.currentNode = range.startContainer;
+					clEditorSvc.cledit.watcher.noWatch(function() {
+						do {
+							if (treeWalker.currentNode.nodeValue !== '\n') {
+								if (treeWalker.currentNode === range.endContainer && range.endOffset < treeWalker.currentNode.nodeValue.length) {
+									treeWalker.currentNode.splitText(range.endOffset);
+								}
+								if (startOffset) {
+									treeWalker.currentNode = treeWalker.currentNode.splitText(startOffset);
+									startOffset = 0;
+								}
+								var elt = $window.document.createElement('span');
+								for (var key in properties) {
+									elt[key] = properties[key];
+								}
+								treeWalker.currentNode.parentNode.insertBefore(elt, treeWalker.currentNode);
+								elt.appendChild(treeWalker.currentNode);
+							}
+							wrappedLength += treeWalker.currentNode.nodeValue.length;
+							if (wrappedLength >= rangeLength) {
+								break;
+							}
+						}
+						while (treeWalker.nextNode());
 					});
-					classApplier.applyToRange(rangyRange);
 					self.$trigger('classApplied');
 					clEditorSvc.cledit.selectionMgr.restoreSelection();
 					lastEltCount = self.elts.length;
 				}
 
 				function removeClass() {
-					Array.prototype.slice.call(self.elts).forEach(function(elt) {
-						classes.forEach(function(className) {
-							elt.classList.remove(className);
+					clEditorSvc.cledit.watcher.noWatch(function() {
+						Array.prototype.slice.call(self.elts).forEach(function(elt) {
+							var child = elt.firstChild;
+							if (child.nodeType === 3) {
+								if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
+									child.nodeValue = elt.previousSibling.nodeValue + child.nodeValue;
+									elt.parentNode.removeChild(elt.previousSibling);
+								}
+								if (elt.nextSibling && elt.nextSibling.nodeType === 3) {
+									child.nodeValue = child.nodeValue + elt.nextSibling.nodeValue;
+									elt.parentNode.removeChild(elt.nextSibling);
+								}
+							}
+							elt.parentNode.insertBefore(child, elt);
+							elt.parentNode.removeChild(elt);
 						});
 					});
 				}
@@ -286,8 +318,8 @@ angular.module('classeur.core.editor', [])
 				applyClass();
 			}
 
-			return function(classes, offsetGetter) {
-				return new ClassApplier(classes, offsetGetter);
+			return function(classes, offsetGetter, properties) {
+				return new ClassApplier(classes, offsetGetter, properties);
 			};
 		})
 	.factory('clEditorSvc',

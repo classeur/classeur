@@ -8,8 +8,34 @@ angular.module('classeur.optional.discussions', [])
 				link: link
 			};
 
-			function link(scope) {
+			function link(scope, element) {
 				var selectionStart, selectionEnd;
+				var parentElt = element[0].parentNode;
+				// var hoverElts = parentElt.getElementsByClassName('discussion-highlighting-over');
+				parentElt.addEventListener('mouseover', function(evt) {
+					var elt = evt.target;
+					while(elt && elt !== parentElt) {
+						if(elt.discussionId) {
+							Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + elt.discussionId)).forEach(function(elt) {
+								elt.classList.add('hover');
+							});
+							break;
+						}
+						elt = elt.parentNode;
+					}
+				});
+				parentElt.addEventListener('mouseout', function(evt) {
+					var elt = evt.target;
+					while(elt && elt !== parentElt) {
+						if(elt.discussionId) {
+							Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + elt.discussionId)).forEach(function(elt) {
+								elt.classList.remove('hover');
+							});
+							break;
+						}
+						elt = elt.parentNode;
+					}
+				});
 
 				var toggleButton = $window.cledit.Utils.debounce(function() {
 					scope.show = false;
@@ -73,6 +99,8 @@ angular.module('classeur.optional.discussions', [])
 						start: startMarker.offset,
 						end: endMarker.offset
 					};
+				}, {
+					discussionId: scope.discussion.id
 				});
 
 				scope.$on('$destroy', function() {

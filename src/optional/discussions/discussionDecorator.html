@@ -1,4 +1,4 @@
-<cl-button class="rotate-180 new-discussion-btn" ng-click="createDiscussion()" ng-if="show" top="{{coordinates.top + coordinates.height}}" left="{{coordinates.left}}">
+<cl-button ng-if="show" class="rotate-180 new-discussion-btn" ng-click="createDiscussion()" top="{{coordinates.top + coordinates.height}}" left="{{coordinates.left}}" width="28" height="25">
     <a class="icon-insert-comment"></a>
 </cl-button>
 <cl-discussion-highlighter ng-if="discussionSvc.currentDiscussion === discussion"></cl-discussion-highlighter>

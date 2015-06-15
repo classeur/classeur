@@ -1,20 +1,18 @@
 @import 'variables';
-$highlighting-color: rgb(255, 223, 63);
+$highlighting-color: rgb(255, 226, 79);
 .editor.content .discussion-highlighting {
-    background-color: transparentize($highlighting-color, 0.5);
-    -webkit-transition: 0.16s ease-out background-color;
-    transition: 0.16s ease-out background-color;
+    background-color: transparentize($highlighting-color, 0.6);
+    -webkit-transition: 0.12s ease-out background-color;
+    transition: 0.12s ease-out background-color;
     padding: 0.2em 0;
     cursor: pointer;
-    &:hover, &.selected {
-        background-color: $highlighting-color;
+    &.hover, &.selected {
+        background-color: transparentize($highlighting-color, 0.2);
     }
 }
 
 .new-discussion-btn {
     font-size: 25px;
-    width: 28px;
-    height: 25px;
     background-color: #fff;
     border-radius: 3px;
     a {
