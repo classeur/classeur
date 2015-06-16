@@ -21,8 +21,6 @@ var vendorJs = [
 	'bower_components/angular-material/angular-material.js',
 	'bower_components/angular-slugify/angular-slugify.js',
 	'bower_components/google-diff-match-patch-js/diff_match_patch.js',
-	'bower_components/rangy-official/rangy-core.js',
-	'bower_components/rangy-official/rangy-classapplier.js',
 	'bower_components/cledit/scripts/cleditCore.js',
 	'bower_components/cledit/scripts/cleditHighlighter.js',
 	'bower_components/cledit/scripts/cleditKeystroke.js',

@@ -325,9 +325,6 @@ angular.module('classeur.core.editor', [])
 	.factory('clEditorSvc',
 		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, Slug) {
 
-			// Init rangy
-			$window.rangy.init();
-
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
 			angular.forEach({

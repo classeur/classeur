@@ -16,7 +16,6 @@
   "dependencies": {
     "angular-material": "~0.9.0",
     "google-diff-match-patch-js": "~1.0.0",
-    "rangy-official": "~1.3.0-alpha.20140921",
     "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
     "cledit": "https://github.com/classeur/cledit.git#master",
     "cldown": "https://github.com/classeur/cldown.git#master",
