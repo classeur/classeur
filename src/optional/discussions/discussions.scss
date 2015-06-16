@@ -4,7 +4,7 @@ $highlighting-color: rgb(255, 226, 79);
     background-color: transparentize($highlighting-color, 0.6);
     -webkit-transition: 0.12s ease-out background-color;
     transition: 0.12s ease-out background-color;
-    padding: 0.2em 0;
+    padding: 0.15em 0;
     cursor: pointer;
     &.hover, &.selected {
         background-color: transparentize($highlighting-color, 0.2);

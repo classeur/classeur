@@ -14,8 +14,8 @@ angular.module('classeur.optional.discussions', [])
 				// var hoverElts = parentElt.getElementsByClassName('discussion-highlighting-over');
 				parentElt.addEventListener('mouseover', function(evt) {
 					var elt = evt.target;
-					while(elt && elt !== parentElt) {
-						if(elt.discussionId) {
+					while (elt && elt !== parentElt) {
+						if (elt.discussionId) {
 							Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + elt.discussionId)).forEach(function(elt) {
 								elt.classList.add('hover');
 							});
@@ -26,8 +26,8 @@ angular.module('classeur.optional.discussions', [])
 				});
 				parentElt.addEventListener('mouseout', function(evt) {
 					var elt = evt.target;
-					while(elt && elt !== parentElt) {
-						if(elt.discussionId) {
+					while (elt && elt !== parentElt) {
+						if (elt.discussionId) {
 							Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + elt.discussionId)).forEach(function(elt) {
 								elt.classList.remove('hover');
 							});
@@ -66,10 +66,13 @@ angular.module('classeur.optional.discussions', [])
 				scope.discussionSvc = clDiscussionSvc;
 				scope.discussion = {};
 				scope.createDiscussion = function() {
+					var text = clEditorSvc.cledit.getContent();
 					scope.discussion = {
 						id: clUid(),
 						selectionStart: selectionStart,
 						selectionEnd: selectionEnd,
+						startPatch: clDiscussionSvc.offsetToPatch(text, selectionStart),
+						endPatch: clDiscussionSvc.offsetToPatch(text, selectionEnd),
 					};
 					// Force recreating the highlighter
 					$timeout(function() {
@@ -81,36 +84,50 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionHighlighter',
-		function($window, clEditorSvc, clEditorClassApplier) {
-			var Marker = $window.cledit.Marker;
-
+		function(clEditorSvc, clEditorClassApplier, clDiscussionSvc) {
 			return {
 				restrict: 'E',
 				link: link
 			};
 
 			function link(scope) {
-				var startMarker = new Marker(scope.discussion.selectionStart);
-				var endMarker = new Marker(scope.discussion.selectionEnd);
-				clEditorSvc.cledit.addMarker(startMarker);
-				clEditorSvc.cledit.addMarker(endMarker);
 				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussion.id, 'discussion-highlighting'], function() {
-					return {
-						start: startMarker.offset,
-						end: endMarker.offset
+					var text = clEditorSvc.cledit.getContent();
+					var result = {
+						start: clDiscussionSvc.patchToOffset(text, scope.discussion.startPatch),
+						end: clDiscussionSvc.patchToOffset(text, scope.discussion.endPatch),
 					};
+					return result.start !== -1 && result.end !== -1 && result;
 				}, {
 					discussionId: scope.discussion.id
 				});
 
 				scope.$on('$destroy', function() {
-					startMarker && clEditorSvc.cledit.removeMarker(startMarker);
-					endMarker && clEditorSvc.cledit.removeMarker(endMarker);
 					classApplier && classApplier.stop();
 				});
 			}
 		})
 	.factory('clDiscussionSvc',
-		function() {
-			return {};
+		function($window) {
+			var diffMatchPatch = new $window.diff_match_patch();
+			diffMatchPatch.Match_Distance = 999999999;
+			var uncommonString = '\uF111\uF222\uF333';
+
+			function offsetToPatch(text, offset) {
+				return diffMatchPatch.patch_make(text, [
+					[0, text.slice(0, offset)],
+					[1, uncommonString],
+					[0, text.slice(offset)]
+				])[0];
+			}
+
+			function patchToOffset(text, patch) {
+				var newText = diffMatchPatch.patch_apply([patch], text)[0];
+				return newText.indexOf(uncommonString);
+			}
+
+			return {
+				offsetToPatch: offsetToPatch,
+				patchToOffset: patchToOffset,
+			};
 		});

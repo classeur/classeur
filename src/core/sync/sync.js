@@ -979,7 +979,7 @@ angular.module('classeur.core.sync', [])
 				if (watchCtx.fileDao.isPublic && watchCtx.fileDao.sharing !== 'rw') {
 					return;
 				}
-				var textChanges = clSyncUtils.gettextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
+				var textChanges = clSyncUtils.getTextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
 				textChanges = textChanges.length ? textChanges : undefined;
 				var propertiesChanges = clSyncUtils.getPropertiesPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
 				propertiesChanges = propertiesChanges.length ? propertiesChanges : undefined;
@@ -1096,8 +1096,8 @@ angular.module('classeur.core.sync', [])
 			var DIFF_INSERT = 1;
 			var DIFF_EQUAL = 0;
 
-			function gettextPatches(oldtext, newtext) {
-				var diffs = diffMatchPatch.diff_main(oldtext, newtext);
+			function getTextPatches(oldText, newText) {
+				var diffs = diffMatchPatch.diff_main(oldText, newText);
 				diffMatchPatch.diff_cleanupEfficiency(diffs);
 				var patches = [];
 				var startOffset = 0;
@@ -1222,7 +1222,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			return {
-				gettextPatches: gettextPatches,
+				getTextPatches: getTextPatches,
 				getPropertiesPatches: getPropertiesPatches,
 				applyCharPatches: applyCharPatches,
 				applyPropertiesPatches: applyPropertiesPatches,
