@@ -69,17 +69,19 @@ angular.module('classeur.optional.discussions', [])
 					var text = clEditorSvc.cledit.getContent();
 					scope.discussion = {
 						id: clUid(),
+						isNew: true,
+						text: text.slice(selectionStart, selectionEnd),
 						selectionStart: selectionStart,
 						selectionEnd: selectionEnd,
 						patches: clDiscussionSvc.offsetToPatch(text, {
-							start: selectionStart, 
+							start: selectionStart,
 							end: selectionEnd
 						})
 					};
 					// Force recreating the highlighter
 					$timeout(function() {
 						clEditorLayoutSvc.isSideBarOpen = true;
-						clEditorLayoutSvc.sideBarTab = 'comments';
+						clEditorLayoutSvc.sideBarTab = 'discussions';
 						clDiscussionSvc.currentDiscussion = scope.discussion;
 					});
 				};
@@ -104,6 +106,44 @@ angular.module('classeur.optional.discussions', [])
 					classApplier && classApplier.stop();
 				});
 			}
+		})
+	.directive('clDiscussionPanel',
+		function($window, clDiscussionSvc) {
+			return {
+				restrict: 'E',
+				scope: true,
+				templateUrl: 'optional/discussions/discussionPanel.html',
+				link: link
+			};
+
+			function link(scope, element) {
+				scope.discussionSvc = clDiscussionSvc;
+				var preElt = element[0].querySelector('pre.md-highlighting');
+				var cledit = $window.cledit(preElt);
+				var grammar = $window.mdGrammar();
+				cledit.init({
+					highlighter: function(text) {
+						return $window.Prism.highlight(text, grammar);
+					}
+				});
+			}
+		})
+	.filter('clConvertMarkdown',
+		function(clEditorSvc, $sce) {
+			return function(value) {
+				if (!clEditorSvc.hasInitListener(90)) {
+					// No sanitizer
+					return '';
+				}
+				return $sce.trustAsHtml(clEditorSvc.converter.makeHtml(value || ''));
+			};
+		})
+	.filter('clHighlightMMarkdown',
+		function($window, $sce) {
+			var grammar = $window.mdGrammar();
+			return function(value) {
+				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar));
+			};
 		})
 	.factory('clDiscussionSvc',
 		function($window) {

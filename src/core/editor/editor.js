@@ -392,6 +392,9 @@ angular.module('classeur.core.editor', [])
 				onInitConverter: function(priority, listener) {
 					converterInitListeners[priority] = listener;
 				},
+				hasInitListener: function(priority) {
+					return converterInitListeners.hasOwnProperty(priority);
+				},
 				onAsyncPreview: function(listener) {
 					asyncPreviewListeners.push(listener);
 				},

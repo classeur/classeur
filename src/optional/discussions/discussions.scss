@@ -19,3 +19,29 @@ $highlighting-color: rgb(255, 226, 79);
         color: nth($plastic-colors, 2);
     }
 }
+
+.discussion.panel {
+    padding: 20px;
+    .text {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        & > span {
+            background-color: transparentize($highlighting-color, 0.6);
+            padding: 0.15em 0;
+        }
+        span {
+            font-size: 16px !important;
+        }
+    }
+    pre.md-highlighting {
+        background-color: #fff;
+        padding: 4px 8px;
+        margin: 6px;
+        min-height: 60px;
+        font-family: inherit;
+        word-wrap: normal;
+        overflow: auto;
+    }
+}

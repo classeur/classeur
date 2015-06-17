@@ -240,7 +240,7 @@ angular.module('classeur.core.editorLayout', [])
 						});
 				};
 
-				var tabs = ['toc', 'comments'];
+				var tabs = ['map', 'discussions'];
 				scope.$watch('editorLayoutSvc.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);
 				});

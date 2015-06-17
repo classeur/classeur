@@ -1,0 +1,6 @@
+<div class="discussion panel">
+    <div ng-show="discussionSvc.currentDiscussion.isNew">
+        <div class="text md-highlighting"><span ng-bind-html="discussionSvc.currentDiscussion.text | clHighlightMMarkdown"></span></div>
+        <pre class="md-highlighting md-whiteframe-z3"></pre>
+    </div>
+</div>

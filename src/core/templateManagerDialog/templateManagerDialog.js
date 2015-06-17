@@ -7,7 +7,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 					templateUrl: 'core/templateManagerDialog/templateManagerDialog.html',
 					onComplete: function(scope, element) {
 						scope.templates = templates;
-						var preElt = element[0].querySelector('pre');
+						var preElt = element[0].querySelector('pre.prettyprint');
 						var cledit = $window.cledit(preElt);
 						cledit.init({
 							highlighter: function(text) {
