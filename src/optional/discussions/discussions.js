@@ -71,8 +71,10 @@ angular.module('classeur.optional.discussions', [])
 						id: clUid(),
 						selectionStart: selectionStart,
 						selectionEnd: selectionEnd,
-						startPatch: clDiscussionSvc.offsetToPatch(text, selectionStart),
-						endPatch: clDiscussionSvc.offsetToPatch(text, selectionEnd),
+						patches: clDiscussionSvc.offsetToPatch(text, {
+							start: selectionStart, 
+							end: selectionEnd
+						})
 					};
 					// Force recreating the highlighter
 					$timeout(function() {
@@ -93,11 +95,7 @@ angular.module('classeur.optional.discussions', [])
 			function link(scope) {
 				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussion.id, 'discussion-highlighting'], function() {
 					var text = clEditorSvc.cledit.getContent();
-					var result = {
-						start: clDiscussionSvc.patchToOffset(text, scope.discussion.startPatch),
-						end: clDiscussionSvc.patchToOffset(text, scope.discussion.endPatch),
-					};
-					return result.start !== -1 && result.end !== -1 && result;
+					return clDiscussionSvc.patchToOffset(text, scope.discussion.patches);
 				}, {
 					discussionId: scope.discussion.id
 				});
@@ -111,19 +109,24 @@ angular.module('classeur.optional.discussions', [])
 		function($window) {
 			var diffMatchPatch = new $window.diff_match_patch();
 			diffMatchPatch.Match_Distance = 999999999;
-			var uncommonString = '\uF111\uF222\uF333';
+			var marker = '\uF111\uF222\uF333';
 
 			function offsetToPatch(text, offset) {
 				return diffMatchPatch.patch_make(text, [
-					[0, text.slice(0, offset)],
-					[1, uncommonString],
+					[0, text.slice(0, offset.start)],
+					[1, marker],
+					[0, text.slice(offset.start, offset.end)],
+					[1, marker],
 					[0, text.slice(offset)]
-				])[0];
+				]);
 			}
 
-			function patchToOffset(text, patch) {
-				var newText = diffMatchPatch.patch_apply([patch], text)[0];
-				return newText.indexOf(uncommonString);
+			function patchToOffset(text, patches) {
+				var splitedText = diffMatchPatch.patch_apply(patches, text)[0].split(marker);
+				return splitedText.length === 3 && {
+					start: splitedText[0].length,
+					end: splitedText[0].length + splitedText[1].length
+				};
 			}
 
 			return {
