@@ -175,7 +175,7 @@ angular.module('classeur.core.editorLayout', [])
 				var debouncedUpdatedLayoutSize = $window.cledit.Utils.debounce(function() {
 					updateLayoutSize();
 					scope.$apply();
-				}, 180);
+				}, 120);
 
 				function animateLayout() {
 					showPreview();
