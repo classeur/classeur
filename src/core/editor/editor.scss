@@ -17,7 +17,7 @@
     * {
         line-height: 1.6;
     }
-    font-family: inherit;
+    font-family: $font-family-editor;
     white-space: pre-wrap;
     word-wrap: break-word;
     word-break: normal;
@@ -32,10 +32,9 @@
         display: none;
     }
     &.monospaced {
-        font-size: $font-size-monospace !important;
         font-family: $font-family-monospace !important;
         * {
-            font-size: 1em !important;
+            font-size: inherit !important;
         }
     }
 }
@@ -72,7 +71,7 @@
         padding: 5px 0;
         line-height: 1;
         text-align: right;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.02em;
         margin-bottom: 30px;
         visibility: hidden;
     }

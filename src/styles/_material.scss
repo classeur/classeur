@@ -1,3 +1,8 @@
+button, select, html, textarea, input {
+    font-family: $font-family;
+    font-weight: 400;
+}
+
 input {
     border-width: 0;
 }
