@@ -159,7 +159,9 @@ angular.module('classeur.core.editor', [])
 			}
 		})
 	.directive('clPreview',
-		function(clEditorSvc) {
+		function($window, clEditorSvc, clConfig) {
+			var appUri = clConfig.appUri || '';
+
 			return {
 				restrict: 'E',
 				templateUrl: 'core/editor/preview.html',
@@ -175,6 +177,19 @@ angular.module('classeur.core.editor', [])
 					if (isPreviewTop !== clEditorSvc.isPreviewTop) {
 						clEditorSvc.isPreviewTop = isPreviewTop;
 						scope.$apply();
+					}
+				});
+				containerElt.addEventListener('click', function(evt) {
+					var elt = evt.target;
+					while (elt !== containerElt) {
+						if (elt.href) {
+							if(elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
+								evt.preventDefault();
+								var wnd = window.open(elt.href, '_blank');
+								return wnd.focus();
+							}
+						}
+						elt = elt.parentNode;
 					}
 				});
 			}
@@ -879,7 +894,7 @@ angular.module('classeur.core.editor', [])
 			return clEditorSvc;
 		})
 	.run(
-		function($rootScope, $location, $route, clEditorSvc) {
+		function($window, $rootScope, $location, $route, clEditorSvc) {
 
 			var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
 			var unwatch = $rootScope.$watch('editorSvc.lastSectionMeasured', function(value) {
@@ -892,13 +907,15 @@ angular.module('classeur.core.editor', [])
 
 			$rootScope.$on('$locationChangeStart', function(evt, urlAfter, urlBefore) {
 				if (urlBefore !== urlAfter) {
-					var splitUrl = urlAfter.split(/#(?!\!)/);
-					var hash = splitUrl[1];
-					if (hash && urlBefore.slice(0, splitUrl[0].length) === splitUrl[0]) {
-						evt.preventDefault();
-						clEditorSvc.scrollToAnchor(hash);
+					var splitUrl = urlAfter.split('#');
+					if (splitUrl.length === 3) {
+						var hash = splitUrl[2];
+						var hashPos = splitUrl[0].length + splitUrl[1].length;
+						if (urlBefore.slice(0, hashPos) === urlAfter.slice(0, hashPos)) {
+							evt.preventDefault();
+							clEditorSvc.scrollToAnchor(hash);
+						}
 					}
 				}
 			});
-
 		});

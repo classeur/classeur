@@ -101,7 +101,7 @@ angular.module('classeur.core.files', [])
 					this.state = 'loading';
 					$timeout((function() {
 						if (this.state === 'loading') {
-							this.state = 'loaded';
+							this.state = 'loaded'; // Need to set this before readContent
 							this.readContent();
 						}
 					}).bind(this));
@@ -354,7 +354,7 @@ angular.module('classeur.core.files', [])
 				return fileDaoProto.gUpdated || 0;
 			}
 
-			clFileSvc.fileDaoProto = fileDaoProto;
+			clFileSvc.FileDao = FileDao;
 			clFileSvc.init = init;
 			clFileSvc.write = write;
 			clFileSvc.checkAll = checkAll;

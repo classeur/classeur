@@ -1,20 +1,22 @@
 angular.module('classeur.optional.planChooser', [])
 	.config(
 		function($routeProvider) {
-			$routeProvider.when('/choosePlan', {
-				template: '<cl-plan-chooser></cl-plan-chooser>'
-			}).when('/checkoutSuccess', {
-				template: '',
-				controller: function($location, clDialog, $timeout) {
-					$location.url('/');
-					$timeout(function() {
-						clDialog.show(clDialog.confirm()
-							.title('Thank you!')
-							.content('Your premium account will be active in a minute.')
-							.ok('Ok'));
-					});
-				}
-			});
+			$routeProvider
+				.when('/choosePlan', {
+					template: '<cl-plan-chooser></cl-plan-chooser>'
+				})
+				.when('/checkoutSuccess', {
+					template: '',
+					controller: function($location, clDialog, $timeout) {
+						$location.url('/');
+						$timeout(function() {
+							clDialog.show(clDialog.confirm()
+								.title('Thank you!')
+								.content('Your premium account will be active in a minute.')
+								.ok('Ok'));
+						});
+					}
+				});
 		})
 	.directive('clPlanChooser',
 		function($window, clDialog, clUserSvc) {

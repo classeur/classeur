@@ -68,13 +68,13 @@ angular.module('classeur.optional.urlDialog', [])
 			function onImageDialog(scope, element) {
 				onLinkDialog(scope, element);
 
-				var dropZoneElt = angular.element(element[0].querySelector('.drop-zone'));
-				dropZoneElt.on('dragover', function(evt) {
+				var dropZoneElt = element[0].querySelector('.drop-zone');
+				dropZoneElt.addEventListener('dragover', function(evt) {
 					evt.stopPropagation();
 					evt.preventDefault();
 					evt.dataTransfer.dropEffect = 'copy';
 				});
-				dropZoneElt.on('drop', function(evt) {
+				dropZoneElt.addEventListener('drop', function(evt) {
 
 					var files = (evt.dataTransfer || evt.target).files;
 					var file = files[0];

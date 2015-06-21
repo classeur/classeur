@@ -31,6 +31,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.utils',
 		'classeur.optional.buttonBar',
 		'classeur.optional.discussions',
+		'classeur.optional.electron',
 		'classeur.optional.exportToDisk',
 		'classeur.optional.fileDragging',
 		'classeur.optional.folding',
