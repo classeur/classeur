@@ -9,7 +9,7 @@ angular.module('classeur.optional.electron', [])
 			$routeProvider
 				.when('/localFile', {
 					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-					controller: function($scope, $timeout, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc) {
+					controller: function($scope, $timeout, $location, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc, clDialog, clEditorSvc) {
 						function unimplemented() {
 							throw new Error('Unimplemented');
 						}
@@ -34,8 +34,6 @@ angular.module('classeur.optional.electron', [])
 									this.contentDao.discussions = {};
 									this.contentDao.state = {};
 									this.state = 'loaded';
-									clEditorLayoutSvc.init();
-									$scope.fileLoaded = true;
 								}
 							}).bind(this));
 						};
@@ -44,6 +42,28 @@ angular.module('classeur.optional.electron', [])
 							this.state = undefined;
 						};
 						$scope.loadFile(fileDao);
+						$scope.$watch('currentFileDao.state', function(state) {
+							if (!state) {
+								return $location.url('');
+							} else if (state === 'loaded') {
+								var lastRead = clElectronSvc.watchedFile.lastRead;
+								$scope.$watch('electronSvc.watchedFile.lastRead', function(value) {
+									if (lastRead !== value && fileDao.path === clElectronSvc.watchedFile.path) {
+										var reloadDialog = clDialog.confirm()
+											.title('Reload from disk')
+											.content('The file has been modified externally.')
+											.ariaLabel('Reload from disk')
+											.ok('Reload')
+											.cancel('Discard');
+										clDialog.show(reloadDialog).then(function() {
+											clEditorSvc.setContent(clElectronSvc.watchedFile.content);
+										});
+									}
+								});
+								clEditorLayoutSvc.init();
+								$scope.fileLoaded = true;
+							}
+						});
 					}
 				});
 		})
@@ -73,7 +93,8 @@ angular.module('classeur.optional.electron', [])
 			clElectron.addEventListener('file', function(file) {
 				clElectronSvc.watchedFile = {
 					path: file.path,
-					content: file.content
+					content: file.content,
+					lastRead: Date.now()
 				};
 				$rootScope.$apply();
 			});
