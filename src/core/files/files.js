@@ -29,6 +29,11 @@ angular.module('classeur.core.files', [])
 					parser: JSON.parse,
 					serializer: JSON.stringify,
 				},
+				comments: {
+					default: '[]',
+					parser: JSON.parse,
+					serializer: JSON.stringify,
+				},
 				state: {
 					default: '{}',
 					parser: JSON.parse,

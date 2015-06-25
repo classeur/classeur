@@ -8,12 +8,13 @@ angular.module('classeur.optional.sharingDialog', [])
 
 			function link(scope) {
 
+				function closeDialog() {
+					clEditorLayoutSvc.currentControl = undefined;
+					clExplorerLayoutSvc.sharingDialogFileDao = undefined;
+					clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
+				}
+
 				function showDialog(objectDao, sharingUrl, isFile, folderDao) {
-					function closeDialog() {
-						clEditorLayoutSvc.currentControl = undefined;
-						clExplorerLayoutSvc.sharingDialogFileDao = undefined;
-						clExplorerLayoutSvc.sharingDialogFolderDao = undefined;
-					}
 					clDialog.show({
 						templateUrl: 'optional/sharingDialog/sharingDialog.html',
 						controller: ['$scope', function(scope) {
@@ -82,7 +83,33 @@ angular.module('classeur.optional.sharingDialog', [])
 
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					var split = (currentControl || '').split('#');
-					split[0] === 'sharingDialog' && showFileDialog(scope.currentFileDao, split[1]);
+					if (split[0] === 'sharingDialog') {
+						if (scope.currentFileDao.isLocalFile) {
+							var createCopyDialog = clDialog.confirm()
+								.title('Sharing')
+								.content('Local file can\'t be shared. Please make a copy in your Classeur.')
+								.ariaLabel('Sharing')
+								.ok('Make a copy')
+								.cancel('Cancel');
+							clDialog.show(createCopyDialog).then(function() {
+								closeDialog();
+								scope.makeCurrentFileCopy();
+							}, closeDialog);
+						} else if (!clUserSvc.user) {
+							var signinDialog = clDialog.confirm()
+								.title('Sharing')
+								.content('Please sign in to turn on sharing.')
+								.ariaLabel('Sharing')
+								.ok('Sign in with Google')
+								.cancel('Cancel');
+							clDialog.show(signinDialog).then(function() {
+								closeDialog();
+								clUserSvc.startOAuth();
+							}, closeDialog);
+						} else {
+							showFileDialog(scope.currentFileDao, split[1]);
+						}
+					}
 				});
 				scope.$watch('explorerLayoutSvc.sharingDialogFileDao', function(fileDao) {
 					fileDao && showFileDialog(fileDao);

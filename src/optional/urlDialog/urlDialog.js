@@ -74,6 +74,11 @@ angular.module('classeur.optional.urlDialog', [])
 					evt.preventDefault();
 					evt.dataTransfer.dropEffect = 'copy';
 				});
+				dropZoneElt.addEventListener('dragover', function(evt) {
+					evt.stopPropagation();
+					evt.preventDefault();
+					evt.dataTransfer.dropEffect = 'copy';
+				});
 				dropZoneElt.addEventListener('drop', function(evt) {
 
 					var files = (evt.dataTransfer || evt.target).files;

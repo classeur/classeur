@@ -25,22 +25,20 @@
                     </div>
                 </div>
                 <div layout="row" layout-align="end start">
-                    <div class="user-info md-whiteframe-z1" ng-if="!socketSvc.hasToken" layout="row">
+                    <div class="user-info md-whiteframe-z1" layout="row">
+                        <div class="item" ng-if="userSvc.user">
+                            Hi <b>{{userSvc.user.name}}</b>
+                        </div>
                         <md-button class="settings" ng-href="#!/settings">
                             <span class="icon-settings"></span>
                         </md-button>
-                        <md-button ng-click="userSvc.startOAuth()">
+                        <md-button ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken">
                             Sign in with Google <span class="icon-arrow-forward"></span>
                         </md-button>
-                    </div>
-                    <div class="user-info md-whiteframe-z1" ng-if="userSvc.user" layout="row">
-                        <div class="username">
-                            Hi <b>{{userSvc.user.name}}</b>
+                        <div class="item" ng-if="socketSvc.hasToken && !userSvc.user">
+                            Signing in...
                         </div>
-                        <md-button class="settings" ng-href="#!/settings?tab=app" aria-label="Settings">
-                            <span class="icon-settings"></span>
-                        </md-button>
-                        <md-button ng-href="#!/choosePlan">
+                        <md-button ng-href="#!/choosePlan" ng-if="userSvc.user">
                             Go premium <span class="icon-arrow-forward"></span>
                         </md-button>
                     </div>

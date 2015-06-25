@@ -71,12 +71,11 @@ angular.module('classeur.optional.discussions', [])
 						id: clUid(),
 						isNew: true,
 						text: text.slice(selectionStart, selectionEnd),
-						selectionStart: selectionStart,
-						selectionEnd: selectionEnd,
 						patches: clDiscussionSvc.offsetToPatch(text, {
 							start: selectionStart,
 							end: selectionEnd
-						})
+						}),
+						comments: []
 					};
 					// Force recreating the highlighter
 					$timeout(function() {
@@ -116,16 +115,55 @@ angular.module('classeur.optional.discussions', [])
 				link: link
 			};
 
+			function link(scope) {
+				scope.discussionSvc = clDiscussionSvc;
+				scope.$watch('discussionSvc.currentDiscussion', function(currentDiscussion) {
+					scope.discussion = currentDiscussion && currentDiscussion.isNew && currentDiscussion;
+				});
+			}
+		})
+	.directive('clDiscussionItem',
+		function($window, clDiscussionSvc, clUserSvc) {
+			return {
+				restrict: 'E',
+				templateUrl: 'optional/discussions/discussionItem.html',
+				link: link
+			};
+
 			function link(scope, element) {
 				scope.discussionSvc = clDiscussionSvc;
-				var preElt = element[0].querySelector('pre.md-highlighting');
-				var cledit = $window.cledit(preElt);
+				var newDiscussionCommentElt = element[0].querySelector('.discussion.comment');
+				var cledit = $window.cledit(newDiscussionCommentElt);
 				var grammar = $window.mdGrammar();
 				cledit.init({
 					highlighter: function(text) {
 						return $window.Prism.highlight(text, grammar);
 					}
 				});
+				var contentDao = scope.currentFileDao.contentDao;
+				scope.addComment = function() {
+					var commentText = cledit.getContent().trim();
+					if (!commentText) {
+						return;
+					}
+					if (scope.discussion.isNew) {
+						contentDao.discussions[scope.discussion.id] = {
+							text: scope.discussion.text,
+							patches: scope.discussion.patches,
+						};
+					}
+					var comment = {
+						discussionId: scope.discussion.id,
+						userId: clUserSvc.user.id,
+						text: commentText,
+						created: Date.now(),
+					};
+					scope.discussion.comments.push(comment);
+					contentDao.comments.push(comment);
+					contentDao.comments.sort(function(comment1, comment2) {
+						return comment1.created - comment2.created;
+					});
+				};
 			}
 		})
 	.filter('clConvertMarkdown',
@@ -138,7 +176,7 @@ angular.module('classeur.optional.discussions', [])
 				return $sce.trustAsHtml(clEditorSvc.converter.makeHtml(value || ''));
 			};
 		})
-	.filter('clHighlightMMarkdown',
+	.filter('clHighlightMarkdown',
 		function($window, $sce) {
 			var grammar = $window.mdGrammar();
 			return function(value) {
@@ -158,10 +196,41 @@ angular.module('classeur.optional.discussions', [])
 					[0, text.slice(offset.start, offset.end)],
 					[1, marker],
 					[0, text.slice(offset)]
-				]);
+				]).map(function(patch) {
+					var diffs = patch.diffs.map(function(diff) {
+						if (!diff[0]) {
+							return diff[1];
+						} else if (diff[1] === marker) {
+							return 1;
+						}
+					});
+					return {
+						diffs: diffs,
+						length: patch.length1,
+						start: patch.start1
+					};
+				});
 			}
 
 			function patchToOffset(text, patches) {
+				patches = patches.map(function(patch) {
+					var markersLength = 0;
+					var diffs = patch.diffs.map(function(diff) {
+						if (diff === 1) {
+							markersLength += marker.length;
+							return [1, marker];
+						} else {
+							return [0, diff];
+						}
+					});
+					return {
+						diffs: diffs,
+						length1: patch.length,
+						length2: patch.length + markersLength,
+						start1: patch.start,
+						start2: patch.start
+					};
+				});
 				var splitedText = diffMatchPatch.patch_apply(patches, text)[0].split(marker);
 				return splitedText.length === 3 && {
 					start: splitedText[0].length,

@@ -33,6 +33,7 @@
     }
     &.monospaced {
         font-family: $font-family-monospace !important;
+        font-size: $font-size-monospace !important;
         * {
             font-size: inherit !important;
         }
