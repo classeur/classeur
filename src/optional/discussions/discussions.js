@@ -1,6 +1,6 @@
 angular.module('classeur.optional.discussions', [])
 	.directive('clDiscussionDecorator',
-		function($window, $timeout, clUid, clEditorSvc, clEditorLayoutSvc, clPanel, clDiscussionSvc) {
+		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clPanel, clDiscussionSvc) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -11,7 +11,6 @@ angular.module('classeur.optional.discussions', [])
 			function link(scope, element) {
 				var selectionStart, selectionEnd;
 				var parentElt = element[0].parentNode;
-				// var hoverElts = parentElt.getElementsByClassName('discussion-highlighting-over');
 				parentElt.addEventListener('mouseover', function(evt) {
 					var elt = evt.target;
 					while (elt && elt !== parentElt) {
@@ -39,10 +38,11 @@ angular.module('classeur.optional.discussions', [])
 
 				var toggleButton = $window.cledit.Utils.debounce(function() {
 					scope.show = false;
-					if (clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr.hasFocus) {
-						selectionStart = clEditorSvc.cledit.selectionMgr.selectionStart;
-						selectionEnd = clEditorSvc.cledit.selectionMgr.selectionEnd;
-						scope.coordinates = clEditorSvc.cledit.selectionMgr.cursorCoordinates;
+					var selectionMgr = clEditorSvc.cledit.selectionMgr;
+					if (clEditorSvc.cledit && selectionMgr.hasFocus) {
+						selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+						selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+						scope.coordinates = selectionMgr.cursorCoordinates;
 						if (selectionStart !== selectionEnd && scope.coordinates.top !== undefined) {
 							$timeout(function() {
 								scope.show = true;
@@ -64,26 +64,34 @@ angular.module('classeur.optional.discussions', [])
 				});
 
 				scope.discussionSvc = clDiscussionSvc;
-				scope.discussion = {};
+				scope.discussion = clDiscussionSvc.newDiscussion;
+				scope.discussionId = clDiscussionSvc.newDiscussionId;
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
-					scope.discussion = {
-						id: clUid(),
-						isNew: true,
-						text: text.slice(selectionStart, selectionEnd),
-						patches: clDiscussionSvc.offsetToPatch(text, {
-							start: selectionStart,
-							end: selectionEnd
-						}),
-						comments: []
-					};
+					scope.discussion.text = text.slice(selectionStart, selectionEnd);
+					scope.discussion.patches = clDiscussionSvc.offsetToPatch(text, {
+						start: selectionStart,
+						end: selectionEnd
+					});
 					// Force recreating the highlighter
+					clDiscussionSvc.currentDiscussion = undefined;
+					clDiscussionSvc.currentDiscussionId = undefined;
 					$timeout(function() {
 						clEditorLayoutSvc.isSideBarOpen = true;
 						clEditorLayoutSvc.sideBarTab = 'discussions';
-						clDiscussionSvc.currentDiscussion = scope.discussion;
+						clDiscussionSvc.currentDiscussion = clDiscussionSvc.newDiscussion;
+						clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId;
 					});
 				};
+
+				scope.$watch('discussionSvc.currentDiscussionId', function(currentDiscussionId) {
+					Array.prototype.slice.call(parentElt.querySelectorAll('.discussion-highlighting.selected')).forEach(function(elt) {
+						elt.classList.remove('selected');
+					});
+					currentDiscussionId && Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + currentDiscussionId)).forEach(function(elt) {
+						elt.classList.add('selected');
+					});
+				});
 			}
 		})
 	.directive('clDiscussionHighlighter',
@@ -94,11 +102,11 @@ angular.module('classeur.optional.discussions', [])
 			};
 
 			function link(scope) {
-				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussion.id, 'discussion-highlighting'], function() {
+				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussionId, 'discussion-highlighting'], function() {
 					var text = clEditorSvc.cledit.getContent();
 					return clDiscussionSvc.patchToOffset(text, scope.discussion.patches);
 				}, {
-					discussionId: scope.discussion.id
+					discussionId: scope.discussionId
 				});
 
 				scope.$on('$destroy', function() {
@@ -118,12 +126,12 @@ angular.module('classeur.optional.discussions', [])
 			function link(scope) {
 				scope.discussionSvc = clDiscussionSvc;
 				scope.$watch('discussionSvc.currentDiscussion', function(currentDiscussion) {
-					scope.discussion = currentDiscussion && currentDiscussion.isNew && currentDiscussion;
+					scope.discussion = currentDiscussion === clDiscussionSvc.newDiscussion && currentDiscussion;
 				});
 			}
 		})
 	.directive('clDiscussionItem',
-		function($window, clDiscussionSvc, clUserSvc) {
+		function($window, clUid, clDiscussionSvc, clUserSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionItem.html',
@@ -131,7 +139,17 @@ angular.module('classeur.optional.discussions', [])
 			};
 
 			function link(scope, element) {
+				function refreshComments() {
+					scope.comments = contentDao.comments.filter(function(comment) {
+						return comment.discussionId === scope.discussionId;
+					}).map(function(comment) {
+						// Make a copy to prevent storing angular id in the original object
+						return angular.extend({}, comment);
+					});
+				}
 				scope.discussionSvc = clDiscussionSvc;
+				var contentDao = scope.currentFileDao.contentDao;
+				scope.discussionId && scope.$watch('currentFileDao.contentDao.comments', refreshComments);
 				var newDiscussionCommentElt = element[0].querySelector('.discussion.comment');
 				var cledit = $window.cledit(newDiscussionCommentElt);
 				var grammar = $window.mdGrammar();
@@ -140,29 +158,32 @@ angular.module('classeur.optional.discussions', [])
 						return $window.Prism.highlight(text, grammar);
 					}
 				});
-				var contentDao = scope.currentFileDao.contentDao;
 				scope.addComment = function() {
 					var commentText = cledit.getContent().trim();
 					if (!commentText) {
 						return;
 					}
-					if (scope.discussion.isNew) {
-						contentDao.discussions[scope.discussion.id] = {
+					var discussionId = scope.discussionId;
+					if (!discussionId) {
+						discussionId = clUid();
+						var discussion = {
 							text: scope.discussion.text,
 							patches: scope.discussion.patches,
 						};
+						contentDao.discussions[discussionId] = discussion;
+						clDiscussionSvc.currentDiscussion = discussion;
+						clDiscussionSvc.currentDiscussionId = discussionId;
 					}
-					var comment = {
-						discussionId: scope.discussion.id,
+					contentDao.comments.push({
+						discussionId: discussionId,
 						userId: clUserSvc.user.id,
 						text: commentText,
 						created: Date.now(),
-					};
-					scope.discussion.comments.push(comment);
-					contentDao.comments.push(comment);
+					});
 					contentDao.comments.sort(function(comment1, comment2) {
 						return comment1.created - comment2.created;
 					});
+					scope.discussionId && refreshComments();
 				};
 			}
 		})
@@ -171,7 +192,7 @@ angular.module('classeur.optional.discussions', [])
 			return function(value) {
 				if (!clEditorSvc.hasInitListener(90)) {
 					// No sanitizer
-					return '';
+					return;
 				}
 				return $sce.trustAsHtml(clEditorSvc.converter.makeHtml(value || ''));
 			};
@@ -184,7 +205,7 @@ angular.module('classeur.optional.discussions', [])
 			};
 		})
 	.factory('clDiscussionSvc',
-		function($window) {
+		function($window, clUid) {
 			var diffMatchPatch = new $window.diff_match_patch();
 			diffMatchPatch.Match_Distance = 999999999;
 			var marker = '\uF111\uF222\uF333';
@@ -239,6 +260,8 @@ angular.module('classeur.optional.discussions', [])
 			}
 
 			return {
+				newDiscussion: {},
+				newDiscussionId: clUid(),
 				offsetToPatch: offsetToPatch,
 				patchToOffset: patchToOffset,
 			};

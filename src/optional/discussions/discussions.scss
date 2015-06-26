@@ -1,13 +1,13 @@
 @import 'variables';
 $highlighting-color: rgb(255, 226, 79);
 .editor.content .discussion-highlighting {
-    background-color: transparentize($highlighting-color, 0.6);
+    background-color: mix(#fff, $highlighting-color, 55%);
     -webkit-transition: 0.12s ease-out background-color;
     transition: 0.12s ease-out background-color;
-    padding: 0.15em 0;
+    padding: 0.25em 0;
     cursor: pointer;
     &.hover, &.selected {
-        background-color: transparentize($highlighting-color, 0.2);
+        background-color: mix(#fff, $highlighting-color, 20%);
     }
 }
 
@@ -38,10 +38,14 @@ $highlighting-color: rgb(255, 226, 79);
     pre.md-highlighting {
         background-color: #fff;
         padding: 4px 8px;
-        margin: 6px;
+        margin: 5px 0;
         min-height: 60px;
         font-family: inherit;
         word-wrap: normal;
         overflow: auto;
     }
+}
+
+.discussion.item {
+    margin: 10px 0;
 }

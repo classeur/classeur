@@ -183,7 +183,7 @@ angular.module('classeur.core.editor', [])
 					var elt = evt.target;
 					while (elt !== containerElt) {
 						if (elt.href) {
-							if(elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
+							if (elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
 								evt.preventDefault();
 								var wnd = window.open(elt.href, '_blank');
 								return wnd.focus();
@@ -268,30 +268,32 @@ angular.module('classeur.core.editor', [])
 					var treeWalker = $window.document.createTreeWalker(clEditorSvc.editorElt, NodeFilter.SHOW_TEXT);
 					var startOffset = range.startOffset;
 					treeWalker.currentNode = range.startContainer;
-					clEditorSvc.cledit.watcher.noWatch(function() {
-						do {
-							if (treeWalker.currentNode.nodeValue !== '\n') {
-								if (treeWalker.currentNode === range.endContainer && range.endOffset < treeWalker.currentNode.nodeValue.length) {
-									treeWalker.currentNode.splitText(range.endOffset);
+					if (treeWalker.currentNode.nodeType === Node.TEXT_NODE || treeWalker.nextNode()) {
+						clEditorSvc.cledit.watcher.noWatch(function() {
+							do {
+								if (treeWalker.currentNode.nodeValue !== '\n') {
+									if (treeWalker.currentNode === range.endContainer && range.endOffset < treeWalker.currentNode.nodeValue.length) {
+										treeWalker.currentNode.splitText(range.endOffset);
+									}
+									if (startOffset) {
+										treeWalker.currentNode = treeWalker.currentNode.splitText(startOffset);
+										startOffset = 0;
+									}
+									var elt = $window.document.createElement('span');
+									for (var key in properties) {
+										elt[key] = properties[key];
+									}
+									treeWalker.currentNode.parentNode.insertBefore(elt, treeWalker.currentNode);
+									elt.appendChild(treeWalker.currentNode);
 								}
-								if (startOffset) {
-									treeWalker.currentNode = treeWalker.currentNode.splitText(startOffset);
-									startOffset = 0;
+								wrappedLength += treeWalker.currentNode.nodeValue.length;
+								if (wrappedLength >= rangeLength) {
+									break;
 								}
-								var elt = $window.document.createElement('span');
-								for (var key in properties) {
-									elt[key] = properties[key];
-								}
-								treeWalker.currentNode.parentNode.insertBefore(elt, treeWalker.currentNode);
-								elt.appendChild(treeWalker.currentNode);
 							}
-							wrappedLength += treeWalker.currentNode.nodeValue.length;
-							if (wrappedLength >= rangeLength) {
-								break;
-							}
-						}
-						while (treeWalker.nextNode());
-					});
+							while (treeWalker.nextNode());
+						});
+					}
 					self.$trigger('classApplied');
 					clEditorSvc.cledit.selectionMgr.restoreSelection();
 					lastEltCount = self.elts.length;

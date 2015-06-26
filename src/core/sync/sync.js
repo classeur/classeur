@@ -817,6 +817,7 @@ angular.module('classeur.core.sync', [])
 				fileDao.contentDao.properties = serverContent.properties;
 				fileDao.contentDao.isLocal = '1';
 				fileDao.contentDao.discussions = {};
+				fileDao.contentDao.comments = [];
 				fileDao.contentDao.state = {};
 				fileDao.writeContent(true);
 				fileDao.state = 'loaded';
