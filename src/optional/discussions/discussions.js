@@ -193,18 +193,24 @@ angular.module('classeur.optional.discussions', [])
 					}
 				};
 				scope.deleteDiscussion = function() {
-					var deleteDialog = clDialog.confirm()
-						.title('Delete discussion')
-						.content('You about to delete a discussion. Are you sure?')
-						.ariaLabel('Delete discussion')
-						.ok('Yes')
-						.cancel('No');
-					clDialog.show(deleteDialog).then(function() {
-						delete contentDao.discussions[scope.discussionId];
-						contentDao.comments = contentDao.comments.filter(function(comment) {
-							return comment.discussionId !== scope.discussionId;
+					if (!scope.lastComment) {
+						// That the new discussion
+						clDiscussionSvc.currentDiscussion = undefined;
+						clDiscussionSvc.currentDiscussionId = undefined;
+					} else {
+						var deleteDialog = clDialog.confirm()
+							.title('Delete discussion')
+							.content('You about to delete a discussion. Are you sure?')
+							.ariaLabel('Delete discussion')
+							.ok('Yes')
+							.cancel('No');
+						clDialog.show(deleteDialog).then(function() {
+							delete contentDao.discussions[scope.discussionId];
+							contentDao.comments = contentDao.comments.filter(function(comment) {
+								return comment.discussionId !== scope.discussionId;
+							});
 						});
-					});
+					}
 				};
 				scope.discussionSvc = clDiscussionSvc;
 				if (scope.lastComment) {

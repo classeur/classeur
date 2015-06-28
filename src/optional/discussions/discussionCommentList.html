@@ -4,9 +4,9 @@
             <div class="comment username" flex>{{comment.userId | clUserName:userInfoSvc.lastUserInfo}} <span class="icon-chat"></span></div>
             <div class="comment created">{{comment.created | clTimeSince}}</div>
         </div>
-        <div layout="row" layout-align="space-between end">
-            <div class="comment text" ng-bind-html="comment.text | clConvertMarkdown" flex></div>
+        <div layout="row" layout-align="space-between start">
             <a class="icon-delete" ng-click="deleteComment(comment)" aria-label="Delete discussion"></a>
+            <div class="comment text" ng-bind-html="comment.text | clConvertMarkdown" flex></div>
         </div>
     </div>
     <div class="comment item">
@@ -16,7 +16,7 @@
             </div>
             <pre class="discussion comment md-highlighting md-whiteframe-z2"></pre>
             <div layout="row" layout-align="end">
-                <md-button class="md-primary" ng-click="addComment()">Ok</md-button>
+                <md-button class="md-primary" ng-click="addComment()">Add</md-button>
             </div>
         </div>
         <div ng-if="!userSvc.user">
