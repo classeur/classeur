@@ -284,7 +284,7 @@ angular.module('classeur.core.editorLayout', [])
 				pageMargin: 22,
 				editorBtnGrpWidth: 40,
 				menuWidth: 320,
-				sideBarWidth: 260,
+				sideBarWidth: 280,
 				statHeight: 30,
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;

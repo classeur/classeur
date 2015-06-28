@@ -184,3 +184,17 @@ md-tooltip {
         border-radius: 0;
     }
 }
+
+md-tabs-content-wrapper {
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.md-chips .md-chip {
+    height: 25px;
+    line-height: 25px;
+}
+
+md-chips .md-chips {
+    box-shadow: none;
+}

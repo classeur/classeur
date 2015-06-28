@@ -198,7 +198,7 @@ angular.module('classeur.core.editor', [])
 		function(clEditorSvc) {
 			return {
 				restrict: 'E',
-				templateUrl: 'core/editor/toc.html',
+				template: '<div class="toc content no-select"></div>',
 				link: link
 			};
 
@@ -207,7 +207,10 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.setTocElt(tocElt);
 
 				var isMousedown;
-				var scrollerElt = tocElt.parentNode.parentNode.parentNode;
+				var scrollerElt = tocElt;
+				while(scrollerElt && scrollerElt.tagName !== 'MD-TABS-CONTENT-WRAPPER') {
+					scrollerElt = scrollerElt.parentNode;
+				}
 
 				function onClick(e) {
 					if (!isMousedown) {

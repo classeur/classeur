@@ -100,12 +100,10 @@ angular.module('classeur.optional.userActivity', [])
 						}
 						content = content.substring(start, end);
 						start += content.lastIndexOf('\n') + 1;
-						if (start !== end) {
-							return {
-								start: start,
-								end: end
-							};
-						}
+						return start !== end && {
+							start: start,
+							end: end
+						};
 					});
 					timeoutId = $timeout(function() {
 						if (clContentSyncSvc.watchCtx) {

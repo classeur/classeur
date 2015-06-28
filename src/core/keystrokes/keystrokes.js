@@ -1,14 +1,14 @@
 angular.module('classeur.core.keystrokes', [])
 	.factory('clKeystrokeSvc',
-		function() {
-			var Keystroke = window.cledit.Keystroke;
+		function($window) {
+			var Keystroke = $window.cledit.Keystroke;
 			var indentRegexp = /^ {0,3}>[ ]*|^[ \t]*(?:[*+\-]|(\d+)\.)[ \t]|^\s+/;
 			var clearNewline;
 
 			return function(clEditorSvc) {
 
 				function addPagedownKeystroke(keyCodeChar, name) {
-					clEditorSvc.cledit.addKeystroke(name, new Keystroke(function(evt) {
+					clEditorSvc.cledit.addKeystroke(50, new Keystroke(function(evt) {
 						if ((!evt.ctrlKey && !evt.metaKey) || evt.altKey) {
 							return;
 						}
@@ -34,7 +34,7 @@ angular.module('classeur.core.keystrokes', [])
 				addPagedownKeystroke('h', 'heading');
 				addPagedownKeystroke('r', 'hr');
 
-				clEditorSvc.cledit.addKeystroke('indent', new Keystroke(function(evt, state) {
+				clEditorSvc.cledit.addKeystroke(50, new Keystroke(function(evt, state) {
 					if (evt.which !== 9 || evt.metaKey || evt.ctrlKey) {
 						// Not tab
 						return;
@@ -75,7 +75,7 @@ angular.module('classeur.core.keystrokes', [])
 					return true;
 				}));
 
-				clEditorSvc.cledit.addKeystroke('newline', new Keystroke(function(evt, state) {
+				clEditorSvc.cledit.addKeystroke(50, new Keystroke(function(evt, state) {
 					if (evt.which !== 13) {
 						// Not enter
 						clearNewline = false;

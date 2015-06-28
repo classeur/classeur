@@ -171,11 +171,19 @@ angular.module('classeur.core.user', [])
                     });
             }, 1100);
 
+            var currentUserInfo;
             $rootScope.$watch('userSvc.user', function(user) {
+                if(currentUserInfo) {
+                    clUserInfoSvc.users[currentUserInfo.id] = currentUserInfo;
+                }
                 if (user) {
                     clUserInfoSvc.users[user.id] = {
                         id: user.id,
-                        name: user.name
+                        name: 'You'
+                    };
+                    currentUserInfo = {
+                        id: user.id,
+                        name: user.name,
                     };
                     clUserInfoSvc.lastUserInfo = Date.now();
                 }
@@ -184,7 +192,7 @@ angular.module('classeur.core.user', [])
             var clUserInfoSvc = {
                 users: {},
                 request: function(id) {
-                    if (!clUserInfoSvc.hasOwnProperty(id)) {
+                    if (id && !clUserInfoSvc.hasOwnProperty(id)) {
                         if (!clUserSvc.user || clUserSvc.user.id !== id) {
                             requestedUserInfo[id] = true;
                         }
@@ -193,6 +201,13 @@ angular.module('classeur.core.user', [])
             };
 
             return clUserInfoSvc;
+        })
+    .filter('clUserName',
+        function(clUserInfoSvc) {
+            return function(id) {
+                clUserInfoSvc.request(id);
+                return (clUserInfoSvc.users[id] || {}).name || id;
+            };
         })
     .directive('clNewUserForm',
         function($location, $http, clToast, clUserSvc, clStateMgr) {

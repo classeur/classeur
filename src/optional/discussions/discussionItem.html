@@ -1,8 +1,14 @@
 <div class="discussion item">
-    <div class="text md-highlighting"><span ng-bind-html="discussion.text | clHighlightMarkdown"></span></div>
-    <div ng-repeat="comment in comments">{{comment.text}}</div>
-    <pre class="discussion comment md-highlighting md-whiteframe-z3"></pre>
-    <div layout="row" layout-align="end">
-        <md-button class="md-primary" ng-click="addComment()">Ok</md-button>
+    <div class="discussion selector" ng-class="{selected: discussionSvc.currentDiscussion === discussion}" ng-click="selectDiscussion()">
+        <div layout="row" layout-align="space-between end">
+            <div class="discussion text md-highlighting" flex><span ng-bind-html="discussion.text | clHighlightMarkdown"></span></div>
+            <md-chips ng-model="chips" readonly="true" ng-if="discussionSvc.currentDiscussion !== discussion"></md-chips>
+            <a class="icon-delete" ng-click="deleteDiscussion(); $event.stopPropagation();" aria-label="Delete discussion" ng-if="discussionSvc.currentDiscussion === discussion"></a>
+        </div>
+        <div class="comment info" layout="row" layout-align="start center" ng-if="discussionSvc.currentDiscussion !== discussion">
+            <div class="comment username" flex>{{lastComment.userId | clUserName:userInfoSvc.lastUserInfo}} <span class="icon-chat"></span></div>
+            <div class="comment created">{{lastComment.created | clTimeSince}}</div>
+        </div>
     </div>
+    <cl-discussion-comment-list ng-if="discussionSvc.currentDiscussion === discussion"></cl-discussion-comment-list>
 </div>

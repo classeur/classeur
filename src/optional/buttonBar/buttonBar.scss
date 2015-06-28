@@ -6,16 +6,18 @@
     border-bottom-right-radius: 16px;
     background-color: #404040;
     .light-1, .light-2 {
+        border: 0 solid transparentize(#000, 0.9);
         border-bottom-right-radius: 16px;
-        border-bottom: 60px solid transparentize(#000, 0.9);
         right: 0;
-        border-left: 6px solid transparent;
+        border-left: 5px solid transparent;
     }
     .light-1 {
         width: 94px;
+        border-top-width: 60px;
     }
     .light-2 {
         width: 360px;
+        border-bottom-width: 60px;
     }
     .btn {
         top: 22px;

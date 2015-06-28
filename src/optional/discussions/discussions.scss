@@ -1,7 +1,7 @@
 @import 'variables';
 $highlighting-color: rgb(255, 226, 79);
 .editor.content .discussion-highlighting {
-    background-color: mix(#fff, $highlighting-color, 55%);
+    background-color: mix(#fff, $highlighting-color, 60%);
     -webkit-transition: 0.12s ease-out background-color;
     transition: 0.12s ease-out background-color;
     padding: 0.25em 0;
@@ -20,32 +20,116 @@ $highlighting-color: rgb(255, 226, 79);
     }
 }
 
-.discussion.panel {
-    padding: 20px;
-    .text {
+.discussion.tab {
+    padding: 25px;
+}
+
+.discussion.item {
+    margin: 10px 0;
+    border-bottom: 1px solid #c0c0c0;
+    .discussion.text {
         width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         & > span {
-            background-color: transparentize($highlighting-color, 0.6);
-            padding: 0.15em 0;
+            background-color: mix($background-color, $highlighting-color, 20%);
+            padding: 0.2em 0;
         }
         span {
             font-size: inherit !important;
         }
     }
+    .discussion.selector {
+        cursor: pointer;
+        -webkit-transition: 0.12s ease-out opacity;
+        transition: 0.12s ease-out opacity;
+        opacity: 0.65;
+        &.selected .discussion.text {
+            white-space: normal;
+        }
+        &.selected,
+        &:hover {
+            opacity: 1;
+        }
+        a.icon-delete {
+            font-size: 26px;
+        }
+    }
     pre.md-highlighting {
+        font-size: 0.9em;
         background-color: #fff;
         padding: 4px 8px;
         margin: 5px 0;
         min-height: 60px;
-        font-family: inherit;
-        word-wrap: normal;
         overflow: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: normal;
+        .h1, .h11, .h2, .h22, .h3, .h4, .h5, .h6 {
+            font-size: inherit;
+        }
     }
-}
-
-.discussion.item {
-    margin: 10px 0;
+    .comment.info {
+        margin: 5px 10px;
+        text-shadow: 0 1px #E8E8E8;
+        .icon-chat {
+            position: relative;
+            top: -0.5em;
+            font-size: 0.8em;
+        }
+        .username {
+            padding-left: 5px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .created {
+            padding-left: 15px;
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 0.7em;
+        }
+    }
+    .comment.item {
+        border-top: 1px solid #c0c0c0;
+        margin: 10px 0;
+        .comment.text {
+            font-size: 14px;
+            * {
+                margin: 0;
+            }
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-size: inherit;
+            }
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                word-break: normal;
+            }
+        }
+    }
+    .md-chips {
+        padding: 0;
+    }
+    .md-chip {
+        margin: 0 0 0 5px;
+    }
+    a.icon-delete {
+        font-size: 17px;
+        color: inherit;
+        width: 32px;
+        text-align: center;
+        cursor: pointer;
+        -webkit-transition: 0.16s ease-out opacity;
+        transition: 0.16s ease-out opacity;
+        opacity: 0.3;
+        &:hover {
+            opacity: 0.6;
+        }
+    }
 }

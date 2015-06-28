@@ -1,0 +1,31 @@
+<div class="comment list">
+    <div ng-repeat="comment in comments track by comment.created" class="comment item">
+        <div class="comment info" layout="row" layout-align="start center">
+            <div class="comment username" flex>{{comment.userId | clUserName:userInfoSvc.lastUserInfo}} <span class="icon-chat"></span></div>
+            <div class="comment created">{{comment.created | clTimeSince}}</div>
+        </div>
+        <div layout="row" layout-align="space-between end">
+            <div class="comment text" ng-bind-html="comment.text | clConvertMarkdown" flex></div>
+            <a class="icon-delete" ng-click="deleteComment(comment)" aria-label="Delete discussion"></a>
+        </div>
+    </div>
+    <div class="comment item">
+        <div ng-show="userSvc.user">
+            <div class="comment info" layout="row" layout-align="space-between center">
+                <div class="comment username" flex>{{userSvc.user.id | clUserName:userInfoSvc.lastUserInfo}} <span class="icon-chat"></span></div>
+            </div>
+            <pre class="discussion comment md-highlighting md-whiteframe-z2"></pre>
+            <div layout="row" layout-align="end">
+                <md-button class="md-primary" ng-click="addComment()">Ok</md-button>
+            </div>
+        </div>
+        <div ng-if="!userSvc.user">
+            <p>
+                Please sign in to add a comment.
+            </p>
+            <md-button class="md-primary" ng-click="userSvc.startOAuth()">
+                Sign in with Google
+            </md-button>
+        </div>
+    </div>
+</div>
