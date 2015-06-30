@@ -186,6 +186,30 @@ angular.module('classeur.core.utils', [])
 				return panel;
 			};
 		})
+	.factory('clScrollAnimation',
+		function() {
+			var scrollTimeoutId;
+			return function(elt, endValue) {
+				var startValue = elt.scrollTop;
+				clearTimeout(scrollTimeoutId);
+				var diff = endValue - startValue;
+				var startTime = Date.now();
+
+				function tick() {
+					var currentTime = Date.now();
+					var t = (currentTime - startTime) / 360;
+					var scrollTop = endValue;
+					if (t < 1) {
+						// easeInOutCubic (https://gist.github.com/gre/1650294)
+						scrollTop = startValue + diff * (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1);
+						scrollTimeoutId = setTimeout(tick, 10);
+					}
+					elt.scrollTop = scrollTop;
+				}
+
+				scrollTimeoutId = setTimeout(tick, 10);
+			};
+		})
 	.factory('clLocalStorageObject',
 		function(clLocalStorage) {
 

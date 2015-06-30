@@ -9,11 +9,30 @@
     <md-input-container flex ng-click="open()">
         <input class="name" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
     </md-input-container>
-    <cl-button ng-if="!fileDao.isPublic || fileDao.sharing === 'rw'" class="edit filename btn" active="isEditing">
-        <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit filename" ng-show="!isEditing"></a>
-        <a class="angular-animate bounce icon-delete ng-hide" ng-click="deleteFile(fileDao)" aria-label="Delete file" ng-show="isEditing"></a>
-    </cl-button>
-    <cl-button ng-if="socketSvc.hasToken || fileDao.isPublic" class="share file btn" active="explorerLayoutSvc.sharingDialogFileDao === fileDao">
-        <a class="icon-share" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}" ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao" aria-label="Share file"></a>
-    </cl-button>
+    <md-menu>
+        <md-button md-no-ink aria-label="Options" class="sharing-indicator icon-more-vert" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}" ng-click="$mdOpenMenu()">
+        </md-button>
+        <md-menu-content width="3">
+            <md-menu-item ng-if="!fileDao.isPublic || fileDao.sharing === 'rw'">
+                <md-button ng-click="setEditing(true)">
+                    <md-icon md-font-icon="icon-mode-edit"></md-icon>
+                    Rename
+                </md-button>
+            </md-menu-item>
+            <md-menu-item ng-if="!fileDao.isPublic || fileDao.sharing === 'rw'">
+                <md-button ng-click="deleteFile(fileDao)">
+                    <md-icon md-font-icon="icon-delete"></md-icon>
+                    Delete
+                </md-button>
+            </md-menu-item>
+            <md-menu-item ng-if="socketSvc.hasToken || fileDao.isPublic">
+                <md-button ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao">
+                    <md-icon md-font-icon="icon-share">
+                        <span class="sharing-indicator" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}"></span>
+                    </md-icon>
+                    Sharing
+                </md-button>
+            </md-menu-item>
+        </md-menu-content>
+    </md-menu>
 </div>

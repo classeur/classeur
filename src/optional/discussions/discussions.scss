@@ -21,7 +21,7 @@ $highlighting-color: rgb(255, 226, 79);
 }
 
 .discussion.tab {
-    padding: 25px;
+    padding: 15px 25px;
 }
 
 .discussion.item {
@@ -38,35 +38,9 @@ $highlighting-color: rgb(255, 226, 79);
             opacity: 0.6;
         }
     }
-    .discussion.text {
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        span {
-            font-size: inherit !important;
-            background-color: transparent;
-        }
-        & > span {
-            background-color: mix($background-color, $highlighting-color, 20%);
-            padding: 0.2em 0;
-        }
-    }
-    .discussion.selector {
-        cursor: pointer;
-        -webkit-transition: 0.12s ease-out opacity;
-        transition: 0.12s ease-out opacity;
-        opacity: 0.65;
-        &.selected .discussion.text {
-            white-space: normal;
-        }
-        &.selected,
-        &:hover {
-            opacity: 1;
-        }
-        a.icon-delete {
-            font-size: 24px;
-            padding-left: 5px;
+    .md-highlighting {
+        .h1, .h11, .h2, .h22, .h3, .h4, .h5, .h6 {
+            font-size: inherit;
         }
     }
     pre.md-highlighting {
@@ -79,8 +53,38 @@ $highlighting-color: rgb(255, 226, 79);
         white-space: pre-wrap;
         word-wrap: break-word;
         word-break: normal;
-        .h1, .h11, .h2, .h22, .h3, .h4, .h5, .h6 {
-            font-size: inherit;
+    }
+    .discussion.text {
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        span {
+            background-color: transparent;
+            display: inline;
+        }
+        & > span {
+            background-color: mix($background-color, $highlighting-color, 20%);
+            padding: 0.2em 0;
+        }
+    }
+    .discussion.selector {
+        cursor: pointer;
+        -webkit-transition: 0.12s ease-out opacity;
+        transition: 0.12s ease-out opacity;
+        opacity: 0.5;
+        &.selected .discussion.text {
+            text-overflow: clip;
+            white-space: normal;
+        }
+        &.selected,
+        &:hover {
+            opacity: 1;
+        }
+        a.icon-delete {
+            float: right;
+            font-size: 24px;
+            margin: 0 -5px 2px 5px;
         }
     }
     .comment.info {

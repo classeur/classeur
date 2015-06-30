@@ -208,7 +208,7 @@ angular.module('classeur.core.editor', [])
 
 				var isMousedown;
 				var scrollerElt = tocElt;
-				while(scrollerElt && scrollerElt.tagName !== 'MD-TABS-CONTENT-WRAPPER') {
+				while(scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
 					scrollerElt = scrollerElt.parentNode;
 				}
 
@@ -343,7 +343,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, Slug) {
+		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, Slug) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -423,11 +423,11 @@ angular.module('classeur.core.editor', [])
 				},
 				setPrismOptions: function(options) {
 					prismOptions = angular.extend(prismOptions, options);
-					var grammar = $window.mdGrammar(prismOptions);
+					this.prismGrammar = $window.mdGrammar(prismOptions);
 					// Create new object for watchers
 					this.options = angular.extend({}, this.options);
 					this.options.highlighter = function(text) {
-						return Prism.highlight(text, grammar);
+						return Prism.highlight(text, clEditorSvc.prismGrammar);
 					};
 				},
 				setSectionDelimiter: function(priority, sectionDelimiter) {
@@ -842,28 +842,6 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.lastSectionMeasured = Date.now();
 			};
 
-			var scrollTimeoutId;
-
-			function scroll(elt, startValue, endValue) {
-				clearTimeout(scrollTimeoutId);
-				var diff = endValue - startValue;
-				var startTime = Date.now();
-
-				function tick() {
-					var currentTime = Date.now();
-					var t = (currentTime - startTime) / 360;
-					var scrollTop = endValue;
-					if (t < 1) {
-						// easeInOutCubic (https://gist.github.com/gre/1650294)
-						scrollTop = startValue + diff * (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1);
-						scrollTimeoutId = setTimeout(tick, 10);
-					}
-					elt.scrollTop = scrollTop;
-				}
-
-				scrollTimeoutId = setTimeout(tick, 10);
-			}
-
 			clEditorSvc.scrollToAnchor = function(anchor) {
 				var scrollTop = 0,
 					scrollerElt = clEditorSvc.previewElt.parentNode;
@@ -881,7 +859,7 @@ angular.module('classeur.core.editor', [])
 						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
 					}
 				}
-				scroll(scrollerElt, scrollerElt.scrollTop, scrollTop > 0 ? scrollTop : 0);
+				clScrollAnimation(scrollerElt, scrollTop > 0 ? scrollTop : 0);
 			};
 
 			clEditorSvc.applyTemplate = function(template) {

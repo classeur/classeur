@@ -12,9 +12,23 @@
         <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
     </div>
     <div class="footer panel" layout="row" layout-align="center">
-        <cl-button class="btn" active="isEditing">
-            <a class="angular-animate bounce icon-mode-edit" ng-click="setEditing(true)" aria-label="Edit name" ng-show="classeur.isDefault || !isEditing"></a>
-            <a class="angular-animate bounce icon-delete ng-hide" ng-click="deleteClasseur(classeur)" aria-label="Delete classeur" ng-show="!classeur.isDefault && isEditing"></a>
-        </cl-button>
+        <md-menu>
+            <md-button md-no-ink aria-label="Options" class="icon-more-vert" ng-click="$mdOpenMenu()">
+            </md-button>
+            <md-menu-content width="3">
+                <md-menu-item>
+                    <md-button ng-click="setEditing(true)">
+                        <md-icon md-font-icon="icon-mode-edit"></md-icon>
+                        Rename
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item ng-if="!classeur.isDefault">
+                    <md-button ng-click="deleteFile(fileDao)">
+                        <md-icon md-font-icon="icon-delete"></md-icon>
+                        Delete
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
     </div>
 </div>

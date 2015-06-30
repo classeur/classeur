@@ -23,6 +23,18 @@ input {
     }
 }
 
+.md-button {
+    font-weight: normal;
+    height: auto;
+}
+
+md-menu-item > .md-button {
+    line-height: 25px;
+    md-icon {
+        font-size: 25px;
+    }
+}
+
 md-slider.md-default-theme .md-track {
     background-color: #aaa;
 }
@@ -55,18 +67,6 @@ md-switch {
 
 md-radio-group {
     border: 0;
-}
-
-.md-button {
-    font-weight: normal;
-    height: auto;
-    &:hover, &:focus {
-        background-color: transparent !important;
-    }
-}
-
-.md-ripple-container {
-    background-color: transparent !important;
 }
 
 md-switch .md-label {
@@ -183,11 +183,6 @@ md-tooltip {
     .md-background {
         border-radius: 0;
     }
-}
-
-md-tabs-content-wrapper {
-    overflow: auto;
-    overflow-x: hidden;
 }
 
 .md-chips .md-chip {

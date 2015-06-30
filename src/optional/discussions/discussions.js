@@ -9,7 +9,6 @@ angular.module('classeur.optional.discussions', [])
 			};
 
 			function link(scope, element) {
-				var maxDiscussionTextLength = 1000;
 				var selectionStart, selectionEnd;
 				var parentElt = element[0].parentNode;
 				var contentDao = scope.currentFileDao.contentDao;
@@ -44,21 +43,29 @@ angular.module('classeur.optional.discussions', [])
 					}
 				});
 
-				var toggleButton = $window.cledit.Utils.debounce(function() {
-					scope.show = false;
-					var selectionMgr = clEditorSvc.cledit.selectionMgr;
-					if (clEditorSvc.cledit && selectionMgr.hasFocus) {
+				function checkSelection() {
+					var selectionMgr = clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr;
+					if (selectionMgr && selectionMgr.hasFocus) {
 						selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
 						selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
 						scope.coordinates = selectionMgr.cursorCoordinates;
-						if (selectionStart !== selectionEnd && scope.coordinates.top !== undefined) {
-							$timeout(function() {
-								scope.show = true;
-							});
-						}
+						return selectionStart !== selectionEnd && scope.coordinates.top !== undefined;
 					}
-					scope.$apply();
+				}
+
+				var showButton = $window.cledit.Utils.debounce(function() {
+					checkSelection() && $timeout(function() {
+						scope.show = true;
+					});
 				}, 500);
+
+				function toggleButton() {
+					if (!checkSelection()) {
+						scope.show = false;
+					} else {
+						showButton();
+					}
+				}
 				toggleButton();
 
 				var unwatch = scope.$watch('editorSvc.cledit', function(cledit) {
@@ -76,12 +83,12 @@ angular.module('classeur.optional.discussions', [])
 				scope.discussionId = clDiscussionSvc.newDiscussionId;
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
-					scope.discussion.text = text.slice(selectionStart, selectionEnd).slice(0, maxDiscussionTextLength);
-					scope.discussion.patches = clDiscussionSvc.offsetToPatch(text, {
+					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 1000);
+					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
 						start: selectionStart,
 						end: selectionEnd
 					});
-					// Force recreating the highlighter
+					// Force recreate the highlighter
 					clDiscussionSvc.currentDiscussion = undefined;
 					clDiscussionSvc.currentDiscussionId = undefined;
 					$timeout(function() {
@@ -123,7 +130,7 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionTab',
-		function($window, clDiscussionSvc) {
+		function($window, $timeout, clDiscussionSvc, clEditorSvc, clToast) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -143,9 +150,35 @@ angular.module('classeur.optional.discussions', [])
 						clDiscussionSvc.currentDiscussionId = undefined;
 					}
 				});
+				var contentDao = scope.currentFileDao.contentDao;
+
+				scope.createDiscussion = function() {
+					var text = clEditorSvc.cledit.getContent();
+					var selectionMgr = clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr;
+					var selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+					var selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+					if (selectionStart === selectionEnd) {
+						return clToast('Please select some text first.');
+					}
+					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 1000);
+					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
+						start: selectionStart,
+						end: selectionEnd
+					});
+					// Force recreate the highlighter
+					clDiscussionSvc.currentDiscussion = undefined;
+					clDiscussionSvc.currentDiscussionId = undefined;
+					$timeout(function() {
+						clDiscussionSvc.currentDiscussion = clDiscussionSvc.newDiscussion;
+						clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId;
+					});
+				};
 
 				function refreshLastComments() {
-					var lastComments = scope.currentFileDao.contentDao.comments.reduce(function(lastComments, comment) {
+					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
+						return;
+					}
+					var lastComments = contentDao.comments.reduce(function(lastComments, comment) {
 						if (scope.currentFileDao.contentDao.discussions.hasOwnProperty(comment.discussionId)) {
 							var lastComment = lastComments[comment.discussionId] || comment;
 							lastComment = comment.created > lastComment.created ? comment : lastComment;
@@ -168,16 +201,19 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionItem',
-		function($window, clDiscussionSvc, clDialog) {
+		function($window, clDiscussionSvc, clDialog, clToast, clEditorSvc, clScrollAnimation) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionItem.html',
 				link: link
 			};
 
-			function link(scope) {
+			function link(scope, element) {
 				var contentDao = scope.currentFileDao.contentDao;
 				scope.refreshComments = function() {
+					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
+						return;
+					}
 					scope.comments = contentDao.comments.filter(function(comment) {
 						return comment.discussionId === scope.discussionId;
 					});
@@ -187,6 +223,15 @@ angular.module('classeur.optional.discussions', [])
 					if (clDiscussionSvc.currentDiscussion !== scope.discussion) {
 						clDiscussionSvc.currentDiscussion = scope.discussion;
 						clDiscussionSvc.currentDiscussionId = scope.discussionId;
+						setTimeout(function() {
+							var elt = $window.document.querySelector('.discussion-highlighting-' + scope.discussionId);
+							if (!elt) {
+								return clToast('Discussion can\'t be located in the file.');
+							}
+							var offset = elt.offsetTop - clEditorSvc.scrollOffset;
+							var scrollerElt = clEditorSvc.editorElt.parentNode;
+							clScrollAnimation(scrollerElt, offset < 0 ? 0 : offset);
+						}, 10);
 					} else {
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;
@@ -194,7 +239,7 @@ angular.module('classeur.optional.discussions', [])
 				};
 				scope.deleteDiscussion = function() {
 					if (!scope.lastComment) {
-						// That the new discussion
+						// That's the new discussion
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;
 					} else {
@@ -218,10 +263,20 @@ angular.module('classeur.optional.discussions', [])
 					scope.discussion = contentDao.discussions[scope.discussionId];
 					scope.$watch('currentFileDao.contentDao.comments', scope.refreshComments);
 				}
+
+				var scrollerElt = element[0];
+				while (scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
+					scrollerElt = scrollerElt.parentNode;
+				}
+				scope.$watch('discussionSvc.currentDiscussion === discussion', function(isCurrent) {
+					isCurrent && setTimeout(function() {
+						scrollerElt.scrollTop = element[0].offsetTop - 25;
+					}, 10);
+				});
 			}
 		})
 	.directive('clDiscussionCommentList',
-		function($window, clUid, clDiscussionSvc, clUserSvc, clDialog) {
+		function($window, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionCommentList.html',
@@ -241,11 +296,8 @@ angular.module('classeur.optional.discussions', [])
 					return true;
 				}));
 
-				var grammar = $window.mdGrammar();
 				cledit.init({
-					highlighter: function(text) {
-						return $window.Prism.highlight(text, grammar);
-					}
+					highlighter: clEditorSvc.options.highlighter
 				});
 				setTimeout(function() {
 					cledit.focus();
@@ -303,8 +355,7 @@ angular.module('classeur.optional.discussions', [])
 		})
 	.filter('clHighlightMarkdown',
 		function($window, $sce) {
-			var grammar = $window.mdGrammar();
-			return function(value) {
+			return function(value, grammar) {
 				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar));
 			};
 		})

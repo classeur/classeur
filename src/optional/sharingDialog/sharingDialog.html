@@ -4,6 +4,7 @@
         <span class="read indicator label" ng-show="objectDao.effectiveSharing === 'r'">read only</span>
         <span class="read-write indicator label" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
         </h2>
+        <p ng-if="folderDao.sharing.length > 0">Sharing preferences are restricted by folder settings.</p>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.isPublic">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">private</md-radio-button>
             <div class="help">Only you can access the file.</div>

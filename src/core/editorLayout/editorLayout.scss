@@ -109,7 +109,7 @@
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
-            button {
+            .md-button {
                 .rotate-90 {
                     position: absolute;
                     width: 130px;
@@ -129,7 +129,7 @@
     }
     .menu.btn,
     .edit.btn {
-        button {
+        .md-button {
             line-height: 34px;
             width: 100%;
             height: 100%;
@@ -137,6 +137,7 @@
             color: transparentize(#fff, 0.2);
             &:hover {
                 color: #fff;
+                background-color: transparent;
             }
         }
     }

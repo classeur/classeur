@@ -1,4 +1,5 @@
 <div class="discussion tab">
+	<md-button ng-click="createDiscussion()" class="md-primary">New discussion</md-button>
     <cl-discussion-item ng-if="discussion"></cl-discussion-item>
     <cl-discussion-item ng-repeat="lastComment in lastComments"></cl-discussion-item>
 </div>

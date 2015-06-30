@@ -1,5 +1,4 @@
 @import 'variables';
-
 .explorer.background {
     .help.btn a {
         font-size: 26px;
@@ -79,7 +78,6 @@
             }
         }
     }
-
     md-content.md-default-theme,
     .md-subheader.md-default-theme {
         background-color: transparent;
@@ -92,11 +90,6 @@
             width: 34px;
             height: 42px;
             font-size: 32px;
-            a {
-                position: absolute;
-                line-height: 42px;
-                color: #fff;
-            }
             &.icon-publ {
                 color: rgba(255, 255, 255, 0.6);
                 margin-bottom: 8px;
@@ -107,6 +100,17 @@
             top: 40px;
             left: 50%;
             margin-left: -25px;
+        }
+        .md-menu {
+            padding: 0;
+        }
+        .icon-more-vert {
+            padding: 0;
+            font-size: 32px;
+            width: 36px;
+            height: 42px;
+            display: block;
+            color: #fff;
         }
     }
     .md-subheader {
@@ -154,31 +158,6 @@
             visibility: hidden;
         }
     }
-    .folder.container,
-    .file.entry {
-        .btn a {
-            &::after {
-                color: #fff;
-                position: absolute;
-                top: 0px;
-                right: 1px;
-                font-family: $font-family;
-                font-size: 12px;
-                font-weight: bold;
-                line-height: 1.1;
-                border-radius: 8px;
-                padding: 0 4px;
-            }
-            &.read::after {
-                content: 'r';
-                background-color: #2164D3;
-            }
-            &.read-write::after {
-                content: 'rw';
-                background-color: #D33800;
-            }
-        }
-    }
     .new-file.actions {
         min-height: 35px;
         ::-webkit-input-placeholder {
@@ -216,7 +195,10 @@
         padding: 0 35px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255,
+        255,
+        255,
+        0.3);
     }
     .folder.content {
         padding: 15px 40px 80px;
@@ -273,15 +255,10 @@
                 }
             }
         }
-        .edit.filename.btn,
-        .share.file.btn {
-            width: 30px;
+        .icon-more-vert {
             height: $file-entry-height;
-            font-size: 30px;
-            a {
-                position: absolute;
-                line-height: $file-entry-height;
-            }
+            font-size: 28px;
+            color: rgba(0, 0, 0, 0.5);
         }
         .icon-publ {
             padding: 8px 2px;
@@ -330,10 +307,9 @@
                 width: 100%;
                 height: 100%;
                 font-size: 13px;
-                color: transparentize(#fff, 0.2);
-                &:hover {
-                    color: #fff;
-                }
+                color: #fff;
+                border-top-right-radius: 12px;
+                border-bottom-right-radius: 12px;
                 .rotate-90 {
                     position: absolute;
                     width: 110px;
@@ -349,6 +325,9 @@
                     -o-transform-origin: 0 0;
                     transform-origin: 0 0;
                 }
+            }
+            &.selected .md-button:hover {
+                background-color: transparent;
             }
         }
         .recent.btn,
@@ -503,20 +482,54 @@
         }
         .footer.panel {
             bottom: 0;
-            height: 44px;
+            height: 42px;
             font-size: 26px;
             background-color: rgba(255, 255, 255, 0.3);
             text-align: center;
             cursor: auto;
-            .btn {
-                height: 44px;
-                width: 32px;
-                a {
-                    position: absolute;
-                    line-height: 44px;
-                }
+            .md-menu {
+                padding: 0;
+            }
+            .icon-more-vert {
+                padding: 0;
+                font-size: 30px;
+                width: 42px;
+                height: 42px;
+                display: block;
+                color: rgba(0, 0, 0, 0.5);
             }
         }
+    }
+}
+
+.sharing-indicator {
+    md-menu-item & {
+        position: relative;
+        &::after {
+            margin-top: -7px;
+            margin-right: 2px;
+        }
+    }
+    &::after {
+        color: #fff;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        font-family: $font-family;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1.1;
+        border-radius: 8px;
+        padding: 0 4px;
+    }
+    &.read::after {
+        content: 'r';
+        background-color: #2164D3;
+        right: 6px;
+    }
+    &.read-write::after {
+        content: 'rw';
+        background-color: #D33800;
     }
 }
 

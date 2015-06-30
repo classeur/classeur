@@ -6,7 +6,13 @@ $background-color: #D0D0D0;
 $link-color: #316ED3;
 $code-bg: #eee;
 $border-radius-base: 4px;
-$plastic-colors: #3498db, lighten(desaturate(#f1c40f, 15%), 2.5%), lighten(desaturate(#1abc9c, 30%), 5%), lighten(desaturate(#e74c3c, 10%), 2.5%), darken(#95a5a6, 2.5%), lighten(#34495e, 15%);
+$plastic-colors: 
+	/* blue */ #3498db, 
+	/* yellow */ lighten(desaturate(#f1c40f, 15%), 2.5%),
+	/* green */ lighten(desaturate(#1abc9c, 30%), 5%),
+	/* red */ lighten(desaturate(#e74c3c, 12.5%), 2.5%),
+	/* light gray */ darken(#95a5a6, 2.5%),
+	/* dark gray */ lighten(#34495e, 15%);
 $editor-margin-width: 110px;
 $ced-color: #555;
 $ced-color-lighter: transparentize($ced-color, 0.6);
