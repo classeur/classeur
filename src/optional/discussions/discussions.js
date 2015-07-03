@@ -276,7 +276,7 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionCommentList',
-		function($window, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc) {
+		function($window, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc, clToast) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionCommentList.html',
@@ -307,9 +307,18 @@ angular.module('classeur.optional.discussions', [])
 					if (!commentText) {
 						return;
 					}
-					cledit.setContent('');
+					if(commentText.length > 2000) {
+						return clToast('Comment text is too long.');
+					}
+					if(contentDao.comments.length > 1999) {
+						return clToast('Too many comments in the file.');
+					}
 					var discussionId = scope.discussionId;
 					if (discussionId === clDiscussionSvc.newDiscussionId) {
+						if(Object.keys(contentDao.discussions).length > 99) {
+							return clToast('Too many discussions in the file.');
+						}
+						// Create new discussion
 						discussionId = clUid();
 						var discussion = {
 							text: scope.discussion.text,
@@ -319,6 +328,7 @@ angular.module('classeur.optional.discussions', [])
 						clDiscussionSvc.currentDiscussion = discussion;
 						clDiscussionSvc.currentDiscussionId = discussionId;
 					}
+					cledit.setContent('');
 					var comment = {
 						discussionId: discussionId,
 						userId: clUserSvc.user.id,
@@ -377,7 +387,7 @@ angular.module('classeur.optional.discussions', [])
 						if (!diff[0]) {
 							return diff[1];
 						} else if (diff[1] === marker) {
-							return 1;
+							return '';
 						}
 					});
 					return {
@@ -392,7 +402,7 @@ angular.module('classeur.optional.discussions', [])
 				patches = patches.map(function(patch) {
 					var markersLength = 0;
 					var diffs = patch.diffs.map(function(diff) {
-						if (diff === 1) {
+						if (!diff) {
 							markersLength += marker.length;
 							return [1, marker];
 						} else {

@@ -24,7 +24,11 @@ angular.module('classeur.core.filePropertiesDialog', [])
 						scope.addRow();
 						scope.ok = function() {
 							var properties = {};
-							if (scope.properties.some(function(property) {
+							if(Object.keys(scope.properties).length > 100) {
+								return clToast('Too many properties.');
+							}
+							if (
+								scope.properties.some(function(property) {
 									if (!property.key && !property.value) {
 										return;
 									}
@@ -32,8 +36,16 @@ angular.module('classeur.core.filePropertiesDialog', [])
 										clToast('Property can\'t be empty.');
 										return true;
 									}
+									if(property.key.length > 100) {
+										clToast('Property key is too long.');
+										return true;
+									}
 									if (!property.value) {
 										clToast('Property can\'t be empty.');
+										return true;
+									}
+									if(property.value.length > 500) {
+										clToast('Property value is too long.');
 										return true;
 									}
 									if (properties.hasOwnProperty(property.key)) {
@@ -41,7 +53,8 @@ angular.module('classeur.core.filePropertiesDialog', [])
 										return true;
 									}
 									properties[property.key] = property.value;
-								})) {
+								})
+							) {
 								return;
 							}
 							clDialog.hide(properties);
