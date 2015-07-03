@@ -192,7 +192,7 @@ angular.module('classeur.core.user', [])
             var clUserInfoSvc = {
                 users: {},
                 request: function(id) {
-                    if (id && !clUserInfoSvc.hasOwnProperty(id)) {
+                    if (id && !clUserInfoSvc.users.hasOwnProperty(id)) {
                         if (!clUserSvc.user || clUserSvc.user.id !== id) {
                             requestedUserInfo[id] = true;
                         }
