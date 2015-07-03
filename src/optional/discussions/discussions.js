@@ -178,7 +178,8 @@ angular.module('classeur.optional.discussions', [])
 					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
 						return;
 					}
-					var lastComments = contentDao.comments.reduce(function(lastComments, comment) {
+					var lastComments = Object.keys(contentDao.comments).reduce(function(lastComments, commentId) {
+						var comment = contentDao.comments[commentId];
 						if (scope.currentFileDao.contentDao.discussions.hasOwnProperty(comment.discussionId)) {
 							var lastComment = lastComments[comment.discussionId] || comment;
 							lastComment = comment.created > lastComment.created ? comment : lastComment;
@@ -214,8 +215,12 @@ angular.module('classeur.optional.discussions', [])
 					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
 						return;
 					}
-					scope.comments = contentDao.comments.filter(function(comment) {
+					scope.comments = Object.keys(contentDao.comments).map(function(commentId) {
+						return contentDao.comments[commentId];
+					}).filter(function(comment) {
 						return comment.discussionId === scope.discussionId;
+					}).sort(function(comment1, comment2) {
+						return comment1.created > comment2.created;
 					});
 					scope.chips = [scope.comments.length];
 				};
@@ -251,9 +256,13 @@ angular.module('classeur.optional.discussions', [])
 							.cancel('No');
 						clDialog.show(deleteDialog).then(function() {
 							delete contentDao.discussions[scope.discussionId];
-							contentDao.comments = contentDao.comments.filter(function(comment) {
-								return comment.discussionId !== scope.discussionId;
-							});
+							contentDao.comments = Object.keys(contentDao.comments).reduce(function(comments, commentId) {
+								var comment = contentDao.comments[commentId];
+								if(comment.discussionId !== scope.discussionId) {
+									comments[commentId] = comment;
+								}
+								return comments;
+							}, {});
 						});
 					}
 				};
@@ -335,14 +344,11 @@ angular.module('classeur.optional.discussions', [])
 						text: commentText,
 						created: Date.now(),
 					};
-					contentDao.comments.push(comment);
-					contentDao.comments.sort(function(comment1, comment2) {
-						return comment1.created - comment2.created;
-					});
+					contentDao.comments[clUid()] = comment;
 					scope.lastComments[discussionId] = comment;
 					scope.discussionId && scope.refreshComments();
 				};
-				scope.deleteComment = function(comment) {
+				scope.deleteComment = function(commentId) {
 					var deleteDialog = clDialog.confirm()
 						.title('Delete comment')
 						.content('You about to delete a comment. Are you sure?')
@@ -350,8 +356,7 @@ angular.module('classeur.optional.discussions', [])
 						.ok('Yes')
 						.cancel('No');
 					clDialog.show(deleteDialog).then(function() {
-						var index = contentDao.comments.indexOf(comment);
-						index !== -1 && contentDao.comments.splice(index, 1);
+						delete contentDao.comments[commentId];
 						scope.refreshComments();
 					});
 				};

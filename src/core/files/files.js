@@ -30,7 +30,7 @@ angular.module('classeur.core.files', [])
 					serializer: JSON.stringify,
 				},
 				comments: {
-					default: '[]',
+					default: '{}',
 					parser: JSON.parse,
 					serializer: JSON.stringify,
 				},
