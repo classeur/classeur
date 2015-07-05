@@ -13,9 +13,12 @@
     .md-tab {
         padding: 12px 18px;
     }
-    md-tabs md-tabs-wrapper {
-        border-width: 1px 0 0;
-        border-style: solid;
+    md-tabs {
+        height: 100%;
+        md-tabs-wrapper {
+            border-width: 1px 0 0;
+            border-style: solid;
+        }
     }
     md-ink-bar {
         top: 0;
@@ -98,11 +101,6 @@
             left: 4px;
             font-size: 24px;
         }
-        .tour-step-container {
-            position: absolute;
-            top: 125px;
-            left: 0;
-        }
         .menu.btn {
             top: 104px;
             height: 125px;
@@ -110,11 +108,18 @@
             border-top-right-radius: 12px;
             border-bottom-right-radius: 12px;
             .md-button {
+                position: absolute;
                 .rotate-90 {
                     position: absolute;
-                    width: 130px;
-                    left: -32px;
-                    height: 0;
+                    width: 125px;
+                    height: 32px;
+                    left: 32px;
+                    top: 0;
+                    -webkit-transform-origin: 0 0;
+                    -moz-transform-origin: 0 0;
+                    -ms-transform-origin: 0 0;
+                    -o-transform-origin: 0 0;
+                    transform-origin: 0 0;
                 }
             }
         }

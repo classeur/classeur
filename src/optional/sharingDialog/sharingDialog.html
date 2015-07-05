@@ -4,7 +4,7 @@
         <span class="read indicator label" ng-show="objectDao.effectiveSharing === 'r'">read only</span>
         <span class="read-write indicator label" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
         </h2>
-        <p ng-if="folderDao.sharing.length > 0">Sharing preferences are restricted by folder settings.</p>
+        <p ng-if="folderDao.sharing.length > 0 && !objectDao.isReadOnly && !objectDao.isPublic">Sharing preferences are restricted by folder settings.</p>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.isPublic">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">private</md-radio-button>
             <div class="help">Only you can access the file.</div>
@@ -12,6 +12,7 @@
             <div class="help">Anyone with the link can read the file.</div>
             <md-radio-button value="rw">public <span class="read-write label">read/write</span></md-radio-button>
             <div class="help">Signed-in premium users can modify the file.</div>
+            <br>
         </md-radio-group>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="!isFile && !objectDao.isReadOnly && !objectDao.isPublic">
             <md-radio-button value="">private</md-radio-button>
@@ -20,8 +21,8 @@
             <div class="help">Anyone with the link can read the folder and all its files.</div>
             <md-radio-button value="rw">public <span class="read-write label">read/write</span></md-radio-button>
             <div class="help">Signed-in premium users can modify the folder and all its files.</div>
+            <br>
         </md-radio-group>
-        <br>
         <md-input-container>
             <label>Link</label>
             <input class="url" ng-model="sharingUrl">
@@ -38,7 +39,7 @@
         </div>
     </md-dialog-content>
     <div class="md-actions">
-        <div ng-if="folderDao">
+        <div ng-if="folderDao" class="md-primary">
             <md-button ng-click="openFolder()">See folder</md-button>
         </div>
         <md-button ng-click="close()">

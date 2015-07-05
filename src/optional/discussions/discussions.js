@@ -43,13 +43,27 @@ angular.module('classeur.optional.discussions', [])
 					}
 				});
 
+				var newDiscussionBtn = clPanel(element, '.new-discussion-btn');
+				var lastCoordinates = {};
+
 				function checkSelection() {
 					var selectionMgr = clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr;
-					if (selectionMgr && selectionMgr.hasFocus) {
+					if (selectionMgr) {
 						selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
 						selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
-						scope.coordinates = selectionMgr.cursorCoordinates;
-						return selectionStart !== selectionEnd && scope.coordinates.top !== undefined;
+						var coordinates = selectionMgr.cursorCoordinates;
+						if(selectionStart === selectionEnd || coordinates.top === undefined) {
+							return;
+						}
+						if (coordinates.top !== lastCoordinates.top ||
+							coordinates.height !== lastCoordinates.height ||
+							coordinates.left !== lastCoordinates.left
+						) {
+							lastCoordinates = coordinates;
+							newDiscussionBtn.top(coordinates.top + coordinates.height).left(coordinates.left);
+							scope.$evalAsync();
+						}
+						return true;
 					}
 				}
 
@@ -258,7 +272,7 @@ angular.module('classeur.optional.discussions', [])
 							delete contentDao.discussions[scope.discussionId];
 							contentDao.comments = Object.keys(contentDao.comments).reduce(function(comments, commentId) {
 								var comment = contentDao.comments[commentId];
-								if(comment.discussionId !== scope.discussionId) {
+								if (comment.discussionId !== scope.discussionId) {
 									comments[commentId] = comment;
 								}
 								return comments;
@@ -273,19 +287,28 @@ angular.module('classeur.optional.discussions', [])
 					scope.$watch('currentFileDao.contentDao.comments', scope.refreshComments);
 				}
 
-				var scrollerElt = element[0];
+				var elt = element[0];
+				var scrollerElt = elt;
 				while (scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
 					scrollerElt = scrollerElt.parentNode;
 				}
 				scope.$watch('discussionSvc.currentDiscussion === discussion', function(isCurrent) {
 					isCurrent && setTimeout(function() {
-						scrollerElt.scrollTop = element[0].offsetTop - 25;
+						if (elt.firstChild.offsetHeight > scrollerElt.offsetHeight) {
+							scrollerElt.scrollTop = elt.offsetTop + elt.firstChild.offsetHeight - scrollerElt.offsetHeight + 10;
+						} else {
+							scrollerElt.scrollTop = elt.offsetTop - 25;
+						}
 					}, 10);
 				});
 			}
 		})
 	.directive('clDiscussionCommentList',
 		function($window, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc, clToast) {
+			var lastContent = '',
+				lastSelectionStart = 0,
+				lastSelectionEnd = 0;
+
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionCommentList.html',
@@ -306,25 +329,29 @@ angular.module('classeur.optional.discussions', [])
 				}));
 
 				cledit.init({
-					highlighter: clEditorSvc.options.highlighter
+					highlighter: clEditorSvc.options.highlighter,
+					content: lastContent,
+					selectionStart: lastSelectionStart,
+					selectionEnd: lastSelectionEnd,
 				});
 				setTimeout(function() {
 					cledit.focus();
 				}, 10);
+
 				scope.addComment = function() {
 					var commentText = cledit.getContent().trim();
 					if (!commentText) {
 						return;
 					}
-					if(commentText.length > 2000) {
+					if (commentText.length > 2000) {
 						return clToast('Comment text is too long.');
 					}
-					if(contentDao.comments.length > 1999) {
+					if (contentDao.comments.length > 1999) {
 						return clToast('Too many comments in the file.');
 					}
 					var discussionId = scope.discussionId;
 					if (discussionId === clDiscussionSvc.newDiscussionId) {
-						if(Object.keys(contentDao.discussions).length > 99) {
+						if (Object.keys(contentDao.discussions).length > 99) {
 							return clToast('Too many discussions in the file.');
 						}
 						// Create new discussion
@@ -348,6 +375,7 @@ angular.module('classeur.optional.discussions', [])
 					scope.lastComments[discussionId] = comment;
 					scope.discussionId && scope.refreshComments();
 				};
+
 				scope.deleteComment = function(commentId) {
 					var deleteDialog = clDialog.confirm()
 						.title('Delete comment')
@@ -360,6 +388,12 @@ angular.module('classeur.optional.discussions', [])
 						scope.refreshComments();
 					});
 				};
+
+				scope.$on('$destroy', function() {
+					lastContent = cledit.getContent();
+					lastSelectionStart = cledit.selectionMgr.selectionStart;
+					lastSelectionEnd = cledit.selectionMgr.selectionEnd;
+				});
 			}
 		})
 	.filter('clConvertMarkdown',

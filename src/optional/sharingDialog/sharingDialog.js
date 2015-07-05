@@ -98,7 +98,7 @@ angular.module('classeur.optional.sharingDialog', [])
 						} else if (!clUserSvc.user) {
 							var signinDialog = clDialog.confirm()
 								.title('Sharing')
-								.content('Please sign in to turn on sharing.')
+								.content('Please sign in to turn on file sharing.')
 								.ariaLabel('Sharing')
 								.ok('Sign in with Google')
 								.cancel('Cancel');

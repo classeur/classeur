@@ -195,7 +195,10 @@
         padding: 0 35px;
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255,
+        255,
+        255,
+        0.3);
     }
     .folder.content {
         padding: 15px 40px 80px;
@@ -204,6 +207,7 @@
         background-color: rgba(255, 255, 255, 0.3);
     }
     .folder.name {
+        width: 100%;
         font-size: 30px;
         letter-spacing: -0.01em;
     }
@@ -236,7 +240,8 @@
                 display: none;
             }
         }
-        md-input-container {
+        .name {
+            width: 100%;
             padding-top: 4px;
             padding-bottom: 6px;
             cursor: pointer;
@@ -298,6 +303,7 @@
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
             .md-button {
+                position: absolute;
                 text-transform: none;
                 line-height: 1;
                 padding: 0;

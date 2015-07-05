@@ -29,6 +29,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.templateManagerDialog',
 		'classeur.core.user',
 		'classeur.core.utils',
+		'classeur.optional.adminPage',
 		'classeur.optional.buttonBar',
 		'classeur.optional.discussions',
 		'classeur.optional.electron',

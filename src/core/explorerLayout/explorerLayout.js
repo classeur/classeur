@@ -63,7 +63,7 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 
 			function link(scope, element) {
-				var nameInput = element[0].querySelector('input.name');
+				var nameInput = element[0].querySelector('.name input');
 				nameInput.addEventListener('keydown', function(e) {
 					if (e.which == 27) {
 						scope.form.$rollbackViewValue();
@@ -110,7 +110,7 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 
 			function link(scope, element) {
-				var nameInput = element[0].querySelector('input.name');
+				var nameInput = element[0].querySelector('.name input');
 				nameInput.addEventListener('keydown', function(e) {
 					if (e.which == 27) {
 						scope.form.$rollbackViewValue();
@@ -196,7 +196,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		})
 	.directive('clExplorerLayout',
-		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc, clLocalSettingSvc) {
+		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
 			var explorerMaxWidth = 740;
 			var noPaddingWidth = 560;
 			var hideOffsetY = 2000;
@@ -383,7 +383,7 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							if (clLocalSettingSvc.values.tourStep === 4) {
+							if (!clFileSvc.files.length) {
 								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
 							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};

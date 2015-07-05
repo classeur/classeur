@@ -1,0 +1,33 @@
+<div class="admin page panel background">
+    <div layout="column">
+        <div layout="row" layout-align="space-between end">
+            <div class="title">Admin page</div>
+            <div layout="row">
+                <md-button ng-href="#!/">Close <span class="icon-close"></span></md-button>
+            </div>
+        </div>
+        <br>
+        <h2>App config</h2>
+        <div layout="row" ng-repeat="property in properties">
+            <md-button class="icon-remove" ng-click="deleteRow(property)"></md-button>
+            <md-input-container>
+                <label>Key</label>
+                <input ng-model="property.key">
+            </md-input-container>
+            <md-input-container class="full-width">
+                <label>Value</label>
+                <input ng-model="property.value">
+            </md-input-container>
+        </div>
+        <br>
+        <div layout="row" layout-align="space-between">
+            <md-button ng-click="addRow()">
+                Add property
+                <span class="icon-add"></span>
+            </md-button>
+            <md-button ng-click="update()" class="md-primary">
+                Update
+            </md-button>
+        </div>
+    </div>
+</div>

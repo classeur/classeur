@@ -1,21 +1,15 @@
-<div class="read-only-alert panel postit no-overflow md-whiteframe-z2">
-
-	<div class="content panel" layout="column" layout-align="space-between end">
-		<div>
-			<h2>Hold on!</h2>
-			<p><b>You're modifying a read-only file.</b></p>
-			<p>Your modifications won't be saved unless you make a copy.</p>
-		</div>
-		<div layout="row" layout-align="end end">
-			<md-button md-no-ink class="md-primary"
-					   ng-click="makeCurrentFileCopy()">
-				Make a copy
-			</md-button>
-		</div>
-	</div>
-
-	<cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
-		<a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
-	</cl-button>
-
+<div class="read-only-alert panel postit no-overflow md-whiteframe-z2" layout="column" layout-align="space-between">
+    <div>
+        <h2>Hold on!</h2>
+        <p><b>You're modifying a read-only file.</b></p>
+        <p>Your modifications won't be saved unless you make a copy.</p>
+        <cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+            <a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
+        </cl-button>
+    </div>
+    <div layout="row" layout-align="end">
+        <md-button md-no-ink class="md-primary" ng-click="makeCurrentFileCopy()">
+            Make a copy
+        </md-button>
+    </div>
 </div>

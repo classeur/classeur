@@ -1,13 +1,13 @@
 <div class="settings layout panel background">
     <div layout="column">
         <div layout="row" layout-align="space-between end">
-            <div class="title" flex>Settings</div>
+            <div class="title">Settings</div>
             <div layout="row">
                 <md-button ng-click="cancel()">Cancel <span class="icon-close"></span></md-button>
                 <md-button class="md-primary" ng-click="apply()">Apply <span class="icon-done"></md-button>
             </div>
         </div>
-        <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" flex>
+        <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
             <md-tab label="App">
                 <div class="tab">
                     <h2>Editor</h2> Font size factor
@@ -99,7 +99,7 @@
                             <input ng-model="user.id" disabled="disabled">
                         </md-input-container>
                         <div layout="row">
-                            <md-input-container class="large" flex>
+                            <md-input-container class="large full-width">
                                 <label>API key</label>
                                 <input ng-model="apiKey" disabled="disabled">
                             </md-input-container>
@@ -169,7 +169,7 @@
                     </p>
                     <div ng-switch-when="true">
                         <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
-                            <md-input-container flex>
+                            <md-input-container class="full-width">
                                 <input class="name" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                             </md-input-container>
                             <md-button ng-if="!syncDataSvc.fileRecoveryDates.hasOwnProperty(file.id)" md-no-ink class="icon-settings-backup-restore" ng-click="recoverFile(file)" aria-label="Recover"></md-button>

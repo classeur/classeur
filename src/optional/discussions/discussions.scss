@@ -8,15 +8,26 @@ $highlighting-color: rgb(255, 226, 79);
     cursor: pointer;
     &.hover, &.selected {
         background-color: mix(#fff, $highlighting-color, 20%);
+        * {
+            background-color: transparent;
+        }
     }
 }
 
 .new-discussion-btn {
+    position: absolute;
+    width: 26px;
+    height: 25px;
     font-size: 25px;
     background-color: #fff;
     border-radius: 3px;
-    a {
-        color: nth($plastic-colors, 2);
+    color: nth($plastic-colors, 2);
+    cursor: pointer;
+    -webkit-transition: 0.16s ease-out opacity;
+    transition: 0.16s ease-out opacity;
+    opacity: 0.7;
+    &:hover {
+        opacity: 1;
     }
 }
 
@@ -39,7 +50,7 @@ $highlighting-color: rgb(255, 226, 79);
         }
     }
     .md-highlighting {
-        .h1, .h11, .h2, .h22, .h3, .h4, .h5, .h6 {
+        .h1, .h11, .h2, .h22, .h3, .h4, .h5, .h6, .md-toc {
             font-size: inherit;
         }
     }
@@ -52,7 +63,7 @@ $highlighting-color: rgb(255, 226, 79);
         overflow: auto;
         white-space: pre-wrap;
         word-wrap: break-word;
-        word-break: normal;
+        word-break: break-word;
     }
     .discussion.text {
         width: 100%;
@@ -89,7 +100,6 @@ $highlighting-color: rgb(255, 226, 79);
     }
     .comment.info {
         margin: 5px 0;
-        text-shadow: 0 1px #E8E8E8;
         .icon-chat {
             position: relative;
             top: -0.5em;
@@ -104,6 +114,7 @@ $highlighting-color: rgb(255, 226, 79);
             padding-left: 15px;
             color: rgba(0, 0, 0, 0.5);
             font-size: 0.7em;
+            text-shadow: 0 1px #E8E8E8;
         }
     }
     .comment.item {
@@ -112,6 +123,7 @@ $highlighting-color: rgb(255, 226, 79);
             border-bottom: 1px solid #c0c0c0;
             padding-bottom: 10px;
             font-size: 14px;
+            width: 100%;
             * {
                 margin: 0;
             }
@@ -126,7 +138,11 @@ $highlighting-color: rgb(255, 226, 79);
             pre {
                 white-space: pre-wrap;
                 word-wrap: break-word;
-                word-break: normal;
+                word-break: break-word;
+            }
+            img,
+            table {
+                max-width: 100%;
             }
         }
         a.icon-delete {

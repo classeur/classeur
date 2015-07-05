@@ -1,5 +1,3 @@
-<cl-button ng-if="show" class="rotate-180 new-discussion-btn" ng-click="createDiscussion()" top="{{coordinates.top + coordinates.height}}" left="{{coordinates.left}}" width="26" height="25">
-    <a class="icon-insert-comment"></a>
-</cl-button>
+<a ng-show="show" class="new-discussion-btn icon-insert-comment rotate-180" ng-click="createDiscussion()"></a>
 <cl-discussion-highlighter ng-if="discussionSvc.currentDiscussion === discussion"></cl-discussion-highlighter>
 <cl-discussion-highlighter ng-repeat="(discussionId, discussion) in currentFileDao.contentDao.discussions"></cl-discussion-highlighter>

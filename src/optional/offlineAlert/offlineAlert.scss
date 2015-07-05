@@ -8,6 +8,7 @@
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
     button {
+        position: absolute;
         line-height: 24px;
         width: 100%;
         height: 100%;
@@ -16,30 +17,38 @@
         color: transparentize(#fff, 0.2);
         &:hover {
             color: #fff;
+            background-color: transparent;
         }
     }
     .rotate-90 {
         position: absolute;
         width: 48px;
-        left: 0;
-        height: 0;
+        height: 24px;
+        left: 24px;
+        top: 0;
+        -webkit-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        transform-origin: 0 0;
     }
 }
 
-.offline-alert.panel, .signin-alert.panel {
+.offline-alert.panel,
+.signin-alert.panel {
     left: 15px;
     top: 15px;
     font-size: 14px;
-
+    padding-top: 5px;
+    cursor: move;
     p {
         line-height: 1.3;
     }
-
     .content.panel {
         padding: 5px 20px 15px;
     }
-
     .close.btn {
+        top: 0;
         right: 0;
         a {
             font-size: 22px;
@@ -49,8 +58,8 @@
 }
 
 .offline-alert.panel {
-    width: 200px;
-    height: 200px;
+    width: 210px;
+    height: 210px;
 }
 
 .signin-alert.panel {

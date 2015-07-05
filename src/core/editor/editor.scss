@@ -20,7 +20,7 @@
     font-family: $font-family-editor;
     white-space: pre-wrap;
     word-wrap: break-word;
-    word-break: normal;
+    word-break: break-word;
     .cledit-section {
         font-family: inherit;
     }
@@ -52,7 +52,7 @@
     * {
         line-height: 1.5;
     }
-    img {
+    img, table {
         max-width: 100%;
     }
 }

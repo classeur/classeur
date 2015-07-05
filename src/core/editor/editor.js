@@ -117,9 +117,6 @@ angular.module('classeur.core.editor', [])
 					if (!isInited) {
 						options = angular.extend({}, options);
 						options.content = scope.currentFileDao.contentDao.text;
-						if (options.content.slice(-1) !== '\n') {
-							options.content += '\n';
-						}
 						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
 							options[key] = scope.currentFileDao.contentDao.state[key];
 						});
