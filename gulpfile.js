@@ -38,6 +38,7 @@ var vendorJs = [
 	'bower_components/prism/components/prism-javascript.js',
 	'bower_components/prism/components/prism-css.js',
 	'bower_components/prism/components/prism-!(*.min).js',
+	'bower_components/remarkable/dist/remarkable.js',
 	'bower_components/cldown/Markdown.Converter.js',
 	'bower_components/cldown/Markdown.Editor.js',
 	'bower_components/pagedown-extra/Markdown.Extra.js',

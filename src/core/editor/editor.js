@@ -379,7 +379,7 @@ angular.module('classeur.core.editor', [])
 			var editorElt, previewElt, tocElt;
 			var filenameSpaceElt;
 			var linkDefinition;
-			var doFootnotes, hasFootnotes;
+			var doFootnote, doAbbr, hasFootnotes;
 			var sectionsToRemove, modifiedSections, insertBeforeSection;
 			var sectionDelimiters = [];
 			var prismOptions = {
@@ -399,8 +399,16 @@ angular.module('classeur.core.editor', [])
 				},
 				initConverter: function() {
 					var fileProperties = currentFileDao.contentDao.properties;
-					doFootnotes = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:footnotes'] !== '0';
+					doFootnote = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:footnotes'] !== '0';
+					doAbbr = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:abbr'] !== '0';
 					clEditorSvc.converter = new $window.Markdown.Converter();
+					clEditorSvc.markdown = new $window.Remarkable('full', {
+						html: true,
+						breaks: true,
+						linkify: true,
+						typographer: true,
+					});
+
 					asyncPreviewListeners = [];
 					converterInitListeners.forEach(function(listener) {
 						listener(clEditorSvc.converter);
@@ -454,7 +462,7 @@ angular.module('classeur.core.editor', [])
 							changeListener();
 						});
 					});
-					clEditorSvc.pagedownEditor = new $window.Markdown.Editor(clEditorSvc.converter, {
+					clEditorSvc.pagedownEditor = new $window.cldown({
 						input: Object.create(clEditorSvc.cledit)
 					});
 					clEditorSvc.pagedownEditor.run();
@@ -492,6 +500,14 @@ angular.module('classeur.core.editor', [])
 
 			var htmlElt = document.createElement('div');
 
+			var sectionParser = new $window.Remarkable('full', {
+				html: true,
+				breaks: true,
+				linkify: true,
+				typographer: true,
+			});
+			sectionParser.core.ruler.enable(['block', 'abbr', 'references'], true);
+
 			clEditorSvc.updateSectionDescList = function() {
 				var sectionDescList = clEditorSvc.sectionDescList;
 				var newSectionDescList = [];
@@ -499,14 +515,28 @@ angular.module('classeur.core.editor', [])
 				hasFootnotes = false;
 				clEditorSvc.sectionList.forEach(function(section) {
 					var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
+					if (!section.parsedMarkdown) {
+						section.parsedMarkdown = sectionParser.parse(text, {});
+					}
 
 					// Strip footnotes
-					if (doFootnotes) {
-						text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\[\^(.+?)\]\:[ \t]*\n?([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, footnote) {
+					if (doFootnote) {
+						text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\[\^(.+?)\]\:[ \t]*\S([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, footnote) {
 							if (footnote) {
 								hasFootnotes = true;
 								newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
-								return "";
+								return '';
+							}
+							return wholeMatch;
+						});
+					}
+
+					// Strip Abbrs
+					if (doAbbr) {
+						text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\*\[(.+?)\]\:[ \t]*\S([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, abbr) {
+							if (abbr) {
+								newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
+								return '';
 							}
 							return wholeMatch;
 						});
@@ -516,7 +546,7 @@ angular.module('classeur.core.editor', [])
 					text = text.replace(/^```.*\n[\s\S]*?\n```|^[ ]{0,3}\[(.+)\]:[ \t]*\n?[ \t]*<?(\S+?)>?(?=\s|$)[ \t]*\n?[ \t]*((\n*)["(](.+?)[")][ \t]*)?(?:\n+)/gm, function(wholeMatch, link) {
 						if (link) {
 							newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
-							return "";
+							return '';
 						}
 						return wholeMatch;
 					});
@@ -585,7 +615,7 @@ angular.module('classeur.core.editor', [])
 				textToConvert.push(linkDefinition + "\n\n");
 				textToConvert = textToConvert.join("");
 
-				var html = clEditorSvc.converter.makeHtml(textToConvert);
+				var html = clEditorSvc.markdown.render(textToConvert);
 				htmlElt.innerHTML = html;
 				clEditorSvc.lastMarkdownConverted = Date.now();
 			};
@@ -631,9 +661,9 @@ angular.module('classeur.core.editor', [])
 							break;
 						}
 						isNextDelimiter = true;
-						if (childNode.tagName == 'DIV' && childNode.className == 'footnotes') {
-							Array.prototype.forEach.call(childNode.querySelectorAll("ol > li"), storeFootnote);
-						} else {
+						if (childNode.tagName === 'SECTION' && childNode.className === 'footnotes') {
+							Array.prototype.forEach.call(childNode.querySelectorAll('ol > li'), storeFootnote);
+						} else if (childNode.tagName !== 'HR' || childNode.className !== 'footnotes-sep') {
 							isDelimiter || sectionPreviewElt.appendChild(childNode);
 						}
 						childNode = nextNode;
@@ -667,7 +697,8 @@ angular.module('classeur.core.editor', [])
 				var usedFootnoteIds = [];
 				if (hasFootnotes === true) {
 					var footnoteElts = document.createElement('ol');
-					Array.prototype.forEach.call(previewElt.querySelectorAll('a.footnote'), function(elt, index) {
+					footnoteElts.className = 'footnotes-list';
+					Array.prototype.forEach.call(previewElt.querySelectorAll('.footnote-ref > a'), function(elt, index) {
 						elt.textContent = index + 1;
 						var id = elt.id.substring(6);
 						usedFootnoteIds.push(id);
@@ -676,11 +707,13 @@ angular.module('classeur.core.editor', [])
 					});
 					if (usedFootnoteIds.length > 0) {
 						// Append the whole footnotes at the end of the document
-						var divElt = document.createElement('div');
-						divElt.className = 'footnotes';
-						divElt.appendChild(document.createElement('hr'));
-						divElt.appendChild(footnoteElts);
-						footnoteContainerElt.appendChild(divElt);
+						var sectionElt = document.createElement('section');
+						sectionElt.className = 'footnotes';
+						sectionElt.appendChild(footnoteElts);
+						var hrElt = document.createElement('hr');
+						hrElt.className = 'footnotes-sep';
+						footnoteContainerElt.appendChild(hrElt);
+						footnoteContainerElt.appendChild(sectionElt);
 					}
 					// Keep used footnotes only in our map
 					Object.keys(footnoteMap).forEach(function(key) {

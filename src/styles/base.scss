@@ -109,6 +109,11 @@ kbd {
     white-space: nowrap;
 }
 
+abbr[title] {
+    cursor: help;
+    border-bottom: 1px dotted #777;
+}
+
 .footnote {
     vertical-align: top;
     position: relative;

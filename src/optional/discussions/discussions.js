@@ -399,7 +399,7 @@ angular.module('classeur.optional.discussions', [])
 	.filter('clConvertMarkdown',
 		function(clEditorSvc, $sce) {
 			return function(value) {
-				return $sce.trustAsHtml(clEditorSvc.converter.makeHtml(value || ''));
+				return $sce.trustAsHtml(clEditorSvc.markdown.render(value || ''));
 			};
 		})
 	.filter('clHighlightMarkdown',

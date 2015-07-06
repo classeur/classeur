@@ -29,7 +29,8 @@
     "classets": "https://github.com/classeur/classets.git#master",
     "emojione": "~1.3.0",
     "file-saver.js": "~1.20150507.2",
-    "mustache": "~2.1.0"
+    "mustache": "~2.1.0",
+    "remarkable": "~1.6.0"
   },
   "resolutions": {
     "angular": "~1.4.0"
