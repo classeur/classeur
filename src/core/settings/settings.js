@@ -4,6 +4,7 @@ angular.module('classeur.core.settings', [])
 			var defaultSettings = $templateCache.get('core/settings/defaultSettings.json');
 
 			var defaultTemplatePaths = {
+				'Plain text': 'core/settings/exportTemplatePlainText.html',
 				'HTML': 'core/settings/exportTemplateHtml.html',
 				'Styled HTML': 'core/settings/exportTemplateStyledHtml.html',
 				'PDF': 'core/settings/exportTemplatePdf.html',

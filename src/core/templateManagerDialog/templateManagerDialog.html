@@ -15,10 +15,7 @@
             <md-button ng-if="canBeRemoved" ng-click="remove()">
                 Remove
             </md-button>
-            <md-button ng-if="selectedKey" ng-click="addOrReplace()" class="md-primary">
-                Replace
-            </md-button>
-            <md-button ng-if="!selectedKey" ng-click="addOrReplace()" class="md-primary">
+            <md-button ng-click="add()" class="md-primary">
                 Add
             </md-button>
         </div>
@@ -27,8 +24,8 @@
         </p>
         <pre class="example" ng-non-bindable>
 {{file.name}}
-{{file.text}}
-{{{file.html}}}</pre>
+{{{file.content.text}}}
+{{{file.content.html}}}</pre>
             <md-button>
                 More about templates...
             </md-button>

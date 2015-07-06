@@ -3,8 +3,8 @@
     <md-input-container>
         <input class="name" ng-model="blog.name" disabled="disabled" aria-label="Blog name">
     </md-input-container>
-    <div>
-    <span class="status" ng-class="{error: blog.status !== 'linked'}">{{blog.status | clBlogStatus}}</span>
+    <div class="status" ng-class="{error: blog.status !== 'linked'}">
+    <span>{{blog.status | clBlogStatus}}</span>
     </div>
     <md-button class="icon-settings" ng-click="editBlog(blog)" aria-label="Blog settings">
     </md-button>

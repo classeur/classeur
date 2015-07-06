@@ -383,7 +383,7 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							if (!clFileSvc.files.length) {
+							if (clFileSvc.files.length === 1) {
 								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
 							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};

@@ -380,11 +380,14 @@
             }
         }
     }
-    .menu.panel {
-        padding: 0 5px;
+    .footer.panel {
         bottom: 0;
         height: auto;
+    }
+    .footer.menu {
         border-top: 1px solid rgba(128, 128, 128, 0.2);
+        padding: 0 5px;
+        margin-left: 50px;
         .md-button {
             padding: 8px;
         }

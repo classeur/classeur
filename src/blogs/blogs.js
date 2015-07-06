@@ -36,14 +36,34 @@ angular.module('classeur.blogs', [])
 			}
 		})
 	.directive('clBlogPostForm',
-		function($q, clBlogSvc, clSocketSvc) {
+		function($window, $q, clBlogSvc, clSocketSvc, clSettingSvc, clTemplateManagerDialog) {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/blogPostForm.html',
 				link: link
 			};
 
-			function link(scope) {
+			function link(scope, element) {
+				scope.form.templateKey = 'HTML';
+				scope.templates = clSettingSvc.values.exportTemplates;
+				scope.manageTemplates = function() {
+					clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
+						.then(function(templates) {
+							clSettingSvc.values.exportTemplates = templates;
+						});
+				};
+				var preElt = element[0].querySelector('pre.prettyprint');
+				var cledit = $window.cledit(preElt);
+				cledit.init({
+					highlighter: function(text) {
+						return $window.Prism.highlight(text, $window.Prism.languages.markup);
+					}
+				});
+				scope.$watch('form.templateKey', function(templateKey) {
+					cledit.setContent(scope.templates[templateKey] || '');
+					cledit.focus();
+				});
+
 				var blogMap = {};
 				if (!scope.post) {
 					var loading = $q(function(resolve) {

@@ -19,7 +19,7 @@ angular.module('classeur.optional.exportToDisk', [])
 
 			var config = {
 				format: 'text',
-				formattedTemplateKey: 'Styled HTML',
+				textTemplateKey: 'Plain text',
 				pdfTemplateKey: 'PDF',
 			};
 
@@ -33,7 +33,7 @@ angular.module('classeur.optional.exportToDisk', [])
 					function closeDialog() {
 						clEditorLayoutSvc.currentControl = undefined;
 					}
-					var formattedPreview;
+					var textPreview;
 					clDialog.show({
 						templateUrl: 'optional/exportToDisk/exportToDisk.html',
 						controller: ['$scope', function(scope) {
@@ -63,20 +63,20 @@ angular.module('classeur.optional.exportToDisk', [])
 							textareaElt.addEventListener('focus', select);
 							textareaElt.addEventListener('click', select);
 							textareaElt.addEventListener('keyup', select);
-							scope.$watch('config.formattedTemplateKey', function(templateKey) {
-								formattedPreview = clEditorSvc.applyTemplate(scope.templates[templateKey]);
-								scope.formattedPreview = formattedPreview;
+							scope.$watch('config.textTemplateKey', function(templateKey) {
+								textPreview = clEditorSvc.applyTemplate(scope.templates[templateKey]);
+								scope.textPreview = textPreview;
 							});
-							scope.$watch('formattedPreview', function() {
-								scope.formattedPreview = formattedPreview;
+							scope.$watch('textPreview', function() {
+								scope.textPreview = textPreview;
 							});
 						}
 					}).then(function() {
 						closeDialog();
 						if (config.format === 'text') {
-							saveAs(scope.currentFileDao.contentDao.text, scope.currentFileDao.name, 'text/plain');
-						} else if (config.format === 'formatted') {
-							saveAs(clEditorSvc.applyTemplate(clSettingSvc.values.exportTemplates[config.formattedTemplateKey]), scope.currentFileDao.name, 'text/html');
+							var template = clSettingSvc.values.exportTemplates[config.textTemplateKey];
+							var mimeType = template.indexOf('file.content.html') === -1 ? 'text/plain' : 'text/html';
+							saveAs(clEditorSvc.applyTemplate(template), scope.currentFileDao.name, mimeType);
 						} else if (config.format === 'pdf') {
 							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportTemplates[config.pdfTemplateKey]);
 							clToast('PDF is being prepared...');

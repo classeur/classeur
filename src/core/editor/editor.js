@@ -205,7 +205,7 @@ angular.module('classeur.core.editor', [])
 
 				var isMousedown;
 				var scrollerElt = tocElt;
-				while(scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
+				while (scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
 					scrollerElt = scrollerElt.parentNode;
 				}
 
@@ -863,8 +863,10 @@ angular.module('classeur.core.editor', [])
 				var view = {
 					file: {
 						name: currentFileDao.name,
-						text: currentFileDao.contentDao.text,
-						html: clEditorSvc.previewHtml,
+						content: {
+							text: currentFileDao.contentDao.text,
+							html: clEditorSvc.previewHtml,
+						},
 						properties: currentFileDao.contentDao.properties
 					}
 				};

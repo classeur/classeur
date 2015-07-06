@@ -1,6 +1,6 @@
 angular.module('classeur.optional.postToBlog', [])
 	.directive('clPostToBlog',
-		function(clDialog, clEditorLayoutSvc, clBlogSvc) {
+		function(clDialog, clEditorLayoutSvc, clBlogSvc, clSocketSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -27,18 +27,18 @@ angular.module('classeur.optional.postToBlog', [])
 							scope.ok = function() {
 								var newPost = clBlogSvc.createPost(scope.form);
 								if (newPost) {
-									// if (post) {
-									// 	newBlogPost.id = post.id;
-									// 	clSocketSvc.sendMsg({
-									// 		type: 'updateBlogPost',
-									// 		blogPost: newBlogPost
-									// 	});
-									// } else {
-									// 	clSocketSvc.sendMsg({
-									// 		type: 'createBlogPost',
-									// 		blogPost: newBlogPost
-									// 	});
-									// }
+									if (post) {
+										newPost.id = post.id;
+										clSocketSvc.sendMsg({
+											type: 'updateBlogPost',
+											blogPost: newPost
+										});
+									} else {
+										clSocketSvc.sendMsg({
+											type: 'createBlogPost',
+											blogPost: newPost
+										});
+									}
 									clDialog.hide();
 								}
 							};

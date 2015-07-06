@@ -35,7 +35,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 							scope.selectedKey = undefined;
 							cledit.setContent('');
 						};
-						scope.addOrReplace = function() {
+						scope.add = function() {
 							var templateValue = cledit.getContent();
 							if (!scope.templateKey || !templateValue) {
 								return;
@@ -44,7 +44,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 							scope.selectedKey = scope.templateKey;
 						};
 						scope.ok = function() {
-							scope.addOrReplace();
+							scope.add();
 							clDialog.hide(clSettingSvc.sanitizeExportTemplates(templates));
 						};
 						scope.cancel = function() {

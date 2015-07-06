@@ -1,7 +1,7 @@
-<md-input-container>
-    <label>Repository URL</label>
-    <input ng-model="form.subForm.repoUrl" disabled="disabled">
-</md-input-container>
+<div class="tip">
+    <b>Repository URL:</b> {{form.subForm.repoUrl}}
+</div>
+<br>
 <md-input-container>
     <label>Branch</label>
     <input ng-model="form.subForm.branch">
@@ -11,6 +11,5 @@
     <input ng-model="form.subForm.filePath">
 </md-input-container>
 <p class="tip">
-File path is composed of both folder and filename.<br>
     <b>Example:</b> docs/README.md
 </p>

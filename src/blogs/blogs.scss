@@ -16,23 +16,28 @@
         color: rgba(0, 0, 0, 0.7);
         font-size: 28px;
         padding: 6px 3px;
+        min-width: 35px;
     }
     .icon {
         font-size: 30px;
+        min-width: 35px;
         &::before {
             vertical-align: middle;
         }
     }
     .status {
-        font-size: 13px;
-        font-weight: bold;
-        margin: 0 10px;
-        line-height: 1.5;
-        border-radius: 8px;
-        padding: 0 6px;
-        color: #fff;
-        background-color: #048E00;
-        &.error {
+        min-width: 70px;
+        span {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0 10px;
+            line-height: 1.5;
+            border-radius: 8px;
+            padding: 0 6px;
+            color: #fff;
+            background-color: #048E00;
+        }
+        &.error span {
             background-color: #D33800;
         }
     }
@@ -41,4 +46,28 @@
 .blog.icon {
     font-size: 28px;
     vertical-align: middle;
+}
+
+.blog.post.form {
+    .blog.info {
+        font-size: 0.9em;
+    }
+    .options {
+        margin-top: 30px;
+        .label {
+            font-size: 12.5px;
+            padding: 2px;
+            display: block;
+            color: rgba(0, 0, 0, 0.54);
+            margin-bottom: -20px;
+        }
+    }
+    pre.prettyprint {
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        width: 100%;
+        min-height: 80px;
+        word-wrap: normal;
+        overflow: auto;
+    }
 }
