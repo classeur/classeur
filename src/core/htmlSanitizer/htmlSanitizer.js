@@ -1,18 +1,8 @@
-angular.module('classeur.optional.htmlSanitizer', [])
-	.directive('clHtmlSanitizer',
-		function(clEditorSvc, $$sanitizeUri) {
-
+angular.module('classeur.core.htmlSanitizer', [])
+	.factory('clHtmlSanitizer',
+		function($$sanitizeUri) {
 			var buf;
-			clEditorSvc.onInitConverter(90, function(converter) {
-				converter.hooks.chain("postConversion", function(html) {
-					buf = [];
-					htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
-						return !/^unsafe/.test($$sanitizeUri(uri, isImage));
-					}));
-					return buf.join('');
-				});
-			});
-			
+
 			/* jshint -W083 */
 
 			// Regular Expressions for parsing tags and attributes
@@ -397,7 +387,11 @@ angular.module('classeur.optional.htmlSanitizer', [])
 				};
 			}
 
-			return {
-				restrict: 'A'
+			return function(html) {
+				buf = [];
+				htmlParser(html, htmlSanitizeWriter(buf, function(uri, isImage) {
+					return !/^unsafe/.test($$sanitizeUri(uri, isImage));
+				}));
+				return buf.join('');
 			};
 		});

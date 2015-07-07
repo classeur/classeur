@@ -46,15 +46,6 @@ angular.module('classeur.extensions.mathJax', [])
 						};
 						UpdateMJ();
 					});
-
-					// Add new math block delimiter with priority 10
-					var delimiter = '^[ \\t]*\\n\\$\\$[\\s\\S]*?\\$\\$|'; // $$ math block delimiters
-					delimiter = '^[ \\t]*\\n\\\\\\\\[[\\s\\S]*?\\\\\\\\]|' + delimiter; // \\[ \\] math block delimiters
-					delimiter = '^[ \\t]*\\n\\\\?\\\\begin\\{[a-z]*\\*?\\}[\\s\\S]*?\\\\end\\{[a-z]*\\*?\\}|' + delimiter; // \\begin{...} \\end{...} math block delimiters
-					clEditorSvc.setSectionDelimiter(10, delimiter);
-				} else {
-					// Unset math block delimiter
-					clEditorSvc.setSectionDelimiter(10, undefined);
 				}
 
 				clEditorSvc.setPrismOptions({

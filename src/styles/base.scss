@@ -54,6 +54,7 @@ code {
 hr {
     border: 0;
     border-top: 1px solid rgba(128, 128, 128, 0.2);
+    margin: 2em 0;
 }
 
 pre.prettyprint {
@@ -112,6 +113,10 @@ kbd {
 abbr[title] {
     cursor: help;
     border-bottom: 1px dotted #777;
+}
+
+dt {
+    font-weight: 700;
 }
 
 .footnote {

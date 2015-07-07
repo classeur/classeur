@@ -51,14 +51,6 @@ angular.module('classeur.extensions.markdownExtra', [])
 					});
 				});
 
-				// Set editor options
-				if (hasExtension('fenced_code_gfm')) {
-					// Add new fenced code block delimiter with priority 25
-					clEditorSvc.setSectionDelimiter(25, '^```[^`\\n]*\\n[\\s\\S]*?\\n```|');
-				} else {
-					// Unset fenced code block delimiter
-					clEditorSvc.setSectionDelimiter(25, undefined);
-				}
 				clEditorSvc.setPrismOptions({
 					fcbs: hasExtension('fenced_code_gfm'),
 					tables: hasExtension('tables'),

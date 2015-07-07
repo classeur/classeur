@@ -28,7 +28,7 @@ angular.module('classeur.optional.scrollSync', [])
 
 			function link(scope, element) {
 				clScrollSyncSvc.setPreviewElt(element[0]);
-				scope.$watch('editorSvc.lastMarkdownConverted', clScrollSyncSvc.savePreviewHeight);
+				scope.$watch('editorSvc.lastConversion', clScrollSyncSvc.savePreviewHeight);
 				scope.$watch('editorSvc.lastPreviewRefreshed', clScrollSyncSvc.restorePreviewHeight);
 				scope.$watch('editorSvc.previewSize()', clScrollSyncSvc.onPanelResized);
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {

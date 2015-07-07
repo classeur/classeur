@@ -62,7 +62,6 @@ angular.module('classeur.core.editor', [])
 
 				function refreshPreview() {
 					state = 'ready';
-					clEditorSvc.updateSectionDescList();
 					clEditorSvc.convert();
 					setTimeout(function() {
 						clEditorSvc.refreshPreview(scope.$apply.bind(scope));
@@ -75,7 +74,7 @@ angular.module('classeur.core.editor', [])
 					}
 					refreshPreview();
 					scope.$apply();
-				}, 500);
+				}, 20);
 
 				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 					newSectionList = sectionList;
@@ -340,7 +339,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, Slug) {
+		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, Slug) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -378,20 +377,18 @@ angular.module('classeur.core.editor', [])
 
 			var editorElt, previewElt, tocElt;
 			var filenameSpaceElt;
-			var linkDefinition;
-			var doFootnote, doAbbr, hasFootnotes;
-			var sectionsToRemove, modifiedSections, insertBeforeSection;
-			var sectionDelimiters = [];
 			var prismOptions = {
 				insideFcb: insideFcb
 			};
 			var forcePreviewRefresh = true;
-			var changeListeners = [];
 			var converterInitListeners = [];
 			var asyncPreviewListeners = [];
-			var footnoteContainerElt;
 			var currentFileDao;
-			var markdownState, markdownCoreRules;
+			var startSectionBlockTypes = ['paragraph_open', 'blockquote_open', 'heading_open', 'code', 'fence', 'table_open', 'htmlblock', 'dl_open', 'bullet_list_open', 'ordered_list_open', 'hr'];
+			var startSectionBlockTypesRegex = new RegExp('^(?:' + startSectionBlockTypes.join('|') + ')$');
+			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
+			var diffMatchPatch = new $window.diff_match_patch();
+			var parsingCtx, conversionCtx;
 
 			var clEditorSvc = {
 				options: {},
@@ -399,9 +396,6 @@ angular.module('classeur.core.editor', [])
 					currentFileDao = fileDao;
 				},
 				initConverter: function() {
-					var fileProperties = currentFileDao.contentDao.properties;
-					doFootnote = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:footnotes'] !== '0';
-					doAbbr = fileProperties['ext:mdextra'] !== '0' && fileProperties['ext:mdextra:abbr'] !== '0';
 					clEditorSvc.converter = new $window.Markdown.Converter();
 					clEditorSvc.markdown = new $window.Remarkable('full', {
 						html: true,
@@ -409,6 +403,23 @@ angular.module('classeur.core.editor', [])
 						linkify: true,
 						typographer: true,
 					});
+					startSectionBlockTypes.forEach(function(type) {
+						var rule = clEditorSvc.markdown.renderer.rules[type];
+						clEditorSvc.markdown.renderer.rules[type] = function(tokens, idx) {
+							if (tokens[idx].sectionDelimiter) {
+								return htmlSectionMarker + rule.apply(clEditorSvc.markdown.renderer, arguments);
+							}
+							return rule.apply(clEditorSvc.markdown.renderer, arguments);
+						};
+					});
+					clEditorSvc.markdown.renderer.rules.footnote_ref = function(tokens, idx) {
+						var n = Number(tokens[idx].id + 1).toString();
+						var id = 'fnref' + n;
+						if (tokens[idx].subId > 0) {
+							id += ':' + tokens[idx].subId;
+						}
+						return '<sup class="footnote-ref"><a href="#fn' + n + '" id="' + id + '">' + n + '</a></sup>';
+					};
 
 					asyncPreviewListeners = [];
 					converterInitListeners.forEach(function(listener) {
@@ -436,11 +447,6 @@ angular.module('classeur.core.editor', [])
 						return Prism.highlight(text, clEditorSvc.prismGrammar);
 					};
 				},
-				setSectionDelimiter: function(priority, sectionDelimiter) {
-					sectionDelimiters[priority] = sectionDelimiter;
-					this.options = angular.extend({}, this.options);
-					this.options.sectionDelimiter = sectionDelimiters.join('');
-				},
 				setPreviewElt: function(elt) {
 					previewElt = elt;
 					this.previewElt = elt;
@@ -451,17 +457,14 @@ angular.module('classeur.core.editor', [])
 					this.tocElt = elt;
 				},
 				setEditorElt: function(elt) {
-					// console.watch(elt.parentNode, "scrollTop");
 					editorElt = elt;
 					this.editorElt = elt;
+					parsingCtx = undefined;
+					conversionCtx = undefined;
 					clEditorSvc.sectionDescList = [];
-					footnoteContainerElt = undefined;
 					clEditorSvc.cledit = $window.cledit(elt, elt.parentNode);
-					changeListeners = [];
-					clEditorSvc.cledit.on('contentChanged', function() {
-						changeListeners.forEach(function(changeListener) {
-							changeListener();
-						});
+					clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
+						parsingCtx.sectionList = sectionList;
 					});
 					clEditorSvc.pagedownEditor = new $window.cldown({
 						input: Object.create(clEditorSvc.cledit)
@@ -470,7 +473,7 @@ angular.module('classeur.core.editor', [])
 				},
 				initCledit: function(options) {
 					options.sectionParser = function(text) {
-						markdownState = {
+						var markdownState = {
 							src: text,
 							env: {},
 							options: clEditorSvc.markdown.options,
@@ -481,14 +484,32 @@ angular.module('classeur.core.editor', [])
 							renderer: clEditorSvc.markdown.renderer,
 							typographer: clEditorSvc.markdown.typographer,
 						};
-						markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('');
-						markdownCoreRules[0](markdownState);
+						var markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('');
+						markdownCoreRules[0](markdownState); // Pass the block rule
+						var lines = text.split('\n');
+						lines.pop(); // Assume last char is a '\n'
+						var sections = [],
+							i = 0;
+						parsingCtx = {
+							markdownState: markdownState,
+							markdownCoreRules: markdownCoreRules
+						};
+
+						function addSection(maxLine) {
+							var section = '';
+							while (i < maxLine) {
+								section += lines[i++] + '\n';
+							}
+							section && sections.push(section);
+						}
 						markdownState.tokens.forEach(function(token) {
-							token.type === 'paragraph_open' && console.log(token)
-							token.type === 'heading_open' && console.log(token)
-						})
-						console.log(markdownState);
-						return [text];
+							if (token.level === 0 && token.type.match(startSectionBlockTypesRegex)) {
+								token.sectionDelimiter = true;
+								addSection(token.lines[0]);
+							}
+						});
+						addSection(lines.length);
+						return sections;
 					};
 					clEditorSvc.cledit.init(options);
 				},
@@ -507,236 +528,114 @@ angular.module('classeur.core.editor', [])
 					return previewElt.clientWidth + 'x' + previewElt.clientHeight;
 				}
 			};
-			clEditorSvc.setSectionDelimiter(50, '^.+[ \\t]*\\n=+[ \\t]*\\n+|^.+[ \\t]*\\n-+[ \\t]*\\n+|^\\#{1,6}[ \\t]*.+?[ \\t]*\\#*\\n+');
 			clEditorSvc.lastExternalChange = 0;
 			clEditorSvc.scrollOffset = 80;
 
-			var anchorHash = {};
-			var footnoteMap = {};
-			var footnoteFragment = document.createDocumentFragment();
-			// Store one footnote elt in the footnote map
-			function storeFootnote(footnoteElt) {
-				var id = footnoteElt.id.substring(3);
-				var oldFootnote = footnoteMap[id];
-				oldFootnote && footnoteFragment.removeChild(oldFootnote);
-				footnoteMap[id] = footnoteElt;
-				footnoteFragment.appendChild(footnoteElt);
+			function hashArray(arr, valueHash, valueArray) {
+				var hash = [];
+				arr.forEach(function(str) {
+					var strHash;
+					if (!valueHash.hasOwnProperty(str)) {
+						strHash = valueArray.length;
+						valueArray.push(str);
+						valueHash[str] = strHash;
+					} else {
+						strHash = valueHash[str];
+					}
+					hash.push(strHash);
+				});
+				return String.fromCharCode.apply(null, hash);
 			}
 
-			var htmlElt = document.createElement('div');
-
-			clEditorSvc.updateSectionDescList = function() {
-				var sectionDescList = clEditorSvc.sectionDescList;
-				var newSectionDescList = [];
-				var newLinkDefinition = '\n';
-				hasFootnotes = false;
-				clEditorSvc.sectionList.forEach(function(section) {
-					var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
-
-					// Strip footnotes
-					if (doFootnote) {
-						text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\[\^(.+?)\]\:[ \t]*\S([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, footnote) {
-							if (footnote) {
-								hasFootnotes = true;
-								newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
-								return '';
-							}
-							return wholeMatch;
-						});
-					}
-
-					// Strip Abbrs
-					if (doAbbr) {
-						text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\*\[(.+?)\]\:[ \t]*\S([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/gm, function(wholeMatch, abbr) {
-							if (abbr) {
-								newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
-								return '';
-							}
-							return wholeMatch;
-						});
-					}
-
-					// Strip link definitions
-					text = text.replace(/^```.*\n[\s\S]*?\n```|^[ ]{0,3}\[(.+)\]:[ \t]*\n?[ \t]*<?(\S+?)>?(?=\s|$)[ \t]*\n?[ \t]*((\n*)["(](.+?)[")][ \t]*)?(?:\n+)/gm, function(wholeMatch, link) {
-						if (link) {
-							newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
-							return '';
-						}
-						return wholeMatch;
-					});
-
-					// Add section to the newSectionList
-					newSectionDescList.push({
-						id: section.id,
-						editorElt: section.elt,
-						text: text + '\n'
-					});
-				});
-
-				modifiedSections = [];
-				sectionsToRemove = [];
-				insertBeforeSection = undefined;
-
-				// Render everything if file or linkDefinition changed
-				if (forcePreviewRefresh || linkDefinition != newLinkDefinition) {
-					forcePreviewRefresh = false;
-					linkDefinition = newLinkDefinition;
-					sectionsToRemove = sectionDescList;
-					clEditorSvc.sectionDescList = newSectionDescList;
-					modifiedSections = newSectionDescList;
-					return;
-				}
-
-				// Find modified section starting from top
-				var leftIndex = sectionDescList.length;
-				sectionDescList.some(function(sectionDesc, index) {
-					var newSectionDesc = newSectionDescList[index];
-					if (index >= newSectionDescList.length || sectionDesc.text != newSectionDesc.text) {
-						leftIndex = index;
-						return true;
-					}
-					// Replace old elements in case markdown section has changed
-					sectionDesc.editorElt = newSectionDesc.editorElt;
-				});
-
-				// Find modified section starting from bottom
-				var maxIndex = Math.min(sectionDescList.length, newSectionDescList.length);
-				var rightIndex = -sectionDescList.length;
-				sectionDescList.slice().reverse().some(function(sectionDesc, index) {
-					var newSectionDesc = newSectionDescList[newSectionDescList.length - index - 1];
-					if (leftIndex + index >= maxIndex || sectionDesc.text != newSectionDesc.text) {
-						rightIndex = -index;
-						return true;
-					}
-					// Replace old elements in case markdown section has changed
-					sectionDesc.editorElt = newSectionDesc.editorElt;
-				});
-
-				// Create an array composed of left unmodified, modified, right
-				// unmodified sections
-				var leftSections = sectionDescList.slice(0, leftIndex);
-				modifiedSections = newSectionDescList.slice(leftIndex, newSectionDescList.length + rightIndex);
-				var rightSections = sectionDescList.slice(sectionDescList.length + rightIndex, sectionDescList.length);
-				insertBeforeSection = rightSections[0];
-				sectionsToRemove = sectionDescList.slice(leftIndex, sectionDescList.length + rightIndex);
-				clEditorSvc.sectionDescList = leftSections.concat(modifiedSections).concat(rightSections);
-			};
-
 			clEditorSvc.convert = function() {
-				var textToConvert = modifiedSections.map(function(section) {
-					return section.text;
+				!parsingCtx.markdownState.isConverted && parsingCtx.markdownCoreRules.slice(1).forEach(function(rule) { // Skip the block rule already passed
+					rule(parsingCtx.markdownState);
 				});
-				textToConvert.push(linkDefinition + "\n\n");
-				textToConvert = textToConvert.join("");
-
-				var html = clEditorSvc.markdown.render(textToConvert);
-				htmlElt.innerHTML = html;
-				clEditorSvc.lastMarkdownConverted = Date.now();
+				parsingCtx.markdownState.isConverted = true;
+				var html = clEditorSvc.markdown.renderer.render(parsingCtx.markdownState.tokens, clEditorSvc.markdown.options, parsingCtx.markdownState.env);
+				var htmlSectionList = html.split(htmlSectionMarker);
+				htmlSectionList[0] === '' && htmlSectionList.shift();
+				var valueHash = {},
+					valueArray = [];
+				var newSectionHash = hashArray(htmlSectionList, valueHash, valueArray);
+				var htmlSectionDiff = [
+					[1, newSectionHash]
+				];
+				if (conversionCtx) {
+					var oldSectionHash = hashArray(conversionCtx.htmlSectionList, valueHash, valueArray);
+					htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash);
+				}
+				conversionCtx = {
+					sectionList: parsingCtx.sectionList,
+					htmlSectionList: htmlSectionList,
+					htmlSectionDiff: htmlSectionDiff
+				};
+				clEditorSvc.lastConversion = Date.now();
 			};
+
+			var anchorHash = {};
 
 			clEditorSvc.refreshPreview = function(cb) {
+				var newSectionDescList = [];
+				var sectionPreviewElt, sectionTocElt;
+				var sectionIdx = 0,
+					sectionDescIdx = 0;
+				var insertBeforePreviewElt = filenameSpaceElt.nextSibling,
+					insertBeforeTocElt = tocElt.firstChild;
+				conversionCtx.htmlSectionDiff.forEach(function(item) {
+					for (var i = 0; i < item[1].length; i++) {
+						if (item[0] === 0) {
+							newSectionDescList.push(clEditorSvc.sectionDescList[sectionDescIdx++]);
+							sectionIdx++;
+							insertBeforePreviewElt.classList.remove('modified');
+							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling;
+							insertBeforeTocElt.classList.remove('modified');
+							insertBeforeTocElt = insertBeforeTocElt.nextSibling;
+						} else if (item[0] === -1) {
+							sectionDescIdx++;
+							sectionPreviewElt = insertBeforePreviewElt;
+							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling;
+							previewElt.removeChild(sectionPreviewElt);
+							sectionTocElt = insertBeforeTocElt;
+							insertBeforeTocElt = insertBeforeTocElt.nextSibling;
+							tocElt.removeChild(sectionTocElt);
+						} else if (item[0] === 1) {
+							var section = conversionCtx.sectionList[sectionIdx];
+							var html = conversionCtx.htmlSectionList[sectionIdx++];
 
-				if (!footnoteContainerElt) {
-					footnoteContainerElt = document.createElement('div');
-					footnoteContainerElt.className = 'classeur-preview-section';
-					previewElt.appendChild(footnoteContainerElt);
-				}
+							// Create section preview element
+							sectionPreviewElt = document.createElement('div');
+							sectionPreviewElt.id = 'classeur-preview-section-' + section.id;
+							sectionPreviewElt.className = 'classeur-preview-section modified';
+							sectionPreviewElt.innerHTML = clHtmlSanitizer(html);
+							if (insertBeforePreviewElt) {
+								previewElt.insertBefore(sectionPreviewElt, insertBeforePreviewElt);
+							} else {
+								previewElt.appendChild(sectionPreviewElt);
+							}
 
-				// Remove outdated sections
-				sectionsToRemove.forEach(function(section) {
-					var sectionPreviewElt = document.getElementById('classeur-preview-section-' + section.id);
-					previewElt.removeChild(sectionPreviewElt);
-					var sectionTocElt = document.getElementById('classeur-toc-section-' + section.id);
-					tocElt.removeChild(sectionTocElt);
-				});
+							// Create section TOC element
+							sectionTocElt = document.createElement('div');
+							sectionTocElt.id = 'classeur-toc-section-' + section.id;
+							sectionTocElt.className = 'classeur-toc-section modified';
+							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
+							headingElt && sectionTocElt.appendChild(headingElt.cloneNode(true));
+							if (insertBeforeTocElt) {
+								tocElt.insertBefore(sectionTocElt, insertBeforeTocElt);
+							} else {
+								tocElt.appendChild(sectionTocElt);
+							}
 
-				// Remove `modified` class
-				Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section.modified, .classeur-toc-section.modified'), function(elt) {
-					elt.className = elt.className.replace(/ modified$/, '');
-				});
-
-				var childNode = htmlElt.firstChild;
-
-				var newPreviewEltList = document.createDocumentFragment();
-				var newTocEltList = document.createDocumentFragment();
-
-				function createSectionElt(sectionDesc) {
-
-					// Create section preview elt
-					var sectionPreviewElt = document.createElement('div');
-					sectionPreviewElt.id = 'classeur-preview-section-' + sectionDesc.id;
-					sectionPreviewElt.className = 'classeur-preview-section modified';
-					var isNextDelimiter = false;
-					while (childNode) {
-						var nextNode = childNode.nextSibling;
-						var isDelimiter = childNode.className == 'classeur-preview-section-delimiter';
-						if (isNextDelimiter === true && childNode.tagName == 'DIV' && isDelimiter) {
-							// Stop when encountered the next delimiter
-							break;
+							newSectionDescList.push({
+								id: section.id,
+								editorElt: section.elt,
+								previewElt: sectionPreviewElt,
+								tocElt: sectionTocElt
+							});
 						}
-						isNextDelimiter = true;
-						if (childNode.tagName === 'SECTION' && childNode.className === 'footnotes') {
-							Array.prototype.forEach.call(childNode.querySelectorAll('ol > li'), storeFootnote);
-						} else if (childNode.tagName !== 'HR' || childNode.className !== 'footnotes-sep') {
-							isDelimiter || sectionPreviewElt.appendChild(childNode);
-						}
-						childNode = nextNode;
 					}
-					sectionDesc.previewElt = sectionPreviewElt;
-					sectionPreviewElt.sectionDesc = sectionDesc;
-					newPreviewEltList.appendChild(sectionPreviewElt);
-
-					// Create section TOC elt
-					var sectionTocElt = document.createElement('div');
-					sectionTocElt.id = 'classeur-toc-section-' + sectionDesc.id;
-					sectionTocElt.className = 'classeur-toc-section modified';
-					var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
-					headingElt && sectionTocElt.appendChild(headingElt.cloneNode(true));
-					sectionDesc.tocElt = sectionTocElt;
-					newTocEltList.appendChild(sectionTocElt);
-				}
-
-				modifiedSections.forEach(createSectionElt);
-				var insertBeforePreviewElt = footnoteContainerElt;
-				var insertBeforeTocElt;
-				if (insertBeforeSection !== undefined) {
-					insertBeforePreviewElt = document.getElementById('classeur-preview-section-' + insertBeforeSection.id);
-					insertBeforeTocElt = document.getElementById('classeur-toc-section-' + insertBeforeSection.id);
-				}
-				previewElt.insertBefore(newPreviewEltList, insertBeforePreviewElt);
-				insertBeforeTocElt ? tocElt.insertBefore(newTocEltList, insertBeforeTocElt) : tocElt.appendChild(newTocEltList);
-
-				// Rewrite footnotes in the footer and update footnote numbers
-				footnoteContainerElt.innerHTML = '';
-				var usedFootnoteIds = [];
-				if (hasFootnotes === true) {
-					var footnoteElts = document.createElement('ol');
-					footnoteElts.className = 'footnotes-list';
-					Array.prototype.forEach.call(previewElt.querySelectorAll('.footnote-ref > a'), function(elt, index) {
-						elt.textContent = index + 1;
-						var id = elt.id.substring(6);
-						usedFootnoteIds.push(id);
-						var footnoteElt = footnoteMap[id];
-						footnoteElt && footnoteElts.appendChild(footnoteElt.cloneNode(true));
-					});
-					if (usedFootnoteIds.length > 0) {
-						// Append the whole footnotes at the end of the document
-						var sectionElt = document.createElement('section');
-						sectionElt.className = 'footnotes';
-						sectionElt.appendChild(footnoteElts);
-						var hrElt = document.createElement('hr');
-						hrElt.className = 'footnotes-sep';
-						footnoteContainerElt.appendChild(hrElt);
-						footnoteContainerElt.appendChild(sectionElt);
-					}
-					// Keep used footnotes only in our map
-					Object.keys(footnoteMap).forEach(function(key) {
-						if (usedFootnoteIds.indexOf(key) === -1) {
-							footnoteFragment.removeChild(footnoteMap[key]);
-							delete footnoteMap[key];
-						}
-					});
-				}
+				});
+				clEditorSvc.sectionDescList = newSectionDescList;
 
 				// Create anchors
 				anchorHash = {};
@@ -771,7 +670,7 @@ angular.module('classeur.core.editor', [])
 						});
 					}
 					var html = Array.prototype.reduce.call(previewElt.querySelectorAll('.classeur-preview-section'), function(html, elt) {
-						if (!elt.exportableHtml || elt === footnoteContainerElt) {
+						if (!elt.exportableHtml) {
 							var clonedElt = elt.cloneNode(true);
 							Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
 								elt.parentNode.removeChild(elt);
