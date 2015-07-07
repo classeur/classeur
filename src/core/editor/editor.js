@@ -114,15 +114,15 @@ angular.module('classeur.core.editor', [])
 				var isInited;
 				scope.$watch('editorSvc.options', function(options) {
 					clEditorSvc.forcePreviewRefresh();
+					options = angular.extend({}, options);
 					if (!isInited) {
-						options = angular.extend({}, options);
 						options.content = scope.currentFileDao.contentDao.text;
 						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
 							options[key] = scope.currentFileDao.contentDao.state[key];
 						});
 						isInited = true;
 					}
-					clEditorSvc.cledit.init(options);
+					clEditorSvc.initCledit(options);
 				});
 				scope.$watch('editorLayoutSvc.isEditorOpen', function(isOpen) {
 					clEditorSvc.cledit.toggleEditable(isOpen);
@@ -391,6 +391,7 @@ angular.module('classeur.core.editor', [])
 			var asyncPreviewListeners = [];
 			var footnoteContainerElt;
 			var currentFileDao;
+			var markdownState, markdownCoreRules;
 
 			var clEditorSvc = {
 				options: {},
@@ -467,6 +468,30 @@ angular.module('classeur.core.editor', [])
 					});
 					clEditorSvc.pagedownEditor.run();
 				},
+				initCledit: function(options) {
+					options.sectionParser = function(text) {
+						markdownState = {
+							src: text,
+							env: {},
+							options: clEditorSvc.markdown.options,
+							tokens: [],
+							inlineMode: false,
+							inline: clEditorSvc.markdown.inline,
+							block: clEditorSvc.markdown.block,
+							renderer: clEditorSvc.markdown.renderer,
+							typographer: clEditorSvc.markdown.typographer,
+						};
+						markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('');
+						markdownCoreRules[0](markdownState);
+						markdownState.tokens.forEach(function(token) {
+							token.type === 'paragraph_open' && console.log(token)
+							token.type === 'heading_open' && console.log(token)
+						})
+						console.log(markdownState);
+						return [text];
+					};
+					clEditorSvc.cledit.init(options);
+				},
 				setContent: function(content, isExternal) {
 					if (clEditorSvc.cledit) {
 						if (isExternal) {
@@ -500,14 +525,6 @@ angular.module('classeur.core.editor', [])
 
 			var htmlElt = document.createElement('div');
 
-			var sectionParser = new $window.Remarkable('full', {
-				html: true,
-				breaks: true,
-				linkify: true,
-				typographer: true,
-			});
-			sectionParser.core.ruler.enable(['block', 'abbr', 'references'], true);
-
 			clEditorSvc.updateSectionDescList = function() {
 				var sectionDescList = clEditorSvc.sectionDescList;
 				var newSectionDescList = [];
@@ -515,9 +532,6 @@ angular.module('classeur.core.editor', [])
 				hasFootnotes = false;
 				clEditorSvc.sectionList.forEach(function(section) {
 					var text = '\n<div class="classeur-preview-section-delimiter"></div>\n\n' + section.text + '\n\n';
-					if (!section.parsedMarkdown) {
-						section.parsedMarkdown = sectionParser.parse(text, {});
-					}
 
 					// Strip footnotes
 					if (doFootnote) {
