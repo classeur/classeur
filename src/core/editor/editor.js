@@ -339,7 +339,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, Slug) {
+		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, clPagedown, Slug) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -381,6 +381,7 @@ angular.module('classeur.core.editor', [])
 				insideFcb: insideFcb
 			};
 			var forcePreviewRefresh = true;
+			var markdownInitListeners = [];
 			var converterInitListeners = [];
 			var asyncPreviewListeners = [];
 			var currentFileDao;
@@ -395,13 +396,15 @@ angular.module('classeur.core.editor', [])
 				setCurrentFileDao: function(fileDao) {
 					currentFileDao = fileDao;
 				},
+				onMarkdownInit: function(priority, listener) {
+					markdownInitListeners[priority] = listener;
+				},
 				initConverter: function() {
 					clEditorSvc.converter = new $window.Markdown.Converter();
-					clEditorSvc.markdown = new $window.Remarkable('full', {
-						html: true,
-						breaks: true,
-						linkify: true,
-						typographer: true,
+					clEditorSvc.markdown = new $window.Remarkable('full');
+					asyncPreviewListeners = [];
+					markdownInitListeners.forEach(function(listener) {
+						listener(clEditorSvc.markdown);
 					});
 					startSectionBlockTypes.forEach(function(type) {
 						var rule = clEditorSvc.markdown.renderer.rules[type];
@@ -421,7 +424,6 @@ angular.module('classeur.core.editor', [])
 						return '<sup class="footnote-ref"><a href="#fn' + n + '" id="' + id + '">' + n + '</a></sup>';
 					};
 
-					asyncPreviewListeners = [];
 					converterInitListeners.forEach(function(listener) {
 						listener(clEditorSvc.converter);
 					});
@@ -466,7 +468,7 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 						parsingCtx.sectionList = sectionList;
 					});
-					clEditorSvc.pagedownEditor = new $window.cldown({
+					clEditorSvc.pagedownEditor = clPagedown({
 						input: Object.create(clEditorSvc.cledit)
 					});
 					clEditorSvc.pagedownEditor.run();

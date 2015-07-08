@@ -52,7 +52,7 @@ angular.module('classeur.blogs', [])
 							clSettingSvc.values.exportTemplates = templates;
 						});
 				};
-				var preElt = element[0].querySelector('pre.prettyprint');
+				var preElt = element[0].querySelector('pre.prism');
 				var cledit = $window.cledit(preElt);
 				cledit.init({
 					highlighter: function(text) {

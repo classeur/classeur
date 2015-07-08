@@ -23,6 +23,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.folders',
 		'classeur.core.htmlSanitizer',
 		'classeur.core.keystrokes',
+		'classeur.core.pagedown',
 		'classeur.core.settings',
 		'classeur.core.settingsLayout',
 		'classeur.core.sync',
@@ -52,7 +53,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.optional.userActivity',
 		'classeur.optional.zenMode',
 		'classeur.extensions.emojiOne',
-		'classeur.extensions.markdownExtra',
+		'classeur.extensions.markdown',
 		'classeur.extensions.mathJax',
 	]);
 }
