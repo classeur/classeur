@@ -52,7 +52,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.optional.tour',
 		'classeur.optional.userActivity',
 		'classeur.optional.zenMode',
-		'classeur.extensions.emojiOne',
+		'classeur.extensions.emoji',
 		'classeur.extensions.markdown',
 		'classeur.extensions.mathJax',
 	]);

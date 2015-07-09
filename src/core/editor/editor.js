@@ -401,7 +401,7 @@ angular.module('classeur.core.editor', [])
 				},
 				initConverter: function() {
 					clEditorSvc.converter = new $window.Markdown.Converter();
-					clEditorSvc.markdown = new $window.Remarkable('full');
+					clEditorSvc.markdown = new $window.Remarkable('commonmark');
 					asyncPreviewListeners = [];
 					markdownInitListeners.forEach(function(listener) {
 						listener(clEditorSvc.markdown);
@@ -621,7 +621,11 @@ angular.module('classeur.core.editor', [])
 							sectionTocElt.id = 'classeur-toc-section-' + section.id;
 							sectionTocElt.className = 'classeur-toc-section modified';
 							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
-							headingElt && sectionTocElt.appendChild(headingElt.cloneNode(true));
+							if(headingElt) {
+								headingElt = headingElt.cloneNode(true);
+								headingElt.removeAttribute('id');
+								sectionTocElt.appendChild(headingElt);
+							}
 							if (insertBeforeTocElt) {
 								tocElt.insertBefore(sectionTocElt, insertBeforeTocElt);
 							} else {
@@ -638,28 +642,6 @@ angular.module('classeur.core.editor', [])
 					}
 				});
 				clEditorSvc.sectionDescList = newSectionDescList;
-
-				// Create anchors
-				anchorHash = {};
-				Array.prototype.forEach.call(previewElt.querySelectorAll('h1, h2, h3, h4, h5, h6'), function(elt) {
-					var sectionDesc = elt.parentNode.sectionDesc;
-					if (!sectionDesc) {
-						return;
-					}
-					if (elt.id && !elt.generatedAnchor) {
-						anchorHash[elt.id] = sectionDesc;
-						return;
-					}
-					var id = Slug.slugify(elt.textContent) || 'heading';
-					var anchor = id;
-					var index = 0;
-					while (anchorHash.hasOwnProperty(anchor)) {
-						anchor = id + '-' + (++index);
-					}
-					anchorHash[anchor] = sectionDesc;
-					elt.id = anchor;
-					elt.generatedAnchor = true;
-				});
 
 				runAsyncPreview(cb);
 			};
