@@ -50,7 +50,7 @@ angular.module('classeur.extensions.markdown', [])
 					'sup'
 				];
 
-			clEditorSvc.onMarkdownInit(50, function(markdown) {
+			clEditorSvc.onMarkdownInit(0, function(markdown) {
 				markdown.set({
 					html: true,
 					breaks: !!options.breaks,
@@ -196,6 +196,15 @@ angular.module('classeur.extensions.markdown', [])
 
 				markdown.renderer.rules.toc = function(tokens, idx) {
 					return tokens[idx].content;
+				};
+
+				markdown.renderer.rules.footnote_ref = function(tokens, idx) {
+					var n = Number(tokens[idx].id + 1).toString();
+					var id = 'fnref' + n;
+					if (tokens[idx].subId > 0) {
+						id += ':' + tokens[idx].subId;
+					}
+					return '<sup class="footnote-ref"><a href="#fn' + n + '" id="' + id + '">' + n + '</a></sup>';
 				};
 
 				clEditorSvc.setPrismOptions({

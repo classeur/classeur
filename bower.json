@@ -16,9 +16,6 @@
   "dependencies": {
     "angular-material": "~0.10.0",
     "google-diff-match-patch-js": "~1.0.0",
-    "pagedown-extra": "https://github.com/jmcmanus/pagedown-extra.git#ea782c3d11eb78f57d00aa819527338996a70721",
-    "cledit": "https://github.com/classeur/cledit.git#master",
-    "cldown": "https://github.com/classeur/cldown.git#master",
     "angular-slugify": "~1.0.0",
     "movejs": "~0.4.0",
     "angular-animate": "~1.4.0",
@@ -26,8 +23,8 @@
     "angular-messages": "~1.4.0",
     "hammerjs": "~2.0.4",
     "prism": "1.0.0",
+    "cledit": "https://github.com/classeur/cledit.git#master",
     "classets": "https://github.com/classeur/classets.git#master",
-    "emojione": "~1.3.0",
     "file-saver.js": "~1.20150507.2",
     "mustache": "~2.1.0",
     "remarkable": "~1.6.0"

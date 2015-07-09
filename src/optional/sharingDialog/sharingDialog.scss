@@ -24,9 +24,11 @@
     }
     .label {
         &.indicator {
-            position: absolute;
+            position: relative;
             font-size: 13px;
             padding: 0 6px;
+            top: -15px;
+            left: -5px;
         }
         font-size: 15px;
         color: #fff;

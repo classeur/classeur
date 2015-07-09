@@ -30,7 +30,6 @@ var vendorJs = [
 	'bower_components/cledit/scripts/cleditUtils.js',
 	'bower_components/cledit/scripts/cleditWatcher.js',
 	'bower_components/cledit/examples/markdownEditor/mdGrammar.js',
-	'bower_components/emojione/lib/js/emojione.js',
 	'bower_components/highlightjs/highlight.pack.js',
 	'bower_components/prism/components/prism-core.js',
 	'bower_components/prism/components/prism-markup.js',
@@ -39,9 +38,6 @@ var vendorJs = [
 	'bower_components/prism/components/prism-css.js',
 	'bower_components/prism/components/prism-!(*.min).js',
 	'bower_components/remarkable/dist/remarkable.js',
-	'bower_components/cldown/Markdown.Converter.js',
-	'bower_components/cldown/Markdown.Editor.js',
-	'bower_components/pagedown-extra/Markdown.Extra.js',
 	'bower_components/mustache/mustache.js',
 	'bower_components/file-saver.js/FileSaver.js',
 ];

@@ -1,17 +1,26 @@
 angular.module('classeur.extensions.mathJax', [])
 	.directive('clMathJax',
 		function($window, clEditorSvc) {
-			var config, isInit, encloseMath, cacheDict;
-			clEditorSvc.onInitConverter(75, function(converter) {
+			var config, mathJaxScript, encloseMath, cacheDict;
+
+			clEditorSvc.onMarkdownInit(20, function(markdown) {
 				cacheDict = {};
 
 				if (config) {
-					isInit || init();
-					converter.hooks.chain("preConversion", removeMath);
-					converter.hooks.chain("postConversion", replaceMath);
-
+					markdown.inline.ruler.before('escape', 'math', math);
+					markdown.inline.ruler.push('texMath', texMath);
+					markdown.renderer.rules.math = function(tokens, idx) {
+						return escapeHtml(tokens[idx].math);
+					};
+					markdown.renderer.rules.inlineMath = function(tokens, idx) {
+						return '\\\\(' + escapeHtml(tokens[idx].math) + '\\\\)';
+					};
+					markdown.renderer.rules.displayMath = function(tokens, idx) {
+						return '\\[' + escapeHtml(tokens[idx].math) + '\\]';
+					};
+					!mathJaxScript && initMathJax();
 					clEditorSvc.onAsyncPreview(function(cb) {
-						if (!UpdateMJ) {
+						if (!updateMathJax) {
 							return cb();
 						}
 						var tex2jax = $window.MathJax.Extension.tex2jax;
@@ -28,7 +37,7 @@ angular.module('classeur.extensions.mathJax', [])
 							};
 						}
 
-						Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section.modified *'), function(elt) {
+						Array.prototype.forEach.call(document.querySelectorAll('.cl-preview-section.modified *'), function(elt) {
 							var entry, entries = cacheDict[elt.innerHTML];
 							do {
 								entry = entries && entries.pop();
@@ -37,14 +46,14 @@ angular.module('classeur.extensions.mathJax', [])
 						});
 						typesetCallback = function() {
 							cacheDict = {};
-							Array.prototype.forEach.call(document.querySelectorAll('.classeur-preview-section .contains-mathjax'), function(elt) {
+							Array.prototype.forEach.call(document.querySelectorAll('.cl-preview-section .contains-mathjax'), function(elt) {
 								var entries = cacheDict[elt.htmlBeforeTypeSet] || [];
 								entries.push(elt);
 								cacheDict[elt.htmlBeforeTypeSet] = entries;
 							});
 							cb();
 						};
-						UpdateMJ();
+						updateMathJax();
 					});
 				}
 
@@ -53,189 +62,104 @@ angular.module('classeur.extensions.mathJax', [])
 				});
 			});
 
-			var typesetCallback, UpdateMJ;
-
-			function init() {
-				var script = document.createElement('script');
-				script.type = 'text/javascript';
-				script.src = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured';
-				script.onload = onMathJaxLoaded;
-				document.head.appendChild(script);
-				isInit = true;
+			function escapeHtml(html) {
+				return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\u00a0/g, ' ');
 			}
 
-
-			// Credit: math.stackexchange.com
-
-			//
-			//  The math is in blocks i through j, so
-			//    collect it into one block and clear the others.
-			//  Replace &, <, and > by named entities.
-			//  For IE, put <br> at the ends of comments since IE removes \n.
-			//  Clear the current math positions and store the index of the
-			//    math, then push the math string onto the storage array.
-			//
-			function processMath(i, j, unescape) {
-				var block = blocks.slice(i, j + 1).join("")
-					.replace(/&/g, "&amp;")
-					.replace(/</g, "&lt;")
-					.replace(/>/g, "&gt;");
-				for ( /* HUB.Browser.isMSIE && (block = block.replace(/(%[^\n]*)\n/g, "$1<br/>\n")) */ ; j > i;)
-					blocks[j] = "", j--;
-				blocks[i] = "@@" + math.length + "@@";
-				unescape && (block = unescape(block));
-				math.push(block);
-				start = end = last = null;
-			}
-
-			function removeMath(text) {
-				start = end = last = null;
-				math = [];
-				var unescape;
-				if (/`/.test(text)) {
-					text = text.replace(/~/g, "~T").replace(/(^|[^\\])(`+)([^\n]*?[^`\n])\2(?!`)/gm, function(text) {
-						return text.replace(/\$/g, "~D");
+			function math(state, silent) {
+				var startMathPos = state.pos;
+				if (state.src.charCodeAt(startMathPos) !== 0x5C /* \ */ ) {
+					return false;
+				}
+				var match = state.src.slice(++startMathPos).match(/^(?:\\\[|\\\\\\\(|begin\{([^}]*)\})/);
+				if (!match) {
+					return false;
+				}
+				startMathPos += match[0].length;
+				var type, endMarker;
+				if (match[0] === '\\[') {
+					type = 'displayMath';
+					endMarker = '\\\\]';
+				} else if (match[0] === '\\\\\\(') {
+					type = 'inlineMath';
+					endMarker = '\\\\\\\\)';
+				} else if (match[1]) {
+					type = 'math';
+					endMarker = '\\end{' + match[1] + '}';
+				}
+				var endMarkerPos = state.src.indexOf(endMarker, startMathPos);
+				if (endMarkerPos === -1) {
+					return false;
+				}
+				var nextPos = endMarkerPos + endMarker.length;
+				if (!silent) {
+					state.push({
+						type: type,
+						math: type === 'math' ?
+							state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos),
+						level: state.level,
 					});
-					unescape = function(text) {
-						return text.replace(/~([TD])/g,
-							function(match, n) {
-								return {
-									T: "~",
-									D: "$"
-								}[n];
-							});
-					};
-				} else {
-					unescape = function(text) {
-						return text;
-					};
 				}
-				blocks = split(text, splitDelimiter);
-				for (var i = 1, m = blocks.length; i < m; i += 2) {
-					var block = blocks[i];
-					if ("@" === block.charAt(0)) {
-						//
-						//  Things that look like our math markers will get
-						//  stored and then retrieved along with the math.
-						//
-						blocks[i] = "@@" + math.length + "@@";
-						math.push(block);
-					} else if (start) {
-						// Ignore inline maths that are actually multiline (fixes #136)
-						if (end == inline && block.charAt(0) == '\n') {
-							if (last) {
-								i = last;
-								processMath(start, i, unescape);
-							}
-							start = end = last = null;
-							braces = 0;
-						}
-						//
-						//  If we are in math, look for the end delimiter,
-						//    but don't go past double line breaks, and
-						//    and balance braces within the math.
-						//
-						else if (block === end) {
-							if (braces) {
-								last = i;
-							} else {
-								processMath(start, i, unescape);
-							}
-						} else {
-							if (block.match(/\n.*\n/)) {
-								if (last) {
-									i = last;
-									processMath(start, i, unescape);
-								}
-								start = end = last = null;
-								braces = 0;
-							} else {
-								if ("{" === block) {
-									braces++;
-								} else {
-									"}" === block && braces && braces--;
-								}
-							}
-						}
-					} else {
-						if (block === inline || "$$" === block) {
-							start = i;
-							end = block;
-							braces = 0;
-						} else {
-							if ("begin" === block.substr(1, 5)) {
-								start = i;
-								end = "\\end" + block.substr(6);
-								braces = 0;
-							}
-						}
-					}
-
-				}
-				last && processMath(start, last, unescape);
-				return unescape(blocks.join(""));
+				state.pos = nextPos;
+				return true;
 			}
 
-			//
-			//  Put back the math strings that were saved,
-			//    and clear the math array (no need to keep it around).
-			//
-			function replaceMath(text) {
-				text = text.replace(/@@(\d+)@@/g, function(match, n, pos) {
-					var result = math[n];
-					// Quick workaround to prevent processing "$10 $50 $100"
-					if (result.match(/^\$(?!\$)/)) {
-						var prefix = text[pos - 1] || '';
-						var suffix = text[pos + match.length] || '';
-						if (prefix.match(/\d/) || suffix.match(/\d/)) {
-							return '\\$' + result.slice(1, -1) + '\\$';
-						}
-					}
-					return result;
-				});
-				math = null;
-				return text;
+			function texMath(state, silent) {
+				var startMathPos = state.pos;
+				if (state.src.charCodeAt(startMathPos) !== 0x24 /* $ */ ) {
+					return false;
+				}
+				var prefix = state.src.charCodeAt(startMathPos++ - 1);
+				if (prefix >= 0x30 && prefix < 0x3A) {
+					// Skip case where $ is preceded by a number (5$ 10$ ...)
+					return false;
+				}
+				var endMarker = '$';
+				if (state.src.charCodeAt(startMathPos) === 0x24 /* $ */ ) {
+					startMathPos++;
+					endMarker = '$$';
+				}
+				if (state.src.charCodeAt(startMathPos) === 0x24 /* $ */ ) {
+					// 3 markers are too much
+					return false;
+				}
+				var endMarkerPos = state.src.indexOf(endMarker, startMathPos);
+				if (endMarkerPos === -1) {
+					return false;
+				}
+				var nextPos = endMarkerPos + endMarker.length;
+				var suffix = state.src.charCodeAt(nextPos);
+				if (suffix >= 0x30 && suffix < 0x3A) {
+					// Skip case where $ is succeeded by a number ($5 $10 ...)
+					return false;
+				}
+				if (state.src.charCodeAt(endMarkerPos - 1) === 0x5C /* \ */ ) {
+					return false;
+				}
+				if (!silent) {
+					state.push({
+						type: endMarker.length === 1 ? 'inlineMath' : 'displayMath',
+						math: state.src.slice(startMathPos, endMarkerPos),
+						level: state.level,
+					});
+				}
+				state.pos = nextPos;
+				return true;
 			}
 
+			function initMathJax() {
+				mathJaxScript = document.createElement('script');
+				mathJaxScript.src = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured';
+				mathJaxScript.onload = onMathJaxLoaded;
+				mathJaxScript.onerror = function() {
+					mathJaxScript = undefined;
+				};
+				document.head.appendChild(mathJaxScript);
+			}
+
+			var typesetCallback, updateMathJax;
 			var ready = false,
-				pending = false,
-				inline = "$",
-				blocks, start, end, last, braces, math;
-
-			//
-			//  The pattern for math delimiters and special symbols
-			//    needed for searching for math in the page.
-			//
-			var splitDelimiter = /(\$\$?|\\(?:begin|end)\{[a-z]*\*?\}|\\[\\{}$]|[{}]|(?:\n\s*)+|@@\d+@@)/i;
-			var split;
-
-			if (3 === "aba".split(/(b)/).length) {
-				split = function(text, delimiter) {
-					return text.split(delimiter);
-				};
-			} else {
-				split = function(text, delimiter) {
-					var b = [],
-						c;
-					if (!delimiter.global) {
-						c = delimiter.toString();
-						var d = "";
-						c = c.replace(/^\/(.*)\/([im]*)$/, function(a, c, b) {
-							d = b;
-							return c;
-						});
-						delimiter = RegExp(c, d + "g");
-					}
-					/*jshint -W084 */
-					for (var e = delimiter.lastIndex = 0; c = delimiter.exec(text);) {
-						b.push(text.substring(e, c.index));
-						b.push.apply(b, c.slice(1));
-						e = c.index + c[0].length;
-					}
-					b.push(text.substring(e));
-					return b;
-				};
-			}
+				pending = false;
 
 			function applyConfig() {
 				if (!config || !$window.MathJax) {
@@ -268,7 +192,7 @@ angular.module('classeur.extensions.mathJax', [])
 				//  When the preview changes, cancel MathJax and restart,
 				//    if we haven't done that already.
 				//
-				UpdateMJ = function() {
+				updateMathJax = function() {
 					if (!pending /*benweet (we need to call our afterRefreshCallback) && ready */ ) {
 						pending = true;
 						HUB.Cancel();
@@ -346,8 +270,6 @@ angular.module('classeur.extensions.mathJax', [])
 						this.cancelTypeset = true;
 					};
 				}
-				/*jshint ignore:end */
-
 			}
 
 			return {
@@ -387,19 +309,11 @@ angular.module('classeur.extensions.mathJax', [])
 							tex2jax: angular.extend({
 								inlineMath: [
 									[
-										"$",
-										"$"
-									],
-									[
 										"\\\\(",
 										"\\\\)"
 									]
 								],
 								displayMath: [
-									[
-										"$$",
-										"$$"
-									],
 									[
 										"\\[",
 										"\\]"

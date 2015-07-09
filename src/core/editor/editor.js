@@ -140,7 +140,7 @@ angular.module('classeur.core.editor', [])
 					}
 					clEditorSvc.measureSectionDimensions();
 					scope.$apply();
-				}, 1000);
+				}, 500);
 				scope.$watch('editorSvc.lastPreviewRefreshed', onPreviewRefreshed);
 				scope.$watch('editorSvc.editorSize()', debouncedMeasureSectionDimension);
 				scope.$watch('editorSvc.previewSize()', debouncedMeasureSectionDimension);
@@ -382,7 +382,6 @@ angular.module('classeur.core.editor', [])
 			};
 			var forcePreviewRefresh = true;
 			var markdownInitListeners = [];
-			var converterInitListeners = [];
 			var asyncPreviewListeners = [];
 			var currentFileDao;
 			var startSectionBlockTypes = ['paragraph_open', 'blockquote_open', 'heading_open', 'code', 'fence', 'table_open', 'htmlblock', 'dl_open', 'bullet_list_open', 'ordered_list_open', 'hr'];
@@ -400,8 +399,13 @@ angular.module('classeur.core.editor', [])
 					markdownInitListeners[priority] = listener;
 				},
 				initConverter: function() {
-					clEditorSvc.converter = new $window.Markdown.Converter();
-					clEditorSvc.markdown = new $window.Remarkable('commonmark');
+					clEditorSvc.markdown = new $window.Remarkable();
+
+					// Let the markdownInitListeners add the rules
+					clEditorSvc.markdown.core.ruler.enable([], true);
+					clEditorSvc.markdown.block.ruler.enable([], true);
+					clEditorSvc.markdown.inline.ruler.enable([], true);
+
 					asyncPreviewListeners = [];
 					markdownInitListeners.forEach(function(listener) {
 						listener(clEditorSvc.markdown);
@@ -415,24 +419,6 @@ angular.module('classeur.core.editor', [])
 							return rule.apply(clEditorSvc.markdown.renderer, arguments);
 						};
 					});
-					clEditorSvc.markdown.renderer.rules.footnote_ref = function(tokens, idx) {
-						var n = Number(tokens[idx].id + 1).toString();
-						var id = 'fnref' + n;
-						if (tokens[idx].subId > 0) {
-							id += ':' + tokens[idx].subId;
-						}
-						return '<sup class="footnote-ref"><a href="#fn' + n + '" id="' + id + '">' + n + '</a></sup>';
-					};
-
-					converterInitListeners.forEach(function(listener) {
-						listener(clEditorSvc.converter);
-					});
-				},
-				onInitConverter: function(priority, listener) {
-					converterInitListeners[priority] = listener;
-				},
-				hasInitListener: function(priority) {
-					return converterInitListeners.hasOwnProperty(priority);
 				},
 				onAsyncPreview: function(listener) {
 					asyncPreviewListeners.push(listener);
@@ -550,11 +536,17 @@ angular.module('classeur.core.editor', [])
 			}
 
 			clEditorSvc.convert = function() {
-				!parsingCtx.markdownState.isConverted && parsingCtx.markdownCoreRules.slice(1).forEach(function(rule) { // Skip the block rule already passed
-					rule(parsingCtx.markdownState);
-				});
-				parsingCtx.markdownState.isConverted = true;
-				var html = clEditorSvc.markdown.renderer.render(parsingCtx.markdownState.tokens, clEditorSvc.markdown.options, parsingCtx.markdownState.env);
+				if (!parsingCtx.markdownState.isConverted) { // Convert can be called twice without editor modification
+					parsingCtx.markdownCoreRules.slice(1).forEach(function(rule) { // Skip the block rule already passed
+						rule(parsingCtx.markdownState);
+					});
+					parsingCtx.markdownState.isConverted = true;
+				}
+				var html = clEditorSvc.markdown.renderer.render(
+					parsingCtx.markdownState.tokens,
+					clEditorSvc.markdown.options,
+					parsingCtx.markdownState.env
+				);
 				var htmlSectionList = html.split(htmlSectionMarker);
 				htmlSectionList[0] === '' && htmlSectionList.shift();
 				var valueHash = {},
@@ -586,8 +578,11 @@ angular.module('classeur.core.editor', [])
 					insertBeforeTocElt = tocElt.firstChild;
 				conversionCtx.htmlSectionDiff.forEach(function(item) {
 					for (var i = 0; i < item[1].length; i++) {
+						var section = conversionCtx.sectionList[sectionIdx];
 						if (item[0] === 0) {
-							newSectionDescList.push(clEditorSvc.sectionDescList[sectionDescIdx++]);
+							var sectionDesc = clEditorSvc.sectionDescList[sectionDescIdx++];
+							sectionDesc.editorElt = section.elt;
+							newSectionDescList.push(sectionDesc);
 							sectionIdx++;
 							insertBeforePreviewElt.classList.remove('modified');
 							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling;
@@ -602,13 +597,11 @@ angular.module('classeur.core.editor', [])
 							insertBeforeTocElt = insertBeforeTocElt.nextSibling;
 							tocElt.removeChild(sectionTocElt);
 						} else if (item[0] === 1) {
-							var section = conversionCtx.sectionList[sectionIdx];
 							var html = conversionCtx.htmlSectionList[sectionIdx++];
 
 							// Create section preview element
 							sectionPreviewElt = document.createElement('div');
-							sectionPreviewElt.id = 'classeur-preview-section-' + section.id;
-							sectionPreviewElt.className = 'classeur-preview-section modified';
+							sectionPreviewElt.className = 'cl-preview-section modified';
 							sectionPreviewElt.innerHTML = clHtmlSanitizer(html);
 							if (insertBeforePreviewElt) {
 								previewElt.insertBefore(sectionPreviewElt, insertBeforePreviewElt);
@@ -618,10 +611,9 @@ angular.module('classeur.core.editor', [])
 
 							// Create section TOC element
 							sectionTocElt = document.createElement('div');
-							sectionTocElt.id = 'classeur-toc-section-' + section.id;
-							sectionTocElt.className = 'classeur-toc-section modified';
+							sectionTocElt.className = 'cl-toc-section modified';
 							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
-							if(headingElt) {
+							if (headingElt) {
 								headingElt = headingElt.cloneNode(true);
 								headingElt.removeAttribute('id');
 								sectionTocElt.appendChild(headingElt);
@@ -633,7 +625,6 @@ angular.module('classeur.core.editor', [])
 							}
 
 							newSectionDescList.push({
-								id: section.id,
 								editorElt: section.elt,
 								previewElt: sectionPreviewElt,
 								tocElt: sectionTocElt
@@ -653,7 +644,7 @@ angular.module('classeur.core.editor', [])
 							recursiveCall(callbackList);
 						});
 					}
-					var html = Array.prototype.reduce.call(previewElt.querySelectorAll('.classeur-preview-section'), function(html, elt) {
+					var html = Array.prototype.reduce.call(previewElt.querySelectorAll('.cl-preview-section'), function(html, elt) {
 						if (!elt.exportableHtml) {
 							var clonedElt = elt.cloneNode(true);
 							Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
