@@ -212,6 +212,8 @@ angular.module('classeur.extensions.markdown', [])
 					tables: options.table,
 					footnotes: options.footnote,
 					strikes: options.del,
+					subs: options.sub,
+					sups: options.sup,
 					toc: options.toc
 				});
 

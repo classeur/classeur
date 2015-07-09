@@ -127,10 +127,17 @@
     .linkdef .url {
         color: $ced-color-lighter;
     }
-    .ref {
+    .fn,
+    .inlinefn,
+    .md-sup {
         position: relative;
         top: -0.5em;
-        font-size: 83%;
+        font-size: smaller;
+    }
+    .md-sub {
+        position: relative;
+        bottom: -0.25em;
+        font-size: smaller;
     }
     .img {
         display: inline-block;

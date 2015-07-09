@@ -13,7 +13,7 @@ angular.module('classeur.extensions.mathJax', [])
 						return escapeHtml(tokens[idx].math);
 					};
 					markdown.renderer.rules.inlineMath = function(tokens, idx) {
-						return '\\\\(' + escapeHtml(tokens[idx].math) + '\\\\)';
+						return '\\(' + escapeHtml(tokens[idx].math) + '\\)';
 					};
 					markdown.renderer.rules.displayMath = function(tokens, idx) {
 						return '\\[' + escapeHtml(tokens[idx].math) + '\\]';
@@ -71,7 +71,7 @@ angular.module('classeur.extensions.mathJax', [])
 				if (state.src.charCodeAt(startMathPos) !== 0x5C /* \ */ ) {
 					return false;
 				}
-				var match = state.src.slice(++startMathPos).match(/^(?:\\\[|\\\\\\\(|begin\{([^}]*)\})/);
+				var match = state.src.slice(++startMathPos).match(/^(?:\\\[|\\\(|begin\{([^}]*)\})/);
 				if (!match) {
 					return false;
 				}
@@ -80,9 +80,9 @@ angular.module('classeur.extensions.mathJax', [])
 				if (match[0] === '\\[') {
 					type = 'displayMath';
 					endMarker = '\\\\]';
-				} else if (match[0] === '\\\\\\(') {
+				} else if (match[0] === '\\(') {
 					type = 'inlineMath';
-					endMarker = '\\\\\\\\)';
+					endMarker = '\\\\)';
 				} else if (match[1]) {
 					type = 'math';
 					endMarker = '\\end{' + match[1] + '}';
@@ -92,14 +92,12 @@ angular.module('classeur.extensions.mathJax', [])
 					return false;
 				}
 				var nextPos = endMarkerPos + endMarker.length;
-				if (!silent) {
-					state.push({
-						type: type,
-						math: type === 'math' ?
-							state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos),
-						level: state.level,
-					});
-				}
+				silent || state.push({
+					type: type,
+					math: type === 'math' ?
+						state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos),
+					level: state.level,
+				});
 				state.pos = nextPos;
 				return true;
 			}
@@ -109,40 +107,40 @@ angular.module('classeur.extensions.mathJax', [])
 				if (state.src.charCodeAt(startMathPos) !== 0x24 /* $ */ ) {
 					return false;
 				}
-				var prefix = state.src.charCodeAt(startMathPos++ - 1);
-				if (prefix >= 0x30 && prefix < 0x3A) {
-					// Skip case where $ is preceded by a number (5$ 10$ ...)
-					return false;
-				}
 				var endMarker = '$';
-				if (state.src.charCodeAt(startMathPos) === 0x24 /* $ */ ) {
-					startMathPos++;
+				if (state.src.charCodeAt(++startMathPos) === 0x24 /* $ */ ) {
 					endMarker = '$$';
-				}
-				if (state.src.charCodeAt(startMathPos) === 0x24 /* $ */ ) {
-					// 3 markers are too much
-					return false;
+					if (state.src.charCodeAt(++startMathPos) === 0x24 /* $ */ ) {
+						// 3 markers are too much
+						return false;
+					}
+				} else {
+					var prefix = state.src.charCodeAt(startMathPos - 2);
+					if (prefix >= 0x30 && prefix < 0x3A) {
+						// Skip case where $ is preceded by a digit (eg 5$ 10$ ...)
+						return false;
+					}
 				}
 				var endMarkerPos = state.src.indexOf(endMarker, startMathPos);
 				if (endMarkerPos === -1) {
 					return false;
 				}
-				var nextPos = endMarkerPos + endMarker.length;
-				var suffix = state.src.charCodeAt(nextPos);
-				if (suffix >= 0x30 && suffix < 0x3A) {
-					// Skip case where $ is succeeded by a number ($5 $10 ...)
-					return false;
-				}
 				if (state.src.charCodeAt(endMarkerPos - 1) === 0x5C /* \ */ ) {
 					return false;
 				}
-				if (!silent) {
-					state.push({
-						type: endMarker.length === 1 ? 'inlineMath' : 'displayMath',
-						math: state.src.slice(startMathPos, endMarkerPos),
-						level: state.level,
-					});
+				var nextPos = endMarkerPos + endMarker.length;
+				if (endMarker.length === 1) {
+					var suffix = state.src.charCodeAt(nextPos);
+					if (suffix >= 0x30 && suffix < 0x3A) {
+						// Skip case where $ is succeeded by a digit (eg $5 $10 ...)
+						return false;
+					}
 				}
+				silent || state.push({
+					type: endMarker.length === 1 ? 'inlineMath' : 'displayMath',
+					math: state.src.slice(startMathPos, endMarkerPos),
+					level: state.level,
+				});
 				state.pos = nextPos;
 				return true;
 			}
@@ -309,8 +307,8 @@ angular.module('classeur.extensions.mathJax', [])
 							tex2jax: angular.extend({
 								inlineMath: [
 									[
-										"\\\\(",
-										"\\\\)"
+										"\\(",
+										"\\)"
 									]
 								],
 								displayMath: [
