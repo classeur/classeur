@@ -208,13 +208,14 @@ angular.module('classeur.extensions.markdown', [])
 				};
 
 				clEditorSvc.setPrismOptions({
-					fcbs: options.fences,
+					fences: options.fences,
 					tables: options.table,
 					footnotes: options.footnote,
-					strikes: options.del,
+					abbrs: options.abbr,
+					dels: options.del,
 					subs: options.sub,
 					sups: options.sup,
-					toc: options.toc
+					tocs: options.toc
 				});
 
 				clEditorSvc.onAsyncPreview(function(cb) {

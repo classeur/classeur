@@ -1,9 +1,32 @@
 angular.module('classeur.core.keystrokes', [])
 	.factory('clKeystrokeSvc',
 		function($window) {
-			var Keystroke = $window.cledit.Keystroke;
-			var indentRegexp = /^ {0,3}>[ ]*|^[ \t]*(?:[*+\-]|(\d+)\.)[ \t]|^\s+/;
-			var clearNewline;
+			var Keystroke = $window.cledit.Keystroke,
+				indentRegexp = /^ {0,3}>[ ]*|^[ \t]*[*+\-][ \t]|^([ \t]*)\d+\.[ \t]|^\s+/,
+				clearNewline,
+				lastSelection;
+
+			function fixNumberedList(state, indent) {
+				if (state.selection || indent === undefined) {
+					return;
+				}
+				var indentRegex = new RegExp('^' + indent + '(\\d+\.[ \\t])?(.*)$|^[ \\s]*$');
+				var num = 0;
+
+				function formatLine(line) {
+					var match = line.match(indentRegex);
+					if (!match) {
+						num = 0;
+					} else if (match[1]) {
+						line = indent + (++num) + match[1].slice(-2) + match[2];
+					}
+					return line;
+				}
+				state.before = state.before.split('\n').map(formatLine).join('\n');
+				state.after = state.after.split('\n');
+				var currentLine = state.after.shift();
+				state.after = currentLine + '\n' + state.after.map(formatLine).join('\n');
+			}
 
 			return function(clEditorSvc) {
 
@@ -52,18 +75,20 @@ angular.module('classeur.core.keystrokes', [])
 					if (isInverse) {
 						if (/\s/.test(state.before.charAt(lf))) {
 							state.before = strSplice(state.before, lf, 1);
-
 							state.selectionStart--;
 							state.selectionEnd--;
 						}
 						state.selection = state.selection.replace(/^[ \t]/gm, '');
 					} else {
 						var previousLine = state.before.slice(lf);
-						if (state.selection || previousLine.match(indentRegexp)) {
+						var indentMatch = previousLine.match(indentRegexp);
+						if (state.selection || indentMatch) {
 							state.before = strSplice(state.before, lf, 0, '\t');
-							state.selection = state.selection.replace(/\r?\n(?=[\s\S])/g, '\n\t');
+							state.selection = state.selection.replace(/\n(?=.)/g, '\n\t');
 							state.selectionStart++;
 							state.selectionEnd++;
+							fixNumberedList(state, indentMatch[1]);
+							fixNumberedList(state, '\t' + indentMatch[1]);
 						} else {
 							state.before += '\t';
 							state.selectionStart++;
@@ -84,22 +109,19 @@ angular.module('classeur.core.keystrokes', [])
 
 					evt.preventDefault();
 					var lf = state.before.lastIndexOf('\n') + 1;
-					if (clearNewline) {
+					var previousLine = state.before.slice(lf);
+					var indentMatch = previousLine.match(indentRegexp);
+					if (clearNewline && state.selectionStart === lastSelection && state.selectionEnd === lastSelection) {
 						state.before = state.before.substring(0, lf);
 						state.selection = '';
 						state.selectionStart = lf;
 						state.selectionEnd = lf;
 						clearNewline = false;
+						fixNumberedList(state, indentMatch[1]);
 						return true;
 					}
 					clearNewline = false;
-					var previousLine = state.before.slice(lf);
-					var indentMatch = previousLine.match(indentRegexp);
 					var indent = (indentMatch || [''])[0];
-					if (indentMatch && indentMatch[1]) {
-						var number = parseInt(indentMatch[1], 10);
-						indent = indent.replace(/\d+/, number + 1);
-					}
 					if (indent.length) {
 						clearNewline = true;
 					}
@@ -110,6 +132,8 @@ angular.module('classeur.core.keystrokes', [])
 					state.selection = '';
 					state.selectionStart += indent.length + 1;
 					state.selectionEnd = state.selectionStart;
+					lastSelection = state.selectionStart;
+					fixNumberedList(state, indentMatch[1]);
 					return true;
 				}));
 			};

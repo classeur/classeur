@@ -90,7 +90,7 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
 						Array.prototype.slice.call(section.imgTokenEltList).forEach(function(imgTokenElt) {
-							var srcElt = imgTokenElt.querySelector('.token.md-src');
+							var srcElt = imgTokenElt.querySelector('.token.cl-src');
 							if (srcElt) {
 								var imgElt = $window.document.createElement('img');
 								imgElt.style.display = 'none';
@@ -339,7 +339,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, clPagedown, Slug) {
+		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, clPagedown) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -362,7 +362,7 @@ angular.module('classeur.core.editor', [])
 					insideFcb['language-' + name] = {
 						pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
 						inside: {
-							"md md-pre": /`{3}.*/,
+							"cl cl-pre": /`{3}.*/,
 							rest: language
 						}
 					};

@@ -44,7 +44,7 @@
         }
     }
     .comment {
-        color: $ced-color-lighter;
+        color: $ced-color-light;
     }
     .keyword {
         color: $ced-color-dark;
@@ -53,20 +53,14 @@
     .code,
     .img,
     .imgref,
-    .md-toc {
+    .cl-toc {
         background-color: $code-bg;
         border-radius: $border-radius-base;
         padding: 0.15em 0;
     }
-    .md-toc {
+    .cl-toc {
         font-size: 2.8em;
         padding: 0.15em;
-    }
-    .link,
-    .linkref {
-        .md-underlined-text {
-            color: inherit;
-        }
     }
     .blockquote {
         font-weight: 300;
@@ -99,42 +93,42 @@
     .h6 {
         font-size: 0.75em;
     }
-    .md-hash {
-        color: $ced-color-lighter;
+    .cl-hash {
+        color: $ced-color-light;
     }
-    .md,
+    .cl,
     .hr {
-        color: $ced-color-lighter;
+        color: $ced-color-light;
         font-style: normal;
         font-weight: normal
     }
     .em,
-    .em .md {
+    .em .cl {
         font-style: italic;
     }
     .strong,
-    .strong .md {
+    .strong .cl {
         font-weight: bold;
     }
-    .md-strike-text {
+    .cl-del-text {
         text-decoration: line-through
     }
     .url,
     .email,
-    .md-underlined-text {
+    .cl-underlined-text {
         text-decoration: underline;
     }
     .linkdef .url {
-        color: $ced-color-lighter;
+        color: $ced-color-light;
     }
     .fn,
     .inlinefn,
-    .md-sup {
+    .sup {
         position: relative;
         top: -0.5em;
         font-size: smaller;
     }
-    .md-sub {
+    .sub {
         position: relative;
         bottom: -0.25em;
         font-size: smaller;
@@ -146,9 +140,16 @@
         max-width: 100%;
         padding: 5px;
     }
-    .md-bang,
-    .md-alt,
-    .md-title {
-        color: $ced-color-lighter;
+    .img,
+    .imgref,
+    .link,
+    .linkref {
+        color: $ced-color-light;
+        .cl-underlined-text {
+            color: $ced-color-dark;
+        }
+    }
+    .cl-title {
+        color: $ced-color;
     }
 }

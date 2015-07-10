@@ -15,6 +15,5 @@ $plastic-colors:
 	/* dark gray */ lighten(#34495e, 15%);
 $editor-margin-width: 110px;
 $ced-color: #555;
-$ced-color-lighter: transparentize($ced-color, 0.6);
-$ced-color-light: transparentize($ced-color, 0.4);
+$ced-color-light: transparentize($ced-color, 0.6);
 $ced-color-dark: black;

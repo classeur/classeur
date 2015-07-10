@@ -161,35 +161,6 @@ angular.module('classeur.optional.scrollSync', [])
 				}
 			};
 
-			// TODO
-
-			// Reimplement anchor scrolling to work without preview
-			//$('.extension-preview-buttons .table-of-contents').on('click', 'a', function(evt) {
-			//	evt.preventDefault();
-			//	var id = this.hash;
-			//	var anchorElt = $(id);
-			//	if(!anchorElt.length) {
-			//		return;
-			//	}
-			//	var previewScrollTop = anchorElt[0].getBoundingClientRect().top - previewElt.getBoundingClientRect().top + previewElt.scrollTop;
-			//	previewElt.scrollTop = previewScrollTop;
-			//	var editorScrollTop = getDestScrollTop(previewScrollTop, htmlSectionList, mdSectionList);
-			//	editorElt.scrollTop = editorScrollTop;
-			//});
-
-			//var previewContentsElt;
-			//var previousHeight;
-			//scrollSync.onPagedownConfigure = function(editor) {
-			//	previewContentsElt = document.getElementById("preview-contents");
-			//	editor.getConverter().hooks.chain("postConversion", function(text) {
-			//		// To avoid losing scrolling position before elements are fully loaded
-			//		previousHeight = previewContentsElt.offsetHeight;
-			//		previewContentsElt.style.height = previousHeight + 'px';
-			//		return text;
-			//	});
-			//};
-
-
 			var oldEditorElt, oldPreviewElt;
 			var isPreviewRefreshing;
 
