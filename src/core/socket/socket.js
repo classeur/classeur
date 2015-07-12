@@ -26,7 +26,7 @@ angular.module('classeur.core.socket', [])
 			function attemptOpenSocket() {
 				lastConnectionAttempt = Date.now();
 				closeSocket();
-				socket = new WebSocket('ws://' + $location.host() + ':' + $location.port() + '/?token=' + socketToken);
+				socket = new WebSocket(($location.protocol() === 'https' ? 'wss://' : 'ws://') + $location.host() + ':' + $location.port() + '/?token=' + socketToken);
 				clSocketSvc.ctx = {
 					socket: socket
 				};
