@@ -107,7 +107,8 @@
         font-style: italic;
     }
     .strong,
-    .strong .cl {
+    .strong .cl,
+    .term {
         font-weight: bold;
     }
     .cl-del-text {
@@ -135,10 +136,6 @@
     }
     .img {
         display: inline-block;
-    }
-    img {
-        max-width: 100%;
-        padding: 5px;
     }
     .img,
     .imgref,

@@ -29,7 +29,7 @@ var vendorJs = [
 	'bower_components/cledit/scripts/cleditUndoMgr.js',
 	'bower_components/cledit/scripts/cleditUtils.js',
 	'bower_components/cledit/scripts/cleditWatcher.js',
-	'bower_components/cledit/examples/markdownEditor/mdGrammar.js',
+	'bower_components/cledit/demo/mdGrammar.js',
 	'bower_components/highlightjs/highlight.pack.js',
 	'bower_components/prism/components/prism-core.js',
 	'bower_components/prism/components/prism-markup.js',

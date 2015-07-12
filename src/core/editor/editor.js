@@ -338,6 +338,24 @@ angular.module('classeur.core.editor', [])
 				return new ClassApplier(classes, offsetGetter, properties);
 			};
 		})
+	.filter('clHighlightMarkdown',
+		function($window, $sce, clEditorSvc) {
+			var defaultGrammar = window.mdGrammar({
+				fences: true,
+				tables: true,
+				footnotes: true,
+				abbrs: true,
+				deflists: true,
+				tocs: true,
+				dels: true,
+				subs: true,
+				sups: true,
+				insideFences: clEditorSvc.insideFences
+			});
+			return function(value, grammar) {
+				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar || defaultGrammar));
+			};
+		})
 	.factory('clEditorSvc',
 		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, clPagedown) {
 
@@ -356,10 +374,10 @@ angular.module('classeur.core.editor', [])
 				Prism.languages[alias] = Prism.languages[name];
 			});
 
-			var insideFcb = {};
+			var insideFences = {};
 			angular.forEach(Prism.languages, function(language, name) {
 				if (Prism.util.type(language) === 'Object') {
-					insideFcb['language-' + name] = {
+					insideFences['language-' + name] = {
 						pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
 						inside: {
 							"cl cl-pre": /`{3}.*/,
@@ -378,7 +396,7 @@ angular.module('classeur.core.editor', [])
 			var editorElt, previewElt, tocElt;
 			var filenameSpaceElt;
 			var prismOptions = {
-				insideFcb: insideFcb
+				insideFences: insideFences
 			};
 			var forcePreviewRefresh = true;
 			var markdownInitListeners = [];
@@ -391,6 +409,9 @@ angular.module('classeur.core.editor', [])
 			var parsingCtx, conversionCtx;
 
 			var clEditorSvc = {
+				lastExternalChange: 0,
+				scrollOffset: 80,
+				insideFences: insideFences,
 				options: {},
 				setCurrentFileDao: function(fileDao) {
 					currentFileDao = fileDao;
@@ -516,8 +537,6 @@ angular.module('classeur.core.editor', [])
 					return previewElt.clientWidth + 'x' + previewElt.clientHeight;
 				}
 			};
-			clEditorSvc.lastExternalChange = 0;
-			clEditorSvc.scrollOffset = 80;
 
 			function hashArray(arr, valueHash, valueArray) {
 				var hash = [];

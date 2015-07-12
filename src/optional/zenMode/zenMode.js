@@ -22,7 +22,11 @@ angular.module('classeur.optional.zenMode', [])
 				var lastClientX, lastClientY, isHidden = true;
 
 				function isEnabled() {
-					return clLocalSettingSvc.values.zenMode && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !clEditorLayoutSvc.isMenuOpen;
+					return clLocalSettingSvc.values.zenMode &&
+						clEditorLayoutSvc.isEditorOpen &&
+						!clEditorLayoutSvc.isSideBarOpen &&
+						!clEditorLayoutSvc.isSidePreviewOpen &&
+						!clEditorLayoutSvc.isMenuOpen;
 				}
 
 				var showLevel1 = $window.cledit.Utils.debounce(function() {

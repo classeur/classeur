@@ -28,7 +28,7 @@
 .binder.panel {
     .header.panel {
         height: auto;
-        padding: 0 105px;
+        left: 105px;
         .content {
             position: relative;
             min-height: 43px;
@@ -125,7 +125,7 @@
         }
     }
     .edit.btn {
-        right: 15px;
+        right: 10px;
         width: 100px;
         height: 64px;
         padding-bottom: 20px;

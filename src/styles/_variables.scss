@@ -2,7 +2,7 @@ $font-family: Roboto, sans-serif;
 $font-family-editor: Roboto, sans-serif;
 $font-family-monospace: "Lucida Sans Typewriter", Monaco, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", monospace;
 $font-size-monospace: 0.91em;
-$background-color: #D0D0D0;
+$background-color: #d6d6d6;
 $link-color: #316ED3;
 $code-bg: #eee;
 $border-radius-base: 4px;
@@ -14,6 +14,6 @@ $plastic-colors:
 	/* light gray */ darken(#95a5a6, 2.5%),
 	/* dark gray */ lighten(#34495e, 15%);
 $editor-margin-width: 110px;
-$ced-color: #555;
-$ced-color-light: transparentize($ced-color, 0.6);
+$ced-color: rgba(0, 0, 0, 0.87);
+$ced-color-light: rgba(0, 0, 0, 0.26);
 $ced-color-dark: black;

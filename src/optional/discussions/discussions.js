@@ -52,30 +52,36 @@ angular.module('classeur.optional.discussions', [])
 						selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
 						selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
 						var coordinates = selectionMgr.cursorCoordinates;
-						if(selectionStart === selectionEnd || coordinates.top === undefined) {
-							return;
+						if (selectionStart !== selectionEnd && coordinates.top !== undefined) {
+							if (coordinates.top !== lastCoordinates.top ||
+								coordinates.height !== lastCoordinates.height ||
+								coordinates.left !== lastCoordinates.left
+							) {
+								lastCoordinates = coordinates;
+								newDiscussionBtn.top(coordinates.top + coordinates.height).left(coordinates.left);
+							}
+							return clEditorSvc.cledit.selectionMgr.hasFocus;
 						}
-						if (coordinates.top !== lastCoordinates.top ||
-							coordinates.height !== lastCoordinates.height ||
-							coordinates.left !== lastCoordinates.left
-						) {
-							lastCoordinates = coordinates;
-							newDiscussionBtn.top(coordinates.top + coordinates.height).left(coordinates.left);
-							scope.$evalAsync();
-						}
-						return true;
 					}
 				}
 
 				var showButton = $window.cledit.Utils.debounce(function() {
-					checkSelection() && $timeout(function() {
+					if(checkSelection()) {
 						scope.show = true;
-					});
+						scope.$apply();
+					}
 				}, 500);
+
+				var hideButton = $window.cledit.Utils.debounce(function() {
+					if(!checkSelection()) {
+						scope.show = false;
+						scope.$apply();
+					}
+				}, 250);
 
 				function toggleButton() {
 					if (!checkSelection()) {
-						scope.show = false;
+						scope.show && hideButton();
 					} else {
 						showButton();
 					}
@@ -97,7 +103,10 @@ angular.module('classeur.optional.discussions', [])
 				scope.discussionId = clDiscussionSvc.newDiscussionId;
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
-					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 1000);
+					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 500);
+					if(!text) {
+						return;
+					}
 					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
 						start: selectionStart,
 						end: selectionEnd
@@ -251,7 +260,7 @@ angular.module('classeur.optional.discussions', [])
 							var scrollerElt = clEditorSvc.editorElt.parentNode;
 							clScrollAnimation(scrollerElt, offset < 0 ? 0 : offset);
 						}, 10);
-					} else {
+					} else if(clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;
 					}
@@ -400,12 +409,6 @@ angular.module('classeur.optional.discussions', [])
 		function($sce, clEditorSvc, clHtmlSanitizer) {
 			return function(value) {
 				return $sce.trustAsHtml(clHtmlSanitizer(clEditorSvc.markdown.render(value || '')));
-			};
-		})
-	.filter('clHighlightMarkdown',
-		function($window, $sce) {
-			return function(value, grammar) {
-				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar));
 			};
 		})
 	.factory('clDiscussionSvc',

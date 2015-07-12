@@ -212,6 +212,7 @@ angular.module('classeur.extensions.markdown', [])
 					tables: options.table,
 					footnotes: options.footnote,
 					abbrs: options.abbr,
+					deflists: options.deflist,
 					dels: options.del,
 					subs: options.sub,
 					sups: options.sup,

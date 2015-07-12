@@ -109,7 +109,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.binderX = bgWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
 					clEditorLayoutSvc.binderX += clEditorLayoutSvc.isSideBarOpen ? clEditorLayoutSvc.sideBarWidth : 0;
 					clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000;
-					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 190;
+					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust - 20;
 					clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX;
 					clEditorLayoutSvc.previewX += clEditorLayoutSvc.isSidePreviewOpen ? clEditorLayoutSvc.pageWidth - previewSizeAdjust / 2 : 20;
 					clEditorLayoutSvc.editorX = clEditorLayoutSvc.isMenuOpen ? 5 : 0;
@@ -240,7 +240,7 @@ angular.module('classeur.core.editorLayout', [])
 						});
 				};
 
-				var tabs = ['map', 'discussions'];
+				var tabs = ['help', 'toc', 'discussions'];
 				scope.$watch('editorLayoutSvc.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);
 				});

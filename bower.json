@@ -24,7 +24,7 @@
     "hammerjs": "~2.0.4",
     "prism": "1.0.0",
     "cledit": "https://github.com/classeur/cledit.git#master",
-    "classets": "https://github.com/classeur/classets.git#master",
+    "classets": "https://github.com/classeur/classets.git#gh-pages",
     "file-saver.js": "~1.20150507.2",
     "mustache": "~2.1.0",
     "remarkable": "~1.6.0"

@@ -35,7 +35,7 @@ angular.module('classeur.optional.stat', [])
 				var speed;
 
 				function move() {
-					statPanel.move(speed).to(-clEditorLayoutSvc.backgroundX, clEditorLayoutSvc.isStatOpen ? 0 : 20).end();
+					statPanel.move(speed).to(-clEditorLayoutSvc.backgroundX, clEditorLayoutSvc.isStatOpen && clEditorLayoutSvc.isEditorOpen ? 0 : 20).end();
 					speed = 'slow';
 				}
 
@@ -74,7 +74,7 @@ angular.module('classeur.optional.stat', [])
 				scope.$watch('editorSvc.selectionRange', computeMarkdown);
 				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('selectionListener.range', computeHtml);
-				scope.$watch('editorLayoutSvc.isStatOpen', move);
+				scope.$watch('editorLayoutSvc.isStatOpen && editorLayoutSvc.isEditorOpen', move);
 				scope.$watch('editorLayoutSvc.isSideBarOpen', move);
 			}
 		});

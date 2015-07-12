@@ -74,7 +74,7 @@ body {
 @for $i from 1 through length($plastic-colors) {
     $c: nth($plastic-colors, $i);
 	.plastic-#{$i - 1} {
-		background-color: lighten(desaturate($c, 14%), 18%) !important;
+		background-color: lighten(desaturate($c, 12%), 18%) !important;
 	}
 }
 .hole {

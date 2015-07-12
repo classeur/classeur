@@ -39,6 +39,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.optional.fileDragging',
 		'classeur.optional.folding',
 		'classeur.optional.headingAnchor',
+		'classeur.optional.markdownSyntax',
 		'classeur.optional.offlineAlert',
 		'classeur.optional.planChooser',
 		'classeur.optional.postToBlog',
