@@ -1,3 +1,4 @@
+var childProcess = require('child_process');
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
@@ -9,6 +10,46 @@ var replace = require('gulp-replace');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
 var size = require('gulp-size');
+var bump = require('gulp-bump');
+var util = require('gulp-util');
+
+function bumpTask(importance) {
+	return function() {
+		return gulp.src([
+				'./package.json'
+			])
+			.pipe(bump({
+				type: importance
+			}))
+			.pipe(gulp.dest('./'));
+	};
+}
+
+gulp.task('bump-patch', bumpTask('patch'));
+gulp.task('bump-minor', bumpTask('minor'));
+gulp.task('bump-major', bumpTask('major'));
+
+function exec(cmd, cb) {
+	childProcess.exec(cmd, {
+		cwd: process.cwd()
+	}, function(err, stdout, stderr) {
+		if (!err) {
+			util.log(stdout, stderr);
+		}
+		cb(err);
+	});
+}
+
+gulp.task('git-tag', function(cb) {
+	var version = require('./package.json').version;
+	var tag = 'v' + version;
+	util.log('Tagging as: ' + util.colors.cyan(tag));
+	exec('git commit -a -m "Prepare release"', function(err) {
+		err ? cb(err) : exec('git tag -a ' + tag + ' -m "Version ' + version + '"', function(err) {
+			err ? cb(err) : exec('git push origin master --tags', cb);
+		});
+	});
+});
 
 var vendorJs = [
 	'bower_components/angular/angular.js',
