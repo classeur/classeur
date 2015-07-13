@@ -3,51 +3,40 @@ angular.module('classeur.extensions.markdown', [])
 		function($window, clEditorSvc, Slug) {
 			var options = {};
 			var coreBaseRules = [
+					'normalize',
 					'block',
-					'references',
 					'inline',
-					'footnote_tail',
-					'abbr2',
+					'linkify',
 					'replacements',
 					'smartquotes',
-					'linkify'
 				],
 				blockBaseRules = [
-					'blockquote',
 					'code',
-					'heading',
+					'blockquote',
 					'hr',
-					'htmlblock',
-					'lheading',
 					'list',
+					'reference',
+					'heading',
+					'lheading',
+					'html_block',
 					'paragraph',
 				],
 				inlineBaseRules = [
-					'autolink',
-					'backticks',
-					'emphasis',
-					'entity',
-					'escape',
-					'footnote_ref',
-					'htmltag',
-					'links',
+					'text',
 					'newline',
-					'text'
-				],
-				coreRules = [
-					'abbr',
+					'escape',
+					'backticks',
+					'strikethrough',
+					'emphasis',
+					'link',
+					'image',
+					'autolink',
+					'html_inline',
+					'entity',
 				],
 				blockRules = [
-					'fences',
-					'table',
-					'footnote',
-					'deflist'
-				],
-				inlineRules = [
-					'footnote_inline',
-					'del',
-					'sub',
-					'sup'
+					'fence',
+					'table'
 				];
 
 			clEditorSvc.onMarkdownInit(0, function(markdown) {
@@ -59,22 +48,13 @@ angular.module('classeur.extensions.markdown', [])
 					langPrefix: 'prism language-'
 				});
 
-				markdown.core.ruler.enable(Object.keys(options).reduce(function(rules, key) {
-					return rules.concat(options[key] && coreRules.indexOf(key) !== -1 ? key : []);
-				}, coreBaseRules));
+				markdown.core.ruler.enable(coreBaseRules);
 				markdown.block.ruler.enable(Object.keys(options).reduce(function(rules, key) {
 					return rules.concat(options[key] && blockRules.indexOf(key) !== -1 ? key : []);
 				}, blockBaseRules));
-				markdown.inline.ruler.enable(Object.keys(options).reduce(function(rules, key) {
-					return rules.concat(options[key] && inlineRules.indexOf(key) !== -1 ? key : []);
-				}, inlineBaseRules));
+				markdown.inline.ruler.enable(inlineBaseRules);
 
 				markdown.core.ruler.push('anchors', function(state) {
-					function getContent(token) {
-						return token.children ? token.children.reduce(function(result, child) {
-							return result + getContent(child);
-						}, '') : token.content || '';
-					}
 					var anchorHash = {};
 					var headingOpenToken, headingContent;
 					state.tokens.forEach(function(token) {
@@ -85,21 +65,31 @@ angular.module('classeur.extensions.markdown', [])
 							headingOpenToken.headingContent = headingContent;
 							var slug = Slug.slugify(headingContent) || 'heading';
 							var anchor = slug;
-							var index = 0;
+							var index = 2;
 							while (anchorHash.hasOwnProperty(anchor)) {
-								anchor = slug + '-' + (++index);
+								anchor = slug + '-' + (index++);
 							}
 							anchorHash[anchor] = true;
 							headingOpenToken.headingAnchor = anchor;
 							headingOpenToken = undefined;
 						} else if (headingOpenToken) {
-							headingContent += getContent(token);
+							headingContent += token.children.reduce(function(result, child) {
+								return result + child.content;
+							}, '');
 						}
 					});
 				});
 
+				var originalHeadingOpen = markdown.renderer.rules.heading_open;
 				markdown.renderer.rules.heading_open = function(tokens, idx) {
-					return tokens[idx].headingAnchor ? '<h' + tokens[idx].hLevel + ' id="' + tokens[idx].headingAnchor + '">' : '<h' + tokens[idx].hLevel + '>';
+					var token = tokens[idx];
+					(token.attrs = token.attrs || []).push(['id', token.headingAnchor]);
+
+					if (originalHeadingOpen) {
+						return originalHeadingOpen.apply(this, arguments);
+					} else {
+						return markdown.renderer.renderToken.apply(markdown.renderer, arguments);
+					}
 				};
 
 				options.toc && markdown.block.ruler.before('paragraph', 'toc', function(state, startLine, endLine, silent) {
@@ -178,7 +168,7 @@ angular.module('classeur.extensions.markdown', [])
 							if (!tocContent) {
 								var tocItems = [];
 								state.tokens.forEach(function(token) {
-									token.headingAnchor && tocItems.push(new TocItem(token.hLevel, token.headingAnchor, token.headingContent));
+									token.headingAnchor && tocItems.push(new TocItem(token.level, token.headingAnchor, token.headingContent));
 								});
 								tocItems = groupTocItems(tocItems);
 								tocContent = '<div class="toc">';
@@ -208,7 +198,7 @@ angular.module('classeur.extensions.markdown', [])
 				};
 
 				clEditorSvc.setPrismOptions({
-					fences: options.fences,
+					fences: options.fence,
 					tables: options.table,
 					footnotes: options.footnote,
 					abbrs: options.abbr,
@@ -238,7 +228,7 @@ angular.module('classeur.extensions.markdown', [])
 					var fileProperties = scope.currentFileDao.contentDao.properties;
 					var tocMaxDepth = parseInt(fileProperties['ext:mdextra:tocmaxdepth']);
 					var newOptions = {
-						fences: fileProperties['ext:markdown:fences'] !== '0',
+						fence: fileProperties['ext:markdown:fence'] !== '0',
 						table: fileProperties['ext:markdown:table'] !== '0',
 						deflist: fileProperties['ext:markdown:deflist'] !== '0',
 						del: fileProperties['ext:markdown:del'] !== '0',

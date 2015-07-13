@@ -88,8 +88,7 @@ angular.module('classeur.core.editor', [])
 
 				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
-						section.imgTokenEltList = section.elt.getElementsByClassName('token img');
-						Array.prototype.slice.call(section.imgTokenEltList).forEach(function(imgTokenElt) {
+						Array.prototype.forEach.call(section.elt.getElementsByClassName('token img'), function(imgTokenElt) {
 							var srcElt = imgTokenElt.querySelector('.token.cl-src');
 							if (srcElt) {
 								var imgElt = $window.document.createElement('img');
@@ -402,7 +401,18 @@ angular.module('classeur.core.editor', [])
 			var markdownInitListeners = [];
 			var asyncPreviewListeners = [];
 			var currentFileDao;
-			var startSectionBlockTypes = ['paragraph_open', 'blockquote_open', 'heading_open', 'code', 'fence', 'table_open', 'htmlblock', 'dl_open', 'bullet_list_open', 'ordered_list_open', 'hr'];
+			var startSectionBlockTypes = [
+				'paragraph_open',
+				'blockquote_open',
+				'heading_open',
+				'code',
+				'fence',
+				'table_open',
+				'html_block',
+				'bullet_list_open',
+				'ordered_list_open',
+				'hr'
+			];
 			var startSectionBlockTypesRegex = new RegExp('^(?:' + startSectionBlockTypes.join('|') + ')$');
 			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
 			var diffMatchPatch = new $window.diff_match_patch();
@@ -420,7 +430,7 @@ angular.module('classeur.core.editor', [])
 					markdownInitListeners[priority] = listener;
 				},
 				initConverter: function() {
-					clEditorSvc.markdown = new $window.Remarkable();
+					clEditorSvc.markdown = new $window.markdownit('zero');
 
 					// Let the markdownInitListeners add the rules
 					clEditorSvc.markdown.core.ruler.enable([], true);
@@ -432,7 +442,7 @@ angular.module('classeur.core.editor', [])
 						listener(clEditorSvc.markdown);
 					});
 					startSectionBlockTypes.forEach(function(type) {
-						var rule = clEditorSvc.markdown.renderer.rules[type];
+						var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken;
 						clEditorSvc.markdown.renderer.rules[type] = function(tokens, idx) {
 							if (tokens[idx].sectionDelimiter) {
 								return htmlSectionMarker + rule.apply(clEditorSvc.markdown.renderer, arguments);
@@ -482,19 +492,10 @@ angular.module('classeur.core.editor', [])
 				},
 				initCledit: function(options) {
 					options.sectionParser = function(text) {
-						var markdownState = {
-							src: text,
-							env: {},
-							options: clEditorSvc.markdown.options,
-							tokens: [],
-							inlineMode: false,
-							inline: clEditorSvc.markdown.inline,
-							block: clEditorSvc.markdown.block,
-							renderer: clEditorSvc.markdown.renderer,
-							typographer: clEditorSvc.markdown.typographer,
-						};
+						var markdownState = new clEditorSvc.markdown.core.State(text, clEditorSvc.markdown, {});
 						var markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('');
-						markdownCoreRules[0](markdownState); // Pass the block rule
+						markdownCoreRules[0](markdownState); // Pass the normalize rule
+						markdownCoreRules[1](markdownState); // Pass the block rule
 						var lines = text.split('\n');
 						lines.pop(); // Assume last char is a '\n'
 						var sections = [],
@@ -506,15 +507,15 @@ angular.module('classeur.core.editor', [])
 
 						function addSection(maxLine) {
 							var section = '';
-							while (i < maxLine) {
-								section += lines[i++] + '\n';
+							for (; i < maxLine; i++) {
+								section += lines[i] + '\n';
 							}
 							section && sections.push(section);
 						}
 						markdownState.tokens.forEach(function(token) {
 							if (token.level === 0 && token.type.match(startSectionBlockTypesRegex)) {
 								token.sectionDelimiter = true;
-								addSection(token.lines[0]);
+								addSection(token.map[0]);
 							}
 						});
 						addSection(lines.length);
@@ -556,7 +557,7 @@ angular.module('classeur.core.editor', [])
 
 			clEditorSvc.convert = function() {
 				if (!parsingCtx.markdownState.isConverted) { // Convert can be called twice without editor modification
-					parsingCtx.markdownCoreRules.slice(1).forEach(function(rule) { // Skip the block rule already passed
+					parsingCtx.markdownCoreRules.slice(2).forEach(function(rule) { // Skip previously passed rules
 						rule(parsingCtx.markdownState);
 					});
 					parsingCtx.markdownState.isConverted = true;
