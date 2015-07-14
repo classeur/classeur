@@ -53,6 +53,11 @@ angular.module('classeur.extensions.markdown', [])
 					return rules.concat(options[key] && blockRules.indexOf(key) !== -1 ? key : []);
 				}, blockBaseRules));
 				markdown.inline.ruler.enable(inlineBaseRules);
+				options.abbr && markdown.use($window.markdownitAbbr);
+				options.deflist && markdown.use($window.markdownitDeflist);
+				options.footnote && markdown.use($window.markdownitFootnote);
+				options.sub && markdown.use($window.markdownitSub);
+				options.sup && markdown.use($window.markdownitSup);
 
 				markdown.core.ruler.push('anchors', function(state) {
 					var anchorHash = {};
@@ -84,7 +89,6 @@ angular.module('classeur.extensions.markdown', [])
 				markdown.renderer.rules.heading_open = function(tokens, idx) {
 					var token = tokens[idx];
 					(token.attrs = token.attrs || []).push(['id', token.headingAnchor]);
-
 					if (originalHeadingOpen) {
 						return originalHeadingOpen.apply(this, arguments);
 					} else {
@@ -109,7 +113,8 @@ angular.module('classeur.extensions.markdown', [])
 					state.line = startLine + 1;
 					state.tokens.push({
 						type: 'toc',
-						level: state.level
+						level: state.level,
+						map: [ startLine, endLine ]
 					});
 					return true;
 				});
@@ -168,7 +173,11 @@ angular.module('classeur.extensions.markdown', [])
 							if (!tocContent) {
 								var tocItems = [];
 								state.tokens.forEach(function(token) {
-									token.headingAnchor && tocItems.push(new TocItem(token.level, token.headingAnchor, token.headingContent));
+									token.headingAnchor && tocItems.push(new TocItem(
+										token.tag.charCodeAt(1) - 0x30,
+										token.headingAnchor,
+										token.headingContent
+									));
 								});
 								tocItems = groupTocItems(tocItems);
 								tocContent = '<div class="toc">';
@@ -189,10 +198,10 @@ angular.module('classeur.extensions.markdown', [])
 				};
 
 				markdown.renderer.rules.footnote_ref = function(tokens, idx) {
-					var n = Number(tokens[idx].id + 1).toString();
+					var n = Number(tokens[idx].meta.id + 1).toString();
 					var id = 'fnref' + n;
-					if (tokens[idx].subId > 0) {
-						id += ':' + tokens[idx].subId;
+					if (tokens[idx].meta.subId > 0) {
+						id += ':' + tokens[idx].meta.subId;
 					}
 					return '<sup class="footnote-ref"><a href="#fn' + n + '" id="' + id + '">' + n + '</a></sup>';
 				};
@@ -226,22 +235,21 @@ angular.module('classeur.extensions.markdown', [])
 			function link(scope) {
 				function checkOptions() {
 					var fileProperties = scope.currentFileDao.contentDao.properties;
-					var tocMaxDepth = parseInt(fileProperties['ext:mdextra:tocmaxdepth']);
+					var tocMaxDepth = parseInt(fileProperties['ext:markdown:tocmaxdepth']);
 					var newOptions = {
-						fence: fileProperties['ext:markdown:fence'] !== '0',
-						table: fileProperties['ext:markdown:table'] !== '0',
-						deflist: fileProperties['ext:markdown:deflist'] !== '0',
-						del: fileProperties['ext:markdown:del'] !== '0',
-						sub: fileProperties['ext:markdown:sub'] !== '0',
-						sup: fileProperties['ext:markdown:sup'] !== '0',
-						footnote: fileProperties['ext:markdown:footnote'] !== '0',
-						footnote_inline: fileProperties['ext:markdown:footnote'] !== '0',
 						abbr: fileProperties['ext:markdown:abbr'] !== '0',
 						breaks: fileProperties['ext:markdown:breaks'] !== '0',
+						deflist: fileProperties['ext:markdown:deflist'] !== '0',
+						del: fileProperties['ext:markdown:del'] !== '0',
+						fence: fileProperties['ext:markdown:fence'] !== '0',
+						footnote: fileProperties['ext:markdown:footnote'] !== '0',
 						linkify: fileProperties['ext:markdown:linkify'] !== '0',
-						typographer: fileProperties['ext:markdown:typographer'] !== '0',
+						sub: fileProperties['ext:markdown:sub'] !== '0',
+						sup: fileProperties['ext:markdown:sup'] !== '0',
+						table: fileProperties['ext:markdown:table'] !== '0',
 						toc: fileProperties['ext:markdown:toc'] !== '0',
 						tocMaxDepth: isNaN(tocMaxDepth) ? 6 : tocMaxDepth,
+						typographer: fileProperties['ext:markdown:typographer'] !== '0',
 					};
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;

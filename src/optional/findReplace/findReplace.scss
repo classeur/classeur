@@ -1,0 +1,19 @@
+.findreplace.panel {
+    background-color: transparentize(#d8d8d8, 0.1);
+    color: #404040;
+    bottom: 0;
+    height: 35px;
+    font-size: 14px;
+    .close.btn {
+    	position: relative;
+        a {
+            font-size: 24px;
+            line-height: 35px;
+        }
+    }
+    .input {
+    	width: 150px;
+    	margin: 0 5px;
+    	padding: 5px 2px;
+    }
+}

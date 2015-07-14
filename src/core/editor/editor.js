@@ -1,6 +1,6 @@
 angular.module('classeur.core.editor', [])
 	.directive('clEditor',
-		function($window, $timeout, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc, clKeystrokeSvc) {
+		function($window, $timeout, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'core/editor/editor.html',
@@ -105,9 +105,6 @@ angular.module('classeur.core.editor', [])
 						});
 					});
 				}
-
-				// Add custom keystrokes
-				clKeystrokeSvc(clEditorSvc);
 
 				var isInited;
 				scope.$watch('editorSvc.options', function(options) {
@@ -401,19 +398,20 @@ angular.module('classeur.core.editor', [])
 			var markdownInitListeners = [];
 			var asyncPreviewListeners = [];
 			var currentFileDao;
-			var startSectionBlockTypes = [
-				'paragraph_open',
-				'blockquote_open',
-				'heading_open',
-				'code',
-				'fence',
-				'table_open',
-				'html_block',
-				'bullet_list_open',
-				'ordered_list_open',
-				'hr'
-			];
-			var startSectionBlockTypesRegex = new RegExp('^(?:' + startSectionBlockTypes.join('|') + ')$');
+			var startSectionBlockTypes = {
+				'paragraph_open': true,
+				'blockquote_open': true,
+				'heading_open': true,
+				'code': true,
+				'fence': true,
+				'table_open': true,
+				'html_block': true,
+				'bullet_list_open': true,
+				'ordered_list_open': true,
+				'hr': true,
+				'dl_open': true,
+				'toc': true,
+			};
 			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
 			var diffMatchPatch = new $window.diff_match_patch();
 			var parsingCtx, conversionCtx;
@@ -441,7 +439,7 @@ angular.module('classeur.core.editor', [])
 					markdownInitListeners.forEach(function(listener) {
 						listener(clEditorSvc.markdown);
 					});
-					startSectionBlockTypes.forEach(function(type) {
+					Object.keys(startSectionBlockTypes).forEach(function(type) {
 						var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken;
 						clEditorSvc.markdown.renderer.rules[type] = function(tokens, idx) {
 							if (tokens[idx].sectionDelimiter) {
@@ -489,6 +487,11 @@ angular.module('classeur.core.editor', [])
 						input: Object.create(clEditorSvc.cledit)
 					});
 					clEditorSvc.pagedownEditor.run();
+					editorElt.addEventListener('focus', function() {
+						if(clEditorLayoutSvc.currentControl === 'menu') {
+							clEditorLayoutSvc.currentControl = undefined;
+						}
+					});
 				},
 				initCledit: function(options) {
 					options.sectionParser = function(text) {
@@ -513,7 +516,7 @@ angular.module('classeur.core.editor', [])
 							section && sections.push(section);
 						}
 						markdownState.tokens.forEach(function(token) {
-							if (token.level === 0 && token.type.match(startSectionBlockTypesRegex)) {
+							if (token.level === 0 && startSectionBlockTypes.hasOwnProperty(token.type)) {
 								token.sectionDelimiter = true;
 								addSection(token.map[0]);
 							}

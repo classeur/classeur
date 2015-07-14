@@ -1,5 +1,5 @@
 @import 'variables';
-$highlighting-color: rgb(255, 226, 79);
+$highlighting-color: #FFDF60;
 .editor.content .discussion-highlighting {
     background-color: mix(#fff, $highlighting-color, 60%);
     -webkit-transition: 0.12s ease-out background-color;

@@ -58,10 +58,10 @@ angular.module('classeur.optional.scrollSync', [])
 
 				function tick() {
 					var currentTime = Date.now();
-					var progress = (currentTime - startTime) / 180;
+					var progress = (currentTime - startTime) / 100;
 					var scrollTop = endValue;
 					if (progress < 1) {
-						scrollTop = startValue + diff * Math.cos((1 - progress) * Math.PI / 2);
+						scrollTop = startValue + diff * progress;
 						scrollTimeoutId = setTimeout(tick, 10);
 					} else {
 						scrollTimeoutId = setTimeout(function() {
@@ -77,7 +77,7 @@ angular.module('classeur.optional.scrollSync', [])
 					return tick();
 				}
 				stepCb(startValue);
-				scrollTimeoutId = setTimeout(tick, 100);
+				scrollTimeoutId = setTimeout(tick, 50);
 			}
 
 			var lastEditorScrollTop;
@@ -117,7 +117,7 @@ angular.module('classeur.optional.scrollSync', [])
 					);
 
 					if (Math.abs(destScrollTop - previewScrollTop) <= 9) {
-						// Skip the animation if diff is <= 9
+						// Skip the animation if diff is less than 10
 						lastPreviewScrollTop = previewScrollTop;
 						return;
 					}
@@ -147,7 +147,7 @@ angular.module('classeur.optional.scrollSync', [])
 					);
 
 					if (Math.abs(destScrollTop - editorScrollTop) <= 9) {
-						// Skip the animation if diff is <= 9
+						// Skip the animation if diff is less than 10
 						lastEditorScrollTop = editorScrollTop;
 						return;
 					}
@@ -238,7 +238,7 @@ angular.module('classeur.optional.scrollSync', [])
 					if (isPreviewRefreshing) {
 						return;
 					}
-					// Force Scroll Sync (-10 to have a gap > 9px)
+					// Force Scroll Sync
 					lastEditorScrollTop = -10;
 					lastPreviewScrollTop = -10;
 					doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);

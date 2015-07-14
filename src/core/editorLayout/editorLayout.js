@@ -49,7 +49,7 @@ angular.module('classeur.core.editorLayout', [])
 				var pagePanel = clPanel(element, '.page.panel').left(clEditorLayoutSvc.pageMargin / 2);
 				clPanel(element, '.menu.scroller').width(clEditorLayoutSvc.menuWidth + 50).right(-50);
 				clPanel(element, '.menu.content').width(clEditorLayoutSvc.menuWidth);
-				clPanel(element, '.editor .btn-grp.panel').width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth);
+				clPanel(element, '.editor .btn-grp.panel').width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2);
 				var cornerPanel = clPanel(element, '.corner.panel');
 				clPanel(element, '.corner .shadow.panel').move().rotate(-45).end();
 				var headerPanel = clPanel(element, '.header.panel').top(hideOffsetY);
@@ -240,7 +240,7 @@ angular.module('classeur.core.editorLayout', [])
 						});
 				};
 
-				var tabs = ['help', 'toc', 'discussions'];
+				var tabs = ['sample', 'toc', 'discussions'];
 				scope.$watch('editorLayoutSvc.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);
 				});
@@ -269,8 +269,8 @@ angular.module('classeur.core.editorLayout', [])
 				scope.$watch('editorLayoutSvc.isMenuOpen', animateMenu);
 				scope.$watch('editorLayoutSvc.isSideBarOpen', animateLayout);
 				scope.$watch('editorLayoutSvc.isCornerOpen', animateCorner);
-				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
-					clEditorLayoutSvc.isMenuOpen = currentControl === 'menu';
+				scope.$watch('editorLayoutSvc.currentControl === "menu"', function(isMenuOpen) {
+					clEditorLayoutSvc.isMenuOpen = isMenuOpen;
 				});
 				scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons);
 				scope.$watch('editorSvc.lastSectionMeasured', function() {
@@ -279,7 +279,7 @@ angular.module('classeur.core.editorLayout', [])
 			}
 		})
 	.factory('clEditorLayoutSvc',
-		function($rootScope) {
+		function($window, $rootScope) {
 			var clEditorLayoutSvc = {
 				pageMargin: 22,
 				editorBtnGrpWidth: 40,
@@ -316,10 +316,10 @@ angular.module('classeur.core.editorLayout', [])
 				}
 			};
 
-			window.addEventListener('keydown', function(e) {
-				if (e.which === 27) {
+			$window.addEventListener('keydown', function(evt) {
+				if (evt.which === 27) {
 					// Esc key
-					e.preventDefault();
+					evt.preventDefault();
 					clEditorLayoutSvc.currentControl = undefined;
 					$rootScope.$apply();
 				}

@@ -1,7 +1,7 @@
 <div class="side-bar panel">
     <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false">
-        <md-tab label="Help">
-            <cl-markdown-syntax></cl-markdown-syntax>
+        <md-tab label="Sample">
+            <cl-markdown-sample></cl-markdown-sample>
         </md-tab>
         <md-tab label="Toc">
             <cl-toc></cl-toc>
@@ -106,6 +106,7 @@
         <cl-button-bar ng-if="localSettingSvc.values.buttonBar"></cl-button-bar>
     </div>
     <cl-stat></cl-stat>
+    <cl-find-replace></cl-find-replace>
     <div ng-mouseenter="editorLayoutSvc.toggleCorner(true)" ng-mouseleave="editorLayoutSvc.toggleCorner(false)">
         <div class="corner panel md-whiteframe-z4 no-overflow">
             <div class="shadow panel"></div>
