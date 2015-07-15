@@ -243,7 +243,6 @@ angular.module('classeur.core.editor', [])
 			function ClassApplier(classes, offsetGetter, properties) {
 				classes = typeof classes === 'string' ? [classes] : classes;
 				var self = this;
-				$window.cledit.Utils.createEventHooks(this);
 				this.elts = clEditorSvc.editorElt.getElementsByClassName(classes[0]);
 				var lastEltCount;
 
@@ -289,8 +288,7 @@ angular.module('classeur.core.editor', [])
 							while (treeWalker.nextNode());
 						});
 					}
-					self.$trigger('classApplied');
-					clEditorSvc.cledit.selectionMgr.restoreSelection();
+					clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
 					lastEltCount = self.elts.length;
 				}
 
