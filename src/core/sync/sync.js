@@ -1142,13 +1142,13 @@ angular.module('classeur.core.sync', [])
 							startOffset += changeText.length;
 							break;
 						case DIFF_DELETE:
-							patches.push({
+							changeText && patches.push({
 								o: startOffset,
 								d: changeText
 							});
 							break;
 						case DIFF_INSERT:
-							patches.push({
+							changeText && patches.push({
 								o: startOffset,
 								a: changeText
 							});
@@ -1220,7 +1220,12 @@ angular.module('classeur.core.sync', [])
 			function hashArray(arr, valueHash, valueArray) {
 				var hash = [];
 				arr.forEach(function(obj) {
-					var serializedObj = JSON.stringify(obj);
+					var serializedObj = JSON.stringify(obj, function(key, value) {
+						return Object.prototype.toString.call(value) === '[object Object]' ?
+							Object.keys(value).sort().reduce(function(sorted, key) {
+								return sorted[key] = value[key], sorted;
+							}, {}): value;
+					});
 					var objHash;
 					if (!valueHash.hasOwnProperty(serializedObj)) {
 						objHash = valueArray.length;

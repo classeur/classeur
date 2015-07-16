@@ -43,30 +43,26 @@ angular.module('classeur.optional.findReplace', [])
 					speed = 'slow';
 				}
 
-				var offsetList = [],
-					classAppliers = {};
-
-				function dynamicClassApplier(cssClass, offset) {
-					var startMarker = new $window.cledit.Marker(offset.start);
-					var endMarker = new $window.cledit.Marker(offset.end);
-					clEditorSvc.cledit.addMarker(startMarker);
-					clEditorSvc.cledit.addMarker(endMarker);
-					var classApplier = clEditorClassApplier(['find-replace-' + startMarker.id, cssClass], function() {
+				function DynamicClassApplier(cssClass, offset, silent) {
+					this.startMarker = new $window.cledit.Marker(offset.start);
+					this.endMarker = new $window.cledit.Marker(offset.end);
+					clEditorSvc.cledit.addMarker(this.startMarker);
+					clEditorSvc.cledit.addMarker(this.endMarker);
+					var classApplier = !silent && clEditorClassApplier(['find-replace-' + this.startMarker.id, cssClass], (function() {
 						return {
-							start: startMarker.offset,
-							end: endMarker.offset
+							start: this.startMarker.offset,
+							end: this.endMarker.offset
 						};
-
-					});
-					classApplier.startMarker = startMarker;
-					classApplier.endMarker = endMarker;
-					classApplier.clean = function() {
-						clEditorSvc.cledit.removeMarker(startMarker);
-						clEditorSvc.cledit.removeMarker(endMarker);
-						classApplier.stop();
+					}).bind(this));
+					this.clean = function() {
+						clEditorSvc.cledit.removeMarker(this.startMarker);
+						clEditorSvc.cledit.removeMarker(this.endMarker);
+						classApplier && classApplier.stop();
 					};
-					return classApplier;
 				}
+
+				var classAppliers = {},
+					selectedClassApplier, searchRegex;
 
 				var highlightOccurrences = $window.cledit.Utils.debounce(function() {
 					var caseSensitive = false;
@@ -77,76 +73,88 @@ angular.module('classeur.optional.findReplace', [])
 						var newKey = classApplier.startMarker.offset + ':' + classApplier.endMarker.offset;
 						oldClassAppliers[newKey] = classApplier;
 					});
-					offsetList = [];
+					var offsetList = [];
 					classAppliers = {};
 					if (isOpen() && scope.findText) {
 						try {
 							var flags = caseSensitive ? 'gm' : 'gmi';
-							var regex = useRegexp ? scope.findText : scope.findText.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-							regex = new RegExp(regex, flags);
-							clEditorSvc.cledit.getContent().replace(regex, function(match, offset) {
+							searchRegex = useRegexp ? scope.findText : scope.findText.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+							searchRegex = new RegExp(searchRegex, flags);
+							clEditorSvc.cledit.getContent().replace(searchRegex, function(match, offset) {
 								offsetList.push({
 									start: offset,
 									end: offset + match.length
 								});
 							});
-							// CPU consuming, add a limit
-							if (offsetList.length < 200) {
-								offsetList.forEach(function(offset) {
-									var key = offset.start + ':' + offset.end;
-									classAppliers[key] = oldClassAppliers[key] || dynamicClassApplier('find-replace-highlighting', offset);
-								});
+							for (var i = 0; i < offsetList.length; i++) {
+								var offset = offsetList[i];
+								var key = offset.start + ':' + offset.end;
+								classAppliers[key] = oldClassAppliers[key] || new DynamicClassApplier('find-replace-highlighting', offset, i > 200);
 							}
 						} catch (e) {}
 					}
 					Object.keys(oldClassAppliers).forEach(function(key) {
-						var classApplier = oldClassAppliers[key];
 						if (!classAppliers.hasOwnProperty(key)) {
+							var classApplier = oldClassAppliers[key];
 							classApplier.clean();
+							if (classApplier === selectedClassApplier) {
+								selectedClassApplier.child.clean();
+								selectedClassApplier = undefined;
+							}
 						}
 					});
 					scope.findCount = offsetList.length;
-					if (selectionClassApplier &&
-						!classAppliers.hasOwnProperty(selectionClassApplier.startMarker.offset + ':' + selectionClassApplier.endMarker.offset)
-					) {
-						selectionOffset = undefined;
-						highlightSelection();
-					}
 				}, 25);
 
-				var selectionOffset, selectionClassApplier;
-
-				function find() {
+				scope.find = function() {
 					var selectionMgr = clEditorSvc.cledit.selectionMgr;
 					var position = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
-					selectionOffset = offsetList[0];
-					offsetList.some(function(offset) {
-						if (offset.start > position) {
-							selectionOffset = offset;
+					if (selectedClassApplier) {
+						selectedClassApplier.child.clean();
+						selectedClassApplier.child = undefined;
+					}
+					var keys = Object.keys(classAppliers);
+					selectedClassApplier = classAppliers[keys[0]];
+					keys.some(function(key) {
+						if (classAppliers[key].startMarker.offset > position) {
+							selectedClassApplier = classAppliers[key];
 							return true;
 						}
 					});
-					if (selectionOffset) {
-						selectionMgr.setSelectionStartEnd(selectionOffset.start, selectionOffset.end);
+					if (selectedClassApplier) {
+						selectionMgr.setSelectionStartEnd(
+							selectedClassApplier.startMarker.offset,
+							selectedClassApplier.endMarker.offset
+						);
 						selectionMgr.updateCursorCoordinates(true);
 					}
-					highlightSelection();
-				}
-
-				function highlightSelection() {
-					if (isOpen() && selectionOffset) {
-						if (!selectionClassApplier ||
-							selectionClassApplier.startMarker.offset !== selectionOffset.start ||
-							selectionClassApplier.endMarker.offset !== selectionOffset.end
-						) {
-							selectionClassApplier && selectionClassApplier.clean();
-							selectionClassApplier = dynamicClassApplier('find-replace-selection', selectionOffset);
-						}
-					} else {
-						selectionClassApplier && selectionClassApplier.clean();
-						selectionClassApplier = undefined;
+					if (selectedClassApplier) {
+						selectedClassApplier.child = new DynamicClassApplier('find-replace-selection', {
+							start: selectedClassApplier.startMarker.offset,
+							end: selectedClassApplier.endMarker.offset,
+						});
 					}
-				}
+					findInputElt.focus();
+				};
+
+				scope.replace = function() {
+					function findNext() {
+						scope.find();
+						replaceInputElt.focus();
+					}
+					if (!selectedClassApplier) {
+						return findNext();
+					}
+					clEditorSvc.cledit.replace(
+						selectedClassApplier.startMarker.offset,
+						selectedClassApplier.endMarker.offset,
+						scope.replaceText || '');
+					setTimeout(findNext, 1);
+				};
+
+				scope.replaceAll = function() {
+					searchRegex && clEditorSvc.cledit.replaceAll(searchRegex, scope.replaceText || '');
+				};
 
 				$window.addEventListener('keydown', function(evt) {
 					if (evt.which !== 70 || (!evt.metaKey && !evt.ctrlKey) || !clEditorLayoutSvc.isEditorOpen) {
@@ -155,6 +163,11 @@ angular.module('classeur.optional.findReplace', [])
 					}
 					evt.preventDefault();
 					clEditorLayoutSvc.currentControl = 'findreplace';
+					var selection = clEditorSvc.cledit.selectionMgr.getSelectedText();
+					if (selection) {
+						scope.findText = selection;
+						scope.$evalAsync();
+					}
 					move();
 				});
 
@@ -162,15 +175,14 @@ angular.module('classeur.optional.findReplace', [])
 					if (evt.which === 13) {
 						// Enter key
 						evt.preventDefault();
-						find();
-						findInputElt.focus();
+						scope.find();
 					}
 				});
 				replaceInputElt.addEventListener('keydown', function(evt) {
 					if (evt.which === 13) {
 						// Enter key
 						evt.preventDefault();
-						find();
+						scope.find();
 						replaceInputElt.focus();
 					}
 				});
