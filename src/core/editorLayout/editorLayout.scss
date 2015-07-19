@@ -105,8 +105,8 @@
             top: 104px;
             height: 125px;
             box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
+            border-top-right-radius: $border-radius-binder;
+            border-bottom-right-radius: $border-radius-binder;
             .md-button {
                 position: absolute;
                 .rotate-90 {
@@ -129,8 +129,8 @@
         width: 100px;
         height: 64px;
         padding-bottom: 20px;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
+        border-top-left-radius: $border-radius-binder;
+        border-top-right-radius: $border-radius-binder;
     }
     .menu.btn,
     .edit.btn {

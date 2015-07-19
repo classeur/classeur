@@ -59,9 +59,19 @@ angular.module('classeur.blogs', [])
 						return $window.Prism.highlight(text, $window.Prism.languages.markup);
 					}
 				});
+				var templateContent;
 				scope.$watch('form.templateKey', function(templateKey) {
-					cledit.setContent(scope.templates[templateKey] || '');
-					cledit.focus();
+					if (templateKey) {
+						cledit.setContent(scope.templates[templateKey] || '');
+						templateContent = cledit.getContent();
+					}
+				});
+				cledit.on('contentChanged', function(content) {
+					scope.form.template = content;
+					if (scope.form.templateKey && templateContent !== content) {
+						scope.form.templateKey = undefined;
+						scope.$evalAsync();
+					}
 				});
 
 				var blogMap = {};
@@ -168,6 +178,7 @@ angular.module('classeur.blogs', [])
 						}
 						var post = blog.platform.createPostFromSubForm(form.subForm);
 						post.blogId = blog.id;
+						post.template = form.template || '';
 						return post;
 					} catch (e) {
 						clToast(e);

@@ -311,8 +311,8 @@
                 height: 100%;
                 font-size: 13px;
                 color: #fff;
-                border-top-right-radius: 12px;
-                border-bottom-right-radius: 12px;
+                border-top-right-radius: $border-radius-binder;
+                border-bottom-right-radius: $border-radius-binder;
                 .rotate-90 {
                     position: absolute;
                     width: 110px;
@@ -339,8 +339,8 @@
             height: 44px;
             width: 42px;
             z-index: 9998;
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
+            border-top-right-radius: $border-radius-binder;
+            border-bottom-right-radius: $border-radius-binder;
             .md-button {
                 font-size: 22px;
                 padding: 0;

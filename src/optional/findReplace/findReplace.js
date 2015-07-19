@@ -25,10 +25,10 @@ angular.module('classeur.optional.findReplace', [])
 							findInputElt.focus();
 						}, 10);
 					} else {
-						findInputElt.readOnly = true;
 						findInputElt.blur();
-						replaceInputElt.readOnly = true;
 						replaceInputElt.blur();
+						findInputElt.readOnly = true;
+						replaceInputElt.readOnly = true;
 					}
 					findReplacePanel.move(speed).to(-clEditorLayoutSvc.backgroundX,
 						isOpen() ? 0 : 40

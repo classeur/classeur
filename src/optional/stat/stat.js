@@ -6,7 +6,7 @@ angular.module('classeur.optional.stat', [])
 				this.regex = new RegExp(regex, 'gm');
 			}
 
-			var markdownStats = [
+			var textStats = [
 				new Stat('bytes', '[\\s\\S]'),
 				new Stat('words', '\\S+'),
 				new Stat('lines', '\n'),
@@ -26,7 +26,7 @@ angular.module('classeur.optional.stat', [])
 			};
 
 			function link(scope, element) {
-				scope.markdownStats = markdownStats;
+				scope.textStats = textStats;
 				scope.htmlStats = htmlStats;
 				scope.editor = clEditorSvc;
 				scope.selectionListener = clSelectionListeningSvc;
@@ -39,15 +39,15 @@ angular.module('classeur.optional.stat', [])
 					speed = 'slow';
 				}
 
-				function computeMarkdown() {
-					scope.isMarkdownSelection = false;
+				function computeText() {
+					scope.isTextSelection = false;
 					var text = clEditorSvc.cledit.getContent();
 					var selectedText = clEditorSvc.cledit.selectionMgr.getSelectedText();
 					if (selectedText) {
-						scope.isMarkdownSelection = true;
+						scope.isTextSelection = true;
 						text = selectedText;
 					}
-					markdownStats.forEach(function(stat) {
+					textStats.forEach(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}
@@ -70,8 +70,8 @@ angular.module('classeur.optional.stat', [])
 					});
 				}
 
-				scope.$watch('editorSvc.sectionList', computeMarkdown);
-				scope.$watch('editorSvc.selectionRange', computeMarkdown);
+				scope.$watch('editorSvc.sectionList', computeText);
+				scope.$watch('editorSvc.selectionRange', computeText);
 				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('selectionListener.range', computeHtml);
 				scope.$watch('editorLayoutSvc.isStatOpen && editorLayoutSvc.isEditorOpen', move);

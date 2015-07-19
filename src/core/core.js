@@ -59,7 +59,7 @@ angular.module('classeur.core', [])
 						}
 						clExplorerLayoutSvc.setCurrentClasseur(classeurDao);
 						clExplorerLayoutSvc.setCurrentFolder(folderDao);
-						return $location.url('');
+						$location.url('');
 					}
 				})
 				.when('/docs/:fileName', {

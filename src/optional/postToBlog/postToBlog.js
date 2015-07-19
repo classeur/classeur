@@ -1,6 +1,12 @@
 angular.module('classeur.optional.postToBlog', [])
 	.directive('clPostToBlog',
-		function(clDialog, clEditorLayoutSvc, clBlogSvc, clSocketSvc) {
+		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast) {
+			clSocketSvc.addMsgHandler('createdBlogPost', function(msg) {
+				if(msg.error) {
+					return clToast(msg.error);
+				}
+			});
+
 			return {
 				restrict: 'E',
 				link: link
@@ -13,32 +19,24 @@ angular.module('classeur.optional.postToBlog', [])
 				}
 
 				function open() {
-					return editPost();
+					return newPost();
 				}
 
-				function editPost(post) {
+				function newPost() {
 					return clDialog.show({
 						templateUrl: 'optional/postToBlog/editBlogPostDialog.html',
 						controller: ['$scope', function(scope) {
-							scope.post = post;
-							scope.form = angular.extend({}, post);
+							scope.form = {};
 						}],
 						onComplete: function(scope) {
 							scope.ok = function() {
-								var newPost = clBlogSvc.createPost(scope.form);
-								if (newPost) {
-									if (post) {
-										newPost.id = post.id;
-										clSocketSvc.sendMsg({
-											type: 'updateBlogPost',
-											blogPost: newPost
-										});
-									} else {
-										clSocketSvc.sendMsg({
-											type: 'createBlogPost',
-											blogPost: newPost
-										});
-									}
+								var blogPost = clBlogSvc.createPost(scope.form);
+								if (blogPost) {
+									clSocketSvc.sendMsg({
+										type: 'createBlogPost',
+										blogPost: blogPost,
+										content: clEditorSvc.applyTemplate(blogPost.template)
+									});
 									clDialog.hide();
 								}
 							};
