@@ -140,6 +140,7 @@ angular.module('classeur.core', [])
 				newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties));
 				newFileDao.contentDao.discussions = JSON.parse(JSON.stringify(oldFileDao.contentDao.discussions));
 				newFileDao.contentDao.comments = JSON.parse(JSON.stringify(oldFileDao.contentDao.comments));
+				newFileDao.contentDao.conflicts = JSON.parse(JSON.stringify(oldFileDao.contentDao.conflicts));
 				newFileDao.writeContent();
 				setCurrentFile(newFileDao);
 				clToast('Copy created.');

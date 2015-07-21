@@ -32,6 +32,8 @@ angular.module('classeur.optional.electron', [])
 									this.contentDao.text = clElectronSvc.watchedFile.content;
 									this.contentDao.properties = {};
 									this.contentDao.discussions = {};
+									this.contentDao.comments = {};
+									this.contentDao.conflicts = {};
 									this.contentDao.state = {};
 									this.state = 'loaded';
 								}

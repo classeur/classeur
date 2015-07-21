@@ -70,6 +70,7 @@ angular.module('classeur.core.files', [])
 					this.contentDao.$read.properties();
 					this.contentDao.$read.discussions();
 					this.contentDao.$read.comments();
+					this.contentDao.$read.conflicts();
 					this.contentDao.$read.state();
 				}
 				this.contentDao.$readUpdate();
@@ -80,6 +81,7 @@ angular.module('classeur.core.files', [])
 				this.contentDao.$free.properties();
 				this.contentDao.$free.discussions();
 				this.contentDao.$free.comments();
+				this.contentDao.$free.conflicts();
 				this.contentDao.$free.state();
 			};
 
@@ -90,6 +92,7 @@ angular.module('classeur.core.files', [])
 					updateLastChange |= this.contentDao.$write.properties();
 					updateLastChange |= this.contentDao.$write.discussions();
 					updateLastChange |= this.contentDao.$write.comments();
+					updateLastChange |= this.contentDao.$write.conflicts();
 					this.contentDao.$write.state();
 				}
 				if (!this.contentDao.isLocal) {
@@ -142,7 +145,8 @@ angular.module('classeur.core.files', [])
 					state: {},
 					properties: {},
 					discussions: {},
-					comments: {}
+					comments: {},
+					conflicts: {},
 				};
 				this.isReadOnly = true;
 				this.state = 'loaded';
@@ -174,6 +178,7 @@ angular.module('classeur.core.files', [])
 				properties: true,
 				discussions: true,
 				comments: true,
+				conflicts: true,
 				state: true,
 			};
 
