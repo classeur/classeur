@@ -1,4 +1,4 @@
-# Markdown!
+# Header 1
 
 ## Header 2
 
@@ -44,15 +44,15 @@ An image: ![Alt](img.jpg)
 -----
 
 
-A `piece of code`.
+Some `inline code`.
 
 ```
-// Code block
+// A code block
 var foo = 'bar';
 ```
 
 ```js
-// Highlighted!
+// An highlighted block
 var foo = 'bar';
 ```
 
@@ -77,7 +77,7 @@ Markdown
 -----
 
 
-Text with a footnote.[^1]
+A text with a footnote.[^1]
 
 [^1]: The footnote.
 

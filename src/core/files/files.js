@@ -34,6 +34,11 @@ angular.module('classeur.core.files', [])
 					parser: JSON.parse,
 					serializer: JSON.stringify,
 				},
+				conflicts: {
+					default: '{}',
+					parser: JSON.parse,
+					serializer: JSON.stringify,
+				},
 				state: {
 					default: '{}',
 					parser: JSON.parse,
