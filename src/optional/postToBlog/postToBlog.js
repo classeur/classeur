@@ -1,12 +1,35 @@
 angular.module('classeur.optional.postToBlog', [])
-	.directive('clPostToBlog',
-		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast) {
-			clSocketSvc.addMsgHandler('createdBlogPost', function(msg) {
-				if(msg.error) {
-					return clToast(msg.error);
-				}
-			});
+	.directive('clUpdateBlogPostsButton',
+		function(clPostToBlogSvc, clPanel) {
+			return {
+				restrict: 'E',
+				templateUrl: 'optional/postToBlog/updateBlogPostsButton.html',
+				link: link
+			};
 
+			function link(scope, element) {
+				scope.postToBlogSvc = clPostToBlogSvc;
+				var isHover, panel = clPanel(element, '.panel'),
+					speed;
+
+				function toggle() {
+					panel.move(speed).x(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5).end();
+					speed = 'slow';
+				}
+
+				panel.$elt.addEventListener('mouseenter', function() {
+					isHover = true;
+					toggle();
+				});
+				panel.$elt.addEventListener('mouseleave', function() {
+					isHover = false;
+					toggle();
+				});
+				scope.$watch('postToBlogSvc.isUpdating', toggle);
+			}
+		})
+	.directive('clPostToBlog',
+		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast, clPostToBlogSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -19,12 +42,44 @@ angular.module('classeur.optional.postToBlog', [])
 				}
 
 				function open() {
-					return newPost();
+					if (!clSocketSvc.isReady) {
+						return clDialog.show(
+							clDialog.alert()
+							.title('You\'re offline')
+							.content('You can\'t manage blog posts while offline.')
+							.ariaLabel('You\'re offline')
+							.ok('Ok')
+						).then(close, close);
+					}
+					clPostToBlogSvc.blogPosts.length ? showPosts() : newPost();
+				}
+
+				function showPosts() {
+					return clDialog.show({
+						templateUrl: 'optional/postToBlog/blogPostsDialog.html',
+						controller: ['$scope', function(scope) {
+							scope.postToBlogSvc = clPostToBlogSvc;
+						}],
+						onComplete: function(scope) {
+							scope.newPost = newPost;
+							scope.updateBlogPost = clPostToBlogSvc.updateBlogPost;
+							scope.deleteBlogPost = function(blogPost) {
+								clPostToBlogSvc.deleteBlogPost(blogPost);
+								clSocketSvc.sendMsg({
+									type: 'deleteBlogPost',
+									id: blogPost.id
+								});
+							};
+							scope.close = function() {
+								clDialog.hide();
+							};
+						}
+					}).then(close, close);
 				}
 
 				function newPost() {
 					return clDialog.show({
-						templateUrl: 'optional/postToBlog/editBlogPostDialog.html',
+						templateUrl: 'optional/postToBlog/newBlogPostDialog.html',
 						controller: ['$scope', function(scope) {
 							scope.form = {};
 						}],
@@ -44,13 +99,147 @@ angular.module('classeur.optional.postToBlog', [])
 								clDialog.cancel();
 							};
 						}
-					}).then(function() {
-						close();
-					}, close);
+					}).then(close, close);
 				}
 
 				scope.$watch('editorLayoutSvc.currentControl === "postToBlog"', function(value) {
 					value && open();
 				});
+
+				function createdBlogPostHandler(msg) {
+					if (msg.error) {
+						return clToast(msg.error);
+					}
+					clToast('Blog post successfully created.');
+					msg.fileId === scope.currentFileDao.id && clPostToBlogSvc.addBlogPost(msg.blogPost);
+				}
+
+				function blogsHandler(msg) {
+					clPostToBlogSvc.setBlogs(msg.blogs);
+					scope.$evalAsync();
+				}
+
+				function blogPostsHandler(msg) {
+					msg.fileId === scope.currentFileDao.id && clPostToBlogSvc.setBlogPosts(msg.blogPosts);
+					scope.$evalAsync();
+				}
+
+				clSocketSvc.addMsgHandler('createdBlogPost', createdBlogPostHandler);
+				clSocketSvc.addMsgHandler('blogs', blogsHandler);
+				clSocketSvc.addMsgHandler('blogPosts', blogPostsHandler);
+				scope.$on('$destroy', function() {
+					clSocketSvc.removeMsgHandler('createdBlogPost', createdBlogPostHandler);
+					clSocketSvc.removeMsgHandler('blogs', blogsHandler);
+					clSocketSvc.removeMsgHandler('blogPosts', blogPostsHandler);
+				});
+
+				scope.$watch('contentSyncSvc.watchCtx.text !== undefined', function(isWatching) {
+					if (!isWatching) {
+						return;
+					}
+					clSocketSvc.sendMsg({
+						type: 'getBlogs'
+					});
+					clSocketSvc.sendMsg({
+						type: 'getBlogPosts'
+					});
+				});
+				clPostToBlogSvc.setBlogPosts();
 			}
+		})
+	.factory('clPostToBlogSvc',
+		function($q, clBlogSvc, clToast, clSocketSvc, clEditorSvc) {
+			var blogMap = {},
+				posts = [],
+				clPostToBlogSvc = {
+					blogPosts: []
+				};
+
+			clSocketSvc.addMsgHandler('sentBlogPost', function(msg) {
+				clPostToBlogSvc.blogPosts.some(function(blogPost) {
+					if (blogPost.id === msg.id) {
+						blogPost.updateCb && blogPost.updateCb(msg.err);
+						blogPost.updateCb = undefined;
+						checkIsUpdating();
+						return true;
+					}
+				});
+			});
+
+			function checkIsUpdating() {
+				clPostToBlogSvc.isUpdating = clPostToBlogSvc.blogPosts.some(function(blogPost) {
+					return blogPost.updateCb;
+				});
+			}
+
+			function refreshBlogPosts() {
+				clPostToBlogSvc.blogPosts = posts.filter(function(blogPost) {
+					return (blogPost.blog = blogMap[blogPost.blogId]);
+				});
+				checkIsUpdating();
+			}
+
+			clPostToBlogSvc.setBlogs = function(blogs) {
+				blogMap = blogs.reduce(function(blogMap, blog) {
+					blog.platform = clBlogSvc.platformMap[blog.platformId];
+					return (blogMap[blog.id] = blog), blogMap;
+				}, {});
+				refreshBlogPosts();
+			};
+			clPostToBlogSvc.setBlogPosts = function(blogPosts) {
+				posts = blogPosts || [];
+				refreshBlogPosts();
+			};
+			clPostToBlogSvc.addBlogPost = function(blogPost) {
+				posts.push(blogPost);
+				refreshBlogPosts();
+			};
+			clPostToBlogSvc.deleteBlogPost = function(blogPost) {
+				posts = posts.filter(function(post) {
+					return post !== blogPost;
+				});
+				refreshBlogPosts();
+			};
+
+			function updateBlogPost(blogPost) {
+				return $q(function(resolve) {
+					blogPost.updateCb = resolve;
+					var blogPostLight = angular.extend({}, blogPost);
+					blogPostLight.template = undefined;
+					blogPostLight.blog = undefined;
+					clSocketSvc.sendMsg({
+						type: 'sendBlogPost',
+						blogPost: blogPostLight,
+						content: clEditorSvc.applyTemplate(blogPost.template)
+					});
+				});
+			}
+
+			clPostToBlogSvc.updateBlogPost = function(blogPost) {
+				if (!blogPost.updateCb) {
+					clToast('Updating blog post...');
+					updateBlogPost(blogPost)
+						.then(function(err) {
+							clToast(err || 'Blog post has been updated.');
+						});
+					checkIsUpdating();
+				}
+			};
+			clPostToBlogSvc.updateAll = function() {
+				!clPostToBlogSvc.isUpdating && clToast('Updating blog posts...');
+				$q.all(clPostToBlogSvc.blogPosts.map(function(blogPost) {
+					return !blogPost.updateCb && updateBlogPost(blogPost);
+				})).then(function(results) {
+					if (!results.some(function(err) {
+							if (err) {
+								clToast(err);
+								return true;
+							}
+						})) {
+						clToast(results.length + (results.length > 1 ? ' blog posts have been updated.' : ' blog post has been updated.'));
+					}
+				});
+				checkIsUpdating();
+			};
+			return clPostToBlogSvc;
 		});

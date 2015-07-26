@@ -1,9 +1,10 @@
-.offline.indicator {
+@import 'variables';
+.update.posts.button {
     top: 250px;
-    right: -28px;
+    right: -30px;
     height: 48px;
     width: 50px;
-    background-color: #ECC77D;
+    background-color: #c8c8c8;
     border-radius: 8px;
     button {
         position: absolute;
@@ -16,6 +17,10 @@
         &:hover {
             color: #fff;
             background-color: transparent;
+        }
+        &[disabled] {
+            color: #fff;
+            opacity: 0.5;
         }
     }
     .rotate-90 {
@@ -30,37 +35,4 @@
         -o-transform-origin: 0 0;
         transform-origin: 0 0;
     }
-}
-
-.offline-alert.panel,
-.signin-alert.panel {
-    left: 15px;
-    top: 15px;
-    font-size: 14px;
-    padding-top: 5px;
-    cursor: move;
-    p {
-        line-height: 1.3;
-    }
-    .content.panel {
-        padding: 5px 20px 15px;
-    }
-    .close.btn {
-        top: 0;
-        right: 0;
-        a {
-            font-size: 22px;
-            line-height: 30px;
-        }
-    }
-}
-
-.offline-alert.panel {
-    width: 210px;
-    height: 210px;
-}
-
-.signin-alert.panel {
-    width: 220px;
-    height: 220px;
 }

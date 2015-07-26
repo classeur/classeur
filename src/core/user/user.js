@@ -6,9 +6,10 @@ angular.module('classeur.core.user', [])
             });
         })
     .factory('clUserActivity',
-        function($window, clLocalStorage) {
-            var inactiveAfter = 180000; // 3 minutes
-            var lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus';
+        function($window, $rootScope, clLocalStorage) {
+            var inactiveAfter = 180000, // 3 minutes
+                lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus',
+                clUserActivity = {};
 
             function setLastActivity() {
                 lastActivity = Date.now();
@@ -20,17 +21,27 @@ angular.module('classeur.core.user', [])
                 setLastActivity();
             }
 
-            function isActive() {
-                return lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
-            }
+            clUserActivity.checkActivity = function() {
+                var isActive = lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
+                if (isActive !== clUserActivity.isActive) {
+                    clUserActivity.isActive = isActive;
+                    $rootScope.$evalAsync();
+                }
+                return isActive;
+            };
+
+            setInterval(function() {
+                var isActive = lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
+                if (isActive !== clUserActivity.isActive) {
+                    clUserActivity.isActive = isActive;
+                }
+            }, 1000);
 
             setLastFocus();
             $window.addEventListener('focus', setLastFocus);
             $window.document.addEventListener('mousedown', setLastActivity);
             $window.document.addEventListener('keydown', setLastActivity);
-            return {
-                isActive: isActive
-            };
+            return clUserActivity;
         })
     .factory('clUserSvc',
         function($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConfig, clStateMgr) {
@@ -173,7 +184,7 @@ angular.module('classeur.core.user', [])
 
             var currentUserInfo;
             $rootScope.$watch('userSvc.user', function(user) {
-                if(currentUserInfo) {
+                if (currentUserInfo) {
                     clUserInfoSvc.users[currentUserInfo.id] = currentUserInfo;
                 }
                 if (user) {

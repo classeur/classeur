@@ -17,6 +17,13 @@ angular.module('classeur.blogs', [])
 				scope.platform = clBlogSvc.platformMap[scope.blog.platformId];
 			}
 		})
+	.directive('clBlogPostEntry',
+		function() {
+			return {
+				restrict: 'E',
+				templateUrl: 'blogs/blogPostEntry.html'
+			};
+		})
 	.directive('clBlogForm',
 		function(clBlogSvc) {
 			return {

@@ -6,6 +6,13 @@ angular.module('classeur.blogs.github', [])
 				templateUrl: 'blogs/github/githubBlogForm.html'
 			};
 		})
+	.directive('clGithubBlogPostEntry',
+		function() {
+			return {
+				restrict: 'E',
+				templateUrl: 'blogs/github/githubBlogPostEntry.html'
+			};
+		})
 	.directive('clGithubBlogPostForm',
 		function() {
 			return {
@@ -89,6 +96,17 @@ angular.module('classeur.blogs.github', [])
 					redirect_uri: clConfig.appUri + '/oauth/github/callback',
 					scope: blog.private ? 'repo' : 'public_repo'
 				};
+			};
+
+			clGithubBlogPlatform.getBlogPostLocation = function(blogPost) {
+				var result = [
+					'https://github.com',
+					blogPost.blog.user,
+					blogPost.blog.repo,
+					'blob',
+					blogPost.branch
+				];
+				return result.concat(blogPost.filePath.split('/').map(encodeURIComponent)).join('/');
 			};
 
 			return clGithubBlogPlatform;

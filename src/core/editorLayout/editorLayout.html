@@ -92,15 +92,18 @@
                         </div>
                     </md-button>
                 </div>
-                <cl-offline-indicator></cl-offline-indicator>
             </div>
-            <div class="page panel paper md-whiteframe-z1">
-                <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-                <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-                <cl-zen-mode></cl-zen-mode>
-                <div class="margin panel">
+            <div class="page panel">
+                <cl-update-blog-posts-button></cl-update-blog-posts-button>
+                <cl-offline-indicator></cl-offline-indicator>
+                <div class="panel paper md-whiteframe-z1">
+                    <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+                    <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+                    <cl-zen-mode></cl-zen-mode>
+                    <div class="margin panel">
+                    </div>
+                    <cl-editor></cl-editor>
                 </div>
-                <cl-editor></cl-editor>
             </div>
         </div>
         <cl-button-bar ng-if="localSettingSvc.values.buttonBar"></cl-button-bar>

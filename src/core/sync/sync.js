@@ -674,7 +674,7 @@ angular.module('classeur.core.sync', [])
 				// Need to save here to have the `updated` attributes up to date
 				clSyncSvc.saveAll() && $rootScope.$apply();
 
-				if (!clUserActivity.isActive() || !clSocketSvc.isOnline()) {
+				if (!clUserActivity.checkActivity() || !clSocketSvc.isOnline()) {
 					return;
 				}
 
@@ -1118,7 +1118,7 @@ angular.module('classeur.core.sync', [])
 			});
 
 			clSetInterval(function() {
-				if (!clUserActivity.isActive()) {
+				if (!clUserActivity.checkActivity()) {
 					return;
 				}
 				var currentFileDao = $rootScope.currentFileDao;

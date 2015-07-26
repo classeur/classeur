@@ -1,6 +1,6 @@
 angular.module('classeur.optional.offlineAlert', [])
 	.directive('clOfflineIndicator',
-		function($timeout, clSocketSvc) {
+		function($window, clSocketSvc, clUserActivity) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -9,15 +9,18 @@ angular.module('classeur.optional.offlineAlert', [])
 			};
 
 			function link(scope) {
-				var timeoutId = $timeout(function() {
-					timeoutId = null;
-					setFlag();
-				}, 3000);
-
 				function setFlag() {
-					scope.show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && !timeoutId);
+					var show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && clUserActivity.isActive);
+					if (show !== scope.show) {
+						scope.show = show;
+						return true;
+					}
 				}
-				scope.$watch('socketSvc.isReady', setFlag);
+				var debouncedSetFlag = $window.cledit.Utils.debounce(function() {
+					setFlag() && scope.$apply();
+				}, 5000);
+				
+				scope.$watch('!socketSvc.isReady && userActivity.isActive', debouncedSetFlag);
 			}
 		})
 	.directive('clOfflineAlert',

@@ -15,14 +15,15 @@ angular.module('classeur.optional.zenMode', [])
 			};
 
 			function link(scope, element) {
-				var level1Panel = clPanel(element, '.level-1').width(4000).right(-1500);
-				var level2Panel = clPanel(element, '.level-2');
-				level1Panel.move().set('opacity', 0).end();
-				var parentNode = element[0].parentNode;
-				var lastClientX, lastClientY, isHidden = true;
+				var level1Panel = clPanel(element, '.level-1').width(4000).right(-1500),
+					level2Panel = clPanel(element, '.level-2'),
+					parentNode = element[0].parentNode,
+					lastClientX, lastClientY, isHidden = true,
+					isTyping;
 
 				function isEnabled() {
-					return clLocalSettingSvc.values.zenMode &&
+					return isTyping &&
+						clLocalSettingSvc.values.zenMode &&
 						clEditorLayoutSvc.isEditorOpen &&
 						!clEditorLayoutSvc.isSideBarOpen &&
 						!clEditorLayoutSvc.isSidePreviewOpen &&
@@ -65,12 +66,19 @@ angular.module('classeur.optional.zenMode', [])
 					}
 					unhide && !isHidden && level1Panel.move('fast').set('opacity', 0).ease('out').end(function() {
 						isHidden = true;
+						isTyping = false;
 						level1Panel.$jqElt.addClass('hidden');
 					});
 				}
 
+				level1Panel.move().set('opacity', 0).end();
 				hidePanel();
 				var containerElt = document.querySelector('.background.panel');
+				containerElt.addEventListener('keydown', function() {
+					isTyping = true;
+					showLevel1();
+					showLevel2();
+				});
 				containerElt.addEventListener('mousemove', hidePanel);
 				containerElt.addEventListener('click', hidePanel);
 

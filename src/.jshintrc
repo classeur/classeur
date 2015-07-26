@@ -1,4 +1,5 @@
 {
+    "indent": 1,
     "undef": true,
     "unused": true,
     "browser": true,

@@ -16,11 +16,14 @@
         color: rgba(0, 0, 0, 0.7);
         font-size: 28px;
         padding: 6px 3px;
-        min-width: 35px;
+        min-width: 38px;
+        &[disabled] {
+            opacity: 0.5;
+        }
     }
     .icon {
         font-size: 30px;
-        min-width: 35px;
+        min-width: 38px;
         &::before {
             vertical-align: middle;
         }
@@ -35,10 +38,24 @@
             border-radius: 8px;
             padding: 0 6px;
             color: #fff;
-            background-color: #048E00;
+            background-color: #008E3D;
         }
         &.error span {
             background-color: #D33800;
+        }
+    }
+    &.post {
+        margin-bottom: 25px;
+        .details {
+            width: 100%;
+            color: rgba(0, 0, 0, 0.54);
+            font-size: 12.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            padding-right: 10px;
+            b {
+                padding-left: 10px;
+            }
         }
     }
 }

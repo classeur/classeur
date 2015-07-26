@@ -36,7 +36,7 @@ angular.module('classeur.core.socket', [])
 				socket.onmessage = function(event) {
 					var msg = JSON.parse(event.data);
 					(msgHandlers[msg.type] || []).forEach(function(handler) {
-						return handler(msg, clSocketSvc.ctx);
+						return handler(JSON.parse(event.data), clSocketSvc.ctx); // Give each handler a different msg object
 					});
 				};
 				socket.onclose = function() {
@@ -45,7 +45,7 @@ angular.module('classeur.core.socket', [])
 			}
 
 			function shouldAttempt() {
-				return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.isActive() && $window.navigator.onLine !== false;
+				return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.checkActivity() && $window.navigator.onLine !== false;
 			}
 
 			function openSocket() {

@@ -1,0 +1,17 @@
+<md-dialog class="blog post list dialog">
+    <md-dialog-content>
+        <h2>Blog posts</h2>
+        <cl-blog-post-entry ng-repeat="blogPost in postToBlogSvc.blogPosts track by blogPost.id"></cl-blog-post-entry>
+        <md-button ng-href="/#!/settings?tab=blogs">
+            Manage blogs...
+        </md-button>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="newPost()">
+            New post...
+        </md-button>
+        <md-button ng-click="close()" class="md-primary">
+            Close
+        </md-button>
+    </div>
+</md-dialog>

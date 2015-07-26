@@ -1,7 +1,7 @@
 {
     "curly": true,
     "node": true,
-    "indent": 4,
+    "indent": 1,
     "latedef": true,
     "undef": true,
     "unused": true,
