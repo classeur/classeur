@@ -34,8 +34,5 @@
     "markdown-it-abbr": "~1.0.0",
     "markdown-it-footnote": "~1.0.0",
     "markdown-it-emoji": "~1.0.0"
-  },
-  "resolutions": {
-    "angular": "~1.4.0"
   }
 }

@@ -38,7 +38,7 @@ angular.module('classeur.optional.zenMode', [])
 					level1Panel.$elt.offsetWidth;
 					level1Panel.move().set('opacity', 1).duration(1200).ease('in').end();
 					isHidden = false;
-				}, 4000);
+				}, 3000);
 
 				var showLevel2 = $window.cledit.Utils.debounce(function() {
 					if (isEnabled()) {

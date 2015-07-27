@@ -11,9 +11,9 @@
     <div class="details">
     <cl-github-blog-post-entry ng-if="blogPost.blog.platformId === 'github'"></cl-github-blog-post-entry>
     </div>
-    <md-button class="icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post">
-    </md-button>
     <md-button class="icon-open-in-new" ng-href="{{::blogPost.blog.platform.getBlogPostLocation(blogPost)}}" target="_blank" aria-label="Open blog post">
+    </md-button>
+    <md-button class="icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post">
     </md-button>
     <md-button class="icon-delete" ng-click="deleteBlogPost(blogPost)" aria-label="Delete blog post">
     </md-button>

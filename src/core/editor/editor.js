@@ -658,7 +658,7 @@ angular.module('classeur.core.editor', [])
 					}
 				});
 				clEditorSvc.sectionDescList = newSectionDescList;
-
+				tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('empty');
 				runAsyncPreview(cb);
 			};
 

@@ -2,7 +2,11 @@
     <md-select placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()" ng-if="!post">
         <md-option ng-repeat="blog in blogs" value="{{blog.id}}"><span class="blog icon" ng-class="blog.platform.icon"></span> {{blog.name}}</md-option>
     </md-select>
+    <md-button ng-href="/#!/settings?tab=blogs">
+        Manage blogs...
+    </md-button>
     <div ng-show="form.blog">
+        <br>
         <div class="tip">
             <b>Platform:</b> {{form.blog.platform.name}}
         </div>

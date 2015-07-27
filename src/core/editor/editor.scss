@@ -56,7 +56,8 @@
     * {
         line-height: 1.5;
     }
-    img, table {
+    img,
+    table {
         max-width: 100%;
     }
 }
@@ -112,5 +113,9 @@
     }
     h6 {
         padding-left: 40px;
+    }
+    &.empty::before {
+        font-size: 14px;
+        content: 'No table of contents available.';
     }
 }
