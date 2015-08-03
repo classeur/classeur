@@ -240,6 +240,29 @@ angular.module('classeur.core.editor', [])
 		})
 	.factory('clEditorClassApplier',
 		function($window, clEditorSvc) {
+			var nextTickCbs = [],
+				savedSelection;
+			var execNextTickCbs = $window.cledit.Utils.debounce(function() {
+				while (nextTickCbs.length) {
+					nextTickCbs.pop()();
+				}
+				savedSelection && clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(savedSelection.start, savedSelection.end);
+				savedSelection = undefined;
+			});
+
+			function nextTick(cb) {
+				nextTickCbs.push(cb);
+				execNextTickCbs();
+			}
+
+			function nextTickRestoreSelection() {
+				savedSelection = {
+					start: clEditorSvc.cledit.selectionMgr.selectionStart,
+					end: clEditorSvc.cledit.selectionMgr.selectionEnd
+				};
+				execNextTickCbs();
+			}
+
 			function ClassApplier(classes, offsetGetter, properties) {
 				classes = typeof classes === 'string' ? [classes] : classes;
 				var self = this;
@@ -288,7 +311,7 @@ angular.module('classeur.core.editor', [])
 							while (treeWalker.nextNode());
 						});
 					}
-					clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
+					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
 					lastEltCount = self.elts.length;
 				}
 
@@ -310,7 +333,7 @@ angular.module('classeur.core.editor', [])
 							elt.parentNode.removeChild(elt);
 						});
 					});
-					clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
+					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
 				}
 
 				function restoreClass() {
@@ -322,11 +345,11 @@ angular.module('classeur.core.editor', [])
 
 				this.stop = function() {
 					clEditorSvc.cledit.off('contentChanged', restoreClass);
-					removeClass();
+					nextTick(removeClass);
 				};
 
 				clEditorSvc.cledit.on('contentChanged', restoreClass);
-				applyClass();
+				nextTick(applyClass);
 			}
 
 			return function(classes, offsetGetter, properties) {

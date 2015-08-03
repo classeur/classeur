@@ -1107,7 +1107,7 @@ angular.module('classeur.core.sync', [])
 				watchCtx.comments = serverComments;
 				watchCtx.conflicts = serverConflicts;
 				clContentRevSvc.setRev(watchCtx.fileDao.id, watchCtx.rev);
-				apply && $rootScope.$apply();
+				apply && $rootScope.$evalAsync();
 			});
 
 			$rootScope.$watch('currentFileDao', function(currentFileDao) {
