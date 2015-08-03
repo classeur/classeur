@@ -35,7 +35,7 @@ angular.module('classeur.optional.userActivity', [])
 			function refreshClasses() {
 				var styleContent = '';
 				angular.forEach(userClasses, function(userClass, userId) {
-					styleContent += '.user-activity-' + userId + ' {';
+					styleContent += '.user-activity-' + userId + '.show {';
 					styleContent += '-webkit-box-shadow: inset -2px 0 0 1px #' + userClass.color + ';';
 					styleContent += 'box-shadow: inset -2px 0 0 1px #' + userClass.color + '}';
 					var userInfo = clUserInfoSvc.users[userId];
@@ -43,7 +43,7 @@ angular.module('classeur.optional.userActivity', [])
 						var escape = character.charCodeAt().toString(16);
 						return '\\' + ('000000' + escape).slice(-6);
 					});
-					styleContent += '.user-activity-' + userId + '::after {';
+					styleContent += '.user-activity-' + userId + '.show::after {';
 					styleContent += 'color: #' + userClass.color + ';';
 					styleContent += 'content: \'' + escapedUsername + '\';';
 				});
@@ -100,6 +100,12 @@ angular.module('classeur.optional.userActivity', [])
 						}
 						content = content.substring(start, end);
 						start += content.lastIndexOf('\n') + 1;
+						$window.cledit.Utils.defer(function() {
+							// Show only one element
+							Array.prototype.slice.call(clEditorSvc.editorElt.querySelectorAll('.user-activity-' + scope.userId), -1).forEach(function(elt) {
+								elt.classList.add('show');
+							});
+						});
 						return start !== end && {
 							start: start,
 							end: end

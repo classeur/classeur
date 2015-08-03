@@ -1,6 +1,6 @@
 angular.module('classeur.core.files', [])
 	.factory('clFileSvc',
-		function($window, $timeout, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc) {
+		function($timeout, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
 			var maxLocalFiles = 3;
 			var fileDaoProto = clLocalStorageObject('f', {
 				name: {},
@@ -121,7 +121,7 @@ angular.module('classeur.core.files', [])
 							this.readContent();
 						}
 					}).bind(this));
-				} else if (clSocketSvc.isReady || (this.isPublic && $window.navigator.onLine !== false)) {
+				} else if (clSocketSvc.isReady || (this.isPublic && clIsNavigatorOnline())) {
 					this.state = 'loading';
 				}
 			};

@@ -78,14 +78,30 @@
             }
         }
     }
-    md-content.md-default-theme,
-    .md-subheader.md-default-theme {
-        background-color: transparent;
-        font-size: inherit;
-    }
     .folder.container {
         top: 2px;
-        padding-bottom: 150px;
+        padding-left: 90px;
+        padding-right: 95px;
+        &.clone {
+            position: absolute;
+            .file.actions > div {
+                padding: 15px 0;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            &.hidden {
+                display: none;
+            }
+        }
+        &.panel::after {
+            content: '';
+            height: 150px;
+            display: block;
+        }
+        overflow-x: hidden;
+        overflow-y: scroll;
+        &::-webkit-scrollbar {
+            display: none;
+        }
         .folder.btn {
             width: 34px;
             height: 42px;
@@ -112,31 +128,6 @@
             display: block;
             color: #fff;
         }
-    }
-    .md-subheader {
-        margin: 0;
-        padding: 0;
-        &::after {
-            display: none;
-        }
-        .md-subheader-inner {
-            padding: 0;
-            -webkit-animation: none;
-            animation: none;
-        }
-    }
-    .md-sticky-clone {
-        margin-left: 0 !important;
-    }
-    .folder.container,
-    .md-sticky-clone {
-        overflow-x: hidden;
-        overflow-y: scroll;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-        padding-left: 90px;
-        padding-right: 95px;
     }
     .no-padding {
         .folder.container, .md-sticky-clone {
@@ -189,8 +180,7 @@
     }
     .file.actions {
         & > div {
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.025);
+            padding: 15px 0 5px;
         }
         padding: 0 35px;
         border-top-left-radius: 6px;

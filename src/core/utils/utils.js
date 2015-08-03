@@ -3,6 +3,13 @@ angular.module('classeur.core.utils', [])
 		function($window) {
 			return $window.CL_CONFIG || {};
 		})
+	.factory('clIsNavigatorOnline',
+		function($window) {
+			return function() {
+				return true;
+				return $window.navigator.onLine !== false;
+			};
+		})
 	.factory('clSetInterval',
 		function() {
 			return function(cb, interval) {

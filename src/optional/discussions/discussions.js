@@ -66,14 +66,14 @@ angular.module('classeur.optional.discussions', [])
 				}
 
 				var showButton = $window.cledit.Utils.debounce(function() {
-					if(checkSelection()) {
+					if (checkSelection()) {
 						scope.show = true;
 						scope.$apply();
 					}
 				}, 500);
 
 				var hideButton = $window.cledit.Utils.debounce(function() {
-					if(!checkSelection()) {
+					if (!checkSelection()) {
 						scope.show = false;
 						scope.$apply();
 					}
@@ -104,7 +104,7 @@ angular.module('classeur.optional.discussions', [])
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
 					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 500);
-					if(!text) {
+					if (!text) {
 						return;
 					}
 					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
@@ -141,6 +141,9 @@ angular.module('classeur.optional.discussions', [])
 
 			function link(scope) {
 				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussionId, 'discussion-highlighting'], function() {
+					if(!clEditorSvc.cledit.options) {
+						return; // cledit not inited
+					}
 					var text = clEditorSvc.cledit.getContent();
 					return clDiscussionSvc.patchToOffset(text, scope.discussion.patches);
 				}, {
@@ -238,10 +241,12 @@ angular.module('classeur.optional.discussions', [])
 					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
 						return;
 					}
-					scope.comments = Object.keys(contentDao.comments).map(function(commentId) {
-						return contentDao.comments[commentId];
-					}).filter(function(comment) {
-						return comment.discussionId === scope.discussionId;
+					scope.comments = Object.keys(contentDao.comments).filter(function(commentId) {
+						return contentDao.comments[commentId].discussionId === scope.discussionId;
+					}).map(function(commentId) {
+						var comment = angular.extend({}, contentDao.comments[commentId]);
+						comment.id = commentId;
+						return comment;
 					}).sort(function(comment1, comment2) {
 						return comment1.created > comment2.created;
 					});
@@ -260,7 +265,7 @@ angular.module('classeur.optional.discussions', [])
 							var scrollerElt = clEditorSvc.editorElt.parentNode;
 							clScrollAnimation(scrollerElt, offset < 0 ? 0 : offset);
 						}, 10);
-					} else if(clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
+					} else if (clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;
 					}

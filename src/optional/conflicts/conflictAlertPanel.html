@@ -1,0 +1,15 @@
+<div class="conflict-alert panel postit no-overflow md-whiteframe-z2" layout="column" layout-align="space-between">
+    <div>
+        <h2>Conflicts</h2>
+        <p><b>There are conflicts in the file.</b></p>
+        <p>Click <b>next</b> to review the conflicts.</p>
+        <cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+            <a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
+        </cl-button>
+    </div>
+    <div layout="row" layout-align="end">
+        <md-button md-no-ink class="md-primary" ng-click="next()">
+            Next
+        </md-button>
+    </div>
+</div>

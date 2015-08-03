@@ -288,7 +288,7 @@ angular.module('classeur.core.editor', [])
 							while (treeWalker.nextNode());
 						});
 					}
-					clEditorSvc.debouncedRestoreSelection();
+					clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
 					lastEltCount = self.elts.length;
 				}
 
@@ -310,7 +310,7 @@ angular.module('classeur.core.editor', [])
 							elt.parentNode.removeChild(elt);
 						});
 					});
-					clEditorSvc.debouncedRestoreSelection();
+					clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
 				}
 
 				function restoreClass() {
@@ -490,9 +490,6 @@ angular.module('classeur.core.editor', [])
 						if (clEditorLayoutSvc.currentControl === 'menu') {
 							clEditorLayoutSvc.currentControl = undefined;
 						}
-					});
-					clEditorSvc.debouncedRestoreSelection = $window.cledit.Utils.debounce(function() {
-						clEditorSvc.cledit.selectionMgr.hasFocus && clEditorSvc.cledit.selectionMgr.restoreSelection();
 					});
 				},
 				initCledit: function(options) {

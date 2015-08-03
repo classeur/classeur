@@ -1,6 +1,6 @@
 angular.module('classeur.core.socket', [])
 	.factory('clSocketSvc',
-		function($window, $rootScope, $location, clLocalStorage, clUserActivity) {
+		function($rootScope, $location, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
 			var socketTokenKey = 'socketToken';
 			var socket, msgHandlers = {};
 			var socketToken;
@@ -45,7 +45,7 @@ angular.module('classeur.core.socket', [])
 			}
 
 			function shouldAttempt() {
-				return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.checkActivity() && $window.navigator.onLine !== false;
+				return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.checkActivity() && clIsNavigatorOnline();
 			}
 
 			function openSocket() {

@@ -32,6 +32,7 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'classeur.core.utils',
 		'classeur.optional.adminPage',
 		'classeur.optional.buttonBar',
+		'classeur.optional.conflicts',
 		'classeur.optional.discussions',
 		'classeur.optional.electron',
 		'classeur.optional.exportToDisk',

@@ -1,0 +1,17 @@
+<md-dialog class="fix conflict dialog">
+    <md-dialog-content>
+        <h2>Fix conflict</h2>
+        <div class="conflict-highlighting conflict-highlighting-part-1" ng-class="{selected: selectedPart === 1, del: selectedPart === 2}" ng-click="selectedPart = 1" ng-bind-html="part1 | clHighlightMarkdown:editorSvc.prismGrammar">
+        </div>
+        <div class="conflict-highlighting conflict-highlighting-part-2" ng-class="{selected: selectedPart === 2, del: selectedPart === 1}" ng-click="selectedPart = 2" ng-bind-html="part2 | clHighlightMarkdown:editorSvc.prismGrammar">
+        </div>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()" class="md-primary">
+            Cancel
+        </md-button>
+        <md-button ng-click="fix()" class="md-primary">
+            Fix
+        </md-button>
+    </div>
+</md-dialog>

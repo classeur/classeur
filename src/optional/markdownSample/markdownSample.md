@@ -77,7 +77,7 @@ Markdown
 -----
 
 
-A text with a footnote.[^1]
+Some text with a footnote.[^1]
 
 [^1]: The footnote.
 

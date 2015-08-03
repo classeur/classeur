@@ -251,7 +251,7 @@ angular.module('classeur.core.sync', [])
 			};
 		})
 	.factory('clSyncSvc',
-		function($rootScope, $location, $http, $window, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncUtils, clSyncDataSvc, clContentRevSvc) {
+		function($rootScope, $location, $http, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncUtils, clSyncDataSvc, clContentRevSvc) {
 			var clSyncSvc = {};
 			var nameMaxLength = 128;
 			var longInactivityThreshold = 60 * 1000; // 60 sec
@@ -361,9 +361,7 @@ angular.module('classeur.core.sync', [])
 				var foldersToRefresh = clFolderSvc.folders.filter(function(folderDao) {
 					return folderDao.isPublic && !folderDao.name;
 				});
-				if (!foldersToRefresh.length ||
-					$window.navigator.onLine === false
-				) {
+				if (!foldersToRefresh.length || !clIsNavigatorOnline()) {
 					return;
 				}
 				$http.get('/api/metadata/folders', {
@@ -716,7 +714,7 @@ angular.module('classeur.core.sync', [])
 			return clSyncSvc;
 		})
 	.factory('clPublicSyncSvc',
-		function($window, $http, clSyncDataSvc, clFileSvc, clFolderSvc, clToast) {
+		function($http, clSyncDataSvc, clFileSvc, clFolderSvc, clToast, clIsNavigatorOnline) {
 			var publicFileRefreshAfter = 60 * 1000; // 60 sec
 			var lastGetExtFileAttempt = 0;
 
@@ -797,14 +795,14 @@ angular.module('classeur.core.sync', [])
 
 			return {
 				getFolder: function(folderDao) {
-					if ($window.navigator.onLine !== false) {
+					if (clIsNavigatorOnline()) {
 						folderDao ? getPublicFolder(folderDao) : getLocalFiles();
 					}
 				}
 			};
 		})
 	.factory('clContentSyncSvc',
-		function($window, $rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clSyncUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc) {
+		function($rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clSyncUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
 			var clContentSyncSvc = {};
 			var watchCtx;
 
@@ -898,15 +896,23 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function applyServerContent(fileDao, oldContent, serverContent) {
-				var oldText = oldContent.text;
+				var oldText = oldContent.text.map(function(item) {
+					return item[1];
+				}).join('');
 				var serverText = serverContent.text;
 				var localText = clEditorSvc.cledit.getContent();
 				var isServerTextChanges = oldText !== serverText;
 				var isLocalTextChanges = oldText !== localText;
 				var isTextSynchronized = serverText === localText;
 				if (!isTextSynchronized && isServerTextChanges && isLocalTextChanges) {
-					// TODO Deal with conflict
-					clEditorSvc.setContent(serverText, true);
+					var textWithConflicts = clSyncUtils.patchText(oldText, serverText, localText);
+					clEditorSvc.setContent(textWithConflicts[0], true);
+					if (textWithConflicts[1].length) {
+						textWithConflicts[1].forEach(function(conflict) {
+							fileDao.contentDao.conflicts[clUid()] = conflict;
+						});
+						clEditorLayoutSvc.currentControl = 'conflictAlert';
+					}
 				} else if (!isTextSynchronized && isServerTextChanges) {
 					clEditorSvc.setContent(serverText, true);
 				}
@@ -982,7 +988,7 @@ angular.module('classeur.core.sync', [])
 			});
 
 			function getPublicFile(fileDao) {
-				if (!fileDao || !fileDao.state || !fileDao.loadPending || !fileDao.isPublic || $window.navigator.onLine === false) {
+				if (!fileDao || !fileDao.state || !fileDao.loadPending || !fileDao.isPublic || !clIsNavigatorOnline()) {
 					return;
 				}
 				fileDao.loadPending = false;
@@ -1138,9 +1144,13 @@ angular.module('classeur.core.sync', [])
 	.factory('clSyncUtils',
 		function($window) {
 			var diffMatchPatch = new $window.diff_match_patch();
+			var diffMatchPatchStrict = new $window.diff_match_patch();
+			diffMatchPatchStrict.Match_Threshold = 0;
+			diffMatchPatchStrict.Patch_DeleteThreshold = 0;
 			var DIFF_DELETE = -1;
 			var DIFF_INSERT = 1;
 			var DIFF_EQUAL = 0;
+			var marker = '\uF111\uF222\uF333';
 
 			function getTextPatches(oldText, newText) {
 				var diffs = diffMatchPatch.diff_main(oldText, newText);
@@ -1223,11 +1233,90 @@ angular.module('classeur.core.sync', [])
 				return result;
 			}
 
-			function quickPatch(oldStr, newStr, destStr) {
-				var diffs = diffMatchPatch.diff_main(oldStr, newStr);
-				var patches = diffMatchPatch.patch_make(oldStr, diffs);
-				var patchResult = diffMatchPatch.patch_apply(patches, destStr);
+			function quickPatch(oldStr, newStr, destStr, strict) {
+				var dmp = strict ? diffMatchPatchStrict : diffMatchPatch;
+				var diffs = dmp.diff_main(oldStr, newStr);
+				var patches = dmp.patch_make(oldStr, diffs);
+				var patchResult = dmp.patch_apply(patches, destStr);
 				return patchResult[0];
+			}
+
+			function patchText(oldStr, newStr, destStr) {
+				var valueHash = {},
+					valueArray = [];
+				var oldHash = hashArray(oldStr.split('\n'), valueHash, valueArray);
+				var newHash = hashArray(newStr.split('\n'), valueHash, valueArray);
+				var destHash = hashArray(destStr.split('\n'), valueHash, valueArray);
+				var diffs = diffMatchPatchStrict.diff_main(oldHash, newHash);
+				var patches = diffMatchPatchStrict.patch_make(oldHash, diffs);
+				var patchResult = diffMatchPatchStrict.patch_apply(patches, destHash);
+				if (!patchResult[1].some(function(changeApplied) {
+						return !changeApplied;
+					})) {
+					return [unhashArray(patchResult[0], valueArray).join('\n'), []];
+				}
+				var conflicts = [],
+					conflict = {},
+					lastType,
+					resultHash = '';
+				diffs = diffMatchPatchStrict.diff_main(patchResult[0], newHash);
+				diffs.forEach(function(diff) {
+					var diffType = diff[0];
+					var diffText = diff[1];
+					resultHash += diffText;
+					if (diffType !== lastType) {
+						if (conflict.offset3) {
+							conflicts.push(conflict);
+							conflict = {};
+						}
+						if (conflict.offset2) {
+							if (diffType === DIFF_EQUAL) {
+								conflict = {};
+							} else {
+								conflict.offset3 = resultHash.length;
+							}
+						} else if (diffType !== DIFF_EQUAL) {
+							conflict.offset1 = resultHash.length - diffText.length;
+							conflict.offset2 = resultHash.length;
+						}
+					}
+					lastType = diffType;
+				});
+				conflict.offset3 && conflicts.push(conflict);
+				var resultLines = unhashArray(resultHash, valueArray);
+				var resultStr = resultLines.join('\n');
+				var lastOffset = 0;
+				var resultLineOffsets = resultLines.map(function(resultLine) {
+					var result = lastOffset;
+					lastOffset += resultLine.length + 1;
+					return result;
+				});
+				return [resultStr, conflicts.map(function(conflict) {
+					return {
+						patches: diffMatchPatch.patch_make(resultStr, [
+							[0, resultStr.slice(0, resultLineOffsets[conflict.offset1])],
+							[1, marker],
+							[0, resultStr.slice(resultLineOffsets[conflict.offset1], resultLineOffsets[conflict.offset2])],
+							[1, marker],
+							[0, resultStr.slice(resultLineOffsets[conflict.offset2], resultLineOffsets[conflict.offset3])],
+							[1, marker],
+							[0, resultStr.slice(resultLineOffsets[conflict.offset3])]
+						]).map(function(patch) {
+							var diffs = patch.diffs.map(function(diff) {
+								if (!diff[0]) {
+									return diff[1];
+								} else if (diff[1] === marker) {
+									return '';
+								}
+							});
+							return {
+								diffs: diffs,
+								length: patch.length1,
+								start: patch.start1
+							};
+						})
+					};
+				})];
 			}
 
 			function hashArray(arr, valueHash, valueArray) {
@@ -1237,7 +1326,7 @@ angular.module('classeur.core.sync', [])
 						return Object.prototype.toString.call(value) === '[object Object]' ?
 							Object.keys(value).sort().reduce(function(sorted, key) {
 								return sorted[key] = value[key], sorted;
-							}, {}): value;
+							}, {}) : value;
 					});
 					var objHash;
 					if (!valueHash.hasOwnProperty(serializedObj)) {
@@ -1278,6 +1367,7 @@ angular.module('classeur.core.sync', [])
 				applyCharPatches: applyCharPatches,
 				applyObjectPatches: applyObjectPatches,
 				quickPatch: quickPatch,
+				patchText: patchText,
 				hashArray: hashArray,
 				unhashArray: unhashArray,
 				hashObject: hashObject,

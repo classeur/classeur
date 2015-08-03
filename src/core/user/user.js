@@ -151,13 +151,13 @@ angular.module('classeur.core.user', [])
             return clUserSvc;
         })
     .factory('clUserInfoSvc',
-        function($rootScope, $window, $http, clSetInterval, clUserSvc) {
+        function($rootScope, $http, clSetInterval, clUserSvc, clIsNavigatorOnline) {
             var requestedUserInfo = {};
             var userInfoTimeout = 30 * 1000; // 30 sec
             var lastUserInfoAttempt = 0;
 
             clSetInterval(function() {
-                if ($window.navigator.onLine === false) {
+                if (!clIsNavigatorOnline()) {
                     return;
                 }
                 var currentDate = Date.now();
