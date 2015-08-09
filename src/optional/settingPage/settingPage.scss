@@ -1,4 +1,4 @@
-.settings.layout.panel {
+.setting.page.panel {
     & > div {
         margin: auto;
         width: 100%;
@@ -89,7 +89,7 @@
     }
 }
 
-.blog.dialog {
+.edit.blog.dialog {
     min-width: 340px;
     md-input-container {
         padding-bottom: 8px;
@@ -97,6 +97,6 @@
     .tip {
         font-size: 12.5px;
         display: block;
-        color: rgba(0, 0, 0, 0.54);
+        color: rgba(0, 0, 0, 0.33);
     }
 }

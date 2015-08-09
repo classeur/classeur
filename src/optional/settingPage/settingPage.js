@@ -1,12 +1,12 @@
-angular.module('classeur.core.settingsLayout', [])
+angular.module('classeur.optional.settingPage', [])
 	.config(
 		function($routeProvider) {
 			$routeProvider.when('/settings', {
-				template: '<cl-settings-layout></cl-settings-layout>',
+				template: '<cl-setting-page></cl-setting-page>',
 				reloadOnSearch: false
 			});
 		})
-	.directive('clSettingsLayout',
+	.directive('clSettingPage',
 		function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
 
 			clSocketSvc.addMsgHandler('linkedUser', function(msg) {
@@ -26,7 +26,7 @@ angular.module('classeur.core.settingsLayout', [])
 
 			return {
 				restrict: 'E',
-				templateUrl: 'core/settingsLayout/settingsLayout.html',
+				templateUrl: 'optional/settingPage/settingPage.html',
 				link: link
 			};
 
@@ -227,7 +227,7 @@ angular.module('classeur.core.settingsLayout', [])
 
 					scope.editBlog = function(blog) {
 						clDialog.show({
-								templateUrl: 'core/settingsLayout/editBlogDialog.html',
+								templateUrl: 'optional/settingPage/editBlogDialog.html',
 								controller: ['$scope', function(scope) {
 									scope.blog = blog;
 									scope.form = angular.extend({}, blog);

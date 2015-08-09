@@ -8,8 +8,19 @@
         left: 50%;
         min-height: 100%;
     }
-    .explorer.content {
+    .explorer.content > .panel {
         border-radius: 3px;
+    }
+    .md-menu {
+        padding: 0;
+    }
+    .icon-more-vert {
+        padding: 0;
+        font-size: 32px;
+        width: 36px;
+        height: 42px;
+        display: block;
+        color: #fff;
     }
     .header {
         height: 70px;
@@ -117,25 +128,16 @@
             left: 50%;
             margin-left: -25px;
         }
-        .md-menu {
-            padding: 0;
-        }
-        .icon-more-vert {
-            padding: 0;
-            font-size: 32px;
-            width: 36px;
-            height: 42px;
-            display: block;
-            color: #fff;
-        }
     }
     .no-padding {
-        .folder.container, .md-sticky-clone {
+        .folder.container,
+        .md-sticky-clone {
             padding-left: 57px;
             padding-right: 62px;
         }
         .folder.container {
-            .folder.content, .file.actions {
+            .folder.content,
+            .file.actions {
                 padding-left: 10px;
                 padding-right: 10px;
             }
@@ -483,9 +485,6 @@
             background-color: rgba(255, 255, 255, 0.3);
             text-align: center;
             cursor: auto;
-            .md-menu {
-                padding: 0;
-            }
             .icon-more-vert {
                 padding: 0;
                 font-size: 28px;

@@ -7,7 +7,7 @@ angular.module('classeur.optional.buttonBar', [])
 			};
 		})
 	.directive('clButtonBar',
-		function(clEditorSvc, clEditorLayoutSvc, clPanel) {
+		function(clEditorSvc, clEditorLayoutSvc) {
 			var btns = [{
 				icon: 'icon-format-bold',
 				label: 'Bold',
@@ -144,8 +144,13 @@ angular.module('classeur.optional.buttonBar', [])
 					openOffsetY = props.visibleHeight - props.height,
 					closedOffsetY = -props.height - 10;
 
-				var buttonBarPanel = clPanel(element, '.button-bar.panel').width(props.width).height(props.height).top(2000);
-				buttonBarPanel.move().to(-props.width / 2, closedOffsetY).end();
+				var buttonBarElt = element[0].querySelector('.button-bar.panel').clAnim
+					.width(props.width)
+					.height(props.height)
+					.top(2000)
+					.translateX(-props.width / 2)
+					.translateY(closedOffsetY)
+					.start();
 
 				scope.$watch('editorLayoutSvc.pageWidth', animate);
 				scope.$watch('editorLayoutSvc.isEditorOpen', animate);
@@ -169,7 +174,13 @@ angular.module('classeur.optional.buttonBar', [])
 						return;
 					}
 					isOpen = newIsOpen;
-					buttonBarPanel.move('slow').delay(isOpen ? 270 : 0).to(-props.width / 2, isOpen ? openOffsetY : closedOffsetY).ease('ease-out-back').end();
+					buttonBarElt.clAnim
+						.translateX(-props.width / 2)
+						.translateY(isOpen ? openOffsetY : closedOffsetY)
+						.duration(200)
+						.delay(isOpen ? 270 : 0)
+						.easing('outBack')
+						.start(true);
 				}
 			}
 		});

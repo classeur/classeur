@@ -20,7 +20,7 @@ angular.module('classeur.optional.recentAlert', [])
 			}
 		})
 	.directive('clRecentAlertPanel',
-		function(clPanel) {
+		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/recentAlert/recentAlertPanel.html',
@@ -28,6 +28,6 @@ angular.module('classeur.optional.recentAlert', [])
 			};
 
 			function link(scope, element) {
-				clPanel(element, '.recent-alert.panel').move().rotate(-1).end();
+				element[0].querySelector('.recent-alert.panel').clAnim.rotate(-1).start();
 			}
 		});

@@ -17,7 +17,6 @@
     "angular-material": "~0.10.0",
     "google-diff-match-patch-js": "~1.0.0",
     "angular-slugify": "~1.0.0",
-    "movejs": "~0.4.0",
     "angular-animate": "~1.4.0",
     "angular-route": "~1.4.0",
     "angular-messages": "~1.4.0",

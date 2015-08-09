@@ -25,7 +25,6 @@ angular.module('classeur.blogs.github', [])
 			var clGithubBlogPlatform = clBlogPlatform({
 				id: 'github',
 				name: 'GitHub',
-				icon: 'icon-github',
 				authorizeUrl: 'https://github.com/login/oauth/authorize'
 			});
 

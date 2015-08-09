@@ -1,6 +1,6 @@
 angular.module('classeur.optional.findReplace', [])
 	.directive('clFindReplace',
-		function($window, clPanel, clEditorLayoutSvc, clEditorSvc, clEditorClassApplier) {
+		function($window, clEditorLayoutSvc, clEditorSvc, clEditorClassApplier) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -9,10 +9,10 @@ angular.module('classeur.optional.findReplace', [])
 			};
 
 			function link(scope, element) {
-				var findReplacePanel = clPanel(element, '.findreplace.panel');
-				var findInputElt = element[0].querySelector('.find.input');
-				var replaceInputElt = element[0].querySelector('.replace.input');
-				var speed;
+				var findReplaceElt = element[0].querySelector('.findreplace.panel');
+				var findInputElt = findReplaceElt.querySelector('.find.input');
+				var replaceInputElt = findReplaceElt.querySelector('.replace.input');
+				var duration;
 
 				function isOpen() {
 					return clEditorLayoutSvc.currentControl === 'findreplace' && clEditorLayoutSvc.isEditorOpen;
@@ -30,17 +30,19 @@ angular.module('classeur.optional.findReplace', [])
 						findInputElt.readOnly = true;
 						replaceInputElt.readOnly = true;
 					}
-					findReplacePanel.move(speed).to(-clEditorLayoutSvc.backgroundX,
-						isOpen() ? 0 : 40
-					).then(function() {
-						if (isOpen()) {
-							findInputElt.readOnly = false;
-							replaceInputElt.readOnly = false;
-							findInputElt.focus();
-							highlightOccurrences();
-						}
-					}).end();
-					speed = 'slow';
+					findReplaceElt.clAnim
+						.translateX(-clEditorLayoutSvc.backgroundX)
+						.translateY(isOpen() ? 0 : 40)
+						.duration(duration)
+						.start(function() {
+							if (isOpen()) {
+								findInputElt.readOnly = false;
+								replaceInputElt.readOnly = false;
+								findInputElt.focus();
+								highlightOccurrences();
+							}
+						});
+					duration = 200;
 				}
 
 				function DynamicClassApplier(cssClass, offset, silent) {

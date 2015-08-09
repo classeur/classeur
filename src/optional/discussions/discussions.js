@@ -1,6 +1,6 @@
 angular.module('classeur.optional.discussions', [])
 	.directive('clDiscussionDecorator',
-		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clPanel, clDiscussionSvc) {
+		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -36,14 +36,14 @@ angular.module('classeur.optional.discussions', [])
 				parentElt.addEventListener('click', function(evt) {
 					var discussionId = getDiscussionId(evt.target);
 					if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
-						clEditorLayoutSvc.isSideBarOpen = true;
+						clLocalSettingSvc.values.sideBar = true;
 						clEditorLayoutSvc.sideBarTab = 'discussions';
 						clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
 						clDiscussionSvc.currentDiscussionId = discussionId;
 					}
 				});
 
-				var newDiscussionBtn = clPanel(element, '.new-discussion-btn');
+				var newDiscussionBtnElt = element[0].querySelector('.new-discussion-btn');
 				var lastCoordinates = {};
 
 				function checkSelection() {
@@ -58,7 +58,10 @@ angular.module('classeur.optional.discussions', [])
 								coordinates.left !== lastCoordinates.left
 							) {
 								lastCoordinates = coordinates;
-								newDiscussionBtn.top(coordinates.top + coordinates.height).left(coordinates.left);
+								newDiscussionBtnElt.clAnim
+									.top(coordinates.top + coordinates.height)
+									.left(coordinates.left)
+									.start();
 							}
 							return clEditorSvc.cledit.selectionMgr.hasFocus;
 						}
@@ -115,7 +118,7 @@ angular.module('classeur.optional.discussions', [])
 					clDiscussionSvc.currentDiscussion = undefined;
 					clDiscussionSvc.currentDiscussionId = undefined;
 					$timeout(function() {
-						clEditorLayoutSvc.isSideBarOpen = true;
+						clLocalSettingSvc.values.sideBar = true;
 						clEditorLayoutSvc.sideBarTab = 'discussions';
 						clDiscussionSvc.currentDiscussion = clDiscussionSvc.newDiscussion;
 						clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId;
@@ -141,7 +144,7 @@ angular.module('classeur.optional.discussions', [])
 
 			function link(scope) {
 				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussionId, 'discussion-highlighting'], function() {
-					if(!clEditorSvc.cledit.options) {
+					if (!clEditorSvc.cledit.options) {
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
@@ -170,7 +173,7 @@ angular.module('classeur.optional.discussions', [])
 					scope.discussion = isNew && clDiscussionSvc.newDiscussion;
 					scope.discussionId = isNew && clDiscussionSvc.newDiscussionId;
 				});
-				scope.$watch('editorLayoutSvc.isSideBarOpen && editorLayoutSvc.sideBarTab === "discussions"', function(isOpen) {
+				scope.$watch('localSettingSvc.values.sideBar && editorLayoutSvc.sideBarTab === "discussions"', function(isOpen) {
 					if (!isOpen) {
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;
@@ -228,7 +231,7 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionItem',
-		function($window, clDiscussionSvc, clDialog, clToast, clEditorSvc, clScrollAnimation) {
+		function($window, clDiscussionSvc, clDialog, clToast, clEditorSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/discussions/discussionItem.html',
@@ -263,7 +266,7 @@ angular.module('classeur.optional.discussions', [])
 							}
 							var offset = elt.offsetTop - clEditorSvc.scrollOffset;
 							var scrollerElt = clEditorSvc.editorElt.parentNode;
-							clScrollAnimation(scrollerElt, offset < 0 ? 0 : offset);
+							scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(360).easing('inOutQuad').start();
 						}, 10);
 					} else if (clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
 						clDiscussionSvc.currentDiscussion = undefined;

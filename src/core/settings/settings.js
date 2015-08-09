@@ -53,7 +53,7 @@ angular.module('classeur.core.settings', [])
 
 			function updateSettings(values) {
 				values.exportTemplates = sanitizeExportTemplates(values.exportTemplates);
-				clSettingSvc.values = values;
+				clSettingSvc.values = angular.extend({}, JSON.parse(defaultSettings), values);
 			}
 
 			clSettingSvc.defaultValues = JSON.parse(defaultSettings);
@@ -62,7 +62,7 @@ angular.module('classeur.core.settings', [])
 			clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates;
 
 			clSettingSvc.read();
-			angular.extend(clSettingSvc.values, JSON.parse(defaultSettings), clSettingSvc.values);
+			updateSettings(clSettingSvc.values);
 			return clSettingSvc;
 		})
 	.factory('clLocalSettingSvc',
@@ -99,6 +99,6 @@ angular.module('classeur.core.settings', [])
 			clLocalSettingSvc.checkAll = checkAll;
 
 			clLocalSettingSvc.read();
-			angular.extend(clLocalSettingSvc.values, JSON.parse(defaultLocalSettings), clLocalSettingSvc.values);
+			clLocalSettingSvc.values = angular.extend({}, JSON.parse(defaultLocalSettings), clLocalSettingSvc.values);
 			return clLocalSettingSvc;
 		});

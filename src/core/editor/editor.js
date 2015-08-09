@@ -375,7 +375,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clScrollAnimation, clHtmlSanitizer, clPagedown) {
+		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -822,7 +822,7 @@ angular.module('classeur.core.editor', [])
 						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
 					}
 				}
-				clScrollAnimation(scrollerElt, scrollTop > 0 ? scrollTop : 0);
+				scrollerElt.clAnim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('inOutCubic').start();
 			};
 
 			clEditorSvc.applyTemplate = function(template) {

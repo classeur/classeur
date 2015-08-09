@@ -88,17 +88,20 @@
         }
         .close.btn {
             top: 4px;
-            left: 3px;
+            left: 4px;
             font-size: 28px;
         }
         .minimize.btn {
-            top: 30px;
-            left: 3px;
+            top: 32px;
+            left: 6px;
             font-size: 26px;
+            a {
+                line-height: 30px;
+            }
         }
         .preview.btn {
             top: 60px;
-            left: 3px;
+            left: 4px;
             font-size: 24px;
         }
         .menu.btn {
@@ -152,21 +155,33 @@
     }
     .menu.content {
         padding: 20px 40px 60px;
+        font-size: 17px;
         height: auto;
         color: #fff;
-        .entry, .md-text {
+        .entry,
+        .md-text {
             text-align: center;
         }
         .links {
-            margin-bottom: 20px;
+            margin-top: 12px;
+            margin-bottom: 36px;
             a {
-                color: #fff;
+                color: transparentize(#fff, 0.2);
+                &:hover {
+                    color: #fff;
+                }
                 cursor: pointer;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-                display: block;
                 line-height: 1;
-                padding: 3px;
-                margin-bottom: 8px;
+                margin-bottom: 12px;
+                [class^="icon-"],
+                [class*=" icon-"] {
+                    font-size: 26px;
+                    margin-right: 12px;
+                }
+                .name {
+                    font-size: 18px;
+                    width: 100%;
+                }
             }
         }
         md-switch {
@@ -174,11 +189,11 @@
         }
     }
     .file.name {
-        font-size: 20px;
+        font-size: 24px;
     }
 }
 
-.corner.panel {
+.corner.folding.panel {
     bottom: 0;
     right: 0;
     width: 40px;
@@ -194,7 +209,7 @@
     }
 }
 
-.corner.btn a {
+.corner.folding.btn a {
     font-size: 28px;
     padding: 5px;
     cursor: pointer;

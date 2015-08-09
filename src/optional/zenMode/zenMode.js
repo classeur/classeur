@@ -7,7 +7,7 @@ angular.module('classeur.optional.zenMode', [])
 			};
 		})
 	.directive('clZenMode',
-		function($window, clPanel, clEditorLayoutSvc, clLocalSettingSvc) {
+		function($window, clEditorLayoutSvc, clLocalSettingSvc) {
 			return {
 				restrict: 'E',
 				template: '<div class="zen panel level-1 hidden"><div class="panel mask background"></div><div class="panel level-2 background"></div></div>',
@@ -15,8 +15,8 @@ angular.module('classeur.optional.zenMode', [])
 			};
 
 			function link(scope, element) {
-				var level1Panel = clPanel(element, '.level-1').width(4000).right(-1500),
-					level2Panel = clPanel(element, '.level-2'),
+				var level1Elt = element[0].querySelector('.level-1').clAnim.width(4000).right(-1500).start(),
+					level2Elt = element[0].querySelector('.level-2'),
 					parentNode = element[0].parentNode,
 					lastClientX, lastClientY, isHidden = true,
 					isTyping;
@@ -25,7 +25,7 @@ angular.module('classeur.optional.zenMode', [])
 					return isTyping &&
 						clLocalSettingSvc.values.zenMode &&
 						clEditorLayoutSvc.isEditorOpen &&
-						!clEditorLayoutSvc.isSideBarOpen &&
+						!clLocalSettingSvc.values.sideBar &&
 						!clEditorLayoutSvc.isSidePreviewOpen &&
 						!clEditorLayoutSvc.isMenuOpen;
 				}
@@ -34,16 +34,22 @@ angular.module('classeur.optional.zenMode', [])
 					if (!isEnabled()) {
 						return;
 					}
-					level1Panel.$jqElt.removeClass('hidden');
-					level1Panel.$elt.offsetWidth;
-					level1Panel.move().set('opacity', 1).duration(1200).ease('in').end();
+					level1Elt.classList.remove('hidden');
+					level1Elt.offsetWidth;
+					level1Elt.clAnim
+						.opacity(1)
+						.duration(1200)
+						.easing('inQuad')
+						.start();
 					isHidden = false;
 				}, 3000);
 
 				var showLevel2 = $window.cledit.Utils.debounce(function() {
-					if (isEnabled()) {
-						level2Panel.move('sslow').set('opacity', 1).ease('in').end();
-					}
+					isEnabled() && level2Elt.clAnim
+						.opacity(1)
+						.duration(300)
+						.easing('inQuad')
+						.start();
 				}, 400);
 
 				function hidePanel(evt) {
@@ -59,22 +65,33 @@ angular.module('classeur.optional.zenMode', [])
 							if (evt.clientX < minLeft) {
 								unhide = false;
 							}
-							level2Panel.move('fast').set('opacity', 0.9).ease('out').end();
+							level2Elt.clAnim
+								.duration(100)
+								.opacity(0.9)
+								.easing('outQuad')
+								.start();
 						}
 						showLevel1();
 						showLevel2();
 					}
-					unhide && !isHidden && level1Panel.move('fast').set('opacity', 0).ease('out').end(function() {
-						isHidden = true;
-						isTyping = false;
-						level1Panel.$jqElt.addClass('hidden');
-					});
+					unhide && !isHidden && level1Elt.clAnim
+						.opacity(0)
+						.duration(100)
+						.easing('outQuad')
+						.start(function() {
+							isHidden = true;
+							isTyping = false;
+							level1Elt.classList.add('hidden');
+						});
 				}
 
-				level1Panel.move().set('opacity', 0).end();
+				level1Elt.clAnim.opacity(0).start();
 				hidePanel();
 				var containerElt = document.querySelector('.background.panel');
-				containerElt.addEventListener('keydown', function() {
+				containerElt.addEventListener('keydown', function(evt) {
+					if (evt.altKey || evt.ctrlKey || evt.metaKey) {
+						return;
+					}
 					isTyping = true;
 					showLevel1();
 					showLevel2();

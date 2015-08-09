@@ -43,22 +43,16 @@ angular.module('classeur.optional.readOnlyAlert', [])
 			}
 		})
 	.directive('clReadOnlyAlertPanel',
-		function(clDraggablePanel) {
+		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/readOnlyAlert/readOnlyAlertPanel.html',
-				link: function(scope, element) {
-					clDraggablePanel(element, '.read-only-alert.panel', 0, 0, -1);
-				}
 			};
 		})
 	.directive('clWritePremiumAlertPanel',
-		function(clDraggablePanel) {
+		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/readOnlyAlert/writePremiumAlertPanel.html',
-				link: function(scope, element) {
-					clDraggablePanel(element, '.write-premium-alert.panel', 0, 0, -1);
-				}
 			};
 		});

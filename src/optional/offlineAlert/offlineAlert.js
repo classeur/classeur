@@ -19,7 +19,7 @@ angular.module('classeur.optional.offlineAlert', [])
 				var debouncedSetFlag = $window.cledit.Utils.debounce(function() {
 					setFlag() && scope.$apply();
 				}, 5000);
-				
+
 				scope.$watch('!socketSvc.isReady && userActivity.isActive', debouncedSetFlag);
 			}
 		})
@@ -31,25 +31,16 @@ angular.module('classeur.optional.offlineAlert', [])
 			};
 		})
 	.directive('clOfflineAlertPanel',
-		function(clDraggablePanel) {
+		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/offlineAlert/offlineAlertPanel.html',
-				link: link
 			};
-
-			function link(scope, element) {
-				clDraggablePanel(element, '.offline-alert.panel', 0, 0, -1);
-			}
 		})
-	.directive('clSigninAlertPanel', function(clDraggablePanel) {
-		return {
-			restrict: 'E',
-			templateUrl: 'optional/offlineAlert/signinAlertPanel.html',
-			link: link
-		};
-
-		function link(scope, element) {
-			clDraggablePanel(element, '.signin-alert.panel', 0, 0, -1);
-		}
-	});
+	.directive('clSigninAlertPanel',
+		function() {
+			return {
+				restrict: 'E',
+				templateUrl: 'optional/offlineAlert/signinAlertPanel.html',
+			};
+		});

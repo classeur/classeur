@@ -22,11 +22,7 @@
         }
     }
     .icon {
-        font-size: 30px;
-        min-width: 38px;
-        &::before {
-            vertical-align: middle;
-        }
+        margin-top: 4px;
     }
     .status {
         min-width: 70px;
@@ -61,8 +57,15 @@
 }
 
 .blog.icon {
-    font-size: 28px;
-    vertical-align: middle;
+    display: inline-block;
+    min-width: 34px;
+    width: 34px;
+    height: 32px;
+    background-image: url('assets/images/blog_platforms.png');
+    background-repeat: no-repeat;
+    background-size: 340px 32px;
+    background-position: 0 0;
+    margin-right: 6px;
 }
 
 .blog.post.form {

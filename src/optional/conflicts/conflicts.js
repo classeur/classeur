@@ -91,7 +91,7 @@ angular.module('classeur.optional.conflicts', [])
 					'conflict-highlighting-part-1',
 					'conflict-highlighting'
 				], function() {
-					if(!clEditorSvc.cledit.options) {
+					if (!clEditorSvc.cledit.options) {
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
@@ -114,7 +114,7 @@ angular.module('classeur.optional.conflicts', [])
 					'conflict-highlighting-part-2',
 					'conflict-highlighting',
 				], function() {
-					if(!clEditorSvc.cledit.options) {
+					if (!clEditorSvc.cledit.options) {
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
@@ -138,7 +138,7 @@ angular.module('classeur.optional.conflicts', [])
 			}
 		})
 	.directive('clConflictAlert',
-		function($window, $timeout, clEditorLayoutSvc, clToast, clEditorSvc, clScrollAnimation) {
+		function($window, $timeout, clEditorLayoutSvc, clToast, clEditorSvc) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -149,13 +149,13 @@ angular.module('classeur.optional.conflicts', [])
 			function link(scope) {
 				var contentDao = scope.currentFileDao.contentDao;
 				$timeout(function() {
-					if(Object.keys(contentDao.conflicts).length) {
+					if (Object.keys(contentDao.conflicts).length) {
 						clEditorLayoutSvc.currentControl = 'conflictAlert';
 					}
 				}, 500);
 
 				scope.$watch('currentFileDao.contentDao.conflicts', function() {
-					if(clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {
+					if (clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {
 						clEditorLayoutSvc.currentControl = undefined;
 					}
 				});
@@ -174,18 +174,15 @@ angular.module('classeur.optional.conflicts', [])
 					}
 					var offset = elt.offsetTop - clEditorSvc.scrollOffset - 180;
 					var scrollerElt = clEditorSvc.editorElt.parentNode;
-					clScrollAnimation(scrollerElt, offset < 0 ? 0 : offset);
+					scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(360).easing('inOutQuad').start();
 				};
 			}
 		})
 	.directive('clConflictAlertPanel',
-		function(clDraggablePanel) {
+		function() {
 			return {
 				restrict: 'E',
-				templateUrl: 'optional/conflicts/conflictAlertPanel.html',
-				link: function(scope, element) {
-					clDraggablePanel(element, '.conflict-alert.panel', 0, 0, -1);
-				}
+				templateUrl: 'optional/conflicts/conflictAlertPanel.html'
 			};
 		})
 	.factory('clConflictSvc',
@@ -224,7 +221,7 @@ angular.module('classeur.optional.conflicts', [])
 			function deleteConflict(contentDao, conflictIdToRemove) {
 				// Create a new object to trigger watchers
 				contentDao.conflicts = Object.keys(contentDao.conflicts).reduce(function(conflicts, conflictId) {
-					if(conflictId !== conflictIdToRemove) {
+					if (conflictId !== conflictIdToRemove) {
 						conflicts[conflictId] = contentDao.conflicts[conflictId];
 					}
 					return conflicts;

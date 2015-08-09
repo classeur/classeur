@@ -1,6 +1,6 @@
 angular.module('classeur.optional.postToBlog', [])
 	.directive('clUpdateBlogPostsButton',
-		function(clPostToBlogSvc, clPanel) {
+		function(clPostToBlogSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/postToBlog/updateBlogPostsButton.html',
@@ -9,19 +9,22 @@ angular.module('classeur.optional.postToBlog', [])
 
 			function link(scope, element) {
 				scope.postToBlogSvc = clPostToBlogSvc;
-				var isHover, panel = clPanel(element, '.panel'),
-					speed;
+				var isHover, panelElt = element[0].querySelector('.panel'),
+					duration;
 
 				function toggle() {
-					panel.move(speed).x(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5).end();
-					speed = 'slow';
+					panelElt.clAnim
+						.duration(duration)
+						.translateX(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5)
+						.start(true);
+					duration = 200;
 				}
 
-				panel.$elt.addEventListener('mouseenter', function() {
+				panelElt.addEventListener('mouseenter', function() {
 					isHover = true;
 					toggle();
 				});
-				panel.$elt.addEventListener('mouseleave', function() {
+				panelElt.addEventListener('mouseleave', function() {
 					isHover = false;
 					toggle();
 				});

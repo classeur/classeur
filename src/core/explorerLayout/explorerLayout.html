@@ -72,18 +72,65 @@
                     </md-button>
                 </div>
             </div>
-            <div class="explorer content panel md-whiteframe-z2" ng-class="plasticClass">
-                <div class="hole panel background first"></div>
-                <div class="hole panel background second"></div>
-                <div class="panel no-overflow">
-                    <div class="scrollbar panel">
-                        <div class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
-                            <cl-folder-name ng-switch-when="true"></cl-folder-name>
-                            <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
-                                <md-input-container md-theme="classeur" class="folder name">
-                                    <input value="Recent files" disabled="disabled" aria-label="Folder name">
-                                </md-input-container>
+            <div class="explorer content panel">
+                <div class="panel md-whiteframe-z2" ng-class="plasticClass">
+                    <div class="hole panel background first"></div>
+                    <div class="hole panel background second"></div>
+                    <div class="panel no-overflow">
+                        <div class="scrollbar panel">
+                            <div class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
+                                <cl-folder-name ng-switch-when="true"></cl-folder-name>
+                                <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
+                                    <md-input-container md-theme="classeur" class="folder name">
+                                        <input value="Recent files" disabled="disabled" aria-label="Folder name">
+                                    </md-input-container>
+                                </div>
+                                <div class="file menu" ng-class="plasticClass">
+                                    <div class="new-file actions" layout="row" layout-align="space-between end">
+                                        <div>
+                                            <md-input-container md-theme="classeur" md-no-float ng-show="fileFilter || explorerLayoutSvc.files.length > 3">
+                                                <md-icon md-font-icon="icon-search"></md-icon>
+                                                <input placeholder="Filter" ng-model="fileFilter">
+                                            </md-input-container>
+                                        </div>
+                                        <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
+                                            New file
+                                            <span class="icon-add"></span>
+                                        </md-button>
+                                    </div>
+                                    <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
+                                        <div layout="row">
+                                            <div ng-switch-when="false">
+                                                <md-button class="md-primary" ng-click="selectAll()">
+                                                    <span class="icon-check"></span> Select all
+                                                </md-button>
+                                            </div>
+                                            <div ng-switch-when="true">
+                                                <md-button class="md-primary" ng-click="selectNone()">
+                                                    <span class="icon-check-box-outline-blank"></span> Select None
+                                                </md-button>
+                                            </div>
+                                            <div ng-switch-when="true">
+                                                <md-button class="md-primary" ng-click="deleteConfirm()">
+                                                    <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
+                                                </md-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="folder content" ng-show="explorerLayoutSvc.files.length">
+                                    <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
+                                    <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
+                                    <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.isPublic && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
+                                    <cl-recent-alert></cl-recent-alert>
+                                </div>
+                                <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3" style="top: 50px">
+                                    <p>This is your folder.</p>
+                                    <p>Click <b>New file</b> to create or import a file in your folder.</p>
+                                </md-tooltip>
                             </div>
+                        </div>
+                        <div class="folder container clone hidden">
                             <div class="file menu" ng-class="plasticClass">
                                 <div class="new-file actions" layout="row" layout-align="space-between end">
                                     <div>
@@ -117,92 +164,47 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="folder content" ng-show="explorerLayoutSvc.files.length">
-                                <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
-                                <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
-                                <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.isPublic && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
-                                <cl-recent-alert></cl-recent-alert>
-                            </div>
-                            <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3" style="top: 50px">
-                                <p>This is your folder.</p>
-                                <p>Click <b>New file</b> to create or import a file in your folder.</p>
-                            </md-tooltip>
                         </div>
                     </div>
-                    <div class="folder container clone hidden">
-                        <div class="file menu" ng-class="plasticClass">
-                            <div class="new-file actions" layout="row" layout-align="space-between end">
-                                <div>
-                                    <md-input-container md-theme="classeur" md-no-float ng-show="fileFilter || explorerLayoutSvc.files.length > 3">
-                                        <md-icon md-font-icon="icon-search"></md-icon>
-                                        <input placeholder="Filter" ng-model="fileFilter">
-                                    </md-input-container>
-                                </div>
-                                <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
-                                    New file
-                                    <span class="icon-add"></span>
+                    <div class="btn-grp panel background no-overflow">
+                        <div class="container panel">
+                            <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
+                                <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
+                                    <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
+                                        <div>{{folderDao.name}}</div>
+                                    </div>
+                                    <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
                                 </md-button>
                             </div>
-                            <div class="file actions" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
-                                <div layout="row">
-                                    <div ng-switch-when="false">
-                                        <md-button class="md-primary" ng-click="selectAll()">
-                                            <span class="icon-check"></span> Select all
-                                        </md-button>
-                                    </div>
-                                    <div ng-switch-when="true">
-                                        <md-button class="md-primary" ng-click="selectNone()">
-                                            <span class="icon-check-box-outline-blank"></span> Select None
-                                        </md-button>
-                                    </div>
-                                    <div ng-switch-when="true">
-                                        <md-button class="md-primary" ng-click="deleteConfirm()">
-                                            <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
-                                        </md-button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="btn-grp panel background no-overflow">
-                    <div class="container panel">
-                        <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
-                            <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
-                                <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
-                                    <div>{{folderDao.name}}</div>
+                        <div class="current folder btn btn-panel" ng-class="plasticClass">
+                            <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
+                                <div class="rotate-90" layout="row" layout-align="center center">
+                                    <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
                                 </div>
-                                <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
                             </md-button>
                         </div>
+                        <div cl-folder-button class="create folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
+                            <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-tour-next="3">
+                                <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 2">
+                                    <p>A classeur is a set of folders.</p>
+                                    <p>Click <span class="icon-add"></span> to create or import a folder in your classeur.</p>
+                                </md-tooltip>
+                                <span class="icon-add"></span>
+                            </md-button>
+                        </div>
+                        <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
+                            <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
+                                <span class="icon-list"></span>
+                            </md-button>
+                        </div>
+                        <div cl-folder-button class="recent folder btn btn-panel" ng-class="'plastic-' + (classeurIndex % 6)">
+                            <md-button ng-click="setFolder()" aria-label="Recent files">
+                                <span class="icon-schedule"></span>
+                            </md-button>
+                        </div>
+                        <div class="shadow panel"></div>
                     </div>
-                    <div class="current folder btn btn-panel" ng-class="plasticClass">
-                        <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
-                            <div class="rotate-90" layout="row" layout-align="center center">
-                                <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
-                            </div>
-                        </md-button>
-                    </div>
-                    <div cl-folder-button class="create folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
-                        <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-tour-next="3">
-                            <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 2">
-                                <p>A classeur is a set of folders.</p>
-                                <p>Click <span class="icon-add"></span> to create or import a folder in your classeur.</p>
-                            </md-tooltip>
-                            <span class="icon-add"></span>
-                        </md-button>
-                    </div>
-                    <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
-                        <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
-                            <span class="icon-list"></span>
-                        </md-button>
-                    </div>
-                    <div cl-folder-button class="recent folder btn btn-panel" ng-class="'plastic-' + (classeurIndex % 6)">
-                        <md-button ng-click="setFolder()" aria-label="Recent files">
-                            <span class="icon-schedule"></span>
-                        </md-button>
-                    </div>
-                    <div class="shadow panel"></div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <md-select placeholder="Platform" ng-model="form.platformId" ng-if="!blog">
-    <md-option ng-repeat="platform in platforms" value="{{platform.id}}"><span class="blog icon" ng-class="platform.icon"></span> {{platform.name}}</md-option>
+    <md-option ng-repeat="platform in platforms" value="{{platform.id}}"><div layout="row" layout-align="start center"><span class="blog icon" ng-class="platform.id"></span> {{platform.name}}</div></md-option>
 </md-select>
 <md-input-container>
     <label>Blog name</label>

@@ -43,50 +43,16 @@ angular.module('classeur.optional.scrollSync', [])
 		})
 	.factory('clScrollSyncSvc',
 		function(clEditorLayoutSvc, clEditorSvc, clLocalSettingSvc) {
-			var editorElt, previewElt;
-			var scrollTimeoutId;
-			var currentEndCb, skipAnimation;
-
-			function scroll(elt, startValue, endValue, stepCb, endCb, skipAnimation, debounce) {
-				clearTimeout(scrollTimeoutId);
-				if (currentEndCb) {
-					currentEndCb();
-				}
-				currentEndCb = endCb;
-				var diff = endValue - startValue;
-				var startTime = debounce || skipAnimation ? 0 : Date.now();
-
-				function tick() {
-					var currentTime = Date.now();
-					var progress = (currentTime - startTime) / 100;
-					var scrollTop = endValue;
-					if (progress < 1) {
-						scrollTop = startValue + diff * progress;
-						scrollTimeoutId = setTimeout(tick, 10);
-					} else {
-						scrollTimeoutId = setTimeout(function() {
-							currentEndCb();
-							currentEndCb = undefined;
-						}, 100);
-					}
-					elt.scrollTop = scrollTop;
-					stepCb(scrollTop);
-				}
-
-				if (!debounce) {
-					return tick();
-				}
-				stepCb(startValue);
-				scrollTimeoutId = setTimeout(tick, 50);
-			}
-
-			var lastEditorScrollTop;
-			var lastPreviewScrollTop;
-			var isScrollEditor;
-			var isScrollPreview;
-			var isEditorMoving;
-			var isPreviewMoving;
-			var sectionDescList;
+			var editorElt,
+				previewElt,
+				editorTimeoutId,
+				previewTimeoutId,
+				skipAnimation,
+				isScrollEditor,
+				isScrollPreview,
+				isEditorMoving,
+				isPreviewMoving,
+				sectionDescList;
 
 			var doScrollSync = function(debounce) {
 				var localSkipAnimation = skipAnimation;
@@ -102,7 +68,6 @@ angular.module('classeur.optional.scrollSync', [])
 
 					// Scroll the preview
 					isScrollEditor = false;
-					lastEditorScrollTop = editorScrollTop;
 					editorScrollTop += clEditorSvc.scrollOffset;
 					sectionDescList.some(function(sectionDesc) {
 						if (editorScrollTop < sectionDesc.editorDimension.endOffset) {
@@ -118,21 +83,25 @@ angular.module('classeur.optional.scrollSync', [])
 
 					if (Math.abs(destScrollTop - previewScrollTop) <= 9) {
 						// Skip the animation if diff is less than 10
-						lastPreviewScrollTop = previewScrollTop;
 						return;
 					}
 
-					scroll(previewElt, previewScrollTop, destScrollTop, function(currentScrollTop) {
-						isPreviewMoving = true;
-						lastPreviewScrollTop = currentScrollTop;
-					}, function() {
-						isPreviewMoving = false;
-					}, localSkipAnimation, debounce);
+					clearTimeout(previewTimeoutId);
+					previewElt.clAnim
+						.scrollTop(destScrollTop)
+						.duration(!debounce && !localSkipAnimation && 100)
+						.delay(debounce && 50)
+						.start(function() {
+							previewTimeoutId = setTimeout(function() {
+								isPreviewMoving = false;
+							}, 100);
+						}, function() {
+							isPreviewMoving = true;
+						});
 				} else if (!clEditorLayoutSvc.isEditorOpen || isScrollPreview) {
 
 					// Scroll the editor
 					isScrollPreview = false;
-					lastPreviewScrollTop = previewScrollTop;
 					previewScrollTop += clEditorSvc.scrollOffset;
 					sectionDescList.some(function(sectionDesc) {
 						if (previewScrollTop < sectionDesc.previewDimension.endOffset) {
@@ -148,16 +117,21 @@ angular.module('classeur.optional.scrollSync', [])
 
 					if (Math.abs(destScrollTop - editorScrollTop) <= 9) {
 						// Skip the animation if diff is less than 10
-						lastEditorScrollTop = editorScrollTop;
 						return;
 					}
 
-					scroll(editorElt, editorScrollTop, destScrollTop, function(currentScrollTop) {
-						isEditorMoving = true;
-						lastEditorScrollTop = currentScrollTop;
-					}, function() {
-						isEditorMoving = false;
-					}, localSkipAnimation, debounce);
+					clearTimeout(editorTimeoutId);
+					editorElt.clAnim
+						.scrollTop(destScrollTop)
+						.duration(!debounce && !localSkipAnimation && 100)
+						.delay(debounce && 50)
+						.start(function() {
+							editorTimeoutId = setTimeout(function() {
+								isEditorMoving = false;
+							}, 100);
+						}, function() {
+							isEditorMoving = true;
+						});
 				}
 			};
 

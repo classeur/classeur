@@ -57,7 +57,6 @@ var vendorJs = [
 	'bower_components/angular-aria/angular-aria.js',
 	'bower_components/angular-messages/angular-messages.js',
 	'bower_components/angular-route/angular-route.js',
-	'bower_components/movejs/move.js',
 	'bower_components/hammerjs/hammer.js',
 	'bower_components/angular-material/angular-material.js',
 	'bower_components/angular-slugify/angular-slugify.js',

@@ -1,6 +1,6 @@
 angular.module('classeur.core.explorerLayout', [])
 	.directive('clFolderButton',
-		function(clExplorerLayoutSvc, clPanel) {
+		function(clExplorerLayoutSvc) {
 			return {
 				restrict: 'A',
 				scope: true,
@@ -10,8 +10,8 @@ angular.module('classeur.core.explorerLayout', [])
 			function link(scope, element, attr) {
 				var elt = element[0];
 				var parentElt = elt.parentNode;
-				var buttonPanel = clPanel(element);
-				var speed;
+				var buttonElt = element[0];
+				var duration;
 				if (attr.folder) {
 					scope.folderDao = scope.$eval(attr.folder);
 				}
@@ -23,22 +23,28 @@ angular.module('classeur.core.explorerLayout', [])
 					element.toggleClass('selected', isSelected);
 					element.toggleClass('open', isOpen);
 					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
-					var z = isOpen && !isDraggingTarget ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
-					buttonPanel.css('z-index', z).$elt.offsetWidth; // Force z-offset to refresh before the animation
-					buttonPanel.move(speed).translate(isOpen ? 0 : -5, y).ease('out').then(function() {
-						if (isOpen) {
-							// Adjust scrolling position
-							var minY = parentElt.scrollTop + 160;
-							var maxY = parentElt.scrollTop + parentElt.clientHeight - 240;
-							if (y > maxY) {
-								parentElt.scrollTop += y - maxY;
-							}
-							if (y < minY) {
-								parentElt.scrollTop += y - minY;
-							}
+					var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
+					buttonElt.clAnim
+						.zIndex(z)
+						.start()
+						.offsetWidth; // Force z-offset to refresh before the animation
+					buttonElt.clAnim
+						.duration(duration)
+						.translateX(isOpen ? 0 : -5)
+						.translateY(y)
+						.start(true);
+					duration = 100;
+					if (isOpen) {
+						// Adjust scrolling position
+						var minY = parentElt.scrollTop + 160;
+						var maxY = parentElt.scrollTop + parentElt.clientHeight - 240;
+						if (y > maxY) {
+							parentElt.scrollTop += y - maxY;
 						}
-					}).end();
-					speed = 'fast';
+						if (y < minY) {
+							parentElt.scrollTop += y - minY;
+						}
+					}
 				}
 
 				scope.$watch('$index', animate);
@@ -196,7 +202,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 		})
 	.directive('clExplorerLayout',
-		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clPanel, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
+		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
 			var explorerMaxWidth = 740;
 			var noPaddingWidth = 560;
 			var hideOffsetY = 2000;
@@ -208,27 +214,27 @@ angular.module('classeur.core.explorerLayout', [])
 
 			function link(scope, element) {
 
-				var explorerPanel = clPanel(element, '.explorer.container');
-				var contentPanel = clPanel(element, '.explorer.content');
-				var scrollbarPanel = clPanel(element, '.scrollbar.panel');
-				var folderPanelElt = element[0].querySelector('.folder.container.panel');
-				var folderClonePanel = clPanel(element, '.folder.container.clone');
+				var containerElt = element[0].querySelector('.explorer.container');
+				var contentElt = element[0].querySelector('.explorer.content');
+				var scrollbarElt = element[0].querySelector('.scrollbar.panel');
+				var folderElt = element[0].querySelector('.folder.container.panel');
+				var folderCloneElt = element[0].querySelector('.folder.container.clone');
 				var fileMenuElt = element[0].querySelector('.folder.container.panel .file.menu');
 				var tabContainerElt = element[0].querySelector('.btn-grp .container');
-				var btnGroupElt = angular.element(element[0].querySelector('.btn-grp'));
-				var scrollerElt = btnGroupElt[0].querySelector('.container');
-				var createFolderButtonElt = btnGroupElt[0].querySelector('.create.folder.btn');
+				var btnGroupElt = element[0].querySelector('.btn-grp');
+				var scrollerElt = btnGroupElt.querySelector('.container');
+				var createFolderButtonElt = btnGroupElt.querySelector('.create.folder.btn');
 				clExplorerLayoutSvc.toggleHiddenBtn = function() {
-					btnGroupElt.toggleClass('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
+					btnGroupElt.classList.toggle('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
 						clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1);
 				};
 
 
 				function toggleHiddenFileMenu() {
-					folderClonePanel.$jqElt.toggleClass('hidden', folderPanelElt.scrollTop < fileMenuElt.offsetTop);
+					folderCloneElt.classList.toggle('hidden', folderElt.scrollTop < fileMenuElt.offsetTop);
 				}
 
-				folderPanelElt.addEventListener('scroll', toggleHiddenFileMenu);
+				folderElt.addEventListener('scroll', toggleHiddenFileMenu);
 				setTimeout(toggleHiddenFileMenu, 1);
 
 				scrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleHiddenBtn);
@@ -246,17 +252,25 @@ angular.module('classeur.core.explorerLayout', [])
 				var isInited;
 
 				function animateLayout() {
-					clExplorerLayoutSvc.scrollbarWidth = folderPanelElt.offsetWidth - folderPanelElt.clientWidth;
+					clExplorerLayoutSvc.scrollbarWidth = folderElt.offsetWidth - folderElt.clientWidth;
 					updateLayout();
-					explorerPanel
+					containerElt.clAnim
 						.width(clExplorerLayoutSvc.explorerWidth)
-						.move().x(-clExplorerLayoutSvc.explorerWidth / 2 - 44).end();
-					explorerPanel.$jqElt.toggleClass('no-padding', clExplorerLayoutSvc.noPadding);
-					contentPanel
-						.move(isInited && 'sslow').y(clExplorerLayoutSvc.contentY).ease(clExplorerLayoutSvc.isExplorerOpen ? 'out' : 'in').end();
+						.translateX(-clExplorerLayoutSvc.explorerWidth / 2 - 44)
+						.start()
+						.classList.toggle('no-padding', clExplorerLayoutSvc.noPadding);
+					contentElt.clAnim
+						.translateY(clExplorerLayoutSvc.contentY)
+						.duration(isInited && 200)
+						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'outCubic' : 'inCubic')
+						.start(true);
 					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + 50 + clExplorerLayoutSvc.scrollbarWidth;
-					scrollbarPanel.width(folderContainerWidth);
-					folderClonePanel.width(folderContainerWidth);
+					scrollbarElt.clAnim
+						.width(folderContainerWidth)
+						.start();
+					folderCloneElt.clAnim
+						.width(folderContainerWidth)
+						.start();
 					isInited = true;
 				}
 
@@ -572,7 +586,7 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.moreFiles(true);
 					clExplorerLayoutSvc.refreshFiles();
 					scope.selectNone();
-					folderPanelElt.scrollTop = 0;
+					folderElt.scrollTop = 0;
 				}
 
 				scope.$watch('explorerLayoutSvc.isExplorerOpen', animateLayout);

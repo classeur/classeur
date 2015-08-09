@@ -1,16 +1,16 @@
-angular.module('classeur.optional.adminPage', [])
+angular.module('classeur.optional.sysPage', [])
 	.config(
 		function($routeProvider) {
 			$routeProvider
-				.when('/admin', {
-					template: '<cl-admin-page></cl-admin-page>'
+				.when('/sys', {
+					template: '<cl-sys-page></cl-sys-page>'
 				});
 		})
-	.directive('clAdminPage',
+	.directive('clSysPage',
 		function(clToast, $http, $location) {
 			return {
 				restrict: 'E',
-				templateUrl: 'optional/adminPage/adminPage.html',
+				templateUrl: 'optional/sysPage/sysPage.html',
 				link: link
 			};
 
@@ -59,7 +59,7 @@ angular.module('classeur.optional.adminPage', [])
 					) {
 						return;
 					}
-					$http.post('/api/config/app?adminKey=' + encodeURIComponent($location.search().adminKey), properties)
+					$http.post('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
 						.success(function() {
 							clToast('App config updated.');
 						})
@@ -69,7 +69,7 @@ angular.module('classeur.optional.adminPage', [])
 				};
 
 				function retrieveConfig() {
-					$http.get('/api/config/app?adminKey=' + encodeURIComponent($location.search().adminKey))
+					$http.get('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
 						.success(function(res) {
 							scope.properties = Object.keys(res).sort().map(function(key) {
 								return {
