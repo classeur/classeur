@@ -393,6 +393,7 @@ angular.module('classeur.optional.settingPage', [])
 
 				function applyLocationSearch() {
 					scope.selectedTabIndex = tabs.indexOf($location.search().tab);
+					scope.selectedTabIndex = scope.selectedTabIndex === -1 ? 0 : scope.selectedTabIndex;
 				}
 				scope.$on('$locationChangeSuccess', applyLocationSearch);
 				applyLocationSearch();

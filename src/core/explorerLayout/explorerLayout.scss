@@ -23,7 +23,7 @@
         color: #fff;
     }
     .header {
-        height: 70px;
+        height: 75px;
         position: relative;
         .classeur.name {
             padding: 8px 0 0;
@@ -64,8 +64,8 @@
             }
         }
         .user-info {
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
             background-color: #484848;
             color: #fff;
             padding: 0 12px;
@@ -368,7 +368,7 @@
     .footer.menu {
         border-top: 1px solid rgba(128, 128, 128, 0.2);
         padding: 0 5px;
-        margin-left: 50px;
+        margin-left: 30px;
         .md-button {
             padding: 8px;
         }
@@ -380,8 +380,8 @@
             &::-webkit-scrollbar {
                 display: none;
             }
-            padding: 0 50px 200px 0;
-            right: -50px;
+            padding: 0 30px 200px 0;
+            right: -30px;
         }
         .tile.content::before,
         .tab-1,
