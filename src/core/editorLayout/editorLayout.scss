@@ -69,6 +69,17 @@
             width: 1px;
             left: $editor-margin-width;
         }
+        .hole.panel {
+            left: 18px;
+            width: 18px;
+            height: 18px;
+            &.first {
+                top: 22%;
+            }
+            &.second {
+                bottom: 22%;
+            }
+        }
     }
     .editor.panel .btn-grp {
         height: 0; // prevent overlap with help button
