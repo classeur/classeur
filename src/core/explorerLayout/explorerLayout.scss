@@ -91,8 +91,8 @@
     }
     .folder.container {
         top: 2px;
-        padding-left: 90px;
-        padding-right: 95px;
+        padding-left: 50px;
+        padding-right: 100px;
         &.clone {
             position: absolute;
             .file.actions > div {
@@ -132,8 +132,8 @@
     .no-padding {
         .folder.container,
         .md-sticky-clone {
-            padding-left: 57px;
-            padding-right: 62px;
+            padding-left: 10px;
+            padding-right: 60px;
         }
         .folder.container {
             .folder.content,
@@ -148,7 +148,7 @@
             }
         }
         .header .classeur.name .logo {
-            visibility: hidden;
+            display: none;
         }
     }
     .new-file.actions {
@@ -185,8 +185,8 @@
             padding: 15px 0 5px;
         }
         padding: 0 35px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
         background-color: rgba(255,
         255,
         255,
@@ -194,8 +194,8 @@
     }
     .folder.content {
         padding: 15px 40px 80px;
-        border-bottom-left-radius: 6px;
-        border-bottom-right-radius: 6px;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
         background-color: rgba(255, 255, 255, 0.3);
     }
     .folder.name {
@@ -264,17 +264,6 @@
             padding-left: 16px;
         }
     }
-    .hole.panel {
-        left: 22px;
-        width: 20px;
-        height: 20px;
-        &.first {
-            top: 22%;
-        }
-        &.second {
-            bottom: 22%;
-        }
-    }
     .btn-grp.panel {
         top: 8px;
         width: 2050px;
@@ -292,8 +281,8 @@
             height: 110px;
             width: 32px;
             margin-bottom: 130px;
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
+            border-top-right-radius: $border-radius-binder;
+            border-bottom-right-radius: $border-radius-binder;
             .md-button {
                 position: absolute;
                 text-transform: none;
@@ -334,7 +323,7 @@
             border-top-right-radius: $border-radius-binder;
             border-bottom-right-radius: $border-radius-binder;
             .md-button {
-                font-size: 22px;
+                font-size: 23px;
                 padding: 0;
                 span {
                     line-height: 44px;
@@ -349,7 +338,7 @@
             top: 86px;
             width: 38px;
             .md-button {
-                font-size: 20px;
+                font-size: 21px;
             }
         }
         .current.btn {
@@ -403,8 +392,8 @@
             position: absolute;
             top: 6px;
             height: 40px;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
         }
         .new.tile {
             .icon {

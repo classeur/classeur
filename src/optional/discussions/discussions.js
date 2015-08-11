@@ -1,6 +1,6 @@
 angular.module('classeur.optional.discussions', [])
 	.directive('clDiscussionDecorator',
-		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc) {
+		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc, clLocalSettingSvc) {
 			return {
 				restrict: 'E',
 				scope: true,

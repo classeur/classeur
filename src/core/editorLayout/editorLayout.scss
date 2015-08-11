@@ -69,17 +69,6 @@
             width: 1px;
             left: $editor-margin-width;
         }
-        .hole.panel {
-            left: 20px;
-            width: 20px;
-            height: 20px;
-            &.first {
-                top: 22%;
-            }
-            &.second {
-                bottom: 22%;
-            }
-        }
     }
     .editor.panel .btn-grp {
         height: 0; // prevent overlap with help button
@@ -88,12 +77,12 @@
         }
         .close.btn {
             top: 4px;
-            left: 4px;
+            left: 2px;
             font-size: 28px;
         }
         .minimize.btn {
             top: 32px;
-            left: 6px;
+            left: 4px;
             font-size: 26px;
             a {
                 line-height: 30px;
@@ -101,7 +90,7 @@
         }
         .preview.btn {
             top: 60px;
-            left: 4px;
+            left: 2px;
             font-size: 24px;
         }
         .menu.btn {
@@ -138,7 +127,7 @@
     .menu.btn,
     .edit.btn {
         .md-button {
-            line-height: 34px;
+            line-height: 38px;
             width: 100%;
             height: 100%;
             font-size: 21px;
@@ -189,7 +178,7 @@
         }
     }
     .file.name {
-        font-size: 24px;
+        font-size: 22px;
     }
 }
 

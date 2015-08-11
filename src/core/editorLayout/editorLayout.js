@@ -46,7 +46,7 @@ angular.module('classeur.core.editorLayout', [])
 				var binderPanelElt = element[0].querySelector('.binder.panel').clAnim.top(-hideOffsetY).start();
 				var editBtnElt = element[0].querySelector('.edit.btn-panel').clAnim.bottom(-hideOffsetY - 20).start();
 				var editorPanelElt = element[0].querySelector('.editor.panel').clAnim.top(hideOffsetY).start();
-				var pagePanelElt = element[0].querySelector('.page.panel').clAnim.left(clEditorLayoutSvc.pageMargin / 2).start();
+				var pagePanelElt = element[0].querySelector('.page.panel').clAnim.left(clEditorLayoutSvc.pageMarginLeft).start();
 				element[0].querySelector('.menu.scroller').clAnim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
 				element[0].querySelector('.menu.content').clAnim.width(clEditorLayoutSvc.menuWidth).start();
 				element[0].querySelector('.editor .btn-grp.panel').clAnim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
@@ -169,7 +169,7 @@ angular.module('classeur.core.editorLayout', [])
 						.width(clEditorLayoutSvc.previewHeaderWidth - previewScrollbarWidth)
 						.start();
 					pagePanelElt.clAnim
-						.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMargin)
+						.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight)
 						.start();
 					hidePreview();
 
@@ -339,8 +339,9 @@ angular.module('classeur.core.editorLayout', [])
 	.factory('clEditorLayoutSvc',
 		function($window, $rootScope, clLocalSettingSvc) {
 			var clEditorLayoutSvc = {
-				pageMargin: 20,
-				editorBtnGrpWidth: 40,
+				pageMarginLeft: 4,
+				pageMarginRight: 6,
+				editorBtnGrpWidth: 36,
 				menuWidth: 320,
 				sideBarWidth: 280,
 				statHeight: 30,

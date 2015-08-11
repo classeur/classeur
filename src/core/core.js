@@ -2,7 +2,7 @@ angular.module('classeur.core', [])
 	.config(
 		function($routeProvider, $anchorScrollProvider, $locationProvider, $animateProvider, $mdThemingProvider) {
 			$locationProvider.hashPrefix('!');
-			$animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop/);
+			$animateProvider.classNameFilter(/angular-animate/);
 			$anchorScrollProvider.disableAutoScrolling();
 			$mdThemingProvider.theme('default')
 				.primaryPalette('blue')

@@ -203,8 +203,8 @@ angular.module('classeur.core.explorerLayout', [])
 		})
 	.directive('clExplorerLayout',
 		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
-			var explorerMaxWidth = 740;
-			var noPaddingWidth = 560;
+			var explorerMaxWidth = 760;
+			var noPaddingWidth = 580;
 			var hideOffsetY = 2000;
 			return {
 				restrict: 'E',
@@ -255,8 +255,8 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.scrollbarWidth = folderElt.offsetWidth - folderElt.clientWidth;
 					updateLayout();
 					containerElt.clAnim
-						.width(clExplorerLayoutSvc.explorerWidth)
-						.translateX(-clExplorerLayoutSvc.explorerWidth / 2 - 44)
+						.width(clExplorerLayoutSvc.explorerWidth - 50)
+						.translateX(-clExplorerLayoutSvc.explorerWidth / 2 + 5)
 						.start()
 						.classList.toggle('no-padding', clExplorerLayoutSvc.noPadding);
 					contentElt.clAnim
@@ -264,7 +264,7 @@ angular.module('classeur.core.explorerLayout', [])
 						.duration(isInited && 200)
 						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'outCubic' : 'inCubic')
 						.start(true);
-					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + 50 + clExplorerLayoutSvc.scrollbarWidth;
+					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth;
 					scrollbarElt.clAnim
 						.width(folderContainerWidth)
 						.start();
