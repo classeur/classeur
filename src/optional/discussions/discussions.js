@@ -266,7 +266,7 @@ angular.module('classeur.optional.discussions', [])
 							}
 							var offset = elt.offsetTop - clEditorSvc.scrollOffset;
 							var scrollerElt = clEditorSvc.editorElt.parentNode;
-							scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(360).easing('inOutQuad').start();
+							scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
 						}, 10);
 					} else if (clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
 						clDiscussionSvc.currentDiscussion = undefined;

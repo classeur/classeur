@@ -10,6 +10,9 @@ angular.module('classeur.core', [])
 			var menuTheme = $mdThemingProvider.theme('classeur', 'default');
 			menuTheme.dark();
 			menuTheme.foregroundShadow = '';
+			window.BezierEasing.css.materialIn = window.BezierEasing(0.75, 0, 0.8, 0.25);
+			window.BezierEasing.css.materialOut = window.BezierEasing(0.25, 0.8, 0.25, 1.0);
+			window.BezierEasing.css.outBack = window.BezierEasing(0.175, 0.885, 0.320, 1.275);
 
 			$routeProvider
 				.when('/files/:fileId', {

@@ -135,6 +135,10 @@ md-backdrop.ng-leave.ng-leave-active {
     opacity: 0;
 }
 
+md-input-container {
+    min-width: 50px;
+}
+
 md-input-container .md-input[disabled],
 [disabled] md-input-container .md-input {
     margin-top: auto;

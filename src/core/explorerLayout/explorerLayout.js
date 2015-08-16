@@ -261,8 +261,8 @@ angular.module('classeur.core.explorerLayout', [])
 						.classList.toggle('no-padding', clExplorerLayoutSvc.noPadding);
 					contentElt.clAnim
 						.translateY(clExplorerLayoutSvc.contentY)
-						.duration(isInited && 200)
-						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'outCubic' : 'inCubic')
+						.duration(isInited && 300)
+						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'materialOut' : 'materialIn')
 						.start(true);
 					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth;
 					scrollbarElt.clAnim

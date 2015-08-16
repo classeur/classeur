@@ -38,8 +38,8 @@ angular.module('classeur.optional.zenMode', [])
 					level1Elt.offsetWidth;
 					level1Elt.clAnim
 						.opacity(1)
-						.duration(1200)
-						.easing('inQuad')
+						.duration(1500)
+						.easing('ease-out')
 						.start();
 					isHidden = false;
 				}, 3000);
@@ -48,7 +48,7 @@ angular.module('classeur.optional.zenMode', [])
 					isEnabled() && level2Elt.clAnim
 						.opacity(1)
 						.duration(300)
-						.easing('inQuad')
+						.easing('ease-out')
 						.start();
 				}, 400);
 
@@ -68,7 +68,7 @@ angular.module('classeur.optional.zenMode', [])
 							level2Elt.clAnim
 								.duration(100)
 								.opacity(0.9)
-								.easing('outQuad')
+								.easing('ease-out')
 								.start();
 						}
 						showLevel1();
@@ -77,7 +77,7 @@ angular.module('classeur.optional.zenMode', [])
 					unhide && !isHidden && level1Elt.clAnim
 						.opacity(0)
 						.duration(100)
-						.easing('outQuad')
+						.easing('ease-out')
 						.start(function() {
 							isHidden = true;
 							isTyping = false;

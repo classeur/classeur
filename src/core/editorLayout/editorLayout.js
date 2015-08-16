@@ -187,18 +187,18 @@ angular.module('classeur.core.editorLayout', [])
 					updateLayout();
 					backgroundPanelElt.clAnim
 						.translateX(clEditorLayoutSvc.backgroundX)
-						.duration(isInited && 200)
-						.easing('outCubic')
+						.duration(isInited && 300)
+						.easing('materialOut')
 						.start();
 					binderPanelElt.clAnim
 						.translateX(clEditorLayoutSvc.binderX)
-						.duration(isInited && 200)
-						.easing('outCubic')
+						.duration(isInited && 300)
+						.easing('materialOut')
 						.start();
 					previewPanelElt.clAnim
 						.translateX(clEditorLayoutSvc.previewX)
-						.duration(isInited && 200)
-						.easing('outCubic')
+						.duration(isInited && 300)
+						.easing('materialOut')
 						.start(function() {
 							setTimeout(function() {
 								updateLayoutSize();
@@ -216,8 +216,8 @@ angular.module('classeur.core.editorLayout', [])
 					editorPanelElt.clAnim
 						.translateX(clEditorLayoutSvc.editorX)
 						.translateY(clEditorLayoutSvc.editorY)
-						.duration(isInited && 200)
-						.easing(clEditorLayoutSvc.isEditorOpen ? 'outCubic' : 'inCubic')
+						.duration(isInited && 300)
+						.easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
 						.start(true);
 					setTimeout(function() {
 						editBtnElt.clAnim
@@ -231,7 +231,7 @@ angular.module('classeur.core.editorLayout', [])
 							clEditorLayoutSvc.currentControl = undefined;
 							isInited && scope.$apply();
 						}, 300);
-					}, 300);
+					}, 400);
 				}
 
 				function animateMenu() {
@@ -273,14 +273,14 @@ angular.module('classeur.core.editorLayout', [])
 					closeButtonElt.clAnim
 						.zIndex(isPreviewTop ? 0 : -1)
 						.opacity(isPreviewTop ? 1 : 0)
-						.duration(isInited && 200)
-						.easing('inOutExpo')
+						.duration(isInited && 300)
+						.easing('materialOut')
 						.start(true);
 					scrollButtonElt.clAnim
 						.zIndex(isPreviewTop ? -1 : 0)
 						.opacity(isPreviewTop ? 0 : 1)
-						.duration(isInited && 200)
-						.easing('inOutExpo')
+						.duration(isInited && 300)
+						.easing('materialOut')
 						.start(true);
 				}
 

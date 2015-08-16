@@ -179,6 +179,9 @@
                 border-color: transparent !important;
             }
         }
+        .search {
+            min-width: 0;
+        }
     }
     .file.actions {
         & > div {

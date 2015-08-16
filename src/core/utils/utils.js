@@ -369,57 +369,6 @@ angular.module('classeur.core.utils', [])
 		})
 	.run(function() {
 
-		// Source:
-		// https://github.com/Famous/famous/blob/fcbfbaf3161c5090b35dee73819b29fe5f2cb41f/src/transitions/Easing.js
-		// https://github.com/visionmedia/move.js/blob/5299f9d4bcf242c2f3e7ced11a0b1fe6dea0ca27/move.js
-		var easings = {
-			inQuad: [function(t) {
-				return t * t;
-			}, 'cubic-bezier(0.550, 0.085, 0.680, 0.530)'],
-			outQuad: [function(t) {
-				return -(t -= 1) * t + 1;
-			}, 'cubic-bezier(0.250, 0.460, 0.450, 0.940)'],
-			inOutQuad: [function(t) {
-				if ((t /= 0.5) < 1) return 0.5 * t * t;
-				return -0.5 * ((--t) * (t - 2) - 1);
-			}, 'cubic-bezier(0.455, 0.030, 0.515, 0.955)'],
-			inCubic: [function(t) {
-				return t * t * t;
-			}, 'cubic-bezier(0.550, 0.055, 0.675, 0.190)'],
-			outCubic: [function(t) {
-				return ((--t) * t * t + 1);
-			}, 'cubic-bezier(0.215, 0.610, 0.355, 1.000)'],
-			inOutCubic: [function(t) {
-				if ((t /= 0.5) < 1) return 0.5 * t * t * t;
-				return 0.5 * ((t -= 2) * t * t + 2);
-			}, 'cubic-bezier(0.645, 0.045, 0.355, 1.000)'],
-			inExpo: [function(t) {
-				return (t === 0) ? 0.0 : Math.pow(2, 10 * (t - 1));
-			}, 'cubic-bezier(0.950, 0.050, 0.795, 0.035)'],
-			outExpo: [function(t) {
-				return (t === 1.0) ? 1.0 : (-Math.pow(2, -10 * t) + 1);
-			}, 'cubic-bezier(0.190, 1.000, 0.220, 1.000)'],
-			inOutExpo: [function(t) {
-				if (t === 0) return 0.0;
-				if (t === 1.0) return 1.0;
-				if ((t /= 0.5) < 1) return 0.5 * Math.pow(2, 10 * (t - 1));
-				return 0.5 * (-Math.pow(2, -10 * --t) + 2);
-			}, 'cubic-bezier(1.000, 0.000, 0.000, 1.000)'],
-			inBack: [function(t, s) {
-				if (s === undefined) s = 1.70158;
-				return t * t * ((s + 1) * t - s);
-			}, 'cubic-bezier(0.600, -0.280, 0.735, 0.045)'],
-			outBack: [function(t, s) {
-				if (s === undefined) s = 1.70158;
-				return ((--t) * t * ((s + 1) * t + s) + 1);
-			}, 'cubic-bezier(0.175, 0.885, 0.320, 1.275)'],
-			inOutBack: [function(t, s) {
-				if (s === undefined) s = 1.70158;
-				if ((t /= 0.5) < 1) return 0.5 * (t * t * (((s *= (1.525)) + 1) * t - s));
-				return 0.5 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2);
-			}, 'cubic-bezier(0.680, -0.550, 0.265, 1.550)'],
-		};
-
 		var vendors = ['moz', 'webkit'];
 		for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
 			window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
@@ -524,7 +473,7 @@ angular.module('classeur.core.utils', [])
 			});
 			animation.$end.duration = animation.$end.duration || 0;
 			animation.$end.delay = animation.$end.delay || 0;
-			animation.$end.easing = easings[animation.$end.easing] || easings.outQuad;
+			animation.$end.easing = window.BezierEasing.css[animation.$end.easing] || window.BezierEasing.css['ease-out'];
 			animation.$end.endCb = typeof endCb === 'function' && endCb;
 			animation.$end.stepCb = typeof stepCb === 'function' && stepCb;
 			animation.$startTime = Date.now() + animation.$end.delay;
@@ -545,7 +494,7 @@ angular.module('classeur.core.utils', [])
 				var transitions = [
 					'all',
 					animation.$end.duration + 'ms',
-					animation.$end.easing[1]
+					animation.$end.easing.toCSS()
 				];
 				animation.$end.delay && transitions.push(animation.$end.delay + 'ms');
 				transition = transitions.join(' ');
@@ -558,7 +507,7 @@ angular.module('classeur.core.utils', [])
 				animation.requestId = window.requestAnimationFrame(animation.$end.endCb);
 			}
 
-			var coeff = animation.$end.easing[0](progress);
+			var coeff = animation.$end.easing.get(progress);
 			var transforms = animation.$attributes.reduce(function(transforms, attribute) {
 				if (progress < 1) {
 					var diff = animation.$end[attribute.name] - animation.$start[attribute.name];
@@ -570,7 +519,7 @@ angular.module('classeur.core.utils', [])
 				return transform && transforms.push(transform), transforms;
 			}, []);
 
-			transforms.length && transforms.push('translateZ(0)'); // activate GPU
+			transforms.length && transforms.push('translateZ(1px)'); // activate GPU
 			var transform = transforms.join(' ');
 			animation.elt.style.WebkitTransform = transform;
 			animation.elt.style.MozTransform = transform;

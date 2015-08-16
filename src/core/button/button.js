@@ -26,14 +26,14 @@ angular.module('classeur.core.button', [])
 				function toggle() {
 					buttonElt.classList.toggle('active', !!isActive);
 					var opacityToSet = opacity;
-					var easing = 'outQuad';
+					var easing = 'materialIn';
 					if (isActive) {
 						opacityToSet = opacityActive;
 					} else if (isHover) {
 						opacityToSet = opacityHover;
 					} else {
 						opacityToSet = opacity;
-						easing = 'inQuad';
+						easing = 'materialOut';
 					}
 					if (isInited) {
 						buttonElt.clAnim
