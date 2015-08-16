@@ -249,6 +249,7 @@
                     cursor: pointer;
                     background-image: none;
                     border-bottom-color: rgba(0, 0, 0, 0.066);
+                    pointer-events: none;
                 }
             }
         }
@@ -454,6 +455,7 @@
                     &:disabled {
                         cursor: pointer;
                         color: rgba(0, 0, 0, 0.87);
+                        pointer-events: none;
                     }
                 }
                 md-input-container {

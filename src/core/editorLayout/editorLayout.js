@@ -273,13 +273,13 @@ angular.module('classeur.core.editorLayout', [])
 					closeButtonElt.clAnim
 						.zIndex(isPreviewTop ? 0 : -1)
 						.opacity(isPreviewTop ? 1 : 0)
-						.duration(isInited && 300)
+						.duration(isInited && 200)
 						.easing('materialOut')
 						.start(true);
 					scrollButtonElt.clAnim
 						.zIndex(isPreviewTop ? -1 : 0)
 						.opacity(isPreviewTop ? 0 : 1)
-						.duration(isInited && 300)
+						.duration(isInited && 200)
 						.easing('materialOut')
 						.start(true);
 				}
