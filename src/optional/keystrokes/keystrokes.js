@@ -112,8 +112,10 @@ angular.module('classeur.optional.keystrokes', [])
 					if (state.selection || indentMatch) {
 						state.before = strSplice(state.before, lf, 0, '\t');
 						state.selection = state.selection.replace(/\n(?=.)/g, '\n\t');
-						fixNumberedList(state, indentMatch[1]);
-						fixNumberedList(state, '\t' + indentMatch[1]);
+						if(indentMatch) {
+							fixNumberedList(state, indentMatch[1]);
+							fixNumberedList(state, '\t' + indentMatch[1]);
+						}
 					} else {
 						state.before += '\t';
 					}

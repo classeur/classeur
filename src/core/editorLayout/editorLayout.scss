@@ -62,7 +62,7 @@
         }
     }
     .page.panel {
-        z-index: 1;
+        z-index: 2; // To hide material sliders
         -webkit-transform-origin: 50% 100%;
         transform-origin: 50% 100%;
         .margin.panel {
@@ -143,7 +143,7 @@
             height: 100%;
             font-size: 21px;
             color: transparentize(#fff, 0.2);
-            &:hover {
+            &:hover, &.md-focused {
                 color: #fff;
                 background-color: transparent;
             }
@@ -155,7 +155,7 @@
     }
     .menu.content {
         padding: 20px 40px 60px;
-        font-size: 17px;
+        font-size: 16.5px;
         height: auto;
         color: #fff;
         .entry,
@@ -179,7 +179,6 @@
                     margin-right: 12px;
                 }
                 .name {
-                    font-size: 18px;
                     width: 100%;
                 }
             }
@@ -189,7 +188,7 @@
         }
     }
     .file.name {
-        font-size: 22px;
+        font-size: 20.5px;
     }
 }
 

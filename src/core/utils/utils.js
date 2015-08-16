@@ -81,6 +81,9 @@ angular.module('classeur.core.utils', [])
 			var mdDialogShow = $mdDialog.show;
 			$rootScope.isDialogOpen = 0;
 			$mdDialog.show = function(optionsOrPreset) {
+				if($window.event && $window.event.type === 'click') {
+					optionsOrPreset.targetEvent = $window.event;
+				}
 				$rootScope.isDialogOpen++;
 
 				function close() {

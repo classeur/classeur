@@ -310,8 +310,10 @@
                     transform-origin: 0 0;
                 }
             }
-            &.selected .md-button:hover {
-                background-color: transparent;
+            &.selected .md-button {
+                &:hover, &.md-focused{
+                    background-color: transparent;
+                }
             }
         }
         .recent.btn,
@@ -370,7 +372,7 @@
         padding: 0 5px;
         margin-left: 30px;
         .md-button {
-            padding: 8px;
+            padding: 8px 10px;
         }
     }
     .classeur.list {

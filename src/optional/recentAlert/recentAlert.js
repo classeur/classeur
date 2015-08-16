@@ -24,10 +24,5 @@ angular.module('classeur.optional.recentAlert', [])
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/recentAlert/recentAlertPanel.html',
-				link: link
 			};
-
-			function link(scope, element) {
-				element[0].querySelector('.recent-alert.panel').clAnim.rotate(-1).start();
-			}
 		});

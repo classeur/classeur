@@ -97,14 +97,6 @@ md-slider.md-default-theme.md-min .md-thumb:after {
 
 md-dialog {
     max-width: 500px;
-    &.transition-in {
-        -webkit-transition: opacity 0.3s ease-out;
-        transition: opacity 0.3s ease-out;
-    }
-    &.transition-out {
-        -webkit-transition: all 1ms linear;
-        transition: all 1ms linear;
-    }
     &.md-default-theme {
         border-radius: 0;
         background-color: #F4F4F4;
@@ -116,18 +108,18 @@ md-dialog {
     }
 }
 
-md-backdrop.md-opaque.md-default-theme {
+md-backdrop.md-opaque.md-default-theme, md-backdrop.md-opaque.ng-enter.md-opaque.ng-enter-active {
     background: -moz-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0, 0, 0, 0.25)), color-stop(100%, rgba(0, 0, 0, 0.75)));
     background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: -o-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: -ms-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
     background: radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0.75) 100%);
+    -webkit-transition: opacity 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
 }
 
 md-backdrop.ng-enter {
-    -webkit-transition: opacity 0.3s ease-out;
-    transition: opacity 0.3s ease-out;
     opacity: 0;
 }
 
@@ -136,8 +128,6 @@ md-backdrop.ng-enter.ng-enter-active {
 }
 
 md-backdrop.ng-leave {
-    -webkit-transition: opacity 0.3s ease-out;
-    transition: opacity 0.3s ease-out;
     opacity: 1;
 }
 
@@ -147,7 +137,8 @@ md-backdrop.ng-leave.ng-leave-active {
 
 md-input-container .md-input[disabled],
 [disabled] md-input-container .md-input {
-    margin-bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 md-input-container.md-classeur-theme .md-input[disabled],
