@@ -1,6 +1,6 @@
 angular.module('classeur.core.templateManagerDialog', [])
 	.factory('clTemplateManagerDialog',
-		function($window, clDialog, clSettingSvc) {
+		function($window, clDialog, clSettingSvc, clToast) {
 			return function(templates) {
 				templates = clSettingSvc.sanitizeExportTemplates(templates);
 				return clDialog.show({
@@ -37,8 +37,11 @@ angular.module('classeur.core.templateManagerDialog', [])
 						};
 						scope.add = function() {
 							var templateValue = cledit.getContent();
-							if (!scope.templateKey || !templateValue) {
-								return;
+							if (!scope.templateKey) {
+								return clToast('Please specify a name.');
+							}
+							if (!templateValue) {
+								return clToast('Please specify a template.');
 							}
 							templates[scope.templateKey] = templateValue;
 							scope.selectedKey = scope.templateKey;

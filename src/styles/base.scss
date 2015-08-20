@@ -10,8 +10,10 @@ html {
 html,
 body {
     color: rgba(0, 0, 0, 0.87);
-    -webkit-font-smoothing: antialiased;
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -webkit-font-variant-ligatures: common-ligatures;
+    font-variant-ligatures: common-ligatures;
 }
 
 h1,

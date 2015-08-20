@@ -1,6 +1,6 @@
 angular.module('classeur.optional.stat', [])
 	.directive('clStat',
-		function(clEditorSvc, clEditorLayoutSvc, clSelectionListeningSvc, clLocalSettingSvc) {
+		function(clEditorSvc, clEditorLayoutSvc, clLocalSettingSvc) {
 			function Stat(name, regex) {
 				this.name = name;
 				this.regex = new RegExp(regex, 'gm');
@@ -29,7 +29,6 @@ angular.module('classeur.optional.stat', [])
 				scope.textStats = textStats;
 				scope.htmlStats = htmlStats;
 				scope.editor = clEditorSvc;
-				scope.selectionListener = clSelectionListeningSvc;
 
 				var statPanelElt = element[0].querySelector('.stat.panel');
 				var duration;
@@ -58,10 +57,8 @@ angular.module('classeur.optional.stat', [])
 
 				function computeHtml() {
 					var text;
-					if (clSelectionListeningSvc.range &&
-						(clEditorSvc.previewElt.compareDocumentPosition(clSelectionListeningSvc.range.startContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY) &&
-						(clEditorSvc.previewElt.compareDocumentPosition(clSelectionListeningSvc.range.endContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
-						text = '' + clSelectionListeningSvc.range;
+					if (clEditorSvc.previewSelectionRange) {
+						text = '' + clEditorSvc.previewSelectionRange;
 					}
 					if (text) {
 						scope.isHtmlSelection = true;
@@ -77,7 +74,7 @@ angular.module('classeur.optional.stat', [])
 				scope.$watch('editorSvc.sectionList', computeText);
 				scope.$watch('editorSvc.selectionRange', computeText);
 				scope.$watch('editor.previewText', computeHtml);
-				scope.$watch('selectionListener.range', computeHtml);
+				scope.$watch('editorSvc.previewSelectionRange', computeHtml);
 				scope.$watch('localSettingSvc.values.stat && editorLayoutSvc.isEditorOpen', move);
 				scope.$watch('localSettingSvc.values.sideBar', move);
 			}

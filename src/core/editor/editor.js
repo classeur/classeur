@@ -63,9 +63,7 @@ angular.module('classeur.core.editor', [])
 				function refreshPreview() {
 					state = 'ready';
 					clEditorSvc.convert();
-					setTimeout(function() {
-						clEditorSvc.refreshPreview(scope.$apply.bind(scope));
-					}, 10);
+					setTimeout(clEditorSvc.refreshPreview, 10);
 				}
 
 				var debouncedRefreshPreview = $window.cledit.Utils.debounce(function() {
@@ -239,7 +237,7 @@ angular.module('classeur.core.editor', [])
 			}
 		})
 	.factory('clEditorClassApplier',
-		function($window, clEditorSvc) {
+		function($window, clEditorSvc, clRangeWrapper) {
 			var nextTickCbs = [],
 				savedSelection;
 			var execNextTickCbs = $window.cledit.Utils.debounce(function() {
@@ -263,11 +261,10 @@ angular.module('classeur.core.editor', [])
 				execNextTickCbs();
 			}
 
-			function ClassApplier(classes, offsetGetter, properties) {
+			function EditorClassApplier(classes, offsetGetter, properties) {
 				classes = typeof classes === 'string' ? [classes] : classes;
-				var self = this;
-				this.elts = clEditorSvc.editorElt.getElementsByClassName(classes[0]);
-				var lastEltCount;
+				var lastEltCount,
+					elts = clEditorSvc.editorElt.getElementsByClassName(classes[0]);
 
 				function applyClass() {
 					var offset = offsetGetter();
@@ -280,64 +277,18 @@ angular.module('classeur.core.editor', [])
 					);
 					properties = properties || {};
 					properties.className = classes.join(' ');
-					var rangeLength = ('' + range).length;
-					var wrappedLength = 0;
-					var treeWalker = $window.document.createTreeWalker(clEditorSvc.editorElt, NodeFilter.SHOW_TEXT);
-					var startOffset = range.startOffset;
-					treeWalker.currentNode = range.startContainer;
-					if (treeWalker.currentNode.nodeType === Node.TEXT_NODE || treeWalker.nextNode()) {
-						clEditorSvc.cledit.watcher.noWatch(function() {
-							do {
-								if (treeWalker.currentNode.nodeValue !== '\n') {
-									if (treeWalker.currentNode === range.endContainer && range.endOffset < treeWalker.currentNode.nodeValue.length) {
-										treeWalker.currentNode.splitText(range.endOffset);
-									}
-									if (startOffset) {
-										treeWalker.currentNode = treeWalker.currentNode.splitText(startOffset);
-										startOffset = 0;
-									}
-									var elt = $window.document.createElement('span');
-									for (var key in properties) {
-										elt[key] = properties[key];
-									}
-									treeWalker.currentNode.parentNode.insertBefore(elt, treeWalker.currentNode);
-									elt.appendChild(treeWalker.currentNode);
-								}
-								wrappedLength += treeWalker.currentNode.nodeValue.length;
-								if (wrappedLength >= rangeLength) {
-									break;
-								}
-							}
-							while (treeWalker.nextNode());
-						});
-					}
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.wrap.bind(clRangeWrapper, range, properties));
 					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
-					lastEltCount = self.elts.length;
+					lastEltCount = elts.length;
 				}
 
 				function removeClass() {
-					clEditorSvc.cledit.watcher.noWatch(function() {
-						Array.prototype.slice.call(self.elts).forEach(function(elt) {
-							var child = elt.firstChild;
-							if (child.nodeType === 3) {
-								if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
-									child.nodeValue = elt.previousSibling.nodeValue + child.nodeValue;
-									elt.parentNode.removeChild(elt.previousSibling);
-								}
-								if (elt.nextSibling && elt.nextSibling.nodeType === 3) {
-									child.nodeValue = child.nodeValue + elt.nextSibling.nodeValue;
-									elt.parentNode.removeChild(elt.nextSibling);
-								}
-							}
-							elt.parentNode.insertBefore(child, elt);
-							elt.parentNode.removeChild(elt);
-						});
-					});
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.unwrap.bind(clRangeWrapper, elts));
 					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
 				}
 
 				function restoreClass() {
-					if (self.elts.length !== lastEltCount) {
+					if (elts.length !== lastEltCount) {
 						removeClass();
 						applyClass();
 					}
@@ -353,7 +304,51 @@ angular.module('classeur.core.editor', [])
 			}
 
 			return function(classes, offsetGetter, properties) {
-				return new ClassApplier(classes, offsetGetter, properties);
+				return new EditorClassApplier(classes, offsetGetter, properties);
+			};
+		})
+	.factory('clPreviewClassApplier',
+		function($window, clEditorSvc, clRangeWrapper) {
+			function PreviewClassApplier(classes, offsetGetter, properties) {
+				classes = typeof classes === 'string' ? [classes] : classes;
+				var lastEltCount,
+					elts = clEditorSvc.previewElt.getElementsByClassName(classes[0]),
+					timeoutId;
+
+				function applyClass() {
+					timeoutId = undefined;
+					var offset = offsetGetter();
+					if (!offset) {
+						return;
+					}
+					var start = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.min(offset.start, offset.end));
+					var end = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.max(offset.start, offset.end));
+					var range = $window.document.createRange();
+					range.setStart(start.container, start.offsetInContainer);
+					range.setEnd(end.container, end.offsetInContainer);
+					properties = properties || {};
+					properties.className = classes.join(' ');
+					clRangeWrapper.wrap(range, properties);
+					lastEltCount = elts.length;
+				}
+
+				this.remove = function() {
+					clearTimeout(timeoutId);
+					clRangeWrapper.unwrap(elts);
+				};
+
+				this.restore = function() {
+					if (!timeoutId && elts.length !== lastEltCount) {
+						this.remove();
+						applyClass();
+					}
+				};
+
+				timeoutId = setTimeout(applyClass, 10); // To come after the clEditorClassApplier
+			}
+
+			return function(classes, offsetGetter, properties) {
+				return new PreviewClassApplier(classes, offsetGetter, properties);
 			};
 		})
 	.filter('clHighlightMarkdown',
@@ -375,7 +370,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
+		function($window, $timeout, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -412,7 +407,7 @@ angular.module('classeur.core.editor', [])
 			});
 
 			var editorElt, previewElt, tocElt;
-			var filenameSpaceElt;
+			var filenameSpaceElt, filenameSpaceLength;
 			var prismOptions = {
 				insideFences: insideFences
 			};
@@ -501,6 +496,7 @@ angular.module('classeur.core.editor', [])
 					parsingCtx = undefined;
 					conversionCtx = undefined;
 					clEditorSvc.sectionDescList = [];
+					clEditorSvc.textToPreviewDiffs = undefined;
 					clEditorSvc.cledit = $window.cledit(elt, elt.parentNode);
 					clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 						parsingCtx.sectionList = sectionList;
@@ -614,7 +610,7 @@ angular.module('classeur.core.editor', [])
 
 			var anchorHash = {};
 
-			clEditorSvc.refreshPreview = function(cb) {
+			clEditorSvc.refreshPreview = function() {
 				var newSectionDescList = [];
 				var sectionPreviewElt, sectionTocElt;
 				var sectionIdx = 0,
@@ -679,10 +675,10 @@ angular.module('classeur.core.editor', [])
 				});
 				clEditorSvc.sectionDescList = newSectionDescList;
 				tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('empty');
-				runAsyncPreview(cb);
+				runAsyncPreview();
 			};
 
-			function runAsyncPreview(cb) {
+			function runAsyncPreview() {
 				function recursiveCall(callbackList) {
 					if (callbackList.length) {
 						return callbackList.shift()(function() {
@@ -702,7 +698,8 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
 					clEditorSvc.previewText = previewElt.textContent;
 					clEditorSvc.lastPreviewRefreshed = Date.now();
-					cb();
+					debouncedTextToPreviewDiffs();
+					$rootScope.$apply();
 				}
 
 				var imgLoadingListeners = Array.prototype.map.call(previewElt.querySelectorAll('img'), function(imgElt) {
@@ -718,6 +715,40 @@ angular.module('classeur.core.editor', [])
 				});
 				recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
 			}
+
+			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
+				filenameSpaceLength = filenameSpaceElt.textContent.length;
+				var editorText = clEditorSvc.cledit.getContent();
+				var previewText = previewElt.textContent.slice(filenameSpaceLength);
+				clEditorSvc.textToPreviewDiffs = diffMatchPatch.diff_main(editorText, previewText);
+				$rootScope.$apply();
+			}, 50);
+
+
+			clEditorSvc.getPreviewOffset = function(textOffset) {
+				return clEditorSvc.textToPreviewDiffs && diffMatchPatch.diff_xIndex(clEditorSvc.textToPreviewDiffs, textOffset) + filenameSpaceLength;
+			};
+
+			var saveSelection = $window.cledit.Utils.debounce(function() {
+				var selection = $window.getSelection();
+				var range = selection.rangeCount && selection.getRangeAt(0);
+				if (range) {
+					if (!clEditorSvc.previewElt ||
+						!(clEditorSvc.previewElt.compareDocumentPosition(range.startContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY) ||
+						!(clEditorSvc.previewElt.compareDocumentPosition(range.endContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY)
+					) {
+						range = undefined;
+					}
+				}
+				if (clEditorSvc.previewSelectionRange !== range) {
+					clEditorSvc.previewSelectionRange = range;
+					$rootScope.$apply();
+				}
+			}, 50);
+
+			$window.addEventListener('keyup', saveSelection);
+			$window.addEventListener('mouseup', saveSelection);
+			$window.addEventListener('contextmenu', saveSelection);
 
 			function SectionDimension(startOffset, endOffset) {
 				this.startOffset = startOffset;
@@ -822,7 +853,7 @@ angular.module('classeur.core.editor', [])
 						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
 					}
 				}
-				scrollerElt.clAnim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialIn').start();
+				scrollerElt.clAnim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
 			};
 
 			clEditorSvc.applyTemplate = function(template) {

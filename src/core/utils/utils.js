@@ -3,11 +3,14 @@ angular.module('classeur.core.utils', [])
 		function($window) {
 			return $window.CL_CONFIG || {};
 		})
-	.factory('clIsNavigatorOnline',
-		function($window) {
-			return function() {
-				return $window.navigator.onLine !== false;
-			};
+	.factory('clLocalStorage',
+		function() {
+			var version = parseInt(localStorage.getItem('version'));
+			if (isNaN(version)) {
+				version = 1;
+			}
+			localStorage.setItem('version', version);
+			return localStorage;
 		})
 	.factory('clSetInterval',
 		function() {
@@ -32,6 +35,12 @@ angular.module('classeur.core.utils', [])
 				}).join('');
 			}
 			return clUid;
+		})
+	.factory('clIsNavigatorOnline',
+		function($window) {
+			return function() {
+				return $window.navigator.onLine !== false;
+			};
 		})
 	.filter('clTimeSince',
 		function() {
@@ -81,7 +90,7 @@ angular.module('classeur.core.utils', [])
 			var mdDialogShow = $mdDialog.show;
 			$rootScope.isDialogOpen = 0;
 			$mdDialog.show = function(optionsOrPreset) {
-				if($window.event && $window.event.type === 'click') {
+				if ($window.event && $window.event.type === 'click') {
 					optionsOrPreset.targetEvent = $window.event;
 				}
 				$rootScope.isDialogOpen++;
@@ -297,22 +306,6 @@ angular.module('classeur.core.utils', [])
 
 			return clStateMgr;
 		})
-	.factory('clSelectionListeningSvc',
-		function($window, $timeout) {
-			var clSelectionListeningSvc = {};
-
-			function saveSelection() {
-				$timeout(function() {
-					var selection = $window.getSelection();
-					clSelectionListeningSvc.range = selection.rangeCount && selection.getRangeAt(0);
-				}, 25);
-			}
-
-			$window.addEventListener('keyup', saveSelection);
-			$window.addEventListener('mouseup', saveSelection);
-			$window.addEventListener('contextmenu', saveSelection);
-			return clSelectionListeningSvc;
-		})
 	.factory('clUrl',
 		function() {
 			return {
@@ -339,6 +332,104 @@ angular.module('classeur.core.utils', [])
 				}
 			};
 		})
+	.factory('clRangeWrapper',
+		function($window) {
+			return {
+				wrap: function(range, eltProperties) {
+					var rangeLength = ('' + range).length;
+					var wrappedLength = 0;
+					var treeWalker = $window.document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
+					var startOffset = range.startOffset;
+					treeWalker.currentNode = range.startContainer;
+					if (treeWalker.currentNode.nodeType === Node.TEXT_NODE || treeWalker.nextNode()) {
+						do {
+							if (treeWalker.currentNode.nodeValue !== '\n') {
+								if (treeWalker.currentNode === range.endContainer && range.endOffset < treeWalker.currentNode.nodeValue.length) {
+									treeWalker.currentNode.splitText(range.endOffset);
+								}
+								if (startOffset) {
+									treeWalker.currentNode = treeWalker.currentNode.splitText(startOffset);
+									startOffset = 0;
+								}
+								var elt = $window.document.createElement('span');
+								for (var key in eltProperties) {
+									elt[key] = eltProperties[key];
+								}
+								treeWalker.currentNode.parentNode.insertBefore(elt, treeWalker.currentNode);
+								elt.appendChild(treeWalker.currentNode);
+							}
+							wrappedLength += treeWalker.currentNode.nodeValue.length;
+							if (wrappedLength >= rangeLength) {
+								break;
+							}
+						}
+						while (treeWalker.nextNode());
+					}
+				},
+				unwrap: function(elts) {
+					Array.prototype.slice.call(elts).forEach(function(elt) {
+						var child = elt.firstChild;
+						if (child.nodeType === 3) {
+							if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
+								child.nodeValue = elt.previousSibling.nodeValue + child.nodeValue;
+								elt.parentNode.removeChild(elt.previousSibling);
+							}
+							if (elt.nextSibling && elt.nextSibling.nodeType === 3) {
+								child.nodeValue = child.nodeValue + elt.nextSibling.nodeValue;
+								elt.parentNode.removeChild(elt.nextSibling);
+							}
+						}
+						elt.parentNode.insertBefore(child, elt);
+						elt.parentNode.removeChild(elt);
+					});
+				}
+			};
+		})
+	.factory('clOffsetUtils',
+		function($window) {
+			var diffMatchPatch = new $window.diff_match_patch();
+			diffMatchPatch.Match_Distance = 999999999;
+			var marker = '\uF111\uF222\uF333';
+			return {
+				offsetToPatch: function(text, offset) {
+					var patch = diffMatchPatch.patch_make(text, [
+						[0, text.slice(0, offset)],
+						[1, marker],
+						[0, text.slice(offset)]
+					])[0];
+					var diffs = patch.diffs.map(function(diff) {
+						if (!diff[0]) {
+							return diff[1];
+						} else if (diff[1] === marker) {
+							return '';
+						}
+					});
+					return {
+						diffs: diffs,
+						length: patch.length1,
+						start: patch.start1
+					};
+				},
+				patchToOffset: function(text, patch) {
+					var markersLength = 0;
+					var diffs = patch.diffs.map(function(diff) {
+						if (!diff) {
+							markersLength += marker.length;
+							return [1, marker];
+						} else {
+							return [0, diff];
+						}
+					});
+					return diffMatchPatch.patch_apply([{
+						diffs: diffs,
+						length1: patch.length,
+						length2: patch.length + markersLength,
+						start1: patch.start,
+						start2: patch.start
+					}], text)[0].indexOf(marker);
+				}
+			};
+		})
 	.directive('clInfiniteScroll',
 		function($timeout) {
 			return {
@@ -357,15 +448,6 @@ angular.module('classeur.core.utils', [])
 					};
 				}
 			};
-		})
-	.factory('clLocalStorage',
-		function() {
-			var version = parseInt(localStorage.getItem('version'));
-			if (isNaN(version)) {
-				version = 1;
-			}
-			localStorage.setItem('version', version);
-			return localStorage;
 		})
 	.run(function() {
 
@@ -503,7 +585,7 @@ angular.module('classeur.core.utils', [])
 				if (progress < 0) {
 					return;
 				}
-			} else if(animation.$end.endCb) {
+			} else if (animation.$end.endCb) {
 				animation.requestId = window.requestAnimationFrame(animation.$end.endCb);
 			}
 

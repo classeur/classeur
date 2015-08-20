@@ -25,6 +25,8 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     word-break: break-word;
+    -webkit-font-variant-ligatures: normal;
+    font-variant-ligatures: normal;
     .cledit-section {
         font-family: inherit;
     }
@@ -70,11 +72,11 @@
         right: 1020px;
     }
     & > .filename.space {
-        min-height: 43px;
+        min-height: 45px;
         font-size: 32px;
         text-transform: uppercase;
         border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-        padding: 5px 0;
+        padding: 6px 0;
         line-height: 1;
         text-align: right;
         letter-spacing: -0.03em;

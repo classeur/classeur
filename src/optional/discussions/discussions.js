@@ -1,6 +1,6 @@
 angular.module('classeur.optional.discussions', [])
 	.directive('clDiscussionDecorator',
-		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc, clLocalSettingSvc) {
+		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc, clLocalSettingSvc, clOffsetUtils) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -9,39 +9,70 @@ angular.module('classeur.optional.discussions', [])
 			};
 
 			function link(scope, element) {
-				var selectionStart, selectionEnd;
-				var parentElt = element[0].parentNode;
-				var contentDao = scope.currentFileDao.contentDao;
+				var selection,
+					contentDao = scope.currentFileDao.contentDao;
 
-				function getDiscussionId(elt) {
-					while (elt && elt !== parentElt) {
-						if (elt.discussionId) {
-							return elt.discussionId;
+				setTimeout(function() {
+					function getEditorDiscussionId(elt) {
+						while (elt && elt !== clEditorSvc.editorElt) {
+							if (elt.discussionId) {
+								return elt.discussionId;
+							}
+							elt = elt.parentNode;
 						}
-						elt = elt.parentNode;
 					}
-				}
-				parentElt.addEventListener('mouseover', function(evt) {
-					var discussionId = getDiscussionId(evt.target);
-					discussionId && Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + discussionId)).forEach(function(elt) {
-						elt.classList.add('hover');
+					clEditorSvc.editorElt.addEventListener('mouseover', function(evt) {
+						var discussionId = getEditorDiscussionId(evt.target);
+						discussionId && Array.prototype.slice.call(clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId)).forEach(function(elt) {
+							elt.classList.add('hover');
+						});
 					});
-				});
-				parentElt.addEventListener('mouseout', function(evt) {
-					var discussionId = getDiscussionId(evt.target);
-					discussionId && Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + discussionId)).forEach(function(elt) {
-						elt.classList.remove('hover');
+					clEditorSvc.editorElt.addEventListener('mouseout', function(evt) {
+						var discussionId = getEditorDiscussionId(evt.target);
+						discussionId && Array.prototype.slice.call(clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId)).forEach(function(elt) {
+							elt.classList.remove('hover');
+						});
 					});
-				});
-				parentElt.addEventListener('click', function(evt) {
-					var discussionId = getDiscussionId(evt.target);
-					if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
-						clLocalSettingSvc.values.sideBar = true;
-						clEditorLayoutSvc.sideBarTab = 'discussions';
-						clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
-						clDiscussionSvc.currentDiscussionId = discussionId;
+					clEditorSvc.editorElt.addEventListener('click', function(evt) {
+						var discussionId = getEditorDiscussionId(evt.target);
+						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+							clLocalSettingSvc.values.sideBar = true;
+							clEditorLayoutSvc.sideBarTab = 'discussions';
+							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
+							clDiscussionSvc.currentDiscussionId = discussionId;
+						}
+					});
+
+					function getPreviewDiscussionId(elt) {
+						while (elt && elt !== clEditorSvc.previewElt) {
+							if (elt.discussionId) {
+								return elt.discussionId;
+							}
+							elt = elt.parentNode;
+						}
 					}
-				});
+					clEditorSvc.previewElt.addEventListener('mouseover', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
+							elt.classList.add('hover');
+						});
+					});
+					clEditorSvc.previewElt.addEventListener('mouseout', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
+							elt.classList.remove('hover');
+						});
+					});
+					clEditorSvc.previewElt.addEventListener('click', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+							clLocalSettingSvc.values.sideBar = true;
+							clEditorLayoutSvc.sideBarTab = 'discussions';
+							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
+							clDiscussionSvc.currentDiscussionId = discussionId;
+						}
+					});
+				}, 1);
 
 				var newDiscussionBtnElt = element[0].querySelector('.new-discussion-btn');
 				var lastCoordinates = {};
@@ -49,10 +80,9 @@ angular.module('classeur.optional.discussions', [])
 				function checkSelection() {
 					var selectionMgr = clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr;
 					if (selectionMgr) {
-						selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
-						selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+						selection = clDiscussionSvc.getTrimmedSelection(selectionMgr);
 						var coordinates = selectionMgr.cursorCoordinates;
-						if (selectionStart !== selectionEnd && coordinates.top !== undefined) {
+						if (selection && coordinates.top !== undefined) {
 							if (coordinates.top !== lastCoordinates.top ||
 								coordinates.height !== lastCoordinates.height ||
 								coordinates.left !== lastCoordinates.left
@@ -106,14 +136,17 @@ angular.module('classeur.optional.discussions', [])
 				scope.discussionId = clDiscussionSvc.newDiscussionId;
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
-					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 500);
+					if (!selection) {
+						return;
+					}
+					clDiscussionSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 500);
 					if (!text) {
 						return;
 					}
-					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
-						start: selectionStart,
-						end: selectionEnd
-					});
+					clDiscussionSvc.newDiscussion.patches = [
+						clOffsetUtils.offsetToPatch(text, selection.start),
+						clOffsetUtils.offsetToPatch(text, selection.end)
+					];
 					// Force recreate the highlighter
 					clDiscussionSvc.currentDiscussion = undefined;
 					clDiscussionSvc.currentDiscussionId = undefined;
@@ -126,40 +159,67 @@ angular.module('classeur.optional.discussions', [])
 				};
 
 				scope.$watch('discussionSvc.currentDiscussionId', function(currentDiscussionId) {
-					Array.prototype.slice.call(parentElt.querySelectorAll('.discussion-highlighting.selected')).forEach(function(elt) {
+					Array.prototype.slice.call($window.document.querySelectorAll('.discussion-editor-highlighting.selected, .discussion-preview-highlighting.selected')).forEach(function(elt) {
 						elt.classList.remove('selected');
 					});
-					currentDiscussionId && Array.prototype.slice.call(parentElt.getElementsByClassName('discussion-highlighting-' + currentDiscussionId)).forEach(function(elt) {
+					currentDiscussionId && Array.prototype.slice.call($window.document.querySelectorAll(
+						'.discussion-editor-highlighting-' + currentDiscussionId +
+						', .discussion-preview-highlighting-' + currentDiscussionId
+					)).forEach(function(elt) {
 						elt.classList.add('selected');
 					});
 				});
 			}
 		})
 	.directive('clDiscussionHighlighter',
-		function(clEditorSvc, clEditorClassApplier, clDiscussionSvc) {
+		function(clEditorSvc, clEditorClassApplier, clPreviewClassApplier, clOffsetUtils) {
 			return {
 				restrict: 'E',
 				link: link
 			};
 
 			function link(scope) {
-				var classApplier = clEditorClassApplier(['discussion-highlighting-' + scope.discussionId, 'discussion-highlighting'], function() {
+				var offset;
+
+				var editorClassApplier = clEditorClassApplier(['discussion-editor-highlighting-' + scope.discussionId, 'discussion-editor-highlighting'], function() {
 					if (!clEditorSvc.cledit.options) {
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
-					return clDiscussionSvc.patchToOffset(text, scope.discussion.patches);
+					offset = {
+						start: clOffsetUtils.patchToOffset(text, scope.discussion.patches[0]),
+						end: clOffsetUtils.patchToOffset(text, scope.discussion.patches[1])
+					};
+					return offset.start !== -1 && offset.end !== -1 && offset;
 				}, {
 					discussionId: scope.discussionId
 				});
 
+				var previewClassApplier = clPreviewClassApplier(['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting'], function() {
+					if (!offset || offset.start === -1 || offset.end === -1) {
+						return;
+					}
+					var start = clEditorSvc.getPreviewOffset(offset.start);
+					var end = clEditorSvc.getPreviewOffset(offset.end);
+					return start !== undefined && end !== undefined && {
+						start: start,
+						end: end
+					};
+				}, {
+					discussionId: scope.discussionId
+				});
+
+				scope.$watch('editorSvc.textToPreviewDiffs', function(value) {
+					value && previewClassApplier.restore();
+				});
 				scope.$on('$destroy', function() {
-					classApplier && classApplier.stop();
+					editorClassApplier && editorClassApplier.stop();
+					previewClassApplier && previewClassApplier.remove();
 				});
 			}
 		})
 	.directive('clDiscussionTab',
-		function($window, $timeout, clDiscussionSvc, clEditorSvc, clToast) {
+		function($window, $timeout, clDiscussionSvc, clEditorSvc, clToast, clOffsetUtils) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -183,17 +243,15 @@ angular.module('classeur.optional.discussions', [])
 
 				scope.createDiscussion = function() {
 					var text = clEditorSvc.cledit.getContent();
-					var selectionMgr = clEditorSvc.cledit && clEditorSvc.cledit.selectionMgr;
-					var selectionStart = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
-					var selectionEnd = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
-					if (selectionStart === selectionEnd) {
+					var selection = clDiscussionSvc.getTrimmedSelection(clEditorSvc.cledit.selectionMgr);
+					if (!selection) {
 						return clToast('Please select some text first.');
 					}
-					clDiscussionSvc.newDiscussion.text = text.slice(selectionStart, selectionEnd).slice(0, 1000);
-					clDiscussionSvc.newDiscussion.patches = clDiscussionSvc.offsetToPatch(text, {
-						start: selectionStart,
-						end: selectionEnd
-					});
+					clDiscussionSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 1000);
+					clDiscussionSvc.newDiscussion.patches = [
+						clOffsetUtils.offsetToPatch(text, selection.start),
+						clOffsetUtils.offsetToPatch(text, selection.end)
+					];
 					// Force recreate the highlighter
 					clDiscussionSvc.currentDiscussion = undefined;
 					clDiscussionSvc.currentDiscussionId = undefined;
@@ -260,7 +318,7 @@ angular.module('classeur.optional.discussions', [])
 						clDiscussionSvc.currentDiscussion = scope.discussion;
 						clDiscussionSvc.currentDiscussionId = scope.discussionId;
 						setTimeout(function() {
-							var elt = $window.document.querySelector('.discussion-highlighting-' + scope.discussionId);
+							var elt = $window.document.querySelector('.discussion-editor-highlighting-' + scope.discussionId);
 							if (!elt) {
 								return clToast('Discussion can\'t be located in the file.');
 							}
@@ -420,64 +478,24 @@ angular.module('classeur.optional.discussions', [])
 			};
 		})
 	.factory('clDiscussionSvc',
-		function($window, clUid) {
-			var diffMatchPatch = new $window.diff_match_patch();
-			diffMatchPatch.Match_Distance = 999999999;
-			var marker = '\uF111\uF222\uF333';
-
-			function offsetToPatch(text, offset) {
-				return diffMatchPatch.patch_make(text, [
-					[0, text.slice(0, offset.start)],
-					[1, marker],
-					[0, text.slice(offset.start, offset.end)],
-					[1, marker],
-					[0, text.slice(offset)]
-				]).map(function(patch) {
-					var diffs = patch.diffs.map(function(diff) {
-						if (!diff[0]) {
-							return diff[1];
-						} else if (diff[1] === marker) {
-							return '';
-						}
-					});
-					return {
-						diffs: diffs,
-						length: patch.length1,
-						start: patch.start1
-					};
-				});
-			}
-
-			function patchToOffset(text, patches) {
-				patches = patches.map(function(patch) {
-					var markersLength = 0;
-					var diffs = patch.diffs.map(function(diff) {
-						if (!diff) {
-							markersLength += marker.length;
-							return [1, marker];
-						} else {
-							return [0, diff];
-						}
-					});
-					return {
-						diffs: diffs,
-						length1: patch.length,
-						length2: patch.length + markersLength,
-						start1: patch.start,
-						start2: patch.start
-					};
-				});
-				var splitedText = diffMatchPatch.patch_apply(patches, text)[0].split(marker);
-				return splitedText.length === 3 && {
-					start: splitedText[0].length,
-					end: splitedText[0].length + splitedText[1].length
-				};
-			}
-
+		function($window, clUid, clEditorSvc) {
 			return {
 				newDiscussion: {},
 				newDiscussionId: clUid(),
-				offsetToPatch: offsetToPatch,
-				patchToOffset: patchToOffset,
+				getTrimmedSelection: function(selectionMgr) {
+					var text = clEditorSvc.cledit.getContent();
+					var start = Math.min(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+					var end = Math.max(selectionMgr.selectionStart, selectionMgr.selectionEnd);
+					while ((text[start] || '').match(/\s/)) {
+						start++;
+					}
+					while ((text[end - 1] || '').match(/\s/)) {
+						end--;
+					}
+					return start < end && {
+						start: start,
+						end: end,
+					};
+				}
 			};
 		});
