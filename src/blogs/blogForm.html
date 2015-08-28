@@ -1,6 +1,11 @@
 <md-select placeholder="Platform" ng-model="form.platformId" ng-if="!blog">
     <md-option ng-repeat="platform in platforms" value="{{platform.id}}"><div layout="row" layout-align="start center"><span class="blog icon" ng-class="platform.id"></span> {{platform.name}}</div></md-option>
-</md-select>
+<!--     <md-option><div layout="row" layout-align="start center"><span class="blog icon blogger"></span> Blogger</div></md-option>
+    <md-option><div layout="row" layout-align="start center"><span class="blog icon dropbox"></span> Dropbox</div></md-option>
+    <md-option><div layout="row" layout-align="start center"><span class="blog icon github"></span> GitHub</div></md-option>
+    <md-option><div layout="row" layout-align="start center"><span class="blog icon tumblr"></span> Tumblr</div></md-option>
+    <md-option><div layout="row" layout-align="start center"><span class="blog icon wordpress"></span> WordPress</div></md-option>
+ --></md-select>
 <md-input-container>
     <label>Blog name</label>
     <input ng-model="form.name">

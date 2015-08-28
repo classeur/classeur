@@ -18,58 +18,31 @@ angular.module('classeur.core.sync', [])
 			}
 
 			var clSyncDataSvc = clLocalStorageObject('syncData', {
-				lastActivity: {
-					default: '0',
-					parser: parseInt
-				},
+				lastActivity: 'int',
 				folders: {
 					default: '{}',
 					parser: parseSyncData,
 					serializer: serializeSyncData,
 				},
-				nextFolderSeq: {
-					default: '0',
-					parser: parseInt
-				},
-				folderLastUpdated: {
-					default: '0',
-					parser: parseInt
-				},
+				nextFolderSeq: 'int',
+				folderLastUpdated: 'int',
 				files: {
 					default: '{}',
 					parser: parseSyncData,
 					serializer: serializeSyncData,
 				},
-				nextFileSeq: {
-					default: '0',
-					parser: parseInt
-				},
-				fileLastUpdated: {
-					default: '0',
-					parser: parseInt
-				},
-				userId: {},
+				nextFileSeq: 'int',
+				fileLastUpdated: 'int',
+				userId: 'string',
 				userData: {
 					default: '{}',
 					parser: parseSyncData,
 					serializer: serializeSyncData,
 				},
-				fileSyncReady: {},
-				fileCreationDates: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				folderRefreshDates: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				fileRecoveryDates: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				}
+				fileSyncReady: 'string',
+				fileCreationDates: 'object',
+				folderRefreshDates: 'object',
+				fileRecoveryDates: 'object'
 			});
 
 			function reset() {

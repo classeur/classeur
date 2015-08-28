@@ -87,7 +87,7 @@ angular.module('classeur.optional.scrollSync', [])
 					}
 
 					clearTimeout(previewTimeoutId);
-					previewElt.clAnim
+					previewElt.clanim
 						.scrollTop(destScrollTop)
 						.duration(!debounce && !localSkipAnimation && 100)
 						.delay(debounce && 50)
@@ -121,7 +121,7 @@ angular.module('classeur.optional.scrollSync', [])
 					}
 
 					clearTimeout(editorTimeoutId);
-					editorElt.clAnim
+					editorElt.clanim
 						.scrollTop(destScrollTop)
 						.duration(!debounce && !localSkipAnimation && 100)
 						.delay(debounce && 50)

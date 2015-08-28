@@ -95,7 +95,7 @@ angular.module('classeur.core', [])
 
 		})
 	.run(
-		function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clSetInterval, clUrl, clLocalStorage) {
+		function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clLocalStorage) {
 
 			// Globally accessible services
 			$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
@@ -178,10 +178,6 @@ angular.module('classeur.core', [])
 				clDialog.cancel();
 				clExplorerLayoutSvc.init();
 			});
-
-			clSetInterval(function() {
-				clSyncSvc.saveAll() && $rootScope.$apply();
-			}, 1100);
 
 			$window.addEventListener('beforeunload', function(evt) {
 				clSyncSvc.saveAll();

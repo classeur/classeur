@@ -174,7 +174,7 @@ angular.module('classeur.optional.conflicts', [])
 					}
 					var offset = elt.offsetTop - clEditorSvc.scrollOffset - 180;
 					var scrollerElt = clEditorSvc.editorElt.parentNode;
-					scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
+					scrollerElt.clanim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
 				};
 			}
 		})

@@ -34,12 +34,13 @@ angular.module('classeur.optional.stat', [])
 				var duration;
 
 				function move() {
-					statPanelElt.clAnim
+					statPanelElt.clanim
 						.translateX(-clEditorLayoutSvc.backgroundX)
-						.translateY(clLocalSettingSvc.values.stat && clEditorLayoutSvc.isEditorOpen ? 0 : 20)
+						.translateY(clLocalSettingSvc.values.stat && clEditorLayoutSvc.isEditorOpen ? 0 : 30)
 						.duration(duration)
+						.easing('materialOut')
 						.start(true);
-					duration = 200;
+					duration = 300;
 				}
 
 				function computeText() {

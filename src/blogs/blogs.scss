@@ -64,8 +64,22 @@
     background-image: url('assets/images/blog_platforms.png');
     background-repeat: no-repeat;
     background-size: 340px 32px;
-    background-position: 0 0;
-    margin-right: 6px;
+    margin-right: 10px;
+    &.github {
+        background-position: 0 0;
+    }
+    &.blogger {
+        background-position: -34px 0;
+    }
+    &.dropbox {
+        background-position: -68px 0;
+    }
+    &.tumblr {
+        background-position: -102px 0;
+    }
+    &.wordpress {
+        background-position: -136px 0;
+    }
 }
 
 .blog.post.form {

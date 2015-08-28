@@ -24,11 +24,11 @@ angular.module('classeur.core.explorerLayout', [])
 					element.toggleClass('open', isOpen);
 					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
 					var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
-					buttonElt.clAnim
+					buttonElt.clanim
 						.zIndex(z)
 						.start()
 						.offsetWidth; // Force z-offset to refresh before the animation
-					buttonElt.clAnim
+					buttonElt.clanim
 						.duration(duration)
 						.translateX(isOpen ? 0 : -5)
 						.translateY(y)
@@ -254,21 +254,21 @@ angular.module('classeur.core.explorerLayout', [])
 				function animateLayout() {
 					clExplorerLayoutSvc.scrollbarWidth = folderElt.offsetWidth - folderElt.clientWidth;
 					updateLayout();
-					containerElt.clAnim
+					containerElt.clanim
 						.width(clExplorerLayoutSvc.explorerWidth - 50)
 						.translateX(-clExplorerLayoutSvc.explorerWidth / 2 + 5)
 						.start()
 						.classList.toggle('no-padding', clExplorerLayoutSvc.noPadding);
-					contentElt.clAnim
+					contentElt.clanim
 						.translateY(clExplorerLayoutSvc.contentY)
 						.duration(isInited && 300)
 						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'materialOut' : 'materialIn')
 						.start(true);
 					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth;
-					scrollbarElt.clAnim
+					scrollbarElt.clanim
 						.width(folderContainerWidth)
 						.start();
-					folderCloneElt.clAnim
+					folderCloneElt.clanim
 						.width(folderContainerWidth)
 						.start();
 					isInited = true;

@@ -39,20 +39,20 @@ angular.module('classeur.core.editorLayout', [])
 			};
 
 			function link(scope, element) {
-				element[0].querySelector('.side-bar.panel').clAnim.width(clEditorLayoutSvc.sideBarWidth).start();
+				element[0].querySelector('.side-bar.panel').clanim.width(clEditorLayoutSvc.sideBarWidth).start();
 				var backgroundPanelElt = element[0].querySelector('.background.panel');
 				var previewPanelElt = element[0].querySelector('.preview.panel');
 				var previewContainerElt = element[0].querySelector('.preview.container');
-				var binderPanelElt = element[0].querySelector('.binder.panel').clAnim.top(-hideOffsetY).start();
-				var editBtnElt = element[0].querySelector('.edit.btn-panel').clAnim.bottom(-hideOffsetY - 20).start();
-				var editorPanelElt = element[0].querySelector('.editor.panel').clAnim.top(hideOffsetY).start();
-				var pagePanelElt = element[0].querySelector('.page.panel').clAnim.left(clEditorLayoutSvc.pageMarginLeft).start();
-				element[0].querySelector('.menu.scroller').clAnim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
-				element[0].querySelector('.menu.content').clAnim.width(clEditorLayoutSvc.menuWidth).start();
-				element[0].querySelector('.editor .btn-grp.panel').clAnim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
+				var binderPanelElt = element[0].querySelector('.binder.panel').clanim.top(-hideOffsetY).start();
+				var editBtnElt = element[0].querySelector('.edit.btn-panel').clanim.bottom(-hideOffsetY - 20).start();
+				var editorPanelElt = element[0].querySelector('.editor.panel').clanim.top(hideOffsetY).start();
+				var pagePanelElt = element[0].querySelector('.page.panel').clanim.left(clEditorLayoutSvc.pageMarginLeft).start();
+				element[0].querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
+				element[0].querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start();
+				element[0].querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
 				var cornerFoldingElt = element[0].querySelector('.corner.folding.panel');
-				element[0].querySelector('.corner.folding .shadow.panel').clAnim.rotate(-45).start();
-				var headerPanelElt = element[0].querySelector('.header.panel').clAnim.top(hideOffsetY).start();
+				element[0].querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start();
+				var headerPanelElt = element[0].querySelector('.header.panel').clanim.top(hideOffsetY).start();
 				var headerBtnGrpElt = headerPanelElt.querySelector('.btn-grp.panel');
 				var closeButtonElt = headerPanelElt.querySelector('.close.panel');
 				var scrollButtonElt = headerPanelElt.querySelector('.scroll.panel');
@@ -157,18 +157,18 @@ angular.module('classeur.core.editorLayout', [])
 
 					clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px';
 					clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em';
-					binderPanelElt.clAnim
+					binderPanelElt.clanim
 						.width(clEditorLayoutSvc.binderWidth)
 						.left(-clEditorLayoutSvc.binderWidth / 2)
 						.start();
-					previewPanelElt.clAnim
+					previewPanelElt.clanim
 						.width(clEditorLayoutSvc.previewWidth)
 						.left(-clEditorLayoutSvc.previewWidth / 2)
 						.start();
-					headerPanelElt.clAnim
+					headerPanelElt.clanim
 						.width(clEditorLayoutSvc.previewHeaderWidth - previewScrollbarWidth)
 						.start();
-					pagePanelElt.clAnim
+					pagePanelElt.clanim
 						.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight)
 						.start();
 					hidePreview();
@@ -185,17 +185,17 @@ angular.module('classeur.core.editorLayout', [])
 				function animateLayout() {
 					showPreview();
 					updateLayout();
-					backgroundPanelElt.clAnim
+					backgroundPanelElt.clanim
 						.translateX(clEditorLayoutSvc.backgroundX)
 						.duration(isInited && 300)
 						.easing('materialOut')
 						.start();
-					binderPanelElt.clAnim
+					binderPanelElt.clanim
 						.translateX(clEditorLayoutSvc.binderX)
 						.duration(isInited && 300)
 						.easing('materialOut')
 						.start();
-					previewPanelElt.clAnim
+					previewPanelElt.clanim
 						.translateX(clEditorLayoutSvc.previewX)
 						.duration(isInited && 300)
 						.easing('materialOut')
@@ -213,14 +213,14 @@ angular.module('classeur.core.editorLayout', [])
 				function animateEditor() {
 					showPreview();
 					updateLayout();
-					editorPanelElt.clAnim
+					editorPanelElt.clanim
 						.translateX(clEditorLayoutSvc.editorX)
 						.translateY(clEditorLayoutSvc.editorY)
 						.duration(isInited && 300)
 						.easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
 						.start(true);
 					setTimeout(function() {
-						editBtnElt.clAnim
+						editBtnElt.clanim
 							.translateY(clEditorLayoutSvc.isEditorOpen ? 100 : 0)
 							.duration(200)
 							.easing('outBack')
@@ -236,14 +236,14 @@ angular.module('classeur.core.editorLayout', [])
 
 				function animateMenu() {
 					updateLayout();
-					pagePanelElt.clAnim
+					pagePanelElt.clanim
 						.translateX(clEditorLayoutSvc.pageX)
 						.translateY(clEditorLayoutSvc.pageY)
 						.rotate(clEditorLayoutSvc.pageRotate)
 						.duration(200)
 						.easing('outBack')
 						.start(true);
-					editorPanelElt.clAnim
+					editorPanelElt.clanim
 						.translateX(clEditorLayoutSvc.editorX)
 						.translateY(clEditorLayoutSvc.editorY)
 						.duration(isInited && 200)
@@ -254,7 +254,7 @@ angular.module('classeur.core.editorLayout', [])
 					if (!clEditorLayoutSvc.isCornerFoldingOpen) {
 						clEditorLayoutSvc.isCornerFoldingVisible = false;
 					}
-					cornerFoldingElt.clAnim
+					cornerFoldingElt.clanim
 						.duration(isInited && 200)
 						.scale(clEditorLayoutSvc.isCornerFoldingOpen ? 2.5 : 1)
 						.start(function() {
@@ -266,17 +266,17 @@ angular.module('classeur.core.editorLayout', [])
 				}
 
 				function animatePreviewButtons(isPreviewTop) {
-					headerBtnGrpElt.clAnim
+					headerBtnGrpElt.clanim
 						.duration(isInited && 200)
 						.rotate(isPreviewTop ? 0 : 90)
 						.start(true);
-					closeButtonElt.clAnim
+					closeButtonElt.clanim
 						.zIndex(isPreviewTop ? 0 : -1)
 						.opacity(isPreviewTop ? 1 : 0)
 						.duration(isInited && 200)
 						.easing('materialOut')
 						.start(true);
-					scrollButtonElt.clAnim
+					scrollButtonElt.clanim
 						.zIndex(isPreviewTop ? -1 : 0)
 						.opacity(isPreviewTop ? 0 : 1)
 						.duration(isInited && 200)
@@ -344,7 +344,6 @@ angular.module('classeur.core.editorLayout', [])
 				editorBtnGrpWidth: 36,
 				menuWidth: 320,
 				sideBarWidth: 280,
-				statHeight: 30,
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;
 					this.isSidePreviewOpen = false;

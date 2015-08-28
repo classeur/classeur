@@ -1,13 +1,17 @@
 @import 'variables';
 
-.user-activity.show {
+.user-activity {
 	&::after {
+		position: absolute;
 		font-family: $font-family;
 		font-weight: bold;
+		color: #fff;
 		line-height: 1;
-		position: absolute;
 		margin-top: -4px;
-		margin-left: 4px;
+		margin-left: -2px;
+		padding: 2px 3px;
 		font-size: 10px;
+		border-radius: 2px;
+		word-break: keep-all;
 	}
 }

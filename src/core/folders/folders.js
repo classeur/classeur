@@ -2,13 +2,10 @@ angular.module('classeur.core.folders', [])
 	.factory('clFolderSvc',
 		function(clLocalStorage, clUid, clLocalStorageObject) {
 			var folderDaoProto = clLocalStorageObject('F', {
-				name: {},
-				sharing: {},
-				isPublic: {},
-				deleted: {
-					default: '0',
-					parser: parseInt
-				},
+				name: 'string',
+				sharing: 'string',
+				isPublic: 'string',
+				deleted: 'int',
 			}, true);
 
 			function FolderDao(id) {
@@ -30,16 +27,8 @@ angular.module('classeur.core.folders', [])
 			};
 
 			var clFolderSvc = clLocalStorageObject('folderSvc', {
-				folderIds: {
-					default: '[]',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				foldersToRemove: {
-					default: '[]',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				}
+				folderIds: 'array',
+				foldersToRemove: 'array'
 			});
 
 			var authorizedKeys = {

@@ -853,7 +853,7 @@ angular.module('classeur.core.editor', [])
 						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
 					}
 				}
-				scrollerElt.clAnim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
+				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
 			};
 
 			clEditorSvc.applyTemplate = function(template) {

@@ -3,47 +3,21 @@ angular.module('classeur.core.files', [])
 		function($timeout, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
 			var maxLocalFiles = 3;
 			var fileDaoProto = clLocalStorageObject('f', {
-				name: {},
-				folderId: {},
-				sharing: {},
-				isPublic: {},
-				deleted: {
-					default: '0',
-					parser: parseInt
-				},
+				name: 'string',
+				folderId: 'string',
+				sharing: 'string',
+				isPublic: 'string',
+				deleted: 'int',
 			}, true);
 			var contentDaoProto = clLocalStorageObject('c', {
-				isLocal: {},
-				lastChange: {
-					default: '0',
-					parser: parseInt
-				},
-				text: {},
-				properties: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				discussions: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				comments: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				conflicts: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				},
-				state: {
-					default: '{}',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				}
+				isLocal: 'string',
+				lastChange: 'int',
+				text: 'string',
+				properties: 'object',
+				discussions: 'object',
+				comments: 'object',
+				conflicts: 'object',
+				state: 'object',
 			}, true);
 
 			function FileDao(id) {
@@ -101,8 +75,10 @@ angular.module('classeur.core.files', [])
 					this.contentDao.$write.state();
 				}
 				if (!this.contentDao.isLocal) {
-					this.contentDao.lastChange = 0;
-					this.contentDao.$write.lastChange();
+					if(this.contentDao.lastChange) {
+						this.contentDao.lastChange = 0;
+						this.contentDao.$write.lastChange();
+					}
 				} else if (updateLastChange) {
 					this.contentDao.lastChange = Date.now();
 					this.contentDao.$write.lastChange();
@@ -159,11 +135,7 @@ angular.module('classeur.core.files', [])
 			}
 
 			var clFileSvc = clLocalStorageObject('fileSvc', {
-				fileIds: {
-					default: '[]',
-					parser: JSON.parse,
-					serializer: JSON.stringify,
-				}
+				fileIds: 'array'
 			});
 
 			var fileAuthorizedKeys = {
@@ -271,6 +243,7 @@ angular.module('classeur.core.files', [])
 				}
 
 				// Check every file
+				// var startTime = Date.now();
 				var checkFileUpdate = fileDaoProto.$checkGlobalUpdate();
 				fileDaoProto.$readGlobalUpdate();
 				var checkContentUpdate = contentDaoProto.$checkGlobalUpdate();
@@ -288,6 +261,7 @@ angular.module('classeur.core.files', [])
 						fileDao.writeContent();
 					}
 				});
+				// console.log('Dirty checking time: ' + (Date.now() - startTime) + 'ms');
 
 				if (checkFileSvcUpdate || checkFileUpdate || checkContentUpdate) {
 					init();

@@ -30,7 +30,7 @@ angular.module('classeur.optional.findReplace', [])
 						findInputElt.readOnly = true;
 						replaceInputElt.readOnly = true;
 					}
-					findReplaceElt.clAnim
+					findReplaceElt.clanim
 						.translateX(-clEditorLayoutSvc.backgroundX)
 						.translateY(isOpen() ? 0 : 40)
 						.duration(duration)

@@ -11,7 +11,7 @@ angular.module('classeur.optional.fileDragging', [])
 			function link(scope, element) {
 				function movePanel(evt) {
 					evt.preventDefault();
-					clFileDraggingSvc.panelElt.clAnim
+					clFileDraggingSvc.panelElt.clanim
 						.translateX(evt.center.x + 10)
 						.translateY(evt.center.y)
 						.start();
@@ -24,7 +24,7 @@ angular.module('classeur.optional.fileDragging', [])
 				hammertime.on('panstart', function(evt) {
 					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
-					clFileDraggingSvc.panelElt.clAnim
+					clFileDraggingSvc.panelElt.clanim
 						.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 215))
 						.start();
 					movePanel(evt);

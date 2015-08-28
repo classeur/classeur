@@ -13,7 +13,7 @@ angular.module('classeur.optional.postToBlog', [])
 					duration;
 
 				function toggle() {
-					panelElt.clAnim
+					panelElt.clanim
 						.duration(duration)
 						.translateX(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5)
 						.start(true);

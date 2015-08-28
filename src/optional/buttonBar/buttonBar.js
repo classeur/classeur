@@ -144,7 +144,7 @@ angular.module('classeur.optional.buttonBar', [])
 					openOffsetY = props.visibleHeight - props.height,
 					closedOffsetY = -props.height - 10;
 
-				var buttonBarElt = element[0].querySelector('.button-bar.panel').clAnim
+				var buttonBarElt = element[0].querySelector('.button-bar.panel').clanim
 					.width(props.width)
 					.height(props.height)
 					.top(2000)
@@ -174,7 +174,7 @@ angular.module('classeur.optional.buttonBar', [])
 						return;
 					}
 					isOpen = newIsOpen;
-					buttonBarElt.clAnim
+					buttonBarElt.clanim
 						.translateX(-props.width / 2)
 						.translateY(isOpen ? openOffsetY : closedOffsetY)
 						.duration(200)

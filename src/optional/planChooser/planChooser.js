@@ -19,7 +19,7 @@ angular.module('classeur.optional.planChooser', [])
 				});
 		})
 	.directive('clPlanChooser',
-		function($window, clDialog, clUserSvc) {
+		function($window, $location, $timeout, clDialog, clUserSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/planChooser/planChooser.html',
@@ -44,5 +44,10 @@ angular.module('classeur.optional.planChooser', [])
 						};
 					}
 				}
+
+				scope.signout = function() {
+					$location.url('/');
+					$timeout(clUserSvc.signout);
+				};
 			}
 		});

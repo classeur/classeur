@@ -15,7 +15,7 @@ angular.module('classeur.optional.zenMode', [])
 			};
 
 			function link(scope, element) {
-				var level1Elt = element[0].querySelector('.level-1').clAnim.width(4000).right(-1500).start(),
+				var level1Elt = element[0].querySelector('.level-1').clanim.width(4000).right(-1500).start(),
 					level2Elt = element[0].querySelector('.level-2'),
 					parentNode = element[0].parentNode,
 					lastClientX, lastClientY, isHidden = true,
@@ -36,7 +36,7 @@ angular.module('classeur.optional.zenMode', [])
 					}
 					level1Elt.classList.remove('hidden');
 					level1Elt.offsetWidth;
-					level1Elt.clAnim
+					level1Elt.clanim
 						.opacity(1)
 						.duration(1500)
 						.easing('ease-out')
@@ -45,11 +45,11 @@ angular.module('classeur.optional.zenMode', [])
 				}, 3000);
 
 				var showLevel2 = $window.cledit.Utils.debounce(function() {
-					isEnabled() && level2Elt.clAnim
+					isEnabled() && level2Elt.clanim
 						.opacity(1)
 						.duration(300)
 						.easing('ease-out')
-						.start();
+						.start(true);
 				}, 400);
 
 				function hidePanel(evt) {
@@ -65,16 +65,16 @@ angular.module('classeur.optional.zenMode', [])
 							if (evt.clientX < minLeft) {
 								unhide = false;
 							}
-							level2Elt.clAnim
+							level2Elt.clanim
 								.duration(100)
 								.opacity(0.9)
 								.easing('ease-out')
-								.start();
+								.start(true);
 						}
 						showLevel1();
 						showLevel2();
 					}
-					unhide && !isHidden && level1Elt.clAnim
+					unhide && !isHidden && level1Elt.clanim
 						.opacity(0)
 						.duration(100)
 						.easing('ease-out')
@@ -85,7 +85,7 @@ angular.module('classeur.optional.zenMode', [])
 						});
 				}
 
-				level1Elt.clAnim.opacity(0).start();
+				level1Elt.clanim.opacity(0).start();
 				hidePanel();
 				var containerElt = document.querySelector('.background.panel');
 				containerElt.addEventListener('keydown', function(evt) {

@@ -146,13 +146,14 @@
                     <div ng-switch-when="true" ng-switch="!!getBlogsPending">
                         <cl-spinner ng-switch-when="true"></cl-spinner>
                         <div ng-switch-when="false">
-                            <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
-                            <div ng-if="!blogs.length">No blog yet.</div>
-                            <br>
                             <md-button class="md-primary" ng-click="editBlog()">
-                                New blog
+                                Add blog
                                 <span class="icon-add"></span>
                             </md-button>
+                            <br>
+                            <br>
+                            <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
+                            <div ng-if="!blogs.length">No blog yet.</div>
                         </div>
                     </div>
                 </div>

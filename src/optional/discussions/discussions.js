@@ -88,7 +88,7 @@ angular.module('classeur.optional.discussions', [])
 								coordinates.left !== lastCoordinates.left
 							) {
 								lastCoordinates = coordinates;
-								newDiscussionBtnElt.clAnim
+								newDiscussionBtnElt.clanim
 									.top(coordinates.top + coordinates.height)
 									.left(coordinates.left)
 									.start();
@@ -324,7 +324,7 @@ angular.module('classeur.optional.discussions', [])
 							}
 							var offset = elt.offsetTop - clEditorSvc.scrollOffset;
 							var scrollerElt = clEditorSvc.editorElt.parentNode;
-							scrollerElt.clAnim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
+							scrollerElt.clanim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
 						}, 10);
 					} else if (clDiscussionSvc.currentDiscussion !== clDiscussionSvc.newDiscussion) {
 						clDiscussionSvc.currentDiscussion = undefined;
