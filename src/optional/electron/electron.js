@@ -23,21 +23,18 @@ angular.module('classeur.optional.electron', [])
 						fileDao.freeContent = unimplemented;
 						fileDao.writeContent = unimplemented;
 						fileDao.load = function() {
-							if (this.state) {
+							if (fileDao.state) {
 								return;
 							}
-							this.state = 'loading';
-							$timeout((function() {
-								if (this.state === 'loading') {
-									this.contentDao.text = clElectronSvc.watchedFile.content;
-									this.contentDao.properties = {};
-									this.contentDao.discussions = {};
-									this.contentDao.comments = {};
-									this.contentDao.conflicts = {};
-									this.contentDao.state = {};
-									this.state = 'loaded';
+							fileDao.state = 'loading';
+							$timeout(function() {
+								if (fileDao.state === 'loading') {
+									clElectronSvc.loadWatchedFile(fileDao);
+									fileDao.contentDao.conflicts = {};
+									fileDao.contentDao.state = {};
+									fileDao.state = 'loaded';
 								}
-							}).bind(this));
+							});
 						};
 						fileDao.unload = function() {
 							clElectron.stopWatching(this.path);
@@ -58,7 +55,8 @@ angular.module('classeur.optional.electron', [])
 											.ok('Reload')
 											.cancel('Discard');
 										clDialog.show(reloadDialog).then(function() {
-											clEditorSvc.setContent(clElectronSvc.watchedFile.content);
+											clElectronSvc.loadWatchedFile(fileDao);
+											clEditorSvc.setContent(fileDao.contentDao.text);
 										});
 									}
 								});
@@ -102,8 +100,29 @@ angular.module('classeur.optional.electron', [])
 			});
 
 			clSetInterval(function() {
-				if (clElectronSvc.watchedFile && $rootScope.currentFileDao && clElectronSvc.watchedFile.path === $rootScope.currentFileDao.path) {
-					var content = $rootScope.currentFileDao.contentDao.text;
+				if (!clElectronSvc.watchedFile) {
+					return;
+				}
+				var contentDao = $rootScope.currentFileDao.contentDao;
+				var content = contentDao.text;
+				var attributes = {};
+				if (Object.keys(contentDao.properties).length) {
+					attributes.properties = contentDao.properties;
+				}
+				if (Object.keys(contentDao.discussions).length) {
+					attributes.discussions = contentDao.discussions;
+				}
+				if (Object.keys(contentDao.comments).length) {
+					attributes.comments = contentDao.comments;
+				}
+				if (Object.keys(attributes).length) {
+					content += '<!--cldata:' + encodeURI(JSON.stringify(attributes)) + '-->';
+				}
+				if ($rootScope.currentFileDao &&
+					clElectronSvc.watchedFile.path === $rootScope.currentFileDao.path &&
+					$rootScope.currentFileDao.contentDao.savedContent !== content
+				) {
+					$rootScope.currentFileDao.contentDao.savedContent = content;
 					clElectron.saveFile({
 						path: clElectronSvc.watchedFile.path,
 						content: content
@@ -131,5 +150,21 @@ angular.module('classeur.optional.electron', [])
 			clElectron.getVersion();
 		})
 	.factory('clElectronSvc', function() {
-		return {};
+		return {
+			loadWatchedFile: function(fileDao) {
+				fileDao.contentDao.savedContent = this.watchedFile.content;
+				var parsedContent = this.watchedFile.content.match(/^([\s\S]*?)(?:<!--cldata:(.*)-->)?\s*$/);
+				fileDao.contentDao.text = parsedContent[1];
+				try {
+					var parsedAttributes = JSON.parse(decodeURI(parsedContent[2]));
+					fileDao.contentDao.properties = parsedAttributes.properties || {};
+					fileDao.contentDao.discussions = parsedAttributes.discussions || {};
+					fileDao.contentDao.comments = parsedAttributes.comments || {};
+				} catch (e) {
+					fileDao.contentDao.properties = {};
+					fileDao.contentDao.discussions = {};
+					fileDao.contentDao.comments = {};
+				}
+			}
+		};
 	});

@@ -48,7 +48,7 @@ angular.module('classeur.core.sync', [])
 			function reset() {
 				var fileKeyPrefix = /^syncData\./;
 				Object.keys(clLocalStorage).forEach(function(key) {
-					if (key.match(fileKeyPrefix)) {
+					if (key.charCodeAt(0) === 0x73 /* s */ && key.match(fileKeyPrefix)) {
 						clLocalStorage.removeItem(key);
 					}
 				});
@@ -204,11 +204,12 @@ angular.module('classeur.core.sync', [])
 
 			var fileKeyPrefix = /^cr\.(\w\w+)/;
 			Object.keys(clLocalStorage).forEach(function(key) {
-				var fileDao, match = key.match(fileKeyPrefix);
-				if (match) {
-					fileDao = clFileSvc.fileMap[match[1]];
-					if (!fileDao || !fileDao.contentDao.isLocal) {
-						clLocalStorage.removeItem(key);
+				if (key.charCodeAt(0) === 0x63 /* c */ ) {
+					var match = key.match(fileKeyPrefix);
+					if (match) {
+						if (!clFileSvc.fileMap.hasOwnProperty(match[1]) || !clFileSvc.fileMap[match[1]].contentDao.isLocal) {
+							clLocalStorage.removeItem(key);
+						}
 					}
 				}
 			});

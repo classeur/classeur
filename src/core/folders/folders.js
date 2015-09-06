@@ -66,11 +66,13 @@ angular.module('classeur.core.folders', [])
 				if (!isInitialized) {
 					var keyPrefix = /^F\.(\w+)\.(\w+)/;
 					Object.keys(clLocalStorage).forEach(function(key) {
-						var match = key.match(keyPrefix);
-						if (match) {
-							if ((!clFolderSvc.folderMap.hasOwnProperty(match[1]) && !clFolderSvc.deletedFolderMap.hasOwnProperty(match[1])) ||
-								!authorizedKeys.hasOwnProperty(match[2])) {
-								clLocalStorage.removeItem(key);
+						if (key.charCodeAt(0) === 0x46 /* F */ ) {
+							var match = key.match(keyPrefix);
+							if (match) {
+								if ((!clFolderSvc.folderMap.hasOwnProperty(match[1]) && !clFolderSvc.deletedFolderMap.hasOwnProperty(match[1])) ||
+									!authorizedKeys.hasOwnProperty(match[2])) {
+									clLocalStorage.removeItem(key);
+								}
 							}
 						}
 					});

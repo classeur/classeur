@@ -698,7 +698,8 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
 					clEditorSvc.previewText = previewElt.textContent;
 					clEditorSvc.lastPreviewRefreshed = Date.now();
-					debouncedTextToPreviewDiffs();
+					// Way too expensive...
+					//debouncedTextToPreviewDiffs();
 					$rootScope.$apply();
 				}
 
@@ -716,13 +717,13 @@ angular.module('classeur.core.editor', [])
 				recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
 			}
 
-			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
-				filenameSpaceLength = filenameSpaceElt.textContent.length;
-				var editorText = clEditorSvc.cledit.getContent();
-				var previewText = previewElt.textContent.slice(filenameSpaceLength);
-				clEditorSvc.textToPreviewDiffs = diffMatchPatch.diff_main(editorText, previewText);
-				$rootScope.$apply();
-			}, 50);
+			// var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
+			// 	filenameSpaceLength = filenameSpaceElt.textContent.length;
+			// 	var editorText = clEditorSvc.cledit.getContent();
+			// 	var previewText = previewElt.textContent.slice(filenameSpaceLength);
+			// 	clEditorSvc.textToPreviewDiffs = diffMatchPatch.diff_main(editorText, previewText);
+			// 	$rootScope.$apply();
+			// }, 50);
 
 
 			clEditorSvc.getPreviewOffset = function(textOffset) {

@@ -75,7 +75,7 @@ angular.module('classeur.core.files', [])
 					this.contentDao.$write.state();
 				}
 				if (!this.contentDao.isLocal) {
-					if(this.contentDao.lastChange) {
+					if (this.contentDao.lastChange) {
 						this.contentDao.lastChange = 0;
 						this.contentDao.$write.lastChange();
 					}
@@ -201,22 +201,27 @@ angular.module('classeur.core.files', [])
 				});
 
 				if (!isInitialized) {
-					var fileKeyPrefix = /^f\.(\w+)\.(\w+)/;
-					var contentKeyPrefix = /^c\.(\w+)\.(\w+)/;
+					var keyPrefix = /^[fc]\.(\w+)\.(\w+)/;
 					Object.keys(clLocalStorage).forEach(function(key) {
-						var fileDao, match = key.match(fileKeyPrefix);
-						if (match) {
-							if ((!clFileSvc.fileMap.hasOwnProperty(match[1]) && !clFileSvc.deletedFileMap.hasOwnProperty(match[1])) ||
-								!fileAuthorizedKeys.hasOwnProperty(match[2])) {
-								clLocalStorage.removeItem(key);
+						var match;
+						if (key.charCodeAt(0) === 0x66 /* f */ ) {
+							match = key.match(keyPrefix);
+							if (match) {
+								if ((!clFileSvc.fileMap.hasOwnProperty(match[1]) && !clFileSvc.deletedFileMap.hasOwnProperty(match[1])) ||
+									!fileAuthorizedKeys.hasOwnProperty(match[2])
+								) {
+									clLocalStorage.removeItem(key);
+								}
 							}
-							return;
-						}
-						match = key.match(contentKeyPrefix);
-						if (match) {
-							fileDao = clFileSvc.fileMap[match[1]];
-							if (!fileDao || !contentAuthorizedKeys.hasOwnProperty(match[2]) || !fileDao.contentDao.isLocal) {
-								clLocalStorage.removeItem(key);
+						} else if (key.charCodeAt(0) === 0x63 /* c */ ) {
+							match = key.match(keyPrefix);
+							if (match) {
+								if (!clFileSvc.fileMap.hasOwnProperty(match[1]) ||
+									!contentAuthorizedKeys.hasOwnProperty(match[2]) ||
+									!clFileSvc.fileMap[match[1]].contentDao.isLocal
+								) {
+									clLocalStorage.removeItem(key);
+								}
 							}
 						}
 					});

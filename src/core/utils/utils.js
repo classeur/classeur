@@ -293,10 +293,12 @@ angular.module('classeur.core.utils', [])
 			var currentDate = Date.now();
 			var keyPrefix = /^state\.(.+)/;
 			Object.keys(clLocalStorage).forEach(function(key) {
-				var match = key.match(keyPrefix);
-				if (match) {
-					var stateAge = parseInt(match[1].split('.')[1] || 0);
-					(currentDate - stateAge > stateMaxAge) && clLocalStorage.removeItem(key);
+				if (key.charCodeAt(0) === 0x73 /* s */ ) {
+					var match = key.match(keyPrefix);
+					if (match) {
+						var stateAge = parseInt(match[1].split('.')[1] || 0);
+						(currentDate - stateAge > stateMaxAge) && clLocalStorage.removeItem(key);
+					}
 				}
 			});
 

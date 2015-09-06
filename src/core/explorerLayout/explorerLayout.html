@@ -29,17 +29,16 @@
                         <div class="item" ng-if="userSvc.user">
                             Hi <b>{{userSvc.user.name}}</b>
                         </div>
-                        <md-button class="settings" ng-href="#!/settings">
-                            <span class="icon-settings"></span>
+                        <md-button class="item settings icon-settings" ng-href="#!/settings">
                         </md-button>
-                        <md-button ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken">
-                            Sign in with Google <span class="icon-arrow-forward"></span>
+                        <md-button class="item" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken">
+                            Sign in with Google
                         </md-button>
                         <div class="item" ng-if="socketSvc.hasToken && !userSvc.user">
                             Signing in...
                         </div>
-                        <md-button ng-href="#!/choosePlan" ng-if="userSvc.user">
-                            Go premium <span class="icon-arrow-forward"></span>
+                        <md-button class="item" ng-href="#!/choosePlan" ng-if="userSvc.user">
+                            Go premium
                         </md-button>
                     </div>
                 </div>

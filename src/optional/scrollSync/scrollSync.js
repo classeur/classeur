@@ -45,8 +45,8 @@ angular.module('classeur.optional.scrollSync', [])
 		function(clEditorLayoutSvc, clEditorSvc, clLocalSettingSvc) {
 			var editorElt,
 				previewElt,
-				editorTimeoutId,
-				previewTimeoutId,
+				editorFinishTimeoutId,
+				previewFinishTimeoutId,
 				skipAnimation,
 				isScrollEditor,
 				isScrollPreview,
@@ -54,8 +54,20 @@ angular.module('classeur.optional.scrollSync', [])
 				isPreviewMoving,
 				sectionDescList;
 
-			var doScrollSync = function(debounce) {
-				var localSkipAnimation = skipAnimation;
+			var throttleTimeoutId, throttleLastTime = 0;
+
+			function throttle(func, wait) {
+				clearTimeout(throttleTimeoutId);
+				var currentTime = Date.now();
+				var localWait = wait + throttleLastTime - currentTime;
+				throttleTimeoutId = setTimeout(function() {
+					throttleLastTime = Date.now();
+					func();
+				}, localWait < 1 ? 1 : localWait);
+			}
+
+			var doScrollSync = function() {
+				var localSkipAnimation = skipAnimation || !clEditorLayoutSvc.isSidePreviewOpen;
 				skipAnimation = false;
 				if (!clLocalSettingSvc.values.scrollSync || !sectionDescList || sectionDescList.length === 0) {
 					return;
@@ -63,7 +75,7 @@ angular.module('classeur.optional.scrollSync', [])
 				var editorScrollTop = editorElt.scrollTop;
 				editorScrollTop < 0 && (editorScrollTop = 0);
 				var previewScrollTop = previewElt.scrollTop;
-				var destScrollTop;
+				var scrollTo;
 				if (isScrollEditor) {
 
 					// Scroll the preview
@@ -72,32 +84,28 @@ angular.module('classeur.optional.scrollSync', [])
 					sectionDescList.some(function(sectionDesc) {
 						if (editorScrollTop < sectionDesc.editorDimension.endOffset) {
 							var posInSection = (editorScrollTop - sectionDesc.editorDimension.startOffset) / (sectionDesc.editorDimension.height || 1);
-							destScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - clEditorSvc.scrollOffset;
+							scrollTo = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - clEditorSvc.scrollOffset;
 							return true;
 						}
 					});
-					destScrollTop = Math.min(
-						destScrollTop,
+					scrollTo = Math.min(
+						scrollTo,
 						previewElt.scrollHeight - previewElt.offsetHeight
 					);
 
-					if (Math.abs(destScrollTop - previewScrollTop) <= 9) {
-						// Skip the animation if diff is less than 10
-						return;
-					}
-
-					clearTimeout(previewTimeoutId);
-					previewElt.clanim
-						.scrollTop(destScrollTop)
-						.duration(!debounce && !localSkipAnimation && 100)
-						.delay(debounce && 50)
-						.start(function() {
-							previewTimeoutId = setTimeout(function() {
-								isPreviewMoving = false;
-							}, 100);
-						}, function() {
-							isPreviewMoving = true;
-						});
+					throttle(function() {
+						clearTimeout(previewFinishTimeoutId);
+						previewElt.clanim
+							.scrollTop(scrollTo)
+							.duration(!localSkipAnimation && 100)
+							.start(function() {
+								previewFinishTimeoutId = setTimeout(function() {
+									isPreviewMoving = false;
+								}, 100);
+							}, function() {
+								isPreviewMoving = true;
+							});
+					}, localSkipAnimation ? 500 : 10);
 				} else if (!clEditorLayoutSvc.isEditorOpen || isScrollPreview) {
 
 					// Scroll the editor
@@ -106,32 +114,28 @@ angular.module('classeur.optional.scrollSync', [])
 					sectionDescList.some(function(sectionDesc) {
 						if (previewScrollTop < sectionDesc.previewDimension.endOffset) {
 							var posInSection = (previewScrollTop - sectionDesc.previewDimension.startOffset) / (sectionDesc.previewDimension.height || 1);
-							destScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - clEditorSvc.scrollOffset;
+							scrollTo = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - clEditorSvc.scrollOffset;
 							return true;
 						}
 					});
-					destScrollTop = Math.min(
-						destScrollTop,
+					scrollTo = Math.min(
+						scrollTo,
 						editorElt.scrollHeight - editorElt.offsetHeight
 					);
 
-					if (Math.abs(destScrollTop - editorScrollTop) <= 9) {
-						// Skip the animation if diff is less than 10
-						return;
-					}
-
-					clearTimeout(editorTimeoutId);
-					editorElt.clanim
-						.scrollTop(destScrollTop)
-						.duration(!debounce && !localSkipAnimation && 100)
-						.delay(debounce && 50)
-						.start(function() {
-							editorTimeoutId = setTimeout(function() {
-								isEditorMoving = false;
-							}, 100);
-						}, function() {
-							isEditorMoving = true;
-						});
+					throttle(function() {
+						clearTimeout(editorFinishTimeoutId);
+						editorElt.clanim
+							.scrollTop(scrollTo)
+							.duration(!localSkipAnimation && 100)
+							.start(function() {
+								editorFinishTimeoutId = setTimeout(function() {
+									isEditorMoving = false;
+								}, 100);
+							}, function() {
+								isEditorMoving = true;
+							});
+					}, localSkipAnimation ? 500 : 10);
 				}
 			};
 
@@ -212,9 +216,6 @@ angular.module('classeur.optional.scrollSync', [])
 					if (isPreviewRefreshing) {
 						return;
 					}
-					// Force Scroll Sync
-					lastEditorScrollTop = -10;
-					lastPreviewScrollTop = -10;
 					doScrollSync(!clEditorLayoutSvc.isSidePreviewOpen);
 				}
 			};
