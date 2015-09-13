@@ -85,7 +85,7 @@ angular.module('classeur.optional.fileDragging', [])
 		function(clDialog, clExplorerLayoutSvc, clToast) {
 			function setFileSrc(fileDao) {
 				clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
-					return !fileDao.isPublic && fileDao.isSelected;
+					return !fileDao.userId && fileDao.isSelected;
 				}) : [fileDao];
 			}
 
@@ -119,7 +119,7 @@ angular.module('classeur.optional.fileDragging', [])
 
 			function moveFiles() {
 				if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
-					if (clFileDraggingSvc.targetFolder.isPublic) {
+					if (clFileDraggingSvc.targetFolder.userId) {
 						if (clFileDraggingSvc.targetFolder.sharing === 'rw') {
 							var title = 'Change ownership';
 							var confirm = clDialog.confirm()

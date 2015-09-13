@@ -1,8 +1,19 @@
-.plan.chooser.panel {
-    & > div {
-        height: 100%;
+.plan.chooser {
+    height: 100%;
+    overflow: auto;
+    .container {
         margin: auto;
         max-width: 840px;
+        padding: 0 5px;
+    }
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        .icon {
+            font-size: 20px;
+            line-height: 16px;
+        }
     }
     .logo {
         width: 180px;
@@ -14,6 +25,7 @@
         overflow: auto;
     }
     .menu {
+        margin: 0 -5px;
         padding: 0 5px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
         .md-button {
@@ -24,11 +36,11 @@
         text-align: center;
         font-size: 42px;
         font-weight: 300;
-        margin: 10px 0;
+        margin: 40px 0;
     }
     .plan.item {
         background-color: #fff;
-        margin: 0 5px 100px;
+        margin: 0 5px 50px;
         height: 520px;
         text-align: center;
         &.premium {
@@ -75,5 +87,8 @@
                 font-size: 14px;
             }
         }
+    }
+    .info {
+        text-align: center;
     }
 }

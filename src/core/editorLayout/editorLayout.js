@@ -39,20 +39,21 @@ angular.module('classeur.core.editorLayout', [])
 			};
 
 			function link(scope, element) {
-				element[0].querySelector('.side-bar.panel').clanim.width(clEditorLayoutSvc.sideBarWidth).start();
-				var backgroundPanelElt = element[0].querySelector('.background.panel');
-				var previewPanelElt = element[0].querySelector('.preview.panel');
-				var previewContainerElt = element[0].querySelector('.preview.container');
-				var binderPanelElt = element[0].querySelector('.binder.panel').clanim.top(-hideOffsetY).start();
-				var editBtnElt = element[0].querySelector('.edit.btn-panel').clanim.bottom(-hideOffsetY - 20).start();
-				var editorPanelElt = element[0].querySelector('.editor.panel').clanim.top(hideOffsetY).start();
-				var pagePanelElt = element[0].querySelector('.page.panel').clanim.left(clEditorLayoutSvc.pageMarginLeft).start();
-				element[0].querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
-				element[0].querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start();
-				element[0].querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
-				var cornerFoldingElt = element[0].querySelector('.corner.folding.panel');
-				element[0].querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start();
-				var headerPanelElt = element[0].querySelector('.header.panel').clanim.top(hideOffsetY).start();
+				var elt = element[0];
+				elt.querySelector('.side-bar.panel').clanim.width(clEditorLayoutSvc.sideBarWidth).start();
+				var backgroundPanelElt = elt.querySelector('.background.panel');
+				var previewPanelElt = elt.querySelector('.preview.panel');
+				var previewContainerElt = elt.querySelector('.preview.container');
+				var binderPanelElt = elt.querySelector('.binder.panel').clanim.top(-hideOffsetY).start();
+				var editBtnElt = elt.querySelector('.edit.btn-panel').clanim.bottom(-hideOffsetY - 20).start();
+				var editorPanelElt = elt.querySelector('.editor.panel').clanim.top(hideOffsetY).start();
+				var pagePanelElt = elt.querySelector('.page.panel').clanim.left(clEditorLayoutSvc.pageMarginLeft).start();
+				elt.querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
+				elt.querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start();
+				elt.querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
+				var cornerFoldingElt = elt.querySelector('.corner.folding.panel');
+				elt.querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start();
+				var headerPanelElt = elt.querySelector('.header.panel').clanim.top(hideOffsetY).start();
 				var headerBtnGrpElt = headerPanelElt.querySelector('.btn-grp.panel');
 				var closeButtonElt = headerPanelElt.querySelector('.close.panel');
 				var scrollButtonElt = headerPanelElt.querySelector('.scroll.panel');
@@ -117,7 +118,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -clEditorLayoutSvc.menuWidth : 0;
 					clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -100 : 0;
 					clEditorLayoutSvc.pageRotate = clEditorLayoutSvc.isMenuOpen ? -2 : 0;
-					scope.showHelp = clSettingSvc.values.editorMdCheatSheetBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
+					scope.showHelp = clSettingSvc.values.editorHelpBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
 				}
 
 				function hidePreview() {
@@ -347,7 +348,7 @@ angular.module('classeur.core.editorLayout', [])
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;
 					this.isSidePreviewOpen = false;
-					this.sideBarTab = 'toc';
+					this.sideBarTab = 'sample';
 					this.isMenuOpen = false;
 					this.isCornerFoldingOpen = false;
 				},

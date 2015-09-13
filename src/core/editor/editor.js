@@ -363,6 +363,7 @@ angular.module('classeur.core.editor', [])
 				dels: true,
 				subs: true,
 				sups: true,
+				maths: true,
 				insideFences: clEditorSvc.insideFences
 			});
 			return function(value, grammar) {

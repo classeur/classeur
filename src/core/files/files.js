@@ -6,7 +6,7 @@ angular.module('classeur.core.files', [])
 				name: 'string',
 				folderId: 'string',
 				sharing: 'string',
-				isPublic: 'string',
+				userId: 'string',
 				deleted: 'int',
 			}, true);
 			var contentDaoProto = clLocalStorageObject('c', {
@@ -97,7 +97,7 @@ angular.module('classeur.core.files', [])
 							this.readContent();
 						}
 					}).bind(this));
-				} else if (clSocketSvc.isReady || (this.isPublic && clIsNavigatorOnline())) {
+				} else if (clSocketSvc.isReady || (this.userId && clIsNavigatorOnline())) {
 					this.state = 'loading';
 				}
 			};
@@ -140,7 +140,7 @@ angular.module('classeur.core.files', [])
 
 			var fileAuthorizedKeys = {
 				u: true,
-				isPublic: true,
+				userId: true,
 				name: true,
 				sharing: true,
 				folderId: true,
@@ -162,6 +162,7 @@ angular.module('classeur.core.files', [])
 			var isInitialized;
 
 			function init() {
+				// FileIds contains both files and deletedFiles
 				if (!clFileSvc.fileIds) {
 					clFileSvc.$read();
 				}
@@ -291,22 +292,26 @@ angular.module('classeur.core.files', [])
 				var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
 				fileDao.deleted = 0;
 				fileDao.isSelected = false;
-				fileDao.isPublic = '1';
-				// Added to the list by sync module
-				return fileDao;
+				fileDao.userId = '0'; // Will be filled by sync module
+				return fileDao; // Will be added to the list by sync module
 			}
 
 			function createReadOnlyFile(name, content) {
 				return new ReadOnlyFile(name, content);
 			}
 
+			// Remove fileDao from files and deletedFiles
 			function removeFiles(fileDaoList) {
 				if (!fileDaoList.length) {
 					return;
 				}
+
+				// Create hash for fast filter
 				var fileIds = fileDaoList.reduce(function(fileIds, fileDao) {
 					return (fileIds[fileDao.id] = 1, fileIds);
 				}, {});
+
+				// Filter
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(fileId) {
 					return !fileIds.hasOwnProperty(fileId);
 				});
@@ -341,7 +346,7 @@ angular.module('classeur.core.files', [])
 					fileDao.name = change.name || '';
 					fileDao.folderId = change.folderId || '';
 					fileDao.sharing = change.sharing || '';
-					fileDao.isPublic = '';
+					fileDao.userId = '';
 					fileDao.write(change.updated);
 				});
 				init();

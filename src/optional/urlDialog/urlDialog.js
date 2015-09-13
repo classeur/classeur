@@ -1,8 +1,78 @@
 angular.module('classeur.optional.urlDialog', [])
-	.directive('clUriDialog',
-		function(clDialog, $http, clToast, clEditorLayoutSvc, clEditorSvc) {
-			var maxImageSize = 10000000;
+	.directive('clImageDropInput',
+		function($http, clToast, clDialog) {
+			var maxSize = 20000000;
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					function uploadFile(file) {
+						var reader = new FileReader();
+						reader.onload = function(e) {
+							var bytes = new Uint8Array(e.target.result);
+							var len = bytes.byteLength;
+							if (len === maxSize) {
+								return clToast('Image is too big.');
+							}
+							var binary = '';
+							for (var i = 0; i < len; i++) {
+								binary += String.fromCharCode(bytes[i]);
+							}
+							var b64 = window.btoa(binary);
+							var req = {
+								method: 'POST',
+								url: 'https://imgur-apiv3.p.mashape.com/3/image',
+								headers: {
+									'X-Mashape-Key': 'hpKe3bllNtmsha5BlevJqD1CZrghp1zp8ZfjsnCa7rgGkgEDF7',
+									Authorization: 'Client-ID 7196cbab27137aa',
 
+								},
+								data: {
+									image: b64,
+									type: 'base64'
+								}
+							};
+
+							scope.isUploading = true;
+							$http(req)
+								.success(function(result) {
+									clDialog.hide(result.data.link);
+								})
+								.error(function(err) {
+									scope.isUploading = false;
+									clToast(err.data.error);
+								});
+						};
+						var blob = file.slice(0, maxSize);
+						reader.readAsArrayBuffer(blob);
+					}
+					var elt = element[0];
+					elt.addEventListener('change', function(evt) {
+						var files = evt.target.files;
+						files[0] && uploadFile(files[0]);
+					});
+					elt.addEventListener('dragover', function(evt) {
+						evt.stopPropagation();
+						evt.preventDefault();
+						evt.dataTransfer.dropEffect = 'copy';
+					});
+					elt.addEventListener('dragover', function(evt) {
+						evt.stopPropagation();
+						evt.preventDefault();
+						evt.dataTransfer.dropEffect = 'copy';
+					});
+					elt.addEventListener('drop', function(evt) {
+						var files = (evt.dataTransfer || evt.target).files;
+						if (files[0]) {
+							evt.stopPropagation();
+							evt.preventDefault();
+							uploadFile(files[0]);
+						}
+					});
+				}
+			};
+		})
+	.directive('clUriDialog',
+		function(clDialog, clEditorLayoutSvc, clEditorSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -13,7 +83,8 @@ angular.module('classeur.optional.urlDialog', [])
 					if (currentControl === 'linkDialog') {
 						clDialog.show({
 							templateUrl: 'optional/urlDialog/linkDialog.html',
-							onComplete: onLinkDialog
+							controller: ['$scope', dialogCtrl],
+							focusOnOpen: false
 						}).then(function(url) {
 							clEditorLayoutSvc.currentControl = undefined;
 							clEditorSvc.linkDialogCallback && clEditorSvc.linkDialogCallback(url || null);
@@ -24,7 +95,8 @@ angular.module('classeur.optional.urlDialog', [])
 					} else if (currentControl === 'imageDialog') {
 						clDialog.show({
 							templateUrl: 'optional/urlDialog/imageDialog.html',
-							onComplete: onImageDialog
+							controller: ['$scope', dialogCtrl],
+							focusOnOpen: false
 						}).then(function(url) {
 							clEditorLayoutSvc.currentControl = undefined;
 							clEditorSvc.imageDialogCallback && clEditorSvc.imageDialogCallback(url || null);
@@ -36,8 +108,7 @@ angular.module('classeur.optional.urlDialog', [])
 				});
 			}
 
-			function onLinkDialog(scope, element) {
-
+			function dialogCtrl(scope) {
 				scope.ok = function() {
 					if (!scope.url) {
 						return scope.focus();
@@ -47,86 +118,5 @@ angular.module('classeur.optional.urlDialog', [])
 				scope.cancel = function() {
 					clDialog.cancel();
 				};
-
-				var inputElt = element[0].querySelector('input');
-				inputElt.addEventListener('keydown', function(e) {
-					// Check enter key
-					if (e.which === 13) {
-						e.preventDefault();
-						scope.ok();
-					}
-				});
-				scope.focus = function() {
-					setTimeout(function() {
-						inputElt.focus();
-					}, 10);
-				};
-				scope.focus();
-
-			}
-
-			function onImageDialog(scope, element) {
-				onLinkDialog(scope, element);
-
-				var dropZoneElt = element[0].querySelector('.drop-zone');
-				dropZoneElt.addEventListener('dragover', function(evt) {
-					evt.stopPropagation();
-					evt.preventDefault();
-					evt.dataTransfer.dropEffect = 'copy';
-				});
-				dropZoneElt.addEventListener('dragover', function(evt) {
-					evt.stopPropagation();
-					evt.preventDefault();
-					evt.dataTransfer.dropEffect = 'copy';
-				});
-				dropZoneElt.addEventListener('drop', function(evt) {
-
-					var files = (evt.dataTransfer || evt.target).files;
-					var file = files[0];
-					if (!file) {
-						return;
-					}
-					evt.stopPropagation();
-					evt.preventDefault();
-					var reader = new FileReader();
-					reader.onload = function(e) {
-						var bytes = new Uint8Array(e.target.result);
-						var len = bytes.byteLength;
-						if (len === maxImageSize) {
-							return clToast('Image is too big.');
-						}
-						var binary = '';
-						for (var i = 0; i < len; i++) {
-							binary += String.fromCharCode(bytes[i]);
-						}
-						var b64 = window.btoa(binary);
-						var req = {
-							method: 'POST',
-							url: 'https://imgur-apiv3.p.mashape.com/3/image',
-							headers: {
-								'X-Mashape-Key': 'XjXgvL6BjUmshULT58qibBNIgw4Lp1s7vQEjsnU0G9YgpviQzh',
-								Authorization: 'Client-ID 7196cbab27137aa',
-
-							},
-							data: {
-								image: b64,
-								type: 'base64'
-							}
-						};
-
-						scope.isUploading = true;
-						$http(req)
-							.success(function(result) {
-								clDialog.hide(result.data.link);
-							})
-							.error(function(err) {
-								scope.isUploading = false;
-								clToast(err.data.error);
-							});
-					};
-					var blob = file.slice(0, maxImageSize);
-					reader.readAsArrayBuffer(blob);
-
-				});
 			}
 		});

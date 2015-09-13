@@ -25,8 +25,8 @@
                     <md-checkbox ng-model="app.editorMonospacedFont">
                         Use monospaced font only
                     </md-checkbox>
-                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
-                        Markdown Cheat Sheet icon
+                    <md-checkbox ng-model="app.editorHelpBtn">
+                        Help button
                     </md-checkbox>
                     <br>
                     <h2>Utils</h2>
@@ -184,16 +184,23 @@
                 </div>
             </md-tab>
             </md-tabs>
-            <div class="menu" layout="row">
-                <md-button>
-                    Privacy
-                </md-button>
-                <md-button>
-                    Terms
-                </md-button>
-                <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
-                    Sign out
-                </md-button>
+            <div class="menu" layout="row" layout-align="space-between">
+                <div layout="row">
+                    <md-button target="_blank" ng-href="http://classeur.io/privacy/">
+                        Privacy
+                    </md-button>
+                    <md-button target="_blank" ng-href="http://classeur.io/terms/">
+                        Terms
+                    </md-button>
+                    <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
+                        Sign out
+                    </md-button>
+                </div>
+                <div layout="row">
+                    <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter"></md-button>
+                    <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook"></md-button>
+                    <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github"></md-button>
+                </div>
             </div>
         </div>
     </div>

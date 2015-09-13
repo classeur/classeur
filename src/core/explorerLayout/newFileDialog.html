@@ -3,10 +3,13 @@
         <h2>New file</h2>
         <md-input-container>
             <label>Name</label>
-            <input ng-model="value">
+            <input ng-model="value" cl-focus cl-enter-ok>
         </md-input-container>
     </md-dialog-content>
     <div class="md-actions">
+        <md-button ng-click="import()">
+            Import...
+        </md-button>
         <md-button ng-click="cancel()" class="md-primary">
             Cancel
         </md-button>

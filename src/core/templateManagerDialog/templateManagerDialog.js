@@ -2,6 +2,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 	.factory('clTemplateManagerDialog',
 		function($window, clDialog, clSettingSvc, clToast) {
 			return function(templates) {
+				clDialog.cancel();
 				templates = clSettingSvc.sanitizeExportTemplates(templates);
 				return clDialog.show({
 					templateUrl: 'core/templateManagerDialog/templateManagerDialog.html',

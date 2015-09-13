@@ -24,13 +24,6 @@ angular.module('classeur.optional.buttonBar', [])
 				}
 			}, {
 				separator: true,
-				icon: 'icon-link',
-				label: 'Link',
-				keystroke: 'Ctrl/Cmd+L',
-				click: function() {
-					clEditorSvc.pagedownEditor.uiManager.doClick('link');
-				}
-			}, {
 				icon: 'icon-format-quote',
 				label: 'Blockquote',
 				keystroke: 'Ctrl/Cmd+Q',
@@ -43,6 +36,13 @@ angular.module('classeur.optional.buttonBar', [])
 				keystroke: 'Ctrl/Cmd+K',
 				click: function() {
 					clEditorSvc.pagedownEditor.uiManager.doClick('code');
+				}
+			}, {
+				icon: 'icon-link',
+				label: 'Link',
+				keystroke: 'Ctrl/Cmd+L',
+				click: function() {
+					clEditorSvc.pagedownEditor.uiManager.doClick('link');
 				}
 			}, {
 				icon: 'icon-crop-original',

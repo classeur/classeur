@@ -1,5 +1,5 @@
 <div class="nav" layout="row" layout-align="center center">
-    <div class="folder btn icon-publ" ng-show="explorerLayoutSvc.currentFolderDao.isPublic"></div>
+    <div class="folder btn icon-publ" ng-show="explorerLayoutSvc.currentFolderDao.userId"></div>
     <md-input-container md-theme="classeur" class="folder name">
         <input ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
@@ -7,19 +7,19 @@
         <md-button md-no-ink aria-label="Options" class="sharing-indicator icon-more-vert" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="$mdOpenMenu()">
         </md-button>
         <md-menu-content width="3">
-            <md-menu-item ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'">
+            <md-menu-item ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'">
                 <md-button ng-click="setEditing(true)">
                     <md-icon md-font-icon="icon-mode-edit"></md-icon>
                     Rename
                 </md-button>
             </md-menu-item>
-            <md-menu-item ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'">
+            <md-menu-item ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'">
                 <md-button ng-click="deleteConfirm(true)">
                     <md-icon md-font-icon="icon-delete"></md-icon>
                     Delete
                 </md-button>
             </md-menu-item>
-            <md-menu-item ng-if="socketSvc.hasToken || fileDao.isPublic">
+            <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">
                 <md-button ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao">
                     <md-icon md-font-icon="icon-share">
                         <span class="sharing-indicator" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}"></span>

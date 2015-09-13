@@ -30,6 +30,18 @@ angular.module('classeur.optional.keystrokes', [])
 
 					cledit.addKeystroke(50, new Keystroke(enterKeyHandler));
 					cledit.addKeystroke(50, new Keystroke(tabKeyHandler));
+
+					// Catch save dialog
+					cledit.addKeystroke(50, new Keystroke(function(evt) {
+						if ((!evt.ctrlKey && !evt.metaKey) || evt.altKey) {
+							return;
+						}
+						var keyCode = evt.charCode || evt.keyCode;
+						if (String.fromCharCode(keyCode).toLowerCase() === 's') {
+							evt.preventDefault();
+							return true;
+						}
+					}));
 				});
 			}
 

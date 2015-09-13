@@ -110,15 +110,23 @@ angular.module('classeur.core.utils', [])
 			return $mdDialog;
 		})
 	.factory('clToast',
-		function($mdToast) {
-			var hideDelay = 6000;
-			var result = function(text, action, cb) {
+		function($window, $mdToast) {
+			var toastShown, hideDelay = 6000;
+			var resetFlag = $window.cledit.Utils.debounce(function() {
+				toastShown = false;
+			}, 500);
+			var result = function(text, action) {
+				if (toastShown) {
+					return;
+				}
 				var toast = $mdToast.simple()
 					.content(text)
 					.action(action)
 					.position('bottom right')
 					.hideDelay(hideDelay);
-				$mdToast.show(toast).then(cb || function() {});
+				toastShown = true;
+				resetFlag();
+				return $mdToast.show(toast);
 			};
 			result.hideDelay = hideDelay;
 			return result;
@@ -414,7 +422,7 @@ angular.module('classeur.core.utils', [])
 		function($window) {
 			var diffMatchPatch = new $window.diff_match_patch();
 			diffMatchPatch.Match_Distance = 999999999;
-			var marker = '\uF111\uF222\uF333';
+			var marker = '\uF111\uF222\uF333\uF444';
 			return {
 				offsetToPatch: function(text, offset) {
 					var patch = diffMatchPatch.patch_make(text, [
@@ -471,6 +479,35 @@ angular.module('classeur.core.utils', [])
 					scope.triggerInfiniteScroll = function() {
 						$timeout(trigger);
 					};
+				}
+			};
+		})
+	.directive('clEnterOk',
+		function() {
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					element[0].addEventListener('keydown', function(e) {
+						// Check enter key
+						if (e.which === 13) {
+							e.preventDefault();
+							scope.ok();
+						}
+					});
+				}
+			};
+		})
+	.directive('clFocus',
+		function() {
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					scope.focus = function() {
+						setTimeout(function() {
+							element[0].focus();
+						}, 10);
+					};
+					scope.focus();
 				}
 			};
 		});

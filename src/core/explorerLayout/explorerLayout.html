@@ -62,16 +62,23 @@
                 </div>
             </div>
             <div class="footer panel background">
-                <div class="footer menu" layout="row">
-                    <md-button>
-                        Privacy
-                    </md-button>
-                    <md-button>
-                        Terms
-                    </md-button>
-                    <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
-                        Sign out
-                    </md-button>
+                <div class="footer menu" layout="row" layout-align="space-between">
+                    <div layout="row">
+                        <md-button target="_blank" ng-href="http://classeur.io/privacy/">
+                            Privacy
+                        </md-button>
+                        <md-button target="_blank" ng-href="http://classeur.io/terms/">
+                            Terms
+                        </md-button>
+                        <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
+                            Sign out
+                        </md-button>
+                    </div>
+                    <div layout="row">
+                        <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter"></md-button>
+                        <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook"></md-button>
+                        <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github"></md-button>
+                    </div>
                 </div>
             </div>
             <div class="explorer content panel">
@@ -93,7 +100,7 @@
                                                 <input placeholder="Filter" ng-model="fileFilter">
                                             </md-input-container>
                                         </div>
-                                        <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
+                                        <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
                                             New file
                                             <span class="icon-add"></span>
                                         </md-button>
@@ -121,7 +128,7 @@
                                 <div class="folder content" ng-show="explorerLayoutSvc.files.length">
                                     <cl-file-entry ng-switch-when="true" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
                                     <cl-file-entry ng-switch-when="false" ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
-                                    <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.isPublic && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
+                                    <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
                                     <cl-recent-alert></cl-recent-alert>
                                 </div>
                                 <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3" style="top: 50px">
@@ -139,7 +146,7 @@
                                             <input placeholder="Filter" ng-model="fileFilter">
                                         </md-input-container>
                                     </div>
-                                    <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.isPublic || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
+                                    <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="4">
                                         New file
                                         <span class="icon-add"></span>
                                     </md-button>

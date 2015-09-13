@@ -1,6 +1,6 @@
 angular.module('classeur.optional.exportToDisk', [])
 	.directive('clExportToDisk',
-		function($window, clDialog, clToast, clEditorLayoutSvc, clSocketSvc, clEditorSvc, clSettingSvc, clTemplateManagerDialog) {
+		function($window, clDialog, clToast, clUserSvc, clEditorLayoutSvc, clSocketSvc, clEditorSvc, clSettingSvc, clTemplateManagerDialog) {
 			function saveAs(byteString, name, type) {
 				var buffer = new ArrayBuffer(byteString.length);
 				var view = new Uint8Array(buffer);
@@ -51,6 +51,13 @@ angular.module('classeur.optional.exportToDisk', [])
 										clSettingSvc.values.exportTemplates = templates;
 									});
 							};
+							scope.$watch('config.textTemplateKey', function(templateKey) {
+								textPreview = clEditorSvc.applyTemplate(scope.templates[templateKey]);
+								scope.textPreview = textPreview;
+							});
+							scope.$watch('textPreview', function() {
+								scope.textPreview = textPreview;
+							});
 						}],
 						onComplete: function(scope, element) {
 							var textareaElt = element[0].querySelector('textarea');
@@ -63,13 +70,6 @@ angular.module('classeur.optional.exportToDisk', [])
 							textareaElt.addEventListener('focus', select);
 							textareaElt.addEventListener('click', select);
 							textareaElt.addEventListener('keyup', select);
-							scope.$watch('config.textTemplateKey', function(templateKey) {
-								textPreview = clEditorSvc.applyTemplate(scope.templates[templateKey]);
-								scope.textPreview = textPreview;
-							});
-							scope.$watch('textPreview', function() {
-								scope.textPreview = textPreview;
-							});
 						}
 					}).then(function() {
 						closeDialog();
@@ -79,6 +79,17 @@ angular.module('classeur.optional.exportToDisk', [])
 							saveAs(clEditorSvc.applyTemplate(template), scope.currentFileDao.name, mimeType);
 						} else if (config.format === 'pdf') {
 							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportTemplates[config.pdfTemplateKey]);
+							if (!clUserSvc.user || (clUserSvc.user.roles.indexOf('premium_user') === -1 && html.length > 10000)) {
+								return clDialog.show({
+									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
+									controller: ['$scope', function(scope) {
+										scope.userSvc = clUserSvc;
+										scope.cancel = function() {
+											clDialog.cancel();
+										};
+									}]
+								});
+							}
 							clToast('PDF is being prepared...');
 							clSocketSvc.sendMsg({
 								type: 'toPdf',

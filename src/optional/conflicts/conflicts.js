@@ -40,7 +40,7 @@ angular.module('classeur.optional.conflicts', [])
 					if (conflictElt && contentDao.conflicts.hasOwnProperty(conflictElt.conflictId)) {
 						var text = clEditorSvc.cledit.getContent();
 						var conflict = contentDao.conflicts[conflictElt.conflictId];
-						var offsets = clConflictSvc.patchToOffset(text, conflict.patches);
+						var offsets = clConflictSvc.getConflictOffsets(text, conflict);
 						if (offsets) {
 							clDialog.show({
 								templateUrl: 'optional/conflicts/fixConflictDialog.html',
@@ -56,7 +56,7 @@ angular.module('classeur.optional.conflicts', [])
 									scope.fix = function() {
 										clDialog.hide();
 										var text = clEditorSvc.cledit.getContent();
-										var offsets = clConflictSvc.patchToOffset(text, conflict.patches);
+										var offsets = clConflictSvc.getConflictOffsets(text, conflict);
 										if (!offsets) {
 											return clToast('Conflict can\'t be located in the file.');
 										}
@@ -95,7 +95,7 @@ angular.module('classeur.optional.conflicts', [])
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
-					var offsets = clConflictSvc.patchToOffset(text, scope.conflict.patches);
+					var offsets = clConflictSvc.getConflictOffsets(text, scope.conflict);
 					if (offsets) {
 						return {
 							start: offsets.offset1,
@@ -118,7 +118,7 @@ angular.module('classeur.optional.conflicts', [])
 						return; // cledit not inited
 					}
 					var text = clEditorSvc.cledit.getContent();
-					var offsets = clConflictSvc.patchToOffset(text, scope.conflict.patches);
+					var offsets = clConflictSvc.getConflictOffsets(text, scope.conflict);
 					if (offsets) {
 						return {
 							start: offsets.offset2,
@@ -186,36 +186,14 @@ angular.module('classeur.optional.conflicts', [])
 			};
 		})
 	.factory('clConflictSvc',
-		function($window) {
-			var diffMatchPatch = new $window.diff_match_patch();
-			diffMatchPatch.Match_Distance = 999999999;
-			var marker = '\uF111\uF222\uF333';
-
-			function patchToOffset(text, patches) {
-				patches = patches.map(function(patch) {
-					var markersLength = 0;
-					var diffs = patch.diffs.map(function(diff) {
-						if (!diff) {
-							markersLength += marker.length;
-							return [1, marker];
-						} else {
-							return [0, diff];
-						}
-					});
-					return {
-						diffs: diffs,
-						length1: patch.length,
-						length2: patch.length + markersLength,
-						start1: patch.start,
-						start2: patch.start
-					};
-				});
-				var splitedText = diffMatchPatch.patch_apply(patches, text)[0].split(marker);
-				return splitedText.length === 4 && {
-					offset1: splitedText[0].length,
-					offset2: splitedText[0].length + splitedText[1].length,
-					offset3: splitedText[0].length + splitedText[1].length + splitedText[2].length
-				};
+		function($window, clOffsetUtils) {
+			function getConflictOffsets(text, conflict) {
+				var offsets = [
+					clOffsetUtils.patchToOffset(text, conflict.patches[0]),
+					clOffsetUtils.patchToOffset(text, conflict.patches[1]),
+					clOffsetUtils.patchToOffset(text, conflict.patches[2]),
+				];
+				return offsets[0] !== -1 && offsets[1] !== -1 && offsets[2] !== -1 && offsets;
 			}
 
 			function deleteConflict(contentDao, conflictIdToRemove) {
@@ -229,7 +207,7 @@ angular.module('classeur.optional.conflicts', [])
 			}
 
 			return {
-				patchToOffset: patchToOffset,
+				getConflictOffsets: getConflictOffsets,
 				deleteConflict: deleteConflict,
 			};
 		});

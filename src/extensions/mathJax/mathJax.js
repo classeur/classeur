@@ -1,11 +1,9 @@
 angular.module('classeur.extensions.mathJax', [])
 	.directive('clMathJax',
 		function($window, clEditorSvc) {
-			var config, mathJaxScript, encloseMath, cacheDict;
+			var config, mathJaxScript;
 
 			clEditorSvc.onMarkdownInit(20, function(markdown) {
-				cacheDict = {};
-
 				if (config) {
 					markdown.inline.ruler.before('escape', 'math', math);
 					markdown.inline.ruler.push('texMath', texMath);
@@ -23,36 +21,7 @@ angular.module('classeur.extensions.mathJax', [])
 						if (!updateMathJax) {
 							return cb();
 						}
-						var tex2jax = $window.MathJax.Extension.tex2jax;
-						if (!encloseMath && tex2jax) {
-							encloseMath = tex2jax.encloseMath;
-							tex2jax.encloseMath = function(element) {
-								element = element.parentNode;
-								if (element) {
-									var className = element.className;
-									element.className = className ? className + ' contains-mathjax' : 'contains-mathjax';
-									element.htmlBeforeTypeSet = element.innerHTML;
-								}
-								return encloseMath.apply(tex2jax, arguments);
-							};
-						}
-
-						Array.prototype.forEach.call(document.querySelectorAll('.cl-preview-section.modified *'), function(elt) {
-							var entry, entries = cacheDict[elt.innerHTML];
-							do {
-								entry = entries && entries.pop();
-							} while (entry && document.contains(entry));
-							entry && elt.parentNode.replaceChild(entry, elt);
-						});
-						typesetCallback = function() {
-							cacheDict = {};
-							Array.prototype.forEach.call(document.querySelectorAll('.cl-preview-section .contains-mathjax'), function(elt) {
-								var entries = cacheDict[elt.htmlBeforeTypeSet] || [];
-								entries.push(elt);
-								cacheDict[elt.htmlBeforeTypeSet] = entries;
-							});
-							cb();
-						};
+						typesetCallback = cb;
 						updateMathJax();
 					});
 				}
@@ -92,12 +61,11 @@ angular.module('classeur.extensions.mathJax', [])
 					return false;
 				}
 				var nextPos = endMarkerPos + endMarker.length;
-				silent || state.push({
-					type: type,
-					math: type === 'math' ?
-						state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos),
-					level: state.level,
-				});
+				if(!silent) {
+					var token = state.push(type);
+					token.math = type === 'math' ?
+						state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos);
+				}
 				state.pos = nextPos;
 				return true;
 			}
@@ -136,11 +104,10 @@ angular.module('classeur.extensions.mathJax', [])
 						return false;
 					}
 				}
-				silent || state.push({
-					type: endMarker.length === 1 ? 'inlineMath' : 'displayMath',
-					math: state.src.slice(startMathPos, endMarkerPos),
-					level: state.level,
-				});
+				if(!silent) {
+					var token = state.push(endMarker.length === 1 ? 'inlineMath' : 'displayMath');
+					token.math = state.src.slice(startMathPos, endMarkerPos);
+				}
 				state.pos = nextPos;
 				return true;
 			}
@@ -279,7 +246,7 @@ angular.module('classeur.extensions.mathJax', [])
 				function checkConfig() {
 					var fileProperties = scope.currentFileDao.contentDao.properties;
 
-					var newConfig = fileProperties['ext:mathjax'] === '1' ? (function() {
+					var newConfig = fileProperties['ext:mathjax'] !== '0' ? (function() {
 						var tex2jax, tex;
 						try {
 							tex2jax = JSON.parse(fileProperties['ext:mathjax:tex2jax']);

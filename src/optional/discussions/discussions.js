@@ -43,35 +43,35 @@ angular.module('classeur.optional.discussions', [])
 						}
 					});
 
-					function getPreviewDiscussionId(elt) {
-						while (elt && elt !== clEditorSvc.previewElt) {
-							if (elt.discussionId) {
-								return elt.discussionId;
-							}
-							elt = elt.parentNode;
-						}
-					}
-					clEditorSvc.previewElt.addEventListener('mouseover', function(evt) {
-						var discussionId = getPreviewDiscussionId(evt.target);
-						discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
-							elt.classList.add('hover');
-						});
-					});
-					clEditorSvc.previewElt.addEventListener('mouseout', function(evt) {
-						var discussionId = getPreviewDiscussionId(evt.target);
-						discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
-							elt.classList.remove('hover');
-						});
-					});
-					clEditorSvc.previewElt.addEventListener('click', function(evt) {
-						var discussionId = getPreviewDiscussionId(evt.target);
-						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
-							clLocalSettingSvc.values.sideBar = true;
-							clEditorLayoutSvc.sideBarTab = 'discussions';
-							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
-							clDiscussionSvc.currentDiscussionId = discussionId;
-						}
-					});
+					// function getPreviewDiscussionId(elt) {
+					// 	while (elt && elt !== clEditorSvc.previewElt) {
+					// 		if (elt.discussionId) {
+					// 			return elt.discussionId;
+					// 		}
+					// 		elt = elt.parentNode;
+					// 	}
+					// }
+					// clEditorSvc.previewElt.addEventListener('mouseover', function(evt) {
+					// 	var discussionId = getPreviewDiscussionId(evt.target);
+					// 	discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
+					// 		elt.classList.add('hover');
+					// 	});
+					// });
+					// clEditorSvc.previewElt.addEventListener('mouseout', function(evt) {
+					// 	var discussionId = getPreviewDiscussionId(evt.target);
+					// 	discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
+					// 		elt.classList.remove('hover');
+					// 	});
+					// });
+					// clEditorSvc.previewElt.addEventListener('click', function(evt) {
+					// 	var discussionId = getPreviewDiscussionId(evt.target);
+					// 	if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+					// 		clLocalSettingSvc.values.sideBar = true;
+					// 		clEditorLayoutSvc.sideBarTab = 'discussions';
+					// 		clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
+					// 		clDiscussionSvc.currentDiscussionId = discussionId;
+					// 	}
+					// });
 				}, 1);
 
 				var newDiscussionBtnElt = element[0].querySelector('.new-discussion-btn');
@@ -195,26 +195,26 @@ angular.module('classeur.optional.discussions', [])
 					discussionId: scope.discussionId
 				});
 
-				var previewClassApplier = clPreviewClassApplier(['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting'], function() {
-					if (!offset || offset.start === -1 || offset.end === -1) {
-						return;
-					}
-					var start = clEditorSvc.getPreviewOffset(offset.start);
-					var end = clEditorSvc.getPreviewOffset(offset.end);
-					return start !== undefined && end !== undefined && {
-						start: start,
-						end: end
-					};
-				}, {
-					discussionId: scope.discussionId
-				});
+				// var previewClassApplier = clPreviewClassApplier(['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting'], function() {
+				// 	if (!offset || offset.start === -1 || offset.end === -1) {
+				// 		return;
+				// 	}
+				// 	var start = clEditorSvc.getPreviewOffset(offset.start);
+				// 	var end = clEditorSvc.getPreviewOffset(offset.end);
+				// 	return start !== undefined && end !== undefined && {
+				// 		start: start,
+				// 		end: end
+				// 	};
+				// }, {
+				// 	discussionId: scope.discussionId
+				// });
 
-				scope.$watch('editorSvc.textToPreviewDiffs', function(value) {
-					value && previewClassApplier.restore();
-				});
+				// scope.$watch('editorSvc.textToPreviewDiffs', function(value) {
+				// 	value && previewClassApplier.restore();
+				// });
 				scope.$on('$destroy', function() {
 					editorClassApplier && editorClassApplier.stop();
-					previewClassApplier && previewClassApplier.remove();
+					// previewClassApplier && previewClassApplier.remove();
 				});
 			}
 		})

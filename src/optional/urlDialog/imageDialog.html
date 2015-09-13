@@ -1,31 +1,33 @@
 <md-dialog class="image dialog">
-	<md-dialog-content>
-		<h2>Add image</h2>
+    <md-dialog-content>
+        <h2>Add image</h2>
         <md-input-container>
             <label>URL</label>
-            <input ng-model="url">
+            <input ng-model="url" cl-focus cl-enter-ok>
         </md-input-container>
-		<div layout="row" layout-align="end center">
-			<md-button ng-click="ok()" class="md-primary">
-				Add
-			</md-button>
-		</div>
-		<p class="or">
-				<span>—</span> or <span>—</span>
-		</p>
-		<div class="drop-zone">
-			<div ng-show="!isUploading">
-			<div class="icon icon-crop-original"></div>
-			Drop image here
-			</div>
-			<div layout="row" layout-sm="column" layout-align="space-around" ng-show="isUploading">
-				<cl-spinner></cl-spinner>
-			</div>
-		</div>
-	</md-dialog-content>
-	<div class="md-actions">
-		<md-button ng-click="cancel()" class="md-primary">
-			Cancel
-		</md-button>
-	</div>
+        <div layout="row" layout-align="end center">
+            <md-button ng-click="ok()" class="md-primary">
+                Add
+            </md-button>
+        </div>
+        <p class="or">
+            <span>—</span> or <span>—</span>
+        </p>
+        <div class="drop-zone">
+            <input type="file" cl-image-drop-input>
+            <div ng-show="!isUploading">
+                <div class="icon icon-crop-original"></div>
+                Drop image here
+            </div>
+            <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isUploading">
+                <cl-spinner></cl-spinner>
+            </div>
+        </div>
+        <div class="powered-by">Powered by <a href="https://imgur.com/" target="_blank">Imgur</a></div>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()" class="md-primary">
+            Cancel
+        </md-button>
+    </div>
 </md-dialog>

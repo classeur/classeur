@@ -41,7 +41,7 @@ angular.module('classeur.optional.sharingDialog', [])
 							inputElt.addEventListener('click', select);
 							inputElt.addEventListener('keyup', select);
 							scope.$watch('objectDao.effectiveSharing', function() {
-								if (!objectDao.isPublic) {
+								if (!objectDao.userId) {
 									if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
 										objectDao.sharing = objectDao.effectiveSharing;
 									} else {

@@ -4,7 +4,7 @@ angular.module('classeur.core.folders', [])
 			var folderDaoProto = clLocalStorageObject('F', {
 				name: 'string',
 				sharing: 'string',
-				isPublic: 'string',
+				userId: 'string',
 				deleted: 'int',
 			}, true);
 
@@ -33,7 +33,7 @@ angular.module('classeur.core.folders', [])
 
 			var authorizedKeys = {
 				u: true,
-				isPublic: true,
+				userId: true,
 				name: true,
 				sharing: true,
 				deleted: true
@@ -127,7 +127,7 @@ angular.module('classeur.core.folders', [])
 
 			function createPublicFolder(id) {
 				var folderDao = createFolder(id);
-				folderDao.isPublic = '1';
+				folderDao.userId = '0'; // Will be filled by the sync module
 				return folderDao;
 			}
 
@@ -177,7 +177,7 @@ angular.module('classeur.core.folders', [])
 					}
 					folderDao.name = change.name || '';
 					folderDao.sharing = change.sharing || '';
-					folderDao.isPublic = '';
+					folderDao.userId = '';
 					folderDao.write(change.updated);
 				});
 				init();

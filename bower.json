@@ -14,7 +14,7 @@
     "tests"
   ],
   "dependencies": {
-    "angular-material": "~0.10.0",
+    "angular-material": "~0.10.1",
     "google-diff-match-patch-js": "~1.0.0",
     "angular-slugify": "~1.0.0",
     "angular-animate": "~1.4.0",
