@@ -1,6 +1,6 @@
 {
   "name": "classeur",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,11 +21,9 @@
     "gulp-sourcemaps": "*",
     "gulp-uglify": "^1.1.0",
     "gulp-watch": "^1.2.1",
+    "gulp-bump": "^0.3.1",
+    "gulp-util": "^3.0.6",
     "serve-static": "^1.8.1",
     "streamqueue": "^0.1.1"
-  },
-  "devDependencies": {
-    "gulp-bump": "^0.3.1",
-    "gulp-util": "^3.0.6"
   }
 }
