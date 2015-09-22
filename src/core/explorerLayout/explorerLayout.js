@@ -373,7 +373,11 @@ angular.module('classeur.core.explorerLayout', [])
 					});
 				}
 
-				function importExistingFolder(folderDao) {
+				function importExistingFolder(folderDao, move) {
+					move && clClasseurSvc.classeurs.forEach(function(classeurDao) {
+						var index = classeurDao.folders.indexOf(folderDao);
+						index !== -1 && classeurDao.folders.splice(index, 1);
+					});
 					clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
 					clClasseurSvc.init();
 					clExplorerLayoutSvc.refreshFolders();
@@ -399,11 +403,12 @@ angular.module('classeur.core.explorerLayout', [])
 						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
 							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);
 						});
+						scope.move = true;
 						var ok = scope.ok;
 						scope.ok = function() {
 							if (scope.folderId) {
 								var folderDao = clFolderSvc.folderMap[scope.folderId];
-								folderDao && importExistingFolder(folderDao);
+								folderDao && importExistingFolder(folderDao, scope.move);
 								return clDialog.cancel();
 							}
 							ok();
@@ -462,7 +467,7 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.contentDao.text = file.content;
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
-							if (folderDao && clFolderSvc.folderMap.hasOwnProperty(folderDao.id)) {
+							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
 								newFileDao.folderId = folderDao.id;
 								newFileDao.userId = folderDao.userId;
 							}
@@ -488,7 +493,7 @@ angular.module('classeur.core.explorerLayout', [])
 							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
-							if (folderDao && clFolderSvc.folderMap.hasOwnProperty(folderDao.id)) {
+							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
 								newFileDao.folderId = folderDao.id;
 								newFileDao.userId = folderDao.userId;
 							}
@@ -527,6 +532,13 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.files.forEach(function(fileDao) {
 						fileDao.isSelected = false;
 					});
+				};
+
+				scope.sortByDate = function(value) {
+					clExplorerLayoutSvc.isSortedByDate = value;
+					clExplorerLayoutSvc.moreFiles(true);
+					clExplorerLayoutSvc.refreshFiles();
+					folderElt.scrollTop = 0;
 				};
 
 				(function() {
@@ -746,9 +758,13 @@ angular.module('classeur.core.explorerLayout', [])
 						return !fileDao.userId && filterFile(fileDao);
 					} : function(fileDao) {
 						return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id && filterFile(fileDao);
-					}).sort(function(fileDao1, fileDao2) {
-					return fileDao1.name.localeCompare(fileDao2.name);
-				}) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
+					}).sort(
+					clExplorerLayoutSvc.isSortedByDate ? function(fileDao1, fileDao2) {
+						return fileDao2.updated - fileDao1.updated;
+					} : function(fileDao1, fileDao2) {
+						return fileDao1.name.localeCompare(fileDao2.name);
+					}
+				) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
 					return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
 				});
 				clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
@@ -798,6 +814,19 @@ angular.module('classeur.core.explorerLayout', [])
 				folderDao && folderDao.id ? clLocalStorage.setItem(lastFolderKey, folderDao.id) : clLocalStorage.removeItem(lastFolderKey);
 			}
 
+			function setCurrentFolderInClasseur(folderDao) {
+				if (!clClasseurSvc.classeurs.some(function(classeurDao) {
+						if (classeurDao.folders.indexOf(folderDao) !== -1) {
+							setCurrentClasseur(classeurDao);
+							return true;
+						}
+					})) {
+					setCurrentClasseur(clClasseurSvc.defaultClasseur);
+				}
+				setCurrentFolder(folderDao);
+				clExplorerLayoutSvc.refreshFolders();
+			}
+
 			var clExplorerLayoutSvc = {
 				scrollbarWidth: 0,
 				folders: [],
@@ -812,6 +841,7 @@ angular.module('classeur.core.explorerLayout', [])
 				setEffectiveSharing: setEffectiveSharing,
 				setCurrentClasseur: setCurrentClasseur,
 				setCurrentFolder: setCurrentFolder,
+				setCurrentFolderInClasseur: setCurrentFolderInClasseur,
 				init: function() {
 					this.isExplorerOpen = true;
 				},

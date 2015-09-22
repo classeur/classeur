@@ -31,6 +31,7 @@ angular.module('classeur.core.editorLayout', [])
 	.directive('clEditorLayout',
 		function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog) {
 			var hideOffsetY = 2000;
+			var editorLeftOverflow = 1000; // Allows scrolling on the left outside of the editor
 
 			return {
 				restrict: 'E',
@@ -45,9 +46,10 @@ angular.module('classeur.core.editorLayout', [])
 				var previewPanelElt = elt.querySelector('.preview.panel');
 				var previewContainerElt = elt.querySelector('.preview.container');
 				var binderPanelElt = elt.querySelector('.binder.panel').clanim.top(-hideOffsetY).start();
-				var editBtnElt = elt.querySelector('.edit.btn-panel').clanim.bottom(-hideOffsetY - 20).start();
 				var editorPanelElt = elt.querySelector('.editor.panel').clanim.top(hideOffsetY).start();
 				var pagePanelElt = elt.querySelector('.page.panel').clanim.left(clEditorLayoutSvc.pageMarginLeft).start();
+				var editorContainerElt = elt.querySelector('.editor.container');
+				var editorContentElt = elt.querySelector('.editor.content');
 				elt.querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
 				elt.querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start();
 				elt.querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
@@ -57,6 +59,9 @@ angular.module('classeur.core.editorLayout', [])
 				var headerBtnGrpElt = headerPanelElt.querySelector('.btn-grp.panel');
 				var closeButtonElt = headerPanelElt.querySelector('.close.panel');
 				var scrollButtonElt = headerPanelElt.querySelector('.scroll.panel');
+
+				editorContainerElt.style.paddingLeft = editorLeftOverflow + 'px';
+				editorContainerElt.style.left = -editorLeftOverflow + 'px';
 
 				var binderMinWidth = 280;
 				var previewSizeAdjust = 160;
@@ -140,6 +145,7 @@ angular.module('classeur.core.editorLayout', [])
 				var sectionDescList;
 
 				function updateLayoutSize() {
+					editorContentElt.style.paddingBottom = document.body.clientHeight / 2 + 'px';
 					var previewScrollbarWidth = previewContainerElt.offsetWidth - previewContainerElt.clientWidth;
 					var eltToScroll = clEditorSvc.editorElt.parentNode,
 						dimensionKey = 'editorDimension';
@@ -169,8 +175,12 @@ angular.module('classeur.core.editorLayout', [])
 					headerPanelElt.clanim
 						.width(clEditorLayoutSvc.previewHeaderWidth - previewScrollbarWidth)
 						.start();
+					var pagePanelWidth = clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight;
 					pagePanelElt.clanim
-						.width(clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight)
+						.width(pagePanelWidth)
+						.start();
+					editorContainerElt.clanim
+						.width(pagePanelWidth + editorLeftOverflow)
 						.start();
 					hidePreview();
 
@@ -221,18 +231,11 @@ angular.module('classeur.core.editorLayout', [])
 						.easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
 						.start(true);
 					setTimeout(function() {
-						editBtnElt.clanim
-							.translateY(clEditorLayoutSvc.isEditorOpen ? 100 : 0)
-							.duration(200)
-							.easing('outBack')
-							.start(true);
-						setTimeout(function() {
-							hidePreview();
-							clEditorLayoutSvc.toggleSidePreview(false);
-							clEditorLayoutSvc.currentControl = undefined;
-							isInited && scope.$apply();
-						}, 300);
-					}, 400);
+						hidePreview();
+						clEditorLayoutSvc.toggleSidePreview(false);
+						clEditorLayoutSvc.currentControl = undefined;
+						isInited && scope.$apply();
+					}, 500);
 				}
 
 				function animateMenu() {
@@ -334,6 +337,9 @@ angular.module('classeur.core.editorLayout', [])
 				scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons);
 				scope.$watch('editorSvc.lastSectionMeasured', function() {
 					sectionDescList = clEditorSvc.sectionDescList;
+				});
+				scope.$watch('editorLayoutSvc.fontSizePx', function(fontSize) {
+					editorContainerElt.style.fontSize = fontSize;
 				});
 			}
 		})

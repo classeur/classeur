@@ -27,25 +27,23 @@
                 <div class="btn-grp panel">
                     <div class="close panel">
                         <cl-button class="close btn" opacity="0.35" opacity-hover="0.7" size="32">
-                            <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close"></a>
+                            <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file"></a>
                         </cl-button>
                     </div>
                     <div class="scroll panel">
                         <cl-button class="scroll btn" opacity="0.35" opacity-hover="0.7" size="32">
-                            <a class="icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top"></a>
+                            <a class="icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top"></a>
                         </cl-button>
                     </div>
                 </div>
                 <cl-button class="sharing btn" opacity="0.35" opacity-hover="0.7" size="32">
-                    <a class="icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share"></a>
+                    <a class="icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share"></a>
+                </cl-button>
+                <cl-button class="edit btn" opacity="0.35" opacity-hover="0.7" size="32">
+                    <a class="icon-mode-edit" ng-click="editorLayoutSvc.toggleEditor(true)" aria-label="Edit" title="Edit"></a>
                 </cl-button>
                 {{currentFileDao.name}}
             </div>
-        </div>
-        <div class="edit btn btn-panel md-whiteframe-z4" ng-class="plasticClass">
-            <md-button ng-click="editorLayoutSvc.toggleEditor(true)">
-                Edit
-            </md-button>
         </div>
         <div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
             <div class="panel no-overflow">
@@ -79,13 +77,13 @@
             </div>
             <div class="btn-grp panel">
                 <cl-button class="close btn" opacity="0.4" opacity-hover="0.7" size="32">
-                    <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor"></a>
+                    <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor" title="Close editor"></a>
                 </cl-button>
                 <cl-button class="minimize btn" opacity="0.4" opacity-hover="0.7" size="28">
-                    <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Hide editor"></a>
+                    <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode"></a>
                 </cl-button>
                 <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="32">
-                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="5" aria-label="Side preview"></a>
+                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="5" aria-label="Side preview" title="Side preview"></a>
                     <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 4">
                         <p>Classeur supports Markdown syntax.</p>
                         <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
@@ -106,8 +104,7 @@
                     <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
                     <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
                     <cl-zen-mode></cl-zen-mode>
-                    <div class="margin panel">
-                    </div>
+                    <div class="margin panel"></div>
                     <cl-editor></cl-editor>
                 </div>
             </div>

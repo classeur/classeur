@@ -37,26 +37,26 @@
             text-transform: uppercase;
             color: #505050;
             border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-            padding: 6px 8px 6px 42px;
+            padding: 6px 8px 6px 112px;
             line-height: 1;
             text-align: right;
             letter-spacing: -0.03em;
             overflow: hidden;
         }
-        .panel {
+        .panel, .edit.btn-panel, .sharing.btn-panel {
             left: 0;
             width: 32px;
             height: 32px;
-            font-size: 26px;
+            font-size: 28px;
+        }
+        .panel {
+            font-size: 30px;
         }
         .sharing.btn {
-            opacity: 0;
-            -webkit-transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            right: -32px;
+            left: 32px;
         }
-        &:hover .sharing.btn {
-            opacity: 1;
+        .edit.btn {
+            left: 67px;
         }
         .btn a {
             line-height: 32px;
@@ -69,6 +69,7 @@
         .margin.panel {
             width: 1px;
             left: $editor-margin-width;
+            background-color: #FFE5E1;
         }
         .hole.panel {
             left: 18px;
@@ -128,16 +129,7 @@
             }
         }
     }
-    .edit.btn {
-        right: 10px;
-        width: 100px;
-        height: 64px;
-        padding-bottom: 20px;
-        border-top-left-radius: $border-radius-binder;
-        border-top-right-radius: $border-radius-binder;
-    }
-    .menu.btn,
-    .edit.btn {
+    .menu.btn {
         .md-button {
             line-height: 36px;
             width: 100%;

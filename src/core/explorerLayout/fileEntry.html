@@ -33,6 +33,12 @@
                     Sharing
                 </md-button>
             </md-menu-item>
+            <md-menu-item ng-if="fileDao.folderId && folderSvc.folderMap[fileDao.folderId] && explorerLayoutSvc.currentFolderDao !== folderSvc.folderMap[fileDao.folderId]">
+                <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.folderMap[fileDao.folderId])">
+                    <md-icon md-font-icon="icon-folder-open"></md-icon>
+                    Go to folder
+                </md-button>
+            </md-menu-item>
         </md-menu-content>
     </md-menu>
 </div>

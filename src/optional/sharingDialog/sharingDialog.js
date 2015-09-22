@@ -21,6 +21,8 @@ angular.module('classeur.optional.sharingDialog', [])
 							scope.isFile = isFile;
 							scope.objectDao = objectDao;
 							scope.folderDao = folderDao;
+							scope.encodedSharingUrl = encodeURIComponent(sharingUrl);
+							scope.encodedName = encodeURIComponent(objectDao.name);
 						}],
 						onComplete: function(scope, element) {
 							scope.openFolder = function() {

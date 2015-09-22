@@ -46,12 +46,12 @@ angular.module('classeur.core.folders', [])
 					clFolderSvc.$read();
 				}
 
-				var folderMap = {};
-				var deletedFolderMap = {};
+				var folderMap = Object.create(null);
+				var deletedFolderMap = Object.create(null);
 				clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(id) {
 					var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id] || new FolderDao(id);
-					return (!folderDao.deleted && !folderMap.hasOwnProperty(id) && (folderMap[id] = folderDao)) ||
-						(folderDao.deleted && !deletedFolderMap.hasOwnProperty(id) && (deletedFolderMap[id] = folderDao));
+					return (!folderDao.deleted && !folderMap[id] && (folderMap[id] = folderDao)) ||
+						(folderDao.deleted && !deletedFolderMap[id] && (deletedFolderMap[id] = folderDao));
 				});
 				clFolderSvc.folderMap = folderMap;
 				clFolderSvc.deletedFolderMap = deletedFolderMap;
@@ -69,7 +69,7 @@ angular.module('classeur.core.folders', [])
 						if (key.charCodeAt(0) === 0x46 /* F */ ) {
 							var match = key.match(keyPrefix);
 							if (match) {
-								if ((!clFolderSvc.folderMap.hasOwnProperty(match[1]) && !clFolderSvc.deletedFolderMap.hasOwnProperty(match[1])) ||
+								if ((!clFolderSvc.folderMap[match[1]] && !clFolderSvc.deletedFolderMap[match[1]]) ||
 									!authorizedKeys.hasOwnProperty(match[2])) {
 									clLocalStorage.removeItem(key);
 								}
@@ -200,8 +200,8 @@ angular.module('classeur.core.folders', [])
 			clFolderSvc.getLastUpdated = getLastUpdated;
 			clFolderSvc.folders = [];
 			clFolderSvc.deletedFolders = [];
-			clFolderSvc.folderMap = {};
-			clFolderSvc.deletedFolderMap = {};
+			clFolderSvc.folderMap = Object.create(null);
+			clFolderSvc.deletedFolderMap = Object.create(null);
 
 			init();
 			return clFolderSvc;

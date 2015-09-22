@@ -152,7 +152,7 @@ angular.module('classeur.optional.postToBlog', [])
 		})
 	.factory('clPostToBlogSvc',
 		function($q, clBlogSvc, clToast, clSocketSvc, clEditorSvc) {
-			var blogMap = {},
+			var blogMap = Object.create(null),
 				posts = [],
 				clPostToBlogSvc = {
 					blogPosts: []

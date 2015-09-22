@@ -220,7 +220,7 @@ angular.module('classeur.core.sync', [])
 				if (key.charCodeAt(0) === 0x63 /* c */ ) {
 					var match = key.match(fileKeyPrefix);
 					if (match) {
-						if (!clFileSvc.fileMap.hasOwnProperty(match[1]) || !clFileSvc.fileMap[match[1]].contentDao.isLocal) {
+						if (!clFileSvc.fileMap[match[1]] || !clFileSvc.fileMap[match[1]].contentDao.isLocal) {
 							clLocalStorage.removeItem(key);
 						}
 					}
@@ -389,8 +389,11 @@ angular.module('classeur.core.sync', [])
 						var folderDao = clFolderSvc.folderMap[change.id];
 						var syncData = clSyncDataSvc.folders[change.id] || {};
 						if (
+							// Has been deleted on the server
 							(change.deleted && folderDao) ||
-							(!change.deleted && !folderDao && !clFolderSvc.deletedFolderMap.hasOwnProperty(change.id)) ||
+							// Has been created on the server and is not pending for deletion locally
+							(!change.deleted && !folderDao && !clFolderSvc.deletedFolderMap[change.id]) ||
+							// Has been updated on the server and is different from local
 							(folderDao && folderDao.updated != change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
 						) {
 							foldersToUpdate.push(change);
@@ -488,8 +491,11 @@ angular.module('classeur.core.sync', [])
 						var fileDao = clFileSvc.fileMap[change.id];
 						var syncData = clSyncDataSvc.files[change.id] || {};
 						if (
+							// Has been deleted on the server and ownership was not changed
 							(change.deleted && fileDao && !fileDao.userId) ||
-							(!change.deleted && !fileDao && !clFileSvc.deletedFileMap.hasOwnProperty(change.id)) ||
+							// Has been created on the server and is not pending for deletion locally
+							(!change.deleted && !fileDao && !clFileSvc.deletedFileMap[change.id]) ||
+							// Has been updated on the server and is different from local
 							(fileDao && fileDao.updated != change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
 						) {
 							filesToUpdate.push(change);
@@ -572,7 +578,7 @@ angular.module('classeur.core.sync', [])
 			clSyncSvc.recoverFile = function(file) {
 				var currentDate = Date.now();
 				clSyncDataSvc.fileRecoveryDates[file.id] = currentDate;
-				if (!clFileSvc.fileMap.hasOwnProperty(file.id)) {
+				if (!clFileSvc.fileMap[file.id]) {
 					clSocketSvc.sendMsg({
 						type: 'setFileMetadata',
 						id: file.id,
@@ -814,7 +820,7 @@ angular.module('classeur.core.sync', [])
 				fileDao.contentDao.state = {};
 				fileDao.writeContent(true);
 				fileDao.state = 'loaded';
-				if (!clFileSvc.fileMap.hasOwnProperty(fileDao.id)) {
+				if (!clFileSvc.fileMap[fileDao.id]) {
 					clFileSvc.fileMap[fileDao.id] = fileDao;
 					clFileSvc.fileIds.push(fileDao.id);
 				}

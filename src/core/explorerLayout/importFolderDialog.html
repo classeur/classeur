@@ -2,7 +2,7 @@
     <md-dialog-content>
         <h2>Import folder</h2>
         <md-input-container>
-            <label>Sharing link</label>
+            <label>Share link</label>
             <input class="link" ng-model="link" cl-focus cl-enter-ok>
         </md-input-container>
         <div ng-show="folders.length">
@@ -12,6 +12,9 @@
             <md-select placeholder="From other classeur" ng-model="folderId">
                 <md-option ng-repeat="folderDao in folders | orderBy:'name' track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
             </md-select>
+            <md-checkbox ng-model="move" aria-label="Move folder">
+                Move folder
+            </md-checkbox>
         </div>
     </md-dialog-content>
     <div class="md-actions">

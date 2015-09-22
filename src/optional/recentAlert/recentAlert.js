@@ -5,7 +5,7 @@ angular.module('classeur.optional.recentAlert', [])
 			var dismissFlag = clLocalStorage.hasOwnProperty(dismissFlagKey);
 			return {
 				restrict: 'E',
-				template: '<cl-recent-alert-panel ng-if="show"></cl-recent-alert-panel>',
+				template: '<cl-recent-alert-panel ng-if="!explorerLayoutSvc.currentFolderDao && show"></cl-recent-alert-panel>',
 				scope: true,
 				link: link
 			};

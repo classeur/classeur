@@ -109,7 +109,7 @@ angular.module('classeur.optional.buttonBar', [])
 				btnWidth: 28,
 				btnHeight: 30,
 				height: 60,
-				visibleHeight: 44
+				visibleHeight: 42
 			};
 
 			var offset = props.margin;

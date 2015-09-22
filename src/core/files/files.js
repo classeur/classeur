@@ -167,16 +167,16 @@ angular.module('classeur.core.files', [])
 					clFileSvc.$read();
 				}
 
-				var fileMap = {};
-				var deletedFileMap = {};
+				var fileMap = Object.create(null);
+				var deletedFileMap = Object.create(null);
 				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
 					var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id);
-					return (!fileDao.deleted && !fileMap.hasOwnProperty(id) && (fileMap[id] = fileDao)) ||
-						(fileDao.deleted && !deletedFileMap.hasOwnProperty(id) && (deletedFileMap[id] = fileDao));
+					return (!fileDao.deleted && !fileMap[id] && (fileMap[id] = fileDao)) ||
+						(fileDao.deleted && !deletedFileMap[id] && (deletedFileMap[id] = fileDao));
 				});
 
 				clFileSvc.files.forEach(function(fileDao) {
-					!fileMap.hasOwnProperty(fileDao.id) && fileDao.unload();
+					!fileMap[fileDao.id] && fileDao.unload();
 				});
 
 				clFileSvc.files = Object.keys(fileMap).map(function(id) {
@@ -208,7 +208,7 @@ angular.module('classeur.core.files', [])
 						if (key.charCodeAt(0) === 0x66 /* f */ ) {
 							match = key.match(keyPrefix);
 							if (match) {
-								if ((!clFileSvc.fileMap.hasOwnProperty(match[1]) && !clFileSvc.deletedFileMap.hasOwnProperty(match[1])) ||
+								if ((!clFileSvc.fileMap[match[1]] && !clFileSvc.deletedFileMap[match[1]]) ||
 									!fileAuthorizedKeys.hasOwnProperty(match[2])
 								) {
 									clLocalStorage.removeItem(key);
@@ -217,7 +217,7 @@ angular.module('classeur.core.files', [])
 						} else if (key.charCodeAt(0) === 0x63 /* c */ ) {
 							match = key.match(keyPrefix);
 							if (match) {
-								if (!clFileSvc.fileMap.hasOwnProperty(match[1]) ||
+								if (!clFileSvc.fileMap[match[1]] ||
 									!contentAuthorizedKeys.hasOwnProperty(match[2]) ||
 									!clFileSvc.fileMap[match[1]].contentDao.isLocal
 								) {
@@ -267,7 +267,7 @@ angular.module('classeur.core.files', [])
 						fileDao.writeContent();
 					}
 				});
-				// console.log('Dirty checking time: ' + (Date.now() - startTime) + 'ms');
+				// console.log('Dirty checking took ' + (Date.now() - startTime) + 'ms');
 
 				if (checkFileSvcUpdate || checkFileUpdate || checkContentUpdate) {
 					init();
@@ -369,8 +369,8 @@ angular.module('classeur.core.files', [])
 			clFileSvc.getLastUpdated = getLastUpdated;
 			clFileSvc.files = [];
 			clFileSvc.deletedFiles = [];
-			clFileSvc.fileMap = {};
-			clFileSvc.deletedFileMap = {};
+			clFileSvc.fileMap = Object.create(null);
+			clFileSvc.deletedFileMap = Object.create(null);
 
 			init();
 			return clFileSvc;

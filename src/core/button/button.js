@@ -5,16 +5,18 @@ angular.module('classeur.core.button', [])
 				restrict: 'E',
 				scope: true,
 				transclude: true,
-				templateUrl: 'core/button/button.html',
+				template: '<div class="btn-panel"><ng-transclude></ng-transclude></div>',
 				link: link
 			};
 
 			function link(scope, element, attrs) {
-				scope.class = attrs.class;
 				var opacity = parseFloat(attrs.opacity || 0.7);
 				var opacityHover = parseFloat(attrs.opacityHover || 1);
 				var opacityActive = parseFloat(attrs.opacityActive || opacityHover);
 				var buttonElt = element[0].querySelector('.btn-panel');
+				if (attrs.class) {
+					buttonElt.className += ' ' + attrs.class;
+				}
 				attrs.size && buttonElt.clanim.width(attrs.size).height(attrs.size);
 				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
 					var attr = attrs[attrName];

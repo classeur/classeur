@@ -35,7 +35,7 @@ angular.module('classeur.optional.urlDialog', [])
 							scope.isUploading = true;
 							$http(req)
 								.success(function(result) {
-									clDialog.hide(result.data.link);
+									clDialog.hide(result.data.link.replace(/^http:/, 'https:'));
 								})
 								.error(function(err) {
 									scope.isUploading = false;

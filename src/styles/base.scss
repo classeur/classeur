@@ -1,7 +1,6 @@
 @import 'variables';
 @import 'prism';
 @import 'fonts';
-
 html {
     font-family: $font-family;
     font-weight: 400;
@@ -28,7 +27,14 @@ pre,
 ul,
 ol,
 dl {
-      margin: 1.2em 0;
+    margin: 1.2em 0;
+}
+
+ol ul,
+ul ol,
+ul ul,
+ol ol {
+    margin: 0;
 }
 
 a {
@@ -138,7 +144,7 @@ dt {
     margin-bottom: 180px;
     margin-right: auto;
     margin-left: auto;
-    & > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+    & >:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
         text-align: justify;
     }
 }

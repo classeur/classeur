@@ -81,7 +81,7 @@ angular.module('classeur.blogs', [])
 					}
 				});
 
-				var blogMap = {};
+				var blogMap = Object.create(null);
 				if (!scope.post) {
 					var loading = $q(function(resolve) {
 						var unwatch = scope.$watch('socketSvc.isReady', function() {
@@ -141,7 +141,7 @@ angular.module('classeur.blogs', [])
 					platformMap[arg.id] = arg;
 				}
 				return platformMap;
-			}, {});
+			}, Object.create(null));
 
 			return {
 				platformMap: platformMap,
