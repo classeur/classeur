@@ -56,8 +56,8 @@ angular.module('classeur.core.user', [])
             });
 
             function makeQueryString(params) {
-                return Object.keys(params).map(function(key) {
-                    return key + '=' + encodeURIComponent(params[key]);
+                return params.cl_map(function(value, key) {
+                    return key + '=' + encodeURIComponent(value);
                 }).join('&');
             }
 
@@ -175,7 +175,7 @@ angular.module('classeur.core.user', [])
                     .success(function(res) {
                         lastUserInfoAttempt = 0;
                         clUserInfoSvc.lastUserInfo = Date.now();
-                        res.forEach(function(user) {
+                        res.cl_each(function(user) {
                             clUserInfoSvc.users[user.id] = user;
                             delete requestedUserInfo[user.id];
                         });

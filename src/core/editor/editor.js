@@ -86,7 +86,7 @@ angular.module('classeur.core.editor', [])
 
 				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
-						Array.prototype.forEach.call(section.elt.getElementsByClassName('token img'), function(imgTokenElt) {
+						section.elt.getElementsByClassName('token img').cl_each(function(imgTokenElt) {
 							var srcElt = imgTokenElt.querySelector('.token.cl-src');
 							if (srcElt) {
 								var imgElt = $window.document.createElement('img');
@@ -107,10 +107,10 @@ angular.module('classeur.core.editor', [])
 				var isInited;
 				scope.$watch('editorSvc.options', function(options) {
 					clEditorSvc.forcePreviewRefresh();
-					options = angular.extend({}, options);
+					options = ({}).cl_extend(options);
 					if (!isInited) {
 						options.content = scope.currentFileDao.contentDao.text;
-						['selectionStart', 'selectionEnd', 'scrollTop'].forEach(function(key) {
+						['selectionStart', 'selectionEnd', 'scrollTop'].cl_each(function(key) {
 							options[key] = scope.currentFileDao.contentDao.state[key];
 						});
 						isInited = true;
@@ -209,7 +209,7 @@ angular.module('classeur.core.editor', [])
 					e.preventDefault();
 					var y = e.clientY + scrollerElt.scrollTop;
 
-					clEditorSvc.sectionDescList.some(function(sectionDesc) {
+					clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
 						if (y < sectionDesc.tocDimension.endOffset) {
 							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1);
 							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection;
@@ -268,7 +268,7 @@ angular.module('classeur.core.editor', [])
 
 				function applyClass() {
 					var offset = offsetGetter();
-					if (!offset) {
+					if (!offset || offset.start === offset.end) {
 						return;
 					}
 					var range = clEditorSvc.cledit.selectionMgr.createRange(
@@ -318,7 +318,7 @@ angular.module('classeur.core.editor', [])
 				function applyClass() {
 					timeoutId = undefined;
 					var offset = offsetGetter();
-					if (!offset) {
+					if (!offset || offset.start === offset.end) {
 						return;
 					}
 					var start = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.min(offset.start, offset.end));
@@ -375,7 +375,7 @@ angular.module('classeur.core.editor', [])
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
-			angular.forEach({
+			({
 				'js': 'javascript',
 				'html': 'markup',
 				'svg': 'markup',
@@ -384,12 +384,12 @@ angular.module('classeur.core.editor', [])
 				'rb': 'ruby',
 				'ps1': 'powershell',
 				'psm1': 'powershell'
-			}, function(name, alias) {
+			}).cl_each(function(name, alias) {
 				Prism.languages[alias] = Prism.languages[name];
 			});
 
 			var insideFences = {};
-			angular.forEach(Prism.languages, function(language, name) {
+			Prism.languages.cl_each(function(language, name) {
 				if (Prism.util.type(language) === 'Object') {
 					insideFences['language-' + name] = {
 						pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
@@ -408,7 +408,7 @@ angular.module('classeur.core.editor', [])
 			});
 
 			var editorElt, previewElt, tocElt;
-			var filenameSpaceElt, filenameSpaceLength;
+			var filenameSpaceElt, previewTextStartOffset;
 			var prismOptions = {
 				insideFences: insideFences
 			};
@@ -416,20 +416,23 @@ angular.module('classeur.core.editor', [])
 			var markdownInitListeners = [];
 			var asyncPreviewListeners = [];
 			var currentFileDao;
-			var startSectionBlockTypes = {
-				'paragraph_open': true,
-				'blockquote_open': true,
-				'heading_open': true,
-				'code': true,
-				'fence': true,
-				'table_open': true,
-				'html_block': true,
-				'bullet_list_open': true,
-				'ordered_list_open': true,
-				'hr': true,
-				'dl_open': true,
-				'toc': true,
-			};
+			var startSectionBlockTypes = [
+				'paragraph_open',
+				'blockquote_open',
+				'heading_open',
+				'code',
+				'fence',
+				'table_open',
+				'html_block',
+				'bullet_list_open',
+				'ordered_list_open',
+				'hr',
+				'dl_open',
+				'toc',
+			];
+			var startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function(map, type) {
+				return (map[type] = true) , map;
+			}, Object.create(null));
 			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
 			var diffMatchPatch = new $window.diff_match_patch();
 			var parsingCtx, conversionCtx;
@@ -454,10 +457,10 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.markdown.inline.ruler.enable([], true);
 
 					asyncPreviewListeners = [];
-					markdownInitListeners.forEach(function(listener) {
+					markdownInitListeners.cl_each(function(listener) {
 						listener(clEditorSvc.markdown);
 					});
-					Object.keys(startSectionBlockTypes).forEach(function(type) {
+					startSectionBlockTypes.cl_each(function(type) {
 						var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken;
 						clEditorSvc.markdown.renderer.rules[type] = function(tokens, idx) {
 							if (tokens[idx].sectionDelimiter) {
@@ -474,10 +477,10 @@ angular.module('classeur.core.editor', [])
 					forcePreviewRefresh = true;
 				},
 				setPrismOptions: function(options) {
-					prismOptions = angular.extend(prismOptions, options);
+					prismOptions = prismOptions.cl_extend(options);
 					this.prismGrammar = $window.mdGrammar(prismOptions);
-					// Create new object for watchers
-					this.options = angular.extend({}, this.options);
+					// Create new object to trigger watchers
+					this.options = ({}).cl_extend(this.options);
 					this.options.highlighter = function(text) {
 						return Prism.highlight(text, clEditorSvc.prismGrammar);
 					};
@@ -534,8 +537,8 @@ angular.module('classeur.core.editor', [])
 							}
 							section && sections.push(section);
 						}
-						markdownState.tokens.forEach(function(token) {
-							if (token.level === 0 && startSectionBlockTypes.hasOwnProperty(token.type)) {
+						markdownState.tokens.cl_each(function(token) {
+							if (token.level === 0 && startSectionBlockTypeMap[token.type]) {
 								token.sectionDelimiter = true;
 								addSection(token.map[0]);
 							}
@@ -563,14 +566,12 @@ angular.module('classeur.core.editor', [])
 
 			function hashArray(arr, valueHash, valueArray) {
 				var hash = [];
-				arr.forEach(function(str) {
-					var strHash;
-					if (!valueHash.hasOwnProperty(str)) {
+				arr.cl_each(function(str) {
+					var strHash = valueHash[str];
+					if (strHash === undefined) {
 						strHash = valueArray.length;
 						valueArray.push(str);
 						valueHash[str] = strHash;
-					} else {
-						strHash = valueHash[str];
 					}
 					hash.push(strHash);
 				});
@@ -579,7 +580,7 @@ angular.module('classeur.core.editor', [])
 
 			clEditorSvc.convert = function() {
 				if (!parsingCtx.markdownState.isConverted) { // Convert can be called twice without editor modification
-					parsingCtx.markdownCoreRules.slice(2).forEach(function(rule) { // Skip previously passed rules
+					parsingCtx.markdownCoreRules.slice(2).cl_each(function(rule) { // Skip previously passed rules
 						rule(parsingCtx.markdownState);
 					});
 					parsingCtx.markdownState.isConverted = true;
@@ -591,7 +592,7 @@ angular.module('classeur.core.editor', [])
 				);
 				var htmlSectionList = html.split(htmlSectionMarker);
 				htmlSectionList[0] === '' && htmlSectionList.shift();
-				var valueHash = {},
+				var valueHash = Object.create(null),
 					valueArray = [];
 				var newSectionHash = hashArray(htmlSectionList, valueHash, valueArray);
 				var htmlSectionDiff = [
@@ -618,7 +619,7 @@ angular.module('classeur.core.editor', [])
 					sectionDescIdx = 0;
 				var insertBeforePreviewElt = filenameSpaceElt.nextSibling,
 					insertBeforeTocElt = tocElt.firstChild;
-				conversionCtx.htmlSectionDiff.forEach(function(item) {
+				conversionCtx.htmlSectionDiff.cl_each(function(item) {
 					for (var i = 0; i < item[1].length; i++) {
 						var section = conversionCtx.sectionList[sectionIdx];
 						if (item[0] === 0) {
@@ -641,7 +642,7 @@ angular.module('classeur.core.editor', [])
 						} else if (item[0] === 1) {
 							var html = conversionCtx.htmlSectionList[sectionIdx++];
 
-							// Create section preview element
+							// Create preview section element
 							sectionPreviewElt = document.createElement('div');
 							sectionPreviewElt.className = 'cl-preview-section modified';
 							sectionPreviewElt.innerHTML = clHtmlSanitizer(html);
@@ -651,7 +652,7 @@ angular.module('classeur.core.editor', [])
 								previewElt.appendChild(sectionPreviewElt);
 							}
 
-							// Create section TOC element
+							// Create TOC section element
 							sectionTocElt = document.createElement('div');
 							sectionTocElt.className = 'cl-toc-section modified';
 							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
@@ -667,6 +668,7 @@ angular.module('classeur.core.editor', [])
 							}
 
 							newSectionDescList.push({
+								section: section,
 								editorElt: section.elt,
 								previewElt: sectionPreviewElt,
 								tocElt: sectionTocElt
@@ -686,10 +688,10 @@ angular.module('classeur.core.editor', [])
 							recursiveCall(callbackList);
 						});
 					}
-					var html = Array.prototype.reduce.call(previewElt.querySelectorAll('.cl-preview-section'), function(html, elt) {
+					var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function(html, elt) {
 						if (!elt.exportableHtml) {
 							var clonedElt = elt.cloneNode(true);
-							Array.prototype.forEach.call(clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview'), function(elt) {
+							clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview').cl_each(function(elt) {
 								elt.parentNode.removeChild(elt);
 							});
 							elt.exportableHtml = clonedElt.innerHTML;
@@ -699,12 +701,11 @@ angular.module('classeur.core.editor', [])
 					clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
 					clEditorSvc.previewText = previewElt.textContent;
 					clEditorSvc.lastPreviewRefreshed = Date.now();
-					// Way too expensive...
-					//debouncedTextToPreviewDiffs();
+					debouncedTextToPreviewDiffs();
 					$rootScope.$apply();
 				}
 
-				var imgLoadingListeners = Array.prototype.map.call(previewElt.querySelectorAll('img'), function(imgElt) {
+				var imgLoadingListeners = previewElt.getElementsByTagName('img').cl_map(function(imgElt) {
 					return function(cb) {
 						if (!imgElt.src) {
 							return cb();
@@ -718,17 +719,37 @@ angular.module('classeur.core.editor', [])
 				recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
 			}
 
-			// var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
-			// 	filenameSpaceLength = filenameSpaceElt.textContent.length;
-			// 	var editorText = clEditorSvc.cledit.getContent();
-			// 	var previewText = previewElt.textContent.slice(filenameSpaceLength);
-			// 	clEditorSvc.textToPreviewDiffs = diffMatchPatch.diff_main(editorText, previewText);
-			// 	$rootScope.$apply();
-			// }, 50);
+			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
+				previewTextStartOffset = filenameSpaceElt.textContent.length;
+				if(filenameSpaceElt.previousSibling) {
+					previewTextStartOffset += filenameSpaceElt.previousSibling.textContent.length;
+				}
+				clEditorSvc.sectionDescList.cl_each(function(sectionDesc) {
+					if(!sectionDesc.textToPreviewDiffs) {
+						sectionDesc.previewText = sectionDesc.previewElt.textContent;
+						sectionDesc.textToPreviewDiffs = diffMatchPatch.diff_main(sectionDesc.section.text, sectionDesc.previewText);
+					}
+				});
+				clEditorSvc.lastTextToPreviewDiffs = Date.now();
+				$rootScope.$apply();
+			}, 50);
 
 
 			clEditorSvc.getPreviewOffset = function(textOffset) {
-				return clEditorSvc.textToPreviewDiffs && diffMatchPatch.diff_xIndex(clEditorSvc.textToPreviewDiffs, textOffset) + filenameSpaceLength;
+				var previewOffset = previewTextStartOffset;
+				clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
+					if(!sectionDesc.textToPreviewDiffs) {
+						previewOffset = undefined;
+						return true;
+					}
+					if(sectionDesc.section.text.length >= textOffset) {
+						previewOffset += diffMatchPatch.diff_xIndex(sectionDesc.textToPreviewDiffs, textOffset);
+						return true;
+					}
+					textOffset -= sectionDesc.section.text.length;
+					previewOffset += sectionDesc.previewText.length;
+				});
+				return previewOffset;
 			};
 
 			var saveSelection = $window.cledit.Utils.debounce(function() {
@@ -760,7 +781,7 @@ angular.module('classeur.core.editor', [])
 
 			function dimensionNormalizer(dimensionName) {
 				return function() {
-					var dimensionList = clEditorSvc.sectionDescList.map(function(sectionDesc) {
+					var dimensionList = clEditorSvc.sectionDescList.cl_map(function(sectionDesc) {
 						return sectionDesc[dimensionName];
 					});
 					var dimension, i, j;

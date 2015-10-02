@@ -63,7 +63,7 @@ angular.module('classeur.optional.folding', [])
 					var functionName = sectionGroup.isFolded ? 'unfold' : 'fold';
 					var parent = sectionGroup.parent;
 					// Fold/unfold all sections that have the same parent
-					clFoldingSvc.sectionGroups.forEach(function(sectionGroup) {
+					clFoldingSvc.sectionGroups.cl_each(function(sectionGroup) {
 						sectionGroup.parent === parent && sectionGroup[functionName]();
 					});
 				}));
@@ -138,12 +138,12 @@ angular.module('classeur.optional.folding', [])
 			SectionGroup.prototype.hideSections = function() {
 
 				// Add `hide` class in every section
-				this.sections.forEach(function(section) {
-					Array.prototype.forEach.call(section.elt.children, hideElt);
+				this.sections.cl_each(function(section) {
+					section.elt.children.cl_each(hideElt);
 				});
 
 				// Also do that in every child group
-				this.children.forEach(function(childGroup) {
+				this.children.cl_each(function(childGroup) {
 					// Unset folded state in case child was folded
 					var elt = childGroup.sections[0].elt;
 					elt.className = elt.className.replace(/ folded/g, '');
@@ -171,12 +171,12 @@ angular.module('classeur.optional.folding', [])
 			SectionGroup.prototype.showSections = function() {
 
 				// Remove `hide` class in every section
-				this.sections.forEach(function(section) {
-					Array.prototype.forEach.call(section.elt.children, showElt);
+				this.sections.cl_each(function(section) {
+					section.elt.children.cl_each(showElt);
 				});
 
 				// Also do that in every child group
-				this.children.forEach(function(childGroup) {
+				this.children.cl_each(function(childGroup) {
 					childGroup.isParentFolded = false;
 					childGroup.showSections();
 				});
@@ -192,7 +192,7 @@ angular.module('classeur.optional.folding', [])
 				folding.sectionGroups = [];
 
 				// Unfold modified section groups
-				oldSectionList && oldSectionList.forEach(function(section) {
+				oldSectionList && oldSectionList.cl_each(function(section) {
 					if (section.elt.parentNode || !section.elt.sectionGroup) {
 						return;
 					}
@@ -205,7 +205,7 @@ angular.module('classeur.optional.folding', [])
 				// List groups
 				var sectionGroup;
 				var newSectionGroups = [];
-				sectionList.forEach(function(section) {
+				sectionList.cl_each(function(section) {
 					var firstChild = section.elt.firstChild;
 					if (!firstChild) {
 						return;
@@ -234,7 +234,7 @@ angular.module('classeur.optional.folding', [])
 
 				// Make hierarchy
 				var stack = [];
-				folding.sectionGroups.forEach(function(sectionGroup) {
+				folding.sectionGroups.cl_each(function(sectionGroup) {
 					while (stack.length && stack[stack.length - 1].level >= sectionGroup.level) {
 						stack.pop();
 					}
@@ -246,9 +246,9 @@ angular.module('classeur.optional.folding', [])
 				});
 
 				// Unfold parent/children of new section groups
-				newSectionGroups.forEach(function(sectionGroup) {
+				newSectionGroups.cl_each(function(sectionGroup) {
 					sectionGroup.parent && sectionGroup.parent.unfold();
-					sectionGroup.children.forEach(function(childGroup) {
+					sectionGroup.children.cl_each(function(childGroup) {
 						childGroup.unfold();
 					});
 				});
@@ -256,7 +256,7 @@ angular.module('classeur.optional.folding', [])
 
 			function getSectionGroup(offsetTop) {
 				var result;
-				folding.sectionGroups.some(function(sectionGroup) {
+				folding.sectionGroups.cl_some(function(sectionGroup) {
 					var sectionOffsetTop = sectionGroup.firstElt.offsetTop;
 					if (sectionOffsetTop > offsetTop) {
 						return true;
@@ -282,7 +282,7 @@ angular.module('classeur.optional.folding', [])
 				var isStarted, isFinished;
 				var startContainer = range.startContainer;
 				var endContainer = range.endContainer;
-				clEditorSvc.sectionList && clEditorSvc.sectionList.some(function(section) {
+				clEditorSvc.sectionList && clEditorSvc.sectionList.cl_some(function(section) {
 					if (section.elt.contains(startContainer)) {
 						isFinished = isStarted;
 						isStarted = true;

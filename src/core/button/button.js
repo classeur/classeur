@@ -18,7 +18,7 @@ angular.module('classeur.core.button', [])
 					buttonElt.className += ' ' + attrs.class;
 				}
 				attrs.size && buttonElt.clanim.width(attrs.size).height(attrs.size);
-				['width', 'height', 'top', 'right', 'bottom', 'left'].forEach(function(attrName) {
+				['width', 'height', 'top', 'right', 'bottom', 'left'].cl_each(function(attrName) {
 					var attr = attrs[attrName];
 					attr && buttonElt.clanim[attrName](attr);
 				});

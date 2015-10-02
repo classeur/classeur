@@ -23,13 +23,13 @@ angular.module('classeur.optional.discussions', [])
 					}
 					clEditorSvc.editorElt.addEventListener('mouseover', function(evt) {
 						var discussionId = getEditorDiscussionId(evt.target);
-						discussionId && Array.prototype.slice.call(clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId)).forEach(function(elt) {
+						discussionId && clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId).cl_each(function(elt) {
 							elt.classList.add('hover');
 						});
 					});
 					clEditorSvc.editorElt.addEventListener('mouseout', function(evt) {
 						var discussionId = getEditorDiscussionId(evt.target);
-						discussionId && Array.prototype.slice.call(clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId)).forEach(function(elt) {
+						discussionId && clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId).cl_each(function(elt) {
 							elt.classList.remove('hover');
 						});
 					});
@@ -43,35 +43,35 @@ angular.module('classeur.optional.discussions', [])
 						}
 					});
 
-					// function getPreviewDiscussionId(elt) {
-					// 	while (elt && elt !== clEditorSvc.previewElt) {
-					// 		if (elt.discussionId) {
-					// 			return elt.discussionId;
-					// 		}
-					// 		elt = elt.parentNode;
-					// 	}
-					// }
-					// clEditorSvc.previewElt.addEventListener('mouseover', function(evt) {
-					// 	var discussionId = getPreviewDiscussionId(evt.target);
-					// 	discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
-					// 		elt.classList.add('hover');
-					// 	});
-					// });
-					// clEditorSvc.previewElt.addEventListener('mouseout', function(evt) {
-					// 	var discussionId = getPreviewDiscussionId(evt.target);
-					// 	discussionId && Array.prototype.slice.call(clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId)).forEach(function(elt) {
-					// 		elt.classList.remove('hover');
-					// 	});
-					// });
-					// clEditorSvc.previewElt.addEventListener('click', function(evt) {
-					// 	var discussionId = getPreviewDiscussionId(evt.target);
-					// 	if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
-					// 		clLocalSettingSvc.values.sideBar = true;
-					// 		clEditorLayoutSvc.sideBarTab = 'discussions';
-					// 		clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
-					// 		clDiscussionSvc.currentDiscussionId = discussionId;
-					// 	}
-					// });
+					function getPreviewDiscussionId(elt) {
+						while (elt && elt !== clEditorSvc.previewElt) {
+							if (elt.discussionId) {
+								return elt.discussionId;
+							}
+							elt = elt.parentNode;
+						}
+					}
+					clEditorSvc.previewElt.addEventListener('mouseover', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						discussionId && clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId).cl_each(function(elt) {
+							elt.classList.add('hover');
+						});
+					});
+					clEditorSvc.previewElt.addEventListener('mouseout', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						discussionId && clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId).cl_each(function(elt) {
+							elt.classList.remove('hover');
+						});
+					});
+					clEditorSvc.previewElt.addEventListener('click', function(evt) {
+						var discussionId = getPreviewDiscussionId(evt.target);
+						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+							clLocalSettingSvc.values.sideBar = true;
+							clEditorLayoutSvc.sideBarTab = 'discussions';
+							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
+							clDiscussionSvc.currentDiscussionId = discussionId;
+						}
+					});
 				}, 1);
 
 				var newDiscussionBtnElt = element[0].querySelector('.new-discussion-btn');
@@ -90,7 +90,7 @@ angular.module('classeur.optional.discussions', [])
 								lastCoordinates = coordinates;
 								newDiscussionBtnElt.clanim
 									.top(coordinates.top + coordinates.height)
-									.left(coordinates.left)
+									.left(coordinates.left + clEditorLayoutSvc.editorLeftOverflow)
 									.start();
 							}
 							return clEditorSvc.cledit.selectionMgr.hasFocus;
@@ -159,13 +159,13 @@ angular.module('classeur.optional.discussions', [])
 				};
 
 				scope.$watch('discussionSvc.currentDiscussionId', function(currentDiscussionId) {
-					Array.prototype.slice.call($window.document.querySelectorAll('.discussion-editor-highlighting.selected, .discussion-preview-highlighting.selected')).forEach(function(elt) {
+					$window.document.querySelectorAll('.discussion-editor-highlighting.selected, .discussion-preview-highlighting.selected').cl_each(function(elt) {
 						elt.classList.remove('selected');
 					});
-					currentDiscussionId && Array.prototype.slice.call($window.document.querySelectorAll(
+					currentDiscussionId && $window.document.querySelectorAll(
 						'.discussion-editor-highlighting-' + currentDiscussionId +
 						', .discussion-preview-highlighting-' + currentDiscussionId
-					)).forEach(function(elt) {
+					).cl_each(function(elt) {
 						elt.classList.add('selected');
 					});
 				});
@@ -195,26 +195,26 @@ angular.module('classeur.optional.discussions', [])
 					discussionId: scope.discussionId
 				});
 
-				// var previewClassApplier = clPreviewClassApplier(['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting'], function() {
-				// 	if (!offset || offset.start === -1 || offset.end === -1) {
-				// 		return;
-				// 	}
-				// 	var start = clEditorSvc.getPreviewOffset(offset.start);
-				// 	var end = clEditorSvc.getPreviewOffset(offset.end);
-				// 	return start !== undefined && end !== undefined && {
-				// 		start: start,
-				// 		end: end
-				// 	};
-				// }, {
-				// 	discussionId: scope.discussionId
-				// });
+				var previewClassApplier = clPreviewClassApplier(['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting'], function() {
+					if (!offset || offset.start === -1 || offset.end === -1) {
+						return;
+					}
+					var start = clEditorSvc.getPreviewOffset(offset.start);
+					var end = clEditorSvc.getPreviewOffset(offset.end);
+					return start !== undefined && end !== undefined && {
+						start: start,
+						end: end
+					};
+				}, {
+					discussionId: scope.discussionId
+				});
 
-				// scope.$watch('editorSvc.textToPreviewDiffs', function(value) {
-				// 	value && previewClassApplier.restore();
-				// });
+				scope.$watch('editorSvc.lastTextToPreviewDiffs', function(value) {
+					value && previewClassApplier.restore();
+				});
 				scope.$on('$destroy', function() {
 					editorClassApplier && editorClassApplier.stop();
-					// previewClassApplier && previewClassApplier.remove();
+					previewClassApplier && previewClassApplier.remove();
 				});
 			}
 		})
@@ -265,7 +265,7 @@ angular.module('classeur.optional.discussions', [])
 					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
 						return;
 					}
-					var lastComments = Object.keys(contentDao.comments).reduce(function(lastComments, commentId) {
+					var lastComments = Object.keys(contentDao.comments).cl_reduce(function(lastComments, commentId) {
 						var comment = contentDao.comments[commentId];
 						if (scope.currentFileDao.contentDao.discussions.hasOwnProperty(comment.discussionId)) {
 							var lastComment = lastComments[comment.discussionId] || comment;
@@ -274,11 +274,11 @@ angular.module('classeur.optional.discussions', [])
 						}
 						return lastComments;
 					}, {});
-					scope.lastComments = Object.keys(lastComments).map(function(discussionId) {
+					scope.lastComments = lastComments.cl_map(function(lastComment, discussionId) {
 						return {
 							discussionId: discussionId,
-							userId: lastComments[discussionId].userId,
-							created: lastComments[discussionId].created,
+							userId: lastComment.userId,
+							created: lastComment.created,
 						};
 					}).sort(function(lastComment1, lastComment2) {
 						return lastComment1.created < lastComment2.created;
@@ -302,10 +302,10 @@ angular.module('classeur.optional.discussions', [])
 					if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
 						return;
 					}
-					scope.comments = Object.keys(contentDao.comments).filter(function(commentId) {
+					scope.comments = Object.keys(contentDao.comments).cl_filter(function(commentId) {
 						return contentDao.comments[commentId].discussionId === scope.discussionId;
-					}).map(function(commentId) {
-						var comment = angular.extend({}, contentDao.comments[commentId]);
+					}).cl_map(function(commentId) {
+						var comment = ({}).cl_extend(contentDao.comments[commentId]);
 						comment.id = commentId;
 						return comment;
 					}).sort(function(comment1, comment2) {
@@ -339,13 +339,13 @@ angular.module('classeur.optional.discussions', [])
 					} else {
 						var deleteDialog = clDialog.confirm()
 							.title('Delete discussion')
-							.content('You about to delete a discussion. Are you sure?')
+							.content('You\'re about to delete a discussion. Are you sure?')
 							.ariaLabel('Delete discussion')
 							.ok('Yes')
 							.cancel('No');
 						clDialog.show(deleteDialog).then(function() {
 							delete contentDao.discussions[scope.discussionId];
-							contentDao.comments = Object.keys(contentDao.comments).reduce(function(comments, commentId) {
+							contentDao.comments = Object.keys(contentDao.comments).cl_reduce(function(comments, commentId) {
 								var comment = contentDao.comments[commentId];
 								if (comment.discussionId !== scope.discussionId) {
 									comments[commentId] = comment;
@@ -394,14 +394,14 @@ angular.module('classeur.optional.discussions', [])
 				var contentDao = scope.currentFileDao.contentDao;
 				var newDiscussionCommentElt = element[0].querySelector('.discussion.comment');
 				var cledit = $window.cledit(newDiscussionCommentElt);
-				cledit.addKeystroke(40, new $window.cledit.Keystroke(function(evt) {
+				cledit.addKeystroke(new $window.cledit.Keystroke(function(evt) {
 					if (evt.shiftKey || evt.which !== 13) {
 						return;
 					}
 					setTimeout(scope.addComment, 10);
 					evt.preventDefault();
 					return true;
-				}));
+				}, 40));
 
 				cledit.init({
 					highlighter: clEditorSvc.options.highlighter,
@@ -454,7 +454,7 @@ angular.module('classeur.optional.discussions', [])
 				scope.deleteComment = function(commentId) {
 					var deleteDialog = clDialog.confirm()
 						.title('Delete comment')
-						.content('You about to delete a comment. Are you sure?')
+						.content('You\'re about to delete a comment. Are you sure?')
 						.ariaLabel('Delete comment')
 						.ok('Yes')
 						.cancel('No');

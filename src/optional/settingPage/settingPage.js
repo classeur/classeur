@@ -230,7 +230,7 @@ angular.module('classeur.optional.settingPage', [])
 								templateUrl: 'optional/settingPage/editBlogDialog.html',
 								controller: ['$scope', function(scope) {
 									scope.blog = blog;
-									scope.form = angular.extend({}, blog);
+									scope.form = ({}).cl_extend(blog);
 								}],
 								onComplete: function(scope) {
 									scope.ok = function() {
@@ -268,7 +268,7 @@ angular.module('classeur.optional.settingPage', [])
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
-								scope.blogs = scope.blogs.filter(function(remainingBlog) {
+								scope.blogs = scope.blogs.cl_filter(function(remainingBlog) {
 									return remainingBlog.id !== blog.id;
 								});
 								var unwatch = scope.$watch('socketSvc.isReady', function(value) {
@@ -346,9 +346,9 @@ angular.module('classeur.optional.settingPage', [])
 									type: 'deleteFile',
 									id: file.id
 								});
-								scope.trashFiles = Object.keys(scope.trashFiles).reduce(function(trashFiles, id) {
+								scope.trashFiles = scope.trashFiles.cl_reduce(function(trashFiles, trashFile, id) {
 									if (id !== file.id) {
-										trashFiles[file.id] = scope.trashFiles[id];
+										trashFiles[file.id] = trashFile;
 									}
 									return trashFiles;
 								}, {});
@@ -357,7 +357,7 @@ angular.module('classeur.optional.settingPage', [])
 
 					function trashFilesHandler(msg) {
 						if (scope.getTrashFilesPending) {
-							msg.files.forEach(function(item) {
+							msg.files.cl_each(function(item) {
 								scope.trashFiles[item.id] = item;
 								scope.lastDeleted = item.deleted;
 								scope.trashEmpty = false;

@@ -84,7 +84,7 @@ angular.module('classeur.optional.fileDragging', [])
 	.factory('clFileDraggingSvc',
 		function(clDialog, clExplorerLayoutSvc, clToast) {
 			function setFileSrc(fileDao) {
-				clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.filter(function(fileDao) {
+				clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 					return !fileDao.userId && fileDao.isSelected;
 				}) : [fileDao];
 			}
@@ -102,7 +102,7 @@ angular.module('classeur.optional.fileDragging', [])
 
 			function doMoveFiles(targetFolder, files) {
 				var targetFolderId = targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : targetFolder.id;
-				files = files.filter(function(fileDao) {
+				files = files.cl_filter(function(fileDao) {
 					if (fileDao.folderId !== targetFolderId) {
 						fileDao.folderId = targetFolderId;
 						return true;

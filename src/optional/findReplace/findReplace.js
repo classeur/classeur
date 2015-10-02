@@ -63,14 +63,14 @@ angular.module('classeur.optional.findReplace', [])
 					};
 				}
 
-				var classAppliers = {},
+				var classAppliers = Object.create(null),
 					selectedClassApplier, searchRegex;
 
 				var highlightOccurrences = $window.cledit.Utils.debounce(function() {
 					var caseSensitive = false;
 					var useRegexp = false;
-					var oldClassAppliers = {};
-					Object.keys(classAppliers).forEach(function(key) {
+					var oldClassAppliers = Object.create(null);
+					Object.keys(classAppliers).cl_each(function(key) {
 						var classApplier = classAppliers[key];
 						var newKey = classApplier.startMarker.offset + ':' + classApplier.endMarker.offset;
 						oldClassAppliers[newKey] = classApplier;
@@ -95,9 +95,9 @@ angular.module('classeur.optional.findReplace', [])
 							}
 						} catch (e) {}
 					}
-					Object.keys(oldClassAppliers).forEach(function(key) {
-						if (!classAppliers.hasOwnProperty(key)) {
-							var classApplier = oldClassAppliers[key];
+					Object.keys(oldClassAppliers).cl_each(function(key) {
+						var classApplier = oldClassAppliers[key];
+						if (!classAppliers[key]) {
 							classApplier.clean();
 							if (classApplier === selectedClassApplier) {
 								selectedClassApplier.child.clean();
@@ -117,7 +117,7 @@ angular.module('classeur.optional.findReplace', [])
 					}
 					var keys = Object.keys(classAppliers);
 					selectedClassApplier = classAppliers[keys[0]];
-					keys.some(function(key) {
+					keys.cl_some(function(key) {
 						if (classAppliers[key].startMarker.offset > position) {
 							selectedClassApplier = classAppliers[key];
 							return true;

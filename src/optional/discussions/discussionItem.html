@@ -7,8 +7,8 @@
             </div>
             <md-chips ng-model="chips" readonly="true" ng-if="discussionSvc.currentDiscussion !== discussion"></md-chips>
         </div>
-        <div class="comment info" layout="row" layout-align="start center" ng-if="discussionSvc.currentDiscussion !== discussion">
-            <div class="comment username" flex>{{lastComment.userId | clUserName:userInfoSvc.lastUserInfo}} <span class="icon-chat"></span></div>
+        <div class="comment info" layout="row" layout-align="start end" ng-if="discussionSvc.currentDiscussion !== discussion">
+            <div class="comment username" flex>{{lastComment.userId | clUserName:userInfoSvc.lastUserInfo}}</div>
             <div class="comment created">{{lastComment.created | clTimeSince}}</div>
         </div>
     </div>

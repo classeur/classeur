@@ -35,7 +35,7 @@ angular.module('classeur.core.socket', [])
 				};
 				socket.onmessage = function(event) {
 					var msg = JSON.parse(event.data);
-					(msgHandlers[msg.type] || []).forEach(function(handler) {
+					(msgHandlers[msg.type] || []).cl_each(function(handler) {
 						return handler(JSON.parse(event.data), clSocketSvc.ctx); // Give each handler a different msg object
 					});
 				};
@@ -92,7 +92,7 @@ angular.module('classeur.core.socket', [])
 			function removeMsgHandler(type, handler) {
 				var typeHandlers = msgHandlers[type];
 				if (typeHandlers) {
-					typeHandlers = typeHandlers.filter(function(typeHandler) {
+					typeHandlers = typeHandlers.cl_filter(function(typeHandler) {
 						return typeHandler !== handler;
 					});
 					msgHandlers[type] = typeHandlers;

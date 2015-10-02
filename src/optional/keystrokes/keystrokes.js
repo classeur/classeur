@@ -28,11 +28,11 @@ angular.module('classeur.optional.keystrokes', [])
 					addPagedownKeystroke('h', 'heading');
 					addPagedownKeystroke('r', 'hr');
 
-					cledit.addKeystroke(50, new Keystroke(enterKeyHandler));
-					cledit.addKeystroke(50, new Keystroke(tabKeyHandler));
+					cledit.addKeystroke(new Keystroke(enterKeyHandler, 50));
+					cledit.addKeystroke(new Keystroke(tabKeyHandler, 50));
 
 					// Catch save dialog
-					cledit.addKeystroke(50, new Keystroke(function(evt) {
+					cledit.addKeystroke(new Keystroke(function(evt) {
 						if ((!evt.ctrlKey && !evt.metaKey) || evt.altKey) {
 							return;
 						}
@@ -41,12 +41,12 @@ angular.module('classeur.optional.keystrokes', [])
 							evt.preventDefault();
 							return true;
 						}
-					}));
+					}, 50));
 				});
 			}
 
 			function addPagedownKeystroke(keyCodeChar, name) {
-				clEditorSvc.cledit.addKeystroke(50, new Keystroke(function(evt) {
+				clEditorSvc.cledit.addKeystroke(new Keystroke(function(evt) {
 					if ((!evt.ctrlKey && !evt.metaKey) || evt.altKey) {
 						return;
 					}
@@ -58,7 +58,7 @@ angular.module('classeur.optional.keystrokes', [])
 						evt.preventDefault();
 						return true;
 					}
-				}));
+				}, 50));
 			}
 
 			function enterKeyHandler(evt, state) {
@@ -153,7 +153,7 @@ angular.module('classeur.optional.keystrokes', [])
 							return true;
 						}
 					}
-					lines.some(function(line) {
+					lines.cl_some(function(line) {
 						var match = line.replace(/^[ \t]*/, function(wholeMatch) {
 							return wholeMatch.replace(/\t/g, '    ');
 						}).match(indentRegex);
@@ -180,7 +180,7 @@ angular.module('classeur.optional.keystrokes', [])
 
 				function formatHits(hits) {
 					var num;
-					return hits.map(function(hit) {
+					return hits.cl_map(function(hit) {
 						if (hit.match[1]) {
 							if (!num) {
 								num = parseInt(hit.match[1]);

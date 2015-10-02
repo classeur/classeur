@@ -169,33 +169,33 @@ angular.module('classeur.core.files', [])
 
 				var fileMap = Object.create(null);
 				var deletedFileMap = Object.create(null);
-				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(id) {
+				clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function(id) {
 					var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id);
 					return (!fileDao.deleted && !fileMap[id] && (fileMap[id] = fileDao)) ||
 						(fileDao.deleted && !deletedFileMap[id] && (deletedFileMap[id] = fileDao));
 				});
 
-				clFileSvc.files.forEach(function(fileDao) {
+				clFileSvc.files.cl_each(function(fileDao) {
 					!fileMap[fileDao.id] && fileDao.unload();
 				});
 
-				clFileSvc.files = Object.keys(fileMap).map(function(id) {
+				clFileSvc.files = Object.keys(fileMap).cl_map(function(id) {
 					return fileMap[id];
 				});
 				clFileSvc.fileMap = fileMap;
 
-				clFileSvc.deletedFiles = Object.keys(deletedFileMap).map(function(id) {
+				clFileSvc.deletedFiles = Object.keys(deletedFileMap).cl_map(function(id) {
 					return deletedFileMap[id];
 				});
 				clFileSvc.deletedFileMap = deletedFileMap;
 
-				clFileSvc.localFiles = clFileSvc.files.filter(function(fileDao) {
+				clFileSvc.localFiles = clFileSvc.files.cl_filter(function(fileDao) {
 					return fileDao.contentDao.isLocal;
 				});
 
 				clFileSvc.localFiles.sort(function(fileDao1, fileDao2) {
 					return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
-				}).splice(maxLocalFiles).forEach(function(fileDao) {
+				}).splice(maxLocalFiles).cl_each(function(fileDao) {
 					fileDao.unload();
 					fileDao.contentDao.isLocal = '';
 					fileDao.writeContent();
@@ -203,7 +203,7 @@ angular.module('classeur.core.files', [])
 
 				if (!isInitialized) {
 					var keyPrefix = /^[fc]\.(\w+)\.(\w+)/;
-					Object.keys(clLocalStorage).forEach(function(key) {
+					Object.keys(clLocalStorage).cl_each(function(key) {
 						var match;
 						if (key.charCodeAt(0) === 0x66 /* f */ ) {
 							match = key.match(keyPrefix);
@@ -232,7 +232,7 @@ angular.module('classeur.core.files', [])
 
 			function write() {
 				clFileSvc.$write();
-				clFileSvc.files.forEach(function(fileDao) {
+				clFileSvc.files.cl_each(function(fileDao) {
 					fileDao.write();
 					fileDao.writeContent();
 				});
@@ -254,7 +254,7 @@ angular.module('classeur.core.files', [])
 				fileDaoProto.$readGlobalUpdate();
 				var checkContentUpdate = contentDaoProto.$checkGlobalUpdate();
 				contentDaoProto.$readGlobalUpdate();
-				clFileSvc.files.concat(clFileSvc.deletedFiles).forEach(function(fileDao) {
+				clFileSvc.files.concat(clFileSvc.deletedFiles).cl_each(function(fileDao) {
 					if (checkFileUpdate && fileDao.$checkUpdate()) {
 						fileDao.read();
 					} else if (!skipWrite) {
@@ -307,12 +307,12 @@ angular.module('classeur.core.files', [])
 				}
 
 				// Create hash for fast filter
-				var fileIds = fileDaoList.reduce(function(fileIds, fileDao) {
-					return (fileIds[fileDao.id] = 1, fileIds);
+				var fileIds = fileDaoList.cl_reduce(function(fileIds, fileDao) {
+					return (fileIds[fileDao.id] = 1), fileIds;
 				}, {});
 
 				// Filter
-				clFileSvc.fileIds = clFileSvc.fileIds.filter(function(fileId) {
+				clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function(fileId) {
 					return !fileIds.hasOwnProperty(fileId);
 				});
 				init();
@@ -323,14 +323,14 @@ angular.module('classeur.core.files', [])
 					return;
 				}
 				var currentDate = Date.now();
-				fileDaoList.forEach(function(fileDao) {
+				fileDaoList.cl_each(function(fileDao) {
 					fileDao.deleted = currentDate;
 				});
 				init();
 			}
 
 			function updateUserFiles(changes) {
-				changes.forEach(function(change) {
+				changes.cl_each(function(change) {
 					var fileDao = clFileSvc.fileMap[change.id];
 					if (change.deleted && fileDao) {
 						fileDao.unload();

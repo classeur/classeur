@@ -28,7 +28,7 @@ angular.module('classeur.core.utils', [])
 
 			function clUid() {
 				var currentDate = Date.now();
-				return mapper.map(function() {
+				return mapper.cl_map(function() {
 					var result = alphabet[(currentDate + Math.random() * radix) % radix | 0];
 					currentDate = Math.floor(currentDate / radix);
 					return result;
@@ -143,24 +143,24 @@ angular.module('classeur.core.utils', [])
 			}
 
 			function simpleObjectSerializer(obj) {
-				return JSON.stringify(Object.keys(obj).sort().reduce(function(result, key) {
-					return (result[key] = obj[key], result);
+				return JSON.stringify(Object.keys(obj).sort().cl_reduce(function(result, key) {
+					return (result[key] = obj[key]), result;
 				}, {}), function(key, value) {
 					return key[0] === '$' ? undefined : value;
 				});
 			}
 
 			function LocalStorageObject(prefix, attrs, globalUpdate) {
-				this.$attrHelpers = Object.keys(attrs).reduce(function($attrHelpers, key) {
+				this.$attrHelpers = attrs.cl_reduce(function($attrHelpers, value, key) {
 					var sKey = '$_' + key;
-					var defaultValue = attrs[key].default === undefined ? '' : attrs[key].default;
-					var serializer = attrs[key].serializer || defaultSerializer;
-					var parser = attrs[key].parser || defaultParser;
-					if (attrs[key] === 'int') {
+					var defaultValue = value.default === undefined ? '' : value.default;
+					var serializer = value.serializer || defaultSerializer;
+					var parser = value.parser || defaultParser;
+					if (value === 'int') {
 						defaultValue = '0';
 						parser = parseInt;
-					} else if (attrs[key] === 'object' || attrs[key] === 'array') {
-						defaultValue = attrs[key] === 'object' ? '{}' : '[]';
+					} else if (value === 'object' || value === 'array') {
+						defaultValue = value === 'object' ? '{}' : '[]';
 						parser = JSON.parse;
 						serializer = JSON.stringify;
 					}
@@ -171,7 +171,7 @@ angular.module('classeur.core.utils', [])
 							return sValue !== this.' + sKey + ' && cb.call(this, sValue);\
 						};\
 					');
-					if (attrs[key] === 'string' || attrs[key] === 'int') {
+					if (value === 'string' || value === 'int') {
 						sValueChecker = new Function('serializer', 'cb', '\
 							return function() {\
 								var sValue = this.' + key + ';\
@@ -247,7 +247,7 @@ angular.module('classeur.core.utils', [])
 				self.$readUpdate();
 
 				function attrOperation(operation) {
-					var attrHelperCalls = Object.keys(self.$attrHelpers).map(function(key) {
+					var attrHelperCalls = Object.keys(self.$attrHelpers).cl_map(function(key) {
 						return 'this.$attrHelpers.' + key + '.' + operation + '.call(this)';
 					});
 					/*jshint evil: true */
@@ -258,11 +258,11 @@ angular.module('classeur.core.utils', [])
 				self.$write = attrOperation('write');
 				self.$check = attrOperation('check');
 				self.$free = attrOperation('free');
-				Object.keys(self.$attrHelpers).forEach(function(key) {
-					self.$read[key] = self.$attrHelpers[key].read.bind(self);
-					self.$write[key] = self.$attrHelpers[key].write.bind(self);
-					self.$check[key] = self.$attrHelpers[key].check.bind(self);
-					self.$free[key] = self.$attrHelpers[key].free.bind(self);
+				self.$attrHelpers.cl_each(function(helpers, key) {
+					self.$read[key] = helpers.read.cl_bind(self);
+					self.$write[key] = helpers.write.cl_bind(self);
+					self.$check[key] = helpers.check.cl_bind(self);
+					self.$free[key] = helpers.free.cl_bind(self);
 				});
 			};
 
@@ -300,7 +300,7 @@ angular.module('classeur.core.utils', [])
 
 			var currentDate = Date.now();
 			var keyPrefix = /^state\.(.+)/;
-			Object.keys(clLocalStorage).forEach(function(key) {
+			Object.keys(clLocalStorage).cl_each(function(key) {
 				if (key.charCodeAt(0) === 0x73 /* s */ ) {
 					var match = key.match(keyPrefix);
 					if (match) {
@@ -400,7 +400,7 @@ angular.module('classeur.core.utils', [])
 					}
 				},
 				unwrap: function(elts) {
-					Array.prototype.slice.call(elts).forEach(function(elt) {
+					elts.cl_each(function(elt) {
 						var child = elt.firstChild;
 						if (child.nodeType === 3) {
 							if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
@@ -430,7 +430,7 @@ angular.module('classeur.core.utils', [])
 						[1, marker],
 						[0, text.slice(offset)]
 					])[0];
-					var diffs = patch.diffs.map(function(diff) {
+					var diffs = patch.diffs.cl_map(function(diff) {
 						if (!diff[0]) {
 							return diff[1];
 						} else if (diff[1] === marker) {
@@ -445,7 +445,7 @@ angular.module('classeur.core.utils', [])
 				},
 				patchToOffset: function(text, patch) {
 					var markersLength = 0;
-					var diffs = patch.diffs.map(function(diff) {
+					var diffs = patch.diffs.cl_map(function(diff) {
 						if (!diff) {
 							markersLength += marker.length;
 							return [1, marker];

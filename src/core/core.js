@@ -52,7 +52,7 @@ angular.module('classeur.core', [])
 							if (clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) !== -1) {
 								classeurDao = clExplorerLayoutSvc.currentClasseurDao;
 							} else {
-								clClasseurSvc.classeurs.some(function(classeurToScan) {
+								clClasseurSvc.classeurs.cl_some(function(classeurToScan) {
 									if (classeurToScan.folders.indexOf(folderDao) !== -1) {
 										classeurDao = classeurToScan;
 										return true;

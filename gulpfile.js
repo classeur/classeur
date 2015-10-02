@@ -13,90 +13,76 @@ var size = require('gulp-size');
 var bump = require('gulp-bump');
 var util = require('gulp-util');
 
-function bumpTask(importance) {
-	return function() {
-		return gulp.src([
-				'./package.json'
-			])
-			.pipe(bump({
-				type: importance
-			}))
-			.pipe(gulp.dest('./'));
-	};
-}
+gulp.task('patch', bumpTask('patch'));
+gulp.task('minor', bumpTask('minor'));
+gulp.task('major', bumpTask('major'));
 
-gulp.task('bump-patch', bumpTask('patch'));
-gulp.task('bump-minor', bumpTask('minor'));
-gulp.task('bump-major', bumpTask('major'));
-
-function exec(cmd, cb) {
-	childProcess.exec(cmd, {
-		cwd: process.cwd()
-	}, function(err, stdout, stderr) {
-		if (!err) {
-			util.log(stdout, stderr);
-		}
-		cb(err);
-	});
-}
-
-gulp.task('git-tag', function(cb) {
-	var version = require('./package.json').version;
-	var tag = 'v' + version;
-	util.log('Tagging as: ' + util.colors.cyan(tag));
-	exec('git commit -a -m "Prepare release"', function(err) {
-		err ? cb(err) : exec('git tag -a ' + tag + ' -m "Version ' + version + '"', function(err) {
-			err ? cb(err) : exec('git push origin master --tags', cb);
-		});
-	});
+gulp.task('tag', function(cb) {
+    var version = require('./package.json').version;
+    var tag = 'v' + version;
+    util.log('Tagging as: ' + util.colors.cyan(tag));
+    exec([
+        'git add package.json',
+        'git commit -m "Prepare release"',
+        'git tag -a ' + tag + ' -m "Version ' + version + '"',
+        'git push origin master --tags',
+        'npm publish',
+    ], cb);
 });
 
-var vendorJs = [
-	'bower_components/angular/angular.js',
-	'bower_components/angular-animate/angular-animate.js',
-	'bower_components/angular-aria/angular-aria.js',
-	'bower_components/angular-messages/angular-messages.js',
-	'bower_components/angular-route/angular-route.js',
-	'bower_components/hammerjs/hammer.js',
-	'bower_components/angular-material/angular-material.js',
-	'bower_components/angular-slugify/angular-slugify.js',
-	'bower_components/bezier-easing/build.js',
-	'bower_components/google-diff-match-patch-js/diff_match_patch_uncompressed.js',
-	'bower_components/clanim/clanim.js',
-	'bower_components/cledit/scripts/cleditCore.js',
-	'bower_components/cledit/scripts/cleditHighlighter.js',
-	'bower_components/cledit/scripts/cleditKeystroke.js',
-	'bower_components/cledit/scripts/cleditMarker.js',
-	'bower_components/cledit/scripts/cleditSelectionMgr.js',
-	'bower_components/cledit/scripts/cleditUndoMgr.js',
-	'bower_components/cledit/scripts/cleditUtils.js',
-	'bower_components/cledit/scripts/cleditWatcher.js',
-	'bower_components/cledit/demo/mdGrammar.js',
-	'bower_components/highlightjs/highlight.pack.js',
-	'bower_components/markdown-it/dist/markdown-it.js',
-	'bower_components/markdown-it-abbr/dist/markdown-it-abbr.js',
-	'bower_components/markdown-it-deflist/dist/markdown-it-deflist.js',
-	'bower_components/markdown-it-emoji/dist/markdown-it-emoji.js',
-	'bower_components/markdown-it-footnote/dist/markdown-it-footnote.js',
-	'bower_components/markdown-it-sub/dist/markdown-it-sub.js',
-	'bower_components/markdown-it-sup/dist/markdown-it-sup.js',
-	'bower_components/prism/components/prism-core.js',
-	'bower_components/prism/components/prism-markup.js',
-	'bower_components/prism/components/prism-clike.js',
-	'bower_components/prism/components/prism-javascript.js',
-	'bower_components/prism/components/prism-css.js',
-	'bower_components/prism/components/prism-!(*.min).js',
-	'bower_components/mustache/mustache.js',
-	'bower_components/file-saver.js/FileSaver.js',
-];
+gulp.task('start', [
+	'watch',
+	'connect'
+]);
 
-var vendorBaseCss = [
-	'bower_components/emojione/assets/css/emojione.css',
+gulp.task('default', [
+	'sass',
+	'sass-base',
+	'js'
+]);
+
+var vendorJs = [
+	'node_modules/angular/angular.js',
+	'node_modules/angular-animate/angular-animate.js',
+	'node_modules/angular-aria/angular-aria.js',
+	'node_modules/angular-messages/angular-messages.js',
+	'node_modules/angular-route/angular-route.js',
+	'node_modules/angular-material/angular-material.js',
+	'node_modules/angular-slugify/angular-slugify.js',
+	'node_modules/bezier-easing/build.js',
+	'node_modules/clanim/clanim.js',
+	'node_modules/googlediff/javascript/diff_match_patch_uncompressed.js', // Needs to come before cledit
+	'node_modules/clunderscore/clunderscore.js',
+	'node_modules/cledit/scripts/cleditCore.js',
+	'node_modules/cledit/scripts/cleditHighlighter.js',
+	'node_modules/cledit/scripts/cleditKeystroke.js',
+	'node_modules/cledit/scripts/cleditMarker.js',
+	'node_modules/cledit/scripts/cleditSelectionMgr.js',
+	'node_modules/cledit/scripts/cleditUndoMgr.js',
+	'node_modules/cledit/scripts/cleditUtils.js',
+	'node_modules/cledit/scripts/cleditWatcher.js',
+	'node_modules/cledit/demo/mdGrammar.js',
+	'node_modules/filesaver.js/FileSaver.js',
+	'node_modules/hammerjs/hammer.js',
+	'node_modules/markdown-it/dist/markdown-it.js',
+	'node_modules/markdown-it-abbr/dist/markdown-it-abbr.js',
+	'node_modules/markdown-it-deflist/dist/markdown-it-deflist.js',
+	'node_modules/markdown-it-emoji/dist/markdown-it-emoji.js',
+	'node_modules/markdown-it-footnote/dist/markdown-it-footnote.js',
+	'node_modules/markdown-it-sub/dist/markdown-it-sub.js',
+	'node_modules/markdown-it-sup/dist/markdown-it-sup.js',
+	'node_modules/prismjs/components/prism-core.js',
+	'node_modules/prismjs/components/prism-markup.js',
+	'node_modules/prismjs/components/prism-clike.js',
+	'node_modules/prismjs/components/prism-javascript.js',
+	'node_modules/prismjs/components/prism-css.js',
+	'node_modules/prismjs/components/prism-!(*.min).js',
+	'node_modules/mustache/mustache.js',
 ];
 
 var vendorCss = [
-	'bower_components/angular-material/angular-material.css',
-	'bower_components/classets/icons/style.css',
+	'node_modules/angular-material/angular-material.css',
+	'node_modules/classets/icons/style.css',
 ];
 
 var templateCacheSrc = ['src/**/*.{html,md,json}'];
@@ -144,7 +130,6 @@ function cssStream() {
 	return streamqueue({
 			objectMode: true
 		},
-		gulp.src(vendorBaseCss),
 		gulp.src(vendorCss)
 		.pipe(replace(/@import\s.*/g, '')),
 		gulp.src(sassSrc)
@@ -174,7 +159,6 @@ gulp.task('sass-base', function() {
 	return streamqueue({
 				objectMode: true
 			},
-			gulp.src(vendorBaseCss),
 			gulp.src('src/styles/base.scss')
 		)
 		.pipe(sass({
@@ -186,7 +170,7 @@ gulp.task('sass-base', function() {
 
 gulp.task('connect', function() {
 	process.env.NO_CLUSTER = true;
-	require('./index');
+	require('./');
 });
 
 gulp.task('watch', function() {
@@ -202,13 +186,26 @@ gulp.task('watch', function() {
 	gulp.start('js-dev');
 });
 
-gulp.task('run', [
-	'watch',
-	'connect'
-]);
+function bumpTask(importance) {
+	return function() {
+		return gulp.src([
+				'./package.json'
+			])
+			.pipe(bump({
+				type: importance
+			}))
+			.pipe(gulp.dest('./'));
+	};
+}
 
-gulp.task('default', [
-	'sass',
-	'sass-base',
-	'js'
-]);
+function exec(cmds, cb) {
+    cmds.length === 0 ? cb() : childProcess.exec(cmds.shift(), {
+        cwd: process.cwd()
+    }, function(err, stdout, stderr) {
+        if (err) {
+            return cb(err);
+        }
+        util.log(stdout, stderr);
+        exec(cmds, cb);
+    });
+}

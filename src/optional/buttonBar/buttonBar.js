@@ -113,7 +113,7 @@ angular.module('classeur.optional.buttonBar', [])
 			};
 
 			var offset = props.margin;
-			btns.forEach(function(btn) {
+			btns.cl_each(function(btn) {
 				if (btn.separator) {
 					offset += 20;
 				}

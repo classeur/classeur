@@ -10,8 +10,8 @@ angular.module('classeur.core.settings', [])
 				'PDF': 'core/settings/exportTemplatePdf.html',
 			};
 			defaultSettings = JSON.parse(defaultSettings);
-			Object.keys(defaultTemplatePaths).forEach(function(key) {
-				defaultSettings.exportTemplates[key] = $templateCache.get(defaultTemplatePaths[key]);
+			defaultTemplatePaths.cl_each(function(path, key) {
+				defaultSettings.exportTemplates[key] = $templateCache.get(path);
 			});
 			defaultSettings = JSON.stringify(defaultSettings);
 
@@ -45,7 +45,7 @@ angular.module('classeur.core.settings', [])
 			function sanitizeExportTemplates(exportTemplates) {
 				// Add default templates if not present
 				exportTemplates = exportTemplates || {};
-				return Object.keys(exportTemplates).concat(Object.keys(defaultTemplatePaths)).sort().reduce(function(result, key) {
+				return Object.keys(exportTemplates).concat(Object.keys(defaultTemplatePaths)).sort().cl_reduce(function(result, key) {
 					result[key] = exportTemplates.hasOwnProperty(key) ? exportTemplates[key] : clSettingSvc.defaultValues.exportTemplates[key];
 					return result;
 				}, {});
@@ -53,7 +53,7 @@ angular.module('classeur.core.settings', [])
 
 			function updateSettings(values) {
 				values.exportTemplates = sanitizeExportTemplates(values.exportTemplates);
-				clSettingSvc.values = angular.extend({}, JSON.parse(defaultSettings), values);
+				clSettingSvc.values = ({}).cl_extend(JSON.parse(defaultSettings)).cl_extend(values);
 			}
 
 			clSettingSvc.defaultValues = JSON.parse(defaultSettings);
@@ -99,6 +99,6 @@ angular.module('classeur.core.settings', [])
 			clLocalSettingSvc.checkAll = checkAll;
 
 			clLocalSettingSvc.read();
-			clLocalSettingSvc.values = angular.extend({}, JSON.parse(defaultLocalSettings), clLocalSettingSvc.values);
+			clLocalSettingSvc.values = ({}).cl_extend(JSON.parse(defaultLocalSettings)).cl_extend(clLocalSettingSvc.values);
 			return clLocalSettingSvc;
 		});

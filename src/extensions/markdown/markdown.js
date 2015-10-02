@@ -49,8 +49,8 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				markdown.core.ruler.enable(coreBaseRules);
-				markdown.block.ruler.enable(Object.keys(options).reduce(function(rules, key) {
-					return rules.concat(options[key] && blockRules.indexOf(key) !== -1 ? key : []);
+				markdown.block.ruler.enable(options.cl_reduce(function(rules, value, key) {
+					return rules.concat(value && blockRules.indexOf(key) !== -1 ? key : []);
 				}, blockBaseRules));
 				markdown.inline.ruler.enable(inlineBaseRules);
 				options.abbr && markdown.use($window.markdownitAbbr);
@@ -62,7 +62,7 @@ angular.module('classeur.extensions.markdown', [])
 				markdown.core.ruler.push('anchors', function(state) {
 					var anchorHash = {};
 					var headingOpenToken, headingContent;
-					state.tokens.forEach(function(token) {
+					state.tokens.cl_each(function(token) {
 						if (token.type === 'heading_open') {
 							headingContent = '';
 							headingOpenToken = token;
@@ -78,7 +78,7 @@ angular.module('classeur.extensions.markdown', [])
 							headingOpenToken.headingAnchor = anchor;
 							headingOpenToken = undefined;
 						} else if (headingOpenToken) {
-							headingContent += token.children.reduce(function(result, child) {
+							headingContent += token.children.cl_reduce(function(result, child) {
 								return result + child.content;
 							}, '');
 						}
@@ -132,7 +132,7 @@ angular.module('classeur.extensions.markdown', [])
 						result += '<a href="#' + this.anchor + '">' + this.text + '</a>';
 					}
 					if (this.children.length !== 0) {
-						result += '<ul>' + this.children.map(function(item) {
+						result += '<ul>' + this.children.cl_map(function(item) {
 							return item.toString();
 						}).join('') + '</ul>';
 					}
@@ -151,7 +151,7 @@ angular.module('classeur.extensions.markdown', [])
 						}
 						result.push(currentItem);
 					}
-					array.forEach(function(item) {
+					array.cl_each(function(item) {
 						if (item.level !== level) {
 							if (level !== options.tocMaxDepth) {
 								currentItem = currentItem || new TocItem();
@@ -168,11 +168,11 @@ angular.module('classeur.extensions.markdown', [])
 
 				options.toc && markdown.core.ruler.push('toc_builder', function(state) {
 					var tocContent;
-					state.tokens.forEach(function(token) {
+					state.tokens.cl_each(function(token) {
 						if (token.type === 'toc') {
 							if (!tocContent) {
 								var tocItems = [];
-								state.tokens.forEach(function(token) {
+								state.tokens.cl_each(function(token) {
 									token.headingAnchor && tocItems.push(new TocItem(
 										token.tag.charCodeAt(1) - 0x30,
 										token.headingAnchor,
@@ -182,7 +182,7 @@ angular.module('classeur.extensions.markdown', [])
 								tocItems = groupTocItems(tocItems);
 								tocContent = '<div class="toc">';
 								if (tocItems.length) {
-									tocContent += '<ul>' + tocItems.map(function(item) {
+									tocContent += '<ul>' + tocItems.cl_map(function(item) {
 										return item.toString();
 									}).join('') + '</ul>';
 								}
@@ -219,7 +219,7 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				clEditorSvc.onAsyncPreview(function(cb) {
-					Array.prototype.forEach.call(clEditorSvc.previewElt.querySelectorAll('pre > code.prism'), function(elt) {
+					clEditorSvc.previewElt.querySelectorAll('pre > code.prism').cl_each(function(elt) {
 						!elt.highlighted && $window.Prism.highlightElement(elt);
 						elt.highlighted = true;
 					});

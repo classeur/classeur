@@ -8,7 +8,7 @@ angular.module('classeur.extensions.emoji', [])
 				twemojiScript.src = 'https://twemoji.maxcdn.com/twemoji.min.js';
 				twemojiScript.onload = function() {
 					twemoji = $window.twemoji;
-					options && Array.prototype.forEach.call(clEditorSvc.previewElt.querySelectorAll('.cl-preview-section'), function(elt) {
+					options && clEditorSvc.previewElt.querySelectorAll('.cl-preview-section').cl_each(function(elt) {
 						twemoji.parse(elt);
 					});
 				};
@@ -18,7 +18,7 @@ angular.module('classeur.extensions.emoji', [])
 				document.head.appendChild(twemojiScript);
 			}
 
-			clEditorSvc.onMarkdownInit(10, function(markdown) {
+			clEditorSvc.onMarkdownInit(1, function(markdown) {
 				if (options) {
 					var emojiOptions = {};
 					if(!options.shortcuts) {
@@ -27,7 +27,7 @@ angular.module('classeur.extensions.emoji', [])
 					markdown.use($window.markdownitEmoji, emojiOptions);
 					!twemojiScript && initTwemoji();
 					clEditorSvc.onAsyncPreview(function(cb) {
-						twemoji && Array.prototype.forEach.call(clEditorSvc.previewElt.querySelectorAll('.cl-preview-section.modified'), function(elt) {
+						twemoji && clEditorSvc.previewElt.querySelectorAll('.cl-preview-section.modified').cl_each(function(elt) {
 							twemoji.parse(elt);
 						});
 						cb();

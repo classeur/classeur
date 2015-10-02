@@ -31,7 +31,6 @@ angular.module('classeur.core.editorLayout', [])
 	.directive('clEditorLayout',
 		function($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog) {
 			var hideOffsetY = 2000;
-			var editorLeftOverflow = 1000; // Allows scrolling on the left outside of the editor
 
 			return {
 				restrict: 'E',
@@ -52,7 +51,7 @@ angular.module('classeur.core.editorLayout', [])
 				var editorContentElt = elt.querySelector('.editor.content');
 				elt.querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start();
 				elt.querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start();
-				elt.querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth - 2).right(-clEditorLayoutSvc.editorBtnGrpWidth + 2).start();
+				elt.querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start();
 				var cornerFoldingElt = elt.querySelector('.corner.folding.panel');
 				elt.querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start();
 				var headerPanelElt = elt.querySelector('.header.panel').clanim.top(hideOffsetY).start();
@@ -60,8 +59,8 @@ angular.module('classeur.core.editorLayout', [])
 				var closeButtonElt = headerPanelElt.querySelector('.close.panel');
 				var scrollButtonElt = headerPanelElt.querySelector('.scroll.panel');
 
-				editorContainerElt.style.paddingLeft = editorLeftOverflow + 'px';
-				editorContainerElt.style.left = -editorLeftOverflow + 'px';
+				editorContainerElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px';
+				editorContainerElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px';
 
 				var binderMinWidth = 280;
 				var previewSizeAdjust = 160;
@@ -154,7 +153,7 @@ angular.module('classeur.core.editorLayout', [])
 					}
 					var scrollTop = eltToScroll.scrollTop;
 					var scrollSectionDesc, posInSection;
-					sectionDescList === clEditorSvc.sectionDescList && sectionDescList.some(function(sectionDesc) {
+					sectionDescList === clEditorSvc.sectionDescList && sectionDescList.cl_some(function(sectionDesc) {
 						if (scrollTop < sectionDesc[dimensionKey].endOffset) {
 							scrollSectionDesc = sectionDesc;
 							posInSection = (scrollTop - sectionDesc[dimensionKey].startOffset) / (sectionDesc[dimensionKey].height || 1);
@@ -180,7 +179,7 @@ angular.module('classeur.core.editorLayout', [])
 						.width(pagePanelWidth)
 						.start();
 					editorContainerElt.clanim
-						.width(pagePanelWidth + editorLeftOverflow)
+						.width(pagePanelWidth + clEditorLayoutSvc.editorLeftOverflow)
 						.start();
 					hidePreview();
 
@@ -348,9 +347,10 @@ angular.module('classeur.core.editorLayout', [])
 			var clEditorLayoutSvc = {
 				pageMarginLeft: 4,
 				pageMarginRight: 6,
-				editorBtnGrpWidth: 36,
+				editorBtnGrpWidth: 33,
 				menuWidth: 320,
 				sideBarWidth: 280,
+				editorLeftOverflow: 1000, // Allows scrolling on the left outside of the editor
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;
 					this.isSidePreviewOpen = false;

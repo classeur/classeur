@@ -374,7 +374,7 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				function importExistingFolder(folderDao, move) {
-					move && clClasseurSvc.classeurs.forEach(function(classeurDao) {
+					move && clClasseurSvc.classeurs.cl_each(function(classeurDao) {
 						var index = classeurDao.folders.indexOf(folderDao);
 						index !== -1 && classeurDao.folders.splice(index, 1);
 					});
@@ -397,10 +397,10 @@ angular.module('classeur.core.explorerLayout', [])
 
 				function importFolder() {
 					makeInputDialog('core/explorerLayout/importFolderDialog.html', function(scope) {
-						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.reduce(function(classeurFolders, folderDao) {
+						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_reduce(function(classeurFolders, folderDao) {
 							return (classeurFolders[folderDao.id] = folderDao, classeurFolders);
 						}, {});
-						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
+						scope.folders = clFolderSvc.folders.cl_filter(function(filterDao) {
 							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);
 						});
 						scope.move = true;
@@ -419,7 +419,7 @@ angular.module('classeur.core.explorerLayout', [])
 						if (!folderId || link.indexOf(clConfig.appUri) !== 0) {
 							clToast('Invalid folder link.');
 						}
-						if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
+						if (clExplorerLayoutSvc.currentClasseurDao.folders.cl_some(function(folderDao) {
 								return folderDao.id === folderId;
 							})) {
 							clToast('Folder is already in the classeur.');
@@ -523,13 +523,13 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				scope.selectAll = function() {
-					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+					clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 						fileDao.isSelected = true;
 					});
 				};
 
 				scope.selectNone = function() {
-					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+					clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 						fileDao.isSelected = false;
 					});
 				};
@@ -584,7 +584,7 @@ angular.module('classeur.core.explorerLayout', [])
 						filesToRemove = clExplorerLayoutSvc.selectedFiles;
 
 						if (folderToRemove) {
-							if (clClasseurSvc.classeurs.some(function(classeurDao) {
+							if (clClasseurSvc.classeurs.cl_some(function(classeurDao) {
 									if (classeurDao !== clExplorerLayoutSvc.currentClasseurDao && classeurDao.folders.indexOf(folderToRemove) !== -1) {
 										return true;
 									}
@@ -597,7 +597,7 @@ angular.module('classeur.core.explorerLayout', [])
 									.ok('This only')
 									.cancel('All');
 								return clDialog.show(confirm).then(function() {
-									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
+									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_filter(function(folderInClasseur) {
 										return folderInClasseur.id !== folderToRemove.id;
 									});
 									clClasseurSvc.init();
@@ -620,11 +620,11 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.deleteClasseur = function(classeurDao) {
 					var filesToRemove = [];
-					var foldersToRemove = classeurDao.folders.filter(function(folderDao) {
-						if (!clClasseurSvc.classeurs.some(function(otherClasseurDao) {
+					var foldersToRemove = classeurDao.folders.cl_filter(function(folderDao) {
+						if (!clClasseurSvc.classeurs.cl_some(function(otherClasseurDao) {
 								return otherClasseurDao !== classeurDao && otherClasseurDao.folders.indexOf(folderDao) !== -1;
 							})) {
-							filesToRemove = filesToRemove.concat(clExplorerLayoutSvc.files.filter(function(fileDao) {
+							filesToRemove = filesToRemove.concat(clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 								return fileDao.folderId === folderDao.id;
 							}));
 							return true;
@@ -753,7 +753,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 
 			function refreshFiles() {
-				clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
+				clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.cl_filter(
 					clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
 						return !fileDao.userId && filterFile(fileDao);
 					} : function(fileDao) {
@@ -764,7 +764,7 @@ angular.module('classeur.core.explorerLayout', [])
 					} : function(fileDao1, fileDao2) {
 						return fileDao1.name.localeCompare(fileDao2.name);
 					}
-				) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
+				) : clFileSvc.localFiles.cl_filter(filterFile).sort(function(fileDao1, fileDao2) {
 					return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
 				});
 				clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
@@ -779,7 +779,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 
 			function updateSelectedFiles() {
-				clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.filter(function(fileDao) {
+				clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 					return fileDao.isSelected;
 				});
 				return clExplorerLayoutSvc.selectedFiles;
@@ -789,7 +789,7 @@ angular.module('classeur.core.explorerLayout', [])
 				if (clExplorerLayoutSvc.currentFolderDao) {
 					clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
 				}
-				clExplorerLayoutSvc.files.forEach(function(fileDao) {
+				clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 					fileDao.effectiveSharing = fileDao.sharing;
 					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
 					if (folderDao && folderDao.sharing > fileDao.sharing) {
@@ -815,7 +815,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 
 			function setCurrentFolderInClasseur(folderDao) {
-				if (!clClasseurSvc.classeurs.some(function(classeurDao) {
+				if (!clClasseurSvc.classeurs.cl_some(function(classeurDao) {
 						if (classeurDao.folders.indexOf(folderDao) !== -1) {
 							setCurrentClasseur(classeurDao);
 							return true;

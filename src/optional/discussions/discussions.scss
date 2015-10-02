@@ -5,7 +5,6 @@ $highlighting-color: #FFDF60;
     -webkit-transition: 0.12s ease-out background-color;
     transition: 0.12s ease-out background-color;
     padding: 0.25em 0;
-    cursor: pointer;
     &.hover,
     &.selected {
         background-color: mix(#fff, $highlighting-color, 20%);
@@ -13,6 +12,10 @@ $highlighting-color: #FFDF60;
             background-color: transparent;
         }
     }
+}
+
+.discussion-preview-highlighting {
+    cursor: pointer;
 }
 
 .new-discussion-btn {
@@ -117,11 +120,6 @@ $highlighting-color: #FFDF60;
         }
         .comment.info {
             margin: 5px 0;
-            .icon-chat {
-                position: relative;
-                top: -0.5em;
-                font-size: 0.8em;
-            }
             .username {
                 font-weight: bold;
                 white-space: nowrap;
@@ -135,9 +133,8 @@ $highlighting-color: #FFDF60;
             }
         }
         .comment.item {
-            margin: 10px 0;
+            margin: 6px 0;
             .comment.text {
-                border-bottom: 1px solid #c0c0c0;
                 padding-bottom: 10px;
                 font-size: 14px;
                 width: 100%;

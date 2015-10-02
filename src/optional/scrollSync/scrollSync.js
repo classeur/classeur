@@ -81,7 +81,7 @@ angular.module('classeur.optional.scrollSync', [])
 					// Scroll the preview
 					isScrollEditor = false;
 					editorScrollTop += clEditorSvc.scrollOffset;
-					sectionDescList.some(function(sectionDesc) {
+					sectionDescList.cl_some(function(sectionDesc) {
 						if (editorScrollTop < sectionDesc.editorDimension.endOffset) {
 							var posInSection = (editorScrollTop - sectionDesc.editorDimension.startOffset) / (sectionDesc.editorDimension.height || 1);
 							scrollTo = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection - clEditorSvc.scrollOffset;
@@ -111,7 +111,7 @@ angular.module('classeur.optional.scrollSync', [])
 					// Scroll the editor
 					isScrollPreview = false;
 					previewScrollTop += clEditorSvc.scrollOffset;
-					sectionDescList.some(function(sectionDesc) {
+					sectionDescList.cl_some(function(sectionDesc) {
 						if (previewScrollTop < sectionDesc.previewDimension.endOffset) {
 							var posInSection = (previewScrollTop - sectionDesc.previewDimension.startOffset) / (sectionDesc.previewDimension.height || 1);
 							scrollTo = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection - clEditorSvc.scrollOffset;

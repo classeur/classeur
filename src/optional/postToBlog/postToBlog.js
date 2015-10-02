@@ -159,7 +159,7 @@ angular.module('classeur.optional.postToBlog', [])
 				};
 
 			clSocketSvc.addMsgHandler('sentBlogPost', function(msg) {
-				clPostToBlogSvc.blogPosts.some(function(blogPost) {
+				clPostToBlogSvc.blogPosts.cl_some(function(blogPost) {
 					if (blogPost.id === msg.id) {
 						blogPost.updateCb && blogPost.updateCb(msg.err);
 						blogPost.updateCb = undefined;
@@ -170,20 +170,20 @@ angular.module('classeur.optional.postToBlog', [])
 			});
 
 			function checkIsUpdating() {
-				clPostToBlogSvc.isUpdating = clPostToBlogSvc.blogPosts.some(function(blogPost) {
+				clPostToBlogSvc.isUpdating = clPostToBlogSvc.blogPosts.cl_some(function(blogPost) {
 					return blogPost.updateCb;
 				});
 			}
 
 			function refreshBlogPosts() {
-				clPostToBlogSvc.blogPosts = posts.filter(function(blogPost) {
+				clPostToBlogSvc.blogPosts = posts.cl_filter(function(blogPost) {
 					return (blogPost.blog = blogMap[blogPost.blogId]);
 				});
 				checkIsUpdating();
 			}
 
 			clPostToBlogSvc.setBlogs = function(blogs) {
-				blogMap = blogs.reduce(function(blogMap, blog) {
+				blogMap = blogs.cl_reduce(function(blogMap, blog) {
 					blog.platform = clBlogSvc.platformMap[blog.platformId];
 					return (blogMap[blog.id] = blog), blogMap;
 				}, {});
@@ -198,7 +198,7 @@ angular.module('classeur.optional.postToBlog', [])
 				refreshBlogPosts();
 			};
 			clPostToBlogSvc.deleteBlogPost = function(blogPost) {
-				posts = posts.filter(function(post) {
+				posts = posts.cl_filter(function(post) {
 					return post !== blogPost;
 				});
 				refreshBlogPosts();
@@ -207,7 +207,7 @@ angular.module('classeur.optional.postToBlog', [])
 			function updateBlogPost(blogPost) {
 				return $q(function(resolve) {
 					blogPost.updateCb = resolve;
-					var blogPostLight = angular.extend({}, blogPost);
+					var blogPostLight = ({}).cl_extend(blogPost);
 					blogPostLight.template = undefined;
 					blogPostLight.blog = undefined;
 					clSocketSvc.sendMsg({
@@ -230,10 +230,10 @@ angular.module('classeur.optional.postToBlog', [])
 			};
 			clPostToBlogSvc.updateAll = function() {
 				!clPostToBlogSvc.isUpdating && clToast('Updating blog posts...');
-				$q.all(clPostToBlogSvc.blogPosts.map(function(blogPost) {
+				$q.all(clPostToBlogSvc.blogPosts.cl_map(function(blogPost) {
 					return !blogPost.updateCb && updateBlogPost(blogPost);
 				})).then(function(results) {
-					if (!results.some(function(err) {
+					if (!results.cl_some(function(err) {
 							if (err) {
 								clToast(err);
 								return true;

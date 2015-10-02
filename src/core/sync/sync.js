@@ -47,7 +47,7 @@ angular.module('classeur.core.sync', [])
 
 			function reset() {
 				var fileKeyPrefix = /^syncData\./;
-				Object.keys(clLocalStorage).forEach(function(key) {
+				Object.keys(clLocalStorage).cl_each(function(key) {
 					if (key.charCodeAt(0) === 0x73 /* s */ && key.match(fileKeyPrefix)) {
 						clLocalStorage.removeItem(key);
 					}
@@ -60,7 +60,7 @@ angular.module('classeur.core.sync', [])
 			function checkUserChange(userId) {
 				if (userId !== clSyncDataSvc.userId) {
 					// Add userId to synced files owned by previous user
-					var filesToRemove = clFileSvc.files.filter(function(fileDao) {
+					var filesToRemove = clFileSvc.files.cl_filter(function(fileDao) {
 						if (!fileDao.userId && clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
 							fileDao.userId = clSyncDataSvc.userId;
 							return !fileDao.contentDao.isLocal;
@@ -73,7 +73,7 @@ angular.module('classeur.core.sync', [])
 					clFileSvc.checkAll();
 
 					// Add userId to synced folders owned by previous user
-					clFolderSvc.folders.forEach(function(folderDao) {
+					clFolderSvc.folders.cl_each(function(folderDao) {
 						if (!folderDao.userId && clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
 							folderDao.userId = clSyncDataSvc.userId;
 						}
@@ -103,39 +103,39 @@ angular.module('classeur.core.sync', [])
 					var currentDate = Date.now();
 
 					// Eject old public deletedFiles from clSyncDataSvc
-					clSyncDataSvc.files = Object.keys(clSyncDataSvc.files).reduce(function(files, id) {
+					clSyncDataSvc.files = clSyncDataSvc.files.cl_reduce(function(files, syncData, id) {
 						var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id];
 						if (fileDao && (!fileDao.userId || !fileDao.deleted || currentDate - fileDao.deleted < cleanPublicObjectAfter)) {
-							files[id] = clSyncDataSvc.files[id];
+							files[id] = syncData;
 						}
 						return files;
 					}, {});
 
 					// Eject old public deletedFolders from clSyncDataSvc
-					clSyncDataSvc.folders = Object.keys(clSyncDataSvc.folders).reduce(function(folders, id) {
+					clSyncDataSvc.folders = clSyncDataSvc.folders.cl_reduce(function(folders, syncData, id) {
 						var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id];
 						if (folderDao && (!folderDao.userId || !folderDao.deleted || currentDate - folderDao.deleted < cleanPublicObjectAfter)) {
-							folders[id] = clSyncDataSvc.folders[id];
+							folders[id] = syncData;
 						}
 						return folders;
 					}, {});
 
 					// Eject old folderRefreshDates
-					Object.keys(clSyncDataSvc.folderRefreshDates).forEach(function(folderId) {
-						if (currentDate - clSyncDataSvc.folderRefreshDates[folderId] > cleanPublicObjectAfter) {
+					clSyncDataSvc.folderRefreshDates.cl_each(function(date, folderId) {
+						if (currentDate - date > cleanPublicObjectAfter) {
 							delete clSyncDataSvc.folderRefreshDates[folderId];
 						}
 					});
 
 					clFileSvc.removeFiles(
 						// Remove deletedFiles that are not synced anymore
-						clFileSvc.deletedFiles.filter(function(fileDao) {
+						clFileSvc.deletedFiles.cl_filter(function(fileDao) {
 							if (!clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
 								return true;
 							}
 						})
 						// Remove public files that are not local and not refreshed recently
-						.concat(clFileSvc.files.filter(function(fileDao) {
+						.concat(clFileSvc.files.cl_filter(function(fileDao) {
 							if (fileDao.userId &&
 								!fileDao.contentDao.isLocal &&
 								(!fileDao.folderId || !clSyncDataSvc.folderRefreshDates.hasOwnProperty(fileDao.folderId))
@@ -146,7 +146,7 @@ angular.module('classeur.core.sync', [])
 					);
 
 					// Remove deletedFolders that are not synced anymore
-					clFolderSvc.removeFolders(clFolderSvc.deletedFolders.filter(function(folderDao) {
+					clFolderSvc.removeFolders(clFolderSvc.deletedFolders.cl_filter(function(folderDao) {
 						if (!clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
 							return true;
 						}
@@ -216,7 +216,7 @@ angular.module('classeur.core.sync', [])
 			var contentRevKeyPrefix = 'cr.';
 
 			var fileKeyPrefix = /^cr\.(\w\w+)/;
-			Object.keys(clLocalStorage).forEach(function(key) {
+			Object.keys(clLocalStorage).cl_each(function(key) {
 				if (key.charCodeAt(0) === 0x63 /* c */ ) {
 					var match = key.match(fileKeyPrefix);
 					if (match) {
@@ -319,7 +319,7 @@ angular.module('classeur.core.sync', [])
 					}
 					syncData = clSyncDataSvc.userData.classeurs || {};
 					if (clClasseurSvc.updated !== syncData.r) {
-						msg.classeurs = clClasseurSvc.classeurs.map(function(classeurDao) {
+						msg.classeurs = clClasseurSvc.classeurs.cl_map(function(classeurDao) {
 							return classeurDao.toStorable();
 						});
 						msg.classeursUpdated = clClasseurSvc.updated;
@@ -345,7 +345,7 @@ angular.module('classeur.core.sync', [])
 			******/
 
 			function getPublicFoldersMetadata() {
-				var foldersToRefresh = clFolderSvc.folders.filter(function(folderDao) {
+				var foldersToRefresh = clFolderSvc.folders.cl_filter(function(folderDao) {
 					return folderDao.userId && !folderDao.name;
 				});
 				if (!foldersToRefresh.length || !clIsNavigatorOnline()) {
@@ -354,13 +354,13 @@ angular.module('classeur.core.sync', [])
 				$http.get('/api/metadata/folders', {
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
-							id: foldersToRefresh.map(function(folderDao) {
+							id: foldersToRefresh.cl_map(function(folderDao) {
 								return folderDao.id;
 							}).join(','),
 						}
 					})
 					.success(function(res) {
-						res.forEach(function(item) {
+						res.cl_each(function(item) {
 							var folderDao = clFolderSvc.folderMap[item.id];
 							if (folderDao) {
 								clSyncDataSvc.updatePublicFolderMetadata(folderDao, item);
@@ -385,7 +385,7 @@ angular.module('classeur.core.sync', [])
 					}
 					var apply = clFolderSvc.checkAll(true);
 					var foldersToUpdate = [];
-					(msg.changes || []).forEach(function(change) {
+					(msg.changes || []).cl_each(function(change) {
 						var folderDao = clFolderSvc.folderMap[change.id];
 						var syncData = clSyncDataSvc.folders[change.id] || {};
 						if (
@@ -436,7 +436,7 @@ angular.module('classeur.core.sync', [])
 				}
 
 				function sendChanges() {
-					clFolderSvc.folders.forEach(function(folderDao) {
+					clFolderSvc.folders.cl_each(function(folderDao) {
 						var syncData = clSyncDataSvc.folders[folderDao.id] || {};
 						if (checkUpdated(folderDao, syncData)) {
 							clSocketSvc.sendMsg({
@@ -450,7 +450,7 @@ angular.module('classeur.core.sync', [])
 							clSyncDataSvc.folders[folderDao.id] = syncData;
 						}
 					});
-					clFolderSvc.deletedFolders.forEach(function(folderDao) {
+					clFolderSvc.deletedFolders.cl_each(function(folderDao) {
 						var syncData = clSyncDataSvc.folders[folderDao.id];
 						// Folder has been synchronized
 						if (syncData && checkUpdated(folderDao, syncData)) {
@@ -487,7 +487,7 @@ angular.module('classeur.core.sync', [])
 					}
 					var apply = clFileSvc.checkAll(true);
 					var filesToUpdate = [];
-					(msg.changes || []).forEach(function(change) {
+					(msg.changes || []).cl_each(function(change) {
 						var fileDao = clFileSvc.fileMap[change.id];
 						var syncData = clSyncDataSvc.files[change.id] || {};
 						if (
@@ -536,7 +536,7 @@ angular.module('classeur.core.sync', [])
 				}
 
 				function sendChanges() {
-					clFileSvc.files.forEach(function(fileDao) {
+					clFileSvc.files.cl_each(function(fileDao) {
 						var syncData = clSyncDataSvc.files[fileDao.id] || {};
 						// File has been created
 						if (syncData.r && checkUpdated(fileDao, syncData)) {
@@ -552,7 +552,7 @@ angular.module('classeur.core.sync', [])
 							clSyncDataSvc.files[fileDao.id] = syncData;
 						}
 					});
-					clFileSvc.deletedFiles.forEach(function(fileDao) {
+					clFileSvc.deletedFiles.cl_each(function(fileDao) {
 						var syncData = clSyncDataSvc.files[fileDao.id];
 						// File has been synchronized
 						if (syncData && checkUpdated(fileDao, syncData) && !clSyncDataSvc.fileRecoveryDates.hasOwnProperty(fileDao.id)) {
@@ -598,14 +598,14 @@ angular.module('classeur.core.sync', [])
 			var sendNewFiles = (function() {
 				function sendNewFiles() {
 					var currentDate = Date.now();
-					Object.keys(clSyncDataSvc.fileCreationDates).forEach(function(fileId) {
+					Object.keys(clSyncDataSvc.fileCreationDates).cl_each(function(fileId) {
 						if (clSyncDataSvc.fileCreationDates[fileId] + createFileTimeout < currentDate) {
 							delete clSyncDataSvc.fileCreationDates[fileId];
 						}
 					});
-					clFileSvc.files.filter(function(fileDao) {
+					clFileSvc.files.cl_filter(function(fileDao) {
 						return clSyncDataSvc.isFilePendingCreation(fileDao) && !clSyncDataSvc.fileCreationDates.hasOwnProperty(fileDao.id);
-					}).forEach(function(fileDao) {
+					}).cl_each(function(fileDao) {
 						clSyncDataSvc.fileCreationDates[fileDao.id] = currentDate;
 						fileDao.loadExecUnload(function() {
 							clSocketSvc.sendMsg({
@@ -675,8 +675,8 @@ angular.module('classeur.core.sync', [])
 
 				var currentDate = Date.now();
 
-				Object.keys(clSyncDataSvc.fileRecoveryDates).forEach(function(fileId) {
-					if (clSyncDataSvc.fileRecoveryDates[fileId] + recoverFileTimeout < currentDate) {
+				clSyncDataSvc.fileRecoveryDates.cl_each(function(date, fileId) {
+					if (currentDate - date > recoverFileTimeout) {
 						delete clSyncDataSvc.fileRecoveryDates[fileId];
 					}
 				});
@@ -717,7 +717,7 @@ angular.module('classeur.core.sync', [])
 
 			function getLocalFiles() {
 				var currentDate = Date.now();
-				var filesToRefresh = clFileSvc.localFiles.filter(function(fileDao) {
+				var filesToRefresh = clFileSvc.localFiles.cl_filter(function(fileDao) {
 					return fileDao.userId && (!fileDao.refreshed || currentDate - publicFileRefreshAfter > fileDao.refreshed);
 				});
 				if (!filesToRefresh.length ||
@@ -729,14 +729,14 @@ angular.module('classeur.core.sync', [])
 				$http.get('/api/metadata/files', {
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
-							id: filesToRefresh.map(function(fileDao) {
+							id: filesToRefresh.cl_map(function(fileDao) {
 								return fileDao.id;
 							}).join(',')
 						}
 					})
 					.success(function(res) {
 						lastGetExtFileAttempt = 0;
-						res.forEach(function(item) {
+						res.cl_each(function(item) {
 							var fileDao = clFileSvc.fileMap[item.id];
 							if (fileDao) {
 								clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
@@ -761,12 +761,12 @@ angular.module('classeur.core.sync', [])
 						folderDao.refreshed = currentDate;
 						clSyncDataSvc.updatePublicFolderMetadata(folderDao, res);
 						var filesToMove = {};
-						clFileSvc.files.forEach(function(fileDao) {
+						clFileSvc.files.cl_each(function(fileDao) {
 							if (fileDao.folderId === folderDao.id) {
 								filesToMove[fileDao.id] = fileDao;
 							}
 						});
-						res.files.forEach(function(item) {
+						res.files.cl_each(function(item) {
 							delete filesToMove[item.id];
 							var fileDao = clFileSvc.fileMap[item.id];
 							if (!fileDao) {
@@ -777,7 +777,7 @@ angular.module('classeur.core.sync', [])
 							fileDao.folderId = folderDao.id;
 							clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
 						});
-						angular.forEach(filesToMove, function(fileDao) {
+						filesToMove.cl_each(function(fileDao) {
 							fileDao.folderId = '';
 						});
 						clFolderSvc.init(); // Refresh tabs order
@@ -835,14 +835,14 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function reduceObject(obj) {
-				return Object.keys(obj).reduce(function(result, key) {
-					return (result[key] = obj[key][1]), result;
+				return obj.cl_reduce(function(result, value, key) {
+					return (result[key] = value[1]), result;
 				}, {});
 			}
 
 			function getServerContent(content, contentChanges) {
-				var chars = content.text.reduce(function(chars, item) {
-					return chars.concat(item[1].split('').map(function(c) {
+				var chars = content.text.cl_reduce(function(chars, item) {
+					return chars.concat(item[1].split('').cl_map(function(c) {
 						return [item[0], c];
 					}));
 				}, []);
@@ -852,7 +852,7 @@ angular.module('classeur.core.sync', [])
 				var comments = reduceObject(content.comments);
 				var conflicts = reduceObject(content.conflicts);
 				var userId;
-				chars = contentChanges.reduce(function(chars, contentChange) {
+				chars = contentChanges.cl_reduce(function(chars, contentChange) {
 					userId = contentChange.userId || userId;
 					properties = clSyncUtils.applyObjectPatches(properties, contentChange.properties || []);
 					discussions = clSyncUtils.applyObjectPatches(discussions, contentChange.discussions || []);
@@ -860,7 +860,7 @@ angular.module('classeur.core.sync', [])
 					conflicts = clSyncUtils.applyObjectPatches(conflicts, contentChange.conflicts || []);
 					return clSyncUtils.applyCharPatches(chars, contentChange.text || [], userId);
 				}, chars);
-				var text = chars.map(function(item) {
+				var text = chars.cl_map(function(item) {
 					return item[1];
 				}).join('');
 				return {
@@ -875,7 +875,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function mergeObjects(oldObject, localObject, serverObject) {
-				var valueHash = {},
+				var valueHash = Object.create(null),
 					valueArray = [];
 				var localObjectHash = clSyncUtils.hashObject(localObject, valueHash, valueArray);
 				var oldObjectHash = clSyncUtils.hashObject(oldObject, valueHash, valueArray);
@@ -893,7 +893,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function applyServerContent(fileDao, oldContent, serverContent) {
-				var oldText = oldContent.text.map(function(item) {
+				var oldText = oldContent.text.cl_map(function(item) {
 					return item[1];
 				}).join('');
 				var serverText = serverContent.text;
@@ -905,7 +905,7 @@ angular.module('classeur.core.sync', [])
 					var textWithConflicts = clSyncUtils.patchText(oldText, serverText, localText);
 					clEditorSvc.setContent(textWithConflicts[0], true);
 					if (textWithConflicts[1].length) {
-						textWithConflicts[1].forEach(function(conflict) {
+						textWithConflicts[1].cl_each(function(conflict) {
 							fileDao.contentDao.conflicts[clUid()] = conflict;
 						});
 						clEditorLayoutSvc.currentControl = 'conflictAlert';
@@ -962,7 +962,7 @@ angular.module('classeur.core.sync', [])
 				}
 				fileDao.userId && clSyncDataSvc.updatePublicFileMetadata(fileDao, msg);
 				msg.contentChanges = msg.contentChanges || [];
-				var apply = msg.contentChanges.some(function(contentChange) {
+				var apply = msg.contentChanges.cl_some(function(contentChange) {
 					return contentChange.properties || contentChange.discussions || contentChange.comments || contentChange.conflicts;
 				});
 				var serverContent = getServerContent(msg.content, msg.contentChanges);
@@ -1066,7 +1066,7 @@ angular.module('classeur.core.sync', [])
 					}
 					var oldText = serverText;
 					watchCtx.chars = clSyncUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.userId);
-					serverText = watchCtx.chars.map(function(item) {
+					serverText = watchCtx.chars.cl_map(function(item) {
 						return item[1];
 					}).join('');
 					apply |= !!(msg.properties || msg.discussions || msg.comments || msg.conflicts);
@@ -1152,7 +1152,7 @@ angular.module('classeur.core.sync', [])
 				diffMatchPatch.diff_cleanupEfficiency(diffs);
 				var patches = [];
 				var startOffset = 0;
-				diffs.forEach(function(change) {
+				diffs.cl_each(function(change) {
 					var changeType = change[0];
 					var changeText = change[1];
 					switch (changeType) {
@@ -1178,19 +1178,19 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function getObjectPatches(oldObject, newObjects) {
-				var valueHash = {},
+				var valueHash = Object.create(null),
 					valueArray = [];
 				oldObject = hashObject(oldObject, valueHash, valueArray);
 				newObjects = hashObject(newObjects, valueHash, valueArray);
 				var diffs = diffMatchPatch.diff_main(oldObject, newObjects);
 				var patches = [];
-				diffs.forEach(function(change) {
+				diffs.cl_each(function(change) {
 					var changeType = change[0];
 					var changeHash = change[1];
 					if (changeType === DIFF_EQUAL) {
 						return;
 					}
-					changeHash.split('').forEach(function(objHash) {
+					changeHash.split('').cl_each(function(objHash) {
 						var obj = valueArray[objHash.charCodeAt(0)];
 						var patch = {
 							k: obj[0]
@@ -1203,9 +1203,9 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function applyCharPatches(chars, patches, userId) {
-				return patches.reduce(function(chars, patch) {
+				return patches.cl_reduce(function(chars, patch) {
 					if (patch.a) {
-						return chars.slice(0, patch.o).concat(patch.a.split('').map(function(c) {
+						return chars.slice(0, patch.o).concat(patch.a.split('').cl_map(function(c) {
 							return [userId, c];
 						})).concat(chars.slice(patch.o));
 					} else if (patch.d) {
@@ -1217,8 +1217,8 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function applyObjectPatches(obj, patches) {
-				var result = angular.extend({}, obj);
-				patches.forEach(function(patch) {
+				var result = ({}).cl_extend(obj);
+				patches.cl_each(function(patch) {
 					if (patch.a) {
 						result[patch.k] = patch.a;
 					} else if (patch.d) {
@@ -1237,7 +1237,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function patchText(oldStr, newStr, destStr) {
-				var valueHash = {},
+				var valueHash = Object.create(null),
 					valueArray = [];
 				var oldHash = hashArray(oldStr.split('\n'), valueHash, valueArray);
 				var newHash = hashArray(newStr.split('\n'), valueHash, valueArray);
@@ -1245,7 +1245,7 @@ angular.module('classeur.core.sync', [])
 				var diffs = diffMatchPatchStrict.diff_main(oldHash, newHash);
 				var patches = diffMatchPatchStrict.patch_make(oldHash, diffs);
 				var patchResult = diffMatchPatchStrict.patch_apply(patches, destHash);
-				if (!patchResult[1].some(function(changeApplied) {
+				if (!patchResult[1].cl_some(function(changeApplied) {
 						return !changeApplied;
 					})) {
 					return [unhashArray(patchResult[0], valueArray).join('\n'), []];
@@ -1255,7 +1255,7 @@ angular.module('classeur.core.sync', [])
 					lastType,
 					resultHash = '';
 				diffs = diffMatchPatchStrict.diff_main(patchResult[0], newHash);
-				diffs.forEach(function(diff) {
+				diffs.cl_each(function(diff) {
 					var diffType = diff[0];
 					var diffText = diff[1];
 					resultHash += diffText;
@@ -1281,12 +1281,12 @@ angular.module('classeur.core.sync', [])
 				var resultLines = unhashArray(resultHash, valueArray);
 				var resultStr = resultLines.join('\n');
 				var lastOffset = 0;
-				var resultLineOffsets = resultLines.map(function(resultLine) {
+				var resultLineOffsets = resultLines.cl_map(function(resultLine) {
 					var result = lastOffset;
 					lastOffset += resultLine.length + 1;
 					return result;
 				});
-				return [resultStr, conflicts.map(function(conflict) {
+				return [resultStr, conflicts.cl_map(function(conflict) {
 					return {
 						patches: [
 							clOffsetUtils.offsetToPatch(resultStr, resultLineOffsets[conflict.offset1]),
@@ -1299,20 +1299,18 @@ angular.module('classeur.core.sync', [])
 
 			function hashArray(arr, valueHash, valueArray) {
 				var hash = [];
-				arr.forEach(function(obj) {
+				arr.cl_each(function(obj) {
 					var serializedObj = JSON.stringify(obj, function(key, value) {
 						return Object.prototype.toString.call(value) === '[object Object]' ?
-							Object.keys(value).sort().reduce(function(sorted, key) {
+							Object.keys(value).sort().cl_reduce(function(sorted, key) {
 								return sorted[key] = value[key], sorted;
 							}, {}) : value;
 					});
-					var objHash;
-					if (!valueHash.hasOwnProperty(serializedObj)) {
+					var objHash = valueHash[serializedObj];
+					if (objHash === undefined) {
 						objHash = valueArray.length;
 						valueArray.push(obj);
 						valueHash[serializedObj] = objHash;
-					} else {
-						objHash = valueHash[serializedObj];
 					}
 					hash.push(objHash);
 				});
@@ -1320,20 +1318,20 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function unhashArray(hash, valueArray) {
-				return hash.split('').map(function(objHash) {
+				return hash.split('').cl_map(function(objHash) {
 					return valueArray[objHash.charCodeAt(0)];
 				});
 			}
 
 			function hashObject(obj, valueHash, valueArray) {
-				return hashArray(Object.keys(obj || {}).sort().map(function(key) {
+				return hashArray(Object.keys(obj || {}).sort().cl_map(function(key) {
 					return [key, obj[key]];
 				}), valueHash, valueArray);
 			}
 
 			function unhashObject(hash, valueArray) {
 				var result = {};
-				unhashArray(hash, valueArray).forEach(function(value) {
+				unhashArray(hash, valueArray).cl_each(function(value) {
 					result[value[0]] = value[1];
 				});
 				return result;

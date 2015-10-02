@@ -3,7 +3,7 @@ angular.module('classeur.extensions.mathJax', [])
 		function($window, clEditorSvc) {
 			var config, mathJaxScript;
 
-			clEditorSvc.onMarkdownInit(20, function(markdown) {
+			clEditorSvc.onMarkdownInit(2, function(markdown) {
 				if (config) {
 					markdown.inline.ruler.before('escape', 'math', math);
 					markdown.inline.ruler.push('texMath', texMath);
@@ -251,12 +251,10 @@ angular.module('classeur.extensions.mathJax', [])
 						try {
 							tex2jax = JSON.parse(fileProperties['ext:mathjax:tex2jax']);
 						} catch (e) {
-							tex2jax = {};
 						}
 						try {
 							tex = JSON.parse(fileProperties['ext:mathjax:tex']);
 						} catch (e) {
-							tex = {};
 						}
 
 						return {
@@ -271,7 +269,7 @@ angular.module('classeur.extensions.mathJax', [])
 								EqnChunk: 10,
 								imageFont: null
 							},
-							tex2jax: angular.extend({
+							tex2jax: ({
 								inlineMath: [
 									[
 										"\\(",
@@ -285,8 +283,8 @@ angular.module('classeur.extensions.mathJax', [])
 									]
 								],
 								processEscapes: true
-							}, tex2jax),
-							TeX: angular.extend({
+							}).cl_extend(tex2jax),
+							TeX: ({
 								noUndefined: {
 									attributes: {
 										mathcolor: "red",
@@ -303,7 +301,7 @@ angular.module('classeur.extensions.mathJax', [])
 										fontsize: "all"
 									}
 								}
-							}, tex),
+							}).cl_extend(tex),
 							messageStyle: "none"
 						};
 					})() : undefined;

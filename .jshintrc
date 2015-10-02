@@ -2,7 +2,6 @@
     "curly": true,
     "node": true,
     "indent": 1,
-    "latedef": true,
     "undef": true,
     "unused": true,
     "expr": true

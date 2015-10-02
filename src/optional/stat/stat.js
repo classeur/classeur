@@ -51,7 +51,7 @@ angular.module('classeur.optional.stat', [])
 						scope.isTextSelection = true;
 						text = selectedText;
 					}
-					textStats.forEach(function(stat) {
+					textStats.cl_each(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}
@@ -67,7 +67,7 @@ angular.module('classeur.optional.stat', [])
 						scope.isHtmlSelection = false;
 						text = clEditorSvc.previewText;
 					}
-					text !== undefined && htmlStats.forEach(function(stat) {
+					text !== undefined && htmlStats.cl_each(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}

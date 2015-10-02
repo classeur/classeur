@@ -105,7 +105,7 @@ angular.module('classeur.blogs.github', [])
 					'blob',
 					blogPost.branch
 				];
-				return result.concat(blogPost.filePath.split('/').map(encodeURIComponent)).join('/');
+				return result.concat(blogPost.filePath.split('/').cl_map(encodeURIComponent)).join('/');
 			};
 
 			return clGithubBlogPlatform;

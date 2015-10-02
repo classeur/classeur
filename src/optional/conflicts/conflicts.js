@@ -23,7 +23,7 @@ angular.module('classeur.optional.conflicts', [])
 					var conflictElt = getConflictElt(evt.target);
 					conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
 						'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
-					)).forEach(function(elt) {
+					)).cl_each(function(elt) {
 						elt.classList.add('hover');
 					});
 				});
@@ -31,7 +31,7 @@ angular.module('classeur.optional.conflicts', [])
 					var conflictElt = getConflictElt(evt.target);
 					conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
 						'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
-					)).forEach(function(elt) {
+					)).cl_each(function(elt) {
 						elt.classList.remove('hover');
 					});
 				});
@@ -198,9 +198,9 @@ angular.module('classeur.optional.conflicts', [])
 
 			function deleteConflict(contentDao, conflictIdToRemove) {
 				// Create a new object to trigger watchers
-				contentDao.conflicts = Object.keys(contentDao.conflicts).reduce(function(conflicts, conflictId) {
+				contentDao.conflicts = contentDao.conflicts.cl_reduce(function(conflicts, conflict, conflictId) {
 					if (conflictId !== conflictIdToRemove) {
-						conflicts[conflictId] = contentDao.conflicts[conflictId];
+						conflicts[conflictId] = conflict;
 					}
 					return conflicts;
 				}, {});

@@ -36,7 +36,7 @@ angular.module('classeur.blogs', [])
 				scope.platforms = clBlogSvc.platformMap;
 				scope.$watch('form.platformId', function(platformId) {
 					scope.form.subForm = scope.blog ?
-						angular.extend({}, scope.blog) :
+						({}).cl_extend(scope.blog) :
 						clBlogSvc.createBlogSubForm(platformId);
 					clBlogSvc.fillBlogSubForm(platformId, scope.form.subForm);
 				});
@@ -92,7 +92,7 @@ angular.module('classeur.blogs', [])
 
 						function blogsHandler(msg) {
 							clSocketSvc.removeMsgHandler('blogs', blogsHandler);
-							blogMap = msg.blogs.reduce(function(blogMap, blog) {
+							blogMap = msg.blogs.cl_reduce(function(blogMap, blog) {
 								blog.platform = clBlogSvc.platformMap[blog.platformId];
 								return (blogMap[blog.id] = blog, blogMap);
 							}, {});
@@ -117,7 +117,7 @@ angular.module('classeur.blogs', [])
 					var blog = blogMap[blogId];
 					scope.form.blog = blog;
 					scope.form.subForm = scope.post ?
-						angular.extend({}, scope.post) :
+						({}).cl_extend(scope.post) :
 						clBlogSvc.createPostSubForm(blog);
 					clBlogSvc.fillPostSubForm(blog, scope.form.subForm);
 				});
@@ -126,7 +126,7 @@ angular.module('classeur.blogs', [])
 	.factory('clBlogPlatform',
 		function() {
 			function BlogPlatform(options) {
-				angular.extend(this, options);
+				this.cl_extend(options);
 			}
 			var result = function(options) {
 				return new BlogPlatform(options);
@@ -136,7 +136,7 @@ angular.module('classeur.blogs', [])
 		})
 	.factory('clBlogSvc',
 		function(clGithubBlogPlatform, $window, clToast, clBlogPlatform) {
-			var platformMap = Array.prototype.reduce.call(arguments, function(platformMap, arg) {
+			var platformMap = Array.prototype.cl_reduce.call(arguments, function(platformMap, arg) {
 				if (arg instanceof clBlogPlatform.BlogPlatform) {
 					platformMap[arg.id] = arg;
 				}
@@ -146,7 +146,7 @@ angular.module('classeur.blogs', [])
 			return {
 				platformMap: platformMap,
 				createBlogSubForm: function(platformId) {
-					return angular.extend({}, platformId && platformMap[platformId].defaultBlogSubForm);
+					return ({}).cl_extend(platformId && platformMap[platformId].defaultBlogSubForm);
 				},
 				fillBlogSubForm: function(platformId, subForm) {
 					platformId && platformMap[platformId].fillBlogSubForm && platformMap[platformId].fillBlogSubForm(subForm);
@@ -172,7 +172,7 @@ angular.module('classeur.blogs', [])
 					}
 				},
 				createPostSubForm: function(blog) {
-					return angular.extend({}, blog && platformMap[blog.platformId].defaultPostSubForm);
+					return ({}).cl_extend(blog && platformMap[blog.platformId].defaultPostSubForm);
 				},
 				fillPostSubForm: function(blog, subForm) {
 					blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm);
@@ -195,8 +195,8 @@ angular.module('classeur.blogs', [])
 					var platform = platformMap[blog.platformId];
 					var params = platform.getAuthorizeParams(blog);
 					params.state = state;
-					$window.location.href = platform.authorizeUrl + '?' + Object.keys(params).map(function(key) {
-						return key + '=' + encodeURIComponent(params[key]);
+					$window.location.href = platform.authorizeUrl + '?' + params.cl_map(function(value, key) {
+						return key + '=' + encodeURIComponent(value);
 					}).join('&');
 				}
 			};
