@@ -183,14 +183,14 @@
                                                 </md-button>
                                             </div>
                                         </div>
-                                        <div layout="row" ng-switch="sortBy === 'name'">
-                                            <div ng-switch-when="true">
-                                                <md-button class="md-primary" ng-click="sortByDate()">
+                                        <div class="sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolderDao" ng-switch="!!explorerLayoutSvc.isSortedByDate">
+                                            <div ng-switch-when="false">
+                                                <md-button class="md-primary" ng-click="sortByDate(true)">
                                                     <span class="icon-keyboard-backspace rotate-270"></span> By date</span>
                                                 </md-button>
                                             </div>
-                                            <div ng-switch-when="false">
-                                                <md-button class="md-primary" ng-click="sortByName()">
+                                            <div ng-switch-when="true">
+                                                <md-button class="md-primary" ng-click="sortByDate(false)">
                                                     <span class="icon-keyboard-backspace rotate-270"></span> By name</span>
                                                 </md-button>
                                             </div>

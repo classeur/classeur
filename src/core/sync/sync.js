@@ -807,7 +807,7 @@ angular.module('classeur.core.sync', [])
 				watchCtx = ctx;
 				clContentSyncSvc.watchCtx = ctx;
 			}
-			var unsetWatchCtx = setWatchCtx.bind(undefined, undefined);
+			var unsetWatchCtx = setWatchCtx.cl_bind(null, null);
 			clSocketSvc.addMsgHandler('userToken', unsetWatchCtx);
 
 			function setLoadedContent(fileDao, serverContent) {

@@ -277,13 +277,13 @@ angular.module('classeur.core.editor', [])
 					);
 					properties = properties || {};
 					properties.className = classes.join(' ');
-					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.wrap.bind(clRangeWrapper, range, properties));
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.wrap.cl_bind(clRangeWrapper, range, properties));
 					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
 					lastEltCount = elts.length;
 				}
 
 				function removeClass() {
-					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.unwrap.bind(clRangeWrapper, elts));
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.unwrap.cl_bind(clRangeWrapper, elts));
 					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
 				}
 

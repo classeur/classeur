@@ -55,7 +55,7 @@ angular.module('classeur.optional.findReplace', [])
 							start: this.startMarker.offset,
 							end: this.endMarker.offset
 						};
-					}).bind(this));
+					}).cl_bind(this));
 					this.clean = function() {
 						clEditorSvc.cledit.removeMarker(this.startMarker);
 						clEditorSvc.cledit.removeMarker(this.endMarker);

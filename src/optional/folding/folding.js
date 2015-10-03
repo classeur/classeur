@@ -116,8 +116,8 @@ angular.module('classeur.optional.folding', [])
 				return elt;
 			}
 
-			var hideElt = setHideClass.bind(undefined, true);
-			var showElt = setHideClass.bind(undefined, false);
+			var hideElt = setHideClass.cl_bind(null, true);
+			var showElt = setHideClass.cl_bind(null, false);
 
 			SectionGroup.prototype.fold = function(force) {
 				if (!force && this.isFolded) {

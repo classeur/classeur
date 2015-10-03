@@ -128,7 +128,7 @@ angular.module('classeur.optional.fileDragging', [])
 								.content('You\'re about to change the ownership of your file(s). Are you sure?')
 								.ok('Yes')
 								.cancel('No');
-							return clDialog.show(confirm).then(doMoveFiles.bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
+							return clDialog.show(confirm).then(doMoveFiles.cl_bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
 						} else {
 							return clToast('Cannot move files to read only folder.');
 						}

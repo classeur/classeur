@@ -95,7 +95,7 @@
         &.clone {
             position: absolute;
             .file.actions > div {
-                padding: 10px 0;
+                padding: 15px 0 0;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             }
             &.hidden {
@@ -186,7 +186,7 @@
     }
     .file.actions {
         & > div {
-            padding: 10px 0 5px;
+            padding: 15px 0 0;
         }
         font-size: 15px;
         padding: 0 35px;
