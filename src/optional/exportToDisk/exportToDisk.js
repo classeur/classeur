@@ -79,7 +79,7 @@ angular.module('classeur.optional.exportToDisk', [])
 							saveAs(clEditorSvc.applyTemplate(template), scope.currentFileDao.name, mimeType);
 						} else if (config.format === 'pdf') {
 							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportTemplates[config.pdfTemplateKey]);
-							if (!clUserSvc.user || (clUserSvc.user.roles.indexOf('premium_user') === -1 && html.length > 10000)) {
+							if (!clUserSvc.user || (!clUserSvc.user.isPremium && html.length > 10000)) {
 								return clDialog.show({
 									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
 									controller: ['$scope', function(scope) {

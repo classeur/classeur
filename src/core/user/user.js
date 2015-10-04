@@ -104,6 +104,11 @@ angular.module('classeur.core.user', [])
                 }
             }
 
+            function setUser(user) {
+                clUserSvc.user = user;
+                user.isPremium = user.roles.indexOf('premium_user') !== -1;
+            }
+
             function updateUser(user) {
                 if (!user.name) {
                     throw 'User name can\'t be empty.';
@@ -118,19 +123,19 @@ angular.module('classeur.core.user', [])
                 if (clUserSvc.user) {
                     var params = {
                         cmd: '_s-xclick',
-                        hosted_button_id: 'GQHCGWH49AEYE',
+                        hosted_button_id: clConfig.paypalSubscribeButtonId,
                         custom: clUserSvc.user.id
                     };
-                    return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+                    return clConfig.paypalUri + '?' + makeQueryString(params);
                 }
             }
 
             function getUnsubscribeLink() {
                 var params = {
                     cmd: '_subscr-find',
-                    alias: '75G2MNZ543JAN'
+                    alias: clConfig.paypalUnsubscribeButtonAlias
                 };
-                return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+                return clConfig.paypalUri + '?' + makeQueryString(params);
             }
 
             clUserSvc.read();
@@ -144,6 +149,7 @@ angular.module('classeur.core.user', [])
             clUserSvc.signin = signin;
             clUserSvc.signout = signout;
             clUserSvc.checkAll = checkAll;
+            clUserSvc.setUser = setUser;
             clUserSvc.updateUser = updateUser;
             clUserSvc.getSubscribeLink = getSubscribeLink;
             clUserSvc.getUnsubscribeLink = getUnsubscribeLink;

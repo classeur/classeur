@@ -39,20 +39,26 @@
         margin: 40px 0;
     }
     .plan.item {
-        background-color: #fff;
-        margin: 0 5px 50px;
+        position: relative;
+        background-color: #fafafa;
+        margin: 0 -5px 50px;
         height: 520px;
         text-align: center;
-        &.premium {
-            .header {
-                background-color: #3EB8A4;
-                color: #fff;
-            }
-        }
         .header {
             margin-bottom: 30px;
             background-color: #ebebeb;
             height: 175px;
+        }
+        &.premium {
+            z-index: 1;
+            height: 560px;
+            margin-top: -20px;
+            background-color: #fff;
+            .header {
+                background-color: #3EB8A4;
+                color: #fff;
+                height: 195px;
+            }
         }
         .name {
             font-size: 20px;

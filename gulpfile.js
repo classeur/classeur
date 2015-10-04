@@ -51,8 +51,9 @@ var vendorJs = [
 	'node_modules/angular-slugify/angular-slugify.js',
 	'node_modules/bezier-easing/build.js',
 	'node_modules/clanim/clanim.js',
-	'node_modules/googlediff/javascript/diff_match_patch_uncompressed.js', // Needs to come before cledit
-	'node_modules/clunderscore/clunderscore.js',
+	'node_modules/googlediff/javascript/diff_match_patch_uncompressed.js', // Needs to come before cldiffutils and cledit
+	'node_modules/clunderscore/clunderscore.js', // Needs to come before cledit
+	'node_modules/cldiffutils/cldiffutils.js',
 	'node_modules/cledit/scripts/cleditCore.js',
 	'node_modules/cledit/scripts/cleditHighlighter.js',
 	'node_modules/cledit/scripts/cleditKeystroke.js',

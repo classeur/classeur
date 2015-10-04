@@ -186,12 +186,12 @@ angular.module('classeur.optional.conflicts', [])
 			};
 		})
 	.factory('clConflictSvc',
-		function($window, clOffsetUtils) {
+		function($window, clDiffUtils) {
 			function getConflictOffsets(text, conflict) {
 				var offsets = [
-					clOffsetUtils.patchToOffset(text, conflict.patches[0]),
-					clOffsetUtils.patchToOffset(text, conflict.patches[1]),
-					clOffsetUtils.patchToOffset(text, conflict.patches[2]),
+					clDiffUtils.patchToOffset(text, conflict.patches[0]),
+					clDiffUtils.patchToOffset(text, conflict.patches[1]),
+					clDiffUtils.patchToOffset(text, conflict.patches[2]),
 				];
 				return offsets[0] !== -1 && offsets[1] !== -1 && offsets[2] !== -1 && offsets;
 			}

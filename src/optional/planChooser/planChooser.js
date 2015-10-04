@@ -28,7 +28,7 @@ angular.module('classeur.optional.planChooser', [])
 
 			function link(scope) {
 				if (clUserSvc.user) {
-					if (clUserSvc.user.roles.indexOf('premium_user') === -1) {
+					if (!clUserSvc.user.isPremium) {
 						scope.subscribeLink = clUserSvc.getSubscribeLink();
 					} else {
 						var unsubscribeLink = clUserSvc.getUnsubscribeLink();

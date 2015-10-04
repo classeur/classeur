@@ -418,50 +418,9 @@ angular.module('classeur.core.utils', [])
 				}
 			};
 		})
-	.factory('clOffsetUtils',
+	.factory('clDiffUtils',
 		function($window) {
-			var diffMatchPatch = new $window.diff_match_patch();
-			diffMatchPatch.Match_Distance = 999999999;
-			var marker = '\uF111\uF222\uF333\uF444';
-			return {
-				offsetToPatch: function(text, offset) {
-					var patch = diffMatchPatch.patch_make(text, [
-						[0, text.slice(0, offset)],
-						[1, marker],
-						[0, text.slice(offset)]
-					])[0];
-					var diffs = patch.diffs.cl_map(function(diff) {
-						if (!diff[0]) {
-							return diff[1];
-						} else if (diff[1] === marker) {
-							return '';
-						}
-					});
-					return {
-						diffs: diffs,
-						length: patch.length1,
-						start: patch.start1
-					};
-				},
-				patchToOffset: function(text, patch) {
-					var markersLength = 0;
-					var diffs = patch.diffs.cl_map(function(diff) {
-						if (!diff) {
-							markersLength += marker.length;
-							return [1, marker];
-						} else {
-							return [0, diff];
-						}
-					});
-					return diffMatchPatch.patch_apply([{
-						diffs: diffs,
-						length1: patch.length,
-						length2: patch.length + markersLength,
-						start1: patch.start,
-						start2: patch.start
-					}], text)[0].indexOf(marker);
-				}
-			};
+			return $window.clDiffUtils;
 		})
 	.directive('clInfiniteScroll',
 		function($timeout) {

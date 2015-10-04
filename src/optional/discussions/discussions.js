@@ -1,6 +1,6 @@
 angular.module('classeur.optional.discussions', [])
 	.directive('clDiscussionDecorator',
-		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc, clLocalSettingSvc, clOffsetUtils) {
+		function($window, $timeout, clEditorSvc, clEditorLayoutSvc, clDiscussionSvc, clLocalSettingSvc, clDiffUtils) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -144,8 +144,8 @@ angular.module('classeur.optional.discussions', [])
 						return;
 					}
 					clDiscussionSvc.newDiscussion.patches = [
-						clOffsetUtils.offsetToPatch(text, selection.start),
-						clOffsetUtils.offsetToPatch(text, selection.end)
+						clDiffUtils.offsetToPatch(text, selection.start),
+						clDiffUtils.offsetToPatch(text, selection.end)
 					];
 					// Force recreate the highlighter
 					clDiscussionSvc.currentDiscussion = undefined;
@@ -172,7 +172,7 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionHighlighter',
-		function(clEditorSvc, clEditorClassApplier, clPreviewClassApplier, clOffsetUtils) {
+		function(clEditorSvc, clEditorClassApplier, clPreviewClassApplier, clDiffUtils) {
 			return {
 				restrict: 'E',
 				link: link
@@ -187,8 +187,8 @@ angular.module('classeur.optional.discussions', [])
 					}
 					var text = clEditorSvc.cledit.getContent();
 					offset = {
-						start: clOffsetUtils.patchToOffset(text, scope.discussion.patches[0]),
-						end: clOffsetUtils.patchToOffset(text, scope.discussion.patches[1])
+						start: clDiffUtils.patchToOffset(text, scope.discussion.patches[0]),
+						end: clDiffUtils.patchToOffset(text, scope.discussion.patches[1])
 					};
 					return offset.start !== -1 && offset.end !== -1 && offset;
 				}, {
@@ -219,7 +219,7 @@ angular.module('classeur.optional.discussions', [])
 			}
 		})
 	.directive('clDiscussionTab',
-		function($window, $timeout, clDiscussionSvc, clEditorSvc, clToast, clOffsetUtils) {
+		function($window, $timeout, clDiscussionSvc, clEditorSvc, clToast, clDiffUtils) {
 			return {
 				restrict: 'E',
 				scope: true,
@@ -249,8 +249,8 @@ angular.module('classeur.optional.discussions', [])
 					}
 					clDiscussionSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 1000);
 					clDiscussionSvc.newDiscussion.patches = [
-						clOffsetUtils.offsetToPatch(text, selection.start),
-						clOffsetUtils.offsetToPatch(text, selection.end)
+						clDiffUtils.offsetToPatch(text, selection.start),
+						clDiffUtils.offsetToPatch(text, selection.end)
 					];
 					// Force recreate the highlighter
 					clDiscussionSvc.currentDiscussion = undefined;

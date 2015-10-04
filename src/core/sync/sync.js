@@ -238,7 +238,7 @@ angular.module('classeur.core.sync', [])
 			};
 		})
 	.factory('clSyncSvc',
-		function($rootScope, $location, $http, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncUtils, clSyncDataSvc, clContentRevSvc) {
+		function($rootScope, $location, $http, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
 			var clSyncSvc = {};
 			var nameMaxLength = 128;
 			var longInactivityThreshold = 60 * 1000; // 60 sec
@@ -270,7 +270,7 @@ angular.module('classeur.core.sync', [])
 					if (msg.user) {
 						syncData = clSyncDataSvc.userData.user || {};
 						if (syncData.s !== msg.userUpdated) {
-							clUserSvc.user = msg.user;
+							clUserSvc.setUser(msg.user);
 							clUserSvc.write(msg.userUpdated);
 							apply = true;
 						}
@@ -312,7 +312,9 @@ angular.module('classeur.core.sync', [])
 					};
 					syncData = clSyncDataSvc.userData.user || {};
 					if (clUserSvc.updated !== syncData.r) {
-						msg.user = clUserSvc.user;
+						msg.user = {
+							name: (clUserSvc.user || {}).name,
+						};
 						msg.userUpdated = clUserSvc.updated;
 						syncData.s = clUserSvc.updated;
 						clSyncDataSvc.userData.user = syncData;
@@ -740,7 +742,7 @@ angular.module('classeur.core.sync', [])
 							var fileDao = clFileSvc.fileMap[item.id];
 							if (fileDao) {
 								clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
-								!item.updated && clToast('File not accessible: ' + fileDao.name);
+								!item.updated && clToast('File not accessible: ' + (fileDao.name || fileDao.id));
 							}
 						});
 					});
@@ -799,7 +801,7 @@ angular.module('classeur.core.sync', [])
 			};
 		})
 	.factory('clContentSyncSvc',
-		function($rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clSyncUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
+		function($rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
 			var clContentSyncSvc = {};
 			var watchCtx;
 
@@ -831,93 +833,30 @@ angular.module('classeur.core.sync', [])
 				if (fileDao.state === 'loading') {
 					fileDao.state = undefined;
 				}
-				clToast(error || 'File not accessible: ' + fileDao.name);
-			}
-
-			function reduceObject(obj) {
-				return obj.cl_reduce(function(result, value, key) {
-					return (result[key] = value[1]), result;
-				}, {});
-			}
-
-			function getServerContent(content, contentChanges) {
-				var chars = content.text.cl_reduce(function(chars, item) {
-					return chars.concat(item[1].split('').cl_map(function(c) {
-						return [item[0], c];
-					}));
-				}, []);
-
-				var properties = reduceObject(content.properties);
-				var discussions = reduceObject(content.discussions);
-				var comments = reduceObject(content.comments);
-				var conflicts = reduceObject(content.conflicts);
-				var userId;
-				chars = contentChanges.cl_reduce(function(chars, contentChange) {
-					userId = contentChange.userId || userId;
-					properties = clSyncUtils.applyObjectPatches(properties, contentChange.properties || []);
-					discussions = clSyncUtils.applyObjectPatches(discussions, contentChange.discussions || []);
-					comments = clSyncUtils.applyObjectPatches(comments, contentChange.comments || []);
-					conflicts = clSyncUtils.applyObjectPatches(conflicts, contentChange.conflicts || []);
-					return clSyncUtils.applyCharPatches(chars, contentChange.text || [], userId);
-				}, chars);
-				var text = chars.cl_map(function(item) {
-					return item[1];
-				}).join('');
-				return {
-					chars: chars,
-					text: text,
-					properties: properties,
-					discussions: discussions,
-					comments: comments,
-					conflicts: conflicts,
-					rev: content.rev + contentChanges.length
-				};
-			}
-
-			function mergeObjects(oldObject, localObject, serverObject) {
-				var valueHash = Object.create(null),
-					valueArray = [];
-				var localObjectHash = clSyncUtils.hashObject(localObject, valueHash, valueArray);
-				var oldObjectHash = clSyncUtils.hashObject(oldObject, valueHash, valueArray);
-				var serverObjectHash = clSyncUtils.hashObject(serverObject, valueHash, valueArray);
-				var isServerObjectChanges = oldObjectHash !== serverObjectHash;
-				var isLocalObjectChanges = oldObjectHash !== localObjectHash;
-				var isObjectSynchronized = serverObjectHash === localObjectHash;
-				if (!isObjectSynchronized && isServerObjectChanges) {
-					return clSyncUtils.unhashObject(
-						isLocalObjectChanges ? clSyncUtils.quickPatch(oldObjectHash, localObjectHash, serverObjectHash) : serverObjectHash,
-						valueArray
-					);
-				}
-				return localObject;
+				clToast(error || 'File not accessible: ' + (fileDao.name || fileDao.id));
 			}
 
 			function applyServerContent(fileDao, oldContent, serverContent) {
-				var oldText = oldContent.text.cl_map(function(item) {
-					return item[1];
-				}).join('');
-				var serverText = serverContent.text;
-				var localText = clEditorSvc.cledit.getContent();
-				var isServerTextChanges = oldText !== serverText;
-				var isLocalTextChanges = oldText !== localText;
-				var isTextSynchronized = serverText === localText;
-				if (!isTextSynchronized && isServerTextChanges && isLocalTextChanges) {
-					var textWithConflicts = clSyncUtils.patchText(oldText, serverText, localText);
-					clEditorSvc.setContent(textWithConflicts[0], true);
-					if (textWithConflicts[1].length) {
-						textWithConflicts[1].cl_each(function(conflict) {
-							fileDao.contentDao.conflicts[clUid()] = conflict;
-						});
-						clEditorLayoutSvc.currentControl = 'conflictAlert';
-					}
-				} else if (!isTextSynchronized && isServerTextChanges) {
-					clEditorSvc.setContent(serverText, true);
+				oldContent = clDiffUtils.flattenContent(oldContent);
+				var newContent = {
+					text: clEditorSvc.cledit.getContent(),
+					properties: fileDao.contentDao.properties,
+					discussions: fileDao.contentDao.discussions,
+					comments: fileDao.contentDao.comments,
+					conflicts: fileDao.contentDao.conflicts,
+				};
+				var conflicts = clDiffUtils.mergeContent(oldContent, newContent, serverContent);
+				fileDao.contentDao.properties = newContent.properties;
+				fileDao.contentDao.discussions = newContent.discussions;
+				fileDao.contentDao.comments = newContent.comments;
+				fileDao.contentDao.conflicts = newContent.conflicts;
+				clEditorSvc.setContent(newContent.text, true);
+				if(conflicts.length) {
+					conflicts.cl_each(function(conflict) {
+						fileDao.contentDao.conflicts[clUid()] = conflict;
+					});
+					clEditorLayoutSvc.currentControl = 'conflictAlert';
 				}
-
-				fileDao.contentDao.properties = mergeObjects(oldContent.properties, fileDao.contentDao.properties, serverContent.properties);
-				fileDao.contentDao.discussions = mergeObjects(oldContent.discussions, fileDao.contentDao.discussions, serverContent.discussions);
-				fileDao.contentDao.comments = mergeObjects(oldContent.comments, fileDao.contentDao.comments, serverContent.comments);
-				fileDao.contentDao.conflicts = mergeObjects(oldContent.conflicts, fileDao.contentDao.conflicts, serverContent.conflicts);
 			}
 
 			function startWatchFile(fileDao) {
@@ -965,7 +904,8 @@ angular.module('classeur.core.sync', [])
 				var apply = msg.contentChanges.cl_some(function(contentChange) {
 					return contentChange.properties || contentChange.discussions || contentChange.comments || contentChange.conflicts;
 				});
-				var serverContent = getServerContent(msg.content, msg.contentChanges);
+				var content = clDiffUtils.flattenContent(msg.content, true);
+				var serverContent = clDiffUtils.applyFlattenedContentChanges(content, msg.contentChanges, true);
 				if (fileDao.state === 'loading') {
 					setLoadedContent(fileDao, serverContent);
 					apply = true;
@@ -998,7 +938,8 @@ angular.module('classeur.core.sync', [])
 						if (!fileDao.state) {
 							return;
 						}
-						var serverContent = getServerContent(res.content, res.contentChanges || []);
+						var content = clDiffUtils.flattenContent(res.content, true);
+						var serverContent = clDiffUtils.applyFlattenedContentChanges(content, res.contentChanges, true);
 						if (fileDao.state === 'loading') {
 							setLoadedContent(fileDao, serverContent);
 						} else {
@@ -1011,24 +952,18 @@ angular.module('classeur.core.sync', [])
 					});
 			}
 
-			function getObjectPatches(oldObject, newObject) {
-				var objectPatches = clSyncUtils.getObjectPatches(oldObject, newObject);
-				return objectPatches.length ? objectPatches : undefined;
-			}
-
 			function sendContentChange() {
 				if (!watchCtx || watchCtx.text === undefined || watchCtx.sentMsg) {
 					return;
 				}
-				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || clUserSvc.user.roles.indexOf('premium_user') === -1)) {
+				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || !clUserSvc.user.isPremium)) {
 					return;
 				}
-				var textChanges = clSyncUtils.getTextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
-				textChanges = textChanges.length ? textChanges : undefined;
-				var propertiesPatches = getObjectPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
-				var discussionsPatches = getObjectPatches(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions);
-				var commentsPatches = getObjectPatches(watchCtx.comments, watchCtx.fileDao.contentDao.comments);
-				var conflictsPatches = getObjectPatches(watchCtx.conflicts, watchCtx.fileDao.contentDao.conflicts);
+				var textChanges = clDiffUtils.getTextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
+				var propertiesPatches = clDiffUtils.getObjectPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
+				var discussionsPatches = clDiffUtils.getObjectPatches(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions);
+				var commentsPatches = clDiffUtils.getObjectPatches(watchCtx.comments, watchCtx.fileDao.contentDao.comments);
+				var conflictsPatches = clDiffUtils.getObjectPatches(watchCtx.conflicts, watchCtx.fileDao.contentDao.conflicts);
 				if (!textChanges && !propertiesPatches && !discussionsPatches && !commentsPatches && !conflictsPatches) {
 					return;
 				}
@@ -1065,22 +1000,22 @@ angular.module('classeur.core.sync', [])
 						msg = watchCtx.sentMsg;
 					}
 					var oldText = serverText;
-					watchCtx.chars = clSyncUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.userId);
+					watchCtx.chars = clDiffUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.userId);
 					serverText = watchCtx.chars.cl_map(function(item) {
 						return item[1];
 					}).join('');
 					apply |= !!(msg.properties || msg.discussions || msg.comments || msg.conflicts);
-					serverProperties = clSyncUtils.applyObjectPatches(serverProperties, msg.properties || []);
-					serverDiscussions = clSyncUtils.applyObjectPatches(serverDiscussions, msg.discussions || []);
-					serverComments = clSyncUtils.applyObjectPatches(serverComments, msg.comments || []);
-					serverConflicts = clSyncUtils.applyObjectPatches(serverConflicts, msg.conflicts || []);
+					clDiffUtils.applyFlattenedObjectPatches(serverProperties, msg.properties || []);
+					clDiffUtils.applyFlattenedObjectPatches(serverDiscussions, msg.discussions || []);
+					clDiffUtils.applyFlattenedObjectPatches(serverComments, msg.comments || []);
+					clDiffUtils.applyFlattenedObjectPatches(serverConflicts, msg.conflicts || []);
 					if (msg !== watchCtx.sentMsg) {
 						var isServerTextChanges = oldText !== serverText;
 						var isLocalTextChanges = oldText !== localText;
 						var isTextSynchronized = serverText === localText;
 						if (!isTextSynchronized && isServerTextChanges) {
 							if (isLocalTextChanges) {
-								localText = clSyncUtils.quickPatch(oldText, serverText, localText);
+								localText = clDiffUtils.quickPatch(oldText, serverText, localText);
 							} else {
 								localText = serverText;
 							}
@@ -1093,10 +1028,10 @@ angular.module('classeur.core.sync', [])
 					}
 					watchCtx.sentMsg = undefined;
 				}
-				watchCtx.fileDao.contentDao.properties = mergeObjects(watchCtx.properties, watchCtx.fileDao.contentDao.properties, serverProperties);
-				watchCtx.fileDao.contentDao.discussions = mergeObjects(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions, serverDiscussions);
-				watchCtx.fileDao.contentDao.comments = mergeObjects(watchCtx.comments, watchCtx.fileDao.contentDao.comments, serverComments);
-				watchCtx.fileDao.contentDao.conflicts = mergeObjects(watchCtx.conflicts, watchCtx.fileDao.contentDao.conflicts, serverConflicts);
+				watchCtx.fileDao.contentDao.properties = clDiffUtils.mergeObjects(watchCtx.properties, watchCtx.fileDao.contentDao.properties, serverProperties);
+				watchCtx.fileDao.contentDao.discussions = clDiffUtils.mergeObjects(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions, serverDiscussions);
+				watchCtx.fileDao.contentDao.comments = clDiffUtils.mergeObjects(watchCtx.comments, watchCtx.fileDao.contentDao.comments, serverComments);
+				watchCtx.fileDao.contentDao.conflicts = clDiffUtils.mergeObjects(watchCtx.conflicts, watchCtx.fileDao.contentDao.conflicts, serverConflicts);
 				watchCtx.text = serverText;
 				watchCtx.properties = serverProperties;
 				watchCtx.discussions = serverDiscussions;
@@ -1136,217 +1071,4 @@ angular.module('classeur.core.sync', [])
 			}, 200);
 
 			return clContentSyncSvc;
-		})
-	.factory('clSyncUtils',
-		function($window, clOffsetUtils) {
-			var diffMatchPatch = new $window.diff_match_patch();
-			var diffMatchPatchStrict = new $window.diff_match_patch();
-			diffMatchPatchStrict.Match_Threshold = 0;
-			diffMatchPatchStrict.Patch_DeleteThreshold = 0;
-			var DIFF_DELETE = -1;
-			var DIFF_INSERT = 1;
-			var DIFF_EQUAL = 0;
-
-			function getTextPatches(oldText, newText) {
-				var diffs = diffMatchPatch.diff_main(oldText, newText);
-				diffMatchPatch.diff_cleanupEfficiency(diffs);
-				var patches = [];
-				var startOffset = 0;
-				diffs.cl_each(function(change) {
-					var changeType = change[0];
-					var changeText = change[1];
-					switch (changeType) {
-						case DIFF_EQUAL:
-							startOffset += changeText.length;
-							break;
-						case DIFF_DELETE:
-							changeText && patches.push({
-								o: startOffset,
-								d: changeText
-							});
-							break;
-						case DIFF_INSERT:
-							changeText && patches.push({
-								o: startOffset,
-								a: changeText
-							});
-							startOffset += changeText.length;
-							break;
-					}
-				});
-				return patches;
-			}
-
-			function getObjectPatches(oldObject, newObjects) {
-				var valueHash = Object.create(null),
-					valueArray = [];
-				oldObject = hashObject(oldObject, valueHash, valueArray);
-				newObjects = hashObject(newObjects, valueHash, valueArray);
-				var diffs = diffMatchPatch.diff_main(oldObject, newObjects);
-				var patches = [];
-				diffs.cl_each(function(change) {
-					var changeType = change[0];
-					var changeHash = change[1];
-					if (changeType === DIFF_EQUAL) {
-						return;
-					}
-					changeHash.split('').cl_each(function(objHash) {
-						var obj = valueArray[objHash.charCodeAt(0)];
-						var patch = {
-							k: obj[0]
-						};
-						patch[changeType === DIFF_DELETE ? 'd' : 'a'] = obj[1];
-						patches.push(patch);
-					});
-				});
-				return patches;
-			}
-
-			function applyCharPatches(chars, patches, userId) {
-				return patches.cl_reduce(function(chars, patch) {
-					if (patch.a) {
-						return chars.slice(0, patch.o).concat(patch.a.split('').cl_map(function(c) {
-							return [userId, c];
-						})).concat(chars.slice(patch.o));
-					} else if (patch.d) {
-						return chars.slice(0, patch.o).concat(chars.slice(patch.o + patch.d.length));
-					} else {
-						return chars;
-					}
-				}, chars);
-			}
-
-			function applyObjectPatches(obj, patches) {
-				var result = ({}).cl_extend(obj);
-				patches.cl_each(function(patch) {
-					if (patch.a) {
-						result[patch.k] = patch.a;
-					} else if (patch.d) {
-						delete result[patch.k];
-					}
-				});
-				return result;
-			}
-
-			function quickPatch(oldStr, newStr, destStr, strict) {
-				var dmp = strict ? diffMatchPatchStrict : diffMatchPatch;
-				var diffs = dmp.diff_main(oldStr, newStr);
-				var patches = dmp.patch_make(oldStr, diffs);
-				var patchResult = dmp.patch_apply(patches, destStr);
-				return patchResult[0];
-			}
-
-			function patchText(oldStr, newStr, destStr) {
-				var valueHash = Object.create(null),
-					valueArray = [];
-				var oldHash = hashArray(oldStr.split('\n'), valueHash, valueArray);
-				var newHash = hashArray(newStr.split('\n'), valueHash, valueArray);
-				var destHash = hashArray(destStr.split('\n'), valueHash, valueArray);
-				var diffs = diffMatchPatchStrict.diff_main(oldHash, newHash);
-				var patches = diffMatchPatchStrict.patch_make(oldHash, diffs);
-				var patchResult = diffMatchPatchStrict.patch_apply(patches, destHash);
-				if (!patchResult[1].cl_some(function(changeApplied) {
-						return !changeApplied;
-					})) {
-					return [unhashArray(patchResult[0], valueArray).join('\n'), []];
-				}
-				var conflicts = [],
-					conflict = {},
-					lastType,
-					resultHash = '';
-				diffs = diffMatchPatchStrict.diff_main(patchResult[0], newHash);
-				diffs.cl_each(function(diff) {
-					var diffType = diff[0];
-					var diffText = diff[1];
-					resultHash += diffText;
-					if (diffType !== lastType) {
-						if (conflict.offset3) {
-							conflicts.push(conflict);
-							conflict = {};
-						}
-						if (conflict.offset2) {
-							if (diffType === DIFF_EQUAL) {
-								conflict = {};
-							} else {
-								conflict.offset3 = resultHash.length;
-							}
-						} else if (diffType !== DIFF_EQUAL) {
-							conflict.offset1 = resultHash.length - diffText.length;
-							conflict.offset2 = resultHash.length;
-						}
-					}
-					lastType = diffType;
-				});
-				conflict.offset3 && conflicts.push(conflict);
-				var resultLines = unhashArray(resultHash, valueArray);
-				var resultStr = resultLines.join('\n');
-				var lastOffset = 0;
-				var resultLineOffsets = resultLines.cl_map(function(resultLine) {
-					var result = lastOffset;
-					lastOffset += resultLine.length + 1;
-					return result;
-				});
-				return [resultStr, conflicts.cl_map(function(conflict) {
-					return {
-						patches: [
-							clOffsetUtils.offsetToPatch(resultStr, resultLineOffsets[conflict.offset1]),
-							clOffsetUtils.offsetToPatch(resultStr, resultLineOffsets[conflict.offset2]),
-							clOffsetUtils.offsetToPatch(resultStr, resultLineOffsets[conflict.offset3]),
-						]
-					};
-				})];
-			}
-
-			function hashArray(arr, valueHash, valueArray) {
-				var hash = [];
-				arr.cl_each(function(obj) {
-					var serializedObj = JSON.stringify(obj, function(key, value) {
-						return Object.prototype.toString.call(value) === '[object Object]' ?
-							Object.keys(value).sort().cl_reduce(function(sorted, key) {
-								return sorted[key] = value[key], sorted;
-							}, {}) : value;
-					});
-					var objHash = valueHash[serializedObj];
-					if (objHash === undefined) {
-						objHash = valueArray.length;
-						valueArray.push(obj);
-						valueHash[serializedObj] = objHash;
-					}
-					hash.push(objHash);
-				});
-				return String.fromCharCode.apply(null, hash);
-			}
-
-			function unhashArray(hash, valueArray) {
-				return hash.split('').cl_map(function(objHash) {
-					return valueArray[objHash.charCodeAt(0)];
-				});
-			}
-
-			function hashObject(obj, valueHash, valueArray) {
-				return hashArray(Object.keys(obj || {}).sort().cl_map(function(key) {
-					return [key, obj[key]];
-				}), valueHash, valueArray);
-			}
-
-			function unhashObject(hash, valueArray) {
-				var result = {};
-				unhashArray(hash, valueArray).cl_each(function(value) {
-					result[value[0]] = value[1];
-				});
-				return result;
-			}
-
-			return {
-				getTextPatches: getTextPatches,
-				getObjectPatches: getObjectPatches,
-				applyCharPatches: applyCharPatches,
-				applyObjectPatches: applyObjectPatches,
-				quickPatch: quickPatch,
-				patchText: patchText,
-				hashArray: hashArray,
-				unhashArray: unhashArray,
-				hashObject: hashObject,
-				unhashObject: unhashObject,
-			};
 		});

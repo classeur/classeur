@@ -37,7 +37,7 @@
                         <div class="item" ng-if="socketSvc.hasToken && !userSvc.user">
                             Signing in...
                         </div>
-                        <md-button class="item" ng-href="#!/choosePlan" ng-if="userSvc.user">
+                        <md-button class="item" ng-href="#!/choosePlan" ng-if="userSvc.user && !userSvc.user.isPremium">
                             Go premium <span class="icon-arrow-forward"></span>
                         </md-button>
                     </div>
