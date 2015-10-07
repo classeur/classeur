@@ -127,9 +127,16 @@ angular.module('classeur.optional.settingPage', [])
 				};
 
 				scope.manageTemplates = function() {
-					clTemplateManagerDialog(scope.app.exportTemplates)
+					clTemplateManagerDialog.manageExportTemplate(scope.app.exportTemplates)
 						.then(function(templates) {
 							scope.app.exportTemplates = templates;
+						});
+				};
+
+				scope.managePdfTemplates = function() {
+					clTemplateManagerDialog.manageExportPdfTemplate(scope.app.exportPdfTemplates)
+						.then(function(templates) {
+							scope.app.exportPdfTemplates = templates;
 						});
 				};
 

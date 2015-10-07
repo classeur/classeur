@@ -22,6 +22,7 @@ angular.module('classeur.core.socket', [])
 
 			var lastConnectionAttempt = 0;
 			var nextConnectionAttempt = 1000;
+			var maxNextConnectionAttempt = nextConnectionAttempt * Math.pow(2, 5); // Has to be a power of 2
 
 			function attemptOpenSocket() {
 				lastConnectionAttempt = Date.now();
@@ -51,7 +52,7 @@ angular.module('classeur.core.socket', [])
 			function openSocket() {
 				if (shouldAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
 					attemptOpenSocket();
-					if (nextConnectionAttempt < 30000) {
+					if (nextConnectionAttempt < maxNextConnectionAttempt) {
 						// Exponential backoff
 						nextConnectionAttempt *= 2;
 					}

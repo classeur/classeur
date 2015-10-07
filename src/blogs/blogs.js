@@ -54,7 +54,7 @@ angular.module('classeur.blogs', [])
 				scope.form.templateKey = 'HTML';
 				scope.templates = clSettingSvc.values.exportTemplates;
 				scope.manageTemplates = function() {
-					clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
+					clTemplateManagerDialog.manageExportTemplate(clSettingSvc.values.exportTemplates)
 						.then(function(templates) {
 							clSettingSvc.values.exportTemplates = templates;
 						});

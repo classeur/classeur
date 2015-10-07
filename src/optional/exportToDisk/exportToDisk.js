@@ -38,6 +38,7 @@ angular.module('classeur.optional.exportToDisk', [])
 						templateUrl: 'optional/exportToDisk/exportToDisk.html',
 						controller: ['$scope', function(scope) {
 							scope.templates = clSettingSvc.values.exportTemplates;
+							scope.pdfTemplates = clSettingSvc.values.exportPdfTemplates;
 							scope.config = config;
 							scope.export = function() {
 								clDialog.hide();
@@ -46,9 +47,15 @@ angular.module('classeur.optional.exportToDisk', [])
 								clDialog.cancel();
 							};
 							scope.manageTemplates = function() {
-								clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
+								clTemplateManagerDialog.manageExportTemplate(clSettingSvc.values.exportTemplates)
 									.then(function(templates) {
 										clSettingSvc.values.exportTemplates = templates;
+									});
+							};
+							scope.managePdfTemplates = function() {
+								clTemplateManagerDialog.manageExportPdfTemplate(clSettingSvc.values.exportPdfTemplates)
+									.then(function(templates) {
+										clSettingSvc.values.exportPdfTemplates = templates;
 									});
 							};
 							scope.$watch('config.textTemplateKey', function(templateKey) {
@@ -78,7 +85,7 @@ angular.module('classeur.optional.exportToDisk', [])
 							var mimeType = template.indexOf('file.content.html') === -1 ? 'text/plain' : 'text/html';
 							saveAs(clEditorSvc.applyTemplate(template), scope.currentFileDao.name, mimeType);
 						} else if (config.format === 'pdf') {
-							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportTemplates[config.pdfTemplateKey]);
+							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportPdfTemplates[config.pdfTemplateKey]);
 							if (!clUserSvc.user || (!clUserSvc.user.isPremium && html.length > 10000)) {
 								return clDialog.show({
 									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',

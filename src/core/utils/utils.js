@@ -36,6 +36,20 @@ angular.module('classeur.core.utils', [])
 			}
 			return clUid;
 		})
+	.factory('clHash',
+		function() {
+			return function(str) {
+				var i = 0,
+					hash = 0,
+					c;
+				if (str.length === 0) return hash;
+				for (; i < str.length; i++) {
+					c = str.charCodeAt(i);
+					hash = ((hash << 5) - hash) + c;
+				}
+				return hash;
+			};
+		})
 	.factory('clIsNavigatorOnline',
 		function($window) {
 			return function() {
@@ -45,20 +59,20 @@ angular.module('classeur.core.utils', [])
 	.filter('clTimeSince',
 		function() {
 			var time_formats = [
-				[120, '1 minute ago', '1 minute from now'], // 60*2
-				[3600, 'minutes', 60], // 60*60, 60
-				[7200, '1 hour ago', '1 hour from now'], // 60*60*2
-				[86400, 'hours', 3600], // 60*60*24, 60*60
-				[172800, 'Yesterday', 'Tomorrow'], // 60*60*24*2
-				[604800, 'days', 86400], // 60*60*24*7, 60*60*24
-				[1209600, 'Last week', 'Next week'], // 60*60*24*7*4*2
-				[2419200, 'weeks', 604800], // 60*60*24*7*4, 60*60*24*7
-				[4838400, 'Last month', 'Next month'], // 60*60*24*7*4*2
-				[29030400, 'months', 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
-				[58060800, 'Last year', 'Next year'], // 60*60*24*7*4*12*2
-				[2903040000, 'years', 29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
-				[5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
-				[58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
+				[60 * 2, '1 minute ago', '1 minute from now'],
+				[60 * 60, 'minutes', 60],
+				[60 * 60 * 2, '1 hour ago', '1 hour from now'],
+				[60 * 60 * 24, 'hours', 60 * 60],
+				[60 * 60 * 24 * 2, 'Yesterday', 'Tomorrow'],
+				[60 * 60 * 24 * 7, 'days', 60 * 60 * 24],
+				[60 * 60 * 24 * 7 * 4 * 2, 'Last week', 'Next week'],
+				[60 * 60 * 24 * 7 * 4, 'weeks', 60 * 60 * 24 * 7],
+				[60 * 60 * 24 * 7 * 4 * 2, 'Last month', 'Next month'],
+				[60 * 60 * 24 * 7 * 4 * 12, 'months', 60 * 60 * 24 * 7 * 4],
+				[60 * 60 * 24 * 7 * 4 * 12 * 2, 'Last year', 'Next year'],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100, 'years', 60 * 60 * 24 * 7 * 4 * 12],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100 * 2, 'Last century', 'Next century'],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100 * 20, 'centuries', 60 * 60 * 24 * 7 * 4 * 12 * 100]
 			];
 			return function(time) {
 				var seconds = (+new Date() - time) / 1000,

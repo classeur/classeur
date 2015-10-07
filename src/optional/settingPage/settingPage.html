@@ -48,6 +48,14 @@
                     </p>
                     <p class="group">
                         <span class="label">
+                            PDF export formatting
+                        </span>
+                        <md-button class="md-primary" ng-click="managePdfTemplates()">
+                            Manage PDF templates
+                        </md-button>
+                    </p>
+                    <p class="group">
+                        <span class="label">
                             Reset app settings
                         </span>
                         <md-button class="md-primary" ng-click="loadDefault()">Load default</md-button>
@@ -197,9 +205,9 @@
                     </md-button>
                 </div>
                 <div layout="row">
-                    <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter"></md-button>
-                    <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook"></md-button>
-                    <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github"></md-button>
+                    <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter" aria-label="Twitter"></md-button>
+                    <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook" aria-label="Facebook"></md-button>
+                    <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github" aria-label="GitHub"></md-button>
                 </div>
             </div>
         </div>

@@ -6,5 +6,6 @@
 	"editorInlineImg": true,
 	"editorMonospacedFont": false,
 	"editorHelpBtn": true,
-	"exportTemplates": {}
+	"exportTemplates": {},
+	"exportPdfTemplates": {}
 }

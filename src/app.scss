@@ -66,7 +66,7 @@ body {
 }
 
 .background {
-    background-color: #F9F9F9;
+    background-color: #fafafa;
 }
 
 .paper {
@@ -76,7 +76,7 @@ body {
 @for $i from 1 through length($plastic-colors) {
     $c: nth($plastic-colors, $i);
     .plastic-#{$i - 1} {
-        background-color: lighten(desaturate($c, 12%), 18%) !important;
+        background-color: lighten(desaturate($c, 12%), 20%) !important;
     }
 }
 

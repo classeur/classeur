@@ -7,11 +7,16 @@ angular.module('classeur.core.settings', [])
 				'Plain text': 'core/settings/exportTemplatePlainText.html',
 				'HTML': 'core/settings/exportTemplateHtml.html',
 				'Styled HTML': 'core/settings/exportTemplateStyledHtml.html',
+			};
+			var defaultPdfTemplatePaths = {
 				'PDF': 'core/settings/exportTemplatePdf.html',
 			};
 			defaultSettings = JSON.parse(defaultSettings);
 			defaultTemplatePaths.cl_each(function(path, key) {
 				defaultSettings.exportTemplates[key] = $templateCache.get(path);
+			});
+			defaultPdfTemplatePaths.cl_each(function(path, key) {
+				defaultSettings.exportPdfTemplates[key] = $templateCache.get(path);
 			});
 			defaultSettings = JSON.stringify(defaultSettings);
 
@@ -51,8 +56,18 @@ angular.module('classeur.core.settings', [])
 				}, {});
 			}
 
+			function sanitizeExportPdfTemplates(exportPdfTemplates) {
+				// Add default templates if not present
+				exportPdfTemplates = exportPdfTemplates || {};
+				return Object.keys(exportPdfTemplates).concat(Object.keys(defaultPdfTemplatePaths)).sort().cl_reduce(function(result, key) {
+					result[key] = exportPdfTemplates.hasOwnProperty(key) ? exportPdfTemplates[key] : clSettingSvc.defaultValues.exportPdfTemplates[key];
+					return result;
+				}, {});
+			}
+
 			function updateSettings(values) {
 				values.exportTemplates = sanitizeExportTemplates(values.exportTemplates);
+				values.exportPdfTemplates = sanitizeExportPdfTemplates(values.exportPdfTemplates);
 				clSettingSvc.values = ({}).cl_extend(JSON.parse(defaultSettings)).cl_extend(values);
 			}
 
@@ -60,6 +75,7 @@ angular.module('classeur.core.settings', [])
 			clSettingSvc.checkAll = checkAll;
 			clSettingSvc.updateSettings = updateSettings;
 			clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates;
+			clSettingSvc.sanitizeExportPdfTemplates = sanitizeExportPdfTemplates;
 
 			clSettingSvc.read();
 			updateSettings(clSettingSvc.values);

@@ -45,8 +45,8 @@ angular.module('classeur.optional.conflicts', [])
 							clDialog.show({
 								templateUrl: 'optional/conflicts/fixConflictDialog.html',
 								controller: ['$scope', function(scope) {
-									scope.part1 = text.slice(offsets.offset1, offsets.offset2);
-									scope.part2 = text.slice(offsets.offset2, offsets.offset3);
+									scope.part1 = text.slice(offsets[0], offsets[1]);
+									scope.part2 = text.slice(offsets[1], offsets[2]);
 									scope.selectedPart = conflictElt.conflictPart;
 								}],
 								onComplete: function(scope) {
@@ -60,11 +60,11 @@ angular.module('classeur.optional.conflicts', [])
 										if (!offsets) {
 											return clToast('Conflict can\'t be located in the file.');
 										}
-										var newText = text.slice(0, offsets.offset1);
+										var newText = text.slice(0, offsets[0]);
 										newText += scope.selectedPart === 1 ?
-											text.slice(offsets.offset1, offsets.offset2) :
-											text.slice(offsets.offset2, offsets.offset3);
-										newText += text.slice(offsets.offset3);
+											text.slice(offsets[0], offsets[1]) :
+											text.slice(offsets[1], offsets[2]);
+										newText += text.slice(offsets[2]);
 										clEditorSvc.cledit.setContent(newText);
 										clConflictSvc.deleteConflict(contentDao, conflictElt.conflictId);
 									};
@@ -98,8 +98,8 @@ angular.module('classeur.optional.conflicts', [])
 					var offsets = clConflictSvc.getConflictOffsets(text, scope.conflict);
 					if (offsets) {
 						return {
-							start: offsets.offset1,
-							end: offsets.offset2
+							start: offsets[0],
+							end: offsets[1]
 						};
 					}
 					clConflictSvc.deleteConflict(contentDao, scope.conflictId);
@@ -121,8 +121,8 @@ angular.module('classeur.optional.conflicts', [])
 					var offsets = clConflictSvc.getConflictOffsets(text, scope.conflict);
 					if (offsets) {
 						return {
-							start: offsets.offset2,
-							end: offsets.offset3
+							start: offsets[1],
+							end: offsets[2]
 						};
 					}
 					clConflictSvc.deleteConflict(contentDao, scope.conflictId);
@@ -152,7 +152,7 @@ angular.module('classeur.optional.conflicts', [])
 					if (Object.keys(contentDao.conflicts).length) {
 						clEditorLayoutSvc.currentControl = 'conflictAlert';
 					}
-				}, 500);
+				}, 2000);
 
 				scope.$watch('currentFileDao.contentDao.conflicts', function() {
 					if (clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {

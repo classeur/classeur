@@ -40,7 +40,7 @@
     }
     .plan.item {
         position: relative;
-        background-color: #fafafa;
+        background-color: #fbfbfb;
         margin: 0 -5px 50px;
         height: 520px;
         text-align: center;
@@ -61,7 +61,7 @@
             }
         }
         .name {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 300;
             margin-bottom: 15px;
             &.big {
@@ -70,7 +70,7 @@
             }
         }
         .price {
-            font-size: 40px;
+            font-size: 44px;
             line-height: 1;
         }
         ul {

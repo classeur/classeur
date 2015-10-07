@@ -1,9 +1,8 @@
 angular.module('classeur.core.templateManagerDialog', [])
 	.factory('clTemplateManagerDialog',
 		function($window, clDialog, clSettingSvc, clToast) {
-			return function(templates) {
+			function openDialog(templates, canBeRemoved) {
 				clDialog.cancel();
-				templates = clSettingSvc.sanitizeExportTemplates(templates);
 				return clDialog.show({
 					templateUrl: 'core/templateManagerDialog/templateManagerDialog.html',
 					onComplete: function(scope, element) {
@@ -17,7 +16,7 @@ angular.module('classeur.core.templateManagerDialog', [])
 						});
 						var lastSelectedKey;
 						scope.$watch('selectedKey', function(selectedKey) {
-							scope.canBeRemoved = selectedKey && !clSettingSvc.defaultValues.exportTemplates.hasOwnProperty(selectedKey);
+							scope.canBeRemoved = selectedKey && canBeRemoved(selectedKey);
 							if (lastSelectedKey !== selectedKey) {
 								lastSelectedKey = selectedKey;
 								scope.templateKey = selectedKey;
@@ -49,12 +48,33 @@ angular.module('classeur.core.templateManagerDialog', [])
 						};
 						scope.ok = function() {
 							scope.add();
-							clDialog.hide(clSettingSvc.sanitizeExportTemplates(templates));
+							clDialog.hide(templates);
 						};
 						scope.cancel = function() {
 							clDialog.cancel();
 						};
 					}
 				});
+			}
+
+			return {
+				manageExportTemplate: function(templates) {
+					templates = clSettingSvc.sanitizeExportTemplates(templates);
+					return openDialog(templates, function(selectedKey) {
+						return !clSettingSvc.defaultValues.exportTemplates.hasOwnProperty(selectedKey);
+					})
+						.then(function(templates) {
+							return clSettingSvc.sanitizeExportTemplates(templates);
+						});
+				},
+				manageExportPdfTemplate: function(templates) {
+					templates = clSettingSvc.sanitizeExportPdfTemplates(templates);
+					return openDialog(templates, function(selectedKey) {
+						return !clSettingSvc.defaultValues.exportPdfTemplates.hasOwnProperty(selectedKey);
+					})
+						.then(function(templates) {
+							return clSettingSvc.sanitizeExportPdfTemplates(templates);
+						});
+				}
 			};
 		});

@@ -12,6 +12,7 @@ angular.module('classeur.core.files', [])
 			var contentDaoProto = clLocalStorageObject('c', {
 				isLocal: 'string',
 				lastChange: 'int',
+				serverHash: 'string',
 				text: 'string',
 				properties: 'object',
 				discussions: 'object',
@@ -46,6 +47,7 @@ angular.module('classeur.core.files', [])
 				this.contentDao.$read.lastChange();
 				if (this.state === 'loaded') {
 					this.contentDao.$read.text();
+					this.contentDao.$read.serverHash();
 					this.contentDao.$read.properties();
 					this.contentDao.$read.discussions();
 					this.contentDao.$read.comments();
@@ -56,6 +58,7 @@ angular.module('classeur.core.files', [])
 			};
 
 			FileDao.prototype.freeContent = function() {
+				this.contentDao.$free.serverHash();
 				this.contentDao.$free.text();
 				this.contentDao.$free.properties();
 				this.contentDao.$free.discussions();
@@ -67,6 +70,7 @@ angular.module('classeur.core.files', [])
 			FileDao.prototype.writeContent = function(updateLastChange) {
 				this.contentDao.$write.isLocal();
 				if (this.state === 'loaded') {
+					this.contentDao.$write.serverHash();
 					updateLastChange |= this.contentDao.$write.text();
 					updateLastChange |= this.contentDao.$write.properties();
 					updateLastChange |= this.contentDao.$write.discussions();
@@ -151,6 +155,7 @@ angular.module('classeur.core.files', [])
 				u: true,
 				lastChange: true,
 				isLocal: true,
+				serverHash: true,
 				text: true,
 				properties: true,
 				discussions: true,

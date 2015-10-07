@@ -29,7 +29,7 @@
                         <div class="item" ng-if="userSvc.user">
                             Hi <b>{{userSvc.user.name}}</b>
                         </div>
-                        <md-button class="item settings icon-settings" ng-href="#!/settings">
+                        <md-button class="item settings icon-settings" ng-href="#!/settings" aria-label="Settings">
                         </md-button>
                         <md-button class="item" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken">
                             Sign in with Google
@@ -75,9 +75,9 @@
                         </md-button>
                     </div>
                     <div layout="row">
-                        <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter"></md-button>
-                        <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook"></md-button>
-                        <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github"></md-button>
+                        <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter" aria-label="Twitter"></md-button>
+                        <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook" aria-label="Facebook"></md-button>
+                        <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github" aria-label="GitHub"></md-button>
                     </div>
                 </div>
             </div>

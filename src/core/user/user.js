@@ -7,7 +7,7 @@ angular.module('classeur.core.user', [])
         })
     .factory('clUserActivity',
         function($window, $rootScope, clLocalStorage) {
-            var inactiveAfter = 180000, // 3 minutes
+            var inactiveAfter = 3 * 60 * 1000, // 3 minutes
                 lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus',
                 clUserActivity = {};
 
@@ -29,13 +29,6 @@ angular.module('classeur.core.user', [])
                 }
                 return isActive;
             };
-
-            setInterval(function() {
-                var isActive = lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
-                if (isActive !== clUserActivity.isActive) {
-                    clUserActivity.isActive = isActive;
-                }
-            }, 1000);
 
             setLastFocus();
             $window.addEventListener('focus', setLastFocus);
