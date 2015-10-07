@@ -10,15 +10,18 @@
             <label>Name</label>
             <input ng-model="templateKey">
         </md-input-container>
-        <pre class="prism"></pre>
         <div layout="row" layout-align="end">
-            <md-button ng-if="canBeRemoved" ng-click="remove()">
+            <md-button class="md-primary" ng-if="canBeRemoved" ng-click="remove()">
                 Remove
             </md-button>
-            <md-button ng-click="add()" class="md-primary">
+            <md-button class="md-primary" ng-if="!selectedKey" ng-click="add()">
                 Add
             </md-button>
+            <md-button class="md-primary" ng-if="selectedKey" ng-click="add()">
+                Replace
+            </md-button>
         </div>
+        <pre class="prism"></pre>
         <p>
             <b>Tip:</b> Template engine uses Mustache. For example:
         </p>

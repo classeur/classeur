@@ -2,7 +2,7 @@
     <md-dialog-content>
         <h2>Blog posts</h2>
         <cl-blog-post-entry ng-repeat="blogPost in postToBlogSvc.blogPosts track by blogPost.id"></cl-blog-post-entry>
-        <md-button ng-href="/#!/settings?tab=blogs">
+        <md-button class="md-primary" ng-href="/#!/settings?tab=blogs">
             Manage blogs...
         </md-button>
     </md-dialog-content>

@@ -15,7 +15,7 @@
                     <label>Preview</label>
                     <textarea ng-model="textPreview" row="3"></textarea>
                 </md-input-container>
-                <md-button ng-click="manageTemplates()">
+                <md-button class="md-primary" ng-click="manageTemplates()">
                     Manage templates...
                 </md-button>
             </div>
@@ -27,7 +27,7 @@
                 <md-select ng-model="config.pdfTemplateKey" ng-change="config.format = 'pdf'">
                     <md-option ng-repeat="(key, value) in pdfTemplates" value="{{key}}">{{key}}</md-option>
                 </md-select>
-                <md-button ng-click="managePdfTemplates()">
+                <md-button class="md-primary" ng-click="managePdfTemplates()">
                     Manage PDF templates...
                 </md-button>
             </div>
