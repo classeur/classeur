@@ -1,6 +1,6 @@
 angular.module('classeur.core.editor', [])
 	.directive('clEditor',
-		function($window, $timeout, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
+		function($window, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'core/editor/editor.html',
@@ -371,7 +371,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $timeout, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
+		function($window, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -401,8 +401,21 @@ angular.module('classeur.core.editor', [])
 				}
 			});
 
+			var noSpellcheckTokens = [
+				'code',
+				'pre',
+				'pre gfm',
+				'math block',
+				'math inline',
+				'math expr block',
+				'math expr inline',
+				'latex block',
+			].cl_reduce(function(noSpellcheckTokens, key) {
+				noSpellcheckTokens[key] = true;
+				return noSpellcheckTokens;
+			} , Object.create(null));
 			Prism.hooks.add('wrap', function(env) {
-				if (env.type === 'code' || env.type.match(/^pre($|\b)/)) {
+				if (noSpellcheckTokens[env.type]) {
 					env.attributes.spellcheck = 'false';
 				}
 			});
@@ -431,7 +444,7 @@ angular.module('classeur.core.editor', [])
 				'toc',
 			];
 			var startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function(map, type) {
-				return (map[type] = true) , map;
+				return (map[type] = true), map;
 			}, Object.create(null));
 			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
 			var diffMatchPatch = new $window.diff_match_patch();
@@ -705,7 +718,7 @@ angular.module('classeur.core.editor', [])
 					$rootScope.$apply();
 				}
 
-				var imgLoadingListeners = previewElt.getElementsByTagName('img').cl_map(function(imgElt) {
+				var imgLoadingListeners = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function(imgElt) {
 					return function(cb) {
 						if (!imgElt.src) {
 							return cb();
@@ -721,11 +734,11 @@ angular.module('classeur.core.editor', [])
 
 			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
 				previewTextStartOffset = filenameSpaceElt.textContent.length;
-				if(filenameSpaceElt.previousSibling) {
+				if (filenameSpaceElt.previousSibling) {
 					previewTextStartOffset += filenameSpaceElt.previousSibling.textContent.length;
 				}
 				clEditorSvc.sectionDescList.cl_each(function(sectionDesc) {
-					if(!sectionDesc.textToPreviewDiffs) {
+					if (!sectionDesc.textToPreviewDiffs) {
 						sectionDesc.previewText = sectionDesc.previewElt.textContent;
 						sectionDesc.textToPreviewDiffs = diffMatchPatch.diff_main(sectionDesc.section.text, sectionDesc.previewText);
 					}
@@ -738,11 +751,11 @@ angular.module('classeur.core.editor', [])
 			clEditorSvc.getPreviewOffset = function(textOffset) {
 				var previewOffset = previewTextStartOffset;
 				clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
-					if(!sectionDesc.textToPreviewDiffs) {
+					if (!sectionDesc.textToPreviewDiffs) {
 						previewOffset = undefined;
 						return true;
 					}
-					if(sectionDesc.section.text.length >= textOffset) {
+					if (sectionDesc.section.text.length >= textOffset) {
 						previewOffset += diffMatchPatch.diff_xIndex(sectionDesc.textToPreviewDiffs, textOffset);
 						return true;
 					}

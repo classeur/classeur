@@ -148,7 +148,7 @@ angular.module('classeur.optional.conflicts', [])
 
 			function link(scope) {
 				var contentDao = scope.currentFileDao.contentDao;
-				$timeout(function() {
+				var timeoutId = $timeout(function() {
 					if (Object.keys(contentDao.conflicts).length) {
 						clEditorLayoutSvc.currentControl = 'conflictAlert';
 					}
@@ -176,6 +176,10 @@ angular.module('classeur.optional.conflicts', [])
 					var scrollerElt = clEditorSvc.editorElt.parentNode;
 					scrollerElt.clanim.scrollTop(offset < 0 ? 0 : offset).duration(400).easing('materialOut').start();
 				};
+
+				scope.$on('$destroy', function() {
+					$timeout.cancel(timeoutId);
+				});
 			}
 		})
 	.directive('clConflictAlertPanel',

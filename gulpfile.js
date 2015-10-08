@@ -1,4 +1,5 @@
 var childProcess = require('child_process');
+var path = require('path');
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
@@ -42,44 +43,45 @@ gulp.task('default', [
 ]);
 
 var vendorJs = [
-	'node_modules/angular/angular.js',
-	'node_modules/angular-animate/angular-animate.js',
-	'node_modules/angular-aria/angular-aria.js',
-	'node_modules/angular-messages/angular-messages.js',
-	'node_modules/angular-route/angular-route.js',
-	'node_modules/angular-material/angular-material.js',
-	'node_modules/angular-slugify/angular-slugify.js',
-	'node_modules/bezier-easing/build.js',
-	'node_modules/clanim/clanim.js',
-	'node_modules/googlediff/javascript/diff_match_patch_uncompressed.js', // Needs to come before cldiffutils and cledit
-	'node_modules/clunderscore/clunderscore.js', // Needs to come before cledit
-	'node_modules/cldiffutils/cldiffutils.js',
-	'node_modules/cledit/scripts/cleditCore.js',
-	'node_modules/cledit/scripts/cleditHighlighter.js',
-	'node_modules/cledit/scripts/cleditKeystroke.js',
-	'node_modules/cledit/scripts/cleditMarker.js',
-	'node_modules/cledit/scripts/cleditSelectionMgr.js',
-	'node_modules/cledit/scripts/cleditUndoMgr.js',
-	'node_modules/cledit/scripts/cleditUtils.js',
-	'node_modules/cledit/scripts/cleditWatcher.js',
-	'node_modules/cledit/demo/mdGrammar.js',
-	'node_modules/filesaver.js/FileSaver.js',
-	'node_modules/hammerjs/hammer.js',
-	'node_modules/markdown-it/dist/markdown-it.js',
-	'node_modules/markdown-it-abbr/dist/markdown-it-abbr.js',
-	'node_modules/markdown-it-deflist/dist/markdown-it-deflist.js',
-	'node_modules/markdown-it-emoji/dist/markdown-it-emoji.js',
-	'node_modules/markdown-it-footnote/dist/markdown-it-footnote.js',
-	'node_modules/markdown-it-sub/dist/markdown-it-sub.js',
-	'node_modules/markdown-it-sup/dist/markdown-it-sup.js',
-	'node_modules/prismjs/components/prism-core.js',
-	'node_modules/prismjs/components/prism-markup.js',
-	'node_modules/prismjs/components/prism-clike.js',
-	'node_modules/prismjs/components/prism-javascript.js',
-	'node_modules/prismjs/components/prism-css.js',
-	'node_modules/prismjs/components/prism-!(*.min).js',
-	'node_modules/mustache/mustache.js',
-];
+	'angular/angular',
+	'angular-animate/angular-animate',
+	'angular-aria/angular-aria',
+	'angular-messages/angular-messages',
+	'angular-route/angular-route',
+	'angular-material/angular-material',
+	'angular-slugify/angular-slugify',
+	'bezier-easing/build',
+	'clanim/clanim',
+	'googlediff/javascript/diff_match_patch_uncompressed', // Needs to come before cldiffutils and cledit
+	'clunderscore/clunderscore', // Needs to come before cledit
+	'cldiffutils/cldiffutils',
+	'cldiffutils/cldiffutils',
+	'cledit/scripts/cleditCore',
+	'cledit/scripts/cleditHighlighter',
+	'cledit/scripts/cleditKeystroke',
+	'cledit/scripts/cleditMarker',
+	'cledit/scripts/cleditSelectionMgr',
+	'cledit/scripts/cleditUndoMgr',
+	'cledit/scripts/cleditUtils',
+	'cledit/scripts/cleditWatcher',
+	'cledit/demo/mdGrammar',
+	'filesaver.js/FileSaver',
+	'hammerjs/hammer',
+	'markdown-it/dist/markdown-it',
+	'markdown-it-abbr/dist/markdown-it-abbr',
+	'markdown-it-deflist/dist/markdown-it-deflist',
+	'markdown-it-emoji/dist/markdown-it-emoji',
+	'markdown-it-footnote/dist/markdown-it-footnote',
+	'markdown-it-sub/dist/markdown-it-sub',
+	'markdown-it-sup/dist/markdown-it-sup',
+	'prismjs/components/prism-core',
+	'prismjs/components/prism-markup',
+	'prismjs/components/prism-clike',
+	'prismjs/components/prism-javascript',
+	'prismjs/components/prism-css',
+	'mustache/mustache',
+].map(require.resolve);
+vendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'));
 
 var vendorCss = [
 	'node_modules/angular-material/angular-material.css',
