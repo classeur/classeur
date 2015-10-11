@@ -271,20 +271,18 @@ angular.module('classeur.optional.settingPage', [])
 					scope.deleteBlog = function(blog) {
 						clDialog.show(clDialog.confirm()
 								.title('Delete Blog')
-								.content('You\'re about to remove a blog and all its associated blog posts. Blog posts won\'t be removed from your actual websites.')
+								.content('You\'re about to remove a blog and its blog posts. It won\'t affect files and data already published on your website.')
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
-								scope.blogs = scope.blogs.cl_filter(function(remainingBlog) {
-									return remainingBlog.id !== blog.id;
-								});
-								var unwatch = scope.$watch('socketSvc.isReady', function(value) {
-									value && unwatch();
-									clSocketSvc.sendMsg({
-										type: 'deleteBlog',
-										id: blog.id
+								if (!scope.getBlogsPending) {
+									scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
+										clSocketSvc.sendMsg({
+											type: 'deleteBlog',
+											id: blog.id
+										});
 									});
-								});
+								}
 							});
 					};
 
@@ -301,6 +299,9 @@ angular.module('classeur.optional.settingPage', [])
 					function blogsHandler(msg) {
 						if (scope.getBlogsPending) {
 							scope.blogs = msg.blogs;
+							scope.anyDisabled = scope.blogs.cl_some(function(blog) {
+								return blog.status === 'disabled';
+							});
 							scope.getBlogsPending();
 							scope.getBlogsPending = undefined;
 							scope.$evalAsync();

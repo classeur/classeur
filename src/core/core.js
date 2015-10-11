@@ -65,24 +65,6 @@ angular.module('classeur.core', [])
 						$location.url('');
 					}
 				})
-				.when('/docs/:fileName', {
-					template: '<cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-					controller: function($scope, $routeParams, $timeout, $location, clDocFileSvc, clEditorLayoutSvc) {
-						var fileDao = clDocFileSvc($routeParams.fileName);
-						$scope.loadFile(fileDao);
-						$timeout(function() {
-							if (fileDao === $scope.currentFileDao) {
-								clEditorLayoutSvc.init();
-								$scope.fileLoaded = true;
-							}
-						});
-						$scope.$watch('currentFileDao.state', function(state) {
-							if (!state) {
-								return $location.url('');
-							}
-						});
-					}
-				})
 				.when('/states/:stateId', {
 					template: '',
 					controller: function($location, clStateMgr) {

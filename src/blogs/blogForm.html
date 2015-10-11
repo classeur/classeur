@@ -11,4 +11,6 @@
     <input ng-model="form.name">
 </md-input-container>
 <br>
+<cl-blogger-blog-form ng-if="form.platformId === 'blogger'"></cl-blogger-blog-form>
 <cl-github-blog-form ng-if="form.platformId === 'github'"></cl-github-blog-form>
+<cl-wordpress-blog-form ng-if="form.platformId === 'wordpress'"></cl-wordpress-blog-form>

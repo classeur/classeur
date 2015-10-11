@@ -50,7 +50,7 @@ angular.module('classeur.blogs', [])
 				link: link
 			};
 
-			function link(scope, element) {
+			function link(scope) {
 				scope.form.templateKey = 'HTML';
 				scope.templates = clSettingSvc.values.exportTemplates;
 				scope.manageTemplates = function() {
@@ -59,25 +59,9 @@ angular.module('classeur.blogs', [])
 							clSettingSvc.values.exportTemplates = templates;
 						});
 				};
-				var preElt = element[0].querySelector('pre.prism');
-				var cledit = $window.cledit(preElt);
-				cledit.init({
-					highlighter: function(text) {
-						return $window.Prism.highlight(text, $window.Prism.languages.markup);
-					}
-				});
-				var templateContent;
 				scope.$watch('form.templateKey', function(templateKey) {
 					if (templateKey) {
-						cledit.setContent(scope.templates[templateKey] || '');
-						templateContent = cledit.getContent();
-					}
-				});
-				cledit.on('contentChanged', function(content) {
-					scope.form.template = content;
-					if (scope.form.templateKey && templateContent !== content) {
-						scope.form.templateKey = undefined;
-						scope.$evalAsync();
+						scope.form.template = scope.templates[templateKey];
 					}
 				});
 
@@ -135,7 +119,7 @@ angular.module('classeur.blogs', [])
 			return result;
 		})
 	.factory('clBlogSvc',
-		function(clGithubBlogPlatform, $window, clToast, clBlogPlatform) {
+		function(clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, $window, clToast, clBlogPlatform) {
 			var platformMap = Array.prototype.cl_reduce.call(arguments, function(platformMap, arg) {
 				if (arg instanceof clBlogPlatform.BlogPlatform) {
 					platformMap[arg.id] = arg;
@@ -172,7 +156,8 @@ angular.module('classeur.blogs', [])
 					}
 				},
 				createPostSubForm: function(blog) {
-					return ({}).cl_extend(blog && platformMap[blog.platformId].defaultPostSubForm);
+					return blog ?
+						({}).cl_extend(blog).cl_extend(platformMap[blog.platformId].defaultPostSubForm) : {};
 				},
 				fillPostSubForm: function(blog, subForm) {
 					blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm);

@@ -237,19 +237,19 @@ angular.module('classeur.extensions.markdown', [])
 					var fileProperties = scope.currentFileDao.contentDao.properties;
 					var tocMaxDepth = parseInt(fileProperties['ext:markdown:tocmaxdepth']);
 					var newOptions = {
-						abbr: fileProperties['ext:markdown:abbr'] !== '0',
-						breaks: fileProperties['ext:markdown:breaks'] !== '0',
-						deflist: fileProperties['ext:markdown:deflist'] !== '0',
-						del: fileProperties['ext:markdown:del'] !== '0',
-						fence: fileProperties['ext:markdown:fence'] !== '0',
-						footnote: fileProperties['ext:markdown:footnote'] !== '0',
-						linkify: fileProperties['ext:markdown:linkify'] !== '0',
-						sub: fileProperties['ext:markdown:sub'] !== '0',
-						sup: fileProperties['ext:markdown:sup'] !== '0',
-						table: fileProperties['ext:markdown:table'] !== '0',
-						toc: fileProperties['ext:markdown:toc'] !== '0',
+						abbr: fileProperties['ext:markdown:abbr'] !== 'false',
+						breaks: fileProperties['ext:markdown:breaks'] !== 'false',
+						deflist: fileProperties['ext:markdown:deflist'] !== 'false',
+						del: fileProperties['ext:markdown:del'] !== 'false',
+						fence: fileProperties['ext:markdown:fence'] !== 'false',
+						footnote: fileProperties['ext:markdown:footnote'] !== 'false',
+						linkify: fileProperties['ext:markdown:linkify'] !== 'false',
+						sub: fileProperties['ext:markdown:sub'] !== 'false',
+						sup: fileProperties['ext:markdown:sup'] !== 'false',
+						table: fileProperties['ext:markdown:table'] !== 'false',
+						toc: fileProperties['ext:markdown:toc'] !== 'false',
 						tocMaxDepth: isNaN(tocMaxDepth) ? 6 : tocMaxDepth,
-						typographer: fileProperties['ext:markdown:typographer'] !== '0',
+						typographer: fileProperties['ext:markdown:typographer'] !== 'false',
 					};
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;

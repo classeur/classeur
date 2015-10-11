@@ -169,23 +169,30 @@ angular.module('classeur.core.sync', [])
 			});
 
 			function isFilePendingCreation(fileDao) {
-				return (!fileDao.userId || fileDao.sharing === 'rw') && fileDao.contentDao.isLocal && !clSyncDataSvc.files.hasOwnProperty(fileDao.id);
+				var isWritable = !fileDao.userId || fileDao.sharing === 'rw';
+				if(!isWritable) {
+					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
+					isWritable = folderDao && folderDao.sharing === 'rw';
+				}
+				return isWritable && fileDao.contentDao.isLocal && !clSyncDataSvc.files.hasOwnProperty(fileDao.id);
 			}
 
 			function updatePublicFileMetadata(fileDao, metadata) {
 				fileDao.refreshed = Date.now();
 				var syncData = clSyncDataSvc.files[fileDao.id] || {};
-				// File permission can change without metadata update
-				if (metadata.updated && ((metadata.updated !== syncData.r && metadata.updated !== syncData.s) || fileDao.sharing !== metadata.permission)) {
-					fileDao.name = metadata.name || '';
-					// For public files we take the permission as the file sharing
-					fileDao.sharing = metadata.permission || '';
-					fileDao.updated = metadata.updated;
-					fileDao.userId = clSyncDataSvc.userId !== metadata.userId ? metadata.userId : '';
-					fileDao.write(fileDao.updated);
+				if (metadata.updated) {
+					// File permission can change without metadata update
+					if ((metadata.updated !== syncData.r && metadata.updated !== syncData.s) || fileDao.sharing !== metadata.permission) {
+						fileDao.name = metadata.name || '';
+						// For public files we take the permission as the file sharing
+						fileDao.sharing = metadata.permission || '';
+						fileDao.updated = metadata.updated;
+						fileDao.userId = clSyncDataSvc.userId !== metadata.userId ? metadata.userId : '';
+						fileDao.write(fileDao.updated);
+					}
+					syncData.r = metadata.updated;
+					clSyncDataSvc.files[fileDao.id] = syncData;
 				}
-				syncData.r = metadata.updated;
-				clSyncDataSvc.files[fileDao.id] = syncData;
 			}
 
 			function updatePublicFolderMetadata(folderDao, metadata) {
@@ -826,6 +833,7 @@ angular.module('classeur.core.sync', [])
 		})
 	.factory('clContentSyncSvc',
 		function($window, $rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
+			var textMaxSize = 200000;
 			var backgroundUpdateContentEvery = 30 * 1000; // 30 sec
 			var clContentSyncSvc = {};
 			var watchCtx;
@@ -947,6 +955,7 @@ angular.module('classeur.core.sync', [])
 				// Evaluate scope synchronously to have cledit instantiated
 				apply && $rootScope.$apply();
 			});
+
 			function getPublicFile(fileDao) {
 				if (!fileDao || !fileDao.state || !fileDao.loadPending || !fileDao.userId || !clIsNavigatorOnline()) {
 					return;
@@ -975,6 +984,16 @@ angular.module('classeur.core.sync', [])
 					});
 			}
 
+			var lastTooBigWarning = 0;
+
+			function tooBigWarning() {
+				var currentDate = Date.now();
+				if (currentDate - lastTooBigWarning > 30000) {
+					clToast('File is too big!');
+					lastTooBigWarning = currentDate;
+				}
+			}
+
 			function sendContentChange() {
 				if (!watchCtx || watchCtx.text === undefined || watchCtx.sentMsg) {
 					return;
@@ -982,7 +1001,11 @@ angular.module('classeur.core.sync', [])
 				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || !clUserSvc.user.isPremium)) {
 					return;
 				}
-				var textChanges = clDiffUtils.getTextPatches(watchCtx.text, clEditorSvc.cledit.getContent());
+				var newText = clEditorSvc.cledit.getContent();
+				if (newText.length > textMaxSize) {
+					return tooBigWarning();
+				}
+				var textChanges = clDiffUtils.getTextPatches(watchCtx.text, newText);
 				var propertiesPatches = clDiffUtils.getObjectPatches(watchCtx.properties, watchCtx.fileDao.contentDao.properties);
 				var discussionsPatches = clDiffUtils.getObjectPatches(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions);
 				var commentsPatches = clDiffUtils.getObjectPatches(watchCtx.comments, watchCtx.fileDao.contentDao.comments);

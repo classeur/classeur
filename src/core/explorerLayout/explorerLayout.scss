@@ -113,11 +113,11 @@
             display: none;
         }
         .folder.btn {
-            width: 34px;
+            width: 48px;
             height: 42px;
-            font-size: 32px;
+            font-size: 36px;
             &.icon-publ {
-                color: rgba(255, 255, 255, 0.75);
+                color: #fff;
             }
         }
         md-progress-circular {
@@ -267,8 +267,8 @@
         }
         .icon-publ {
             padding: 8px 2px;
-            font-size: 22px;
-            color: rgba(0, 0, 0, 0.5);
+            font-size: 23px;
+            color: rgba(0, 0, 0, 0.65);
             cursor: pointer;
         }
         &.public {
@@ -305,6 +305,9 @@
                 color: #fff;
                 border-top-right-radius: $border-radius-binder;
                 border-bottom-right-radius: $border-radius-binder;
+                &:hover, &.md-focused {
+                    background-color: transparent;
+                }
                 .rotate-90 {
                     position: absolute;
                     width: 110px;

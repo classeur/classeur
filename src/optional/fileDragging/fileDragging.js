@@ -54,16 +54,14 @@ angular.module('classeur.optional.fileDragging', [])
 				if (scope.folderDao === clExplorerLayoutSvc.createFolder) {
 					return;
 				}
-				element.on('mouseenter', function() {
+				element[0].addEventListener('mouseenter', function() {
 					if (clFileDraggingSvc.files.length) {
 						clFileDraggingSvc.setTargetFolder(scope.folderDao);
-						scope.$apply();
 					}
 				});
-				element.on('mouseleave', function() {
+				element[0].addEventListener('mouseleave', function() {
 					if (clFileDraggingSvc.targetFolder === scope.folderDao) {
 						clFileDraggingSvc.setTargetFolder();
-						scope.$apply();
 					}
 				});
 			}
@@ -90,14 +88,7 @@ angular.module('classeur.optional.fileDragging', [])
 			}
 
 			function setTargetFolder(folderDao) {
-				if (clFileDraggingSvc.targetFolder) {
-					clFileDraggingSvc.targetFolder.isDraggingTarget = false;
-					clFileDraggingSvc.targetFolder = undefined;
-				}
-				if (folderDao) {
-					folderDao.isDraggingTarget = true;
-					clFileDraggingSvc.targetFolder = folderDao;
-				}
+				clFileDraggingSvc.targetFolder = folderDao;
 			}
 
 			function doMoveFiles(targetFolder, files) {

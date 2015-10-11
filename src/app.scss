@@ -111,6 +111,23 @@ body {
     }
 }
 
+.dialog .tip {
+    font-size: 14px;
+    display: block;
+    color: rgba(0, 0, 0, 0.33);
+    margin-left: 10px;
+    margin-right: 10px;
+    ul {
+        margin: 0.5em 0;
+    }
+}
+
+.warning {
+    background-color: rgba(255, 90, 0, 0.15);
+    padding: 12px;
+    border-radius: 5px;
+}
+
 .nav {
     height: 120px;
     md-input-container {

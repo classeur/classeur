@@ -34,7 +34,7 @@
         <cl-preview></cl-preview>
     </div>
     <cl-button ng-if="showHelp" class="md-cheat-sheet btn" opacity="0.35" opacity-hover="0.7" size="34" right="0" bottom="44">
-        <a class="icon-help" ng-href="#!/docs/markdownCheatSheet" target="_blank" aria-label="Markdown Cheat Sheet"></a>
+        <a class="icon-help" ng-href="http://classeur.io" target="_blank" aria-label="Markdown Cheat Sheet"></a>
     </cl-button>
     <div class="binder panel">
         <div class="header panel background">
@@ -66,11 +66,12 @@
                     <div class="menu content panel">
                         <cl-file-name></cl-file-name>
                         <div class="links">
-                            <a layout="row" layout-align="start center" ng-click="editFileProperties()"><span class="icon-list"></span><span class="name">Properties</span></a>
+                            <a layout="row" layout-align="start center" ng-click="editFileProperties()"><span class="icon-view-list"></span><span class="name">Properties</span></a>
                             <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'"><span class="icon-share"></span><span class="name">Sharing</span></a>
+                            <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'postToBlog'"><span class="icon-cloud"></span><span class="name">Post to blog</span></a>
                             <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'"><span class="icon-file-download"></span><span class="name">Export</span></a>
-                            <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'postToBlog'"><span class="icon-cloud-upload"></span><span class="name">Post to blog</span></a>
                             <a layout="row" layout-align="start center" ng-click="makeCurrentFileCopy()"><span class="icon-content-copy"></span><span class="name">Make a copy</span></a>
+                            <a layout="row" layout-align="start center" ng-href="#!/settings"><span class="icon-settings"></span><span class="name">Settings</span></a>
                         </div>
                         <div class="entry">Zoom</div>
                         <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">

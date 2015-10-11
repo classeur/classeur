@@ -20,12 +20,14 @@ $highlighting-color: #FFDF60;
 
 .new-discussion-btn {
     position: absolute;
-    font-size: 16px;
+    font-size: 14px;
     padding: 2px 3px;
     background-color: #fff;
     border-radius: 3px;
     color: #777;
     cursor: pointer;
+    -webkit-transform: scale(1, -1);
+    transform: scale(1, -1);
     -webkit-transition: 0.16s ease-out opacity;
     transition: 0.16s ease-out opacity;
     opacity: 0.7;

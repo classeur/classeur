@@ -8,20 +8,17 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 
 			function link(scope, element, attr) {
-				var elt = element[0];
-				var parentElt = elt.parentNode;
 				var buttonElt = element[0];
+				var parentElt = buttonElt.parentNode;
 				var duration;
 				if (attr.folder) {
 					scope.folderDao = scope.$eval(attr.folder);
 				}
+				var isHover;
 
 				function animate() {
-					var isDraggingTarget = scope.folderDao && scope.folderDao.isDraggingTarget;
 					var isSelected = clExplorerLayoutSvc.currentFolderDao === scope.folderDao;
-					var isOpen = isSelected || isDraggingTarget;
 					element.toggleClass('selected', isSelected);
-					element.toggleClass('open', isOpen);
 					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
 					var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
 					buttonElt.clanim
@@ -30,11 +27,11 @@ angular.module('classeur.core.explorerLayout', [])
 						.offsetWidth; // Force z-offset to refresh before the animation
 					buttonElt.clanim
 						.duration(duration)
-						.translateX(isOpen ? 0 : -5)
+						.translateX(isSelected ? 0 : isHover ? -3 : -5)
 						.translateY(y)
 						.start(true);
-					duration = 100;
-					if (isOpen) {
+					duration = 150;
+					if (isSelected) {
 						// Adjust scrolling position
 						var minY = parentElt.scrollTop + 160;
 						var maxY = parentElt.scrollTop + parentElt.clientHeight - 240;
@@ -47,15 +44,21 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				}
 
+				buttonElt.addEventListener('mouseenter', function() {
+					isHover = true;
+					animate();
+				});
+				buttonElt.addEventListener('mouseleave', function() {
+					isHover = false;
+					animate();
+				});
+
 				scope.$watch('$index', animate);
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(isSelected) {
 					if (isSelected) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
-					animate();
-				});
-				scope.$watch('folderDao.isDraggingTarget', function() {
 					animate();
 				});
 			}
@@ -257,7 +260,7 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 		})
 	.directive('clExplorerLayout',
-		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
+		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
 			var explorerMaxWidth = 760;
 			var noPaddingWidth = 580;
 			var hideOffsetY = 2000;

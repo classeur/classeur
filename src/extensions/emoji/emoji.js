@@ -43,8 +43,8 @@ angular.module('classeur.extensions.emoji', [])
 			function link(scope) {
 				function checkEnabled() {
 					var fileProperties = scope.currentFileDao.contentDao.properties;
-					var newOptions = fileProperties['ext:emoji'] === '1' ? {
-						shortcuts: fileProperties['ext:emoji:shortcuts'] !== '0'
+					var newOptions = fileProperties['ext:emoji'] === 'true' ? {
+						shortcuts: fileProperties['ext:emoji:shortcuts'] !== 'false'
 					} : undefined;
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;

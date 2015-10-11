@@ -2,6 +2,13 @@
     <b>Repository URL:</b> {{form.subForm.repoUrl}}
 </div>
 <br>
+<div class="tip">
+    <b>Add a YAML front matter in your template:</b>
+    <pre ng-non-bindable>
+---
+{{{file.content.propertiesYaml}}}
+---</pre>
+</div>
 <md-input-container>
     <label>File path</label>
     <input ng-model="form.subForm.filePath">

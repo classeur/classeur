@@ -11,8 +11,13 @@
         overflow-x: hidden;
     }
     .md-tab {
-        padding: 12px 16px;
-        font-size: 22px;
+        padding: 12px 0;
+        width: 56px;
+        font-size: 24px;
+        .icon-toc {
+            font-size: 30px;
+            line-height: 22px;
+        }
     }
     md-tabs {
         height: 100%;
@@ -158,6 +163,7 @@
             margin-bottom: 36px;
             a {
                 color: transparentize(#fff, 0.2);
+                text-decoration: none;
                 &:hover {
                     color: #fff;
                 }

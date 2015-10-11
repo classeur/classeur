@@ -359,8 +359,6 @@ angular.module('classeur.core.utils', [])
 				file: function(fileDao) {
 					if (fileDao.id) {
 						return '/files/' + fileDao.id;
-					} else if (fileDao.fileName) {
-						return '/docs/' + fileDao.fileName;
 					} else {
 						return '';
 					}
@@ -377,6 +375,21 @@ angular.module('classeur.core.utils', [])
 						return '';
 					}
 				}
+			};
+		})
+	.factory('clUrlSanitizer',
+		function() {
+			return function(url, addSlash) {
+				if (!url) {
+					return url;
+				}
+				if (url.indexOf('http') !== 0) {
+					url = 'http://' + url;
+				}
+				if (addSlash && url.indexOf('/', url.length - 1) === -1) {
+					url += '/';
+				}
+				return url;
 			};
 		})
 	.factory('clRangeWrapper',

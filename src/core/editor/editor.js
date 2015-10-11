@@ -413,7 +413,7 @@ angular.module('classeur.core.editor', [])
 			].cl_reduce(function(noSpellcheckTokens, key) {
 				noSpellcheckTokens[key] = true;
 				return noSpellcheckTokens;
-			} , Object.create(null));
+			}, Object.create(null));
 			Prism.hooks.add('wrap', function(env) {
 				if (noSpellcheckTokens[env.type]) {
 					env.attributes.spellcheck = 'false';
@@ -892,15 +892,28 @@ angular.module('classeur.core.editor', [])
 				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
 			};
 
+			var yamlSpecialChars = /[:{}[\],&*#?|\-<>=!%@\\]/;
+
 			clEditorSvc.applyTemplate = function(template) {
 				var view = {
 					file: {
 						name: currentFileDao.name,
 						content: {
+							properties: currentFileDao.contentDao.properties,
+							propertiesYaml: currentFileDao.contentDao.properties.cl_reduce(function(yaml, value, key) {
+								key = key.replace("'", "\\'");
+								value = value.replace("'", "\\'");
+								if (key.match(yamlSpecialChars)) {
+									key = "'" + key + "'";
+								}
+								if (value.match(yamlSpecialChars)) {
+									value = "'" + value + "'";
+								}
+								return yaml + key + ': ' + value + '\n';
+							}, ''),
 							text: currentFileDao.contentDao.text,
 							html: clEditorSvc.previewHtml,
 						},
-						properties: currentFileDao.contentDao.properties
 					}
 				};
 				return $window.Mustache.render(template, view);

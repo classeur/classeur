@@ -22,7 +22,7 @@ angular.module('classeur.optional.findReplace', [])
 					highlightOccurrences();
 					if (isOpen()) {
 						!findInputElt.readOnly && setTimeout(function() {
-							findInputElt.focus();
+							findInputElt.select();
 						}, 10);
 					} else {
 						findInputElt.blur();
@@ -38,7 +38,7 @@ angular.module('classeur.optional.findReplace', [])
 							if (isOpen()) {
 								findInputElt.readOnly = false;
 								replaceInputElt.readOnly = false;
-								findInputElt.focus();
+								findInputElt.select();
 								highlightOccurrences();
 							}
 						});

@@ -246,7 +246,7 @@ angular.module('classeur.extensions.mathJax', [])
 				function checkConfig() {
 					var fileProperties = scope.currentFileDao.contentDao.properties;
 
-					var newConfig = fileProperties['ext:mathjax'] !== '0' ? (function() {
+					var newConfig = fileProperties['ext:mathjax'] !== 'false' ? (function() {
 						var tex2jax, tex;
 						try {
 							tex2jax = JSON.parse(fileProperties['ext:mathjax:tex2jax']);

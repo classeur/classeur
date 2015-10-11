@@ -22,16 +22,16 @@
             </md-button>
         </div>
         <pre class="prism"></pre>
-        <p>
-            <b>Tip:</b> Template engine uses Mustache. For example:
-        </p>
-        <pre class="example" ng-non-bindable>
+        <div class="tip">
+            <b>Tip:</b> Mustache variables can be used, for example:
+            <pre class="example" ng-non-bindable>
 {{file.name}}
 {{{file.content.text}}}
 {{{file.content.html}}}</pre>
-            <md-button>
-                More about templates...
-            </md-button>
+        </div>
+        <md-button class="md-primary">
+            More about templates...
+        </md-button>
     </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()" class="md-primary">
