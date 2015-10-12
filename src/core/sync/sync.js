@@ -1097,7 +1097,7 @@ angular.module('classeur.core.sync', [])
 					if (fileDao.isReadOnly || clSyncDataSvc.isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
 						return;
 					}
-					if (fileDao.userId && (fileDao.sharing !== 'rw' || !clUserSvc.user.isUserPremium())) {
+					if (fileDao.userId && (fileDao.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
 						return;
 					}
 					var currentDate = Date.now();
