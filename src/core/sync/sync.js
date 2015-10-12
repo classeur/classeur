@@ -299,7 +299,7 @@ angular.module('classeur.core.sync', [])
 					if (msg.user) {
 						syncData = clSyncDataSvc.userData.user || {};
 						if (syncData.s !== msg.userUpdated) {
-							clUserSvc.setUser(msg.user);
+			                clUserSvc.user = msg.user;
 							clUserSvc.write(msg.userUpdated);
 							apply = true;
 						}
@@ -382,7 +382,7 @@ angular.module('classeur.core.sync', [])
 				if (!foldersToRefresh.length || !clIsNavigatorOnline()) {
 					return;
 				}
-				$http.get('/api/metadata/folders', {
+				$http.get('/api/v1/metadata/folders', {
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
 							id: foldersToRefresh.cl_map(function(folderDao) {
@@ -759,7 +759,7 @@ angular.module('classeur.core.sync', [])
 					return;
 				}
 				lastGetExtFileAttempt = currentDate;
-				$http.get('/api/metadata/files', {
+				$http.get('/api/v1/metadata/files', {
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
 							id: filesToRefresh.cl_map(function(fileDao) {
@@ -785,7 +785,7 @@ angular.module('classeur.core.sync', [])
 				) {
 					return;
 				}
-				$http.get('/api/folders/' + folderDao.id, {
+				$http.get('/api/v1/folders/' + folderDao.id, {
 						timeout: clSyncDataSvc.loadingTimeout
 					})
 					.success(function(res) {
@@ -962,7 +962,7 @@ angular.module('classeur.core.sync', [])
 				}
 				fileDao.loadPending = false;
 				var fromRev = clContentRevSvc.getRev(fileDao.id);
-				$http.get('/api/files/' + fileDao.id + (fromRev ? '/fromRev/' + fromRev : ''), {
+				$http.get('/api/v1/files/' + fileDao.id + (fromRev ? '/fromRev/' + fromRev : '') + '?flatten=false', {
 						timeout: clSyncDataSvc.loadingTimeout
 					})
 					.success(function(res) {
@@ -998,7 +998,7 @@ angular.module('classeur.core.sync', [])
 				if (!watchCtx || watchCtx.text === undefined || watchCtx.sentMsg) {
 					return;
 				}
-				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || !clUserSvc.user.isPremium)) {
+				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
 					return;
 				}
 				var newText = clEditorSvc.cledit.getContent();
@@ -1097,7 +1097,7 @@ angular.module('classeur.core.sync', [])
 					if (fileDao.isReadOnly || clSyncDataSvc.isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
 						return;
 					}
-					if (fileDao.userId && (fileDao.sharing !== 'rw' || !clUserSvc.user.isPremium)) {
+					if (fileDao.userId && (fileDao.sharing !== 'rw' || !clUserSvc.user.isUserPremium())) {
 						return;
 					}
 					var currentDate = Date.now();

@@ -33,7 +33,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
 							clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 							return;
 						}
-						if (!clSocketSvc.hasToken || !clUserSvc.user.isPremium) {
+						if (!clSocketSvc.hasToken || !clUserSvc.isUserPremium()) {
 							clEditorLayoutSvc.currentControl = 'writePremiumAlert';
 							return;
 						}

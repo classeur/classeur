@@ -17,7 +17,8 @@ angular.module('classeur.core', [])
 			$routeProvider
 				.when('/files/:fileId', {
 					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-					controller: function($scope, $routeParams, $location, clToast, clFileSvc, clEditorLayoutSvc) {
+					controller: function($scope, $routeParams, $location, Analytics, clToast, clFileSvc, clEditorLayoutSvc) {
+						Analytics.trackPage('/files');
 						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
 						var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 						$scope.loadFile(fileDao);
@@ -41,7 +42,8 @@ angular.module('classeur.core', [])
 				})
 				.when('/folders/:folderId', {
 					template: '',
-					controller: function($location, $routeParams, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
+					controller: function($location, $routeParams, Analytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
+						Analytics.trackPage('/folders');
 						clExplorerLayoutSvc.refreshFolders();
 						var folderDao = clFolderSvc.folderMap[$routeParams.folderId];
 						var classeurDao = clClasseurSvc.defaultClasseur;
@@ -72,7 +74,10 @@ angular.module('classeur.core', [])
 					}
 				})
 				.otherwise({
-					template: '<cl-explorer-layout></cl-explorer-layout>'
+					template: '<cl-explorer-layout></cl-explorer-layout>',
+					controller: function(Analytics) {
+						Analytics.trackPage('/');
+					}
 				});
 
 		})

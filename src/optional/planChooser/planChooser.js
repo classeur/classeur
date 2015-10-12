@@ -3,7 +3,10 @@ angular.module('classeur.optional.planChooser', [])
 		function($routeProvider) {
 			$routeProvider
 				.when('/choosePlan', {
-					template: '<cl-plan-chooser></cl-plan-chooser>'
+					template: '<cl-plan-chooser></cl-plan-chooser>',
+					controller: function(Analytics) {
+						Analytics.trackPage('/choosePlan');
+					}
 				})
 				.when('/checkoutSuccess', {
 					template: '',
@@ -28,7 +31,7 @@ angular.module('classeur.optional.planChooser', [])
 
 			function link(scope) {
 				if (clUserSvc.user) {
-					if (!clUserSvc.user.isPremium) {
+					if (!clUserSvc.isUserPremium()) {
 						scope.subscribeLink = clUserSvc.getSubscribeLink();
 					} else {
 						var unsubscribeLink = clUserSvc.getUnsubscribeLink();

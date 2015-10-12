@@ -46,6 +46,7 @@ var vendorJs = [
 	'angular/angular',
 	'angular-animate/angular-animate',
 	'angular-aria/angular-aria',
+	'angular-google-analytics/dist/angular-google-analytics',
 	'angular-messages/angular-messages',
 	'angular-route/angular-route',
 	'angular-material/angular-material',

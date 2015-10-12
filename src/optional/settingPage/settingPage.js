@@ -3,7 +3,10 @@ angular.module('classeur.optional.settingPage', [])
 		function($routeProvider) {
 			$routeProvider.when('/settings', {
 				template: '<cl-setting-page></cl-setting-page>',
-				reloadOnSearch: false
+				reloadOnSearch: false,
+				controller: function(Analytics) {
+					Analytics.trackPage('/settings');
+				}
 			});
 		})
 	.directive('clSettingPage',

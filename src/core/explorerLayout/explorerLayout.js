@@ -29,8 +29,9 @@ angular.module('classeur.core.explorerLayout', [])
 						.duration(duration)
 						.translateX(isSelected ? 0 : isHover ? -3 : -5)
 						.translateY(y)
+						.easing('materialOut')
 						.start(true);
-					duration = 150;
+					duration = 400;
 					if (isSelected) {
 						// Adjust scrolling position
 						var minY = parentElt.scrollTop + 160;

@@ -88,6 +88,10 @@ angular.module('classeur.core.user', [])
                 updated && this.$writeUpdate(updated);
             };
 
+            clUserSvc.isUserPremium = function() {
+                return this.user && this.user.roles && this.user.roles.indexOf('premium_user') !== -1;
+            };
+
             function checkAll() {
                 if (clUserSvc.$checkUpdate()) {
                     clUserSvc.read();
@@ -95,11 +99,6 @@ angular.module('classeur.core.user', [])
                 } else {
                     clUserSvc.write();
                 }
-            }
-
-            function setUser(user) {
-                clUserSvc.user = user;
-                user.isPremium = user.roles.indexOf('premium_user') !== -1;
             }
 
             function updateUser(user) {
@@ -142,7 +141,6 @@ angular.module('classeur.core.user', [])
             clUserSvc.signin = signin;
             clUserSvc.signout = signout;
             clUserSvc.checkAll = checkAll;
-            clUserSvc.setUser = setUser;
             clUserSvc.updateUser = updateUser;
             clUserSvc.getSubscribeLink = getSubscribeLink;
             clUserSvc.getUnsubscribeLink = getUnsubscribeLink;
@@ -165,7 +163,7 @@ angular.module('classeur.core.user', [])
                     return;
                 }
                 lastUserInfoAttempt = currentDate;
-                $http.get('/api/metadata/users', {
+                $http.get('/api/v1/metadata/users', {
                         timeout: userInfoTimeout,
                         params: {
                             id: ids.join(',')
@@ -250,7 +248,7 @@ angular.module('classeur.core.user', [])
                             return;
                         }
                         scope.isLoading = true;
-                        $http.post('/api/users', {
+                        $http.post('/api/v1/users', {
                                 name: scope.newUser.name,
                                 token: newUserToken
                             })

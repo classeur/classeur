@@ -3,7 +3,10 @@ angular.module('classeur.optional.sysPage', [])
 		function($routeProvider) {
 			$routeProvider
 				.when('/sys', {
-					template: '<cl-sys-page></cl-sys-page>'
+					template: '<cl-sys-page></cl-sys-page>',
+					controller: function(Analytics) {
+						Analytics.trackPage('/sys');
+					}
 				});
 		})
 	.directive('clSysPage',
@@ -59,7 +62,7 @@ angular.module('classeur.optional.sysPage', [])
 					) {
 						return;
 					}
-					$http.post('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
+					$http.post('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
 						.success(function() {
 							clToast('App config updated.');
 						})
@@ -69,7 +72,7 @@ angular.module('classeur.optional.sysPage', [])
 				};
 
 				function retrieveConfig() {
-					$http.get('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
+					$http.get('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
 						.success(function(res) {
 							scope.properties = Object.keys(res).sort().cl_map(function(key) {
 								return {
