@@ -4,9 +4,9 @@ angular.module('classeur.optional.planChooser', [])
 			$routeProvider
 				.when('/choosePlan', {
 					template: '<cl-plan-chooser></cl-plan-chooser>',
-					controller: function(Analytics) {
+					controller: ['Analytics', function(Analytics) {
 						Analytics.trackPage('/choosePlan');
-					}
+					}]
 				})
 				.when('/checkoutSuccess', {
 					template: '',

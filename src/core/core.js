@@ -75,9 +75,9 @@ angular.module('classeur.core', [])
 				})
 				.otherwise({
 					template: '<cl-explorer-layout></cl-explorer-layout>',
-					controller: function(Analytics) {
+					controller: ['Analytics', function(Analytics) {
 						Analytics.trackPage('/');
-					}
+					}]
 				});
 
 		})

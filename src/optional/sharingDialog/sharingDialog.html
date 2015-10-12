@@ -28,13 +28,13 @@
             <input class="url" ng-model="sharingUrl">
         </md-input-container>
         <div layout="row" layout-align="end" class="btn-grp">
-            <md-button class="md-fab md-mini icon-twitter" target="_blank" ng-href="http://twitter.com/share?url={{::encodedSharingUrl}}&text={{::encodedName}}&via=classeurapp">
+            <md-button class="md-fab md-mini icon-twitter" target="_blank" ng-href="http://twitter.com/share?url={{::encodedSharingUrl}}&text={{::encodedName}}&via=classeurapp" aria-label="Share on Twitter">
             </md-button>
-            <md-button class="md-fab md-mini icon-facebook" target="_blank" ng-href="http://www.facebook.com/sharer/sharer.php?u={{::encodedSharingUrl}}">
+            <md-button class="md-fab md-mini icon-facebook" target="_blank" ng-href="http://www.facebook.com/sharer/sharer.php?u={{::encodedSharingUrl}}" aria-label="Share on Facebook">
             </md-button>
-            <md-button class="md-fab md-mini icon-google-plus" target="_blank" ng-href="https://plus.google.com/share?url={{::encodedSharingUrl}}">
+            <md-button class="md-fab md-mini icon-google-plus" target="_blank" ng-href="https://plus.google.com/share?url={{::encodedSharingUrl}}" aria-label="Share on Google Plus">
             </md-button>
-            <md-button class="md-fab md-mini icon-linkedin" target="_blank" ng-href="http://www.linkedin.com/shareArticle?url={{::encodedSharingUrl}}">
+            <md-button class="md-fab md-mini icon-linkedin" target="_blank" ng-href="http://www.linkedin.com/shareArticle?url={{::encodedSharingUrl}}" aria-label="Share on LinkedIn">
             </md-button>
         </div>
     </md-dialog-content>
