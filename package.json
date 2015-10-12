@@ -1,6 +1,6 @@
 {
   "name": "classeur",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Classeur frontend editor",
   "main": "index.js",
   "scripts": {
