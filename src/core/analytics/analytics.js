@@ -1,4 +1,4 @@
-angular.module('classeur.optional.analytics', [])
+angular.module('classeur.core.analytics', [])
 	.config(
 		function(AnalyticsProvider) {
 			AnalyticsProvider
@@ -6,8 +6,8 @@ angular.module('classeur.optional.analytics', [])
 				.startOffline(true)
 				.trackPages(false);
 		})
-	.run(
-		function(Analytics, clIsNavigatorOnline) {
+	.factory('clAnalytics',
+		function(Analytics, clUserActivity, clIsNavigatorOnline) {
 			var scriptLoaded;
 			function checkOnline() {
 				var isOnline = clIsNavigatorOnline();
@@ -17,6 +17,18 @@ angular.module('classeur.optional.analytics', [])
 					scriptLoaded = true;
 				}
 			}
-			setInterval(checkOnline, 5000);
+			setInterval(checkOnline, 5 * 1000);
 			checkOnline();
+
+			setInterval(function() {
+				if(clUserActivity.checkActivity()) {
+					Analytics.trackEvent('user', 'activity');
+				}
+			}, 4 * 60 * 1000);
+
+			return {
+				trackPage: function(page) {
+					Analytics.trackPage(page, 'Classeur');
+				}
+			};
 		});

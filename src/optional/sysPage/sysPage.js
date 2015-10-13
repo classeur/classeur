@@ -4,9 +4,9 @@ angular.module('classeur.optional.sysPage', [])
 			$routeProvider
 				.when('/sys', {
 					template: '<cl-sys-page></cl-sys-page>',
-					controller: ['Analytics', function(Analytics) {
-						Analytics.trackPage('/sys');
-					}]
+					controller: function(clAnalytics) {
+						clAnalytics.trackPage('/sys');
+					}
 				});
 		})
 	.directive('clSysPage',

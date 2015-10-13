@@ -99,8 +99,8 @@
                     <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode"></a>
                 </cl-button>
                 <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="32">
-                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="5" aria-label="Side preview" title="Side preview"></a>
-                    <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 4">
+                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="2" aria-label="Side preview" title="Side preview"></a>
+                    <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 1">
                         <p>Classeur supports Markdown syntax.</p>
                         <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
                     </md-tooltip>
@@ -152,3 +152,4 @@
 <cl-file-properties-dialog></cl-file-properties-dialog>
 <cl-post-to-blog></cl-post-to-blog>
 <cl-export-to-disk></cl-export-to-disk>
+<cl-tour></cl-tour>

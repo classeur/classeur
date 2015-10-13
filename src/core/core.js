@@ -17,8 +17,8 @@ angular.module('classeur.core', [])
 			$routeProvider
 				.when('/files/:fileId', {
 					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
-					controller: function($scope, $routeParams, $location, Analytics, clToast, clFileSvc, clEditorLayoutSvc) {
-						Analytics.trackPage('/files');
+					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc) {
+						clAnalytics.trackPage('/files');
 						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
 						var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
 						$scope.loadFile(fileDao);
@@ -42,8 +42,8 @@ angular.module('classeur.core', [])
 				})
 				.when('/folders/:folderId', {
 					template: '',
-					controller: function($location, $routeParams, Analytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
-						Analytics.trackPage('/folders');
+					controller: function($location, $routeParams, clAnalytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
+						clAnalytics.trackPage('/folders');
 						clExplorerLayoutSvc.refreshFolders();
 						var folderDao = clFolderSvc.folderMap[$routeParams.folderId];
 						var classeurDao = clClasseurSvc.defaultClasseur;
@@ -73,12 +73,24 @@ angular.module('classeur.core', [])
 						$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
 					}
 				})
-				.otherwise({
-					template: '<cl-explorer-layout></cl-explorer-layout>',
-					controller: ['Analytics', function(Analytics) {
-						Analytics.trackPage('/');
-					}]
-				});
+				.when('/', {
+					template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
+					controller: function($scope, clAnalytics, clFileSvc, clSettingSvc, $templateCache) {
+						if (clFileSvc.files.length === 0) {
+							var newFileDao = clFileSvc.createFile();
+							newFileDao.state = 'loaded';
+							newFileDao.readContent();
+							newFileDao.name = 'My first file';
+							newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
+							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
+							newFileDao.writeContent();
+							return $scope.setCurrentFile(newFileDao);
+						}
+						$scope.hasFiles = true;
+						clAnalytics.trackPage('/');
+					}
+				})
+				.otherwise('/');
 
 		})
 	.run(

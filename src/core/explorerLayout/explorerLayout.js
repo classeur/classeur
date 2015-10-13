@@ -261,7 +261,7 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 		})
 	.directive('clExplorerLayout',
-		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
+		function($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
 			var explorerMaxWidth = 760;
 			var noPaddingWidth = 580;
 			var hideOffsetY = 2000;
@@ -465,9 +465,6 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = file.name;
-							if (clFileSvc.files.length === 1) {
-								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
-							}
 							newFileDao.contentDao.text = file.content;
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
@@ -492,9 +489,6 @@ angular.module('classeur.core.explorerLayout', [])
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							if (clFileSvc.files.length === 1) {
-								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
-							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
 							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
