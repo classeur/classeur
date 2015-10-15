@@ -59,8 +59,11 @@ angular.module('classeur.optional.exportToDisk', [])
 									});
 							};
 							scope.$watch('config.textTemplateKey', function(templateKey) {
-								textPreview = clEditorSvc.applyTemplate(scope.templates[templateKey]);
-								scope.textPreview = textPreview;
+								clEditorSvc.applyTemplate(scope.templates[templateKey])
+								.then(function(preview) {
+									textPreview = preview;
+									scope.textPreview = textPreview;
+								});
 							});
 							scope.$watch('textPreview', function() {
 								scope.textPreview = textPreview;
@@ -83,26 +86,31 @@ angular.module('classeur.optional.exportToDisk', [])
 						if (config.format === 'text') {
 							var template = clSettingSvc.values.exportTemplates[config.textTemplateKey];
 							var mimeType = template.indexOf('file.content.html') === -1 ? 'text/plain' : 'text/html';
-							saveAs(clEditorSvc.applyTemplate(template), scope.currentFileDao.name, mimeType);
-						} else if (config.format === 'pdf') {
-							var html = clEditorSvc.applyTemplate(clSettingSvc.values.exportPdfTemplates[config.pdfTemplateKey]);
-							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && html.length > 10000)) {
-								return clDialog.show({
-									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
-									controller: ['$scope', function(scope) {
-										scope.userSvc = clUserSvc;
-										scope.cancel = function() {
-											clDialog.cancel();
-										};
-									}]
+							clEditorSvc.applyTemplate(template)
+								.then(function(text) {
+									saveAs(text, scope.currentFileDao.name, mimeType);
 								});
-							}
-							clToast('PDF is being prepared...');
-							clSocketSvc.sendMsg({
-								type: 'toPdf',
-								name: scope.currentFileDao.name,
-								html: html
-							});
+						} else if (config.format === 'pdf') {
+							clEditorSvc.applyTemplate(clSettingSvc.values.exportPdfTemplates[config.pdfTemplateKey])
+								.then(function(html) {
+									if (!clUserSvc.user || (!clUserSvc.isUserPremium() && html.length > 10000)) {
+										return clDialog.show({
+											templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
+											controller: ['$scope', function(scope) {
+												scope.userSvc = clUserSvc;
+												scope.cancel = function() {
+													clDialog.cancel();
+												};
+											}]
+										});
+									}
+									clToast('PDF is being prepared...');
+									clSocketSvc.sendMsg({
+										type: 'toPdf',
+										name: scope.currentFileDao.name,
+										html: html
+									});
+								});
 						}
 					}, closeDialog);
 				}

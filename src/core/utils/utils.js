@@ -3,6 +3,14 @@ angular.module('classeur.core.utils', [])
 		function($window) {
 			return $window.CL_CONFIG || {};
 		})
+	.factory('clVersion',
+		function($window) {
+			var clVersion = $window.CL_VERSION || {};
+			clVersion.getAssetPath = function(file) {
+				return clVersion.classeur ? clVersion.classeur + '/' + file : file;
+			};
+			return clVersion;
+		})
 	.factory('clLocalStorage',
 		function() {
 			var version = parseInt(localStorage.getItem('version'));

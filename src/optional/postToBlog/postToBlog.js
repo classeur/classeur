@@ -98,14 +98,17 @@ angular.module('classeur.optional.postToBlog', [])
 								if (scope.form.blog.status !== 'linked') {
 									return clToast('Blog is not linked.');
 								}
-								clSocketSvc.sendMsg({
-									type: 'createBlogPost',
-									blogPost: blogPost,
-									content: clEditorSvc.applyTemplate(blogPost.template),
-									title: title,
-									properties: properties
-								});
 								clDialog.hide();
+								clEditorSvc.applyTemplate(blogPost.template)
+									.then(function(content) {
+										clSocketSvc.sendMsg({
+											type: 'createBlogPost',
+											blogPost: blogPost,
+											content: content,
+											title: title,
+											properties: properties
+										});
+									});
 							};
 							scope.cancel = function() {
 								clDialog.cancel();
@@ -217,18 +220,21 @@ angular.module('classeur.optional.postToBlog', [])
 				var fileDao = $rootScope.currentFileDao;
 				var properties = fileDao.contentDao.properties;
 				var title = properties.title || fileDao.name;
+				var blogPostLight = ({}).cl_extend(blogPost);
+				blogPostLight.template = undefined;
+				blogPostLight.blog = undefined;
+				clEditorSvc.applyTemplate(blogPost.template)
+					.then(function(content) {
+						clSocketSvc.sendMsg({
+							type: 'sendBlogPost',
+							blogPost: blogPostLight,
+							content: content,
+							title: title,
+							properties: properties
+						});
+					});
 				return $q(function(resolve) {
 					blogPost.updateCb = resolve;
-					var blogPostLight = ({}).cl_extend(blogPost);
-					blogPostLight.template = undefined;
-					blogPostLight.blog = undefined;
-					clSocketSvc.sendMsg({
-						type: 'sendBlogPost',
-						blogPost: blogPostLight,
-						content: clEditorSvc.applyTemplate(blogPost.template),
-						title: title,
-						properties: properties
-					});
 				});
 			}
 

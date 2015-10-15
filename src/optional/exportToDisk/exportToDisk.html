@@ -8,7 +8,7 @@
                 <div class="label">
                     Template
                 </div>
-                <md-select ng-model="config.textTemplateKey" ng-change="config.format = 'text'">
+                <md-select ng-model="config.textTemplateKey" ng-change="config.format = 'text'" aria-label="Select template">
                     <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
                 </md-select>
                 <md-input-container flex>
@@ -24,7 +24,7 @@
                 <div class="label">
                     Template
                 </div>
-                <md-select ng-model="config.pdfTemplateKey" ng-change="config.format = 'pdf'">
+                <md-select ng-model="config.pdfTemplateKey" ng-change="config.format = 'pdf'" aria-label="Select PDF template">
                     <md-option ng-repeat="(key, value) in pdfTemplates" value="{{key}}">{{key}}</md-option>
                 </md-select>
                 <md-button class="md-primary" ng-click="managePdfTemplates()">

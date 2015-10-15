@@ -1,4 +1,4 @@
-if (!window.WebSocket || !window.MutationObserver) {
+if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 	window.alert('Unsupported browser version. Please upgrade your browser.');
 } else {
 	angular.module('classeur.app', [

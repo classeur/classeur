@@ -14,21 +14,23 @@ var size = require('gulp-size');
 var bump = require('gulp-bump');
 var util = require('gulp-util');
 
+var isDebug = false;
+
 gulp.task('patch', bumpTask('patch'));
 gulp.task('minor', bumpTask('minor'));
 gulp.task('major', bumpTask('major'));
 
 gulp.task('tag', function(cb) {
-    var version = require('./package.json').version;
-    var tag = 'v' + version;
-    util.log('Tagging as: ' + util.colors.cyan(tag));
-    exec([
-        'git add package.json',
-        'git commit -m "Prepare release"',
-        'git tag -a ' + tag + ' -m "Version ' + version + '"',
-        'git push origin master --tags',
-        'npm publish',
-    ], cb);
+	var version = require('./package').version;
+	var tag = 'v' + version;
+	util.log('Tagging as: ' + util.colors.cyan(tag));
+	exec([
+		'git add package.json',
+		'git commit -m "Prepare release"',
+		'git tag -a ' + tag + ' -m "Version ' + version + '"',
+		'git push origin master --tags',
+		'npm publish',
+	], cb);
 });
 
 gulp.task('start', [
@@ -37,12 +39,13 @@ gulp.task('start', [
 ]);
 
 gulp.task('default', [
-	'sass',
-	'sass-base',
-	'js'
+	'app-css',
+	'base-css',
+	'app-js',
+	'template-worker-js'
 ]);
 
-var vendorJs = [
+var appVendorJs = [
 	'angular/angular',
 	'angular-animate/angular-animate',
 	'angular-aria/angular-aria',
@@ -80,96 +83,63 @@ var vendorJs = [
 	'prismjs/components/prism-clike',
 	'prismjs/components/prism-javascript',
 	'prismjs/components/prism-css',
-	'mustache/mustache',
 ].map(require.resolve);
-vendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'));
-
-var vendorCss = [
-	'node_modules/angular-material/angular-material.css',
-	'node_modules/classets/icons/style.css',
-];
+appVendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'));
 
 var templateCacheSrc = ['src/**/*.{html,md,json}'];
-var jsSrc = ['src/**/*.js'];
+var appJsSrc = ['src/app.js', 'src/!(workers)/**/*.js'];
 
-function jsStream() {
-	return streamqueue({
+gulp.task('app-js', function() {
+	return buildJs(streamqueue({
 			objectMode: true
 		},
-		gulp.src(vendorJs),
-		gulp.src(jsSrc),
+		gulp.src(appVendorJs),
+		gulp.src(appJsSrc),
 		gulp.src(templateCacheSrc)
 		.pipe(templateCache({
 			module: 'classeur.templates',
 			standalone: true
 		}))
-	);
-}
-gulp.task('js', function() {
-	return jsStream()
-		.pipe(size({
-			//showFiles: true
-		}))
-		.pipe(ngAnnotate())
-		.pipe(uglify())
-		.pipe(concat('app-min.js', {
-			newLine: ';'
-		}))
-		.pipe(gulp.dest('public'));
-
-});
-gulp.task('js-dev', function() {
-	return jsStream()
-		.pipe(sourcemaps.init())
-		.pipe(concat('app-min.js', {
-			newLine: ';'
-		}))
-		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('public'));
+	), 'app-min.js');
 });
 
-var sassSrc = ['src/**/!(base).scss'];
+var templateWorkerVendorJs = [
+	'handlebars/dist/handlebars',
+].map(require.resolve);
 
-function cssStream() {
-	return streamqueue({
+var templateWorkerJsSrc = ['src/workers/templateWorker.js'];
+
+gulp.task('template-worker-js', function() {
+	return buildJs(streamqueue({
 			objectMode: true
 		},
-		gulp.src(vendorCss)
-		.pipe(replace(/@import\s.*/g, '')),
-		gulp.src(sassSrc)
-	);
-}
+		gulp.src(templateWorkerVendorJs),
+		gulp.src(templateWorkerJsSrc)
+	), 'templateWorker-min.js');
+});
 
-gulp.task('sass', function() {
-	return cssStream()
-		.pipe(sass({
-			includePaths: 'src/styles',
-			outputStyle: 'compressed'
-		}).on('error', sass.logError))
-		.pipe(concat('app-min.css'))
-		.pipe(gulp.dest('public'));
+var appCssSrc = ['src/**/!(base).scss'];
+
+var appVendorCss = [
+	path.join(path.dirname(require.resolve('angular-material')), 'angular-material.css'),
+	path.join(path.dirname(require.resolve('classets/package')), 'icons/style.css')
+];
+
+gulp.task('app-css', function() {
+	return buildCss(streamqueue({
+			objectMode: true
+		},
+		gulp.src(appVendorCss).pipe(replace(/@import\s.*/g, '')),
+		gulp.src(appCssSrc)
+	), 'app-min.css');
 });
-gulp.task('sass-dev', function() {
-	cssStream()
-		.pipe(sourcemaps.init())
-		.pipe(sass({
-			includePaths: 'src/styles'
-		}).on('error', sass.logError))
-		.pipe(concat('app-min.css'))
-		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('public'));
-});
-gulp.task('sass-base', function() {
-	return streamqueue({
-				objectMode: true
-			},
-			gulp.src('src/styles/base.scss')
-		)
-		.pipe(sass({
-			outputStyle: 'compressed'
-		}).on('error', sass.logError))
-		.pipe(concat('base-min.css'))
-		.pipe(gulp.dest('public'));
+
+gulp.task('base-css', function() {
+	return buildCss(streamqueue({
+			objectMode: true
+		},
+		gulp.src('src/styles/base.scss')
+	), 'base-min.css');
 });
 
 gulp.task('connect', function() {
@@ -177,18 +147,66 @@ gulp.task('connect', function() {
 	require('./');
 });
 
-gulp.task('watch', function() {
-	watch(['src/**/*.scss'], function(files, cb) {
-		gulp.start('sass-dev');
-		cb();
-	});
-	watch(templateCacheSrc.concat(jsSrc), function(files, cb) {
-		gulp.start('js-dev');
-		cb();
-	});
-	gulp.start('sass-dev');
-	gulp.start('js-dev');
+gulp.task('watch', [
+	'debug',
+	'default'
+], function() {
+	function watchAndStart(src, task) {
+		return watch(src, function(files, cb) {
+			gulp.start(task);
+			cb();
+		});
+	}
+	watchAndStart(['src/**/*.scss'], 'app-css');
+	watchAndStart(templateCacheSrc.concat(appJsSrc), 'app-js');
+	watchAndStart(templateWorkerJsSrc, 'template-worker-js');
 });
+
+gulp.task('debug', function() {
+	isDebug = true;
+});
+
+function buildJs(srcStream, dest) {
+	if (isDebug) {
+		srcStream = srcStream
+			.pipe(sourcemaps.init())
+			.pipe(concat(dest, {
+				newLine: ';'
+			}))
+			.pipe(sourcemaps.write('.'));
+	} else {
+		srcStream = srcStream
+			.pipe(size({
+				//showFiles: true
+			}))
+			.pipe(ngAnnotate())
+			.pipe(uglify())
+			.pipe(concat(dest, {
+				newLine: ';'
+			}));
+	}
+	return srcStream.pipe(gulp.dest('public'));
+}
+
+function buildCss(srcStream, dest) {
+	if (isDebug) {
+		srcStream = srcStream
+			.pipe(sourcemaps.init())
+			.pipe(sass({
+				includePaths: 'src/styles'
+			}).on('error', sass.logError))
+			.pipe(concat(dest))
+			.pipe(sourcemaps.write('.'));
+	} else {
+		srcStream = srcStream
+			.pipe(sass({
+				includePaths: 'src/styles',
+				outputStyle: 'compressed'
+			}).on('error', sass.logError))
+			.pipe(concat(dest));
+	}
+	return srcStream.pipe(gulp.dest('public'));
+}
 
 function bumpTask(importance) {
 	return function() {
@@ -203,13 +221,13 @@ function bumpTask(importance) {
 }
 
 function exec(cmds, cb) {
-    cmds.length === 0 ? cb() : childProcess.exec(cmds.shift(), {
-        cwd: process.cwd()
-    }, function(err, stdout, stderr) {
-        if (err) {
-            return cb(err);
-        }
-        util.log(stdout, stderr);
-        exec(cmds, cb);
-    });
+	cmds.length === 0 ? cb() : childProcess.exec(cmds.shift(), {
+		cwd: process.cwd()
+	}, function(err, stdout, stderr) {
+		if (err) {
+			return cb(err);
+		}
+		util.log(stdout, stderr);
+		exec(cmds, cb);
+	});
 }

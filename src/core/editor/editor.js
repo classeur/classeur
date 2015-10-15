@@ -371,7 +371,7 @@ angular.module('classeur.core.editor', [])
 			};
 		})
 	.factory('clEditorSvc',
-		function($window, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown) {
+		function($window, $q, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown, clVersion) {
 
 			// Create aliases for syntax highlighting
 			var Prism = $window.Prism;
@@ -916,7 +916,17 @@ angular.module('classeur.core.editor', [])
 						},
 					}
 				};
-				return $window.Mustache.render(template, view);
+				var worker = new Worker(clVersion.getAssetPath('templateWorker-min.js'));
+				worker.postMessage([template, view]);
+				return $q(function(resolve, reject) {
+					worker.addEventListener('message', function(e) {
+						resolve(e.data);
+					});
+					// setTimeout(function() {
+					// 	worker.terminate();
+					// 	reject('Template generation timeout.');
+					// }, 10000);
+				});
 			};
 
 			return clEditorSvc;
