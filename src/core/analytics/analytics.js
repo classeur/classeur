@@ -1,8 +1,9 @@
 angular.module('classeur.core.analytics', [])
 	.config(
 		function(AnalyticsProvider) {
+			window.CL_CONFIG && AnalyticsProvider
+				.setAccount(window.CL_CONFIG.googleAnalyticsTrackingId);
 			AnalyticsProvider
-				.setAccount(window.CL_CONFIG.googleAnalyticsTrackingId)
 				.startOffline(true)
 				.trackPages(false);
 		})
