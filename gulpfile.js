@@ -122,7 +122,7 @@ var appCssSrc = ['src/**/!(base).scss'];
 
 var appVendorCss = [
 	path.join(path.dirname(require.resolve('angular-material')), 'angular-material.css'),
-	path.join(path.dirname(require.resolve('classets/package')), 'icons/style.css')
+	path.join(path.dirname(require.resolve('classets/package')), 'public/icons/style.css')
 ];
 
 gulp.task('app-css', function() {
