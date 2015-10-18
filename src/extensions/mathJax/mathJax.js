@@ -61,7 +61,7 @@ angular.module('classeur.extensions.mathJax', [])
 					return false;
 				}
 				var nextPos = endMarkerPos + endMarker.length;
-				if(!silent) {
+				if (!silent) {
 					var token = state.push(type);
 					token.math = type === 'math' ?
 						state.src.slice(state.pos, nextPos) : state.src.slice(startMathPos, endMarkerPos);
@@ -75,17 +75,19 @@ angular.module('classeur.extensions.mathJax', [])
 				if (state.src.charCodeAt(startMathPos) !== 0x24 /* $ */ ) {
 					return false;
 				}
+
+				// Parse tex math according to http://pandoc.org/README.html#math
 				var endMarker = '$';
-				if (state.src.charCodeAt(++startMathPos) === 0x24 /* $ */ ) {
+				var afterStartMarker = state.src.charCodeAt(++startMathPos);
+				if (afterStartMarker === 0x24 /* $ */ ) {
 					endMarker = '$$';
 					if (state.src.charCodeAt(++startMathPos) === 0x24 /* $ */ ) {
 						// 3 markers are too much
 						return false;
 					}
 				} else {
-					var prefix = state.src.charCodeAt(startMathPos - 2);
-					if (prefix >= 0x30 && prefix < 0x3A) {
-						// Skip case where $ is preceded by a digit (eg 5$ 10$ ...)
+					// Skip if opening $ is succeeded by a space character
+					if (afterStartMarker === 0x20 /* space */ || afterStartMarker === 0x09 /* \t */ || afterStartMarker === 0x0a /* \n */ ) {
 						return false;
 					}
 				}
@@ -98,13 +100,19 @@ angular.module('classeur.extensions.mathJax', [])
 				}
 				var nextPos = endMarkerPos + endMarker.length;
 				if (endMarker.length === 1) {
+					// Skip if $ is preceded by a space character
+					var beforeEndMarker = state.src.charCodeAt(endMarkerPos - 1);
+					if (beforeEndMarker === 0x20 /* space */ || beforeEndMarker === 0x09 /* \t */ || beforeEndMarker === 0x0a /* \n */ ) {
+						return false;
+					}
+					// Skip if closing $ is succeeded by a digit (eg $5 $10 ...)
 					var suffix = state.src.charCodeAt(nextPos);
 					if (suffix >= 0x30 && suffix < 0x3A) {
-						// Skip case where $ is succeeded by a digit (eg $5 $10 ...)
 						return false;
 					}
 				}
-				if(!silent) {
+				
+				if (!silent) {
 					var token = state.push(endMarker.length === 1 ? 'inlineMath' : 'displayMath');
 					token.math = state.src.slice(startMathPos, endMarkerPos);
 				}
@@ -250,12 +258,10 @@ angular.module('classeur.extensions.mathJax', [])
 						var tex2jax, tex;
 						try {
 							tex2jax = JSON.parse(fileProperties['ext:mathjax:tex2jax']);
-						} catch (e) {
-						}
+						} catch (e) {}
 						try {
 							tex = JSON.parse(fileProperties['ext:mathjax:tex']);
-						} catch (e) {
-						}
+						} catch (e) {}
 
 						return {
 							"HTML-CSS": {

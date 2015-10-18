@@ -3,7 +3,7 @@
         margin: auto;
         width: 100%;
         height: 100%;
-        max-width: 580px;
+        max-width: 520px;
     }
     .title {
         font-size: 32px;
@@ -32,8 +32,12 @@
             background-color: transparent;
         }
     }
+    md-select,
     md-slider {
         max-width: 250px;
+    }
+    md-select {
+        margin-top: 0;
     }
     .menu {
         padding: 0 5px;
@@ -46,13 +50,11 @@
             line-height: 16px;
         }
     }
-    .group {
-        .label {
-            font-size: 12.5px;
-            padding: 2px;
-            display: block;
-            color: rgba(0, 0, 0, 0.54);
-        }
+    .label {
+        font-size: 12.5px;
+        padding: 2px;
+        display: block;
+        color: rgba(0, 0, 0, 0.54);
     }
     md-tabs {
         & md-tabs-content-wrapper, &:not(.md-no-tab-content) {

@@ -29,32 +29,46 @@
                         Help button
                     </md-checkbox>
                     <br>
-                    <h2>Utils</h2>
-                    <p class="group">
+                    <h2>Document export</h2>
+                    <p>
                         <span class="label">
-                            Default properties for new files
+                            Pandoc highlight style
                         </span>
-                    <md-button class="md-primary" ng-click="editFileProperties()">
-                        Edit properties
-                    </md-button>
+                        <md-select ng-model="app.pandocHighlightStyle" aria-label="Pandoc highlight style">
+                            <md-option value="pygments">Pygments</md-option>
+                            <md-option value="kate">Kate</md-option>
+                            <md-option value="monochrome">Monochrome</md-option>
+                            <md-option value="espresso">Espresso</md-option>
+                            <md-option value="zenburn">Zenburn</md-option>
+                            <md-option value="haddock">Haddock</md-option>
+                            <md-option value="tango">Tango</md-option>
+                        </md-select>
                     </p>
-                    <p class="group">
+                    <md-checkbox ng-model="app.pandocToc">
+                        Pandoc TOC
+                    </md-checkbox>
+                    <br>
+                    Pandoc TOC depth
+                    <md-slider md-discrete ng-model="app.pandocTocDepth" step="1" min="1" max="6" aria-label="Pandoc TOC depth">
+                    </md-slider>
+                    <h2>Utils</h2>
+                    <p>
                         <span class="label">
                             Export and blog post formatting
                         </span>
-                        <md-button class="md-primary" ng-click="manageTemplates()">
-                            Manage templates
-                        </md-button>
+                    <md-button class="md-primary" ng-click="manageTemplates()">
+                        Manage templates
+                    </md-button>
                     </p>
-                    <p class="group">
+                    <p>
                         <span class="label">
-                            PDF export formatting
+                            Default properties for new files
                         </span>
-                        <md-button class="md-primary" ng-click="managePdfTemplates()">
-                            Manage PDF templates
+                        <md-button class="md-primary" ng-click="editFileProperties()">
+                            Edit properties
                         </md-button>
                     </p>
-                    <p class="group">
+                    <p>
                         <span class="label">
                             Reset app settings
                         </span>
@@ -64,7 +78,7 @@
             </md-tab>
             <md-tab label="User">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage your user account
                         </span>
@@ -84,7 +98,7 @@
                                 </div>
                             </md-input-container>
                         </form>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Go premium or unsubscribe
                             </span>
@@ -92,7 +106,7 @@
                                 Change plan
                             </md-button>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Change user or log out from public computer
                             </span>
@@ -116,13 +130,13 @@
                                 </md-button>
                             </div>
                         </div>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Roles
                             </span>
                             <md-chips ng-model="user.roles" readonly="true"></md-chips>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Use another Google account for sign in
                             </span>
@@ -130,7 +144,7 @@
                                 Link now
                             </md-button>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Delete your user account and all your data
                             </span>
@@ -143,7 +157,7 @@
             </md-tab>
             <md-tab label="Blogs">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage your blogs
                         </span>
@@ -169,7 +183,7 @@
             </md-tab>
             <md-tab label="Trash">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage the file trash
                         </span>

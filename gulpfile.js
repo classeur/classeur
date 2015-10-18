@@ -53,7 +53,6 @@ var appVendorJs = [
 	'angular-messages/angular-messages',
 	'angular-route/angular-route',
 	'angular-material/angular-material',
-	'angular-slugify/angular-slugify',
 	'bezier-easing/build',
 	'clanim/clanim',
 	'googlediff/javascript/diff_match_patch_uncompressed', // Needs to come before cldiffutils and cledit

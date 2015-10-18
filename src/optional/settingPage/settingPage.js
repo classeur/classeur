@@ -2,6 +2,7 @@ angular.module('classeur.optional.settingPage', [])
 	.config(
 		function($routeProvider) {
 			$routeProvider.when('/settings', {
+				title: 'Settings',
 				template: '<cl-setting-page></cl-setting-page>',
 				reloadOnSearch: false,
 				controller: function(clAnalytics) {
@@ -130,16 +131,9 @@ angular.module('classeur.optional.settingPage', [])
 				};
 
 				scope.manageTemplates = function() {
-					clTemplateManagerDialog.manageExportTemplate(scope.app.exportTemplates)
+					clTemplateManagerDialog(scope.app.exportTemplates)
 						.then(function(templates) {
 							scope.app.exportTemplates = templates;
-						});
-				};
-
-				scope.managePdfTemplates = function() {
-					clTemplateManagerDialog.manageExportPdfTemplate(scope.app.exportPdfTemplates)
-						.then(function(templates) {
-							scope.app.exportPdfTemplates = templates;
 						});
 				};
 

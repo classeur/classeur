@@ -66,12 +66,12 @@
                     <div class="menu content panel">
                         <cl-file-name></cl-file-name>
                         <div class="links">
-                            <a layout="row" layout-align="start center" ng-click="editFileProperties()"><span class="icon-view-list"></span><span class="name">Properties</span></a>
-                            <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'"><span class="icon-share"></span><span class="name">Sharing</span></a>
-                            <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'postToBlog'"><span class="icon-cloud"></span><span class="name">Post to blog</span></a>
-                            <a layout="row" layout-align="start center" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'"><span class="icon-file-download"></span><span class="name">Export</span></a>
-                            <a layout="row" layout-align="start center" ng-click="makeCurrentFileCopy()"><span class="icon-content-copy"></span><span class="name">Make a copy</span></a>
-                            <a layout="row" layout-align="start center" ng-href="#!/settings"><span class="icon-settings"></span><span class="name">Settings</span></a>
+                            <a layout="row" layout-align="end end" ng-click="editFileProperties()"><span class="name">Properties</span><span class="icon-view-list"></span></a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'"><span class="name">Sharing</span><span class="icon-share"></span></a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'"><span class="name">Post to blog</span><span class="icon-cloud"></span></a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'"><span class="name">Export</span><span class="icon-file-download"></span></a>
+                            <a layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()"><span class="name">Make a copy</span><span class="icon-content-copy"></span></a>
+                            <a layout="row" layout-align="end end" ng-href="#!/settings"><span class="name">Settings</span><span class="icon-settings"></span></a>
                         </div>
                         <div class="entry">Zoom</div>
                         <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">

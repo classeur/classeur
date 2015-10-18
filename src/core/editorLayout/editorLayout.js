@@ -318,6 +318,7 @@ angular.module('classeur.core.editorLayout', [])
 				window.addEventListener('resize', debouncedAnimateLayout);
 				scope.$on('$destroy', function() {
 					window.removeEventListener('resize', debouncedAnimateLayout);
+					scope.unloadCurrentFile();
 					clEditorLayoutSvc.clean();
 				});
 

@@ -19,17 +19,26 @@
                     Manage templates...
                 </md-button>
             </div>
-            <md-radio-button value="pdf">PDF</md-radio-button>
+            <md-radio-button value="document">Document</md-radio-button>
             <div class="options">
                 <div class="label">
-                    Template
+                    Format
                 </div>
-                <md-select ng-model="config.pdfTemplateKey" ng-change="config.format = 'pdf'" aria-label="Select PDF template">
-                    <md-option ng-repeat="(key, value) in pdfTemplates" value="{{key}}">{{key}}</md-option>
+                <md-select ng-model="config.documentFormatKey" ng-change="config.format = 'document'" aria-label="Select document format">
+                    <md-option value="epub">EPUB</md-option>
+                    <md-option value="epub3">EPUB v3</md-option>
+                    <md-option value="latex">LaTeX</md-option>
+                    <md-option value="odt">OpenOffice</md-option>
+                    <md-option value="pdf">PDF</md-option>
+                    <md-option value="rtf">Rich Text Format</md-option>
+                    <md-option value="docx">Word</md-option>
                 </md-select>
-                <md-button class="md-primary" ng-click="managePdfTemplates()">
-                    Manage PDF templates...
+                <md-button class="md-primary" ng-href="#!/settings?tab=app">
+                    Pandoc options...
                 </md-button>
+                <div class="tip">
+                    <b>Tip:</b> File properties are set as Pandoc metadata.
+                </div>
             </div>
         </md-radio-group>
     </md-dialog-content>

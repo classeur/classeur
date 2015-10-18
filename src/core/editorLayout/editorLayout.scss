@@ -49,7 +49,9 @@
             letter-spacing: -0.03em;
             overflow: hidden;
         }
-        .panel, .edit.btn-panel, .sharing.btn-panel {
+        .panel,
+        .edit.btn-panel,
+        .sharing.btn-panel {
             left: 0;
             width: 32px;
             height: 32px;
@@ -125,9 +127,9 @@
                 width: 100%;
                 height: 100%;
                 font-size: 20px;
-                color: transparentize(#fff, 0.2);
-                &:hover, &.md-focused {
-                    color: #fff;
+                color: #fff;
+                &:hover,
+                &.md-focused {
                     background-color: transparent;
                 }
                 .rotate-90 {
@@ -151,7 +153,7 @@
     }
     .menu.content {
         padding: 20px 40px 60px;
-        font-size: 16.5px;
+        font-size: 16px;
         height: auto;
         color: #fff;
         .entry,
@@ -159,24 +161,22 @@
             text-align: center;
         }
         .links {
-            margin-top: 12px;
-            margin-bottom: 36px;
+            margin: 12px 12px 36px;
             a {
-                color: transparentize(#fff, 0.2);
+                color: #fff;
                 text-decoration: none;
-                &:hover {
-                    color: #fff;
-                }
                 cursor: pointer;
                 line-height: 1;
-                margin-bottom: 12px;
+                padding-bottom: 2px;
+                margin-bottom: 6px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
                 [class^="icon-"],
                 [class*=" icon-"] {
                     font-size: 26px;
-                    margin-right: 12px;
                 }
                 .name {
                     width: 100%;
+                    padding-bottom: 2px;
                 }
             }
         }

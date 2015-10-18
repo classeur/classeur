@@ -8,7 +8,6 @@ if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 		'ngAria',
 		'ngMessages',
 		'angular-google-analytics',
-		'slugifier',
 		'classeur.templates',
 		'classeur.blogs',
 		'classeur.blogs.blogger',

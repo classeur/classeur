@@ -9,26 +9,31 @@ angular.module('classeur.core.analytics', [])
 		})
 	.factory('clAnalytics',
 		function(Analytics, clUserActivity, clIsNavigatorOnline) {
-			var scriptLoaded;
-			function checkOnline() {
+			var reportActivityEvery = 4 * 60 * 1000;
+			var scriptTagCreated, lastTracking;
+
+			function tryCreateScriptTag() {
 				var isOnline = clIsNavigatorOnline();
 				Analytics.offline(!isOnline);
-				if(isOnline && !scriptLoaded) {
+				if (isOnline && !scriptTagCreated) {
 					Analytics.createAnalyticsScriptTag();
-					scriptLoaded = true;
+					scriptTagCreated = true;
 				}
 			}
-			setInterval(checkOnline, 5 * 1000);
-			checkOnline();
 
 			setInterval(function() {
-				if(clUserActivity.checkActivity()) {
+				tryCreateScriptTag();
+				var currentDate = Date.now();
+				if (clUserActivity.checkActivity() && currentDate - lastTracking > reportActivityEvery) {
+					lastTracking = currentDate;
 					Analytics.trackEvent('user', 'activity');
 				}
-			}, 4 * 60 * 1000);
+			}, 5 * 1000);
+			tryCreateScriptTag();
 
 			return {
 				trackPage: function(page) {
+					lastTracking = Date.now();
 					Analytics.trackPage(page, 'Classeur');
 				}
 			};

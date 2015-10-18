@@ -17,7 +17,6 @@
     "angular-material": "^0.10.1",
     "angular-messages": "^1.4.6",
     "angular-route": "^1.4.6",
-    "angular-slugify": "1.0.1",
     "bezier-easing": "^1.1.1",
     "clanim": "^0.1.0",
     "classets": "^0.1.0",

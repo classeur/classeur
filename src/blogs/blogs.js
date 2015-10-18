@@ -43,7 +43,7 @@ angular.module('classeur.blogs', [])
 			}
 		})
 	.directive('clBlogPostForm',
-		function($window, $q, clBlogSvc, clSocketSvc, clSettingSvc, clTemplateManagerDialog) {
+		function($window, $q, clBlogSvc, clSocketSvc, clSettingSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/blogPostForm.html',
@@ -53,12 +53,6 @@ angular.module('classeur.blogs', [])
 			function link(scope) {
 				scope.form.templateKey = 'HTML';
 				scope.templates = clSettingSvc.values.exportTemplates;
-				scope.manageTemplates = function() {
-					clTemplateManagerDialog.manageExportTemplate(clSettingSvc.values.exportTemplates)
-						.then(function(templates) {
-							clSettingSvc.values.exportTemplates = templates;
-						});
-				};
 				scope.$watch('form.templateKey', function(templateKey) {
 					if (templateKey) {
 						scope.form.template = scope.templates[templateKey];

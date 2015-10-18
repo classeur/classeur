@@ -57,24 +57,13 @@ angular.module('classeur.core.templateManagerDialog', [])
 				});
 			}
 
-			return {
-				manageExportTemplate: function(templates) {
-					templates = clSettingSvc.sanitizeExportTemplates(templates);
-					return openDialog(templates, function(selectedKey) {
+			return function(templates) {
+				templates = clSettingSvc.sanitizeExportTemplates(templates);
+				return openDialog(templates, function(selectedKey) {
 						return !clSettingSvc.defaultValues.exportTemplates.hasOwnProperty(selectedKey);
 					})
-						.then(function(templates) {
-							return clSettingSvc.sanitizeExportTemplates(templates);
-						});
-				},
-				manageExportPdfTemplate: function(templates) {
-					templates = clSettingSvc.sanitizeExportPdfTemplates(templates);
-					return openDialog(templates, function(selectedKey) {
-						return !clSettingSvc.defaultValues.exportPdfTemplates.hasOwnProperty(selectedKey);
-					})
-						.then(function(templates) {
-							return clSettingSvc.sanitizeExportPdfTemplates(templates);
-						});
-				}
+					.then(function(templates) {
+						return clSettingSvc.sanitizeExportTemplates(templates);
+					});
 			};
 		});

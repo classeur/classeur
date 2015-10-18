@@ -32,7 +32,7 @@ angular.module('classeur.optional.postToBlog', [])
 			}
 		})
 	.directive('clPostToBlog',
-		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast, clPostToBlogSvc) {
+		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast, clPostToBlogSvc, clTemplateManagerDialog, clSettingSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -90,6 +90,13 @@ angular.module('classeur.optional.postToBlog', [])
 							scope.form = {};
 						}],
 						onComplete: function(scope) {
+							scope.manageTemplates = function() {
+								clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
+									.then(function(templates) {
+										clSettingSvc.values.exportTemplates = templates;
+										newPost();
+									}, newPost);
+							};
 							scope.ok = function() {
 								var blogPost = clBlogSvc.createPost(scope.form);
 								if (!blogPost) {

@@ -54,7 +54,7 @@ Some `inline code`.
 var foo = 'bar';
 ```
 
-```js
+```javascript
 // An highlighted block
 var foo = 'bar';
 ```

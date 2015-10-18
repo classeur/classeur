@@ -16,7 +16,7 @@ angular.module('classeur.core', [])
 
 			$routeProvider
 				.when('/files/:fileId', {
-					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
+					template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
 					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc) {
 						clAnalytics.trackPage('/files');
 						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
@@ -148,12 +148,15 @@ angular.module('classeur.core', [])
 				clToast('Copy created.');
 			}
 
+			$rootScope.unloadCurrentFile = unloadCurrentFile;
 			$rootScope.setCurrentFile = setCurrentFile;
 			$rootScope.loadFile = loadFile;
 			$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 
-			$rootScope.$watch('currentFileDao.name', function(name) {
-				$window.document.title = name || 'Classeur';
+			$rootScope.$on('$routeChangeSuccess', function(event, current) {
+				$timeout(function() {
+					$rootScope.title = $rootScope.currentFileDao ? $rootScope.currentFileDao.name : current.$$route.title || 'Classeur';
+				});
 			});
 
 			var hasToken = clSocketSvc.hasToken;

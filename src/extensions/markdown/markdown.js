@@ -1,6 +1,6 @@
 angular.module('classeur.extensions.markdown', [])
 	.directive('clMarkdown',
-		function($window, clEditorSvc, Slug) {
+		function($window, clEditorSvc) {
 			var options = {};
 			var coreBaseRules = [
 					'normalize',
@@ -59,7 +59,7 @@ angular.module('classeur.extensions.markdown', [])
 				options.sub && markdown.use($window.markdownitSub);
 				options.sup && markdown.use($window.markdownitSup);
 
-				markdown.core.ruler.push('anchors', function(state) {
+				markdown.core.ruler.before('replacements', 'anchors', function(state) {
 					var anchorHash = {};
 					var headingOpenToken, headingContent;
 					state.tokens.cl_each(function(token) {
@@ -68,9 +68,26 @@ angular.module('classeur.extensions.markdown', [])
 							headingOpenToken = token;
 						} else if (token.type === 'heading_close') {
 							headingOpenToken.headingContent = headingContent;
-							var slug = Slug.slugify(headingContent) || 'heading';
+
+							// Slugify according to http://pandoc.org/README.html#extension-auto_identifiers
+							var slug = headingContent
+								.replace(/\s/g, '-') // Replace all spaces and newlines with hyphens
+								.replace(/[\0-,\/:-@[-^`{-~]/g, '') // Remove all punctuation, except underscores, hyphens, and periods
+								.toLowerCase(); // Convert all alphabetic characters to lowercase
+
+							// Remove everything up to the first letter
+							for (var i = 0; i < slug.length; i++) {
+								var charCode = slug.charCodeAt(i);
+								if ((charCode >= 0x61 && charCode <= 0x7A) || charCode > 0x7E) {
+									break;
+								}
+							}
+							
+							// If nothing is left after this, use the identifier `section`
+							slug = slug.slice(i) || 'section';
+
 							var anchor = slug;
-							var index = 2;
+							var index = 1;
 							while (anchorHash.hasOwnProperty(anchor)) {
 								anchor = slug + '-' + (index++);
 							}
@@ -79,7 +96,10 @@ angular.module('classeur.extensions.markdown', [])
 							headingOpenToken = undefined;
 						} else if (headingOpenToken) {
 							headingContent += token.children.cl_reduce(function(result, child) {
-								return result + child.content;
+								if (child.type !== 'footnote_ref') {
+									result += child.content;
+								}
+								return result;
 							}, '');
 						}
 					});
@@ -114,7 +134,7 @@ angular.module('classeur.extensions.markdown', [])
 					state.tokens.push({
 						type: 'toc',
 						level: state.level,
-						map: [ startLine, endLine ]
+						map: [startLine, endLine]
 					});
 					return true;
 				});
@@ -247,9 +267,9 @@ angular.module('classeur.extensions.markdown', [])
 						sub: fileProperties['ext:markdown:sub'] !== 'false',
 						sup: fileProperties['ext:markdown:sup'] !== 'false',
 						table: fileProperties['ext:markdown:table'] !== 'false',
+						typographer: fileProperties['ext:markdown:typographer'] !== 'false',
 						toc: fileProperties['ext:markdown:toc'] !== 'false',
 						tocMaxDepth: isNaN(tocMaxDepth) ? 6 : tocMaxDepth,
-						typographer: fileProperties['ext:markdown:typographer'] !== 'false',
 					};
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;
