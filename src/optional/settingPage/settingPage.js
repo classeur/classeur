@@ -37,103 +37,32 @@ angular.module('classeur.optional.settingPage', [])
 			function link(scope) {
 				var tabs = ['app', 'user', 'blogs', 'trash'];
 
-				function serialize(obj) {
-					return JSON.stringify(obj, function(key, value) {
-						return key[0] === '$' ? undefined : value;
-					});
-				}
-
-				function clone(obj) {
-					return JSON.parse(serialize(obj));
-				}
-
-				var next;
-
-				function resetUser() {
-					scope.user = clone(clUserSvc.user);
-				}
-
-				function resetApp() {
-					scope.app = clone(clSettingSvc.values);
-				}
-
-				scope.$watch('userSvc.user', resetUser);
-				scope.$watch('settingSvc.values', resetApp);
-
-				function reset() {
-					resetUser();
-					resetApp();
-					next && next();
-				}
-
-				function apply() {
-					try {
-						clUserSvc.updateUser(scope.user);
-					} catch (e) {
-						scope.selectedTabIndex = tabs.indexOf('user');
-						return clToast(e);
-					}
-					try {
-						clSettingSvc.updateSettings(scope.app);
-					} catch (e) {
-						scope.selectedTabIndex = tabs.indexOf('app');
-						return clToast(e);
-					}
-					next && next();
-				}
-
-				function checkModifications(tabIndex) {
-					if (tabs[tabIndex] === 'app') {
-						if (serialize(scope.app) !== serialize(clSettingSvc.values)) {
-							return clDialog.show(clDialog.confirm()
-									.title('App settings')
-									.content('You\'ve modified your app settings.')
-									.ok('Apply')
-									.cancel('Ignore'))
-								.then(apply, reset);
-						}
-					}
-					if (tabs[tabIndex] === 'user') {
-						if (serialize(scope.user) !== serialize(clUserSvc.user)) {
-							return clDialog.show(clDialog.confirm()
-									.title('User settings')
-									.content('You\'ve modified your user settings.')
-									.ok('Apply')
-									.cancel('Ignore'))
-								.then(apply, reset);
-						}
-					}
-				}
-
 				scope.loadDefault = function() {
-					scope.app = clone(clSettingSvc.defaultValues);
+					clDialog.show(clDialog.confirm()
+							.title('Reset app settings')
+							.content('You\'re about to reset your app settings. Are you sure?')
+							.ok('Yes')
+							.cancel('No'))
+						.then(function() {
+							clSettingSvc.values = JSON.parse(JSON.stringify(clSettingSvc.defaultValues));
+						});
 				};
 
-				scope.cancel = function() {
-					next = function() {
-						$location.url('/');
-					};
-					reset();
-				};
-
-				scope.apply = function() {
-					next = function() {
-						$location.url('/');
-					};
-					apply();
+				scope.close = function() {
+					$location.url('/');
 				};
 
 				scope.editFileProperties = function() {
-					clFilePropertiesDialog(scope.app.defaultFileProperties)
+					clFilePropertiesDialog(clSettingSvc.values.defaultFileProperties)
 						.then(function(properties) {
-							scope.app.defaultFileProperties = properties;
+							clSettingSvc.values.defaultFileProperties = properties;
 						});
 				};
 
 				scope.manageTemplates = function() {
-					clTemplateManagerDialog(scope.app.exportTemplates)
+					clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
 						.then(function(templates) {
-							scope.app.exportTemplates = templates;
+							clSettingSvc.values.exportTemplates = templates;
 						});
 				};
 
@@ -381,10 +310,7 @@ angular.module('classeur.optional.settingPage', [])
 
 				})();
 
-
-				scope.$watch('selectedTabIndex', function(newIndex, oldIndex) {
-					next = undefined;
-					oldIndex !== undefined && checkModifications(oldIndex);
+				scope.$watch('selectedTabIndex', function(newIndex) {
 					var tab = tabs[newIndex];
 					if (tab === 'trash') {
 						scope.getTrashFiles(true);

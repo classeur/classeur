@@ -5,7 +5,7 @@ angular.module('classeur.core.settings', [])
 
 			var defaultTemplatePaths = {
 				'Plain text': 'core/settings/exportTemplatePlainText.html',
-				'HTML': 'core/settings/exportTemplateHtml.html',
+				'Plain HTML': 'core/settings/exportTemplatePlainHtml.html',
 				'Styled HTML': 'core/settings/exportTemplateStyledHtml.html',
 			};
 			defaultSettings = JSON.parse(defaultSettings);
@@ -52,7 +52,14 @@ angular.module('classeur.core.settings', [])
 
 			function updateSettings(values) {
 				values.exportTemplates = sanitizeExportTemplates(values.exportTemplates);
-				clSettingSvc.values = ({}).cl_extend(JSON.parse(defaultSettings)).cl_extend(values);
+				clSettingSvc.values = JSON.parse(defaultSettings).cl_reduce(function(sanitizedValues, defaultValue, key) {
+					if(values.hasOwnProperty(key)) {
+						sanitizedValues[key] = values[key];
+					} else {
+						sanitizedValues[key] = defaultValue;
+					}
+					return sanitizedValues;
+				}, {});
 			}
 
 			clSettingSvc.defaultValues = JSON.parse(defaultSettings);
@@ -61,6 +68,7 @@ angular.module('classeur.core.settings', [])
 			clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates;
 
 			clSettingSvc.read();
+			// Sanitize in case of app update
 			updateSettings(clSettingSvc.values);
 			return clSettingSvc;
 		})
@@ -98,6 +106,14 @@ angular.module('classeur.core.settings', [])
 			clLocalSettingSvc.checkAll = checkAll;
 
 			clLocalSettingSvc.read();
-			clLocalSettingSvc.values = ({}).cl_extend(JSON.parse(defaultLocalSettings)).cl_extend(clLocalSettingSvc.values);
+			// Sanitize in case of app update
+			clLocalSettingSvc.values = JSON.parse(defaultLocalSettings).cl_reduce(function(sanitizedValues, defaultValue, key) {
+				if(clLocalSettingSvc.values.hasOwnProperty(key)) {
+					sanitizedValues[key] = clLocalSettingSvc.values[key];
+				} else {
+					sanitizedValues[key] = defaultValue;
+				}
+				return sanitizedValues;
+			}, {});
 			return clLocalSettingSvc;
 		});

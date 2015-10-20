@@ -36,7 +36,7 @@ angular.module('classeur.optional.exportToDisk', [])
 
 			clSocketSvc.addMsgHandler('document', function(msg) {
 				if (msg.error) {
-					return clToast(msg.error);
+					return clToast(msg.error.slice(0, 100));
 				}
 				saveAs(atob(msg.content), msg.name, msg.format);
 			});

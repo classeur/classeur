@@ -101,14 +101,13 @@ angular.module('classeur.core.user', [])
                 }
             }
 
-            function updateUser(user) {
-                if (!user.name) {
+            function checkUserName(userName) {
+                if (!userName) {
                     throw 'User name can\'t be empty.';
                 }
-                if (user.name.length > userNameMaxLength) {
+                if (userName.length > userNameMaxLength) {
                     throw 'User name is too long.';
                 }
-                clUserSvc.user = user;
             }
 
             function getSubscribeLink() {
@@ -141,7 +140,7 @@ angular.module('classeur.core.user', [])
             clUserSvc.signin = signin;
             clUserSvc.signout = signout;
             clUserSvc.checkAll = checkAll;
-            clUserSvc.updateUser = updateUser;
+            clUserSvc.checkUserName = checkUserName;
             clUserSvc.getSubscribeLink = getSubscribeLink;
             clUserSvc.getUnsubscribeLink = getUnsubscribeLink;
 
