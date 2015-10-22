@@ -72,8 +72,8 @@
     }
     .page.panel {
         z-index: 2; // To hide material sliders
-        -webkit-transform-origin: 50% 100%;
-        transform-origin: 50% 100%;
+        -webkit-transform-origin: 0 100%;
+        transform-origin: 0 100%;
         .margin.panel {
             width: 1px;
             left: $editor-margin-width;
@@ -139,9 +139,6 @@
                     left: 30px;
                     top: 0;
                     -webkit-transform-origin: 0 0;
-                    -moz-transform-origin: 0 0;
-                    -ms-transform-origin: 0 0;
-                    -o-transform-origin: 0 0;
                     transform-origin: 0 0;
                 }
             }

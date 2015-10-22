@@ -42,7 +42,7 @@
         position: relative;
         background-color: #fbfbfb;
         margin: 0 -5px 50px;
-        height: 520px;
+        height: 530px;
         text-align: center;
         .header {
             margin-bottom: 30px;
@@ -52,12 +52,12 @@
         &.premium {
             z-index: 1;
             height: 560px;
-            margin-top: -20px;
+            margin-top: -15px;
             background-color: #fff;
             .header {
                 background-color: #3EB8A4;
                 color: #fff;
-                height: 195px;
+                height: 190px;
             }
         }
         .name {
@@ -79,8 +79,9 @@
         }
         li {
             font-size: 14px;
-            padding: 6px 0;
+            padding: 8px 15px;
             list-style-type: none;
+            line-height: 1.3;
         }
         .md-button {
             font-size: 22px;

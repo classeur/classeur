@@ -6,7 +6,7 @@
     <b>Add a YAML front matter in your template:</b>
     <pre ng-non-bindable>
 ---
-{{{file.content.propertiesYaml}}}
+{{#toYaml file.content.properties}}{{/toYaml}}
 ---</pre>
 </div>
 <md-input-container>

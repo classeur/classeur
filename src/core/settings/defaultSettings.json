@@ -7,6 +7,7 @@
 	"editorMonospacedFont": false,
 	"editorHelpBtn": true,
 	"exportTemplates": {},
+	"handlebarsHelpers": "\n",
 	"pandocHighlightStyle": "kate",
 	"pandocToc": false,
 	"pandocTocDepth": 3

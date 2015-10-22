@@ -101,3 +101,18 @@
         padding-bottom: 8px;
     }
 }
+
+.handlebars.helpers.dialog {
+    min-width: 360px;
+    pre.prism {
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        width: 100%;
+        min-height: 120px;
+        word-wrap: normal;
+        overflow: auto;
+    }
+    pre.example {
+        padding-left: 50px;
+    }
+}

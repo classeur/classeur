@@ -11,7 +11,7 @@ angular.module('classeur.optional.settingPage', [])
 			});
 		})
 	.directive('clSettingPage',
-		function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
+		function($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
 
 			clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 				clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -52,17 +52,33 @@ angular.module('classeur.optional.settingPage', [])
 					$location.url('/');
 				};
 
+				scope.handlerbarsHelpers = function() {
+					return clDialog.show({
+						templateUrl: 'optional/settingPage/handlebarsHelpersDialog.html',
+						onComplete: function(scope, element) {
+							var preElt = element[0].querySelector('pre.prism');
+							var cledit = $window.cledit(preElt);
+							cledit.init({
+								highlighter: function(text) {
+									return $window.Prism.highlight(text, $window.Prism.languages.javascript);
+								}
+							});
+							cledit.setContent(clSettingSvc.values.handlebarsHelpers);
+							scope.ok = function() {
+								clSettingSvc.values.handlebarsHelpers = cledit.getContent();
+								clDialog.hide();
+							};
+							scope.cancel = function() {
+								clDialog.cancel();
+							};
+						}
+					});
+				};
+
 				scope.editFileProperties = function() {
 					clFilePropertiesDialog(clSettingSvc.values.defaultFileProperties)
 						.then(function(properties) {
 							clSettingSvc.values.defaultFileProperties = properties;
-						});
-				};
-
-				scope.manageTemplates = function() {
-					clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
-						.then(function(templates) {
-							clSettingSvc.values.exportTemplates = templates;
 						});
 				};
 

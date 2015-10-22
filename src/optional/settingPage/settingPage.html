@@ -53,14 +53,6 @@
                     <h2>Utils</h2>
                     <p>
                         <span class="label">
-                            Export and blog post formatting
-                        </span>
-                        <md-button class="md-primary" ng-click="manageTemplates()">
-                            Manage templates
-                        </md-button>
-                    </p>
-                    <p>
-                        <span class="label">
                             Default properties for new files
                         </span>
                         <md-button class="md-primary" ng-click="editFileProperties()">
@@ -69,9 +61,17 @@
                     </p>
                     <p>
                         <span class="label">
-                            Reset app settings
+                            Customize template helpers
                         </span>
-                        <md-button class="md-primary" ng-click="loadDefault()">Load default</md-button>
+                        <md-button class="md-primary" ng-click="handlerbarsHelpers()">
+                            Handlebars helpers
+                        </md-button>
+                    </p>
+                    <p>
+                        <span class="label">
+                            Reset app to factory settings
+                        </span>
+                        <md-button class="md-primary" ng-click="loadDefault()">Reset settings</md-button>
                     </p>
             </div>
             </md-tab>
@@ -166,7 +166,7 @@
                                 <span class="icon-add"></span>
                             </md-button>
                             <br>
-                            <p class="warning" ng-if="anyDisabled">Some of your links are disabled because your free account doesn't support more than 3 blogs. Click <a href="/#!/choosePlan">here</a> to go premium!</p>
+                            <p class="warning" ng-if="anyDisabled">Some of your links are disabled because your free account doesn't support more than 1 blog. Click <a href="/#!/choosePlan">here</a> to go premium!</p>
                             <br>
                             <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
                             <div ng-if="!blogs.length">No blog yet.</div>

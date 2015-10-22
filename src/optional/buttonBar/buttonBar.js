@@ -179,7 +179,7 @@ angular.module('classeur.optional.buttonBar', [])
 						.translateY(isOpen ? openOffsetY : closedOffsetY)
 						.duration(200)
 						.delay(isOpen ? 270 : 0)
-						.easing('outBack')
+						.easing('materialOut')
 						.start(true);
 				}
 			}

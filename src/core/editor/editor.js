@@ -143,7 +143,7 @@ angular.module('classeur.core.editor', [])
 				});
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
-						clEditorSvc.cledit && clEditorSvc.cledit.focus();
+						!scope.isDialogOpen && clEditorSvc.cledit && clEditorSvc.cledit.focus();
 					}, 1);
 				});
 			}
@@ -892,40 +892,27 @@ angular.module('classeur.core.editor', [])
 				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
 			};
 
-			var yamlSpecialChars = /[:{}[\],&*#?|\-<>=!%@\\]/;
-
 			clEditorSvc.applyTemplate = function(template) {
 				var view = {
 					file: {
 						name: currentFileDao.name,
 						content: {
 							properties: currentFileDao.contentDao.properties,
-							propertiesYaml: currentFileDao.contentDao.properties.cl_reduce(function(yaml, value, key) {
-								key = key.replace("'", "\\'");
-								value = value.replace("'", "\\'");
-								if (key.match(yamlSpecialChars)) {
-									key = "'" + key + "'";
-								}
-								if (value.match(yamlSpecialChars)) {
-									value = "'" + value + "'";
-								}
-								return yaml + key + ': ' + value + '\n';
-							}, ''),
 							text: currentFileDao.contentDao.text,
 							html: clEditorSvc.previewHtml,
 						},
 					}
 				};
 				var worker = new Worker(clVersion.getAssetPath('templateWorker-min.js'));
-				worker.postMessage([template, view]);
+				worker.postMessage([template, view, clSettingSvc.values.handlebarsHelpers]);
 				return $q(function(resolve, reject) {
 					worker.addEventListener('message', function(e) {
-						resolve(e.data);
+						resolve(e.data.toString());
 					});
-					// setTimeout(function() {
-					// 	worker.terminate();
-					// 	reject('Template generation timeout.');
-					// }, 10000);
+					setTimeout(function() {
+						worker.terminate();
+						reject('Template generation timeout.');
+					}, 10000);
 				});
 			};
 

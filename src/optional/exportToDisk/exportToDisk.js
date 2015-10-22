@@ -56,14 +56,13 @@ angular.module('classeur.optional.exportToDisk', [])
 				function closeDialog() {
 					clEditorLayoutSvc.currentControl = undefined;
 				}
+
 				function openDialog() {
-					if(clEditorLayoutSvc.currentControl === 'exportToDisk') {
-						showDialog();
-					} else {
+					if (clEditorLayoutSvc.currentControl !== 'exportToDisk') {
 						clEditorLayoutSvc.currentControl = 'exportToDisk';
+						return;
 					}
-				}
-				function showDialog() {
+
 					var textPreview;
 					clDialog.show({
 						templateUrl: 'optional/exportToDisk/exportToDisk.html',
@@ -117,7 +116,7 @@ angular.module('classeur.optional.exportToDisk', [])
 								});
 						} else if (config.format === 'document') {
 							var contentDao = scope.currentFileDao.contentDao;
-							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && contentDao.text.length > 10000)) {
+							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && contentDao.text.length > 5000)) {
 								return clDialog.show({
 									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
 									controller: ['$scope', function(scope) {
@@ -176,6 +175,7 @@ angular.module('classeur.optional.exportToDisk', [])
 							});
 						}
 					}, closeDialog);
+
 				}
 
 				scope.$watch('editorLayoutSvc.currentControl === "exportToDisk"', function(value) {

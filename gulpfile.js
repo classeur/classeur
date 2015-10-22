@@ -1,6 +1,8 @@
-var childProcess = require('child_process');
 var path = require('path');
-var gulp = require('gulp');
+var clgulp = require('clgulp');
+var gulp = clgulp(require('gulp'));
+var exec = clgulp.exec;
+var util = clgulp.util;
 var watch = require('gulp-watch');
 var concat = require('gulp-concat');
 var ngAnnotate = require('gulp-ng-annotate');
@@ -11,14 +13,8 @@ var replace = require('gulp-replace');
 var sass = require('gulp-sass');
 var templateCache = require('gulp-angular-templatecache');
 var size = require('gulp-size');
-var bump = require('gulp-bump');
-var util = require('gulp-util');
 
 var isDebug = false;
-
-gulp.task('patch', bumpTask('patch'));
-gulp.task('minor', bumpTask('minor'));
-gulp.task('major', bumpTask('major'));
 
 gulp.task('tag', function(cb) {
 	var version = require('./package').version;
@@ -205,28 +201,4 @@ function buildCss(srcStream, dest) {
 			.pipe(concat(dest));
 	}
 	return srcStream.pipe(gulp.dest('public'));
-}
-
-function bumpTask(importance) {
-	return function() {
-		return gulp.src([
-				'./package.json'
-			])
-			.pipe(bump({
-				type: importance
-			}))
-			.pipe(gulp.dest('./'));
-	};
-}
-
-function exec(cmds, cb) {
-	cmds.length === 0 ? cb() : childProcess.exec(cmds.shift(), {
-		cwd: process.cwd()
-	}, function(err, stdout, stderr) {
-		if (err) {
-			return cb(err);
-		}
-		util.log(stdout, stderr);
-		exec(cmds, cb);
-	});
 }

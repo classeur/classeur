@@ -120,7 +120,7 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.editorX = clEditorLayoutSvc.isMenuOpen ? 5 : 0;
 					clEditorLayoutSvc.editorY = clEditorLayoutSvc.isEditorOpen ? 0 : hideOffsetY;
 					clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -clEditorLayoutSvc.menuWidth : 0;
-					clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -100 : 0;
+					clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -50 : 0;
 					clEditorLayoutSvc.pageRotate = clEditorLayoutSvc.isMenuOpen ? -2 : 0;
 					scope.showHelp = clSettingSvc.values.editorHelpBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
 				}
@@ -244,12 +244,13 @@ angular.module('classeur.core.editorLayout', [])
 						.translateY(clEditorLayoutSvc.pageY)
 						.rotate(clEditorLayoutSvc.pageRotate)
 						.duration(200)
-						.easing('outBack')
+						.easing('materialOut')
 						.start(true);
 					editorPanelElt.clanim
 						.translateX(clEditorLayoutSvc.editorX)
 						.translateY(clEditorLayoutSvc.editorY)
 						.duration(isInited && 200)
+						.easing('materialOut')
 						.start(true);
 				}
 

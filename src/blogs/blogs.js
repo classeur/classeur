@@ -51,7 +51,7 @@ angular.module('classeur.blogs', [])
 			};
 
 			function link(scope) {
-				scope.form.templateKey = 'HTML';
+				scope.form.templateKey = 'Plain HTML';
 				scope.templates = clSettingSvc.values.exportTemplates;
 				scope.$watch('form.templateKey', function(templateKey) {
 					if (templateKey) {
