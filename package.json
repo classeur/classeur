@@ -1,6 +1,6 @@
 {
   "name": "classeur",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Classeur frontend editor",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "angular-route": "^1.4.6",
     "bezier-easing": "^1.1.1",
     "clanim": "^0.1.0",
-    "classets": "^0.1.0",
+    "classets": "^1.0.0",
     "cldiffutils": "^1.0.0",
     "cledit": "^0.1.1",
     "clgulp": "^1.0.4",
