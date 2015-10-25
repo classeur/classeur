@@ -1,16 +1,32 @@
 {
   "name": "classeur",
-  "version": "0.9.4",
-  "description": "",
+  "version": "0.10.1",
+  "description": "Classeur frontend editor",
   "main": "index.js",
   "scripts": {
-    "install": "bower --allow-root install && gulp"
+    "install": "gulp",
+    "start": "gulp start"
   },
   "author": "Benoit Schweblin",
-  "license": "Apache",
+  "license": "Apache-2.0",
   "dependencies": {
-    "bower": "^1.3.12",
+    "angular": "^1.4.6",
+    "angular-animate": "^1.4.6",
+    "angular-aria": "^1.4.6",
+    "angular-google-analytics": "^1.1.1",
+    "angular-material": "^0.10.1",
+    "angular-messages": "^1.4.6",
+    "angular-route": "^1.4.6",
+    "bezier-easing": "^1.1.1",
+    "clanim": "^0.1.0",
+    "classets": "^1.0.0",
+    "cldiffutils": "^1.0.0",
+    "cledit": "^0.1.1",
+    "clgulp": "^1.0.4",
+    "clunderscore": "^0.1.0",
     "connect": "^3.3.5",
+    "filesaver.js": "^0.2.0",
+    "googlediff": "^0.1.0",
     "gulp": "^3.8.11",
     "gulp-angular-templatecache": "^1.5.0",
     "gulp-concat": "^2.4.3",
@@ -21,11 +37,26 @@
     "gulp-sourcemaps": "*",
     "gulp-uglify": "^1.1.0",
     "gulp-watch": "^1.2.1",
+    "hammerjs": "^2.0.4",
+    "handlebars": "^4.0.3",
+    "markdown-it": "^4.4.0",
+    "markdown-it-abbr": "^1.0.0",
+    "markdown-it-deflist": "^1.0.0",
+    "markdown-it-emoji": "^1.1.0",
+    "markdown-it-footnote": "^1.0.0",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
+    "prismjs": "0.0.1",
     "serve-static": "^1.8.1",
     "streamqueue": "^0.1.1"
   },
-  "devDependencies": {
-    "gulp-bump": "^0.3.1",
-    "gulp-util": "^3.0.6"
-  }
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/classeur/classeur.git"
+  },
+  "bugs": {
+    "url": "https://github.com/classeur/classeur/issues"
+  },
+  "homepage": "https://github.com/classeur/classeur#readme"
 }

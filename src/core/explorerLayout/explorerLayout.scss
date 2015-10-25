@@ -23,7 +23,7 @@
         color: #fff;
     }
     .header {
-        height: 75px;
+        height: 80px;
         position: relative;
         .classeur.name {
             padding: 8px 0 0;
@@ -95,7 +95,7 @@
         &.clone {
             position: absolute;
             .file.actions > div {
-                padding: 15px 0;
+                padding: 15px 0 0;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             }
             &.hidden {
@@ -113,12 +113,11 @@
             display: none;
         }
         .folder.btn {
-            width: 34px;
+            width: 48px;
             height: 42px;
-            font-size: 32px;
+            font-size: 36px;
             &.icon-publ {
-                color: rgba(255, 255, 255, 0.6);
-                margin-bottom: 8px;
+                color: #fff;
             }
         }
         md-progress-circular {
@@ -180,25 +179,34 @@
         }
         .search {
             min-width: 0;
+            @media screen and (max-width: 320px) {
+                display: none;
+            }
         }
     }
     .file.actions {
         & > div {
-            padding: 15px 0 5px;
+            padding: 15px 0 0;
         }
+        font-size: 15px;
         padding: 0 35px;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
-        background-color: rgba(255,
-        255,
-        255,
-        0.3);
+        background-color: rgba(255, 255, 255, 0.25);
+        .sort-by {
+            .icon-keyboard-backspace {
+                display: inline-block;
+            }
+            @media screen and (max-width: 320px) {
+                display: none;
+            }
+        }
     }
     .folder.content {
-        padding: 15px 40px 80px;
+        padding: 10px 40px 60px;
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.25);
     }
     .folder.name {
         width: 100%;
@@ -259,8 +267,8 @@
         }
         .icon-publ {
             padding: 8px 2px;
-            font-size: 22px;
-            color: rgba(0, 0, 0, 0.5);
+            font-size: 23px;
+            color: rgba(0, 0, 0, 0.65);
             cursor: pointer;
         }
         &.public {
@@ -297,6 +305,9 @@
                 color: #fff;
                 border-top-right-radius: $border-radius-binder;
                 border-bottom-right-radius: $border-radius-binder;
+                &:hover, &.md-focused {
+                    background-color: transparent;
+                }
                 .rotate-90 {
                     position: absolute;
                     width: 110px;
@@ -307,9 +318,6 @@
                     padding: 0 4px;
                     letter-spacing: 0;
                     -webkit-transform-origin: 0 0;
-                    -moz-transform-origin: 0 0;
-                    -ms-transform-origin: 0 0;
-                    -o-transform-origin: 0 0;
                     transform-origin: 0 0;
                 }
             }
@@ -376,6 +384,10 @@
         margin-left: 30px;
         .md-button {
             padding: 8px 10px;
+        }
+        .icon {
+            font-size: 20px;
+            line-height: 16px;
         }
     }
     .classeur.list {
@@ -445,7 +457,7 @@
             .name {
                 padding: 2px;
                 border-radius: 3px;
-                background-color: rgba(255, 255, 255, 0.3);
+                background-color: rgba(255, 255, 255, 0.25);
                 margin: 20px 5px 15px;
                 textarea {
                     font-weight: 300;
@@ -477,7 +489,7 @@
             bottom: 0;
             height: 42px;
             font-size: 26px;
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.25);
             text-align: center;
             cursor: auto;
             .icon-more-vert {
@@ -541,6 +553,27 @@
         height: 70px;
         &.link {
             height: 0;
+        }
+    }
+    .drop-zone {
+        border: 3px dashed #bbb;
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        color: #bbb;
+        position: relative;
+        .icon {
+            font-size: 42px;
+        }
+        input {
+            position: absolute;
+            display: block;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
         }
     }
 }

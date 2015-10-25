@@ -8,7 +8,7 @@ angular.module('classeur.optional.electron', [])
 
 			$routeProvider
 				.when('/localFile', {
-					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="fileLoaded"></cl-editor-layout>',
+					template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
 					controller: function($scope, $timeout, $location, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc, clDialog, clEditorSvc) {
 						function unimplemented() {
 							throw new Error('Unimplemented');

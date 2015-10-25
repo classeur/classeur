@@ -22,7 +22,7 @@ angular.module('classeur.optional.findReplace', [])
 					highlightOccurrences();
 					if (isOpen()) {
 						!findInputElt.readOnly && setTimeout(function() {
-							findInputElt.focus();
+							findInputElt.select();
 						}, 10);
 					} else {
 						findInputElt.blur();
@@ -38,7 +38,7 @@ angular.module('classeur.optional.findReplace', [])
 							if (isOpen()) {
 								findInputElt.readOnly = false;
 								replaceInputElt.readOnly = false;
-								findInputElt.focus();
+								findInputElt.select();
 								highlightOccurrences();
 							}
 						});
@@ -55,7 +55,7 @@ angular.module('classeur.optional.findReplace', [])
 							start: this.startMarker.offset,
 							end: this.endMarker.offset
 						};
-					}).bind(this));
+					}).cl_bind(this));
 					this.clean = function() {
 						clEditorSvc.cledit.removeMarker(this.startMarker);
 						clEditorSvc.cledit.removeMarker(this.endMarker);
@@ -63,14 +63,14 @@ angular.module('classeur.optional.findReplace', [])
 					};
 				}
 
-				var classAppliers = {},
+				var classAppliers = Object.create(null),
 					selectedClassApplier, searchRegex;
 
 				var highlightOccurrences = $window.cledit.Utils.debounce(function() {
 					var caseSensitive = false;
 					var useRegexp = false;
-					var oldClassAppliers = {};
-					Object.keys(classAppliers).forEach(function(key) {
+					var oldClassAppliers = Object.create(null);
+					Object.keys(classAppliers).cl_each(function(key) {
 						var classApplier = classAppliers[key];
 						var newKey = classApplier.startMarker.offset + ':' + classApplier.endMarker.offset;
 						oldClassAppliers[newKey] = classApplier;
@@ -95,9 +95,9 @@ angular.module('classeur.optional.findReplace', [])
 							}
 						} catch (e) {}
 					}
-					Object.keys(oldClassAppliers).forEach(function(key) {
-						if (!classAppliers.hasOwnProperty(key)) {
-							var classApplier = oldClassAppliers[key];
+					Object.keys(oldClassAppliers).cl_each(function(key) {
+						var classApplier = oldClassAppliers[key];
+						if (!classAppliers[key]) {
 							classApplier.clean();
 							if (classApplier === selectedClassApplier) {
 								selectedClassApplier.child.clean();
@@ -117,7 +117,7 @@ angular.module('classeur.optional.findReplace', [])
 					}
 					var keys = Object.keys(classAppliers);
 					selectedClassApplier = classAppliers[keys[0]];
-					keys.some(function(key) {
+					keys.cl_some(function(key) {
 						if (classAppliers[key].startMarker.offset > position) {
 							selectedClassApplier = classAppliers[key];
 							return true;

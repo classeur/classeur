@@ -22,6 +22,7 @@ angular.module('classeur.core.socket', [])
 
 			var lastConnectionAttempt = 0;
 			var nextConnectionAttempt = 1000;
+			var maxNextConnectionAttempt = nextConnectionAttempt * Math.pow(2, 5); // Has to be a power of 2
 
 			function attemptOpenSocket() {
 				lastConnectionAttempt = Date.now();
@@ -35,7 +36,7 @@ angular.module('classeur.core.socket', [])
 				};
 				socket.onmessage = function(event) {
 					var msg = JSON.parse(event.data);
-					(msgHandlers[msg.type] || []).forEach(function(handler) {
+					(msgHandlers[msg.type] || []).cl_each(function(handler) {
 						return handler(JSON.parse(event.data), clSocketSvc.ctx); // Give each handler a different msg object
 					});
 				};
@@ -51,7 +52,7 @@ angular.module('classeur.core.socket', [])
 			function openSocket() {
 				if (shouldAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
 					attemptOpenSocket();
-					if (nextConnectionAttempt < 30000) {
+					if (nextConnectionAttempt < maxNextConnectionAttempt) {
 						// Exponential backoff
 						nextConnectionAttempt *= 2;
 					}
@@ -92,7 +93,7 @@ angular.module('classeur.core.socket', [])
 			function removeMsgHandler(type, handler) {
 				var typeHandlers = msgHandlers[type];
 				if (typeHandlers) {
-					typeHandlers = typeHandlers.filter(function(typeHandler) {
+					typeHandlers = typeHandlers.cl_filter(function(typeHandler) {
 						return typeHandler !== handler;
 					});
 					msgHandlers[type] = typeHandlers;

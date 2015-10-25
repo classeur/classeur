@@ -1,0 +1,19 @@
+<md-dialog class="premium-pdf dialog">
+    <md-dialog-content>
+        <h2>Go premium!
+        </h2>
+        <p>You need a premium account to export big documents. If you're signed as a regular user, exported documents are limited to 5KB content.</p>
+        <p>Alternatively, you can use the Print dialog to export as PDF.</p>
+    </md-dialog-content>
+    <div class="md-actions">
+        <md-button ng-click="cancel()" class="md-primary">
+            Cancel
+        </md-button>
+        <md-button ng-if="!userSvc.user" class="md-primary" ng-click="userSvc.startOAuth()">
+            Sign in with Google
+        </md-button>
+        <md-button ng-if="userSvc.user" ng-href="#!/choosePlan" class="md-primary">
+            Go premium
+        </md-button>
+    </div>
+</md-dialog>

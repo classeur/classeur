@@ -8,20 +8,17 @@ angular.module('classeur.core.explorerLayout', [])
 			};
 
 			function link(scope, element, attr) {
-				var elt = element[0];
-				var parentElt = elt.parentNode;
 				var buttonElt = element[0];
+				var parentElt = buttonElt.parentNode;
 				var duration;
 				if (attr.folder) {
 					scope.folderDao = scope.$eval(attr.folder);
 				}
+				var isHover;
 
 				function animate() {
-					var isDraggingTarget = scope.folderDao && scope.folderDao.isDraggingTarget;
 					var isSelected = clExplorerLayoutSvc.currentFolderDao === scope.folderDao;
-					var isOpen = isSelected || isDraggingTarget;
 					element.toggleClass('selected', isSelected);
-					element.toggleClass('open', isOpen);
 					var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0;
 					var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997);
 					buttonElt.clanim
@@ -30,11 +27,12 @@ angular.module('classeur.core.explorerLayout', [])
 						.offsetWidth; // Force z-offset to refresh before the animation
 					buttonElt.clanim
 						.duration(duration)
-						.translateX(isOpen ? 0 : -5)
+						.translateX(isSelected ? 0 : isHover ? -3 : -5)
 						.translateY(y)
+						.easing('materialOut')
 						.start(true);
-					duration = 100;
-					if (isOpen) {
+					duration = 400;
+					if (isSelected) {
 						// Adjust scrolling position
 						var minY = parentElt.scrollTop + 160;
 						var maxY = parentElt.scrollTop + parentElt.clientHeight - 240;
@@ -47,15 +45,21 @@ angular.module('classeur.core.explorerLayout', [])
 					}
 				}
 
+				buttonElt.addEventListener('mouseenter', function() {
+					isHover = true;
+					animate();
+				});
+				buttonElt.addEventListener('mouseleave', function() {
+					isHover = false;
+					animate();
+				});
+
 				scope.$watch('$index', animate);
 				scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function(isSelected) {
 					if (isSelected) {
 						clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0];
 						clExplorerLayoutSvc.toggleHiddenBtn();
 					}
-					animate();
-				});
-				scope.$watch('folderDao.isDraggingTarget', function() {
 					animate();
 				});
 			}
@@ -201,8 +205,63 @@ angular.module('classeur.core.explorerLayout', [])
 				});
 			}
 		})
+	.directive('clFileDropInput',
+		function(clToast, clDialog) {
+			var maxSize = 200000;
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					function uploadFile(file) {
+						var reader = new FileReader();
+						reader.onload = function(e) {
+							var bytes = new Uint8Array(e.target.result);
+							var len = bytes.byteLength;
+							if (len === maxSize) {
+								return clToast('File is too big.');
+							}
+							var content = '';
+							for (var i = 0; i < len; i++) {
+								content += String.fromCharCode(bytes[i]);
+							}
+							if (content.match(/[\uFFF0-\uFFFF]/)) {
+								return clToast('File is not readable.');
+							}
+							clDialog.hide({
+								name: file.name,
+								content: content
+							});
+						};
+						var blob = file.slice(0, maxSize);
+						reader.readAsArrayBuffer(blob);
+					}
+					var elt = element[0];
+					elt.addEventListener('change', function(evt) {
+						var files = evt.target.files;
+						files[0] && uploadFile(files[0]);
+					});
+					elt.addEventListener('dragover', function(evt) {
+						evt.stopPropagation();
+						evt.preventDefault();
+						evt.dataTransfer.dropEffect = 'copy';
+					});
+					elt.addEventListener('dragover', function(evt) {
+						evt.stopPropagation();
+						evt.preventDefault();
+						evt.dataTransfer.dropEffect = 'copy';
+					});
+					elt.addEventListener('drop', function(evt) {
+						var files = (evt.dataTransfer || evt.target).files;
+						if (files[0]) {
+							evt.stopPropagation();
+							evt.preventDefault();
+							uploadFile(files[0]);
+						}
+					});
+				}
+			};
+		})
 	.directive('clExplorerLayout',
-		function($window, $timeout, $templateCache, clDialog, clUserSvc, clExplorerLayoutSvc, clDocFileSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
+		function($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
 			var explorerMaxWidth = 760;
 			var noPaddingWidth = 580;
 			var hideOffsetY = 2000;
@@ -299,39 +358,30 @@ angular.module('classeur.core.explorerLayout', [])
 					setPlasticClass();
 				};
 
-				function makeInputDialog(templateUrl, onComplete) {
+				function makeInputDialog(templateUrl, controller) {
 					return clDialog.show({
 						templateUrl: templateUrl,
-						onComplete: function(scope, element) {
+						focusOnOpen: false,
+						controller: ['$scope', function(scope) {
 							scope.ok = function() {
 								if (!scope.value) {
-									return scope.inputFocus();
+									return scope.focus();
 								}
 								clDialog.hide(scope.value);
 							};
 							scope.cancel = function() {
 								clDialog.cancel();
 							};
-							var inputElt = element[0].querySelector('input');
-							inputElt.addEventListener('keydown', function(e) {
-								// Check enter key
-								if (e.which === 13) {
-									e.preventDefault();
-									scope.ok();
-								}
-							});
-							scope.inputFocus = function() {
-								setTimeout(function() {
-									inputElt.focus();
-								}, 10);
-							};
-							scope.inputFocus();
-							onComplete && onComplete(scope, element);
-						}
+							controller && controller(scope);
+						}]
 					});
 				}
 
-				function importExistingFolder(folderDao) {
+				function importExistingFolder(folderDao, move) {
+					move && clClasseurSvc.classeurs.cl_each(function(classeurDao) {
+						var index = classeurDao.folders.indexOf(folderDao);
+						index !== -1 && classeurDao.folders.splice(index, 1);
+					});
 					clExplorerLayoutSvc.currentClasseurDao.folders.push(folderDao);
 					clClasseurSvc.init();
 					clExplorerLayoutSvc.refreshFolders();
@@ -351,17 +401,18 @@ angular.module('classeur.core.explorerLayout', [])
 
 				function importFolder() {
 					makeInputDialog('core/explorerLayout/importFolderDialog.html', function(scope) {
-						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.reduce(function(classeurFolders, folderDao) {
+						var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_reduce(function(classeurFolders, folderDao) {
 							return (classeurFolders[folderDao.id] = folderDao, classeurFolders);
 						}, {});
-						scope.folders = clFolderSvc.folders.filter(function(filterDao) {
-							return !filterDao.isPublic && !classeurFolders.hasOwnProperty(filterDao.id);
+						scope.folders = clFolderSvc.folders.cl_filter(function(filterDao) {
+							return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id);
 						});
+						scope.move = true;
 						var ok = scope.ok;
 						scope.ok = function() {
 							if (scope.folderId) {
 								var folderDao = clFolderSvc.folderMap[scope.folderId];
-								folderDao && importExistingFolder(folderDao);
+								folderDao && importExistingFolder(folderDao, scope.move);
 								return clDialog.cancel();
 							}
 							ok();
@@ -372,7 +423,7 @@ angular.module('classeur.core.explorerLayout', [])
 						if (!folderId || link.indexOf(clConfig.appUri) !== 0) {
 							clToast('Invalid folder link.');
 						}
-						if (clExplorerLayoutSvc.currentClasseurDao.folders.some(function(folderDao) {
+						if (clExplorerLayoutSvc.currentClasseurDao.folders.cl_some(function(folderDao) {
 								return folderDao.id === folderId;
 							})) {
 							clToast('Folder is already in the classeur.');
@@ -399,22 +450,50 @@ angular.module('classeur.core.explorerLayout', [])
 					});
 				}
 
+				function importFile() {
+					var folderDao = clExplorerLayoutSvc.currentFolderDao;
+					clDialog.show({
+							templateUrl: 'core/explorerLayout/importFileDialog.html',
+							controller: ['$scope', function(scope) {
+								scope.cancel = function() {
+									clDialog.cancel();
+								};
+							}]
+						})
+						.then(function(file) {
+							var newFileDao = clFileSvc.createFile();
+							newFileDao.state = 'loaded';
+							newFileDao.readContent();
+							newFileDao.name = file.name;
+							newFileDao.contentDao.text = file.content;
+							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
+							newFileDao.writeContent();
+							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
+								newFileDao.folderId = folderDao.id;
+								newFileDao.userId = folderDao.userId;
+							}
+							scope.setCurrentFile(newFileDao);
+						});
+				}
+
 				scope.createFile = function() {
 					var folderDao = clExplorerLayoutSvc.currentFolderDao;
-					makeInputDialog('core/explorerLayout/newFileDialog.html')
+					makeInputDialog('core/explorerLayout/newFileDialog.html', function(scope) {
+							scope.import = function() {
+								clDialog.cancel();
+								importFile();
+							};
+						})
 						.then(function(name) {
 							var newFileDao = clFileSvc.createFile();
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
 							newFileDao.name = name;
-							if (clFileSvc.files.length === 1) {
-								newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
-							}
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
-							if (folderDao && clFolderSvc.folderMap.hasOwnProperty(folderDao.id)) {
+							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
 								newFileDao.folderId = folderDao.id;
-								newFileDao.isPublic = folderDao.isPublic;
+								newFileDao.userId = folderDao.userId;
 							}
 							scope.setCurrentFile(newFileDao);
 						});
@@ -442,15 +521,22 @@ angular.module('classeur.core.explorerLayout', [])
 				};
 
 				scope.selectAll = function() {
-					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+					clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 						fileDao.isSelected = true;
 					});
 				};
 
 				scope.selectNone = function() {
-					clExplorerLayoutSvc.files.forEach(function(fileDao) {
+					clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 						fileDao.isSelected = false;
 					});
+				};
+
+				scope.sortByDate = function(value) {
+					clExplorerLayoutSvc.isSortedByDate = value;
+					clExplorerLayoutSvc.moreFiles(true);
+					clExplorerLayoutSvc.refreshFiles();
+					folderElt.scrollTop = 0;
 				};
 
 				(function() {
@@ -490,13 +576,13 @@ angular.module('classeur.core.explorerLayout', [])
 						folderToRemove = null;
 						if (deleteFolder) {
 							folderToRemove = clExplorerLayoutSvc.currentFolderDao;
-							!clExplorerLayoutSvc.currentFolderDao.isPublic && scope.selectAll();
+							!clExplorerLayoutSvc.currentFolderDao.userId && scope.selectAll();
 						}
 						clExplorerLayoutSvc.updateSelectedFiles(); // updateSelectedFiles is called automatically but later
 						filesToRemove = clExplorerLayoutSvc.selectedFiles;
 
 						if (folderToRemove) {
-							if (clClasseurSvc.classeurs.some(function(classeurDao) {
+							if (clClasseurSvc.classeurs.cl_some(function(classeurDao) {
 									if (classeurDao !== clExplorerLayoutSvc.currentClasseurDao && classeurDao.folders.indexOf(folderToRemove) !== -1) {
 										return true;
 									}
@@ -509,7 +595,7 @@ angular.module('classeur.core.explorerLayout', [])
 									.ok('This only')
 									.cancel('All');
 								return clDialog.show(confirm).then(function() {
-									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.filter(function(folderInClasseur) {
+									clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_filter(function(folderInClasseur) {
 										return folderInClasseur.id !== folderToRemove.id;
 									});
 									clClasseurSvc.init();
@@ -532,11 +618,11 @@ angular.module('classeur.core.explorerLayout', [])
 
 				scope.deleteClasseur = function(classeurDao) {
 					var filesToRemove = [];
-					var foldersToRemove = classeurDao.folders.filter(function(folderDao) {
-						if (!clClasseurSvc.classeurs.some(function(otherClasseurDao) {
+					var foldersToRemove = classeurDao.folders.cl_filter(function(folderDao) {
+						if (!clClasseurSvc.classeurs.cl_some(function(otherClasseurDao) {
 								return otherClasseurDao !== classeurDao && otherClasseurDao.folders.indexOf(folderDao) !== -1;
 							})) {
-							filesToRemove = filesToRemove.concat(clExplorerLayoutSvc.files.filter(function(fileDao) {
+							filesToRemove = filesToRemove.concat(clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 								return fileDao.folderId === folderDao.id;
 							}));
 							return true;
@@ -665,14 +751,18 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 
 			function refreshFiles() {
-				clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.filter(
+				clExplorerLayoutSvc.files = clExplorerLayoutSvc.currentFolderDao ? clFileSvc.files.cl_filter(
 					clExplorerLayoutSvc.currentFolderDao === unclassifiedFolder ? function(fileDao) {
-						return !fileDao.isPublic && filterFile(fileDao);
+						return !fileDao.userId && filterFile(fileDao);
 					} : function(fileDao) {
 						return fileDao.folderId === clExplorerLayoutSvc.currentFolderDao.id && filterFile(fileDao);
-					}).sort(function(fileDao1, fileDao2) {
-					return fileDao1.name.localeCompare(fileDao2.name);
-				}) : clFileSvc.localFiles.filter(filterFile).sort(function(fileDao1, fileDao2) {
+					}).sort(
+					clExplorerLayoutSvc.isSortedByDate ? function(fileDao1, fileDao2) {
+						return fileDao2.updated - fileDao1.updated;
+					} : function(fileDao1, fileDao2) {
+						return fileDao1.name.localeCompare(fileDao2.name);
+					}
+				) : clFileSvc.localFiles.cl_filter(filterFile).sort(function(fileDao1, fileDao2) {
 					return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange;
 				});
 				clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex);
@@ -687,7 +777,7 @@ angular.module('classeur.core.explorerLayout', [])
 			}
 
 			function updateSelectedFiles() {
-				clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.filter(function(fileDao) {
+				clExplorerLayoutSvc.selectedFiles = clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 					return fileDao.isSelected;
 				});
 				return clExplorerLayoutSvc.selectedFiles;
@@ -697,7 +787,7 @@ angular.module('classeur.core.explorerLayout', [])
 				if (clExplorerLayoutSvc.currentFolderDao) {
 					clExplorerLayoutSvc.currentFolderDao.effectiveSharing = clExplorerLayoutSvc.currentFolderDao.sharing;
 				}
-				clExplorerLayoutSvc.files.forEach(function(fileDao) {
+				clExplorerLayoutSvc.files.cl_each(function(fileDao) {
 					fileDao.effectiveSharing = fileDao.sharing;
 					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
 					if (folderDao && folderDao.sharing > fileDao.sharing) {
@@ -722,6 +812,19 @@ angular.module('classeur.core.explorerLayout', [])
 				folderDao && folderDao.id ? clLocalStorage.setItem(lastFolderKey, folderDao.id) : clLocalStorage.removeItem(lastFolderKey);
 			}
 
+			function setCurrentFolderInClasseur(folderDao) {
+				if (!clClasseurSvc.classeurs.cl_some(function(classeurDao) {
+						if (classeurDao.folders.indexOf(folderDao) !== -1) {
+							setCurrentClasseur(classeurDao);
+							return true;
+						}
+					})) {
+					setCurrentClasseur(clClasseurSvc.defaultClasseur);
+				}
+				setCurrentFolder(folderDao);
+				clExplorerLayoutSvc.refreshFolders();
+			}
+
 			var clExplorerLayoutSvc = {
 				scrollbarWidth: 0,
 				folders: [],
@@ -736,6 +839,7 @@ angular.module('classeur.core.explorerLayout', [])
 				setEffectiveSharing: setEffectiveSharing,
 				setCurrentClasseur: setCurrentClasseur,
 				setCurrentFolder: setCurrentFolder,
+				setCurrentFolderInClasseur: setCurrentFolderInClasseur,
 				init: function() {
 					this.isExplorerOpen = true;
 				},

@@ -4,7 +4,7 @@ angular.module('classeur.core.folders', [])
 			var folderDaoProto = clLocalStorageObject('F', {
 				name: 'string',
 				sharing: 'string',
-				isPublic: 'string',
+				userId: 'string',
 				deleted: 'int',
 			}, true);
 
@@ -33,7 +33,7 @@ angular.module('classeur.core.folders', [])
 
 			var authorizedKeys = {
 				u: true,
-				isPublic: true,
+				userId: true,
 				name: true,
 				sharing: true,
 				deleted: true
@@ -46,30 +46,30 @@ angular.module('classeur.core.folders', [])
 					clFolderSvc.$read();
 				}
 
-				var folderMap = {};
-				var deletedFolderMap = {};
-				clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(id) {
+				var folderMap = Object.create(null);
+				var deletedFolderMap = Object.create(null);
+				clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function(id) {
 					var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id] || new FolderDao(id);
-					return (!folderDao.deleted && !folderMap.hasOwnProperty(id) && (folderMap[id] = folderDao)) ||
-						(folderDao.deleted && !deletedFolderMap.hasOwnProperty(id) && (deletedFolderMap[id] = folderDao));
+					return (!folderDao.deleted && !folderMap[id] && (folderMap[id] = folderDao)) ||
+						(folderDao.deleted && !deletedFolderMap[id] && (deletedFolderMap[id] = folderDao));
 				});
 				clFolderSvc.folderMap = folderMap;
 				clFolderSvc.deletedFolderMap = deletedFolderMap;
 
-				clFolderSvc.folders = Object.keys(folderMap).map(function(id) {
+				clFolderSvc.folders = Object.keys(folderMap).cl_map(function(id) {
 					return folderMap[id];
 				});
-				clFolderSvc.deletedFolders = Object.keys(deletedFolderMap).map(function(id) {
+				clFolderSvc.deletedFolders = Object.keys(deletedFolderMap).cl_map(function(id) {
 					return deletedFolderMap[id];
 				});
 
 				if (!isInitialized) {
 					var keyPrefix = /^F\.(\w+)\.(\w+)/;
-					Object.keys(clLocalStorage).forEach(function(key) {
+					Object.keys(clLocalStorage).cl_each(function(key) {
 						if (key.charCodeAt(0) === 0x46 /* F */ ) {
 							var match = key.match(keyPrefix);
 							if (match) {
-								if ((!clFolderSvc.folderMap.hasOwnProperty(match[1]) && !clFolderSvc.deletedFolderMap.hasOwnProperty(match[1])) ||
+								if ((!clFolderSvc.folderMap[match[1]] && !clFolderSvc.deletedFolderMap[match[1]]) ||
 									!authorizedKeys.hasOwnProperty(match[2])) {
 									clLocalStorage.removeItem(key);
 								}
@@ -82,7 +82,7 @@ angular.module('classeur.core.folders', [])
 
 			function write() {
 				clFolderSvc.$write();
-				clFolderSvc.folders.forEach(function(folderDao) {
+				clFolderSvc.folders.cl_each(function(folderDao) {
 					folderDao.write();
 				});
 			}
@@ -100,7 +100,7 @@ angular.module('classeur.core.folders', [])
 				// Check every folder
 				var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate();
 				folderDaoProto.$readGlobalUpdate();
-				clFolderSvc.folders.concat(clFolderSvc.deletedFolders).forEach(function(folderDao) {
+				clFolderSvc.folders.concat(clFolderSvc.deletedFolders).cl_each(function(folderDao) {
 					if (checkFolderUpdate && folderDao.$checkUpdate()) {
 						folderDao.read();
 					} else if (!skipWrite) {
@@ -127,7 +127,7 @@ angular.module('classeur.core.folders', [])
 
 			function createPublicFolder(id) {
 				var folderDao = createFolder(id);
-				folderDao.isPublic = '1';
+				folderDao.userId = '0'; // Will be filled by the sync module
 				return folderDao;
 			}
 
@@ -136,10 +136,10 @@ angular.module('classeur.core.folders', [])
 					return;
 				}
 				var folderIds = {};
-				folderDaoList.forEach(function(folderDao) {
+				folderDaoList.cl_each(function(folderDao) {
 					folderIds[folderDao.id] = 1;
 				});
-				clFolderSvc.folderIds = clFolderSvc.folderIds.filter(function(folderId) {
+				clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function(folderId) {
 					return !folderIds.hasOwnProperty(folderId);
 				});
 				init();
@@ -150,7 +150,7 @@ angular.module('classeur.core.folders', [])
 					return;
 				}
 				var currentDate = Date.now();
-				folderDaoList.forEach(function(folderDao) {
+				folderDaoList.cl_each(function(folderDao) {
 					folderDao.deleted = currentDate;
 				});
 				init();
@@ -165,7 +165,7 @@ angular.module('classeur.core.folders', [])
 			}
 
 			function updateUserFolders(changes) {
-				changes.forEach(function(change) {
+				changes.cl_each(function(change) {
 					var folderDao = clFolderSvc.folderMap[change.id];
 					if (change.deleted && folderDao) {
 						var index = clFolderSvc.folders.indexOf(folderDao);
@@ -177,7 +177,7 @@ angular.module('classeur.core.folders', [])
 					}
 					folderDao.name = change.name || '';
 					folderDao.sharing = change.sharing || '';
-					folderDao.isPublic = '';
+					folderDao.userId = '';
 					folderDao.write(change.updated);
 				});
 				init();
@@ -200,8 +200,8 @@ angular.module('classeur.core.folders', [])
 			clFolderSvc.getLastUpdated = getLastUpdated;
 			clFolderSvc.folders = [];
 			clFolderSvc.deletedFolders = [];
-			clFolderSvc.folderMap = {};
-			clFolderSvc.deletedFolderMap = {};
+			clFolderSvc.folderMap = Object.create(null);
+			clFolderSvc.deletedFolderMap = Object.create(null);
 
 			init();
 			return clFolderSvc;

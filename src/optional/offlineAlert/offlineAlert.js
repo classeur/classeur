@@ -11,6 +11,9 @@ angular.module('classeur.optional.offlineAlert', [])
 			function link(scope) {
 				function setFlag() {
 					var show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && clUserActivity.isActive);
+					if(scope.currentFileDao && scope.currentFileDao.isLocalFile) {
+						show = false;
+					}
 					if (show !== scope.show) {
 						scope.show = show;
 						return true;

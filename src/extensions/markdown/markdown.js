@@ -1,6 +1,6 @@
 angular.module('classeur.extensions.markdown', [])
 	.directive('clMarkdown',
-		function($window, clEditorSvc, Slug) {
+		function($window, clEditorSvc) {
 			var options = {};
 			var coreBaseRules = [
 					'normalize',
@@ -49,8 +49,8 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				markdown.core.ruler.enable(coreBaseRules);
-				markdown.block.ruler.enable(Object.keys(options).reduce(function(rules, key) {
-					return rules.concat(options[key] && blockRules.indexOf(key) !== -1 ? key : []);
+				markdown.block.ruler.enable(options.cl_reduce(function(rules, value, key) {
+					return rules.concat(value && blockRules.indexOf(key) !== -1 ? key : []);
 				}, blockBaseRules));
 				markdown.inline.ruler.enable(inlineBaseRules);
 				options.abbr && markdown.use($window.markdownitAbbr);
@@ -59,18 +59,35 @@ angular.module('classeur.extensions.markdown', [])
 				options.sub && markdown.use($window.markdownitSub);
 				options.sup && markdown.use($window.markdownitSup);
 
-				markdown.core.ruler.push('anchors', function(state) {
+				markdown.core.ruler.before('replacements', 'anchors', function(state) {
 					var anchorHash = {};
 					var headingOpenToken, headingContent;
-					state.tokens.forEach(function(token) {
+					state.tokens.cl_each(function(token) {
 						if (token.type === 'heading_open') {
 							headingContent = '';
 							headingOpenToken = token;
 						} else if (token.type === 'heading_close') {
 							headingOpenToken.headingContent = headingContent;
-							var slug = Slug.slugify(headingContent) || 'heading';
+
+							// Slugify according to http://pandoc.org/README.html#extension-auto_identifiers
+							var slug = headingContent
+								.replace(/\s/g, '-') // Replace all spaces and newlines with hyphens
+								.replace(/[\0-,\/:-@[-^`{-~]/g, '') // Remove all punctuation, except underscores, hyphens, and periods
+								.toLowerCase(); // Convert all alphabetic characters to lowercase
+
+							// Remove everything up to the first letter
+							for (var i = 0; i < slug.length; i++) {
+								var charCode = slug.charCodeAt(i);
+								if ((charCode >= 0x61 && charCode <= 0x7A) || charCode > 0x7E) {
+									break;
+								}
+							}
+							
+							// If nothing is left after this, use the identifier `section`
+							slug = slug.slice(i) || 'section';
+
 							var anchor = slug;
-							var index = 2;
+							var index = 1;
 							while (anchorHash.hasOwnProperty(anchor)) {
 								anchor = slug + '-' + (index++);
 							}
@@ -78,8 +95,11 @@ angular.module('classeur.extensions.markdown', [])
 							headingOpenToken.headingAnchor = anchor;
 							headingOpenToken = undefined;
 						} else if (headingOpenToken) {
-							headingContent += token.children.reduce(function(result, child) {
-								return result + child.content;
+							headingContent += token.children.cl_reduce(function(result, child) {
+								if (child.type !== 'footnote_ref') {
+									result += child.content;
+								}
+								return result;
 							}, '');
 						}
 					});
@@ -114,7 +134,7 @@ angular.module('classeur.extensions.markdown', [])
 					state.tokens.push({
 						type: 'toc',
 						level: state.level,
-						map: [ startLine, endLine ]
+						map: [startLine, endLine]
 					});
 					return true;
 				});
@@ -132,7 +152,7 @@ angular.module('classeur.extensions.markdown', [])
 						result += '<a href="#' + this.anchor + '">' + this.text + '</a>';
 					}
 					if (this.children.length !== 0) {
-						result += '<ul>' + this.children.map(function(item) {
+						result += '<ul>' + this.children.cl_map(function(item) {
 							return item.toString();
 						}).join('') + '</ul>';
 					}
@@ -151,7 +171,7 @@ angular.module('classeur.extensions.markdown', [])
 						}
 						result.push(currentItem);
 					}
-					array.forEach(function(item) {
+					array.cl_each(function(item) {
 						if (item.level !== level) {
 							if (level !== options.tocMaxDepth) {
 								currentItem = currentItem || new TocItem();
@@ -168,11 +188,11 @@ angular.module('classeur.extensions.markdown', [])
 
 				options.toc && markdown.core.ruler.push('toc_builder', function(state) {
 					var tocContent;
-					state.tokens.forEach(function(token) {
+					state.tokens.cl_each(function(token) {
 						if (token.type === 'toc') {
 							if (!tocContent) {
 								var tocItems = [];
-								state.tokens.forEach(function(token) {
+								state.tokens.cl_each(function(token) {
 									token.headingAnchor && tocItems.push(new TocItem(
 										token.tag.charCodeAt(1) - 0x30,
 										token.headingAnchor,
@@ -182,7 +202,7 @@ angular.module('classeur.extensions.markdown', [])
 								tocItems = groupTocItems(tocItems);
 								tocContent = '<div class="toc">';
 								if (tocItems.length) {
-									tocContent += '<ul>' + tocItems.map(function(item) {
+									tocContent += '<ul>' + tocItems.cl_map(function(item) {
 										return item.toString();
 									}).join('') + '</ul>';
 								}
@@ -219,7 +239,7 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				clEditorSvc.onAsyncPreview(function(cb) {
-					Array.prototype.forEach.call(clEditorSvc.previewElt.querySelectorAll('pre > code.prism'), function(elt) {
+					clEditorSvc.previewElt.querySelectorAll('pre > code.prism').cl_each(function(elt) {
 						!elt.highlighted && $window.Prism.highlightElement(elt);
 						elt.highlighted = true;
 					});
@@ -237,19 +257,19 @@ angular.module('classeur.extensions.markdown', [])
 					var fileProperties = scope.currentFileDao.contentDao.properties;
 					var tocMaxDepth = parseInt(fileProperties['ext:markdown:tocmaxdepth']);
 					var newOptions = {
-						abbr: fileProperties['ext:markdown:abbr'] !== '0',
-						breaks: fileProperties['ext:markdown:breaks'] !== '0',
-						deflist: fileProperties['ext:markdown:deflist'] !== '0',
-						del: fileProperties['ext:markdown:del'] !== '0',
-						fence: fileProperties['ext:markdown:fence'] !== '0',
-						footnote: fileProperties['ext:markdown:footnote'] !== '0',
-						linkify: fileProperties['ext:markdown:linkify'] !== '0',
-						sub: fileProperties['ext:markdown:sub'] !== '0',
-						sup: fileProperties['ext:markdown:sup'] !== '0',
-						table: fileProperties['ext:markdown:table'] !== '0',
-						toc: fileProperties['ext:markdown:toc'] !== '0',
+						abbr: fileProperties['ext:markdown:abbr'] !== 'false',
+						breaks: fileProperties['ext:markdown:breaks'] !== 'false',
+						deflist: fileProperties['ext:markdown:deflist'] !== 'false',
+						del: fileProperties['ext:markdown:del'] !== 'false',
+						fence: fileProperties['ext:markdown:fence'] !== 'false',
+						footnote: fileProperties['ext:markdown:footnote'] !== 'false',
+						linkify: fileProperties['ext:markdown:linkify'] !== 'false',
+						sub: fileProperties['ext:markdown:sub'] !== 'false',
+						sup: fileProperties['ext:markdown:sup'] !== 'false',
+						table: fileProperties['ext:markdown:table'] !== 'false',
+						typographer: fileProperties['ext:markdown:typographer'] !== 'false',
+						toc: fileProperties['ext:markdown:toc'] !== 'false',
 						tocMaxDepth: isNaN(tocMaxDepth) ? 6 : tocMaxDepth,
-						typographer: fileProperties['ext:markdown:typographer'] !== '0',
 					};
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;

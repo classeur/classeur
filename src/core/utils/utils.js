@@ -3,6 +3,14 @@ angular.module('classeur.core.utils', [])
 		function($window) {
 			return $window.CL_CONFIG || {};
 		})
+	.factory('clVersion',
+		function($window) {
+			var clVersion = $window.CL_VERSION || {};
+			clVersion.getAssetPath = function(file) {
+				return clVersion.classeur ? clVersion.classeur + '/' + file : file;
+			};
+			return clVersion;
+		})
 	.factory('clLocalStorage',
 		function() {
 			var version = parseInt(localStorage.getItem('version'));
@@ -28,13 +36,27 @@ angular.module('classeur.core.utils', [])
 
 			function clUid() {
 				var currentDate = Date.now();
-				return mapper.map(function() {
+				return mapper.cl_map(function() {
 					var result = alphabet[(currentDate + Math.random() * radix) % radix | 0];
 					currentDate = Math.floor(currentDate / radix);
 					return result;
 				}).join('');
 			}
 			return clUid;
+		})
+	.factory('clHash',
+		function() {
+			return function(str) {
+				var i = 0,
+					hash = 0,
+					c;
+				if (str.length === 0) return hash;
+				for (; i < str.length; i++) {
+					c = str.charCodeAt(i);
+					hash = ((hash << 5) - hash) + c;
+				}
+				return hash;
+			};
 		})
 	.factory('clIsNavigatorOnline',
 		function($window) {
@@ -45,20 +67,20 @@ angular.module('classeur.core.utils', [])
 	.filter('clTimeSince',
 		function() {
 			var time_formats = [
-				[120, '1 minute ago', '1 minute from now'], // 60*2
-				[3600, 'minutes', 60], // 60*60, 60
-				[7200, '1 hour ago', '1 hour from now'], // 60*60*2
-				[86400, 'hours', 3600], // 60*60*24, 60*60
-				[172800, 'Yesterday', 'Tomorrow'], // 60*60*24*2
-				[604800, 'days', 86400], // 60*60*24*7, 60*60*24
-				[1209600, 'Last week', 'Next week'], // 60*60*24*7*4*2
-				[2419200, 'weeks', 604800], // 60*60*24*7*4, 60*60*24*7
-				[4838400, 'Last month', 'Next month'], // 60*60*24*7*4*2
-				[29030400, 'months', 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
-				[58060800, 'Last year', 'Next year'], // 60*60*24*7*4*12*2
-				[2903040000, 'years', 29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
-				[5806080000, 'Last century', 'Next century'], // 60*60*24*7*4*12*100*2
-				[58060800000, 'centuries', 2903040000] // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
+				[60 * 2, '1 minute ago', '1 minute from now'],
+				[60 * 60, 'minutes', 60],
+				[60 * 60 * 2, '1 hour ago', '1 hour from now'],
+				[60 * 60 * 24, 'hours', 60 * 60],
+				[60 * 60 * 24 * 2, 'Yesterday', 'Tomorrow'],
+				[60 * 60 * 24 * 7, 'days', 60 * 60 * 24],
+				[60 * 60 * 24 * 7 * 4 * 2, 'Last week', 'Next week'],
+				[60 * 60 * 24 * 7 * 4, 'weeks', 60 * 60 * 24 * 7],
+				[60 * 60 * 24 * 7 * 4 * 2, 'Last month', 'Next month'],
+				[60 * 60 * 24 * 7 * 4 * 12, 'months', 60 * 60 * 24 * 7 * 4],
+				[60 * 60 * 24 * 7 * 4 * 12 * 2, 'Last year', 'Next year'],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100, 'years', 60 * 60 * 24 * 7 * 4 * 12],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100 * 2, 'Last century', 'Next century'],
+				[60 * 60 * 24 * 7 * 4 * 12 * 100 * 20, 'centuries', 60 * 60 * 24 * 7 * 4 * 12 * 100]
 			];
 			return function(time) {
 				var seconds = (+new Date() - time) / 1000,
@@ -110,15 +132,23 @@ angular.module('classeur.core.utils', [])
 			return $mdDialog;
 		})
 	.factory('clToast',
-		function($mdToast) {
-			var hideDelay = 6000;
-			var result = function(text, action, cb) {
+		function($window, $mdToast) {
+			var toastShown, hideDelay = 6000;
+			var resetFlag = $window.cledit.Utils.debounce(function() {
+				toastShown = false;
+			}, 500);
+			var result = function(text, action) {
+				if (toastShown) {
+					return;
+				}
 				var toast = $mdToast.simple()
 					.content(text)
 					.action(action)
 					.position('bottom right')
 					.hideDelay(hideDelay);
-				$mdToast.show(toast).then(cb || function() {});
+				toastShown = true;
+				resetFlag();
+				return $mdToast.show(toast);
 			};
 			result.hideDelay = hideDelay;
 			return result;
@@ -135,24 +165,24 @@ angular.module('classeur.core.utils', [])
 			}
 
 			function simpleObjectSerializer(obj) {
-				return JSON.stringify(Object.keys(obj).sort().reduce(function(result, key) {
-					return (result[key] = obj[key], result);
+				return JSON.stringify(Object.keys(obj).sort().cl_reduce(function(result, key) {
+					return (result[key] = obj[key]), result;
 				}, {}), function(key, value) {
 					return key[0] === '$' ? undefined : value;
 				});
 			}
 
 			function LocalStorageObject(prefix, attrs, globalUpdate) {
-				this.$attrHelpers = Object.keys(attrs).reduce(function($attrHelpers, key) {
+				this.$attrHelpers = attrs.cl_reduce(function($attrHelpers, value, key) {
 					var sKey = '$_' + key;
-					var defaultValue = attrs[key].default === undefined ? '' : attrs[key].default;
-					var serializer = attrs[key].serializer || defaultSerializer;
-					var parser = attrs[key].parser || defaultParser;
-					if (attrs[key] === 'int') {
+					var defaultValue = value.default === undefined ? '' : value.default;
+					var serializer = value.serializer || defaultSerializer;
+					var parser = value.parser || defaultParser;
+					if (value === 'int') {
 						defaultValue = '0';
 						parser = parseInt;
-					} else if (attrs[key] === 'object' || attrs[key] === 'array') {
-						defaultValue = attrs[key] === 'object' ? '{}' : '[]';
+					} else if (value === 'object' || value === 'array') {
+						defaultValue = value === 'object' ? '{}' : '[]';
 						parser = JSON.parse;
 						serializer = JSON.stringify;
 					}
@@ -163,7 +193,7 @@ angular.module('classeur.core.utils', [])
 							return sValue !== this.' + sKey + ' && cb.call(this, sValue);\
 						};\
 					');
-					if (attrs[key] === 'string' || attrs[key] === 'int') {
+					if (value === 'string' || value === 'int') {
 						sValueChecker = new Function('serializer', 'cb', '\
 							return function() {\
 								var sValue = this.' + key + ';\
@@ -239,7 +269,7 @@ angular.module('classeur.core.utils', [])
 				self.$readUpdate();
 
 				function attrOperation(operation) {
-					var attrHelperCalls = Object.keys(self.$attrHelpers).map(function(key) {
+					var attrHelperCalls = Object.keys(self.$attrHelpers).cl_map(function(key) {
 						return 'this.$attrHelpers.' + key + '.' + operation + '.call(this)';
 					});
 					/*jshint evil: true */
@@ -250,11 +280,11 @@ angular.module('classeur.core.utils', [])
 				self.$write = attrOperation('write');
 				self.$check = attrOperation('check');
 				self.$free = attrOperation('free');
-				Object.keys(self.$attrHelpers).forEach(function(key) {
-					self.$read[key] = self.$attrHelpers[key].read.bind(self);
-					self.$write[key] = self.$attrHelpers[key].write.bind(self);
-					self.$check[key] = self.$attrHelpers[key].check.bind(self);
-					self.$free[key] = self.$attrHelpers[key].free.bind(self);
+				self.$attrHelpers.cl_each(function(helpers, key) {
+					self.$read[key] = helpers.read.cl_bind(self);
+					self.$write[key] = helpers.write.cl_bind(self);
+					self.$check[key] = helpers.check.cl_bind(self);
+					self.$free[key] = helpers.free.cl_bind(self);
 				});
 			};
 
@@ -292,7 +322,7 @@ angular.module('classeur.core.utils', [])
 
 			var currentDate = Date.now();
 			var keyPrefix = /^state\.(.+)/;
-			Object.keys(clLocalStorage).forEach(function(key) {
+			Object.keys(clLocalStorage).cl_each(function(key) {
 				if (key.charCodeAt(0) === 0x73 /* s */ ) {
 					var match = key.match(keyPrefix);
 					if (match) {
@@ -337,8 +367,6 @@ angular.module('classeur.core.utils', [])
 				file: function(fileDao) {
 					if (fileDao.id) {
 						return '/files/' + fileDao.id;
-					} else if (fileDao.fileName) {
-						return '/docs/' + fileDao.fileName;
 					} else {
 						return '';
 					}
@@ -355,6 +383,21 @@ angular.module('classeur.core.utils', [])
 						return '';
 					}
 				}
+			};
+		})
+	.factory('clUrlSanitizer',
+		function() {
+			return function(url, addSlash) {
+				if (!url) {
+					return url;
+				}
+				if (url.indexOf('http') !== 0) {
+					url = 'http://' + url;
+				}
+				if (addSlash && url.indexOf('/', url.length - 1) === -1) {
+					url += '/';
+				}
+				return url;
 			};
 		})
 	.factory('clRangeWrapper',
@@ -392,7 +435,7 @@ angular.module('classeur.core.utils', [])
 					}
 				},
 				unwrap: function(elts) {
-					Array.prototype.slice.call(elts).forEach(function(elt) {
+					elts.cl_each(function(elt) {
 						var child = elt.firstChild;
 						if (child.nodeType === 3) {
 							if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
@@ -410,50 +453,9 @@ angular.module('classeur.core.utils', [])
 				}
 			};
 		})
-	.factory('clOffsetUtils',
+	.factory('clDiffUtils',
 		function($window) {
-			var diffMatchPatch = new $window.diff_match_patch();
-			diffMatchPatch.Match_Distance = 999999999;
-			var marker = '\uF111\uF222\uF333';
-			return {
-				offsetToPatch: function(text, offset) {
-					var patch = diffMatchPatch.patch_make(text, [
-						[0, text.slice(0, offset)],
-						[1, marker],
-						[0, text.slice(offset)]
-					])[0];
-					var diffs = patch.diffs.map(function(diff) {
-						if (!diff[0]) {
-							return diff[1];
-						} else if (diff[1] === marker) {
-							return '';
-						}
-					});
-					return {
-						diffs: diffs,
-						length: patch.length1,
-						start: patch.start1
-					};
-				},
-				patchToOffset: function(text, patch) {
-					var markersLength = 0;
-					var diffs = patch.diffs.map(function(diff) {
-						if (!diff) {
-							markersLength += marker.length;
-							return [1, marker];
-						} else {
-							return [0, diff];
-						}
-					});
-					return diffMatchPatch.patch_apply([{
-						diffs: diffs,
-						length1: patch.length,
-						length2: patch.length + markersLength,
-						start1: patch.start,
-						start2: patch.start
-					}], text)[0].indexOf(marker);
-				}
-			};
+			return $window.clDiffUtils;
 		})
 	.directive('clInfiniteScroll',
 		function($timeout) {
@@ -471,6 +473,35 @@ angular.module('classeur.core.utils', [])
 					scope.triggerInfiniteScroll = function() {
 						$timeout(trigger);
 					};
+				}
+			};
+		})
+	.directive('clEnterOk',
+		function() {
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					element[0].addEventListener('keydown', function(e) {
+						// Check enter key
+						if (e.which === 13) {
+							e.preventDefault();
+							scope.ok();
+						}
+					});
+				}
+			};
+		})
+	.directive('clFocus',
+		function() {
+			return {
+				restrict: 'A',
+				link: function(scope, element) {
+					scope.focus = function() {
+						setTimeout(function() {
+							element[0].focus();
+						}, 10);
+					};
+					scope.focus();
 				}
 			};
 		});

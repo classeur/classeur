@@ -3,60 +3,81 @@
         <div layout="row" layout-align="space-between end">
             <div class="title">Settings</div>
             <div layout="row">
-                <md-button ng-click="cancel()">Cancel <span class="icon-close"></span></md-button>
-                <md-button class="md-primary" ng-click="apply()">Apply <span class="icon-done"></md-button>
+                <md-button ng-click="close()">Close <span class="icon-close"></span></md-button>
             </div>
         </div>
         <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
             <md-tab label="App">
                 <div class="tab">
                     <h2>Editor</h2> Font size factor
-                    <md-slider md-discrete ng-model="app.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
+                    <md-slider md-discrete ng-model="settingSvc.values.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
                     </md-slider>
                     Binder width factor
-                    <md-slider md-discrete ng-model="app.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
+                    <md-slider md-discrete ng-model="settingSvc.values.editorBinderWidthFactor" step="1" min="1" max="14" aria-label="Binder width factor">
                     </md-slider>
-                    <md-checkbox ng-model="app.editorHighlighting">
+                    <md-checkbox ng-model="settingSvc.values.editorHighlighting">
                         Markdown highlighting
                     </md-checkbox>
-                    <md-checkbox ng-model="app.editorInlineImg">
+                    <md-checkbox ng-model="settingSvc.values.editorInlineImg">
                         Inline images
                     </md-checkbox>
-                    <md-checkbox ng-model="app.editorMonospacedFont">
+                    <md-checkbox ng-model="settingSvc.values.editorMonospacedFont">
                         Use monospaced font only
                     </md-checkbox>
-                    <md-checkbox ng-model="app.editorMdCheatSheetBtn">
-                        Markdown Cheat Sheet icon
+                    <md-checkbox ng-model="settingSvc.values.editorHelpBtn">
+                        Help button
                     </md-checkbox>
                     <br>
+                    <h2>Document export</h2>
+                    <md-checkbox ng-model="settingSvc.values.pandocToc">
+                        Pandoc TOC
+                    </md-checkbox>
+                    <br> Pandoc TOC depth
+                    <md-slider md-discrete ng-model="settingSvc.values.pandocTocDepth" step="1" min="1" max="6" aria-label="Pandoc TOC depth">
+                    </md-slider>
+                    <p>
+                        <span class="label">
+                            Pandoc highlight style
+                        </span>
+                        <md-select ng-model="settingSvc.values.pandocHighlightStyle" aria-label="Pandoc highlight style">
+                            <md-option value="pygments">Pygments</md-option>
+                            <md-option value="kate">Kate</md-option>
+                            <md-option value="monochrome">Monochrome</md-option>
+                            <md-option value="espresso">Espresso</md-option>
+                            <md-option value="zenburn">Zenburn</md-option>
+                            <md-option value="haddock">Haddock</md-option>
+                            <md-option value="tango">Tango</md-option>
+                        </md-select>
+                    </p>
+                    <br>
                     <h2>Utils</h2>
-                    <p class="group">
+                    <p>
                         <span class="label">
                             Default properties for new files
                         </span>
-                    <md-button class="md-primary" ng-click="editFileProperties()">
-                        Edit properties
-                    </md-button>
-                    </p>
-                    <p class="group">
-                        <span class="label">
-                            Export and post formatting
-                        </span>
-                        <md-button class="md-primary" ng-click="manageTemplates()">
-                            Manage templates
+                        <md-button class="md-primary" ng-click="editFileProperties()">
+                            Edit properties
                         </md-button>
                     </p>
-                    <p class="group">
+                    <p>
                         <span class="label">
-                            Reset app settings
+                            Customize template helpers
                         </span>
-                        <md-button class="md-primary" ng-click="loadDefault()">Load default</md-button>
+                        <md-button class="md-primary" ng-click="handlerbarsHelpers()">
+                            Handlebars helpers
+                        </md-button>
+                    </p>
+                    <p>
+                        <span class="label">
+                            Reset app to factory settings
+                        </span>
+                        <md-button class="md-primary" ng-click="loadDefault()">Reset settings</md-button>
                     </p>
             </div>
             </md-tab>
             <md-tab label="User">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage your user account
                         </span>
@@ -66,17 +87,11 @@
                     </p>
                     <div ng-switch-when="true">
                         <h2>Basic</h2>
-                        <form name="userForm">
-                            <md-input-container class="small">
-                                <label>User name</label>
-                                <input required name="name" ng-model="user.name" md-maxlength="64">
-                                <div ng-messages="userForm.name.$error">
-                                    <div class="angular-animate" ng-message="required">This is required.</div>
-                                    <div class="angular-animate" ng-message="md-maxlength">That's too long.</div>
-                                </div>
-                            </md-input-container>
-                        </form>
-                        <p class="group">
+                        <md-input-container class="small">
+                            <label>User name</label>
+                            <input name="name" ng-model="userSvc.user.name" ng-model-options="{updateOn: 'blur', getterSetter: true}">
+                        </md-input-container>
+                        <p>
                             <span class="label">
                                 Go premium or unsubscribe
                             </span>
@@ -84,7 +99,7 @@
                                 Change plan
                             </md-button>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Change user or log out from public computer
                             </span>
@@ -96,7 +111,7 @@
                         <h2>Advanced</h2>
                         <md-input-container class="small">
                             <label>User ID</label>
-                            <input ng-model="user.id" disabled="disabled">
+                            <input ng-model="userSvc.user.id" disabled="disabled">
                         </md-input-container>
                         <div layout="row">
                             <md-input-container class="large full-width">
@@ -108,13 +123,13 @@
                                 </md-button>
                             </div>
                         </div>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Roles
                             </span>
-                            <md-chips ng-model="user.roles" readonly="true"></md-chips>
+                            <md-chips ng-model="userSvc.user.roles" readonly="true"></md-chips>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Use another Google account for sign in
                             </span>
@@ -122,7 +137,7 @@
                                 Link now
                             </md-button>
                         </p>
-                        <p class="group">
+                        <p>
                             <span class="label">
                                 Delete your user account and all your data
                             </span>
@@ -135,7 +150,7 @@
             </md-tab>
             <md-tab label="Blogs">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage your blogs
                         </span>
@@ -151,6 +166,7 @@
                                 <span class="icon-add"></span>
                             </md-button>
                             <br>
+                            <p class="warning" ng-if="anyDisabled">Some of your links are disabled because your free account doesn't support more than 1 blog. Click <a href="/#!/choosePlan">here</a> to go premium!</p>
                             <br>
                             <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
                             <div ng-if="!blogs.length">No blog yet.</div>
@@ -160,7 +176,7 @@
             </md-tab>
             <md-tab label="Trash">
                 <div class="tab" ng-switch="socketSvc.hasToken">
-                    <p class="group" ng-switch-default>
+                    <p ng-switch-default>
                         <span class="label">
                             Sign in to manage the file trash
                         </span>
@@ -169,7 +185,7 @@
                         </md-button>
                     </p>
                     <div ng-switch-when="true">
-                        <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.fileMap.hasOwnProperty(file.id)">
+                        <div class="file entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.fileMap[file.id]">
                             <md-input-container class="full-width">
                                 <input class="name" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                             </md-input-container>
@@ -184,16 +200,23 @@
                 </div>
             </md-tab>
             </md-tabs>
-            <div class="menu" layout="row">
-                <md-button>
-                    Privacy
-                </md-button>
-                <md-button>
-                    Terms
-                </md-button>
-                <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
-                    Sign out
-                </md-button>
+            <div class="menu" layout="row" layout-align="space-between">
+                <div layout="row">
+                    <md-button target="_blank" ng-href="http://classeur.io/privacy/">
+                        Privacy
+                    </md-button>
+                    <md-button target="_blank" ng-href="http://classeur.io/terms/">
+                        Terms
+                    </md-button>
+                    <md-button ng-if="socketSvc.hasToken" ng-click="signout()">
+                        Sign out
+                    </md-button>
+                </div>
+                <div layout="row">
+                    <md-button target="_blank" ng-href="https://twitter.com/classeurapp" class="icon icon-twitter" aria-label="Twitter"></md-button>
+                    <md-button target="_blank" ng-href="https://www.facebook.com/classeurapp" class="icon icon-facebook" aria-label="Facebook"></md-button>
+                    <md-button target="_blank" ng-href="https://github.com/classeur/classeur" class="icon icon-github" aria-label="GitHub"></md-button>
+                </div>
             </div>
         </div>
     </div>

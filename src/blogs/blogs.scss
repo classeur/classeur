@@ -16,7 +16,7 @@
         color: rgba(0, 0, 0, 0.7);
         font-size: 28px;
         padding: 6px 3px;
-        min-width: 38px;
+        min-width: 42px;
         &[disabled] {
             opacity: 0.5;
         }
@@ -26,10 +26,10 @@
     }
     .status {
         min-width: 70px;
+        text-align: center;
         span {
             font-size: 13px;
             font-weight: bold;
-            margin: 0 10px;
             line-height: 1.5;
             border-radius: 8px;
             padding: 0 6px;
@@ -41,7 +41,8 @@
         }
     }
     &.post {
-        margin-bottom: 25px;
+        line-height: inherit;
+        margin: 5px 0 35px;
         .details {
             width: 100%;
             color: rgba(0, 0, 0, 0.54);
@@ -95,13 +96,5 @@
             color: rgba(0, 0, 0, 0.54);
             margin-bottom: -20px;
         }
-    }
-    pre.prism {
-        background-color: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        width: 100%;
-        min-height: 80px;
-        word-wrap: normal;
-        overflow: auto;
     }
 }

@@ -7,7 +7,7 @@ angular.module('classeur.core.user', [])
         })
     .factory('clUserActivity',
         function($window, $rootScope, clLocalStorage) {
-            var inactiveAfter = 180000, // 3 minutes
+            var inactiveAfter = 3 * 60 * 1000, // 3 minutes
                 lastActivity, lastFocus, lastFocusKey = 'lastWindowFocus',
                 clUserActivity = {};
 
@@ -30,13 +30,6 @@ angular.module('classeur.core.user', [])
                 return isActive;
             };
 
-            setInterval(function() {
-                var isActive = lastActivity > Date.now() - inactiveAfter && clLocalStorage[lastFocusKey] == lastFocus;
-                if (isActive !== clUserActivity.isActive) {
-                    clUserActivity.isActive = isActive;
-                }
-            }, 1000);
-
             setLastFocus();
             $window.addEventListener('focus', setLastFocus);
             $window.document.addEventListener('mousedown', setLastActivity);
@@ -56,8 +49,8 @@ angular.module('classeur.core.user', [])
             });
 
             function makeQueryString(params) {
-                return Object.keys(params).map(function(key) {
-                    return key + '=' + encodeURIComponent(params[key]);
+                return params.cl_map(function(value, key) {
+                    return key + '=' + encodeURIComponent(value);
                 }).join('&');
             }
 
@@ -95,6 +88,10 @@ angular.module('classeur.core.user', [])
                 updated && this.$writeUpdate(updated);
             };
 
+            clUserSvc.isUserPremium = function() {
+                return this.user && this.user.roles && this.user.roles.indexOf('premium_user') !== -1;
+            };
+
             function checkAll() {
                 if (clUserSvc.$checkUpdate()) {
                     clUserSvc.read();
@@ -104,33 +101,32 @@ angular.module('classeur.core.user', [])
                 }
             }
 
-            function updateUser(user) {
-                if (!user.name) {
+            function checkUserName(userName) {
+                if (!userName) {
                     throw 'User name can\'t be empty.';
                 }
-                if (user.name.length > userNameMaxLength) {
+                if (userName.length > userNameMaxLength) {
                     throw 'User name is too long.';
                 }
-                clUserSvc.user = user;
             }
 
             function getSubscribeLink() {
                 if (clUserSvc.user) {
                     var params = {
                         cmd: '_s-xclick',
-                        hosted_button_id: 'GQHCGWH49AEYE',
+                        hosted_button_id: clConfig.paypalSubscribeButtonId,
                         custom: clUserSvc.user.id
                     };
-                    return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+                    return clConfig.paypalUri + '?' + makeQueryString(params);
                 }
             }
 
             function getUnsubscribeLink() {
                 var params = {
                     cmd: '_subscr-find',
-                    alias: '75G2MNZ543JAN'
+                    alias: clConfig.paypalUnsubscribeButtonAlias
                 };
-                return 'https://www.sandbox.paypal.com/cgi-bin/webscr?' + makeQueryString(params);
+                return clConfig.paypalUri + '?' + makeQueryString(params);
             }
 
             clUserSvc.read();
@@ -144,7 +140,7 @@ angular.module('classeur.core.user', [])
             clUserSvc.signin = signin;
             clUserSvc.signout = signout;
             clUserSvc.checkAll = checkAll;
-            clUserSvc.updateUser = updateUser;
+            clUserSvc.checkUserName = checkUserName;
             clUserSvc.getSubscribeLink = getSubscribeLink;
             clUserSvc.getUnsubscribeLink = getUnsubscribeLink;
 
@@ -166,7 +162,7 @@ angular.module('classeur.core.user', [])
                     return;
                 }
                 lastUserInfoAttempt = currentDate;
-                $http.get('/api/metadata/users', {
+                $http.get('/api/v1/metadata/users', {
                         timeout: userInfoTimeout,
                         params: {
                             id: ids.join(',')
@@ -175,7 +171,7 @@ angular.module('classeur.core.user', [])
                     .success(function(res) {
                         lastUserInfoAttempt = 0;
                         clUserInfoSvc.lastUserInfo = Date.now();
-                        res.forEach(function(user) {
+                        res.cl_each(function(user) {
                             clUserInfoSvc.users[user.id] = user;
                             delete requestedUserInfo[user.id];
                         });
@@ -251,7 +247,7 @@ angular.module('classeur.core.user', [])
                             return;
                         }
                         scope.isLoading = true;
-                        $http.post('/api/users', {
+                        $http.post('/api/v1/users', {
                                 name: scope.newUser.name,
                                 token: newUserToken
                             })

@@ -17,7 +17,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
 				};
 
 				var text;
-				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.isPublic) {
+				if (scope.currentFileDao.isReadOnly || scope.currentFileDao.userId) {
 					scope.$watch('currentFileDao.contentDao.text', function(newtext) {
 						if (text === undefined || !scope.currentFileDao) {
 							text = newtext;
@@ -33,8 +33,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
 							clEditorLayoutSvc.currentControl = 'readOnlyAlert';
 							return;
 						}
-						// if(!clSocketSvc.hasToken || clUserSvc.user.plan !== 'premium') {
-						if (!clSocketSvc.hasToken) {
+						if (!clSocketSvc.hasToken || !clUserSvc.isUserPremium()) {
 							clEditorLayoutSvc.currentControl = 'writePremiumAlert';
 							return;
 						}

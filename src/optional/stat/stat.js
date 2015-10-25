@@ -36,7 +36,7 @@ angular.module('classeur.optional.stat', [])
 				function move() {
 					statPanelElt.clanim
 						.translateX(-clEditorLayoutSvc.backgroundX)
-						.translateY(clLocalSettingSvc.values.stat && clEditorLayoutSvc.isEditorOpen ? 0 : 30)
+						.translateY(clLocalSettingSvc.values.stat ? 0 : 30)
 						.duration(duration)
 						.easing('materialOut')
 						.start(true);
@@ -51,7 +51,7 @@ angular.module('classeur.optional.stat', [])
 						scope.isTextSelection = true;
 						text = selectedText;
 					}
-					textStats.forEach(function(stat) {
+					textStats.cl_each(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}
@@ -67,7 +67,7 @@ angular.module('classeur.optional.stat', [])
 						scope.isHtmlSelection = false;
 						text = clEditorSvc.previewText;
 					}
-					text !== undefined && htmlStats.forEach(function(stat) {
+					text !== undefined && htmlStats.cl_each(function(stat) {
 						stat.value = (text.match(stat.regex) || []).length;
 					});
 				}
@@ -76,7 +76,7 @@ angular.module('classeur.optional.stat', [])
 				scope.$watch('editorSvc.selectionRange', computeText);
 				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('editorSvc.previewSelectionRange', computeHtml);
-				scope.$watch('localSettingSvc.values.stat && editorLayoutSvc.isEditorOpen', move);
+				scope.$watch('localSettingSvc.values.stat', move);
 				scope.$watch('localSettingSvc.values.sideBar', move);
 			}
 		});

@@ -28,9 +28,9 @@ angular.module('classeur.blogs.github', [])
 				authorizeUrl: 'https://github.com/login/oauth/authorize'
 			});
 
-			clGithubBlogPlatform.serializeRepuUrl = function(blog) {
+			function serializeRepoUrl(blog) {
 				return 'https://github.com/' + blog.user + '/' + blog.repo;
-			};
+			}
 
 			clGithubBlogPlatform.defaultBlogSubForm = {
 				privateRepo: true
@@ -38,7 +38,7 @@ angular.module('classeur.blogs.github', [])
 
 			clGithubBlogPlatform.fillBlogSubForm = function(subForm) {
 				if (subForm.user && subForm.repo) {
-					subForm.repoUrl = clGithubBlogPlatform.serializeRepuUrl(subForm);
+					subForm.repoUrl = serializeRepoUrl(subForm);
 				}
 			};
 
@@ -66,7 +66,7 @@ angular.module('classeur.blogs.github', [])
 			};
 
 			clGithubBlogPlatform.fillPostSubForm = function(blog, subForm) {
-				subForm.repoUrl = clGithubBlogPlatform.serializeRepuUrl(blog);
+				subForm.repoUrl = serializeRepoUrl(blog);
 			};
 
 			clGithubBlogPlatform.createPostFromSubForm = function(subForm) {
@@ -105,7 +105,7 @@ angular.module('classeur.blogs.github', [])
 					'blob',
 					blogPost.branch
 				];
-				return result.concat(blogPost.filePath.split('/').map(encodeURIComponent)).join('/');
+				return result.concat(blogPost.filePath.split('/').cl_map(encodeURIComponent)).join('/');
 			};
 
 			return clGithubBlogPlatform;

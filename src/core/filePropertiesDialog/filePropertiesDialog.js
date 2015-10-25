@@ -3,7 +3,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 		function(clDialog, clToast) {
 			return function(properties) {
 				properties = properties || {};
-				properties = Object.keys(properties).sort().map(function(key) {
+				properties = Object.keys(properties).sort().cl_map(function(key) {
 					return {
 						key: key,
 						value: properties[key]
@@ -14,7 +14,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 					controller: ['$scope', function(scope) {
 						scope.properties = properties;
 						scope.deleteRow = function(propertyToDelete) {
-							scope.properties = scope.properties.filter(function(property) {
+							scope.properties = scope.properties.cl_filter(function(property) {
 								return property !== propertyToDelete;
 							});
 						};
@@ -28,7 +28,7 @@ angular.module('classeur.core.filePropertiesDialog', [])
 								return clToast('Too many properties.');
 							}
 							if (
-								scope.properties.some(function(property) {
+								scope.properties.cl_some(function(property) {
 									if (!property.key && !property.value) {
 										return;
 									}

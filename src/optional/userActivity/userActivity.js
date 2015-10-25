@@ -20,11 +20,12 @@ angular.module('classeur.optional.userActivity', [])
 			var styleElt = $window.document.createElement('style');
 			styleElt.type = 'text/css';
 			$window.document.getElementsByTagName('head')[0].appendChild(styleElt);
-			var userClasses = {};
+			var userClasses = Object.create(null);
 
 			function refreshClasses() {
 				var styleContent = '';
-				angular.forEach(userClasses, function(userClass, userId) {
+				Object.keys(userClasses).cl_each(function(userId) {
+					var userClass = userClasses[userId];
 					styleContent += '.user-activity-' + userId + ' {';
 					styleContent += '-webkit-box-shadow: inset -2px 0 #' + userClass.color + ';';
 					styleContent += 'box-shadow: inset -2px 0 #' + userClass.color + '}';
@@ -41,7 +42,7 @@ angular.module('classeur.optional.userActivity', [])
 			}
 
 			function createUserClass(userId) {
-				if (!userClasses.hasOwnProperty(userId)) {
+				if (!userClasses[userId]) {
 					userClasses[userId] = {
 						color: colors[Math.random() * colors.length | 0]
 					};

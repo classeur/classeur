@@ -3,7 +3,10 @@ angular.module('classeur.optional.sysPage', [])
 		function($routeProvider) {
 			$routeProvider
 				.when('/sys', {
-					template: '<cl-sys-page></cl-sys-page>'
+					template: '<cl-sys-page></cl-sys-page>',
+					controller: function(clAnalytics) {
+						clAnalytics.trackPage('/sys');
+					}
 				});
 		})
 	.directive('clSysPage',
@@ -17,7 +20,7 @@ angular.module('classeur.optional.sysPage', [])
 			function link(scope) {
 				scope.properties = [];
 				scope.deleteRow = function(propertyToDelete) {
-					scope.properties = scope.properties.filter(function(property) {
+					scope.properties = scope.properties.cl_filter(function(property) {
 						return property !== propertyToDelete;
 					});
 				};
@@ -30,7 +33,7 @@ angular.module('classeur.optional.sysPage', [])
 						return clToast('Too many properties.');
 					}
 					if (
-						scope.properties.some(function(property) {
+						scope.properties.cl_some(function(property) {
 							if (!property.key && !property.value) {
 								return;
 							}
@@ -59,7 +62,7 @@ angular.module('classeur.optional.sysPage', [])
 					) {
 						return;
 					}
-					$http.post('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
+					$http.post('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
 						.success(function() {
 							clToast('App config updated.');
 						})
@@ -69,9 +72,9 @@ angular.module('classeur.optional.sysPage', [])
 				};
 
 				function retrieveConfig() {
-					$http.get('/api/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
+					$http.get('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
 						.success(function(res) {
-							scope.properties = Object.keys(res).sort().map(function(key) {
+							scope.properties = Object.keys(res).sort().cl_map(function(key) {
 								return {
 									key: key,
 									value: res[key]

@@ -1,4 +1,4 @@
-if (!window.WebSocket || !window.MutationObserver) {
+if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 	window.alert('Unsupported browser version. Please upgrade your browser.');
 } else {
 	angular.module('classeur.app', [
@@ -7,15 +7,17 @@ if (!window.WebSocket || !window.MutationObserver) {
 		'ngAnimate',
 		'ngAria',
 		'ngMessages',
-		'slugifier',
+		'angular-google-analytics',
 		'classeur.templates',
 		'classeur.blogs',
+		'classeur.blogs.blogger',
 		'classeur.blogs.github',
+		'classeur.blogs.wordpress',
 		'classeur.core',
+		'classeur.core.analytics',
 		'classeur.core.button',
 		'classeur.core.classeurs',
 		'classeur.core.explorerLayout',
-		'classeur.core.docs',
 		'classeur.core.editor',
 		'classeur.core.editorLayout',
 		'classeur.core.filePropertiesDialog',

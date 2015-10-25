@@ -10,25 +10,28 @@
             <label>Name</label>
             <input ng-model="templateKey">
         </md-input-container>
-        <pre class="prism"></pre>
         <div layout="row" layout-align="end">
-            <md-button ng-if="canBeRemoved" ng-click="remove()">
+            <md-button class="md-primary" ng-if="canBeRemoved" ng-click="remove()">
                 Remove
             </md-button>
-            <md-button ng-click="add()" class="md-primary">
+            <md-button class="md-primary" ng-if="!selectedKey" ng-click="add()">
                 Add
             </md-button>
+            <md-button class="md-primary" ng-if="selectedKey" ng-click="add()">
+                Replace
+            </md-button>
         </div>
-        <p>
-            <b>Tip:</b> Template engine uses Mustache. For example:
-        </p>
-        <pre class="example" ng-non-bindable>
+        <pre class="prism"></pre>
+        <div class="tip">
+            <b>Tip:</b> Classeur uses Mustache templates, for example:
+            <pre class="example" ng-non-bindable>
 {{file.name}}
 {{{file.content.text}}}
 {{{file.content.html}}}</pre>
-            <md-button>
-                More about templates...
-            </md-button>
+        </div>
+        <md-button class="md-primary">
+            More about templates...
+        </md-button>
     </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()" class="md-primary">

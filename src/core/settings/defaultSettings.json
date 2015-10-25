@@ -5,6 +5,10 @@
 	"editorHighlighting": true,
 	"editorInlineImg": true,
 	"editorMonospacedFont": false,
-	"editorMdCheatSheetBtn": true,
-	"exportTemplates": {}
+	"editorHelpBtn": true,
+	"exportTemplates": {},
+	"handlebarsHelpers": "\n",
+	"pandocHighlightStyle": "kate",
+	"pandocToc": false,
+	"pandocTocDepth": 3
 }

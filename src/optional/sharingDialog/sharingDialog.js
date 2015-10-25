@@ -21,6 +21,8 @@ angular.module('classeur.optional.sharingDialog', [])
 							scope.isFile = isFile;
 							scope.objectDao = objectDao;
 							scope.folderDao = folderDao;
+							scope.encodedSharingUrl = encodeURIComponent(sharingUrl);
+							scope.encodedName = encodeURIComponent(objectDao.name);
 						}],
 						onComplete: function(scope, element) {
 							scope.openFolder = function() {
@@ -41,7 +43,7 @@ angular.module('classeur.optional.sharingDialog', [])
 							inputElt.addEventListener('click', select);
 							inputElt.addEventListener('keyup', select);
 							scope.$watch('objectDao.effectiveSharing', function() {
-								if (!objectDao.isPublic) {
+								if (!objectDao.userId) {
 									if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
 										objectDao.sharing = objectDao.effectiveSharing;
 									} else {

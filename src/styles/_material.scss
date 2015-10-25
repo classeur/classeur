@@ -119,6 +119,10 @@ md-backdrop.md-opaque.md-default-theme, md-backdrop.md-opaque.ng-enter.md-opaque
     transition: opacity 0.3s ease-out;
 }
 
+md-backdrop.md-opaque, md-backdrop.md-opaque.ng-enter.md-opaque.ng-enter-active {
+    opacity: 1;
+}
+
 md-backdrop.ng-enter {
     opacity: 0;
 }
@@ -217,4 +221,9 @@ md-tooltip {
 
 md-chips .md-chips {
     box-shadow: none;
+}
+
+// Workaround https://github.com/angular/material/issues/4513
+body > .md-dialog-container {
+  height: 100vh !important;
 }

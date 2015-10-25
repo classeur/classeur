@@ -3,7 +3,10 @@ angular.module('classeur.optional.planChooser', [])
 		function($routeProvider) {
 			$routeProvider
 				.when('/choosePlan', {
-					template: '<cl-plan-chooser></cl-plan-chooser>'
+					template: '<cl-plan-chooser></cl-plan-chooser>',
+					controller: function(clAnalytics) {
+						clAnalytics.trackPage('/choosePlan');
+					}
 				})
 				.when('/checkoutSuccess', {
 					template: '',
@@ -28,14 +31,14 @@ angular.module('classeur.optional.planChooser', [])
 
 			function link(scope) {
 				if (clUserSvc.user) {
-					if (clUserSvc.user.roles.indexOf('premium_user') === -1) {
+					if (!clUserSvc.isUserPremium()) {
 						scope.subscribeLink = clUserSvc.getSubscribeLink();
 					} else {
 						var unsubscribeLink = clUserSvc.getUnsubscribeLink();
 						scope.unsubscribe = function() {
 							clDialog.show(clDialog.confirm()
 									.title('Cancel subscription')
-									.content('Your are about to be redirected to your PayPal account page. After canceling your subscription, your premium account will remain active until the end of the billing period.')
+									.content('You are about to be redirected to your PayPal account page. After canceling your subscription, your premium account will remain active until the end of the billing period.')
 									.ok('Ok')
 									.cancel('Cancel'))
 								.then(function() {

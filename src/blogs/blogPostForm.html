@@ -2,7 +2,7 @@
     <md-select placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()" ng-if="!post">
         <md-option ng-repeat="blog in blogs" value="{{blog.id}}"><div layout="row" layout-align="start center"><span class="blog icon" ng-class="blog.platform.id"></span> {{blog.name}}</div></md-option>
     </md-select>
-    <md-button ng-href="/#!/settings?tab=blogs">
+    <md-button class="md-primary" ng-href="/#!/settings?tab=blogs">
         Manage blogs...
     </md-button>
     <div ng-show="form.blog">
@@ -10,7 +10,9 @@
         <div class="tip">
             <b>Platform:</b> {{form.blog.platform.name}}
         </div>
+        <cl-blogger-blog-post-form ng-if="form.blog.platformId === 'blogger'"></cl-blogger-blog-post-form>
         <cl-github-blog-post-form ng-if="form.blog.platformId === 'github'"></cl-github-blog-post-form>
+        <cl-wordpress-blog-post-form ng-if="form.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-form>
         <div class="options">
             <div class="label">
                 Template
@@ -18,8 +20,7 @@
             <md-select placeholder="Custom template" ng-model="form.templateKey">
                 <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
             </md-select>
-            <pre class="prism"></pre>
-            <md-button ng-click="manageTemplates()">
+            <md-button class="md-primary" ng-click="manageTemplates()" >
                 Manage templates...
             </md-button>
         </div>

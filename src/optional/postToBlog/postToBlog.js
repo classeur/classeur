@@ -32,7 +32,7 @@ angular.module('classeur.optional.postToBlog', [])
 			}
 		})
 	.directive('clPostToBlog',
-		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast, clPostToBlogSvc) {
+		function(clDialog, clEditorLayoutSvc, clEditorSvc, clBlogSvc, clSocketSvc, clToast, clPostToBlogSvc, clTemplateManagerDialog, clSettingSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -81,22 +81,41 @@ angular.module('classeur.optional.postToBlog', [])
 				}
 
 				function newPost() {
+					var fileDao = scope.currentFileDao;
+					var properties = fileDao.contentDao.properties;
+					var title = properties.title || fileDao.name;
 					return clDialog.show({
 						templateUrl: 'optional/postToBlog/newBlogPostDialog.html',
 						controller: ['$scope', function(scope) {
 							scope.form = {};
 						}],
 						onComplete: function(scope) {
+							scope.manageTemplates = function() {
+								clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
+									.then(function(templates) {
+										clSettingSvc.values.exportTemplates = templates;
+										newPost();
+									}, newPost);
+							};
 							scope.ok = function() {
 								var blogPost = clBlogSvc.createPost(scope.form);
-								if (blogPost) {
-									clSocketSvc.sendMsg({
-										type: 'createBlogPost',
-										blogPost: blogPost,
-										content: clEditorSvc.applyTemplate(blogPost.template)
-									});
-									clDialog.hide();
+								if (!blogPost) {
+									return;
 								}
+								if (scope.form.blog.status !== 'linked') {
+									return clToast('Blog is not linked.');
+								}
+								clDialog.hide();
+								clEditorSvc.applyTemplate(blogPost.template)
+									.then(function(content) {
+										clSocketSvc.sendMsg({
+											type: 'createBlogPost',
+											blogPost: blogPost,
+											content: content,
+											title: title,
+											properties: properties
+										});
+									});
 							};
 							scope.cancel = function() {
 								clDialog.cancel();
@@ -151,17 +170,17 @@ angular.module('classeur.optional.postToBlog', [])
 			}
 		})
 	.factory('clPostToBlogSvc',
-		function($q, clBlogSvc, clToast, clSocketSvc, clEditorSvc) {
-			var blogMap = {},
+		function($rootScope, $q, $timeout, clBlogSvc, clToast, clSocketSvc, clEditorSvc) {
+			var blogMap = Object.create(null),
 				posts = [],
 				clPostToBlogSvc = {
 					blogPosts: []
 				};
 
 			clSocketSvc.addMsgHandler('sentBlogPost', function(msg) {
-				clPostToBlogSvc.blogPosts.some(function(blogPost) {
+				clPostToBlogSvc.blogPosts.cl_some(function(blogPost) {
 					if (blogPost.id === msg.id) {
-						blogPost.updateCb && blogPost.updateCb(msg.err);
+						blogPost.updateCb && blogPost.updateCb(msg.error);
 						blogPost.updateCb = undefined;
 						checkIsUpdating();
 						return true;
@@ -170,20 +189,20 @@ angular.module('classeur.optional.postToBlog', [])
 			});
 
 			function checkIsUpdating() {
-				clPostToBlogSvc.isUpdating = clPostToBlogSvc.blogPosts.some(function(blogPost) {
+				clPostToBlogSvc.isUpdating = clPostToBlogSvc.blogPosts.cl_some(function(blogPost) {
 					return blogPost.updateCb;
 				});
 			}
 
 			function refreshBlogPosts() {
-				clPostToBlogSvc.blogPosts = posts.filter(function(blogPost) {
+				clPostToBlogSvc.blogPosts = posts.cl_filter(function(blogPost) {
 					return (blogPost.blog = blogMap[blogPost.blogId]);
 				});
 				checkIsUpdating();
 			}
 
 			clPostToBlogSvc.setBlogs = function(blogs) {
-				blogMap = blogs.reduce(function(blogMap, blog) {
+				blogMap = blogs.cl_reduce(function(blogMap, blog) {
 					blog.platform = clBlogSvc.platformMap[blog.platformId];
 					return (blogMap[blog.id] = blog), blogMap;
 				}, {});
@@ -198,23 +217,31 @@ angular.module('classeur.optional.postToBlog', [])
 				refreshBlogPosts();
 			};
 			clPostToBlogSvc.deleteBlogPost = function(blogPost) {
-				posts = posts.filter(function(post) {
+				posts = posts.cl_filter(function(post) {
 					return post !== blogPost;
 				});
 				refreshBlogPosts();
 			};
 
 			function updateBlogPost(blogPost) {
+				var fileDao = $rootScope.currentFileDao;
+				var properties = fileDao.contentDao.properties;
+				var title = properties.title || fileDao.name;
+				var blogPostLight = ({}).cl_extend(blogPost);
+				blogPostLight.template = undefined;
+				blogPostLight.blog = undefined;
+				clEditorSvc.applyTemplate(blogPost.template)
+					.then(function(content) {
+						clSocketSvc.sendMsg({
+							type: 'sendBlogPost',
+							blogPost: blogPostLight,
+							content: content,
+							title: title,
+							properties: properties
+						});
+					});
 				return $q(function(resolve) {
 					blogPost.updateCb = resolve;
-					var blogPostLight = angular.extend({}, blogPost);
-					blogPostLight.template = undefined;
-					blogPostLight.blog = undefined;
-					clSocketSvc.sendMsg({
-						type: 'sendBlogPost',
-						blogPost: blogPostLight,
-						content: clEditorSvc.applyTemplate(blogPost.template)
-					});
 				});
 			}
 
@@ -223,24 +250,30 @@ angular.module('classeur.optional.postToBlog', [])
 					clToast('Updating blog post...');
 					updateBlogPost(blogPost)
 						.then(function(err) {
-							clToast(err || 'Blog post has been updated.');
+							$timeout(function() {
+								clToast(err || 'Blog post has been updated.');
+							}, 800); // Timeout due to previous clToast overlap
 						});
 					checkIsUpdating();
 				}
 			};
 			clPostToBlogSvc.updateAll = function() {
 				!clPostToBlogSvc.isUpdating && clToast('Updating blog posts...');
-				$q.all(clPostToBlogSvc.blogPosts.map(function(blogPost) {
+				$q.all(clPostToBlogSvc.blogPosts.cl_map(function(blogPost) {
 					return !blogPost.updateCb && updateBlogPost(blogPost);
 				})).then(function(results) {
-					if (!results.some(function(err) {
+					var msg;
+					if (!results.cl_some(function(err) {
 							if (err) {
-								clToast(err);
+								msg = err;
 								return true;
 							}
 						})) {
-						clToast(results.length + (results.length > 1 ? ' blog posts have been updated.' : ' blog post has been updated.'));
+						msg = results.length + (results.length > 1 ? ' blog posts have been updated.' : ' blog post has been updated.');
 					}
+					$timeout(function() {
+						clToast(msg);
+					}, 800); // Timeout due to previous clToast overlap
 				});
 				checkIsUpdating();
 			};

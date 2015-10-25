@@ -1,0 +1,33 @@
+@media print {
+    body {
+        position: absolute !important;
+        background-color: transparent !important;
+        color: #000 !important; // Black prints faster
+        overflow: visible !important;
+    }
+    body > *,
+    ng-view > *,
+    cl-editor-layout > *,
+    .background.panel > *,
+    .preview.content > .filename.space {
+        display: none !important;
+    }
+    body > ng-view,
+    ng-view > cl-editor-layout,
+    cl-editor-layout > .background.panel,
+    .background.panel > .preview.panel,
+    .preview.container {
+        background-color: transparent !important;
+        display: block !important;
+        position: static !important;
+        overflow: visible !important;
+        width: auto !important;
+        height: auto !important;
+        -webkit-transform: none !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .preview.content {
+        padding: 0 50px !important;
+    }
+}

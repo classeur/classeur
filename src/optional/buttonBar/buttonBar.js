@@ -24,13 +24,6 @@ angular.module('classeur.optional.buttonBar', [])
 				}
 			}, {
 				separator: true,
-				icon: 'icon-link',
-				label: 'Link',
-				keystroke: 'Ctrl/Cmd+L',
-				click: function() {
-					clEditorSvc.pagedownEditor.uiManager.doClick('link');
-				}
-			}, {
 				icon: 'icon-format-quote',
 				label: 'Blockquote',
 				keystroke: 'Ctrl/Cmd+Q',
@@ -43,6 +36,13 @@ angular.module('classeur.optional.buttonBar', [])
 				keystroke: 'Ctrl/Cmd+K',
 				click: function() {
 					clEditorSvc.pagedownEditor.uiManager.doClick('code');
+				}
+			}, {
+				icon: 'icon-link',
+				label: 'Link',
+				keystroke: 'Ctrl/Cmd+L',
+				click: function() {
+					clEditorSvc.pagedownEditor.uiManager.doClick('link');
 				}
 			}, {
 				icon: 'icon-crop-original',
@@ -109,11 +109,11 @@ angular.module('classeur.optional.buttonBar', [])
 				btnWidth: 28,
 				btnHeight: 30,
 				height: 60,
-				visibleHeight: 44
+				visibleHeight: 42
 			};
 
 			var offset = props.margin;
-			btns.forEach(function(btn) {
+			btns.cl_each(function(btn) {
 				if (btn.separator) {
 					offset += 20;
 				}
@@ -179,7 +179,7 @@ angular.module('classeur.optional.buttonBar', [])
 						.translateY(isOpen ? openOffsetY : closedOffsetY)
 						.duration(200)
 						.delay(isOpen ? 270 : 0)
-						.easing('outBack')
+						.easing('materialOut')
 						.start(true);
 				}
 			}

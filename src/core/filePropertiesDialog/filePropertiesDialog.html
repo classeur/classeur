@@ -2,7 +2,7 @@
     <md-dialog-content>
         <h2>File properties</h2>
         <div layout="row" ng-repeat="property in properties">
-            <md-button class="icon-remove" ng-click="deleteRow(property)"></md-button>
+            <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete property"></md-button>
             <md-input-container>
                 <label>Key</label>
                 <input ng-model="property.key">
@@ -18,11 +18,11 @@
                 <span class="icon-add"></span>
             </md-button>
         </div>
-        <p>
-            <b>Tip:</b> To activate MathJax:
-        </p>
-        <pre class="example">ext:mathjax    1</pre>
-        <md-button>
+        <div class="tip">
+            <b>Tip:</b> To activate Emoji:
+        <pre class="example">ext:emoji      true</pre>
+        </div>
+        <md-button class="md-primary">
             More about extensions...
         </md-button>
     </md-dialog-content>

@@ -1,0 +1,17 @@
+<div class="tip">
+    <b>Blog URL:</b> {{form.subForm.blogUrl}}
+</div>
+<br>
+<div class="tip">
+    <b>Interpreted file properties:</b>
+    <ul>
+        <li><code>title</code>: post title</li>
+        <li><code>tags</code>: comma separated list of tags</li>
+        <li><code>published</code>: <code>false</code> for draft</li>
+        <li><code>date</code>: publish date (YYYY-MM-DD HH:MM:SS)</li>
+    </ul>
+</div>
+<md-input-container>
+    <label>Post ID (optional)</label>
+    <input ng-model="form.subForm.postId">
+</md-input-container>

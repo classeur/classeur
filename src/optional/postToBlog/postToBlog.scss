@@ -1,6 +1,6 @@
 @import 'variables';
 .update.posts.button {
-    top: 250px;
+    top: 230px;
     right: -30px;
     height: 48px;
     width: 50px;
@@ -30,9 +30,6 @@
         left: 50px;
         top: 0;
         -webkit-transform-origin: 0 0;
-        -moz-transform-origin: 0 0;
-        -ms-transform-origin: 0 0;
-        -o-transform-origin: 0 0;
         transform-origin: 0 0;
     }
 }
@@ -41,10 +38,5 @@
     min-width: 340px;
     md-input-container {
         padding-bottom: 8px;
-    }
-    .tip {
-        font-size: 12.5px;
-        display: block;
-        color: rgba(0, 0, 0, 0.33);
     }
 }

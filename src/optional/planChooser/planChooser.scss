@@ -1,8 +1,19 @@
-.plan.chooser.panel {
-    & > div {
-        height: 100%;
+.plan.chooser {
+    height: 100%;
+    overflow: auto;
+    .container {
         margin: auto;
         max-width: 840px;
+        padding: 0 5px;
+    }
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        .icon {
+            font-size: 20px;
+            line-height: 16px;
+        }
     }
     .logo {
         width: 180px;
@@ -14,6 +25,7 @@
         overflow: auto;
     }
     .menu {
+        margin: 0 -5px;
         padding: 0 5px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
         .md-button {
@@ -24,26 +36,32 @@
         text-align: center;
         font-size: 42px;
         font-weight: 300;
-        margin: 10px 0;
+        margin: 40px 0;
     }
     .plan.item {
-        background-color: #fff;
-        margin: 0 5px 100px;
-        height: 520px;
+        position: relative;
+        background-color: #fbfbfb;
+        margin: 0 -5px 50px;
+        height: 530px;
         text-align: center;
-        &.premium {
-            .header {
-                background-color: #3EB8A4;
-                color: #fff;
-            }
-        }
         .header {
             margin-bottom: 30px;
             background-color: #ebebeb;
             height: 175px;
         }
+        &.premium {
+            z-index: 1;
+            height: 560px;
+            margin-top: -15px;
+            background-color: #fff;
+            .header {
+                background-color: #3EB8A4;
+                color: #fff;
+                height: 190px;
+            }
+        }
         .name {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 300;
             margin-bottom: 15px;
             &.big {
@@ -52,7 +70,7 @@
             }
         }
         .price {
-            font-size: 40px;
+            font-size: 44px;
             line-height: 1;
         }
         ul {
@@ -61,8 +79,9 @@
         }
         li {
             font-size: 14px;
-            padding: 6px 0;
+            padding: 8px 15px;
             list-style-type: none;
+            line-height: 1.3;
         }
         .md-button {
             font-size: 22px;
@@ -75,5 +94,8 @@
                 font-size: 14px;
             }
         }
+    }
+    .info {
+        text-align: center;
     }
 }

@@ -2,12 +2,16 @@ angular.module('classeur.optional.settingPage', [])
 	.config(
 		function($routeProvider) {
 			$routeProvider.when('/settings', {
+				title: 'Settings',
 				template: '<cl-setting-page></cl-setting-page>',
-				reloadOnSearch: false
+				reloadOnSearch: false,
+				controller: function(clAnalytics) {
+					clAnalytics.trackPage('/settings');
+				}
 			});
 		})
 	.directive('clSettingPage',
-		function($rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
+		function($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
 
 			clSocketSvc.addMsgHandler('linkedUser', function(msg) {
 				clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
@@ -33,103 +37,48 @@ angular.module('classeur.optional.settingPage', [])
 			function link(scope) {
 				var tabs = ['app', 'user', 'blogs', 'trash'];
 
-				function serialize(obj) {
-					return JSON.stringify(obj, function(key, value) {
-						return key[0] === '$' ? undefined : value;
-					});
-				}
-
-				function clone(obj) {
-					return JSON.parse(serialize(obj));
-				}
-
-				var next;
-
-				function resetUser() {
-					scope.user = clone(clUserSvc.user);
-				}
-
-				function resetApp() {
-					scope.app = clone(clSettingSvc.values);
-				}
-
-				scope.$watch('userSvc.user', resetUser);
-				scope.$watch('settingSvc.values', resetApp);
-
-				function reset() {
-					resetUser();
-					resetApp();
-					next && next();
-				}
-
-				function apply() {
-					try {
-						clUserSvc.updateUser(scope.user);
-					} catch (e) {
-						scope.selectedTabIndex = tabs.indexOf('user');
-						return clToast(e);
-					}
-					try {
-						clSettingSvc.updateSettings(scope.app);
-					} catch (e) {
-						scope.selectedTabIndex = tabs.indexOf('app');
-						return clToast(e);
-					}
-					next && next();
-				}
-
-				function checkModifications(tabIndex) {
-					if (tabs[tabIndex] === 'app') {
-						if (serialize(scope.app) !== serialize(clSettingSvc.values)) {
-							return clDialog.show(clDialog.confirm()
-									.title('App settings')
-									.content('You\'ve modified your app settings.')
-									.ok('Apply')
-									.cancel('Ignore'))
-								.then(apply, reset);
-						}
-					}
-					if (tabs[tabIndex] === 'user') {
-						if (serialize(scope.user) !== serialize(clUserSvc.user)) {
-							return clDialog.show(clDialog.confirm()
-									.title('User settings')
-									.content('You\'ve modified your user settings.')
-									.ok('Apply')
-									.cancel('Ignore'))
-								.then(apply, reset);
-						}
-					}
-				}
-
 				scope.loadDefault = function() {
-					scope.app = clone(clSettingSvc.defaultValues);
-				};
-
-				scope.cancel = function() {
-					next = function() {
-						$location.url('/');
-					};
-					reset();
-				};
-
-				scope.apply = function() {
-					next = function() {
-						$location.url('/');
-					};
-					apply();
-				};
-
-				scope.editFileProperties = function() {
-					clFilePropertiesDialog(scope.app.defaultFileProperties)
-						.then(function(properties) {
-							scope.app.defaultFileProperties = properties;
+					clDialog.show(clDialog.confirm()
+							.title('Reset app settings')
+							.content('You\'re about to reset your app settings. Are you sure?')
+							.ok('Yes')
+							.cancel('No'))
+						.then(function() {
+							clSettingSvc.values = JSON.parse(JSON.stringify(clSettingSvc.defaultValues));
 						});
 				};
 
-				scope.manageTemplates = function() {
-					clTemplateManagerDialog(scope.app.exportTemplates)
-						.then(function(templates) {
-							scope.app.exportTemplates = templates;
+				scope.close = function() {
+					$location.url('/');
+				};
+
+				scope.handlerbarsHelpers = function() {
+					return clDialog.show({
+						templateUrl: 'optional/settingPage/handlebarsHelpersDialog.html',
+						onComplete: function(scope, element) {
+							var preElt = element[0].querySelector('pre.prism');
+							var cledit = $window.cledit(preElt);
+							cledit.init({
+								highlighter: function(text) {
+									return $window.Prism.highlight(text, $window.Prism.languages.javascript);
+								}
+							});
+							cledit.setContent(clSettingSvc.values.handlebarsHelpers);
+							scope.ok = function() {
+								clSettingSvc.values.handlebarsHelpers = cledit.getContent();
+								clDialog.hide();
+							};
+							scope.cancel = function() {
+								clDialog.cancel();
+							};
+						}
+					});
+				};
+
+				scope.editFileProperties = function() {
+					clFilePropertiesDialog(clSettingSvc.values.defaultFileProperties)
+						.then(function(properties) {
+							clSettingSvc.values.defaultFileProperties = properties;
 						});
 				};
 
@@ -230,7 +179,7 @@ angular.module('classeur.optional.settingPage', [])
 								templateUrl: 'optional/settingPage/editBlogDialog.html',
 								controller: ['$scope', function(scope) {
 									scope.blog = blog;
-									scope.form = angular.extend({}, blog);
+									scope.form = ({}).cl_extend(blog);
 								}],
 								onComplete: function(scope) {
 									scope.ok = function() {
@@ -264,20 +213,18 @@ angular.module('classeur.optional.settingPage', [])
 					scope.deleteBlog = function(blog) {
 						clDialog.show(clDialog.confirm()
 								.title('Delete Blog')
-								.content('You\'re about to remove a blog and all its associated blog posts. Blog posts won\'t be removed from your actual websites.')
+								.content('You\'re about to remove a blog and its blog posts. It won\'t affect files and data already published on your website.')
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
-								scope.blogs = scope.blogs.filter(function(remainingBlog) {
-									return remainingBlog.id !== blog.id;
-								});
-								var unwatch = scope.$watch('socketSvc.isReady', function(value) {
-									value && unwatch();
-									clSocketSvc.sendMsg({
-										type: 'deleteBlog',
-										id: blog.id
+								if (!scope.getBlogsPending) {
+									scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
+										clSocketSvc.sendMsg({
+											type: 'deleteBlog',
+											id: blog.id
+										});
 									});
-								});
+								}
 							});
 					};
 
@@ -294,6 +241,9 @@ angular.module('classeur.optional.settingPage', [])
 					function blogsHandler(msg) {
 						if (scope.getBlogsPending) {
 							scope.blogs = msg.blogs;
+							scope.anyDisabled = scope.blogs.cl_some(function(blog) {
+								return blog.status === 'disabled';
+							});
 							scope.getBlogsPending();
 							scope.getBlogsPending = undefined;
 							scope.$evalAsync();
@@ -346,9 +296,9 @@ angular.module('classeur.optional.settingPage', [])
 									type: 'deleteFile',
 									id: file.id
 								});
-								scope.trashFiles = Object.keys(scope.trashFiles).reduce(function(trashFiles, id) {
+								scope.trashFiles = scope.trashFiles.cl_reduce(function(trashFiles, trashFile, id) {
 									if (id !== file.id) {
-										trashFiles[file.id] = scope.trashFiles[id];
+										trashFiles[file.id] = trashFile;
 									}
 									return trashFiles;
 								}, {});
@@ -357,7 +307,7 @@ angular.module('classeur.optional.settingPage', [])
 
 					function trashFilesHandler(msg) {
 						if (scope.getTrashFilesPending) {
-							msg.files.forEach(function(item) {
+							msg.files.cl_each(function(item) {
 								scope.trashFiles[item.id] = item;
 								scope.lastDeleted = item.deleted;
 								scope.trashEmpty = false;
@@ -376,10 +326,7 @@ angular.module('classeur.optional.settingPage', [])
 
 				})();
 
-
-				scope.$watch('selectedTabIndex', function(newIndex, oldIndex) {
-					next = undefined;
-					oldIndex !== undefined && checkModifications(oldIndex);
+				scope.$watch('selectedTabIndex', function(newIndex) {
 					var tab = tabs[newIndex];
 					if (tab === 'trash') {
 						scope.getTrashFiles(true);

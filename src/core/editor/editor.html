@@ -1,4 +1,4 @@
-<div cl-keystrokes cl-folding cl-scroll-sync-editor class="editor container" style="font-size: {{editorLayoutSvc.fontSizePx}};">
+<div cl-keystrokes cl-folding cl-scroll-sync-editor class="editor container">
     <pre class="editor content" ng-class="::{'md-highlighting': settingSvc.values.editorHighlighting, monospaced: settingSvc.values.editorMonospacedFont}" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
     <cl-user-activity ng-repeat="(userId, userActivity) in contentSyncSvc.watchCtx.userActivities"></cl-user-activity>
     <cl-conflict-decorator></cl-conflict-decorator>

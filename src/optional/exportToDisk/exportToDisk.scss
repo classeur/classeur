@@ -8,12 +8,13 @@
             display: block;
             color: rgba(0, 0, 0, 0.54);
             margin-bottom: -20px;
-
         }
         textarea {
+            height: 65px;
             max-height: 65px;
             font-size: 14px;
             line-height: inherit;
+            color: #888;
         }
     }
 }

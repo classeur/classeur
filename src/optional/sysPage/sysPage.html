@@ -1,7 +1,7 @@
 <div class="sys page panel background">
     <div layout="column">
         <div layout="row" layout-align="space-between end">
-            <div class="title">System page</div>
+            <div class="title">System configuration</div>
             <div layout="row">
                 <md-button ng-href="#!/">Close <span class="icon-close"></span></md-button>
             </div>
@@ -9,7 +9,7 @@
         <br>
         <h2>App config</h2>
         <div layout="row" ng-repeat="property in properties">
-            <md-button class="icon-remove" ng-click="deleteRow(property)"></md-button>
+            <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete key"></md-button>
             <md-input-container>
                 <label>Key</label>
                 <input ng-model="property.key">

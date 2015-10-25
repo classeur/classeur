@@ -4,10 +4,10 @@
         color: rgba(0, 0, 0, 0.87);
     }
     .btn-grp {
-        button {
+        a, button {
             margin-left: 4px;
             font-size: 18px;
-            line-height: 0;
+            padding: 0;
         }
         .icon-facebook {
             background-color: #3b5998 !important;
