@@ -343,8 +343,14 @@ angular.module('classeur.core.pagedown', [])
                 };
 
                 this.setInputAreaSelectionStartEnd = function() {
-                    stateObj.start = inputArea.selectionMgr.selectionStart;
-                    stateObj.end = inputArea.selectionMgr.selectionEnd;
+                    stateObj.start = Math.min(
+                        inputArea.selectionMgr.selectionStart,
+                        inputArea.selectionMgr.selectionEnd
+                    );
+                    stateObj.end = Math.max(
+                        inputArea.selectionMgr.selectionStart,
+                        inputArea.selectionMgr.selectionEnd
+                    );
                 };
 
                 // Restore this state into the input area.
