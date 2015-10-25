@@ -74,15 +74,52 @@ angular.module('classeur.core.editor', [])
 					scope.$apply();
 				}, 20);
 
-				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
-					newSectionList = sectionList;
-					debouncedEditorChanged();
-				});
-
 				clEditorSvc.cledit.selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
 					newSelectionRange = selectionRange;
 					debouncedEditorChanged();
 				});
+
+				/*************************
+				 * Inline images
+				 */
+
+				var imgCache = Object.create(null);
+
+				function addToImgCache(imgElt) {
+					var entries = imgCache[imgElt.src];
+					if (!entries) {
+						entries = [];
+						imgCache[imgElt.src] = entries;
+					}
+					entries.push(imgElt);
+				}
+
+				function getFromImgCache(src) {
+					var entries = imgCache[src];
+					if (entries) {
+						var imgElt;
+						return entries.cl_some(function(entry) {
+							if (!editorElt.contains(entry)) {
+								imgElt = entry;
+								return true;
+							}
+						}) && imgElt;
+					}
+				}
+
+				var triggerImgCacheGc = $window.cledit.Utils.debounce(function() {
+					Object.keys(imgCache).cl_each(function(src) {
+						var entries = imgCache[src].filter(function(imgElt) {
+							return editorElt.contains(imgElt);
+						});
+						if (entries.length) {
+							imgCache[src] = entries;
+						} else {
+							delete imgCache[src];
+						}
+					});
+				}, 100);
+				var imgEltsToCache = [];
 
 				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
@@ -97,12 +134,28 @@ angular.module('classeur.core.editor', [])
 										imgElt.style.display = '';
 									};
 									imgElt.src = uri;
+									imgEltsToCache.push(imgElt);
 								}
 								imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
 							}
 						});
 					});
 				}
+
+				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
+					newSectionList = sectionList;
+					debouncedEditorChanged();
+					imgEltsToCache.cl_each(function(imgElt) {
+						var cachedImgElt = getFromImgCache(imgElt.src);
+						if (cachedImgElt) {
+							imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
+						} else {
+							addToImgCache(imgElt);
+						}
+					});
+					imgEltsToCache = [];
+					triggerImgCacheGc();
+				});
 
 				var isInited;
 				scope.$watch('editorSvc.options', function(options) {
