@@ -34,7 +34,7 @@
         <cl-preview></cl-preview>
     </div>
     <cl-button ng-if="showHelp" class="md-cheat-sheet btn" opacity="0.35" opacity-hover="0.7" size="34" right="0" bottom="44">
-        <a class="icon-help" ng-href="http://classeur.io" target="_blank" aria-label="Markdown Cheat Sheet"></a>
+        <a class="icon-help" ng-click="localSettingSvc.values.sideBarTab = 'sample'; editorLayoutSvc.toggleSideBar(true)" aria-label="Markdown Cheat Sheet"></a>
     </cl-button>
     <div class="binder panel">
         <div class="header panel background">

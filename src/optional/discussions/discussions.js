@@ -37,7 +37,7 @@ angular.module('classeur.optional.discussions', [])
 						var discussionId = getEditorDiscussionId(evt.target);
 						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
 							clLocalSettingSvc.values.sideBar = true;
-							clEditorLayoutSvc.sideBarTab = 'discussions';
+							clLocalSettingSvc.values.sideBarTab = 'discussions';
 							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
 							clDiscussionSvc.currentDiscussionId = discussionId;
 						}
@@ -67,7 +67,7 @@ angular.module('classeur.optional.discussions', [])
 						var discussionId = getPreviewDiscussionId(evt.target);
 						if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
 							clLocalSettingSvc.values.sideBar = true;
-							clEditorLayoutSvc.sideBarTab = 'discussions';
+							clLocalSettingSvc.values.sideBarTab = 'discussions';
 							clDiscussionSvc.currentDiscussion = contentDao.discussions[discussionId];
 							clDiscussionSvc.currentDiscussionId = discussionId;
 						}
@@ -152,7 +152,7 @@ angular.module('classeur.optional.discussions', [])
 					clDiscussionSvc.currentDiscussionId = undefined;
 					$timeout(function() {
 						clLocalSettingSvc.values.sideBar = true;
-						clEditorLayoutSvc.sideBarTab = 'discussions';
+						clLocalSettingSvc.values.sideBarTab = 'discussions';
 						clDiscussionSvc.currentDiscussion = clDiscussionSvc.newDiscussion;
 						clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId;
 					});
@@ -233,7 +233,7 @@ angular.module('classeur.optional.discussions', [])
 					scope.discussion = isNew && clDiscussionSvc.newDiscussion;
 					scope.discussionId = isNew && clDiscussionSvc.newDiscussionId;
 				});
-				scope.$watch('localSettingSvc.values.sideBar && editorLayoutSvc.sideBarTab === "discussions"', function(isOpen) {
+				scope.$watch('localSettingSvc.values.sideBar && localSettingSvc.values.sideBarTab === "discussions"', function(isOpen) {
 					if (!isOpen) {
 						clDiscussionSvc.currentDiscussion = undefined;
 						clDiscussionSvc.currentDiscussionId = undefined;

@@ -4,6 +4,7 @@
 	"editorZoom": 3,
 	"scrollSync": true,
 	"sideBar": false,
+	"sideBarTab": "sample",
 	"stat": false,
 	"tourStep": 0,
 	"zenMode": true

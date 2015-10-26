@@ -192,7 +192,10 @@
         padding: 0 35px;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255,
+        255,
+        255,
+        0.25);
         .sort-by {
             .icon-keyboard-backspace {
                 display: inline-block;
@@ -305,7 +308,8 @@
                 color: #fff;
                 border-top-right-radius: $border-radius-binder;
                 border-bottom-right-radius: $border-radius-binder;
-                &:hover, &.md-focused {
+                &:hover,
+                &.md-focused {
                     background-color: transparent;
                 }
                 .rotate-90 {
@@ -322,7 +326,8 @@
                 }
             }
             &.selected .md-button {
-                &:hover, &.md-focused{
+                &:hover,
+                &.md-focused {
                     background-color: transparent;
                 }
             }
@@ -348,6 +353,11 @@
             width: 40px;
             .md-button {
                 font-size: 25px;
+                .icon-search {
+                    display: inline-block;
+                    -webkit-transform: scale(-1, 1);
+                    transform: scale(-1, 1);
+                }
             }
         }
         .create.btn {
