@@ -336,7 +336,7 @@
             border-top-right-radius: $border-radius-binder;
             border-bottom-right-radius: $border-radius-binder;
             .md-button {
-                font-size: 23px;
+                font-size: 24px;
                 padding: 0;
                 span {
                     line-height: 44px;
@@ -346,6 +346,9 @@
         .unclassified.btn {
             top: 43px;
             width: 40px;
+            .md-button {
+                font-size: 25px;
+            }
         }
         .create.btn {
             top: 86px;
