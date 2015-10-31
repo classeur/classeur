@@ -106,14 +106,24 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				var originalHeadingOpen = markdown.renderer.rules.heading_open;
-				markdown.renderer.rules.heading_open = function(tokens, idx) {
+				markdown.renderer.rules.heading_open = function(tokens, idx, options) {
 					var token = tokens[idx];
 					(token.attrs = token.attrs || []).push(['id', token.headingAnchor]);
 					if (originalHeadingOpen) {
-						return originalHeadingOpen.apply(this, arguments);
+						return originalHeadingOpen.call(this, tokens, idx, options);
 					} else {
-						return markdown.renderer.renderToken.apply(markdown.renderer, arguments);
+						return markdown.renderer.renderToken.call(markdown.renderer, tokens, idx, options);
 					}
+				};
+
+				// Transform style into align attribute to pass the HTML sanitizer
+				var textAlignLength = 'text-align:'.length;
+				markdown.renderer.rules.th_open = markdown.renderer.rules.td_open = function(tokens, idx, options) {
+					var token = tokens[idx];
+					if(token.attrs) {
+						token.attrs = [ [ 'align', token.attrs[0][1].slice(textAlignLength) ] ];
+					}
+					return markdown.renderer.renderToken.call(markdown.renderer, tokens, idx, options);
 				};
 
 				options.toc && markdown.block.ruler.before('paragraph', 'toc', function(state, startLine, endLine, silent) {
