@@ -42,7 +42,7 @@ angular.module('classeur.optional.findReplace', [])
 								highlightOccurrences();
 							}
 						});
-					duration = 200;
+					duration = 100;
 				}
 
 				function DynamicClassApplier(cssClass, offset, silent) {
