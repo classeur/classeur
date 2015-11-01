@@ -516,9 +516,8 @@ angular.module('classeur.core.editor', [])
 					markdownInitListeners[priority] = listener;
 				},
 				initConverter: function() {
-					clEditorSvc.markdown = new $window.markdownit('zero');
-
 					// Let the markdownInitListeners add the rules
+					clEditorSvc.markdown = new $window.markdownit('zero');
 					clEditorSvc.markdown.core.ruler.enable([], true);
 					clEditorSvc.markdown.block.ruler.enable([], true);
 					clEditorSvc.markdown.inline.ruler.enable([], true);
@@ -667,7 +666,7 @@ angular.module('classeur.core.editor', [])
 				];
 				if (conversionCtx) {
 					var oldSectionHash = hashArray(conversionCtx.htmlSectionList, valueHash, valueArray);
-					htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash);
+					htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash, false);
 				}
 				conversionCtx = {
 					sectionList: parsingCtx.sectionList,
@@ -749,12 +748,29 @@ angular.module('classeur.core.editor', [])
 			};
 
 			function runAsyncPreview() {
-				function recursiveCall(callbackList) {
-					if (callbackList.length) {
-						return callbackList.shift()(function() {
-							recursiveCall(callbackList);
-						});
+				var imgLoadingListeners = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function(imgElt) {
+					return function(cb) {
+						if (!imgElt.src) {
+							return cb();
+						}
+						var img = new Image();
+						img.onload = cb;
+						img.onerror = cb;
+						img.src = imgElt.src;
+					};
+				});
+				var listeners = asyncPreviewListeners.concat(imgLoadingListeners);
+				var resolved = 0;
+				function attemptResolve() {
+					if(++resolved === listeners.length) {
+						resolve();
 					}
+				}
+				listeners.cl_each(function(listener) {
+					listener(attemptResolve);
+				});
+
+				function resolve() {
 					var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function(html, elt) {
 						if (!elt.exportableHtml) {
 							var clonedElt = elt.cloneNode(true);
@@ -772,18 +788,6 @@ angular.module('classeur.core.editor', [])
 					$rootScope.$apply();
 				}
 
-				var imgLoadingListeners = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function(imgElt) {
-					return function(cb) {
-						if (!imgElt.src) {
-							return cb();
-						}
-						var img = new Image();
-						img.onload = cb;
-						img.onerror = cb;
-						img.src = imgElt.src;
-					};
-				});
-				recursiveCall(asyncPreviewListeners.concat(imgLoadingListeners));
 			}
 
 			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {

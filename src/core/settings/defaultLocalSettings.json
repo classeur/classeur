@@ -2,6 +2,7 @@
 	"buttonBar": true,
 	"editorColor": 1,
 	"editorZoom": 3,
+	"localFileAlertDismissed": false,
 	"scrollSync": true,
 	"sideBar": false,
 	"sideBarTab": "sample",

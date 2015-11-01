@@ -1,6 +1,6 @@
 angular.module('classeur.optional.readOnlyAlert', [])
 	.directive('clReadOnlyAlert',
-		function(clEditorLayoutSvc, clSyncSvc, clUserSvc, clSocketSvc, clEditorSvc) {
+		function(clEditorLayoutSvc, clUserSvc, clSocketSvc, clEditorSvc) {
 			return {
 				restrict: 'E',
 				scope: true,

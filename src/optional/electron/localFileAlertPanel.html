@@ -1,0 +1,15 @@
+<div class="local-file-alert panel postit no-overflow md-whiteframe-z2" layout="column" layout-align="space-between">
+    <div>
+        <h2>Local file</h2>
+        <p>Local files are not synchronized with Classeur.</p>
+        <p>To synchronize this file, just make a copy.</p>
+        <cl-button class="close btn" opacity="0.2" opacity-hover="0.3" size="30">
+            <a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
+        </cl-button>
+    </div>
+    <div layout="row" layout-align="end">
+        <md-button md-no-ink class="md-primary" ng-click="makeCurrentFileCopy()">
+            Make a copy
+        </md-button>
+    </div>
+</div>

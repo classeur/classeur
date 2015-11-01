@@ -213,7 +213,7 @@ angular.module('classeur.optional.settingPage', [])
 					scope.deleteBlog = function(blog) {
 						clDialog.show(clDialog.confirm()
 								.title('Delete Blog')
-								.content('You\'re about to remove a blog and its blog posts. It won\'t affect files and data already published on your website.')
+								.content('You\'re about to remove a blog and its blog posts. Classeur files will be preserved and data already published on your website won\'t be affected.')
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {

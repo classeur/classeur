@@ -5,6 +5,7 @@
         height: 64px;
         background-image: url('assets/images/logo.png');
         background-size: 180px 60px;
+        background-repeat: no-repeat;
     }
     & > * {
         max-width: 500px;

@@ -302,6 +302,13 @@ angular.module('classeur.core.editorLayout', [])
 						});
 				};
 
+				scope.toggleSidePreview = function() {
+					clEditorLayoutSvc.toggleSidePreview();
+					setTimeout(function() {
+						clEditorSvc.cledit && clEditorSvc.cledit.focus();
+					}, 100);
+				};
+
 				var tabs = ['sample', 'toc', 'discussions'];
 				scope.$watch('localSettingSvc.values.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);

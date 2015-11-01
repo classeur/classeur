@@ -892,7 +892,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function startWatchFile(fileDao) {
-				if (!fileDao || !fileDao.state || fileDao.isReadOnly || clSyncDataSvc.isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
+				if (!fileDao || !fileDao.state || fileDao.isReadOnly || fileDao.isLocalFile || clSyncDataSvc.isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
 					return;
 				}
 				fileDao.loadPending = false;

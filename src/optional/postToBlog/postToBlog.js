@@ -45,7 +45,18 @@ angular.module('classeur.optional.postToBlog', [])
 				}
 
 				function open() {
-					if (!clSocketSvc.isReady) {
+					if (scope.currentFileDao.isLocalFile) {
+						var createCopyDialog = clDialog.confirm()
+							.title('Post to blog')
+							.content('Local file can\'t be published. Please make a copy in your Classeur.')
+							.ariaLabel('Post to blog')
+							.ok('Make a copy')
+							.cancel('Cancel');
+						return clDialog.show(createCopyDialog).then(function() {
+							close();
+							scope.makeCurrentFileCopy();
+						}, close);
+					} else if (!clSocketSvc.isReady) {
 						return clDialog.show(
 							clDialog.alert()
 							.title('You\'re offline')

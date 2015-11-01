@@ -223,11 +223,11 @@ angular.module('classeur.core.explorerLayout', [])
 							for (var i = 0; i < len; i++) {
 								content += String.fromCharCode(bytes[i]);
 							}
-							if (content.match(/[\uFFF0-\uFFFF]/)) {
+							if (content.match(/[\u0000\uFFF0-\uFFFF]/)) {
 								return clToast('File is not readable.');
 							}
 							clDialog.hide({
-								name: file.name,
+								name: file.name.slice(0, 128),
 								content: content
 							});
 						};

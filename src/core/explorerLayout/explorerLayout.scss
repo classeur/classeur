@@ -34,11 +34,11 @@
             white-space: nowrap;
             line-height: 1.15;
             .logo {
-                width: 48px;
+                width: 50px;
                 height: 64px;
                 background-image: url('assets/images/logo.png');
                 background-size: 180px 60px;
-                margin-right: 5px;
+                background-repeat: no-repeat;
             }
         }
         .classeur.toggler {

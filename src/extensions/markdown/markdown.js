@@ -12,6 +12,7 @@ angular.module('classeur.extensions.markdown', [])
 				],
 				blockBaseRules = [
 					'code',
+					'fence',
 					'blockquote',
 					'hr',
 					'list',
@@ -19,6 +20,7 @@ angular.module('classeur.extensions.markdown', [])
 					'heading',
 					'lheading',
 					'html_block',
+					'table',
 					'paragraph',
 				],
 				inlineBaseRules = [
@@ -34,9 +36,11 @@ angular.module('classeur.extensions.markdown', [])
 					'html_inline',
 					'entity',
 				],
-				blockRules = [
-					'fence',
-					'table'
+				inlineBaseRules2 = [
+					'balance_pairs',
+					'strikethrough',
+					'emphasis',
+					'text_collapse',
 				];
 
 			clEditorSvc.onMarkdownInit(0, function(markdown) {
@@ -49,10 +53,21 @@ angular.module('classeur.extensions.markdown', [])
 				});
 
 				markdown.core.ruler.enable(coreBaseRules);
-				markdown.block.ruler.enable(options.cl_reduce(function(rules, value, key) {
-					return rules.concat(value && blockRules.indexOf(key) !== -1 ? key : []);
-				}, blockBaseRules));
-				markdown.inline.ruler.enable(inlineBaseRules);
+
+				var blockRules = blockBaseRules.slice();
+				!options.fence && blockRules.splice(blockRules.indexOf('fence'), 1);
+				!options.table && blockRules.splice(blockRules.indexOf('table'), 1);
+				markdown.block.ruler.enable(blockRules);
+
+				var inlineRules = inlineBaseRules.slice();
+				var inlineRules2 = inlineBaseRules2.slice();
+				if (!options.del) {
+					inlineRules.splice(blockRules.indexOf('strikethrough'), 1);
+					inlineRules2.splice(blockRules.indexOf('strikethrough'), 1);
+				}
+				markdown.inline.ruler.enable(inlineRules);
+				markdown.inline.ruler2.enable(inlineRules2);
+
 				options.abbr && markdown.use($window.markdownitAbbr);
 				options.deflist && markdown.use($window.markdownitDeflist);
 				options.footnote && markdown.use($window.markdownitFootnote);
@@ -82,7 +97,7 @@ angular.module('classeur.extensions.markdown', [])
 									break;
 								}
 							}
-							
+
 							// If nothing is left after this, use the identifier `section`
 							slug = slug.slice(i) || 'section';
 
@@ -105,25 +120,24 @@ angular.module('classeur.extensions.markdown', [])
 					});
 				});
 
-				var originalHeadingOpen = markdown.renderer.rules.heading_open;
 				markdown.renderer.rules.heading_open = function(tokens, idx, options) {
 					var token = tokens[idx];
-					(token.attrs = token.attrs || []).push(['id', token.headingAnchor]);
-					if (originalHeadingOpen) {
-						return originalHeadingOpen.call(this, tokens, idx, options);
-					} else {
-						return markdown.renderer.renderToken.call(markdown.renderer, tokens, idx, options);
-					}
+					token.attrs = [
+						['id', token.headingAnchor]
+					];
+					return markdown.renderer.renderToken(tokens, idx, options);
 				};
 
 				// Transform style into align attribute to pass the HTML sanitizer
 				var textAlignLength = 'text-align:'.length;
 				markdown.renderer.rules.th_open = markdown.renderer.rules.td_open = function(tokens, idx, options) {
 					var token = tokens[idx];
-					if(token.attrs) {
-						token.attrs = [ [ 'align', token.attrs[0][1].slice(textAlignLength) ] ];
+					if (token.attrs && token.attrs.length && token.attrs[0][0] === 'style') {
+						token.attrs = [
+							['align', token.attrs[0][1].slice(textAlignLength)]
+						];
 					}
-					return markdown.renderer.renderToken.call(markdown.renderer, tokens, idx, options);
+					return markdown.renderer.renderToken(tokens, idx, options);
 				};
 
 				options.toc && markdown.block.ruler.before('paragraph', 'toc', function(state, startLine, endLine, silent) {

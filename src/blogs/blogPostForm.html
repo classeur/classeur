@@ -1,5 +1,6 @@
 <div class="blog post form">
-    <md-select placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()" ng-if="!post">
+    <p class="warning" ng-if="!blogs.length">You don't have any linked blog yet.</p>
+    <md-select ng-if="blogs.length" placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()" ng-if="!post">
         <md-option ng-repeat="blog in blogs" value="{{blog.id}}"><div layout="row" layout-align="start center"><span class="blog icon" ng-class="blog.platform.id"></span> {{blog.name}}</div></md-option>
     </md-select>
     <md-button class="md-primary" ng-href="/#!/settings?tab=blogs">

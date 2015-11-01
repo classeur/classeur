@@ -46,6 +46,11 @@ body {
     outline: none;
 }
 
+input, textarea {
+    -webkit-font-variant-ligatures: normal;
+    font-variant-ligatures: normal;
+}
+
 .panel {
     position: absolute;
     width: 100%;
@@ -76,7 +81,7 @@ body {
 @for $i from 1 through length($plastic-colors) {
     $c: nth($plastic-colors, $i);
     .plastic-#{$i - 1} {
-        background-color: lighten(desaturate($c, 12%), 20%) !important;
+        background-color: lighten(desaturate($c, 12%), 19%) !important;
     }
 }
 

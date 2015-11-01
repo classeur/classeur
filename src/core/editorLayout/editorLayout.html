@@ -99,7 +99,7 @@
                     <a class="icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode"></a>
                 </cl-button>
                 <cl-button class="preview btn" opacity="0.4" opacity-hover="0.7" size="32">
-                    <a class="icon-filter-none" ng-click="editorLayoutSvc.toggleSidePreview()" cl-tour-next="2" aria-label="Side preview" title="Side preview"></a>
+                    <a class="icon-filter-none" ng-click="toggleSidePreview()" cl-tour-next="2" aria-label="Side preview" title="Side preview"></a>
                     <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 1">
                         <p>Classeur supports Markdown syntax.</p>
                         <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
@@ -146,6 +146,7 @@
 <cl-discussion ng-if="editorLayoutSvc.currentControl === 'discussion'"></cl-discussion>
 <cl-read-only-alert></cl-read-only-alert>
 <cl-offline-alert></cl-offline-alert>
+<cl-local-file-alert></cl-local-file-alert>
 <cl-conflict-alert></cl-conflict-alert>
 <cl-uri-dialog></cl-uri-dialog>
 <cl-sharing-dialog></cl-sharing-dialog>
