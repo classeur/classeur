@@ -267,7 +267,7 @@ angular.module('classeur.optional.settingPage', [])
 					scope.getTrashFiles = function(reset) {
 						if (!scope.getTrashFilesPending) {
 							if (reset) {
-								scope.trashFiles = clFileSvc.deletedFileMap;
+								scope.trashFiles = ({}).cl_extend(clFileSvc.deletedFileMap);
 								scope.trashEmpty = clFileSvc.deletedFiles.length === 0;
 								scope.lastDeleted = undefined;
 							}
@@ -298,7 +298,7 @@ angular.module('classeur.optional.settingPage', [])
 								});
 								scope.trashFiles = scope.trashFiles.cl_reduce(function(trashFiles, trashFile, id) {
 									if (id !== file.id) {
-										trashFiles[file.id] = trashFile;
+										trashFiles[id] = trashFile;
 									}
 									return trashFiles;
 								}, {});
