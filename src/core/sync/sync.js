@@ -267,7 +267,7 @@ angular.module('classeur.core.sync', [])
 			};
 		})
 	.factory('clSyncSvc',
-		function($rootScope, $location, $http, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
+		function($rootScope, $location, $http, $templateCache, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
 			var clSyncSvc = {};
 			var nameMaxLength = 128;
 			var longInactivityThreshold = 60 * 1000; // 60 sec
@@ -448,6 +448,7 @@ angular.module('classeur.core.sync', [])
 						// Sync user's classeurs once all folders are synced
 						syncUser();
 						sendChanges();
+						clSyncDataSvc.fileSyncReady = '1';
 					}
 					clSyncDataSvc.write();
 					apply && $rootScope.$evalAsync();
@@ -547,6 +548,8 @@ angular.module('classeur.core.sync', [])
 					if (msg.hasMore) {
 						retrieveChanges();
 					} else {
+						// Sync user's folders once all files are synced
+						syncFolders();
 						sendChanges();
 					}
 					clSyncDataSvc.write();
@@ -576,6 +579,7 @@ angular.module('classeur.core.sync', [])
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
+								classeurId: fileDao.classeurId || undefined,
 								sharing: fileDao.sharing || undefined,
 								updated: fileDao.updated
 							});
@@ -592,6 +596,7 @@ angular.module('classeur.core.sync', [])
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
+								classeurId: fileDao.classeurId || undefined,
 								sharing: fileDao.sharing || undefined,
 								updated: fileDao.updated,
 								deleted: fileDao.deleted
@@ -600,7 +605,6 @@ angular.module('classeur.core.sync', [])
 						}
 					});
 					clSyncDataSvc.fileLastUpdated = clFileSvc.getLastUpdated();
-					clSyncDataSvc.fileSyncReady = '1';
 				}
 
 				return retrieveChanges;
@@ -615,6 +619,7 @@ angular.module('classeur.core.sync', [])
 						id: file.id,
 						name: file.name,
 						folderId: file.folderId || undefined,
+						classeurId: file.classeurId || undefined,
 						sharing: file.sharing || undefined,
 						updated: currentDate
 					});
@@ -634,16 +639,22 @@ angular.module('classeur.core.sync', [])
 							delete clSyncDataSvc.fileCreationDates[fileId];
 						}
 					});
+					var filesToRemove = [];
 					clFileSvc.files.cl_filter(function(fileDao) {
 						return clSyncDataSvc.isFilePendingCreation(fileDao) && !clSyncDataSvc.fileCreationDates.hasOwnProperty(fileDao.id);
 					}).cl_each(function(fileDao) {
 						clSyncDataSvc.fileCreationDates[fileDao.id] = currentDate;
 						fileDao.loadExecUnload(function() {
+							// Remove first file in case existing user signs in (see #13)
+							if(clFileSvc.files.length > 1 && fileDao.name === clFileSvc.firstFileName && fileDao.contentDao.text === clFileSvc.firstFileContent) {
+								return filesToRemove.push(fileDao);
+							}
 							clSocketSvc.sendMsg({
 								type: 'createFile',
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
+								classeurId: fileDao.classeurId || undefined,
 								sharing: fileDao.sharing || undefined,
 								updated: fileDao.updated,
 								content: {
@@ -656,6 +667,7 @@ angular.module('classeur.core.sync', [])
 							});
 						});
 					});
+					clFileSvc.removeFiles(filesToRemove);
 				}
 
 				clSocketSvc.addMsgHandler('createdFile', function(msg, ctx) {
@@ -808,6 +820,7 @@ angular.module('classeur.core.sync', [])
 								clFileSvc.fileIds.push(fileDao.id);
 							}
 							fileDao.folderId = folderDao.id;
+							fileDao.classeurId = '';
 							clSyncDataSvc.updatePublicFileMetadata(fileDao, item);
 						});
 						filesToMove.cl_each(function(fileDao) {
