@@ -126,6 +126,7 @@ angular.module('classeur.core.editor', [])
 						section.elt.getElementsByClassName('token img').cl_each(function(imgTokenElt) {
 							var srcElt = imgTokenElt.querySelector('.token.cl-src');
 							if (srcElt) {
+								// Create an img element before the .img.token and wrap both elements into a .token.img-wrapper
 								var imgElt = $window.document.createElement('img');
 								imgElt.style.display = 'none';
 								var uri = srcElt.textContent;
@@ -136,7 +137,11 @@ angular.module('classeur.core.editor', [])
 									imgElt.src = uri;
 									imgEltsToCache.push(imgElt);
 								}
-								imgTokenElt.insertBefore(imgElt, imgTokenElt.firstChild);
+								var imgTokenWrapper = $window.document.createElement('span');
+								imgTokenWrapper.className = 'token img-wrapper';
+								imgTokenElt.parentNode.insertBefore(imgTokenWrapper, imgTokenElt);
+								imgTokenWrapper.appendChild(imgElt);
+								imgTokenWrapper.appendChild(imgTokenElt);
 							}
 						});
 					});
@@ -148,12 +153,14 @@ angular.module('classeur.core.editor', [])
 					imgEltsToCache.cl_each(function(imgElt) {
 						var cachedImgElt = getFromImgCache(imgElt.src);
 						if (cachedImgElt) {
+							// Found a previously loaded image that has just been released
 							imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
 						} else {
 							addToImgCache(imgElt);
 						}
 					});
 					imgEltsToCache = [];
+					// Eject released images from cache
 					triggerImgCacheGc();
 				});
 
