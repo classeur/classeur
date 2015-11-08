@@ -52,11 +52,23 @@
     }
     .code,
     .img,
+    .img-wrapper,
     .imgref,
     .cl-toc {
         background-color: $code-bg;
         border-radius: $border-radius-base;
         padding: 0.15em 0;
+    }
+    .img-wrapper {
+        display: inline-block;
+        .img {
+            display: inline-block;
+            padding: 0;
+        }
+        img {
+            max-width: 100%;
+            padding: 0 0.15em;
+        }
     }
     .cl-toc {
         font-size: 2.8em;
@@ -133,9 +145,6 @@
         position: relative;
         bottom: -0.25em;
         font-size: smaller;
-    }
-    .img {
-        display: inline-block;
     }
     .img,
     .imgref,

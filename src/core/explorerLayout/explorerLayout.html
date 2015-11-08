@@ -38,7 +38,7 @@
                             Signing in...
                         </div>
                         <md-button class="item" ng-href="#!/choosePlan" ng-if="userSvc.user && !userSvc.isUserPremium()">
-                            Go premium <span class="icon-arrow-forward"></span>
+                            Go premium
                         </md-button>
                     </div>
                 </div>
@@ -82,8 +82,8 @@
                 </div>
             </div>
             <div class="explorer content panel">
-                <div class="panel md-whiteframe-z2" ng-class="plasticClass">
-                    <div class="panel no-overflow">
+                <div class="panel binder-radius md-whiteframe-z2" ng-class="plasticClass">
+                    <div class="panel binder-radius no-overflow">
                         <div class="scrollbar panel">
                             <div class="folder container panel" ng-switch="!!explorerLayoutSvc.currentFolderDao" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
                                 <cl-folder-name ng-switch-when="true"></cl-folder-name>
@@ -95,9 +95,9 @@
                                 <div class="file menu" ng-class="plasticClass">
                                     <div class="new-file actions" layout="row" layout-align="space-between end">
                                         <div class="search">
-                                            <md-input-container md-theme="classeur" md-no-float ng-show="fileFilter || explorerLayoutSvc.files.length > 3">
+                                            <md-input-container md-theme="classeur" md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
                                                 <md-icon md-font-icon="icon-search"></md-icon>
-                                                <input placeholder="Filter" ng-model="fileFilter">
+                                                <input placeholder="Filter" ng-model="userInputFilter">
                                             </md-input-container>
                                         </div>
                                         <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">
@@ -105,20 +105,20 @@
                                             <span class="icon-add"></span>
                                         </md-button>
                                     </div>
-                                    <div class="file actions no-overflow" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
+                                    <div class="file actions no-overflow" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                         <div layout="row" layout-align="space-between">
                                             <div layout="row">
-                                                <div ng-switch-when="false">
+                                                <div ng-if="explorerLayoutSvc.selectedFiles.length !== explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                                     <md-button class="md-primary" ng-click="selectAll()">
                                                         <span class="icon-check"></span> Select all
                                                     </md-button>
                                                 </div>
-                                                <div ng-switch-when="true">
+                                                <div ng-if="explorerLayoutSvc.selectedFiles.length === explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                                     <md-button class="md-primary" ng-click="selectNone()">
                                                         <span class="icon-check-box-outline-blank"></span> Select None
                                                     </md-button>
                                                 </div>
-                                                <div ng-switch-when="true">
+                                                <div ng-if="explorerLayoutSvc.selectedFiles.length">
                                                     <md-button class="md-primary" ng-click="deleteConfirm()">
                                                         <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
                                                     </md-button>
@@ -143,20 +143,24 @@
                                         <p>Click <b>New file</b> to create or import a file in your folder.</p>
                                     </md-tooltip>
                                 </div>
-                                <div class="folder content" ng-show="explorerLayoutSvc.files.length">
+                                <div class="folder content" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                     <cl-file-entry ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
+                                    <div ng-if="explorerLayoutSvc.pagedExtraFiles.length">
+                                        <div class="extra">From other classeurs</div>
+                                        <cl-file-entry ng-repeat="fileDao in explorerLayoutSvc.pagedExtraFiles track by fileDao.id"></cl-file-entry>
+                                    </div>
                                     <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
-                                    <cl-recent-alert></cl-recent-alert>
                                 </div>
+                                <cl-recent-alert></cl-recent-alert>
                             </div>
                         </div>
                         <div class="folder container clone hidden">
                             <div class="file menu" ng-class="plasticClass">
                                 <div class="new-file actions" layout="row" layout-align="space-between end">
                                     <div class="search">
-                                        <md-input-container md-theme="classeur" md-no-float ng-show="fileFilter || explorerLayoutSvc.files.length > 3">
+                                        <md-input-container md-theme="classeur" md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
                                             <md-icon md-font-icon="icon-search"></md-icon>
-                                            <input placeholder="Filter" ng-model="fileFilter">
+                                            <input placeholder="Filter" ng-model="userInputFilter">
                                         </md-input-container>
                                     </div>
                                     <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">
@@ -164,20 +168,20 @@
                                         <span class="icon-add"></span>
                                     </md-button>
                                 </div>
-                                <div class="file actions no-overflow" ng-show="explorerLayoutSvc.files.length" ng-switch="!!explorerLayoutSvc.selectedFiles.length">
+                                <div class="file actions no-overflow" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                     <div layout="row" layout-align="space-between">
                                         <div layout="row">
-                                            <div ng-switch-when="false">
+                                            <div ng-if="explorerLayoutSvc.selectedFiles.length !== explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                                 <md-button class="md-primary" ng-click="selectAll()">
                                                     <span class="icon-check"></span> Select all
                                                 </md-button>
                                             </div>
-                                            <div ng-switch-when="true">
+                                            <div ng-if="explorerLayoutSvc.selectedFiles.length === explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
                                                 <md-button class="md-primary" ng-click="selectNone()">
                                                     <span class="icon-check-box-outline-blank"></span> Select None
                                                 </md-button>
                                             </div>
-                                            <div ng-switch-when="true">
+                                            <div ng-if="explorerLayoutSvc.selectedFiles.length">
                                                 <md-button class="md-primary" ng-click="deleteConfirm()">
                                                     <span class="icon-delete"></span> Delete <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
                                                 </md-button>
@@ -199,13 +203,15 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="public-corner" ng-if="explorerLayoutSvc.currentFolderDao.userId"><div class="icon-publ"></div></div>
                     </div>
                     <div class="btn-grp panel background no-overflow">
                         <div class="container panel">
                             <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
                                 <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                                     <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
-                                        <div>{{folderDao.name}}</div>
+                                        <div class="public-corner" ng-if="folderDao.userId"><div class="icon-publ"></div></div>
+                                        <div>{{folderDao.name}} <span class="sharing-indicator" ng-class="{'read-write': folderDao.sharing === 'rw', read: folderDao.sharing === 'r'}"></span></div>
                                     </div>
                                     <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
                                 </md-button>

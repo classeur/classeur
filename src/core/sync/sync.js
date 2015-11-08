@@ -270,7 +270,7 @@ angular.module('classeur.core.sync', [])
 		function($rootScope, $location, $http, $templateCache, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
 			var clSyncSvc = {};
 			var nameMaxLength = 128;
-			var longInactivityThreshold = 60 * 1000; // 60 sec
+			var longInactivityThreshold = 40 * 1000; // 40 sec
 			var shortInactivityThreshold = 10 * 1000; // 10 sec
 			var createFileTimeout = 30 * 1000; // 30 sec
 			var recoverFileTimeout = 30 * 1000; // 30 sec
@@ -521,10 +521,14 @@ angular.module('classeur.core.sync', [])
 					var filesToUpdate = [];
 					(msg.changes || []).cl_each(function(change) {
 						var fileDao = clFileSvc.fileMap[change.id];
+						if(fileDao && fileDao.userId && change.deleted) {
+							// We just lost ownership of the file
+							return;
+						}
 						var syncData = clSyncDataSvc.files[change.id] || {};
 						if (
-							// Has been deleted on the server and ownership was not changed
-							(change.deleted && fileDao && !fileDao.userId) ||
+							// Has been deleted on the server
+							(change.deleted && fileDao) ||
 							// Has been created on the server and is not pending for deletion locally
 							(!change.deleted && !fileDao && !clFileSvc.deletedFileMap[change.id]) ||
 							// Has been updated on the server and is different from local
@@ -557,9 +561,10 @@ angular.module('classeur.core.sync', [])
 				});
 
 				function checkUpdated(fileDao, syncData) {
+					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
 					if (fileDao.name && fileDao.updated &&
 						fileDao.updated != syncData.r &&
-						(!fileDao.userId || (fileDao.sharing === 'rw' && fileDao.updated != syncData.s))
+						(!fileDao.userId || ((fileDao.sharing === 'rw' || (folderDao && folderDao.sharing === 'rw')) && fileDao.updated != syncData.s))
 					) {
 						if (fileDao.name.length > nameMaxLength) {
 							fileDao.name = fileDao.name.slice(0, nameMaxLength);
@@ -757,7 +762,7 @@ angular.module('classeur.core.sync', [])
 		})
 	.factory('clPublicSyncSvc',
 		function($http, clSyncDataSvc, clFileSvc, clFolderSvc, clToast, clIsNavigatorOnline) {
-			var publicFileRefreshAfter = 60 * 1000; // 60 sec
+			var publicFileRefreshAfter = 30 * 1000; // 30 sec
 			var lastGetExtFileAttempt = 0;
 
 			function getLocalFiles() {
@@ -816,6 +821,7 @@ angular.module('classeur.core.sync', [])
 							var fileDao = clFileSvc.fileMap[item.id];
 							if (!fileDao) {
 								fileDao = clFileSvc.createPublicFile(item.id);
+								fileDao.deleted = 0;
 								clFileSvc.fileMap[fileDao.id] = fileDao;
 								clFileSvc.fileIds.push(fileDao.id);
 							}
@@ -868,10 +874,6 @@ angular.module('classeur.core.sync', [])
 				fileDao.contentDao.state = {};
 				fileDao.writeContent(true);
 				fileDao.state = 'loaded';
-				if (!clFileSvc.fileMap[fileDao.id]) {
-					clFileSvc.fileMap[fileDao.id] = fileDao;
-					clFileSvc.fileIds.push(fileDao.id);
-				}
 				clFileSvc.init();
 			}
 

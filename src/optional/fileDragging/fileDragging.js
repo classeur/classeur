@@ -25,7 +25,7 @@ angular.module('classeur.optional.fileDragging', [])
 					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
 					clFileDraggingSvc.panelElt.clanim
-						.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 215))
+						.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 230))
 						.start();
 					movePanel(evt);
 					bodyElt.addClass('file dragging');
@@ -84,7 +84,9 @@ angular.module('classeur.optional.fileDragging', [])
 			function setFileSrc(fileDao) {
 				clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.cl_filter(function(fileDao) {
 					return !fileDao.userId && fileDao.isSelected;
-				}) : [fileDao];
+				}).concat(clExplorerLayoutSvc.extraFiles.cl_filter(function(fileDao) {
+					return !fileDao.userId && fileDao.isSelected;
+				})) : [fileDao];
 			}
 
 			function setTargetFolder(folderDao) {
@@ -92,10 +94,17 @@ angular.module('classeur.optional.fileDragging', [])
 			}
 
 			function doMoveFiles(targetFolder, files) {
-				var targetFolderId = targetFolder === clExplorerLayoutSvc.unclassifiedFolder ? '' : targetFolder.id;
+				var targetFolderId = targetFolder.id;
+				var targetClasseurId = '';
+				if (targetFolder === clExplorerLayoutSvc.unclassifiedFolder) {
+					targetFolderId = '';
+					targetClasseurId = clExplorerLayoutSvc.currentClasseurDao.id;
+				}
 				files = files.cl_filter(function(fileDao) {
-					if (fileDao.folderId !== targetFolderId) {
+					if (fileDao.folderId !== targetFolderId || fileDao.classeurId !== targetClasseurId) {
 						fileDao.folderId = targetFolderId;
+						fileDao.classeurId = targetClasseurId;
+						fileDao.userId = targetFolder.userId; 
 						return true;
 					}
 				});
@@ -110,6 +119,8 @@ angular.module('classeur.optional.fileDragging', [])
 
 			function moveFiles() {
 				if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
+					var files = clFileDraggingSvc.files;
+					var targetFolder = clFileDraggingSvc.targetFolder;
 					if (clFileDraggingSvc.targetFolder.userId) {
 						if (clFileDraggingSvc.targetFolder.sharing === 'rw') {
 							var title = 'Change ownership';
@@ -119,12 +130,14 @@ angular.module('classeur.optional.fileDragging', [])
 								.content('You\'re about to change the ownership of your file(s). Are you sure?')
 								.ok('Yes')
 								.cancel('No');
-							return clDialog.show(confirm).then(doMoveFiles.cl_bind(null, clFileDraggingSvc.targetFolder, clFileDraggingSvc.files));
+							return clDialog.show(confirm).then(function() {
+								doMoveFiles(targetFolder, files);
+							});
 						} else {
-							return clToast('Cannot move files to read only folder.');
+							return clToast('Can\'t move files to read only folder.');
 						}
 					}
-					doMoveFiles(clFileDraggingSvc.targetFolder, clFileDraggingSvc.files);
+					doMoveFiles(targetFolder, files);
 				}
 			}
 

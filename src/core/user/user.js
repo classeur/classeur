@@ -213,7 +213,7 @@ angular.module('classeur.core.user', [])
         function(clUserInfoSvc) {
             return function(id) {
                 clUserInfoSvc.request(id);
-                return (clUserInfoSvc.users[id] || {}).name || id;
+                return (clUserInfoSvc.users[id] || {}).name || '...';
             };
         })
     .directive('clNewUserForm',

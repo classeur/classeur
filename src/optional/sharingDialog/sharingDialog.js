@@ -1,13 +1,12 @@
 angular.module('classeur.optional.sharingDialog', [])
 	.directive('clSharingDialog',
-		function(clDialog, clConfig, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc) {
+		function(clDialog, clConfig, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc, clUserInfoSvc) {
 			return {
 				restrict: 'E',
 				link: link
 			};
 
 			function link(scope) {
-
 				function closeDialog() {
 					clEditorLayoutSvc.currentControl = undefined;
 					clExplorerLayoutSvc.sharingDialogFileDao = undefined;
@@ -23,8 +22,10 @@ angular.module('classeur.optional.sharingDialog', [])
 							scope.folderDao = folderDao;
 							scope.encodedSharingUrl = encodeURIComponent(sharingUrl);
 							scope.encodedName = encodeURIComponent(objectDao.name);
+							scope.sharingUrl = sharingUrl;
 						}],
 						onComplete: function(scope, element) {
+							scope.userInfoSvc = clUserInfoSvc;
 							scope.openFolder = function() {
 								clDialog.hide();
 							};

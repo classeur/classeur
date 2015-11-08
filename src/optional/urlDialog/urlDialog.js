@@ -1,6 +1,6 @@
 angular.module('classeur.optional.urlDialog', [])
 	.directive('clImageDropInput',
-		function($http, clToast, clDialog) {
+		function($http, clToast, clDialog, clConfig) {
 			var maxSize = 20000000;
 			return {
 				restrict: 'A',
@@ -22,8 +22,8 @@ angular.module('classeur.optional.urlDialog', [])
 								method: 'POST',
 								url: 'https://imgur-apiv3.p.mashape.com/3/image',
 								headers: {
-									'X-Mashape-Key': 'hpKe3bllNtmsha5BlevJqD1CZrghp1zp8ZfjsnCa7rgGkgEDF7',
-									Authorization: 'Client-ID 7196cbab27137aa',
+									'X-Mashape-Key': clConfig.mashapeKey,
+									Authorization: 'Client-ID ' + clConfig.imgurClientId,
 
 								},
 								data: {

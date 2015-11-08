@@ -309,6 +309,13 @@ angular.module('classeur.core.editorLayout', [])
 					}, 100);
 				};
 
+				scope.openEditor = function() {
+					clEditorLayoutSvc.toggleEditor(true);
+					setTimeout(function() {
+						clEditorSvc.cledit && clEditorSvc.cledit.focus();
+					}, 100);
+				};
+
 				var tabs = ['sample', 'toc', 'discussions'];
 				scope.$watch('localSettingSvc.values.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);
@@ -359,7 +366,7 @@ angular.module('classeur.core.editorLayout', [])
 				editorBtnGrpWidth: 33,
 				menuWidth: 320,
 				sideBarWidth: 280,
-				editorLeftOverflow: 1000, // Allows scrolling on the left outside of the editor
+				editorLeftOverflow: 1000, // Allows scrolling on the left side of the editor
 				init: function(hideEditor) {
 					this.isEditorOpen = !hideEditor;
 					this.isSidePreviewOpen = false;

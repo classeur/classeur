@@ -1,10 +1,11 @@
 angular.module('classeur.core.files', [])
 	.factory('clFileSvc',
-		function($timeout, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
+		function($timeout, $templateCache, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
 			var maxLocalFiles = 30;
 			var fileDaoProto = clLocalStorageObject('f', {
 				name: 'string',
 				folderId: 'string',
+				classeurId: 'string',
 				sharing: 'string',
 				userId: 'string',
 				deleted: 'int',
@@ -148,6 +149,7 @@ angular.module('classeur.core.files', [])
 				name: true,
 				sharing: true,
 				folderId: true,
+				classeurId: true,
 				deleted: true,
 			};
 
@@ -295,10 +297,9 @@ angular.module('classeur.core.files', [])
 
 			function createPublicFile(id) {
 				var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id);
-				fileDao.deleted = 0;
 				fileDao.isSelected = false;
-				fileDao.userId = '0'; // Will be filled by sync module
-				return fileDao; // Will be added to the list by sync module
+				fileDao.userId = fileDao.userId || '0'; // Will be filled by sync module
+				return fileDao; // Will be added to the list by core module
 			}
 
 			function createReadOnlyFile(name, content) {
@@ -350,6 +351,7 @@ angular.module('classeur.core.files', [])
 					}
 					fileDao.name = change.name || '';
 					fileDao.folderId = change.folderId || '';
+					fileDao.classeurId = change.classeurId || '';
 					fileDao.sharing = change.sharing || '';
 					fileDao.userId = '';
 					fileDao.write(change.updated);
@@ -376,6 +378,8 @@ angular.module('classeur.core.files', [])
 			clFileSvc.deletedFiles = [];
 			clFileSvc.fileMap = Object.create(null);
 			clFileSvc.deletedFileMap = Object.create(null);
+			clFileSvc.firstFileContent = $templateCache.get('core/explorerLayout/firstFile.md');
+			clFileSvc.firstFileName = 'My first file';
 
 			init();
 			return clFileSvc;

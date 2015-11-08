@@ -4,7 +4,8 @@
         <span class="read indicator label" ng-show="objectDao.effectiveSharing === 'r'">read only</span>
         <span class="read-write indicator label" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
         </h2>
-        <p ng-if="folderDao.sharing.length > 0 && !objectDao.isReadOnly && !objectDao.userId" class="warning">Sharing preference is restricted via folder preference.</p>
+        <p ng-if="folderDao.sharing.length > 0 && !objectDao.isReadOnly && !objectDao.userId" class="warning">Sharing preference is restrained by folder preference.</p>
+        <p ng-if="objectDao.userId" class="warning">This {{::isFile ? 'file' : 'folder'}} is owned by <b>{{objectDao.userId | clUserName:userInfoSvc.lastUserInfo}}</b>.</p>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">private</md-radio-button>
             <div class="help">Only you can access the file.</div>
@@ -36,6 +37,9 @@
             </md-button>
             <md-button class="md-fab md-mini icon-linkedin" target="_blank" ng-href="http://www.linkedin.com/shareArticle?url={{::encodedSharingUrl}}" aria-label="Share on LinkedIn">
             </md-button>
+        </div>
+        <div class="public-corner" ng-if="objectDao.userId">
+            <div class="icon-publ"></div>
         </div>
     </md-dialog-content>
     <div class="md-actions">

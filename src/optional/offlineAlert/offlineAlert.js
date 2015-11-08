@@ -8,7 +8,28 @@ angular.module('classeur.optional.offlineAlert', [])
 				link: link
 			};
 
-			function link(scope) {
+			function link(scope, element) {
+				var isHover, panelElt = element[0].querySelector('.panel'),
+					duration;
+
+				function toggle() {
+					panelElt.clanim
+						.duration(duration)
+						.translateX(isHover ? 0 : -2)
+						.start(true);
+					duration = 200;
+				}
+
+				panelElt.addEventListener('mouseenter', function() {
+					isHover = true;
+					toggle();
+				});
+				panelElt.addEventListener('mouseleave', function() {
+					isHover = false;
+					toggle();
+				});
+				toggle();
+
 				function setFlag() {
 					var show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && clUserActivity.isActive);
 					if(scope.currentFileDao && scope.currentFileDao.isLocalFile) {

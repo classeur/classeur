@@ -16,7 +16,7 @@ angular.module('classeur.core', [])
 			$routeProvider
 				.when('/files/:fileId', {
 					template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
-					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc) {
+					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
 						clAnalytics.trackPage('/files');
 						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
 						var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
@@ -29,10 +29,15 @@ angular.module('classeur.core', [])
 							if (!state) {
 								return $location.url('');
 							} else if (state === 'loaded') {
+								if (!clFileSvc.fileMap[fileDao.id]) {
+									fileDao.deleted = 0;
+									clFileSvc.fileMap[fileDao.id] = fileDao;
+									clFileSvc.fileIds.push(fileDao.id);
+									clFileSvc.init();
+								}
 								clEditorLayoutSvc.init(
-									fileDao === publicFileDao &&
-									!$scope.currentFileDao.contentDao.state.selectionStart &&
-									!$scope.currentFileDao.contentDao.state.selectionEnd
+									fileDao.userId &&
+									clContentRevSvc.isServerContent(fileDao.id, fileDao.contentDao)
 								);
 								$scope.fileLoaded = true;
 							}
@@ -74,13 +79,13 @@ angular.module('classeur.core', [])
 				})
 				.when('/', {
 					template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
-					controller: function($scope, clAnalytics, clFileSvc, clSettingSvc, $templateCache) {
+					controller: function($scope, clAnalytics, clFileSvc, clSettingSvc) {
 						if (clFileSvc.files.length === 0) {
 							var newFileDao = clFileSvc.createFile();
 							newFileDao.state = 'loaded';
 							newFileDao.readContent();
-							newFileDao.name = 'My first file';
-							newFileDao.contentDao.text = $templateCache.get('core/explorerLayout/firstFile.md');
+							newFileDao.name = clFileSvc.firstFileName;
+							newFileDao.contentDao.text = clFileSvc.firstFileContent;
 							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
 							newFileDao.writeContent();
 							return $scope.setCurrentFile(newFileDao);

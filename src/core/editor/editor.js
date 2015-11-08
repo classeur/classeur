@@ -150,14 +150,16 @@ angular.module('classeur.core.editor', [])
 				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
 					newSectionList = sectionList;
 					debouncedEditorChanged();
-					imgEltsToCache.cl_each(function(imgElt) {
-						var cachedImgElt = getFromImgCache(imgElt.src);
-						if (cachedImgElt) {
-							// Found a previously loaded image that has just been released
-							imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
-						} else {
-							addToImgCache(imgElt);
-						}
+					clEditorSvc.cledit.watcher.noWatch(function() {
+						imgEltsToCache.cl_each(function(imgElt) {
+							var cachedImgElt = getFromImgCache(imgElt.src);
+							if (cachedImgElt) {
+								// Found a previously loaded image that has just been released
+								imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
+							} else {
+								addToImgCache(imgElt);
+							}
+						});
 					});
 					imgEltsToCache = [];
 					// Eject released images from cache

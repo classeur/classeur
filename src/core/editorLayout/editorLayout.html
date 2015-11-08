@@ -55,7 +55,7 @@
                     <a class="icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share"></a>
                 </cl-button>
                 <cl-button class="edit btn" opacity="0.35" opacity-hover="0.7" size="32">
-                    <a class="icon-mode-edit" ng-click="editorLayoutSvc.toggleEditor(true)" aria-label="Edit" title="Edit"></a>
+                    <a class="icon-mode-edit" ng-click="openEditor()" aria-label="Edit" title="Edit"></a>
                 </cl-button>
                 {{currentFileDao.name}}
             </div>

@@ -127,7 +127,7 @@ angular.module('classeur.core.folders', [])
 
 			function createPublicFolder(id) {
 				var folderDao = createFolder(id);
-				folderDao.userId = '0'; // Will be filled by the sync module
+				folderDao.userId = folderDao.userId || '0'; // Will be filled by the sync module
 				return folderDao;
 			}
 

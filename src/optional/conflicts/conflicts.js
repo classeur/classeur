@@ -149,7 +149,7 @@ angular.module('classeur.optional.conflicts', [])
 			function link(scope) {
 				var contentDao = scope.currentFileDao.contentDao;
 				var timeoutId = $timeout(function() {
-					if (Object.keys(contentDao.conflicts).length) {
+					if (contentDao.conflicts && Object.keys(contentDao.conflicts).length) {
 						clEditorLayoutSvc.currentControl = 'conflictAlert';
 					}
 				}, 2000);
