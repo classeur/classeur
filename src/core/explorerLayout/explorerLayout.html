@@ -15,12 +15,9 @@
                         <md-button class="classeur toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-tour-next="3">
                             <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 2">
                                 <p>This is your default classeur.</p>
-                                <p>Click <b>Switch</b> to organize your different classeurs.</p>
+                                <p>Click <span class="icon-arrow-back rotate-270"></span> to organize your different classeurs.</p>
                             </md-tooltip>
-                            <div layout="row" layout-align="start end">
-                                Switch
-                                <span class="icon-keyboard-arrow-down"></span>
-                            </div>
+                            <div class="icon-arrow-back"></div>
                         </md-button>
                     </div>
                 </div>
@@ -31,8 +28,11 @@
                         </div>
                         <md-button class="item settings icon-settings" ng-href="#!/settings" aria-label="Settings">
                         </md-button>
-                        <md-button class="item" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken">
+                        <md-button class="item" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">
                             Sign in with Google
+                        </md-button>
+                        <md-button class="item" ng-href="#!/signin" ng-if="!socketSvc.hasToken && config.loginForm">
+                            Sign in
                         </md-button>
                         <div class="item" ng-if="socketSvc.hasToken && !userSvc.user">
                             Signing in...
@@ -97,7 +97,7 @@
                                         <div class="search">
                                             <md-input-container md-theme="classeur" md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
                                                 <md-icon md-font-icon="icon-search"></md-icon>
-                                                <input placeholder="Filter" ng-model="userInputFilter">
+                                                <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
                                             </md-input-container>
                                         </div>
                                         <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">
@@ -160,7 +160,7 @@
                                     <div class="search">
                                         <md-input-container md-theme="classeur" md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
                                             <md-icon md-font-icon="icon-search"></md-icon>
-                                            <input placeholder="Filter" ng-model="userInputFilter">
+                                            <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
                                         </md-input-container>
                                     </div>
                                     <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">

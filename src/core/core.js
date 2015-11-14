@@ -98,9 +98,10 @@ angular.module('classeur.core', [])
 
 		})
 	.run(
-		function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clLocalStorage) {
+		function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
 
 			// Globally accessible services
+			$rootScope.config = clConfig;
 			$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
 			$rootScope.editorLayoutSvc = clEditorLayoutSvc;
 			$rootScope.editorSvc = clEditorSvc;

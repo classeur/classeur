@@ -684,7 +684,9 @@ angular.module('classeur.core.sync', [])
 					if (!fileDao) {
 						return;
 					}
-					fileDao.folderId = msg.folderId || '';
+					if(fileDao.folderId) {
+						fileDao.folderId = msg.folderId;
+					}
 					if (msg.userId) {
 						fileDao.userId = msg.userId !== clSyncDataSvc.userId ? msg.userId : '';
 					} else {

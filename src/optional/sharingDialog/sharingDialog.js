@@ -1,6 +1,6 @@
 angular.module('classeur.optional.sharingDialog', [])
 	.directive('clSharingDialog',
-		function(clDialog, clConfig, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc, clUserInfoSvc) {
+		function($location, clDialog, clConfig, clUserSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clUrl, clFolderSvc, clUserInfoSvc) {
 			return {
 				restrict: 'E',
 				link: link
@@ -103,11 +103,15 @@ angular.module('classeur.optional.sharingDialog', [])
 								.title('Sharing')
 								.content('Please sign in to turn on file sharing.')
 								.ariaLabel('Sharing')
-								.ok('Sign in with Google')
+								.ok(clUserSvc.startOAuth ? 'Sign in with Google' : 'Sign in')
 								.cancel('Cancel');
 							clDialog.show(signinDialog).then(function() {
 								closeDialog();
-								clUserSvc.startOAuth();
+								if (clUserSvc.startOAuth) {
+									clUserSvc.startOAuth();
+								} else {
+									$location.url('/signin');
+								}
 							}, closeDialog);
 						} else {
 							showFileDialog(scope.currentFileDao, split[1]);

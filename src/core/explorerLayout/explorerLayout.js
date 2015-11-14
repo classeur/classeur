@@ -266,7 +266,7 @@ angular.module('classeur.core.explorerLayout', [])
 			function link(scope, element) {
 
 				var containerElt = element[0].querySelector('.explorer.container');
-				var contentElt = element[0].querySelector('.explorer.content');
+				var contentElt = element[0].querySelector('.explorer.content').clanim.translateY(10).start(true);
 				var scrollbarElt = element[0].querySelector('.scrollbar.panel');
 				var folderElt = element[0].querySelector('.folder.container.panel');
 				var folderCloneElt = element[0].querySelector('.folder.container.clone');
@@ -275,6 +275,8 @@ angular.module('classeur.core.explorerLayout', [])
 				var btnGroupElt = element[0].querySelector('.btn-grp');
 				var scrollerElt = btnGroupElt.querySelector('.container');
 				var createFolderButtonElt = btnGroupElt.querySelector('.create.folder.btn');
+				var classeurTogglerIconElt = element[0].querySelector('.classeur.toggler div').clanim.translateY(-10).rotate(-90).start(true);
+
 				clExplorerLayoutSvc.toggleHiddenBtn = function() {
 					btnGroupElt.classList.toggle('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
 						clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1);
@@ -300,8 +302,6 @@ angular.module('classeur.core.explorerLayout', [])
 					clExplorerLayoutSvc.contentY = clExplorerLayoutSvc.isExplorerOpen ? 0 : hideOffsetY;
 				}
 
-				var isInited;
-
 				function animateLayout() {
 					clExplorerLayoutSvc.scrollbarWidth = folderElt.offsetWidth - folderElt.clientWidth;
 					updateLayout();
@@ -312,8 +312,13 @@ angular.module('classeur.core.explorerLayout', [])
 						.classList.toggle('no-padding', clExplorerLayoutSvc.noPadding);
 					contentElt.clanim
 						.translateY(clExplorerLayoutSvc.contentY)
-						.duration(isInited && 300)
+						.duration(300)
 						.easing(clExplorerLayoutSvc.isExplorerOpen ? 'materialOut' : 'materialIn')
+						.start(true);
+					classeurTogglerIconElt.clanim
+						.translateY(0)
+						.duration(300)
+						.easing('materialOut')
 						.start(true);
 					var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth;
 					scrollbarElt.clanim
@@ -322,7 +327,6 @@ angular.module('classeur.core.explorerLayout', [])
 					folderCloneElt.clanim
 						.width(folderContainerWidth)
 						.start();
-					isInited = true;
 				}
 
 				window.addEventListener('resize', animateLayout);

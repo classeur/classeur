@@ -41,7 +41,7 @@ angular.module('classeur.optional.exportToDisk', [])
 				saveAs(atob(msg.content), msg.name, msg.format);
 			});
 
-			var config = {
+			var exportConfig = {
 				format: 'text',
 				textTemplateKey: 'Plain text',
 				documentFormatKey: 'pdf',
@@ -68,7 +68,7 @@ angular.module('classeur.optional.exportToDisk', [])
 						templateUrl: 'optional/exportToDisk/exportToDisk.html',
 						controller: ['$scope', function(scope) {
 							scope.templates = clSettingSvc.values.exportTemplates;
-							scope.config = config;
+							scope.exportConfig = exportConfig;
 							scope.export = function() {
 								clDialog.hide();
 							};
@@ -82,7 +82,7 @@ angular.module('classeur.optional.exportToDisk', [])
 										openDialog();
 									}, openDialog);
 							};
-							scope.$watch('config.textTemplateKey', function(templateKey) {
+							scope.$watch('exportConfig.textTemplateKey', function(templateKey) {
 								clEditorSvc.applyTemplate(scope.templates[templateKey])
 									.then(function(preview) {
 										textPreview = preview;
@@ -107,14 +107,14 @@ angular.module('classeur.optional.exportToDisk', [])
 						}
 					}).then(function() {
 						closeDialog();
-						if (config.format === 'text') {
-							var template = clSettingSvc.values.exportTemplates[config.textTemplateKey];
+						if (exportConfig.format === 'text') {
+							var template = clSettingSvc.values.exportTemplates[exportConfig.textTemplateKey];
 							var format = template.indexOf('file.content.html') === -1 ? 'txt' : 'html';
 							clEditorSvc.applyTemplate(template)
 								.then(function(text) {
 									saveAs(text, scope.currentFileDao.name, format);
 								});
-						} else if (config.format === 'document') {
+						} else if (exportConfig.format === 'document') {
 							var contentDao = scope.currentFileDao.contentDao;
 							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && contentDao.text.length > 5000)) {
 								return clDialog.show({
@@ -163,7 +163,7 @@ angular.module('classeur.optional.exportToDisk', [])
 							clSocketSvc.sendMsg({
 								type: 'toDocument',
 								name: scope.currentFileDao.name,
-								format: config.documentFormatKey,
+								format: exportConfig.documentFormatKey,
 								extensions: extensions,
 								options: {
 									highlightStyle: clSettingSvc.values.pandocHighlightStyle,

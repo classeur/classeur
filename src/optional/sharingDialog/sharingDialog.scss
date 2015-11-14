@@ -25,17 +25,16 @@
     .label {
         &.indicator {
             position: relative;
-            font-size: 13px;
-            padding: 0 6px;
             top: -15px;
             left: -5px;
         }
-        font-size: 15px;
+        display: inline-block;
+        font-size: 13px;
         color: #fff;
         font-weight: bold;
         line-height: 1.25;
         border-radius: 8px;
-        padding: 0 8px;
+        padding: 0 6px;
         &.read {
             background-color: #2164D3;
         }

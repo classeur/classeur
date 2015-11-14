@@ -42,13 +42,10 @@
             }
         }
         .classeur.toggler {
-            font-size: 12px;
-            margin-left: 4px;
-            padding: 6px 8px;
-            span {
-                font-size: 14px;
-                height: 12px;
-                padding-left: 2px;
+            padding: 5px 10px;
+            div {
+                font-size: 20px;
+                line-height: 16px;
             }
         }
         .help {
@@ -388,9 +385,10 @@
         margin-left: 30px;
         .md-button {
             padding: 8px 10px;
+            color: rgba(0, 0, 0, 0.75);
         }
         .icon {
-            font-size: 20px;
+            font-size: 23px;
             line-height: 16px;
         }
     }
@@ -525,7 +523,8 @@
         left: 0;
         padding: 4px;
     }
-    .folder.btn &, .file.entry & {
+    .folder.btn &,
+    .file.entry & {
         $public-file-corner-size: 32px;
         font-size: 17px;
         width: $public-file-corner-size;
@@ -553,13 +552,14 @@
         top: 1px;
         right: 1px;
         font-family: $font-family;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: bold;
         line-height: 1.1;
         border-radius: 8px;
         padding: 0 4px;
         .folder.btn & {
-            font-size: 9px;
+            padding: 0 3px;
+            font-size: 8px;
             top: 2px;
             right: 2px;
         }
@@ -567,7 +567,7 @@
     &.read::after {
         content: 'r';
         background-color: #2164D3;
-        right: 6px;
+        right: 7px;
     }
     &.read-write::after {
         content: 'rw';
@@ -616,4 +616,8 @@
             cursor: pointer;
         }
     }
+}
+
+md-tooltip span.icon-arrow-back {
+    display: inline-block;
 }

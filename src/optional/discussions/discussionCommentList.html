@@ -20,11 +20,14 @@
             </div>
         </div>
         <div ng-if="!userSvc.user">
-            <p>
+            <p class="warning">
                 Please sign in to add a comment.
             </p>
-            <md-button class="md-primary" ng-click="userSvc.startOAuth()">
+            <md-button class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!config.loginForm">
                 Sign in with Google
+            </md-button>
+            <md-button class="md-primary" ng-href="#!/signin" ng-if="config.loginForm">
+                Sign in
             </md-button>
         </div>
     </div>

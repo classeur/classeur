@@ -1,4 +1,4 @@
-.new-user-form.panel {
+.signin-form.panel, .new-user-form.panel {
     overflow: auto;
     .logo {
         width: 180px;
@@ -8,7 +8,9 @@
         background-repeat: no-repeat;
     }
     & > * {
-        max-width: 500px;
+        margin: auto;
+        max-width: 440px;
+        height: 100%;
     }
     .plastic-0 {
         overflow: auto;
@@ -31,8 +33,8 @@
     }
     .content {
         padding: 30px;
-        border-radius: 6px;
-        background-color: transparentize(#fff, 0.75);
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.25);
     }
     .terms {
         font-size: 12px;

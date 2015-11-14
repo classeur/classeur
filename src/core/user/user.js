@@ -4,6 +4,9 @@ angular.module('classeur.core.user', [])
             $routeProvider.when('/newUser', {
                 template: '<cl-new-user-form></cl-new-user-form>'
             });
+            $routeProvider.when('/signin', {
+                template: '<cl-signin-form></cl-signin-form>'
+            });
         })
     .factory('clUserActivity',
         function($window, $rootScope, clLocalStorage) {
@@ -64,6 +67,10 @@ angular.module('classeur.core.user', [])
                         url: redirectUrl || '/newUser'
                     }),
                 };
+                if(clConfig.googleAppsDomain) {
+                    params.scope = 'openid email';
+                    params.hd = clConfig.googleAppsDomain;
+                }
                 $window.location.href = 'https://accounts.google.com/o/oauth2/auth?' + makeQueryString(params);
             }
 
@@ -136,7 +143,9 @@ angular.module('classeur.core.user', [])
                 $rootScope.$evalAsync();
             });
 
-            clUserSvc.startOAuth = startOAuth;
+            if(!clConfig.loginForm) {
+                clUserSvc.startOAuth = startOAuth;
+            }
             clUserSvc.signin = signin;
             clUserSvc.signout = signout;
             clUserSvc.checkAll = checkAll;
@@ -262,6 +271,36 @@ angular.module('classeur.core.user', [])
 
                     scope.newUser = {
                         name: name || ''
+                    };
+                }
+            };
+        })
+    .directive('clSigninForm',
+        function($location, $http, clToast, clUserSvc) {
+            return {
+                restrict: 'E',
+                templateUrl: 'core/user/signinForm.html',
+                link: function(scope) {
+                    scope.user = {};
+                    scope.close = function() {
+                        $location.url('');
+                    };
+                    scope.signin = function() {
+                        if (!scope.user.username) {
+                            return clToast('Please enter your login.');
+                        }
+                        if (!scope.user.password) {
+                            return clToast('Please enter your password.');
+                        }
+                        scope.isLoading = true;
+                        $http.post('/api/v1/users', scope.user)
+                            .success(function(userToken) {
+                                clUserSvc.signin(userToken);
+                                $location.url('');
+                            })
+                            .error(function(data, status) {
+                                clToast(data.reason || 'Error: ' + status);
+                            });
                     };
                 }
             };

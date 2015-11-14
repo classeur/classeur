@@ -9,8 +9,11 @@
         <md-button ng-click="cancel()" class="md-primary">
             Cancel
         </md-button>
-        <md-button ng-if="!userSvc.user" class="md-primary" ng-click="userSvc.startOAuth()">
+        <md-button class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!userSvc.user && !config.loginForm">
             Sign in with Google
+        </md-button>
+        <md-button class="md-primary" ng-href="#!/signin" ng-if="!userSvc.user && config.loginForm">
+            Sign in
         </md-button>
         <md-button ng-if="userSvc.user" ng-href="#!/choosePlan" class="md-primary">
             Go premium

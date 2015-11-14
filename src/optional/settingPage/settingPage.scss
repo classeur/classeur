@@ -1,9 +1,38 @@
 .setting.page.panel {
-    & > div {
+    .logo {
+        width: 180px;
+        height: 64px;
+        background-image: url('assets/images/logo.png');
+        background-size: 180px 60px;
+        background-repeat: no-repeat;
+    }
+    & > * {
         margin: auto;
-        width: 100%;
+        max-width: 580px;
         height: 100%;
-        max-width: 520px;
+        padding: 5px 5px 0;
+    }
+    .plastic-4 {
+        padding: 0 30px 30px;
+        border-radius: 3px;
+    }
+    .nav {
+        & > * {
+            margin: 0;
+            color: #fff;
+        }
+        md-input-container {
+            font-size: 30px;
+            width: 100%;
+        }
+        .md-button {
+            font-size: 26px;
+            line-height: 0;
+        }
+    }
+    md-tabs {
+        border-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.25);
     }
     .title {
         font-size: 32px;
@@ -41,12 +70,12 @@
     }
     .menu {
         padding: 0 5px;
-        border-top: 1px solid rgba(128, 128, 128, 0.2);
         .md-button {
             padding: 8px 10px;
+            color: rgba(0, 0, 0, 0.75);
         }
         .icon {
-            font-size: 20px;
+            font-size: 23px;
             line-height: 16px;
         }
     }
@@ -57,7 +86,8 @@
         color: rgba(0, 0, 0, 0.54);
     }
     md-tabs {
-        & md-tabs-content-wrapper, &:not(.md-no-tab-content) {
+        & md-tabs-content-wrapper,
+        &:not(.md-no-tab-content) {
             min-height: 0;
         }
     }

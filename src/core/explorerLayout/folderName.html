@@ -1,6 +1,6 @@
 <div class="nav" layout="row" layout-align="center center">
     <md-input-container md-theme="classeur" class="folder name">
-        <input ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
+        <input autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <md-menu ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
         <md-button md-no-ink aria-label="Options" class="sharing-indicator icon-more-vert" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="$mdOpenMenu()">

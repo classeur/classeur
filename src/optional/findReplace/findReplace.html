@@ -2,11 +2,11 @@
     <cl-button class="close btn" opacity="0.35" opacity-hover="0.7" size="35">
         <a class="icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close side bar"></a>
     </cl-button>
-    <input ng-model="findText" class="find input md-whiteframe-z1">
+    <input autocomplete="off" ng-model="findText" class="find input md-whiteframe-z1">
     <md-button ng-click="find()">
         Find
     </md-button>
-    <input ng-model="replaceText" class="replace input md-whiteframe-z1">
+    <input autocomplete="off" ng-model="replaceText" class="replace input md-whiteframe-z1">
     <md-button ng-click="replace()">
         Replace
     </md-button>

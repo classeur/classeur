@@ -26,7 +26,7 @@
         </md-radio-group>
         <md-input-container>
             <label>Share link</label>
-            <input class="url" ng-model="sharingUrl">
+            <input autocomplete="off" class="url" ng-model="sharingUrl">
         </md-input-container>
         <div layout="row" layout-align="end" class="btn-grp">
             <md-button class="md-fab md-mini icon-twitter" target="_blank" ng-href="http://twitter.com/share?url={{::encodedSharingUrl}}&text={{::encodedName}}&via=classeurapp" aria-label="Share on Twitter">

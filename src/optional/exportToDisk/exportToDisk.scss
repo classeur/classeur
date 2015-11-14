@@ -1,16 +1,13 @@
 .export-to-disk.dialog {
     min-width: 360px;
+    md-radio-button .md-label {
+        width: 100px;
+    }
     .options {
-        margin-left: 60px;
-        .label {
-            font-size: 12.5px;
-            padding: 2px;
-            display: block;
-            color: rgba(0, 0, 0, 0.54);
-            margin-bottom: -20px;
-        }
+        margin-left: 150px;
         textarea {
             height: 65px !important;
+            max-height: 65px;
             max-height: 65px;
             font-size: 14px;
             line-height: inherit;

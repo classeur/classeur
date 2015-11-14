@@ -1,16 +1,16 @@
 <div class="plan chooser background">
     <div class="container">
         <div layout="row" layout-align="space-between end">
-            <div class="logo"></div>
+            <a class="logo" href="http://classeur.io"></a>
             <md-button ng-href="#!/">
-                Close <span class="icon-close"></span>
+                <span class="icon-close"></span>
             </md-button>
         </div>
         <div class="title">
             Pricing
         </div>
-        <div layout-gt-sm="row" layout="column">
-            <div flex class="plan item md-whiteframe-z1" layout="column">
+        <div class="perspective" layout-gt-sm="row" layout="column">
+            <div flex class="standard plan item md-whiteframe-z1 plastic-1" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name">
                         Standard
@@ -19,23 +19,25 @@
                         Free
                     </div>
                 </div>
-                <ul flex>
-                    <li>Unlimited files and folders</li>
-                    <li>Share publicly</li>
-                    <li>1 blog</li>
-                    <li>Unlimited blog posts</li>
-                    <li>Export to PDF, Word, EPUB... (5KB content limit)</li>
-                    <li>Public REST API (coming soon)</li>
-                </ul>
-                <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
-                    <div>Sign in</div>
-                    <div class="info">with Google</div>
-                </md-button>
-                <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
-                    Select
-                </md-button>
+                <div class="body" flex layout="column">
+                    <ul flex>
+                        <li>Unlimited files and folders</li>
+                        <li>Share publicly</li>
+                        <li>1 blog</li>
+                        <li>Unlimited blog posts</li>
+                        <li>Export to PDF, Word, EPUB... (5KB content limit)</li>
+                        <li>Public REST API (coming soon)</li>
+                    </ul>
+                    <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
+                        <div>Sign in</div>
+                        <div class="info">with Google</div>
+                    </md-button>
+                    <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
+                        Select
+                    </md-button>
+                </div>
             </div>
-            <div flex class="premium plan item md-whiteframe-z2" layout="column">
+            <div flex class="premium plan item md-whiteframe-z2 plastic-0" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name">
                         Premium
@@ -47,48 +49,48 @@
                         per month
                     </div>
                 </div>
-                <ul flex>
-                    <li>Unlimited files and folders</li>
-                    <li>Share publicly</li>
-                    <li><b>Real-time collaboration</b></li>
-                    <li><b>Unlimited blogs and posts</b></li>
-                    <li>Export to PDF, Word, EPUB... <b>(no content limit)</b></li>
-                    <li><b>User REST API</b> (coming soon)</li>
-                </ul>
-                <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
-                    <div>Sign in</div>
-                    <div class="info">with Google</div>
-                </md-button>
-                <md-button ng-if="::subscribeLink" ng-href="{{::subscribeLink}}">
-                    <div>Subscribe</div>
-                    <div class="info">with PayPal</div>
-                </md-button>
-                <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
-                    Unsubscribe
-                </md-button>
+                <div class="body" flex layout="column">
+                    <ul flex>
+                        <li>Unlimited files and folders</li>
+                        <li>Share publicly</li>
+                        <li><b>Real-time collaboration</b></li>
+                        <li><b>Unlimited blogs and posts</b></li>
+                        <li>Export to PDF, Word, EPUB... <b>(no content limit)</b></li>
+                        <li><b>User REST API</b> (coming soon)</li>
+                    </ul>
+                    <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
+                        <div>Sign in</div>
+                        <div class="info">with Google</div>
+                    </md-button>
+                    <md-button ng-if="::subscribeLink" ng-href="{{::subscribeLink}}">
+                        <div>Subscribe</div>
+                        <div class="info">with PayPal</div>
+                    </md-button>
+                    <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
+                        Unsubscribe
+                    </md-button>
+                </div>
             </div>
-            <div flex class="plan item md-whiteframe-z1" layout="column">
+            <div flex class="enterprise plan item md-whiteframe-z1 plastic-4" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name big">
-                        Dedicated instance
+                        Enterprise
                     </div>
                 </div>
-                <ul flex>
-                    <li><b>Unlimited premium and admin users</b></li>
-                    <li><b>Restricted user access</b></li>
-                    <li><b>Google Apps/Active Directory login</b></li>
-                    <li><b>Custom subdomain</b></li>
-                    <li><b>Admin REST API</b> (coming soon)</li>
-                </ul>
-                <md-button ng-href="mailto:contact@classeur.io">
-                    Contact us
-                </md-button>
+                <div class="body" flex layout="column">
+                    <ul flex>
+                        <li><b>On-Premise hosting</b></li>
+                        <li><b>Google Apps or LDAP/AD login</b></li>
+                        <li><b>Restricted user access</b></li>
+                        <li><b>Automatic backup</b></li>
+                        <li><b>Admin REST API</b> (coming soon)</li>
+                    </ul>
+                    <md-button ng-href="mailto:contact@classeur.io">
+                        Contact us
+                    </md-button>
+                </div>
             </div>
         </div>
-        <p class="info">
-            <b>COMING SOON</b>
-            <br>Classeur on-premises!
-        </p>
         <br>
         <br>
         <br>

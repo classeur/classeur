@@ -2,29 +2,22 @@
     <md-dialog-content>
         <h2>Export
         </h2>
-        <md-radio-group ng-model="config.format">
-            <md-radio-button value="text">Text</md-radio-button>
-            <div class="options">
-                <div class="label">
-                    Template
-                </div>
-                <md-select ng-model="config.textTemplateKey" ng-change="config.format = 'text'" aria-label="Select template">
+        <md-radio-group ng-model="exportConfig.format">
+            <div layout="row" layout-align="start center">
+                <md-radio-button value="text">Text</md-radio-button>
+                <md-select ng-model="exportConfig.textTemplateKey" ng-click="exportConfig.format = 'text'" ng-change="exportConfig.format = 'text'" aria-label="Select template">
                     <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
                 </md-select>
+            </div>
+            <div class="options">
                 <md-input-container flex>
                     <label>Preview</label>
                     <textarea ng-model="textPreview" row="3"></textarea>
                 </md-input-container>
-                <md-button class="md-primary" ng-click="manageTemplates()">
-                    Manage templates...
-                </md-button>
             </div>
-            <md-radio-button value="document">Document</md-radio-button>
-            <div class="options">
-                <div class="label">
-                    Format
-                </div>
-                <md-select ng-model="config.documentFormatKey" ng-change="config.format = 'document'" aria-label="Select document format">
+            <div layout="row" layout-align="start center">
+                <md-radio-button value="document">Document</md-radio-button>
+                <md-select ng-model="exportConfig.documentFormatKey" ng-click="exportConfig.format = 'document'" ng-change="exportConfig.format = 'document'" aria-label="Select document format">
                     <md-option value="epub">EPUB</md-option>
                     <md-option value="epub3">EPUB v3</md-option>
                     <md-option value="latex">LaTeX</md-option>
@@ -33,14 +26,24 @@
                     <md-option value="rtf">Rich Text Format</md-option>
                     <md-option value="docx">Word</md-option>
                 </md-select>
+            </div>
+            <div class="options">
                 <p class="tip">
                     <b>Tip:</b> File properties are set as Pandoc metadata.
                 </p>
-                <md-button class="md-primary" ng-href="#!/settings?tab=app">
-                    Pandoc options...
-                </md-button>
             </div>
         </md-radio-group>
+        <br>
+        <p>
+        <md-button class="md-primary" ng-click="manageTemplates()">
+            Manage templates...
+        </md-button>
+        </p>
+        <p>
+        <md-button class="md-primary" ng-href="#!/settings?tab=app">
+            Pandoc options...
+        </md-button>
+        </p>
     </md-dialog-content>
     <div class="md-actions">
         <md-button ng-click="cancel()" class="md-primary">

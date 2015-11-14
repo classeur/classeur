@@ -8,7 +8,7 @@
  --></md-select>
 <md-input-container>
     <label>Friendly name</label>
-    <input ng-model="form.name">
+    <input autocomplete="off" ng-model="form.name">
 </md-input-container>
 <br>
 <cl-blogger-blog-form ng-if="form.platformId === 'blogger'"></cl-blogger-blog-form>
