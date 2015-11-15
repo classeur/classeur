@@ -147,23 +147,24 @@ angular.module('classeur.core.editor', [])
 					});
 				}
 
-				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
-					newSectionList = sectionList;
-					debouncedEditorChanged();
-					clEditorSvc.cledit.watcher.noWatch(function() {
-						imgEltsToCache.cl_each(function(imgElt) {
-							var cachedImgElt = getFromImgCache(imgElt.src);
-							if (cachedImgElt) {
-								// Found a previously loaded image that has just been released
-								imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
-							} else {
-								addToImgCache(imgElt);
-							}
-						});
+				clEditorSvc.cledit.highlighter.on('highlighted', function() {
+					imgEltsToCache.cl_each(function(imgElt) {
+						var cachedImgElt = getFromImgCache(imgElt.src);
+						if (cachedImgElt) {
+							// Found a previously loaded image that has just been released
+							imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
+						} else {
+							addToImgCache(imgElt);
+						}
 					});
 					imgEltsToCache = [];
 					// Eject released images from cache
 					triggerImgCacheGc();
+				});
+
+				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
+					newSectionList = sectionList;
+					debouncedEditorChanged();
 				});
 
 				var isInited;
@@ -770,8 +771,9 @@ angular.module('classeur.core.editor', [])
 				});
 				var listeners = asyncPreviewListeners.concat(imgLoadingListeners);
 				var resolved = 0;
+
 				function attemptResolve() {
-					if(++resolved === listeners.length) {
+					if (++resolved === listeners.length) {
 						resolve();
 					}
 				}
