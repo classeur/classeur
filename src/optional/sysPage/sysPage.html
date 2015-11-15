@@ -8,16 +8,10 @@
         </div>
         <br>
         <h2>App config</h2>
-        <div layout="row" ng-repeat="property in properties">
+        <div layout="row" ng-repeat="property in properties" class="entry">
             <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete key"></md-button>
-            <md-input-container>
-                <label>Key</label>
-                <input autocomplete="off" ng-model="property.key">
-            </md-input-container>
-            <md-input-container class="full-width">
-                <label>Value</label>
-                <input autocomplete="off" ng-model="property.value">
-            </md-input-container>
+            <input autocomplete="off" ng-model="property.key" placeholder="label">
+            <input autocomplete="off" ng-model="property.value" placeholder="value">
         </div>
         <br>
         <div layout="row" layout-align="space-between">

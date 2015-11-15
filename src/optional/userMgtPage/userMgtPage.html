@@ -1,0 +1,21 @@
+<div class="user-mgt page panel background">
+    <div layout="column">
+        <div layout="row" layout-align="space-between end">
+            <div class="title">User management</div>
+            <div layout="row">
+                <md-button ng-href="#!/">Close <span class="icon-close"></span></md-button>
+            </div>
+        </div>
+        <br>
+        <h2>App config</h2>
+        <div layout="row" layout-align="start center" ng-repeat="user in users" class="entry">
+            <input class="text" autocomplete="off" ng-model="user.name" disabled="disabled">
+            <input class="text" autocomplete="off" ng-model="user.id" disabled="disabled">
+            <md-button class="icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
+            <label>
+                <input type="checkbox" ng-model="user.isAdmin">
+                admin
+            </label>
+        </div>
+    </div>
+</div>

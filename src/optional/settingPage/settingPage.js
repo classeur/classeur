@@ -124,25 +124,17 @@ angular.module('classeur.optional.settingPage', [])
 						}
 					});
 
-					scope.getApiKey = function() {
-						if (!scope.getApiKeyPending) {
-							scope.getApiKeyPending = scope.$watch('socketSvc.isReady', function() {
-								clSocketSvc.sendMsg({
-									type: 'getUserApiKey'
-								});
-							});
-						}
-					};
+					scope.apiKey = '••••••••••••••••••••••••••••••••';
 
 					scope.renewApiKey = function() {
 						clDialog.show(clDialog.confirm()
 								.title('Renew API key')
-								.content('You\'re about to renew your user API key. The current key won\'t work anymore.')
+								.content('You\'re about to renew your user API key. The old key won\'t work anymore and the new key will only be displayed once.')
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
-								if (!scope.getApiKeyPending) {
-									scope.getApiKeyPending = scope.$watch('socketSvc.isReady', function() {
+								if (!scope.renewApiKeyPending) {
+									scope.renewApiKeyPending = scope.$watch('socketSvc.isReady', function() {
 										clSocketSvc.sendMsg({
 											type: 'renewUserApiKey'
 										});
@@ -152,10 +144,10 @@ angular.module('classeur.optional.settingPage', [])
 					};
 
 					function apiKeyHandler(msg) {
-						if (scope.getApiKeyPending) {
-							scope.apiKey = msg.apiKey;
-							scope.getApiKeyPending();
-							scope.getApiKeyPending = undefined;
+						if (scope.renewApiKeyPending) {
+							scope.apiKey = msg.secret;
+							scope.renewApiKeyPending();
+							scope.renewApiKeyPending = undefined;
 							scope.$evalAsync();
 						}
 					}
@@ -332,8 +324,6 @@ angular.module('classeur.optional.settingPage', [])
 						scope.getTrashFiles(true);
 					} else if (tab === 'blogs') {
 						scope.getBlogs();
-					} else if (tab === 'user') {
-						scope.getApiKey();
 					}
 					$location.search('tab', tab);
 				});

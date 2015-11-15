@@ -156,7 +156,7 @@ angular.module('classeur.core.user', [])
             return clUserSvc;
         })
     .factory('clUserInfoSvc',
-        function($rootScope, $http, clSetInterval, clUserSvc, clIsNavigatorOnline) {
+        function($rootScope, $http, clSocketSvc, clSetInterval, clUserSvc, clIsNavigatorOnline) {
             var requestedUserInfo = {};
             var userInfoTimeout = 30 * 1000; // 30 sec
             var lastUserInfoAttempt = 0;
@@ -172,6 +172,7 @@ angular.module('classeur.core.user', [])
                 }
                 lastUserInfoAttempt = currentDate;
                 $http.get('/api/v1/metadata/users', {
+                        headers: clSocketSvc.makeAuthorizationHeader(),
                         timeout: userInfoTimeout,
                         params: {
                             id: ids.join(',')

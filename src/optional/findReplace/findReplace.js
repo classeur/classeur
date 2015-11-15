@@ -18,7 +18,7 @@ angular.module('classeur.optional.findReplace', [])
 					return clEditorLayoutSvc.currentControl === 'findreplace' && clEditorLayoutSvc.isEditorOpen;
 				}
 
-				var move = $window.cledit.Utils.debounce(function() {
+				function move() {
 					highlightOccurrences();
 					if (isOpen()) {
 						!findInputElt.readOnly && setTimeout(function() {
@@ -31,7 +31,7 @@ angular.module('classeur.optional.findReplace', [])
 						replaceInputElt.readOnly = true;
 					}
 					findReplaceElt.clanim
-						.translateX(-clEditorLayoutSvc.backgroundX)
+						.translateX(-clEditorLayoutSvc.backgroundX || 0)
 						.translateY(isOpen() ? 0 : 40)
 						.duration(duration)
 						.start(function() {
@@ -43,7 +43,9 @@ angular.module('classeur.optional.findReplace', [])
 							}
 						});
 					duration = 100;
-				});
+				}
+
+				var debouncedMove = $window.cledit.Utils.debounce(move);
 
 				function DynamicClassApplier(cssClass, offset, silent) {
 					this.startMarker = new $window.cledit.Marker(offset.start);
@@ -169,7 +171,7 @@ angular.module('classeur.optional.findReplace', [])
 					if (selection) {
 						scope.findText = selection;
 					}
-					move();
+					debouncedMove();
 					scope.$apply();
 				}
 
@@ -189,7 +191,8 @@ angular.module('classeur.optional.findReplace', [])
 					}
 				});
 
-				scope.$watch('editorLayoutSvc.currentControl === "findreplace" && editorSvc.isEditorOpen', move);
+				move();
+				scope.$watch('editorLayoutSvc.currentControl === "findreplace" && editorSvc.isEditorOpen', debouncedMove);
 				scope.$watch('findText', highlightOccurrences);
 				clEditorSvc.cledit.on('contentChanged', highlightOccurrences);
 				$window.addEventListener('keydown', onKeydown);

@@ -197,7 +197,7 @@ angular.module('classeur.extensions.markdown', [])
 					}
 					array.cl_each(function(item) {
 						if (item.level !== level) {
-							if (level !== options.tocMaxDepth) {
+							if (level !== options.tocDepth) {
 								currentItem = currentItem || new TocItem();
 								currentItem.children.push(item);
 							}
@@ -279,7 +279,7 @@ angular.module('classeur.extensions.markdown', [])
 			function link(scope) {
 				function checkOptions() {
 					var fileProperties = scope.currentFileDao.contentDao.properties;
-					var tocMaxDepth = parseInt(fileProperties['ext:markdown:tocmaxdepth']);
+					var tocDepth = parseInt(fileProperties['ext:markdown:tocdepth']);
 					var newOptions = {
 						abbr: fileProperties['ext:markdown:abbr'] !== 'false',
 						breaks: fileProperties['ext:markdown:breaks'] !== 'false',
@@ -293,7 +293,7 @@ angular.module('classeur.extensions.markdown', [])
 						table: fileProperties['ext:markdown:table'] !== 'false',
 						typographer: fileProperties['ext:markdown:typographer'] !== 'false',
 						toc: fileProperties['ext:markdown:toc'] !== 'false',
-						tocMaxDepth: isNaN(tocMaxDepth) ? 6 : tocMaxDepth,
+						tocDepth: isNaN(tocDepth) ? 6 : tocDepth,
 					};
 					if (JSON.stringify(newOptions) !== JSON.stringify(options)) {
 						options = newOptions;

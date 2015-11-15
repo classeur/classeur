@@ -56,6 +56,7 @@ if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 		'classeur.optional.sysPage',
 		'classeur.optional.tour',
 		'classeur.optional.userActivity',
+		'classeur.optional.userMgtPage',
 		'classeur.optional.zenMode',
 		'classeur.extensions.emoji',
 		'classeur.extensions.markdown',

@@ -10,7 +10,7 @@
             Pricing
         </div>
         <div class="perspective" layout-gt-sm="row" layout="column">
-            <div flex class="standard plan item md-whiteframe-z1 plastic-1" layout="column">
+            <div flex class="standard plan item md-whiteframe-z1 plastic-4" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name">
                         Standard
@@ -26,7 +26,7 @@
                         <li>1 blog</li>
                         <li>Unlimited blog posts</li>
                         <li>Export to PDF, Word, EPUB... (5KB content limit)</li>
-                        <li>Public REST API (coming soon)</li>
+                        <li>REST API (read only)</li>
                     </ul>
                     <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
                         <div>Sign in</div>
@@ -55,8 +55,8 @@
                         <li>Share publicly</li>
                         <li><b>Real-time collaboration</b></li>
                         <li><b>Unlimited blogs and posts</b></li>
-                        <li>Export to PDF, Word, EPUB... <b>(no content limit)</b></li>
-                        <li><b>User REST API</b> (coming soon)</li>
+                        <li>Export to PDF, Word, EPUB... (<b>no content limit</b>)</li>
+                        <li>REST API (<b>read/write</b>, coming soon)</li>
                     </ul>
                     <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
                         <div>Sign in</div>
@@ -71,7 +71,7 @@
                     </md-button>
                 </div>
             </div>
-            <div flex class="enterprise plan item md-whiteframe-z1 plastic-4" layout="column">
+            <div flex class="enterprise plan item md-whiteframe-z1 plastic-1" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name big">
                         Enterprise
@@ -83,10 +83,10 @@
                         <li><b>Google Apps or LDAP/AD login</b></li>
                         <li><b>Restricted user access</b></li>
                         <li><b>Automatic backup</b></li>
-                        <li><b>Admin REST API</b> (coming soon)</li>
+                        <li><b>Admin REST API</b></li>
                     </ul>
-                    <md-button ng-href="mailto:contact@classeur.io">
-                        Contact us
+                    <md-button target="_blank" ng-href="http://classeur.io/help/enterprise/">
+                        Get started
                     </md-button>
                 </div>
             </div>

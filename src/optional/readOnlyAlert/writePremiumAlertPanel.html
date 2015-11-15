@@ -7,7 +7,10 @@
         </cl-button>
     </div>
     <div layout="row" layout-align="end">
-        <md-button ng-if="!socketSvc.hasToken" ng-click="userSvc.startOAuth()" md-no-ink class="md-primary">
+        <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">
+            Sign in with Google
+        </md-button>
+        <md-button md-no-ink class="md-primary" ng-href="#!/signin" ng-if="!socketSvc.hasToken && config.loginForm">
             Sign in
         </md-button>
         <md-button ng-if="userSvc.user" ng-href="#!/choosePlan" md-no-ink class="md-primary">

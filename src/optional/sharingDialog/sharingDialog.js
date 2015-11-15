@@ -103,14 +103,14 @@ angular.module('classeur.optional.sharingDialog', [])
 								.title('Sharing')
 								.content('Please sign in to turn on file sharing.')
 								.ariaLabel('Sharing')
-								.ok(clUserSvc.startOAuth ? 'Sign in with Google' : 'Sign in')
+								.ok(clConfig.loginForm ? 'Sign in' : 'Sign in with Google')
 								.cancel('Cancel');
 							clDialog.show(signinDialog).then(function() {
 								closeDialog();
-								if (clUserSvc.startOAuth) {
-									clUserSvc.startOAuth();
-								} else {
+								if (clConfig.loginForm) {
 									$location.url('/signin');
+								} else {
+									clUserSvc.startOAuth();
 								}
 							}, closeDialog);
 						} else {

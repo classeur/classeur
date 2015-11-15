@@ -1,6 +1,6 @@
 angular.module('classeur.core.socket', [])
 	.factory('clSocketSvc',
-		function($rootScope, $location, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
+		function($rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
 			var socketTokenKey = 'socketToken';
 			var socket, msgHandlers = {};
 			var socketToken;
@@ -107,9 +107,32 @@ angular.module('classeur.core.socket', [])
 				$rootScope.$evalAsync();
 			});
 
+			function makeAuthorizationHeader() {
+				var headers = {};
+				var sysKey = $location.search().sysKey;
+				var token = clLocalStorage[socketTokenKey];
+				if (sysKey) {
+					headers.Authorization = 'SysKey ' + sysKey;
+				} else if (token) {
+					headers.Authorization = 'UserToken ' + token;
+				}
+				if(!headers.Authorization && clConfig.restrictPublic) {
+					if(clConfig.loginForm) {
+						$location.url('/signin');
+					} else {
+						$rootScope.userSvc.startOAuth();
+					}
+					throw 'Restricted access';
+				}
+				return headers;
+			}
+
+
+
 			var clSocketSvc = {
 				hasToken: false,
 				setToken: setToken,
+				makeAuthorizationHeader: makeAuthorizationHeader,
 				clearToken: clearToken,
 				openSocket: openSocket,
 				closeSocket: closeSocket,

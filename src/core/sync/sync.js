@@ -170,7 +170,7 @@ angular.module('classeur.core.sync', [])
 
 			function isFilePendingCreation(fileDao) {
 				var isWritable = !fileDao.userId || fileDao.sharing === 'rw';
-				if(!isWritable) {
+				if (!isWritable) {
 					var folderDao = clFolderSvc.folderMap[fileDao.folderId];
 					isWritable = folderDao && folderDao.sharing === 'rw';
 				}
@@ -299,7 +299,7 @@ angular.module('classeur.core.sync', [])
 					if (msg.user) {
 						syncData = clSyncDataSvc.userData.user || {};
 						if (syncData.s !== msg.userUpdated) {
-			                clUserSvc.user = msg.user;
+							clUserSvc.user = msg.user;
 							clUserSvc.write(msg.userUpdated);
 							apply = true;
 						}
@@ -383,6 +383,7 @@ angular.module('classeur.core.sync', [])
 					return;
 				}
 				$http.get('/api/v1/metadata/folders', {
+						headers: clSocketSvc.makeAuthorizationHeader(),
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
 							id: foldersToRefresh.cl_map(function(folderDao) {
@@ -521,7 +522,7 @@ angular.module('classeur.core.sync', [])
 					var filesToUpdate = [];
 					(msg.changes || []).cl_each(function(change) {
 						var fileDao = clFileSvc.fileMap[change.id];
-						if(fileDao && fileDao.userId && change.deleted) {
+						if (fileDao && fileDao.userId && change.deleted) {
 							// We just lost ownership of the file
 							return;
 						}
@@ -651,7 +652,7 @@ angular.module('classeur.core.sync', [])
 						clSyncDataSvc.fileCreationDates[fileDao.id] = currentDate;
 						fileDao.loadExecUnload(function() {
 							// Remove first file in case existing user signs in (see #13)
-							if(clFileSvc.files.length > 1 && fileDao.name === clFileSvc.firstFileName && fileDao.contentDao.text === clFileSvc.firstFileContent) {
+							if (clFileSvc.files.length > 1 && fileDao.name === clFileSvc.firstFileName && fileDao.contentDao.text === clFileSvc.firstFileContent) {
 								return filesToRemove.push(fileDao);
 							}
 							clSocketSvc.sendMsg({
@@ -684,7 +685,7 @@ angular.module('classeur.core.sync', [])
 					if (!fileDao) {
 						return;
 					}
-					if(fileDao.folderId) {
+					if (fileDao.folderId) {
 						fileDao.folderId = msg.folderId;
 					}
 					if (msg.userId) {
@@ -763,7 +764,7 @@ angular.module('classeur.core.sync', [])
 			return clSyncSvc;
 		})
 	.factory('clPublicSyncSvc',
-		function($http, clSyncDataSvc, clFileSvc, clFolderSvc, clToast, clIsNavigatorOnline) {
+		function($http, clSocketSvc, clSyncDataSvc, clFileSvc, clFolderSvc, clToast, clIsNavigatorOnline) {
 			var publicFileRefreshAfter = 30 * 1000; // 30 sec
 			var lastGetExtFileAttempt = 0;
 
@@ -779,6 +780,7 @@ angular.module('classeur.core.sync', [])
 				}
 				lastGetExtFileAttempt = currentDate;
 				$http.get('/api/v1/metadata/files', {
+						headers: clSocketSvc.makeAuthorizationHeader(),
 						timeout: clSyncDataSvc.loadingTimeout,
 						params: {
 							id: filesToRefresh.cl_map(function(fileDao) {
@@ -805,6 +807,7 @@ angular.module('classeur.core.sync', [])
 					return;
 				}
 				$http.get('/api/v1/folders/' + folderDao.id, {
+						headers: clSocketSvc.makeAuthorizationHeader(),
 						timeout: clSyncDataSvc.loadingTimeout
 					})
 					.success(function(res) {
@@ -979,8 +982,12 @@ angular.module('classeur.core.sync', [])
 				}
 				fileDao.loadPending = false;
 				var fromRev = clContentRevSvc.getRev(fileDao.id);
-				$http.get('/api/v1/files/' + fileDao.id + (fromRev ? '/fromRev/' + fromRev : '') + '?flatten=false', {
-						timeout: clSyncDataSvc.loadingTimeout
+				$http.get('/api/v1/files/' + fileDao.id + (fromRev ? '/fromRev/' + fromRev : ''), {
+						headers: clSocketSvc.makeAuthorizationHeader(),
+						timeout: clSyncDataSvc.loadingTimeout,
+						params: {
+							flatten: false
+						}
 					})
 					.success(function(res) {
 						clSyncDataSvc.updatePublicFileMetadata(fileDao, res);
@@ -1051,10 +1058,10 @@ angular.module('classeur.core.sync', [])
 				var apply;
 				var serverText = watchCtx.text;
 				var localText = clEditorSvc.cledit.getContent();
-				var serverProperties = watchCtx.properties;
-				var serverDiscussions = watchCtx.discussions;
-				var serverComments = watchCtx.comments;
-				var serverConflicts = watchCtx.conflicts;
+				var serverProperties = ({}).cl_extend(watchCtx.properties);
+				var serverDiscussions = ({}).cl_extend(watchCtx.discussions);
+				var serverComments = ({}).cl_extend(watchCtx.comments);
+				var serverConflicts = ({}).cl_extend(watchCtx.conflicts);
 				while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
 					watchCtx.rev = msg.rev;
 					watchCtx.contentChanges[msg.rev] = undefined;

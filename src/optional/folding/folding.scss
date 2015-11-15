@@ -12,9 +12,8 @@
         line-height: 1;
         -webkit-font-smoothing: antialiased;
         content: "\e715";
-        padding: 3px 0 3px 3px;
-        font-size: 15px;
-        left: ($editor-margin-width + 1000 - 23);
+        font-size: 14px;
+        left: ($editor-margin-width + 1000 - 20);
         color: transparentize(#000, 0.75);
         cursor: pointer;
     }

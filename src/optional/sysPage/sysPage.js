@@ -10,7 +10,7 @@ angular.module('classeur.optional.sysPage', [])
 				});
 		})
 	.directive('clSysPage',
-		function(clToast, $http, $location) {
+		function($http, $location, clToast, clSocketSvc) {
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/sysPage/sysPage.html',
@@ -62,7 +62,9 @@ angular.module('classeur.optional.sysPage', [])
 					) {
 						return;
 					}
-					$http.post('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey), properties)
+					$http.post('/api/v1/config/app', {
+							headers: clSocketSvc.makeAuthorizationHeader()
+						})
 						.success(function() {
 							clToast('App config updated.');
 						})
@@ -72,7 +74,9 @@ angular.module('classeur.optional.sysPage', [])
 				};
 
 				function retrieveConfig() {
-					$http.get('/api/v1/config/app?sysKey=' + encodeURIComponent($location.search().sysKey))
+					$http.get('/api/v1/config/app', {
+							headers: clSocketSvc.makeAuthorizationHeader()
+						})
 						.success(function(res) {
 							scope.properties = Object.keys(res).sort().cl_map(function(key) {
 								return {

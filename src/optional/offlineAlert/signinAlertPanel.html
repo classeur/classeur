@@ -7,8 +7,11 @@
         </cl-button>
     </div>
     <div layout="row" layout-align="end">
-        <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()">
+        <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!config.loginForm">
             Sign in with Google
+        </md-button>
+        <md-button md-no-ink class="md-primary" ng-href="#!/signin" ng-if="config.loginForm">
+            Sign in
         </md-button>
     </div>
 </div>

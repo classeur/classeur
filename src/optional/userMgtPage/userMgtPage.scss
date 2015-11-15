@@ -1,4 +1,4 @@
-.sys.page.panel {
+.user-mgt.page.panel {
     & > div {
         margin: auto;
         width: 100%;
@@ -12,13 +12,22 @@
         margin: 5px 0;
     }
     .entry {
-        margin-bottom: 10px;
-        input {
+        margin-bottom: 5px;
+        .md-button {
+            font-size: 22px;
+        }
+        .text {
             width: 260px;
             margin: 0 5px;
+            padding: 8px 4px;
             &.full-width {
                 width: 100%;
             }
+        }
+        label {
+            text-align: center;
+            width: 90px;
+            min-width: 90px;
         }
     }
 }
