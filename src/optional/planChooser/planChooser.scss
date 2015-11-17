@@ -65,11 +65,27 @@
             border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.25);
         }
+        .name {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+        .price {
+            font-size: 44px;
+            line-height: 1;
+        }
         &.standard {
             transform: rotateY(8deg);
         }
         &.enterprise {
             transform: rotateY(-8deg);
+            font-size: 14px;
+            .name {
+                margin-bottom: 10px;
+            }
+            .price {
+                font-size: 36px;
+            }
         }
         &.premium {
             z-index: 1;
@@ -78,19 +94,6 @@
             .header {
                 height: 190px;
             }
-        }
-        .name {
-            font-size: 24px;
-            font-weight: 300;
-            margin-bottom: 15px;
-            &.big {
-                margin-top: 20px;
-                font-size: 34px;
-            }
-        }
-        .price {
-            font-size: 44px;
-            line-height: 1;
         }
         ul {
             margin: 0;

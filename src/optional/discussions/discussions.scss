@@ -1,6 +1,7 @@
 @import 'variables';
 $highlighting-color: #FFDF60;
-.discussion-editor-highlighting, .discussion-preview-highlighting {
+.discussion-editor-highlighting,
+.discussion-preview-highlighting {
     background-color: mix(#fff, $highlighting-color, 60%);
     -webkit-transition: 0.12s ease-out background-color;
     transition: 0.12s ease-out background-color;
@@ -21,18 +22,17 @@ $highlighting-color: #FFDF60;
 .new-discussion-btn {
     position: absolute;
     font-size: 13px;
-    padding: 1px;
+    padding: 2px 2px 1px;
     background-color: #fff;
-    border-radius: 3px;
-    color: #777;
+    border-radius: 10px;
+    color: rgba(128, 128, 128, 0.7);
     cursor: pointer;
     -webkit-transform: scale(1, -1);
     transform: scale(1, -1);
-    -webkit-transition: 0.16s ease-out opacity;
-    transition: 0.16s ease-out opacity;
-    opacity: 0.7;
+    -webkit-transition: 0.16s ease-out color;
+    transition: 0.16s ease-out color;
     &:hover {
-        opacity: 1;
+        color: rgba(128, 128, 128, 1);
     }
 }
 
