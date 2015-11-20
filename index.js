@@ -8,7 +8,8 @@ app.use('/assets', serveStatic(path.join(path.dirname(require.resolve('classets/
 app.use(serveStatic(path.join(__dirname, 'public')));
 
 var port = process.env.PORT || 11583;
-http.createServer(app).listen(port, function() {
-	console.log('Server started http://localhost:' + port);
+var addr = process.env.BINDING_ADDR || 'localhost';
+http.createServer(app).listen(port, host, function() {
+	console.log('Server started http://' + addr + ':' + port);
 });
 
