@@ -108,11 +108,15 @@ angular.module('classeur.core.editorLayout', [])
 							marginRight = bgWidth / 2 - clEditorLayoutSvc.editorBtnGrpWidth;
 						}
 					}
+					if(clLocalSettingSvc.values.sideBar && document.body.clientWidth < binderMinWidth + clEditorLayoutSvc.sideBarWidth) {
+						clLocalSettingSvc.values.sideBar = false;
+					}
 
 					clEditorLayoutSvc.backgroundX = clLocalSettingSvc.values.sideBar ? -clEditorLayoutSvc.sideBarWidth : 0;
 					clEditorLayoutSvc.binderWidth = clEditorLayoutSvc.pageWidth - clEditorLayoutSvc.editorBtnGrpWidth;
 					clEditorLayoutSvc.binderX = bgWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight;
 					clEditorLayoutSvc.binderX += clLocalSettingSvc.values.sideBar ? clEditorLayoutSvc.sideBarWidth : 0;
+					clEditorLayoutSvc.binderMargin = marginRight;
 					clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000;
 					clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust - 20;
 					clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX;
@@ -213,7 +217,7 @@ angular.module('classeur.core.editorLayout', [])
 							setTimeout(function() {
 								updateLayoutSize();
 								scope.$apply();
-							}, 100);
+							}, 150);
 						});
 				}
 
@@ -316,7 +320,7 @@ angular.module('classeur.core.editorLayout', [])
 					}, 100);
 				};
 
-				var tabs = ['sample', 'toc', 'discussions'];
+				var tabs = ['sample', 'toc', 'discussions', 'history'];
 				scope.$watch('localSettingSvc.values.sideBarTab', function(tab) {
 					scope.selectedTabIndex = tabs.indexOf(tab);
 				});
@@ -363,7 +367,7 @@ angular.module('classeur.core.editorLayout', [])
 			var clEditorLayoutSvc = {
 				pageMarginLeft: 4,
 				pageMarginRight: 6,
-				editorBtnGrpWidth: 33,
+				editorBtnGrpWidth: 34,
 				menuWidth: 320,
 				sideBarWidth: 280,
 				editorLeftOverflow: 1000, // Allows scrolling on the left side of the editor

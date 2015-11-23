@@ -1,185 +1,211 @@
 @import 'variables';
-$highlighting-color: #FFDF60;
+$highlighting-color: #ffdf60;
 .discussion-editor-highlighting,
 .discussion-preview-highlighting {
-    background-color: mix(#fff, $highlighting-color, 60%);
-    -webkit-transition: 0.12s ease-out background-color;
-    transition: 0.12s ease-out background-color;
-    padding: 0.25em 0;
-    &.hover,
-    &.selected {
-        background-color: mix(#fff, $highlighting-color, 20%);
-        * {
-            background-color: transparent;
-        }
-    }
+	background-color: mix(#fff, $highlighting-color, 60%);
+	-webkit-transition: 0.12s ease-out background-color;
+	        transition: 0.12s ease-out background-color;
+	padding: 0.25em 0;
+	&.hover,
+	&.selected {
+		background-color: mix(#fff, $highlighting-color, 20%);
+		* {
+			background-color: transparent;
+		}
+	}
 }
 
 .discussion-preview-highlighting {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .new-discussion-btn {
-    position: absolute;
-    font-size: 13px;
-    padding: 2px 2px 1px;
-    background-color: #fff;
-    border-radius: 10px;
-    color: rgba(128, 128, 128, 0.7);
-    cursor: pointer;
-    -webkit-transform: scale(1, -1);
-    transform: scale(1, -1);
-    -webkit-transition: 0.16s ease-out color;
-    transition: 0.16s ease-out color;
-    &:hover {
-        color: rgba(128, 128, 128, 1);
-    }
+	position: absolute;
+	font-size: 13px;
+	padding: 2px 2px 1px;
+	background-color: #fff;
+	border-radius: 10px;
+	color: rgba(128, 128, 128, 0.7);
+	cursor: pointer;
+	-webkit-transform: scale(1, -1);
+	        transform: scale(1, -1);
+	-webkit-transition: 0.16s ease-out color;
+	        transition: 0.16s ease-out color;
+	&:hover {
+		color: rgba(128, 128, 128, 1);
+	}
 }
 
 .discussion.tab {
-    padding: 15px 25px;
-    &.selected .discussion.item {
-        opacity: 0.25;
-        &:hover {
-            opacity: 0.5;
-        }
-    }
-    &.selected .discussion.item.selected {
-        opacity: 1;
-    }
-    .discussion.item {
-        margin: 15px 0;
-        border-bottom: 1px solid #b0b0b0;
-        -webkit-transition: 0.12s ease-out opacity;
-        transition: 0.12s ease-out opacity;
-        opacity: 0.75;
-        &.selected,
-        &:hover {
-            opacity: 1;
-        }
-        a.icon-delete {
-            color: inherit;
-            text-align: center;
-            cursor: pointer;
-            -webkit-transition: 0.16s ease-out opacity;
-            transition: 0.16s ease-out opacity;
-            opacity: 0.3;
-            &:hover {
-                opacity: 0.6;
-            }
-        }
-        .md-highlighting {
-            .h1,
-            .h11,
-            .h2,
-            .h22,
-            .h3,
-            .h4,
-            .h5,
-            .h6,
-            .md-toc {
-                font-size: inherit;
-            }
-        }
-        pre.md-highlighting {
-            font-size: 0.9em;
-            background-color: #fff;
-            padding: 4px 8px;
-            margin: 5px 0 5px 20px;
-            min-height: 60px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            word-break: break-word;
-            -webkit-font-variant-ligatures: normal;
-            font-variant-ligatures: normal;
-        }
-        .discussion.text {
-            width: 100%;
+	padding: 15px 25px;
+	&.selected .discussion.item {
+		opacity: 0.1;
+		&:hover {
+			opacity: 0.4;
+		}
+	}
+	&.selected .discussion.item.selected {
+		opacity: 1;
+	}
+	.discussion.item {
+		margin: 15px 0;
+		-webkit-transition: 0.12s ease-out opacity;
+		        transition: 0.12s ease-out opacity;
+		hr {
+			margin: 0 auto;
+			width: 120px;
+		}
+		a.icon-delete {
+			color: inherit;
+			text-align: center;
+			cursor: pointer;
+			-webkit-transition: 0.16s ease-out opacity;
+			        transition: 0.16s ease-out opacity;
+			opacity: 0.3;
+			&:hover {
+				opacity: 0.6;
+			}
+		}
+		.md-highlighting {
+			.h1,
+			.h11,
+			.h2,
+			.h22,
+			.h3,
+			.h4,
+			.h5,
+			.h6,
+			.md-toc {
+				font-size: inherit;
+			}
+		}
+		pre.md-highlighting {
+			font-size: 0.9em;
+			background-color: #fff;
+			padding: 4px 8px;
+			margin: 5px 0 5px 20px;
+			min-height: 60px;
+			overflow: auto;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			word-break: break-word;
+			-webkit-font-variant-ligatures: normal;
+			        font-variant-ligatures: normal;
+		}
+		.discussion.text {
+			width: 100%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			span {
+				background-color: transparent;
+				display: inline;
+			}
+			& > span {
+				padding: 0.2em 0;
+			}
+		}
+		.discussion.selector {
+			cursor: pointer;
+            margin: 10px 0;
+			a.icon-delete {
+				float: right;
+				font-size: 23px;
+				margin: 0 -5px 2px 5px;
+			}
+		}
+		&.selected .discussion.text {
+			text-overflow: clip;
+			white-space: normal;
+			& > span {
+				background-color: mix($background-color, $highlighting-color, 20%);
+			}
+		}
+		.comment.info {
+			margin: 10px 0 5px -8px;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            span {
-                background-color: transparent;
-                display: inline;
-            }
-            & > span {
-                background-color: mix($background-color, $highlighting-color, 20%);
-                padding: 0.2em 0;
-            }
-        }
-        .discussion.selector {
-            cursor: pointer;
-            a.icon-delete {
-                float: right;
-                font-size: 24px;
-                margin: 0 -5px 2px 5px;
-            }
-        }
-        &.selected .discussion.text {
-            text-overflow: clip;
-            white-space: normal;
-        }
-        .comment.info {
-            margin: 5px 0;
-            .username {
-                font-weight: bold;
-                white-space: nowrap;
-                overflow: hidden;
-            }
-            .created {
-                padding-left: 15px;
-                color: rgba(0, 0, 0, 0.5);
-                font-size: 0.7em;
-                text-shadow: 0 1px #E8E8E8;
-            }
-        }
-        .comment.item {
-            margin: 6px 0;
-            .comment.text {
-                padding-bottom: 10px;
-                font-size: 14px;
-                width: 100%;
-                * {
-                    margin: 0;
-                }
-                h1,
-                h2,
-                h3,
-                h4,
-                h5,
-                h6 {
-                    font-size: inherit;
-                }
-                pre {
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    word-break: break-word;
-                    -webkit-font-variant-ligatures: normal;
-                    font-variant-ligatures: normal;
-                }
-                img,
-                table {
-                    max-width: 100%;
-                }
-            }
-            a.icon-delete {
-                opacity: 0;
-                font-size: 18px;
-                padding-right: 5px;
-            }
-            &:hover a.icon-delete {
-                opacity: 0.3;
-                &:hover {
-                    opacity: 0.6;
-                }
-            }
-        }
-        .md-chips {
-            padding: 0;
-        }
-        .md-chip {
-            margin: 0 0 0 5px;
-        }
-    }
+			.user-name {
+				font-size: 15px;
+                text-shadow: 0 1px #f6f6f6;
+			}
+			.created {
+				padding-left: 12px;
+				color: rgba(0, 0, 0, 0.3);
+				font-size: 0.7em;
+				text-shadow: 0 1px #eee;
+			}
+		}
+		.comment.item {
+			margin: 6px 0;
+			.comment.text {
+				padding-bottom: 10px;
+				font-size: 14px;
+				width: 100%;
+				* {
+					margin: 0;
+				}
+				h1,
+				h2,
+				h3,
+				h4,
+				h5,
+				h6 {
+					font-size: inherit;
+				}
+				pre {
+					white-space: pre-wrap;
+					word-wrap: break-word;
+					word-break: break-word;
+					-webkit-font-variant-ligatures: normal;
+					        font-variant-ligatures: normal;
+				}
+				img,
+				table {
+					max-width: 100%;
+				}
+			}
+			a.icon-delete {
+				opacity: 0;
+				font-size: 20px;
+				padding-right: 6px;
+			}
+			.comment.content:hover a.icon-delete {
+				opacity: 0.3;
+				&:hover {
+					opacity: 0.6;
+				}
+			}
+		}
+		.md-chips {
+			padding: 0;
+			cursor: pointer;
+		}
+		.md-chip {
+			margin: 0 0 0 5px;
+            font-size: 0.8em;
+			cursor: pointer;
+		}
+	}
+}
+
+.discussion-postit.panel {
+	cursor: pointer;
+	left: 920px;
+    top: -200px;
+    font-size: 14px;
+    width: 160px;
+    height: 160px;
+	font-size: 13px;
+	.user-name {
+		font-size: 14px;		
+	}
+	.created {
+		color: rgba(0, 0, 0, 0.3);
+		font-size: 0.8em;
+		padding-left: 26px;
+	}
+
+	.preview.container & {
+		left: 840px;
+	}
 }

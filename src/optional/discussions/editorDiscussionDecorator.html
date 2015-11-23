@@ -1,0 +1,6 @@
+<a ng-show="show" class="new-discussion-btn icon-messenger" ng-click="createDiscussion()"></a>
+<cl-discussion-highlighter ng-if="discussionSvc.currentDiscussionId === discussionId"></cl-discussion-highlighter>
+<cl-discussion-highlighter ng-repeat="(discussionId, discussion) in currentFileDao.contentDao.discussions"></cl-discussion-highlighter>
+<div ng-if="showDiscuscussionPostits">
+    <cl-editor-discussion-postit ng-repeat="discussionId in discussionSvc.discussionsByOffset" ng-if="currentFileDao.contentDao.discussions.hasOwnProperty(discussionId)"></cl-editor-discussion-postit>
+</div>

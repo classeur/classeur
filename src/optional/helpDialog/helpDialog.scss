@@ -1,0 +1,18 @@
+.help.dialog {
+    min-width: 340px;
+    text-align: center;
+    .problem {
+        color: rgba(0, 0, 0, 0.33);
+        margin-bottom: 10px;
+    }
+    .solution {
+        display: block;
+        .icon {
+            font-size: 44px;
+        }
+    }
+    hr {
+        margin: 20px auto;
+        width: 120px;
+    }
+}

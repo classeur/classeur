@@ -107,6 +107,20 @@ angular.module('classeur.optional.settingPage', [])
 							});
 					};
 
+					scope.userName = function(name) {
+						if(name) {
+							clUserSvc.user.name = name;
+						}
+						return clUserSvc.user.name;
+					};
+
+					scope.userGravatarEmail = function(gravatarEmail) {
+						if(arguments.length) {
+							clUserSvc.user.gravatarEmail = gravatarEmail || undefined;
+						}
+						return clUserSvc.user.gravatarEmail;
+					};
+
 					var unwatchSocket = clStateMgr.state && scope.$watch('socketSvc.isReady', function(isReady) {
 						if (isReady) {
 							unwatchSocket();

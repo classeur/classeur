@@ -1,0 +1,7 @@
+<div class="discussion-postit panel postit no-overflow md-whiteframe-z2" ng-click="select()">
+    <div>
+        <cl-user-name user-id="lastComment.userId"></cl-user-name>
+    </div>
+    <div class="created">{{lastComment.created | clTimeSince}}</div>
+    <div ng-bind-html="lastComment.text | clConvertMarkdown"></div>
+</div>

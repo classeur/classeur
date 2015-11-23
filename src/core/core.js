@@ -79,16 +79,9 @@ angular.module('classeur.core', [])
 				})
 				.when('/', {
 					template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
-					controller: function($scope, clAnalytics, clFileSvc, clSettingSvc) {
+					controller: function($scope, clAnalytics, clFileSvc) {
 						if (clFileSvc.files.length === 0) {
-							var newFileDao = clFileSvc.createFile();
-							newFileDao.state = 'loaded';
-							newFileDao.readContent();
-							newFileDao.name = clFileSvc.firstFileName;
-							newFileDao.contentDao.text = clFileSvc.firstFileContent;
-							newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
-							newFileDao.writeContent();
-							return $scope.setCurrentFile(newFileDao);
+							return $scope.createDefaultFile();
 						}
 						$scope.hasFiles = true;
 						clAnalytics.trackPage('/');
@@ -153,10 +146,22 @@ angular.module('classeur.core', [])
 				clToast('Copy created.');
 			}
 
+			function createDefaultFile() {
+				var newFileDao = clFileSvc.createFile();
+				newFileDao.state = 'loaded';
+				newFileDao.readContent();
+				newFileDao.name = clFileSvc.firstFileName;
+				newFileDao.contentDao.text = clFileSvc.firstFileContent;
+				newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
+				newFileDao.writeContent();
+				setCurrentFile(newFileDao);
+			}
+
 			$rootScope.unloadCurrentFile = unloadCurrentFile;
 			$rootScope.setCurrentFile = setCurrentFile;
 			$rootScope.loadFile = loadFile;
 			$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
+			$rootScope.createDefaultFile = createDefaultFile;
 
 			$rootScope.$on('$routeChangeSuccess', function(event, current) {
 				$timeout(function() {
@@ -177,6 +182,7 @@ angular.module('classeur.core', [])
 						clLocalStorage.clear();
 						clSyncSvc.saveAll();
 						clLocalSettingSvc.values.tourStep = -1;
+						createDefaultFile();
 					});
 				}
 				hasToken = value;
@@ -187,7 +193,7 @@ angular.module('classeur.core', [])
 				clExplorerLayoutSvc.init();
 			});
 
-			$window.addEventListener('beforeunload', function(evt) {
+			$window.addEventListener('beforeunload', function() {
 				clSyncSvc.saveAll();
 				//evt.returnValue = 'Are you sure?';
 			});

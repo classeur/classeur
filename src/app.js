@@ -1,4 +1,4 @@
-if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
+if (!window.WebSocket || !window.Worker || !window.MutationObserver || !window.crypto) {
 	window.alert('Unsupported browser version. Please upgrade your browser.');
 } else {
 	angular.module('classeur.app', [
@@ -40,6 +40,7 @@ if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 		'classeur.optional.findReplace',
 		'classeur.optional.folding',
 		'classeur.optional.headingAnchor',
+		'classeur.optional.helpDialog',
 		'classeur.optional.keystrokes',
 		'classeur.optional.markdownSample',
 		'classeur.optional.offlineAlert',
@@ -55,7 +56,7 @@ if (!window.WebSocket || !window.Worker || !window.MutationObserver) {
 		'classeur.optional.stat',
 		'classeur.optional.sysPage',
 		'classeur.optional.tour',
-		'classeur.optional.userActivity',
+		'classeur.optional.userCursor',
 		'classeur.optional.userMgtPage',
 		'classeur.optional.zenMode',
 		'classeur.extensions.emoji',

@@ -96,7 +96,11 @@
                         <div ng-switch-when="true">
                             <md-input-container class="small">
                                 <label>User name</label>
-                                <input autocomplete="off" name="name" ng-model="userSvc.user.name" ng-model-options="{updateOn: 'blur', getterSetter: true}">
+                                <input autocomplete="off" ng-model="userName" ng-model-options="{updateOn: 'blur', getterSetter: true}">
+                            </md-input-container>
+                            <md-input-container class="small">
+                                <label>Gravatar email</label>
+                                <input type="email" autocomplete="off" ng-model="userGravatarEmail" ng-model-options="{updateOn: 'blur', getterSetter: true}">
                             </md-input-container>
                             <md-input-container class="small">
                                 <label>User ID</label>

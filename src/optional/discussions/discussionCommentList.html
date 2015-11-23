@@ -1,18 +1,18 @@
 <div class="comment list">
     <div ng-repeat="comment in comments track by comment.id" class="comment item">
-        <div class="comment info" layout="row" layout-align="start end">
-            <div class="comment username" flex>{{comment.userId | clUserName:userInfoSvc.lastUserInfo}}</div>
-            <div class="comment created">{{comment.created | clTimeSince}}</div>
+        <div class="comment info">
+            <cl-user-name user-id="comment.userId"></cl-user-name>
+            <span class="created">{{comment.created | clTimeSince}}</span>
         </div>
-        <div layout="row" layout-align="space-between start">
+        <div class="comment content" layout="row" layout-align="space-between start">
             <a class="icon-delete" ng-click="deleteComment(comment.id)" aria-label="Delete discussion"></a>
             <div class="comment text" ng-bind-html="comment.text | clConvertMarkdown"></div>
         </div>
     </div>
     <div class="comment item">
         <div ng-show="userSvc.user">
-            <div class="comment info" layout="row" layout-align="space-between end">
-                <div class="comment username" flex>{{userSvc.user.id | clUserName:userInfoSvc.lastUserInfo}}</div>
+            <div class="comment info">
+                <cl-user-name user-id="userSvc.user.id"></cl-user-name>
             </div>
             <pre class="discussion comment md-highlighting md-whiteframe-z2"></pre>
             <div layout="row" layout-align="end">

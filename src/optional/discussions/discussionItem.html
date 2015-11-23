@@ -1,16 +1,17 @@
-<div class="discussion item" ng-class="{selected: discussionSvc.currentDiscussion === discussion}">
+<div class="discussion item" ng-class="{selected: discussionSvc.currentDiscussionId === discussionId}" ng-switch="discussionSvc.currentDiscussionId === discussionId">
     <div class="discussion selector" ng-click="selectDiscussion()">
         <div layout="row" layout-align="space-between start">
             <div class="discussion text md-highlighting" flex>
-                <a class="icon-delete" ng-click="deleteDiscussion(); $event.stopPropagation();" aria-label="Delete discussion" ng-if="discussionSvc.currentDiscussion === discussion"></a>
-                <span ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.prismGrammar"></span>
+                <a class="icon-delete" ng-click="deleteDiscussion(); $event.stopPropagation();" aria-label="Delete discussion" ng-switch-when="true"></a>
+                “<span ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.prismGrammar"></span>”
             </div>
-            <md-chips ng-model="chips" readonly="true" ng-if="discussionSvc.currentDiscussion !== discussion"></md-chips>
+            <md-chips ng-model="chips" readonly="true" ng-switch-when="false"></md-chips>
         </div>
-        <div class="comment info" layout="row" layout-align="start end" ng-if="discussionSvc.currentDiscussion !== discussion">
-            <div class="comment username" flex>{{lastComment.userId | clUserName:userInfoSvc.lastUserInfo}}</div>
-            <div class="comment created">{{lastComment.created | clTimeSince}}</div>
+        <div class="comment info" ng-switch-when="false">
+            <cl-user-name user-id="lastComment.userId"></cl-user-name>
+            <span class="created">{{lastComment.created | clTimeSince}}</span>
         </div>
     </div>
-    <cl-discussion-comment-list ng-if="discussionSvc.currentDiscussion === discussion"></cl-discussion-comment-list>
+    <cl-discussion-comment-list ng-switch-when="true"></cl-discussion-comment-list>
+    <hr>
 </div>

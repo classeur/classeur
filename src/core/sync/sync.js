@@ -340,9 +340,10 @@ angular.module('classeur.core.sync', [])
 						type: 'setUserData'
 					};
 					syncData = clSyncDataSvc.userData.user || {};
-					if (clUserSvc.updated !== syncData.r) {
+					if (clUserSvc.user && clUserSvc.updated !== syncData.r) {
 						msg.user = {
-							name: (clUserSvc.user || {}).name,
+							name: clUserSvc.user.name,
+							gravatarEmail: clUserSvc.user.gravatarEmail
 						};
 						msg.userUpdated = clUserSvc.updated;
 						syncData.s = clUserSvc.updated;
@@ -749,8 +750,7 @@ angular.module('classeur.core.sync', [])
 				}
 
 				if (currentDate - clSyncDataSvc.lastActivity > inactivityThreshold) {
-					// Retrieve and send files/folders modifications
-					syncFolders();
+					// Start the chain: files, then folders, then user
 					syncFiles();
 					clSyncDataSvc.write();
 				}
@@ -919,7 +919,7 @@ angular.module('classeur.core.sync', [])
 				setWatchCtx({
 					fileDao: fileDao,
 					rev: clContentRevSvc.getRev(fileDao.id),
-					userActivities: {},
+					userCursors: {},
 					contentChanges: []
 				});
 				clSocketSvc.sendMsg({
@@ -1090,9 +1090,9 @@ angular.module('classeur.core.sync', [])
 								localText = serverText;
 							}
 							var offset = clEditorSvc.setContent(localText, true);
-							var userActivity = watchCtx.userActivities[msg.userId] || {};
-							userActivity.offset = offset;
-							watchCtx.userActivities[msg.userId] = userActivity;
+							var userCursor = watchCtx.userCursors[msg.userId] || {};
+							userCursor.offset = offset;
+							watchCtx.userCursors[msg.userId] = userCursor;
 						}
 						clUserInfoSvc.request(msg.userId);
 					}

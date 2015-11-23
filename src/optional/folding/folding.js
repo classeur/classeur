@@ -58,6 +58,7 @@ angular.module('classeur.optional.folding', [])
 				element.on('mousedown', buttonClickHandler());
 				element.on('click', buttonClickHandler(function(sectionGroup) {
 					sectionGroup[sectionGroup.isFolded ? 'unfold' : 'fold']();
+					scope.$evalAsync();
 				}));
 				element.on('dblclick', buttonClickHandler(function(sectionGroup) {
 					var functionName = sectionGroup.isFolded ? 'unfold' : 'fold';
@@ -66,6 +67,7 @@ angular.module('classeur.optional.folding', [])
 					clFoldingSvc.sectionGroups.cl_each(function(sectionGroup) {
 						sectionGroup.parent === parent && sectionGroup[functionName]();
 					});
+					scope.$evalAsync();
 				}));
 
 				element.on('keydown', function(e) {
@@ -77,11 +79,10 @@ angular.module('classeur.optional.folding', [])
 					if (e.which === 8 && selectionStart > 0) {
 						// Backspace
 						var range = clEditorSvc.cledit.selectionMgr.createRange(selectionStart - 1, selectionEnd - 1);
-						clFoldingSvc.unfoldRange(range);
-					}
-					if (e.which === 46) {
+						clFoldingSvc.unfoldRange(range) && scope.$evalAsync();
+					} else if (e.which === 46) {
 						// Del
-						clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange);
+						clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange) && scope.$evalAsync();
 					}
 				});
 
@@ -90,7 +91,7 @@ angular.module('classeur.optional.folding', [])
 				}, 10);
 
 				var debouncedunfoldRange = window.cledit.Utils.debounce(function() {
-					clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange);
+					clEditorSvc.selectionRange && clFoldingSvc.unfoldRange(clEditorSvc.selectionRange) && scope.$evalAsync();
 				}, 10);
 
 				scope.$watch('editorSvc.sectionList', debouncedBuildSectionGroups);
@@ -107,17 +108,12 @@ angular.module('classeur.optional.folding', [])
 				this.children = [];
 			}
 
-			function setHideClass(hide, elt) {
-				var className = (elt.className || '').replace(/(?:^|\s)hide(?!\S)/g, '');
-				if (hide) {
-					className += ' hide';
-				}
-				elt.className = className;
-				return elt;
-			}
-
-			var hideElt = setHideClass.cl_bind(null, true);
-			var showElt = setHideClass.cl_bind(null, false);
+			var hideElt = function(elt) {
+				elt.classList.add('hide');
+			};
+			var showElt = function(elt) {
+				elt.classList.remove('hide');
+			};
 
 			SectionGroup.prototype.fold = function(force) {
 				if (!force && this.isFolded) {
@@ -282,6 +278,7 @@ angular.module('classeur.optional.folding', [])
 				var isStarted, isFinished;
 				var startContainer = range.startContainer;
 				var endContainer = range.endContainer;
+				var result = false;
 				clEditorSvc.sectionList && clEditorSvc.sectionList.cl_some(function(section) {
 					if (section.elt.contains(startContainer)) {
 						isFinished = isStarted;
@@ -292,12 +289,13 @@ angular.module('classeur.optional.folding', [])
 						isStarted = true;
 					}
 					if (isStarted) {
-						section.elt.sectionGroup && unfold(section.elt.sectionGroup);
+						result |= section.elt.sectionGroup && unfold(section.elt.sectionGroup);
 					}
 					if (isFinished) {
 						return true;
 					}
 				});
+				return result;
 			}
 
 			folding.buildSectionGroups = buildSectionGroups;

@@ -1,43 +1,55 @@
-.signin-form.panel, .new-user-form.panel {
-    overflow: auto;
-    .logo {
-        width: 180px;
-        height: 64px;
-        background-image: url('assets/images/logo.png');
-        background-size: 180px 60px;
-        background-repeat: no-repeat;
-    }
-    & > * {
-        margin: auto;
-        max-width: 440px;
-        height: 100%;
-    }
-    .plastic-0 {
-        overflow: auto;
-        padding: 0 30px 30px;
-        border-radius: 3px;
-    }
-    .nav {
-        & > * {
-            margin: 0;
-            color: #fff;
-        }
-        md-input-container {
-            font-size: 30px;
-            width: 100%;
-        }
-        .md-button {
-            font-size: 26px;
-            line-height: 0;
-        }
-    }
-    .content {
-        padding: 30px;
-        border-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.25);
-    }
-    .terms {
-        font-size: 12px;
-        margin: 40px 0;
-    }
+.signin-form.panel,
+.new-user-form.panel {
+	overflow: auto;
+	.logo {
+		width: 180px;
+		height: 64px;
+		background-image: url('assets/images/logo.png');
+		background-size: 180px 60px;
+		background-repeat: no-repeat;
+	}
+	& > * {
+		margin: auto;
+		max-width: 440px;
+		height: 100%;
+	}
+	.plastic-0 {
+		overflow: auto;
+		padding: 0 30px 30px;
+		border-radius: 3px;
+	}
+	.nav {
+		& > * {
+			margin: 0;
+			color: #fff;
+		}
+		md-input-container {
+			width: 100%;
+			font-size: 30px;
+		}
+		.md-button {
+			font-size: 26px;
+			line-height: 0;
+		}
+	}
+	.content {
+		padding: 30px;
+		border-radius: 4px;
+		background-color: rgba(255, 255, 255, 0.25);
+	}
+	.terms {
+		margin: 40px 0;
+		font-size: 12px;
+	}
+}
+
+.user-name {
+	white-space: nowrap;
+	font-weight: bold;
+	img {
+		height: 1.5em;
+		width: 1.5em;
+		vertical-align: bottom;
+		margin-right: 5px;
+	}
 }

@@ -34,9 +34,14 @@ angular.module('classeur.optional.stat', [])
 				var duration;
 
 				function move() {
+					var width = document.body.clientWidth;
+					if (clLocalSettingSvc.values.sideBar) {
+						width -= clEditorLayoutSvc.sideBarWidth;
+					}
 					statPanelElt.clanim
 						.translateX(-clEditorLayoutSvc.backgroundX)
 						.translateY(clLocalSettingSvc.values.stat ? 0 : 30)
+						.width(width)
 						.duration(duration)
 						.easing('materialOut')
 						.start(true);
@@ -76,6 +81,7 @@ angular.module('classeur.optional.stat', [])
 				scope.$watch('editorSvc.selectionRange', computeText);
 				scope.$watch('editor.previewText', computeHtml);
 				scope.$watch('editorSvc.previewSelectionRange', computeHtml);
+				scope.$watch('editorLayoutSvc.binderWidth', move);
 				scope.$watch('localSettingSvc.values.stat', move);
 				scope.$watch('localSettingSvc.values.sideBar', move);
 			}

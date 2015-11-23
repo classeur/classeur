@@ -24,17 +24,27 @@
                 <cl-discussion-tab></cl-discussion-tab>
             </md-tab-body>
         </md-tab>
+        <!-- <md-tab label="History">
+            <md-tab-label>
+                <span class="icon-history"></span>
+            </md-tab-label>
+            <md-tab-body>
+                <cl-history-tab></cl-history-tab>
+            </md-tab-body>
+        </md-tab> -->
     </md-tabs>
 </div>
 <cl-button class="close-side-bar btn" opacity="0.35" opacity-hover="0.7" size="32">
     <a class="icon-clear" ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar"></a>
 </cl-button>
-<div class="background panel md-whiteframe-z4 no-overflow">
-    <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
-        <cl-preview></cl-preview>
+<div class="background panel md-whiteframe-z4">
+    <div class="panel no-overflow">
+        <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
+            <cl-preview></cl-preview>
+        </div>
     </div>
     <cl-button ng-if="showHelp" class="md-cheat-sheet btn" opacity="0.35" opacity-hover="0.7" size="34" right="0" bottom="44">
-        <a class="icon-help" target="_blank" href="http://classeur.io/help/" aria-label="Markdown Cheat Sheet"></a>
+        <a class="icon-help" ng-click="$emit('clHelpDialog')" aria-label="Help"></a>
     </cl-button>
     <div class="binder panel">
         <div class="header panel background">

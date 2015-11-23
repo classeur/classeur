@@ -29,17 +29,14 @@ angular.module('classeur.core.utils', [])
 		})
 	.factory('clUid',
 		function() {
-			var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-			var radix = alphabet.length;
-			var length = 20;
-			var mapper = Array.apply(null, new Array(length));
+			var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+				radix = alphabet.length,
+				array = new Uint32Array(20);
 
 			function clUid() {
-				var currentDate = Date.now();
-				return mapper.cl_map(function() {
-					var result = alphabet[(currentDate + Math.random() * radix) % radix | 0];
-					currentDate = Math.floor(currentDate / radix);
-					return result;
+				window.crypto.getRandomValues(array);
+				return array.cl_map(function(value) {
+					return alphabet[value % radix];
 				}).join('');
 			}
 			return clUid;
@@ -461,12 +458,12 @@ angular.module('classeur.core.utils', [])
 		function($timeout) {
 			return {
 				restrict: 'A',
-				link: function(scope, element, attr) {
+				link: function(scope, element, attrs) {
 					var elt = element[0];
 
 					function trigger() {
 						if (elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300) {
-							scope.$eval(attr.clInfiniteScroll) && $timeout(trigger);
+							scope.$eval(attrs.clInfiniteScroll) && $timeout(trigger);
 						}
 					}
 					elt.addEventListener('scroll', trigger);

@@ -5,7 +5,7 @@
         <span class="read-write indicator label" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
         </h2>
         <p ng-if="folderDao.sharing.length > 0 && !objectDao.isReadOnly && !objectDao.userId" class="warning">Sharing preference is restrained by folder preference.</p>
-        <p ng-if="objectDao.userId" class="warning">This {{::isFile ? 'file' : 'folder'}} is owned by <b>{{objectDao.userId | clUserName:userInfoSvc.lastUserInfo}}</b>.</p>
+        <p ng-if="objectDao.userId" class="warning">This {{::isFile ? 'file' : 'folder'}} is owned by <cl-user-name user-id="objectDao.userId"></cl-user-name>.</p>
         <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.isReadOnly && !objectDao.userId">
             <md-radio-button value="" ng-disabled="folderDao.sharing.length > 0">private</md-radio-button>
             <div class="help">Only you can access the file.</div>
