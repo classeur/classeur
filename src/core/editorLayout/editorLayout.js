@@ -126,7 +126,6 @@ angular.module('classeur.core.editorLayout', [])
 					clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -clEditorLayoutSvc.menuWidth : 0;
 					clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -50 : 0;
 					clEditorLayoutSvc.pageRotate = clEditorLayoutSvc.isMenuOpen ? -2 : 0;
-					scope.showHelp = clSettingSvc.values.editorHelpBtn && clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen && !scope.currentFileDao.isReadOnly;
 				}
 
 				function hidePreview() {

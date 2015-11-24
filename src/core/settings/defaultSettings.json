@@ -5,7 +5,6 @@
 	"editorHighlighting": true,
 	"editorInlineImg": true,
 	"editorMonospacedFont": false,
-	"editorHelpBtn": true,
 	"exportTemplates": {},
 	"handlebarsHelpers": "\n",
 	"pandocHighlightStyle": "kate",

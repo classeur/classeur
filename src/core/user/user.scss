@@ -47,9 +47,12 @@
 	white-space: nowrap;
 	font-weight: bold;
 	img {
-		height: 1.5em;
-		width: 1.5em;
+		height: 1.6em;
+		width: 1.6em;
 		vertical-align: bottom;
 		margin-right: 5px;
+		&.hidden {
+			visibility: hidden;
+		}
 	}
 }

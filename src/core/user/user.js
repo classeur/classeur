@@ -245,6 +245,13 @@ angular.module('classeur.core.user', [])
 						clUserInfoSvc.request(userId);
 						scope.user = clUserInfoSvc.users[userId];
 					});
+					var imgElt = element[0].querySelector('img');
+					imgElt.addEventListener('error', function() {
+						imgElt.classList.add('hidden');
+					});
+					imgElt.addEventListener('load', function() {
+						imgElt.classList.remove('hidden');
+					});
 				}
 			};
 		})

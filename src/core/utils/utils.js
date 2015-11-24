@@ -32,14 +32,12 @@ angular.module('classeur.core.utils', [])
 			var alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
 				radix = alphabet.length,
 				array = new Uint32Array(20);
-
-			function clUid() {
+			return function() {
 				window.crypto.getRandomValues(array);
 				return array.cl_map(function(value) {
 					return alphabet[value % radix];
 				}).join('');
-			}
-			return clUid;
+			};
 		})
 	.factory('clHash',
 		function() {

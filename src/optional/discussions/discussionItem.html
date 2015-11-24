@@ -2,16 +2,16 @@
     <div class="discussion selector" ng-click="selectDiscussion()">
         <div layout="row" layout-align="space-between start">
             <div class="discussion text md-highlighting" flex>
-                <a class="icon-delete" ng-click="deleteDiscussion(); $event.stopPropagation();" aria-label="Delete discussion" ng-switch-when="true"></a>
                 “<span ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.prismGrammar"></span>”
             </div>
             <md-chips ng-model="chips" readonly="true" ng-switch-when="false"></md-chips>
         </div>
         <div class="comment info" ng-switch-when="false">
             <cl-user-name user-id="lastComment.userId"></cl-user-name>
-            <span class="created">{{lastComment.created | clTimeSince}}</span>
+            <span class="created">{{lastComment.created | clTimeSince:minuteCounter}}</span>
         </div>
     </div>
+    <md-button ng-if="hasMore" ng-click="more()">Show more</md-button>
     <cl-discussion-comment-list ng-switch-when="true"></cl-discussion-comment-list>
     <hr>
 </div>

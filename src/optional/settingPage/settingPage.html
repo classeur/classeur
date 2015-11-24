@@ -29,9 +29,6 @@
                         <md-checkbox ng-model="settingSvc.values.editorMonospacedFont">
                             Use monospaced font only
                         </md-checkbox>
-                        <md-checkbox ng-model="settingSvc.values.editorHelpBtn">
-                            Help button
-                        </md-checkbox>
                         <br>
                         <h2>Document export</h2>
                         <md-checkbox ng-model="settingSvc.values.pandocToc">
@@ -116,6 +113,9 @@
                                     </md-button>
                                 </div>
                             </div>
+                            <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/rest-api/">
+                                More about the REST API...
+                            </md-button>
                             <p>
                                 <span class="label">
                                 Roles

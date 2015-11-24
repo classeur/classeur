@@ -17,6 +17,9 @@ $highlighting-color: #ffdf60;
 
 .discussion-preview-highlighting {
 	cursor: pointer;
+	&.selected {
+		cursor: auto;
+	}
 }
 
 .new-discussion-btn {
@@ -39,7 +42,7 @@ $highlighting-color: #ffdf60;
 .discussion.tab {
 	padding: 15px 25px;
 	&.selected .discussion.item {
-		opacity: 0.1;
+		opacity: 0.15;
 		&:hover {
 			opacity: 0.4;
 		}
@@ -48,7 +51,7 @@ $highlighting-color: #ffdf60;
 		opacity: 1;
 	}
 	.discussion.item {
-		margin: 15px 0;
+		margin: 25px 0;
 		-webkit-transition: 0.12s ease-out opacity;
 		        transition: 0.12s ease-out opacity;
 		hr {
@@ -107,12 +110,7 @@ $highlighting-color: #ffdf60;
 		}
 		.discussion.selector {
 			cursor: pointer;
-            margin: 10px 0;
-			a.icon-delete {
-				float: right;
-				font-size: 23px;
-				margin: 0 -5px 2px 5px;
-			}
+			margin: 10px 0;
 		}
 		&.selected .discussion.text {
 			text-overflow: clip;
@@ -122,11 +120,11 @@ $highlighting-color: #ffdf60;
 			}
 		}
 		.comment.info {
-			margin: 10px 0 5px -8px;
-            overflow: hidden;
+			margin: 10px 0 5px -10px;
+			overflow: hidden;
 			.user-name {
 				font-size: 15px;
-                text-shadow: 0 1px #f6f6f6;
+				text-shadow: 0 1px #f6f6f6;
 			}
 			.created {
 				padding-left: 12px;
@@ -138,36 +136,12 @@ $highlighting-color: #ffdf60;
 		.comment.item {
 			margin: 6px 0;
 			.comment.text {
-				padding-bottom: 10px;
 				font-size: 14px;
-				width: 100%;
-				* {
-					margin: 0;
-				}
-				h1,
-				h2,
-				h3,
-				h4,
-				h5,
-				h6 {
-					font-size: inherit;
-				}
-				pre {
-					white-space: pre-wrap;
-					word-wrap: break-word;
-					word-break: break-word;
-					-webkit-font-variant-ligatures: normal;
-					        font-variant-ligatures: normal;
-				}
-				img,
-				table {
-					max-width: 100%;
-				}
 			}
 			a.icon-delete {
 				opacity: 0;
 				font-size: 20px;
-				padding-right: 6px;
+				padding: 6px 6px 6px 0;
 			}
 			.comment.content:hover a.icon-delete {
 				opacity: 0.3;
@@ -176,13 +150,18 @@ $highlighting-color: #ffdf60;
 				}
 			}
 		}
+		.show-more {
+			font-size: 14px;
+		}
 		.md-chips {
 			padding: 0;
 			cursor: pointer;
 		}
 		.md-chip {
 			margin: 0 0 0 5px;
-            font-size: 0.8em;
+			font-size: 0.8em;
+			height: 23px;
+			line-height: 23px;
 			cursor: pointer;
 		}
 	}
@@ -191,21 +170,48 @@ $highlighting-color: #ffdf60;
 .discussion-postit.panel {
 	cursor: pointer;
 	left: 920px;
-    top: -200px;
-    font-size: 14px;
-    width: 160px;
-    height: 160px;
+	top: -200px;
+	width: 160px;
+	height: 160px;
 	font-size: 13px;
 	.user-name {
-		font-size: 14px;		
+		font-size: 14px;
 	}
 	.created {
 		color: rgba(0, 0, 0, 0.3);
 		font-size: 0.8em;
-		padding-left: 26px;
+		padding-left: 28px;
 	}
-
 	.preview.container & {
 		left: 840px;
+	}
+}
+
+.comment.text {
+	width: 100%;
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	p,
+	blockquote,
+	pre,
+	ul,
+	ol,
+	dl {
+		margin: 0.5em 0;
+	}
+	pre {
+		white-space: pre-wrap;
+		word-wrap: break-word;
+		word-break: break-word;
+		-webkit-font-variant-ligatures: normal;
+				font-variant-ligatures: normal;
+	}
+	img,
+	table {
+		max-width: 100%;
 	}
 }

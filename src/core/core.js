@@ -91,7 +91,7 @@ angular.module('classeur.core', [])
 
 		})
 	.run(
-		function($window, $rootScope, $location, $timeout, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
+		function($window, $rootScope, $location, $timeout, $interval, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
 
 			// Globally accessible services
 			$rootScope.config = clConfig;
@@ -162,6 +162,11 @@ angular.module('classeur.core', [])
 			$rootScope.loadFile = loadFile;
 			$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
 			$rootScope.createDefaultFile = createDefaultFile;
+
+			$rootScope.minuteCounter = 0;
+			$interval(function() {
+				$rootScope.minuteCounter++;
+			}, 60 * 1000);
 
 			$rootScope.$on('$routeChangeSuccess', function(event, current) {
 				$timeout(function() {

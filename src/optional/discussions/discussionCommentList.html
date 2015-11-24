@@ -1,8 +1,9 @@
+<md-button class="show-more" ng-if="hasMore" ng-click="showMore()">Show more...</md-button>
 <div class="comment list">
     <div ng-repeat="comment in comments track by comment.id" class="comment item">
         <div class="comment info">
             <cl-user-name user-id="comment.userId"></cl-user-name>
-            <span class="created">{{comment.created | clTimeSince}}</span>
+            <span class="created">{{comment.created | clTimeSince:minuteCounter}}</span>
         </div>
         <div class="comment content" layout="row" layout-align="space-between start">
             <a class="icon-delete" ng-click="deleteComment(comment.id)" aria-label="Delete discussion"></a>
@@ -16,6 +17,7 @@
             </div>
             <pre class="discussion comment md-highlighting md-whiteframe-z2"></pre>
             <div layout="row" layout-align="end">
+                <md-button class="md-primary" ng-click="deleteDiscussion();" aria-label="Delete discussion">Delete</md-button>
                 <md-button class="md-primary" ng-click="addComment()">Add</md-button>
             </div>
         </div>

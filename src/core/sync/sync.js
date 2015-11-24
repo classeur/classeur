@@ -871,10 +871,10 @@ angular.module('classeur.core.sync', [])
 
 			function setLoadedContent(fileDao, serverContent) {
 				fileDao.contentDao.text = serverContent.text;
-				fileDao.contentDao.properties = serverContent.properties || {};
-				fileDao.contentDao.discussions = serverContent.discussions || {};
-				fileDao.contentDao.comments = serverContent.comments || {};
-				fileDao.contentDao.conflicts = serverContent.conflicts || {};
+				fileDao.contentDao.properties = ({}).cl_extend(serverContent.properties);
+				fileDao.contentDao.discussions = ({}).cl_extend(serverContent.discussions);
+				fileDao.contentDao.comments = ({}).cl_extend(serverContent.comments);
+				fileDao.contentDao.conflicts = ({}).cl_extend(serverContent.conflicts);
 				fileDao.contentDao.isLocal = '1';
 				fileDao.contentDao.state = {};
 				fileDao.writeContent(true);
