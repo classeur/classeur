@@ -9,7 +9,7 @@
         <div class="title">
             Pricing
         </div>
-        <div class="perspective" layout-gt-sm="row" layout="column">
+        <div class="perspective" layout-gt-sm="row" layout="column" layout-align="center center">
             <div flex class="standard plan item md-whiteframe-z1 plastic-4" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name">
@@ -25,19 +25,19 @@
                         <li>Share publicly</li>
                         <li>1 blog</li>
                         <li>Unlimited blog posts</li>
-                        <li>Export to PDF, Word, EPUB... (5KB content limit)</li>
+                        <li>Export to PDF, Word, EPUB (5KB content limit)</li>
                         <li><a target="_blank" href="http://classeur.io/help/rest-api/">REST API</a> (read only)</li>
                     </ul>
-                    <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
+                    <md-button md-no-ink ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
                         <div>Sign in</div>
                         <div class="info">with Google</div>
                     </md-button>
-                    <md-button ng-if="::unsubscribe" ng-click="unsubscribe()">
+                    <md-button md-no-ink ng-if="::unsubscribe" ng-click="unsubscribe()">
                         Select
                     </md-button>
                 </div>
             </div>
-            <div flex class="premium plan item md-whiteframe-z2 plastic-0" layout="column">
+            <div flex class="premium plan item md-whiteframe-z5 plastic-0" layout="column">
                 <div class="header" layout="column" layout-align="center center">
                     <div class="name">
                         Premium
@@ -55,7 +55,7 @@
                         <li>Share publicly</li>
                         <li><b>Real-time collaboration</b></li>
                         <li><b>Unlimited blogs and posts</b></li>
-                        <li>Export to PDF, Word, EPUB... <b>(no content limit)</b></li>
+                        <li>Export to PDF, Word, EPUB <b>(no content limit)</b></li>
                         <li><a target="_blank" href="http://classeur.io/help/rest-api/">REST API</a> (read/write coming soon)</li>
                     </ul>
                     <md-button ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
@@ -88,23 +88,28 @@
                 </div>
                 <div class="body" flex layout="column">
                     <ul flex>
-                        <li><b>On premise or cloud deployment</b></li>
+                        <li><b>On-premises or Cloud deployment</b></li>
                         <li><b>Google Apps or LDAP/AD login</b></li>
                         <li><b>Internal or external DB</b></li>
                         <li><b>Automatic backup</b></li>
                         <li><b>Admin console</b></li>
                         <li><b>Support</b></li>
                     </ul>
-                    <md-button target="_blank" ng-href="http://classeur.io/help/enterprise/">
+                    <md-button md-no-ink target="_blank" ng-href="http://classeur.io/help/enterprise/">
                         Get started
                     </md-button>
                 </div>
             </div>
         </div>
-        <br>
-        <br>
-        <br>
-        <br>
+        <div class="discount md-whiteframe-z1 warning">
+            <p>
+                We offer discounts for large organizations, universities, non-profits...
+            </p>
+            <md-button class="md-primary" href="mailto:contact@classeur.io">
+                <div class="icon icon-email"></div>
+                contact us
+            </md-button>
+        </div>
     </div>
     <div class="footer">
         <div class="container">

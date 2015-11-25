@@ -116,7 +116,7 @@ $highlighting-color: #ffdf60;
 			text-overflow: clip;
 			white-space: normal;
 			& > span {
-				background-color: mix($background-color, $highlighting-color, 20%);
+				background-color: mix($body-color, $highlighting-color, 20%);
 			}
 		}
 		.comment.info {

@@ -22,14 +22,11 @@ input {
     font-size: inherit;
     min-width: 0;
     min-height: 0;
+    font-weight: 300;
+    height: auto;
     &, &.md-fab {
         line-height: 1;
     }
-}
-
-.md-button {
-    font-weight: normal;
-    height: auto;
 }
 
 md-menu-item > .md-button {

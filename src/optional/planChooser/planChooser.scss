@@ -3,8 +3,8 @@
     overflow: auto;
     .container {
         margin: auto;
-        max-width: 840px;
-        padding: 0 5px;
+        max-width: 900px;
+        padding: 0 20px;
     }
     .footer {
         position: fixed;
@@ -39,7 +39,7 @@
     }
     .title {
         text-align: center;
-        font-size: 42px;
+        font-size: 46px;
         font-weight: 300;
         margin: 40px 0 60px;
     }
@@ -119,5 +119,19 @@
     }
     .info {
         text-align: center;
+    }
+    .discount {
+        background-color: #fff;
+        padding: 30px;
+        margin: 30px auto 180px;
+        width: 400px;
+        text-align: center;
+        .md-button {
+            display: block;
+            line-height: 1.8;
+            .icon {
+                font-size: 50px;
+            }
+        }
     }
 }

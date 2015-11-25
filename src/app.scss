@@ -8,7 +8,7 @@ body {
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: $background-color;
+    background-color: $body-color;
     text-rendering: auto;
     -moz-tab-size: 4;
     -o-tab-size: 4;
@@ -71,7 +71,7 @@ input, textarea {
 }
 
 .background {
-    background-color: #fafafa;
+    background-color: $background-color;
 }
 
 .paper {
@@ -81,6 +81,7 @@ input, textarea {
 @for $i from 1 through length($plastic-colors) {
     $c: nth($plastic-colors, $i);
     .plastic-#{$i - 1} {
+        // background-color: mix(desaturate($c, 10%), $background-color, 33%) !important;
         background-color: lighten(desaturate($c, 12%), 19%) !important;
     }
 }

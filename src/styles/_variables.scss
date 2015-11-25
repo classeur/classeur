@@ -2,14 +2,15 @@ $font-family: Roboto, sans-serif;
 $font-family-editor: Roboto, sans-serif;
 $font-family-monospace: "Lucida Sans Typewriter", Monaco, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", monospace;
 $font-size-monospace: 0.91em;
-$background-color: #ddd;
+$body-color: #ddd;
+$background-color: #fafafa;
 $link-color: #316ED3;
 $code-bg: #eee;
 $border-radius-base: 4px;
 $border-radius-binder: 8px;
 $border-radius-buttonbar: 10px;
-$plastic-colors: 
-	/* blue */ #3a9cdd, 
+$plastic-colors:
+	/* blue */ #3a9cdd,
 	/* yellow */ lighten(desaturate(#F2B50D, 17.5%), 5%),
 	/* green */ lighten(desaturate(#20bc9c, 30%), 5%),
 	/* red */ lighten(desaturate(#e75c3c, 12.5%), 2.5%),
