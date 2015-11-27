@@ -8,12 +8,12 @@
     }
     & > * {
         margin: auto;
-        max-width: 580px;
+        max-width: 560px;
         height: 100%;
         padding: 5px 5px 0;
     }
     .plastic-4 {
-        padding: 0 30px 30px;
+        padding: 0 15px 15px;
         border-radius: 3px;
     }
     .nav {
@@ -22,7 +22,6 @@
             color: #fff;
         }
         md-input-container {
-            font-size: 30px;
             width: 100%;
         }
         .md-button {
@@ -71,7 +70,7 @@
     .menu {
         padding: 0 5px;
         .md-button {
-            padding: 8px 10px;
+            padding: 10px;
             color: rgba(0, 0, 0, 0.75);
         }
         .icon {

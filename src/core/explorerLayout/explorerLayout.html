@@ -1,7 +1,7 @@
 <form name="form">
     <div class="explorer background panel">
         <div class="explorer container panel">
-            <cl-button class="help btn" opacity="0.35" opacity-hover="0.7" size="30" right="-35">
+            <cl-button class="help btn" size="30" right="-35">
                 <a class="icon-help" ng-click="$emit('clHelpDialog')" aria-label="Help"></a>
             </cl-button>
             <div class="header">
@@ -151,7 +151,7 @@
                                     </div>
                                     <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
                                 </div>
-                                <cl-recent-alert></cl-recent-alert>
+                                <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length"></cl-recent-alert>
                             </div>
                         </div>
                         <div class="folder container clone hidden">

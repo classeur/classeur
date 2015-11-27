@@ -1,622 +1,625 @@
 @import 'variables';
 .explorer.background {
-    .help.btn a {
-        font-size: 30px;
-    }
-    .explorer.container {
-        left: 50%;
-        min-height: 100%;
-    }
-    .binder-radius {
-        border-radius: 3px;
-    }
-    .md-menu {
-        padding: 0;
-    }
-    .icon-more-vert {
-        padding: 0;
-        font-size: 32px;
-        width: 36px;
-        height: 42px;
-        display: block;
-        color: #fff;
-    }
-    .header {
-        height: 80px;
-        position: relative;
-        .classeur.name {
-            padding: 8px 0 0;
-            height: 100%;
-            font-size: 36px;
-            letter-spacing: -0.03em;
+	.help.btn a {
+		font-size: 30px;
+	}
+	.explorer.container {
+		left: 50%;
+		min-height: 100%;
+	}
+	.binder-radius {
+		border-radius: 3px;
+	}
+	.md-menu {
+		padding: 0;
+	}
+	.icon-more-vert {
+		padding: 0;
+		font-size: 30px;
+		width: 36px;
+		height: 42px;
+		display: block;
+		color: #fff;
+	}
+	.header {
+		height: 80px;
+		position: relative;
+		.classeur.name {
+			padding: 8px 0 0;
+			height: 100%;
+			color: rgba(0, 0, 0, 0.75);
+			font-size: 36px;
+			letter-spacing: -0.03em;
+			font-weight: 300;
+			white-space: nowrap;
+			line-height: 1.15;
+			.logo {
+				width: 50px;
+				height: 64px;
+				background-image: url('assets/images/logo.png');
+				background-size: 180px 60px;
+				background-repeat: no-repeat;
+			}
+		}
+		.classeur.toggler {
+			padding: 5px 10px;
+			div {
+				font-size: 20px;
+				line-height: 16px;
+			}
+		}
+		.help {
+			font-size: 18px;
+			padding: 2px 4px;
+		}
+		& > div {
+			position: absolute;
+			width: 100%;
+			top: 0;
+			&:first-child {
+				height: 100%;
+			}
+		}
+		.user-info {
+			border-bottom-left-radius: 8px;
+			border-bottom-right-radius: 8px;
+			background-color: #484848;
+			color: #fff;
+			padding: 0 12px;
+			font-size: 15px;
             font-weight: 300;
-            white-space: nowrap;
-            line-height: 1.15;
-            .logo {
-                width: 50px;
-                height: 64px;
-                background-image: url('assets/images/logo.png');
-                background-size: 180px 60px;
-                background-repeat: no-repeat;
-            }
-        }
-        .classeur.toggler {
-            padding: 5px 10px;
-            div {
-                font-size: 20px;
-                line-height: 16px;
-            }
-        }
-        .help {
-            font-size: 18px;
-            padding: 2px 4px;
-        }
-        & > div {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            &:first-child {
-                height: 100%;
-            }
-        }
-        .user-info {
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            background-color: #484848;
-            color: #fff;
-            padding: 0 12px;
-            font-size: 15px;
-            margin-left: 10px;
-            .md-button {
-                padding: 7px 10px;
-            }
-            .item {
-                display: inline-block;
-                position: relative;
-                white-space: nowrap;
-                overflow: hidden;
-                padding: 7px 10px;
-                line-height: 1.1;
-            }
-            .settings {
-                padding: 6px;
-                font-size: 18px;
-            }
-        }
-    }
-    .folder.container {
-        top: 2px;
-        padding-left: 50px;
-        padding-right: 100px;
-        &.clone {
-            position: absolute;
-            .file.actions > div {
-                padding: 15px 0 0;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            }
-            &.hidden {
-                display: none;
-            }
-        }
-        &.panel::after {
-            content: '';
-            height: 150px;
-            display: block;
-        }
-        overflow-x: hidden;
-        overflow-y: scroll;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-        md-progress-circular {
-            position: relative;
-            top: 40px;
-            left: 50%;
-            margin-left: -25px;
-        }
-    }
-    .no-padding {
-        .folder.container,
-        .md-sticky-clone {
-            padding-left: 10px;
-            padding-right: 60px;
-        }
-        .folder.container {
-            .folder.content,
-            .file.actions {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-        }
-        .md-sticky-clone {
-            .file.actions {
-                padding: 0 10px;
-            }
-        }
-        .header .classeur.name .logo {
-            display: none;
-        }
-    }
-    .new-file.actions {
-        min-height: 35px;
-        ::-webkit-input-placeholder {
-            color: rgba(255, 255, 255, 0.45);
-        }
-        :-moz-placeholder {
-            color: rgba(255, 255, 255, 0.45);
-            opacity: 1;
-        }
-        ::-moz-placeholder {
-            color: rgba(255, 255, 255, 0.45);
-            opacity: 1;
-        }
-        :-ms-input-placeholder {
-            color: rgba(255, 255, 255, 0.45);
-        }
-        md-input-container {
-            md-icon {
-                color: rgba(255, 255, 255, 0.45);
-                font-size: 26px;
-            }
-            padding-bottom: 2px;
-            input {
-                margin-left: 35px;
-                font-size: 20px;
-                border-color: transparent !important;
-            }
-        }
-        .search {
-            min-width: 0;
-            @media screen and (max-width: 320px) {
-                display: none;
-            }
-        }
-    }
-    .file.actions {
-        & > div {
-            padding: 15px 0 0;
-        }
-        font-size: 15px;
-        padding: 0 35px;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        background-color: rgba(255,
-        255,
-        255,
-        0.25);
-        .sort-by {
-            .icon-keyboard-backspace {
-                display: inline-block;
-            }
-            @media screen and (max-width: 320px) {
-                display: none;
-            }
-        }
-    }
-    .folder.content {
-        padding: 10px 40px 60px;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.25);
-        .extra {
-            font-size: 15px;
-            color: rgba(0, 0, 0, 0.2);
-            margin: 30px 0 10px;
-        }
-    }
-    .folder.name {
-        width: 100%;
-        font-size: 30px;
-        letter-spacing: -0.01em;
-    }
-    .new-file.actions button {
-        color: #fff;
-    }
-    $file-entry-height: 40px;
-    .file.entry {
-        line-height: $file-entry-height;
-        position: relative;
-        border-radius: 6px;
-        .drag-space {
-            width: 12px;
-            min-width: 12px;
-        }
-        .drag {
-            padding-left: 2px;
-            padding-right: 2px;
-            cursor: move;
-            height: $file-entry-height;
-            span {
-                color: transparentize(#000, 0.5);
-                font-size: 20px;
-                display: inline-block;
-                overflow: hidden;
-                width: 12px;
-                line-height: $file-entry-height;
-            }
-        }
-        md-checkbox {
-            margin: 0 10px;
-            .md-label {
-                display: none;
-            }
-        }
-        .name {
-            width: 100%;
-            padding-top: 4px;
-            padding-bottom: 6px;
-            cursor: pointer;
-            .md-input {
-                line-height: 1;
-                font-size: 18px;
-                font-weight: 300;
-                &[disabled] {
-                    color: rgba(0, 0, 0, 0.87);
-                    cursor: pointer;
-                    background-image: none;
-                    border-bottom-color: rgba(0, 0, 0, 0.066);
-                    pointer-events: none;
-                }
-            }
-        }
-        .icon-more-vert {
-            height: $file-entry-height;
-            font-size: 28px;
-            color: rgba(0, 0, 0, 0.5);
-        }
-    }
-    .btn-grp.panel {
-        top: 8px;
-        width: 2050px;
-        right: -2050px;
-        .container.panel {
-            overflow: auto;
-        }
-        .shadow.panel {
-            z-index: 9999;
-            left: -2050px;
-            box-shadow: 0px 0px 28px 0 rgba(0, 0, 0, 0.4);
-        }
-        .folder.btn {
-            box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
-            height: 110px;
-            width: 32px;
-            margin-bottom: 130px;
-            border-top-right-radius: $border-radius-binder;
-            border-bottom-right-radius: $border-radius-binder;
-            .md-button {
-                position: absolute;
-                text-transform: none;
-                line-height: 1;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                font-size: 13px;
-                color: #fff;
-                border-top-right-radius: $border-radius-binder;
-                border-bottom-right-radius: $border-radius-binder;
-                &:hover,
-                &.md-focused {
-                    background-color: transparent;
-                }
-                .rotate-90 {
-                    position: absolute;
-                    width: 110px;
-                    height: 32px;
-                    left: 32px;
-                    top: 0;
-                    white-space: normal;
-                    padding: 0 4px;
-                    letter-spacing: 0;
-                    -webkit-transform-origin: 0 0;
-                    transform-origin: 0 0;
-                }
-            }
-            &.selected .md-button {
-                &:hover,
-                &.md-focused {
-                    background-color: transparent;
-                }
-            }
-        }
-        .recent.btn,
-        .unclassified.btn,
-        .create.btn {
-            height: 44px;
-            width: 42px;
-            z-index: 9998;
-            border-top-right-radius: $border-radius-binder;
-            border-bottom-right-radius: $border-radius-binder;
-            .md-button {
-                font-size: 24px;
-                padding: 0;
-                span {
-                    line-height: 44px;
-                }
-            }
-        }
-        .unclassified.btn {
-            top: 43px;
-            width: 40px;
-            .md-button {
-                font-size: 25px;
-                .icon-search {
-                    display: inline-block;
-                    -webkit-transform: scale(-1, 1);
-                    transform: scale(-1, 1);
-                }
-            }
-        }
-        .create.btn {
-            top: 86px;
-            width: 38px;
-            .md-button {
-                font-size: 21px;
-            }
-        }
-        .current.btn {
-            display: none;
-            top: 129px;
-            z-index: 10000;
-        }
-        .open.btn,
-        .current.btn {
-            button {
-                color: #fff;
-            }
-        }
-        &.hidden-btn {
-            .current.btn {
-                display: block;
-            }
-            .selected.btn {
-                visibility: hidden;
-            }
-        }
-    }
-    .footer.panel {
-        bottom: 0;
-        height: auto;
-    }
-    .footer.menu {
-        border-top: 1px solid rgba(128, 128, 128, 0.2);
-        padding: 0 5px;
-        margin-left: 30px;
-        .md-button {
-            padding: 8px 10px;
-            color: rgba(0, 0, 0, 0.75);
-        }
-        .icon {
-            font-size: 23px;
-            line-height: 16px;
-        }
-    }
-    .classeur.list {
-        .scroller {
-            overflow: auto;
-            overflow-y: scroll;
-            &::-webkit-scrollbar {
-                display: none;
-            }
-            padding: 0 30px 200px 0;
-            right: -30px;
-        }
-        .tile.content::before,
-        .tab-1,
-        .tab-2 {
-            content: '';
-            width: 10px;
-            right: -10px;
-            position: absolute;
-            top: 6px;
-            height: 40px;
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-        }
-        .new.tile {
-            .icon {
-                height: 100%;
-                font-size: 48px;
-                a {
-                    color: #a0a0a0;
-                }
-            }
-            &,
-            & .tab-1,
-            & .tab-2 {
-                background-color: #e8e8e8;
-            }
-        }
-        .tab-1 {
-            top: 45px;
-            z-index: -1;
-        }
-        .tab-2 {
-            top: 84px;
-            z-index: -2;
-        }
-        .tile.container {
-            width: 33%;
-            height: 220px;
-            margin: 15px 0;
-            float: left;
-            position: relative;
-            @media screen and (max-width: 720px) {
-                width: 50%;
-            }
-            @media screen and (max-width: 480px) {
-                width: auto;
-                float: none;
-            }
-        }
-        .tile.content {
-            width: 84%;
-            left: 8%;
-            top: 0;
-            border-radius: 2px;
-            cursor: pointer;
-            .name {
-                padding: 2px;
-                border-radius: 3px;
-                background-color: rgba(255, 255, 255, 0.25);
-                margin: 20px 5px 15px;
-                textarea {
-                    font-weight: 300;
-                    text-align: center;
-                    font-size: 20px;
-                    &:disabled {
-                        cursor: pointer;
-                        color: rgba(0, 0, 0, 0.87);
-                        pointer-events: none;
-                    }
-                }
-                md-input-container {
-                    padding-bottom: 2px;
-                }
-            }
-            &::before {
-                background-color: inherit;
-                width: 12px;
-                right: -12px;
-            }
-            .info {
-                text-align: center;
-                font-size: 12px;
-                line-height: 16px;
-                color: rgba(0, 0, 0, 0.35);
-            }
-        }
-        .footer.panel {
-            bottom: 0;
-            height: 42px;
-            font-size: 26px;
-            background-color: rgba(255, 255, 255, 0.25);
-            text-align: center;
-            cursor: auto;
-            .icon-more-vert {
-                padding: 0;
-                font-size: 28px;
-                width: 42px;
-                height: 42px;
-                display: block;
-                color: rgba(0, 0, 0, 0.5);
-            }
-        }
-    }
+			.md-button {
+				padding: 7px 10px;
+			}
+			.item {
+				display: inline-block;
+				position: relative;
+				text-shadow: 1px 1px rgba(0,0,0,0.33);
+				white-space: nowrap;
+				overflow: hidden;
+				padding: 7px 10px;
+				line-height: 1.1;
+			}
+			.settings {
+				padding: 6px;
+				font-size: 18px;
+			}
+		}
+	}
+	.folder.container {
+		top: 2px;
+		padding-left: 40px;
+		padding-right: 90px;
+		&.clone {
+			position: absolute;
+			.file.actions > div {
+				padding: 15px 0 0;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+			}
+			&.hidden {
+				display: none;
+			}
+		}
+		&.panel::after {
+			content: '';
+			height: 150px;
+			display: block;
+		}
+		overflow-x: hidden;
+		overflow-y: scroll;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+		md-progress-circular {
+			position: relative;
+			top: 40px;
+			left: 50%;
+			margin-left: -25px;
+		}
+	}
+	.no-padding {
+		.folder.container,
+		.md-sticky-clone {
+			padding-left: 10px;
+			padding-right: 60px;
+		}
+		.folder.container {
+			.folder.content,
+			.file.actions {
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+		}
+		.md-sticky-clone {
+			.file.actions {
+				padding: 0 10px;
+			}
+		}
+		.header .classeur.name .logo {
+			display: none;
+		}
+	}
+	.new-file.actions {
+		min-height: 35px;
+        font-size: 18px;
+		::-webkit-input-placeholder {
+			color: rgba(255, 255, 255, 0.45);
+		}
+		:-moz-placeholder {
+			color: rgba(255, 255, 255, 0.45);
+			opacity: 1;
+		}
+		::-moz-placeholder {
+			color: rgba(255, 255, 255, 0.45);
+			opacity: 1;
+		}
+		:-ms-input-placeholder {
+			color: rgba(255, 255, 255, 0.45);
+		}
+		md-input-container {
+			md-icon {
+				color: rgba(255, 255, 255, 0.45);
+				font-size: 26px;
+			}
+			padding-bottom: 2px;
+			input {
+				margin-left: 35px;
+				font-size: 20px;
+				border-color: transparent !important;
+			}
+		}
+		.search {
+			min-width: 0;
+			@media screen and (max-width: 320px) {
+				display: none;
+			}
+		}
+	}
+	.file.actions {
+		& > div {
+			padding: 15px 0 0;
+		}
+		padding: 0 35px;
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+		background-color: rgba(255,255,255,0.2);
+		.sort-by {
+			.icon-keyboard-backspace {
+				display: inline-block;
+			}
+			@media screen and (max-width: 320px) {
+				display: none;
+			}
+		}
+	}
+	.folder.content {
+		padding: 10px 40px 60px;
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
+		background-color: rgba(255, 255, 255, 0.2);
+		.extra {
+			font-size: 15px;
+			color: rgba(0, 0, 0, 0.33);
+			margin: 30px 0 10px;
+		}
+	}
+	.folder.name {
+		width: 100%;
+		letter-spacing: -0.01em;
+	}
+	.new-file.actions button {
+		color: #fff;
+		text-shadow: 1px 1px rgba(0,0,0,0.067);
+	}
+	$file-entry-height: 40px;
+	.file.entry {
+		line-height: $file-entry-height;
+		position: relative;
+		border-radius: 6px;
+		.drag-space {
+			width: 10px;
+			min-width: 10px;
+		}
+		.drag {
+			padding-left: 2px;
+			padding-right: 2px;
+			cursor: move;
+			height: $file-entry-height;
+			span {
+				color: transparentize(#000, 0.5);
+				font-size: 16px;
+				display: inline-block;
+				overflow: hidden;
+				width: 10px;
+				line-height: $file-entry-height;
+			}
+		}
+		md-checkbox {
+			margin: 0 10px;
+			.md-label {
+				display: none;
+			}
+		}
+		.name {
+			width: 100%;
+			padding-top: 4px;
+			padding-bottom: 6px;
+			cursor: pointer;
+			.md-input {
+				line-height: 1;
+				font-size: 18px;
+				font-weight: 300;
+				&[disabled] {
+					color: rgba(0, 0, 0, 0.87);
+					cursor: pointer;
+					background-image: none;
+					border-bottom-color: rgba(0, 0, 0, 0.066);
+					pointer-events: none;
+				}
+			}
+		}
+		.icon-more-vert {
+			height: $file-entry-height;
+			font-size: 26px;
+			color: rgba(0, 0, 0, 0.5);
+		}
+	}
+	.btn-grp.panel {
+		top: 8px;
+		width: 2050px;
+		right: -2050px;
+		.container.panel {
+			overflow: auto;
+		}
+		.shadow.panel {
+			z-index: 9999;
+			left: -2050px;
+			box-shadow: 0 0 28px 0 rgba(0, 0, 0, 0.4);
+		}
+		.folder.btn {
+			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
+			height: 110px;
+			width: 32px;
+			margin-bottom: 130px;
+			border-top-right-radius: $border-radius-binder;
+			border-bottom-right-radius: $border-radius-binder;
+			.md-button {
+				position: absolute;
+				text-transform: none;
+				line-height: 1;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+				font-size: 12.5px;
+				color: #fff;
+				text-shadow: 1px 1px rgba(0,0,0,0.067);
+				font-weight: normal;
+				border-top-right-radius: $border-radius-binder;
+				border-bottom-right-radius: $border-radius-binder;
+				[class^="icon-"], [class*=" icon-"] {
+			        font-size: 1em;
+			    }
+				&:hover,
+				&.md-focused {
+					background-color: transparent;
+				}
+				.rotate-90 {
+					position: absolute;
+					width: 110px;
+					height: 32px;
+					left: 32px;
+					top: 0;
+					white-space: normal;
+					padding: 0 4px;
+					letter-spacing: 0;
+					-webkit-transform-origin: 0 0;
+					        transform-origin: 0 0;
+				}
+			}
+			&.selected .md-button {
+				&:hover,
+				&.md-focused {
+					background-color: transparent;
+				}
+			}
+		}
+		.recent.btn,
+		.unclassified.btn,
+		.create.btn {
+			height: 44px;
+			width: 42px;
+			z-index: 9998;
+			border-top-right-radius: $border-radius-binder;
+			border-bottom-right-radius: $border-radius-binder;
+			.md-button {
+				font-size: 22px;
+				padding: 0;
+				span {
+					line-height: 44px;
+				}
+			}
+		}
+		.unclassified.btn {
+			top: 43px;
+			width: 40px;
+			.md-button {
+				.icon-search {
+					display: inline-block;
+					-webkit-transform: scale(-1, 1);
+					        transform: scale(-1, 1);
+				}
+			}
+		}
+		.create.btn {
+			top: 86px;
+			width: 38px;
+			.md-button {
+				font-size: 19px;
+			}
+		}
+		.current.btn {
+			display: none;
+			top: 129px;
+			z-index: 10000;
+		}
+		.open.btn,
+		.current.btn {
+			button {
+				color: #fff;
+			}
+		}
+		&.hidden-btn {
+			.current.btn {
+				display: block;
+			}
+			.selected.btn {
+				visibility: hidden;
+			}
+		}
+	}
+	.footer.panel {
+		bottom: 0;
+		height: auto;
+	}
+	.footer.menu {
+		border-top: 1px solid rgba(128, 128, 128, 0.2);
+		padding: 0 5px;
+		margin-left: 30px;
+		.md-button {
+			padding: 10px;
+			color: rgba(0, 0, 0, 0.75);
+		}
+		.icon {
+			font-size: 23px;
+			line-height: 16px;
+		}
+	}
+	.classeur.list {
+		.scroller {
+			overflow: auto;
+			overflow-y: scroll;
+			&::-webkit-scrollbar {
+				display: none;
+			}
+			padding: 0 30px 200px 0;
+			right: -30px;
+		}
+		.tile.content::before,
+		.tab-1,
+		.tab-2 {
+			content: '';
+			width: 10px;
+			right: -10px;
+			position: absolute;
+			top: 6px;
+			height: 40px;
+			border-top-right-radius: 3px;
+			border-bottom-right-radius: 3px;
+		}
+		.new.tile {
+			.icon {
+				height: 100%;
+				font-size: 48px;
+				a {
+					color: #a0a0a0;
+				}
+			}
+			&,
+			& .tab-1,
+			& .tab-2 {
+				background-color: #e8e8e8;
+			}
+		}
+		.tab-1 {
+			top: 45px;
+			z-index: -1;
+		}
+		.tab-2 {
+			top: 84px;
+			z-index: -2;
+		}
+		.tile.container {
+			width: 33%;
+			height: 220px;
+			margin: 15px 0;
+			float: left;
+			position: relative;
+			@media screen and (max-width: 720px) {
+				width: 50%;
+			}
+			@media screen and (max-width: 480px) {
+				width: auto;
+				float: none;
+			}
+		}
+		.tile.content {
+			width: 84%;
+			left: 8%;
+			top: 0;
+			border-radius: 2px;
+			cursor: pointer;
+			.name {
+				padding: 2px;
+				border-radius: 3px;
+				background-color: rgba(255, 255, 255, 0.2);
+				margin: 20px 5px 15px;
+				textarea {
+					font-weight: 300;
+					text-align: center;
+					font-size: 20px;
+					&:disabled {
+						cursor: pointer;
+						color: rgba(0, 0, 0, 0.87);
+						pointer-events: none;
+					}
+				}
+				md-input-container {
+					padding-bottom: 2px;
+				}
+			}
+			&::before {
+				background-color: inherit;
+				width: 12px;
+				right: -12px;
+			}
+			.info {
+				text-align: center;
+				font-size: 12px;
+				line-height: 16px;
+				color: rgba(0, 0, 0, 0.35);
+			}
+		}
+		.footer.panel {
+			bottom: 0;
+			height: 42px;
+			font-size: 26px;
+			background-color: rgba(255, 255, 255, 0.2);
+			text-align: center;
+			cursor: auto;
+			.icon-more-vert {
+				padding: 0;
+				font-size: 26px;
+				width: 42px;
+				height: 42px;
+				display: block;
+				color: rgba(0, 0, 0, 0.5);
+			}
+		}
+	}
 }
 
 .public-corner {
-    $public-corner-size: 64px;
-    font-size: 32px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: rgba(64, 64, 64, 0.2);
-    width: $public-corner-size;
-    height: $public-corner-size;
-    border-top: $public-corner-size solid rgba(128, 128, 128, 0.2);
-    border-right: $public-corner-size solid transparent;
-    .icon-publ {
-        position: absolute;
-        top: -$public-corner-size;
-        left: 0;
-        padding: 4px;
-    }
-    .folder.btn &,
-    .file.entry & {
-        $public-file-corner-size: 32px;
-        font-size: 17px;
-        width: $public-file-corner-size;
-        height: $public-file-corner-size;
-        border-top-width: $public-file-corner-size;
-        border-right-width: $public-file-corner-size;
-        .icon-publ {
-            top: -$public-file-corner-size;
-            padding: 1px;
-        }
-    }
+	$public-corner-size: 64px;
+	font-size: 30px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: rgba(64, 64, 64, 0.2);
+	width: $public-corner-size;
+	height: $public-corner-size;
+	border-top: $public-corner-size solid rgba(128, 128, 128, 0.2);
+	border-right: $public-corner-size solid transparent;
+	.icon-publ {
+		position: absolute;
+		top: -$public-corner-size;
+		left: 0;
+		padding: 4px;
+	}
+	.folder.btn &,
+	.file.entry & {
+		$public-file-corner-size: 32px;
+		font-size: 16px;
+		width: $public-file-corner-size;
+		height: $public-file-corner-size;
+		border-top-width: $public-file-corner-size;
+		border-right-width: $public-file-corner-size;
+		.icon-publ {
+			top: -$public-file-corner-size;
+			padding: 1px;
+		}
+	}
 }
 
 .sharing-indicator {
-    md-menu-item & {
-        position: relative;
-        &::after {
-            margin-top: -7px;
-            margin-right: 2px;
-        }
-    }
-    &::after {
-        color: #fff;
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        font-family: $font-family;
-        font-size: 11px;
-        font-weight: bold;
-        line-height: 1.1;
-        border-radius: 8px;
-        padding: 0 4px;
-        .folder.btn & {
-            padding: 0 3px;
-            font-size: 8px;
-            top: 2px;
-            right: 2px;
-        }
-    }
-    &.read::after {
-        content: 'r';
-        background-color: #2164D3;
-        right: 7px;
-    }
-    &.read-write::after {
-        content: 'rw';
-        background-color: #D33800;
-    }
+	md-menu-item & {
+		position: relative;
+		&::after {
+			margin-top: -7px;
+			margin-right: 2px;
+		}
+	}
+	&::after {
+		color: #fff;
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		font-family: $font-family;
+		font-size: 11px;
+		font-weight: bold;
+		line-height: 1.1;
+		border-radius: 8px;
+		padding: 0 4px;
+		.folder.btn & {
+			padding: 0 3px;
+			font-size: 8px;
+			top: 2px;
+			right: 2px;
+		}
+	}
+	&.read::after {
+		content: 'r';
+		background-color: #2164d3;
+		right: 7px;
+	}
+	&.read-write::after {
+		content: 'rw';
+		background-color: #d33800;
+	}
 }
 
 .new.dialog {
-    min-width: 320px;
-    .or {
-        text-align: center;
-        text-transform: uppercase;
-        font-weight: bold;
-        color: #bbb;
-        margin: 0;
-        span {
-            font-weight: 300;
-        }
-    }
-    .panel {
-        position: relative;
-        overflow: hidden;
-        height: 70px;
-        &.link {
-            height: 0;
-        }
-    }
-    .drop-zone {
-        border: 3px dashed #bbb;
-        border-radius: 16px;
-        padding: 32px;
-        text-align: center;
-        color: #bbb;
-        position: relative;
-        .icon {
-            font-size: 42px;
-        }
-        input {
-            position: absolute;
-            display: block;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-    }
+	min-width: 320px;
+	.or {
+		text-align: center;
+		text-transform: uppercase;
+		font-weight: bold;
+		color: #bbb;
+		margin: 0;
+		span {
+			font-weight: 300;
+		}
+	}
+	.panel {
+		position: relative;
+		overflow: hidden;
+		height: 70px;
+		&.link {
+			height: 0;
+		}
+	}
+	.drop-zone {
+		border: 3px dashed #bbb;
+		border-radius: 16px;
+		padding: 32px;
+		text-align: center;
+		color: #bbb;
+		position: relative;
+		.icon {
+			font-size: 42px;
+		}
+		input {
+			position: absolute;
+			display: block;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			opacity: 0;
+			cursor: pointer;
+		}
+	}
 }
 
 md-tooltip span.icon-arrow-back {
-    display: inline-block;
+	display: inline-block;
 }

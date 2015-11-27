@@ -34,7 +34,7 @@
         padding: 0 5px;
         border-top: 1px solid rgba(128, 128, 128, 0.2);
         .md-button {
-            padding: 8px;
+            padding: 10px;
         }
     }
     .title {
@@ -58,6 +58,8 @@
         border-radius: 3px;
         .header {
             color: #fff;
+            text-shadow: 1px 1px rgba(0,0,0,0.067);
+            font-weight: normal;
             height: 175px;
         }
         .body {
@@ -123,12 +125,13 @@
     .discount {
         background-color: #fff;
         padding: 30px;
-        margin: 30px auto 180px;
+        margin: 30px auto 120px;
         width: 400px;
         text-align: center;
         .md-button {
             display: block;
             line-height: 1.8;
+            font-size: 20px;
             .icon {
                 font-size: 50px;
             }

@@ -99,15 +99,11 @@ table {
 
 td,
 th {
-    padding: 8px;
+    padding: 8px 12px;
 }
 
-tr:nth-child(even) td {
-    background-color: $code-bg;
-}
-
-th {
-    background-color: $code-bg;
+td {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 kbd {

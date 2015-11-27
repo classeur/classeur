@@ -38,6 +38,13 @@ angular.module('classeur.optional.buttonBar', [])
 					clEditorSvc.pagedownEditor.uiManager.doClick('code');
 				}
 			}, {
+				icon: 'icon-format-size',
+				label: 'Heading',
+				keystroke: 'Ctrl/Cmd+H',
+				click: function() {
+					clEditorSvc.pagedownEditor.uiManager.doClick('heading');
+				}
+			}, {
 				icon: 'icon-link',
 				label: 'Link',
 				keystroke: 'Ctrl/Cmd+L',
@@ -52,12 +59,18 @@ angular.module('classeur.optional.buttonBar', [])
 					clEditorSvc.pagedownEditor.uiManager.doClick('image');
 				}
 			}, {
-				separator: true,
+				icon: 'icon-border-outer',
+				label: 'Table',
+				keystroke: 'Ctrl/Cmd+T',
+				click: function() {
+					clEditorSvc.pagedownEditor.uiManager.doClick('table');
+				}
+			}, {
 				icon: 'icon-format-list-numbered',
 				label: 'Numbered list',
 				keystroke: 'Ctrl/Cmd+O',
 				click: function() {
-					clEditorSvc.pagedownEditor.uiManager.doClick('olist');
+						clEditorSvc.pagedownEditor.uiManager.doClick('olist');
 				}
 			}, {
 				icon: 'icon-format-list-bulleted',
@@ -65,13 +78,6 @@ angular.module('classeur.optional.buttonBar', [])
 				keystroke: 'Ctrl/Cmd+U',
 				click: function() {
 					clEditorSvc.pagedownEditor.uiManager.doClick('ulist');
-				}
-			}, {
-				icon: 'icon-format-size',
-				label: 'Heading',
-				keystroke: 'Ctrl/Cmd+H',
-				click: function() {
-					clEditorSvc.pagedownEditor.uiManager.doClick('heading');
 				}
 			}, {
 				icon: 'icon-hr',
@@ -106,7 +112,7 @@ angular.module('classeur.optional.buttonBar', [])
 
 			var props = {
 				margin: 25,
-				btnWidth: 28,
+				btnWidth: 29,
 				btnHeight: 30,
 				height: 60,
 				visibleHeight: 42

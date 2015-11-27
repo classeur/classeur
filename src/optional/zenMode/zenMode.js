@@ -67,7 +67,7 @@ angular.module('classeur.optional.zenMode', [])
 							}
 							level2Elt.clanim
 								.duration(100)
-								.opacity(0.9)
+								.opacity(0.85)
 								.easing('ease-out')
 								.start(true);
 						}

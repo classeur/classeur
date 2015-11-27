@@ -128,6 +128,7 @@
                 height: 100%;
                 font-size: 20px;
                 color: #fff;
+                text-shadow: 1px 1px rgba(0,0,0,0.067);
                 &:hover,
                 &.md-focused {
                     background-color: transparent;
@@ -153,12 +154,14 @@
         font-size: 16px;
         height: auto;
         color: #fff;
+        text-shadow: 1px 1px rgba(0,0,0,0.067);
         .entry,
         .md-text {
             text-align: center;
         }
         .links {
-            margin: 12px 12px 36px;
+            margin: 12px 6px 36px;
+            font-size: 18px;
             a {
                 color: #fff;
                 text-decoration: none;
@@ -182,7 +185,7 @@
         }
     }
     .file.name {
-        font-size: 20.5px;
+        font-size: 21px;
     }
 }
 

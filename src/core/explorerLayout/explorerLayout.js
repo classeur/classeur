@@ -276,6 +276,14 @@ angular.module('classeur.core.explorerLayout', [])
 				var scrollerElt = btnGroupElt.querySelector('.container');
 				var createFolderButtonElt = btnGroupElt.querySelector('.create.folder.btn');
 				var classeurTogglerIconElt = element[0].querySelector('.classeur.toggler div').clanim.translateY(-10).rotate(-90).start(true);
+				var userInfoElt = element[0].querySelector('.user-info').clanim.translateY(-100).start();
+				setTimeout(function() {
+					userInfoElt.clanim
+						.translateY(0)
+						.duration(300)
+						.easing('materialOut')
+						.start(true);
+				}, 100);
 
 				clExplorerLayoutSvc.toggleHiddenBtn = function() {
 					btnGroupElt.classList.toggle('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&

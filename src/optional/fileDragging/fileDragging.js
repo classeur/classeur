@@ -25,7 +25,7 @@ angular.module('classeur.optional.fileDragging', [])
 					clFileDraggingSvc.setTargetFolder();
 					clFileDraggingSvc.setFileSrc(scope.fileDao);
 					clFileDraggingSvc.panelElt.clanim
-						.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 230))
+						.width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 210))
 						.start();
 					movePanel(evt);
 					bodyElt.addClass('file dragging');
@@ -104,7 +104,7 @@ angular.module('classeur.optional.fileDragging', [])
 					if (fileDao.folderId !== targetFolderId || fileDao.classeurId !== targetClasseurId) {
 						fileDao.folderId = targetFolderId;
 						fileDao.classeurId = targetClasseurId;
-						fileDao.userId = targetFolder.userId; 
+						fileDao.userId = targetFolder.userId;
 						return true;
 					}
 				});

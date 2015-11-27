@@ -13,31 +13,33 @@
         border-left: 5px solid transparent;
     }
     .light-1 {
-        width: 94px;
+        width: 96px;
         border-top-width: 60px;
     }
     .light-2 {
-        width: 360px;
+        width: 378px;
         border-bottom-width: 60px;
     }
     .btn {
         top: 22px;
         a {
             color: #fff;
+            text-shadow: 1px 1px rgba(0, 0, 0, 0.33);
             font-size: 25px;
             line-height: 30px;
         }
         .icon-code::before {
             content: "\e8a7\e8a8";
-            letter-spacing: -0.54em;
+            letter-spacing: -0.56em;
             margin-left: -0.6em;
+            font-size: 28px;
         }
         .icon-hr::before {
             font-family: $font-family;
-            font-size: 21px;
+            font-size: 11px;
             letter-spacing: -0.06em;
-            font-weight: bold;
-            content: "\00B7\00B7\00B7\00B7";
+            vertical-align: middle;
+            content: "\25A0\25A0\25A0\25A0";
         }
         &.active a {
             cursor: auto;

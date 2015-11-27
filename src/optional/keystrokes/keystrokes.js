@@ -23,6 +23,7 @@ angular.module('classeur.optional.keystrokes', [])
 					addPagedownKeystroke('q', 'quote');
 					addPagedownKeystroke('k', 'code');
 					addPagedownKeystroke('g', 'image');
+					addPagedownKeystroke('t', 'table');
 					addPagedownKeystroke('o', 'olist');
 					addPagedownKeystroke('u', 'ulist');
 					addPagedownKeystroke('h', 'heading');
