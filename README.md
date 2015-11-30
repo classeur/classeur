@@ -1,5 +1,7 @@
 # Classeur frontend
 
+[![Build Status](https://travis-ci.org/classeur/classeur.svg)](https://travis-ci.org/classeur/classeur)
+
 This is the frontend application as used in [Classeur](https://app.classeur.io).
 
 This application was made possible thanks to these libraries:
