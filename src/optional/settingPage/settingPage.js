@@ -6,36 +6,35 @@ angular.module('classeur.optional.settingPage', [])
 				template: '<cl-setting-page></cl-setting-page>',
 				reloadOnSearch: false,
 				controller: function(clAnalytics) {
-					clAnalytics.trackPage('/settings');
+					clAnalytics.trackPage('/settings')
 				}
-			});
+			})
 		})
 	.directive('clSettingPage',
 		function($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
-
 			clSocketSvc.addMsgHandler('linkedUser', function(msg) {
-				clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.');
-			});
+				clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.')
+			})
 
 			clSocketSvc.addMsgHandler('linkBlogToken', function(msg) {
-				clBlogSvc.startOAuth(msg.blog, msg.token);
-			});
+				clBlogSvc.startOAuth(msg.blog, msg.token)
+			})
 
 			clSocketSvc.addMsgHandler('deletedUser', function() {
-				$location.url('/');
-				$rootScope.$apply();
-				clUserSvc.signout();
-				$rootScope.$apply();
-			});
+				$location.url('/')
+				$rootScope.$apply()
+				clUserSvc.signout()
+				$rootScope.$apply()
+			})
 
 			return {
 				restrict: 'E',
 				templateUrl: 'optional/settingPage/settingPage.html',
 				link: link
-			};
+			}
 
 			function link(scope) {
-				var tabs = ['app', 'user', 'blogs', 'trash'];
+				var tabs = ['app', 'user', 'blogs', 'trash']
 
 				scope.loadDefault = function() {
 					clDialog.show(clDialog.confirm()
@@ -44,56 +43,54 @@ angular.module('classeur.optional.settingPage', [])
 							.ok('Yes')
 							.cancel('No'))
 						.then(function() {
-							clSettingSvc.values = JSON.parse(JSON.stringify(clSettingSvc.defaultValues));
-						});
-				};
+							clSettingSvc.values = JSON.parse(JSON.stringify(clSettingSvc.defaultValues))
+						})
+				}
 
 				scope.close = function() {
-					$location.url('/');
-				};
+					$location.url('/')
+				}
 
 				scope.handlerbarsHelpers = function() {
 					return clDialog.show({
 						templateUrl: 'optional/settingPage/handlebarsHelpersDialog.html',
 						onComplete: function(scope, element) {
-							var preElt = element[0].querySelector('pre.prism');
-							var cledit = $window.cledit(preElt);
+							var preElt = element[0].querySelector('pre.prism')
+							var cledit = $window.cledit(preElt)
 							cledit.init({
 								highlighter: function(text) {
-									return $window.Prism.highlight(text, $window.Prism.languages.javascript);
+									return $window.Prism.highlight(text, $window.Prism.languages.javascript)
 								}
-							});
-							cledit.setContent(clSettingSvc.values.handlebarsHelpers);
+							})
+							cledit.setContent(clSettingSvc.values.handlebarsHelpers)
 							scope.ok = function() {
-								clSettingSvc.values.handlebarsHelpers = cledit.getContent();
-								clDialog.hide();
-							};
+								clSettingSvc.values.handlebarsHelpers = cledit.getContent()
+								clDialog.hide()
+							}
 							scope.cancel = function() {
-								clDialog.cancel();
-							};
+								clDialog.cancel()
+							}
 						}
-					});
-				};
+					})
+				}
 
 				scope.editFileProperties = function() {
 					clFilePropertiesDialog(clSettingSvc.values.defaultFileProperties)
 						.then(function(properties) {
-							clSettingSvc.values.defaultFileProperties = properties;
-						});
-				};
+							clSettingSvc.values.defaultFileProperties = properties
+						})
+				}
 
 				scope.signout = function() {
-					$location.url('/');
-					$timeout(clUserSvc.signout);
-				};
+					$location.url('/')
+					$timeout(clUserSvc.signout)
+				}
 
+				/* -----------------------
+				 * User
+				 */
 
-				/***
-				User
-				***/
-
-				(function() {
-
+				;(function() {
 					scope.deleteUser = function() {
 						clDialog.show(clDialog.confirm()
 								.title('Remove account')
@@ -103,42 +100,42 @@ angular.module('classeur.optional.settingPage', [])
 							.then(function() {
 								clSocketSvc.sendMsg({
 									type: 'deleteUser'
-								});
-							});
-					};
+								})
+							})
+					}
 
 					scope.userName = function(name) {
-						if(name) {
-							clUserSvc.user.name = name;
+						if (name) {
+							clUserSvc.user.name = name
 						}
-						return clUserSvc.user.name;
-					};
+						return clUserSvc.user.name
+					}
 
 					scope.userGravatarEmail = function(gravatarEmail) {
-						if(arguments.length) {
-							clUserSvc.user.gravatarEmail = gravatarEmail || undefined;
+						if (arguments.length) {
+							clUserSvc.user.gravatarEmail = gravatarEmail || undefined
 						}
-						return clUserSvc.user.gravatarEmail;
-					};
+						return clUserSvc.user.gravatarEmail
+					}
 
 					var unwatchSocket = clStateMgr.state && scope.$watch('socketSvc.isReady', function(isReady) {
 						if (isReady) {
-							unwatchSocket();
+							unwatchSocket()
 							if (clStateMgr.state) {
-								var newUserToken = clStateMgr.state.$search.newUserToken;
+								var newUserToken = clStateMgr.state.$search.newUserToken
 								if (clStateMgr.state.$search.userToken) {
-									clToast('Account is already in use.');
+									clToast('Account is already in use.')
 								} else if (newUserToken) {
 									clSocketSvc.sendMsg({
 										type: 'linkUser',
 										token: newUserToken
-									});
+									})
 								}
 							}
 						}
-					});
+					})
 
-					scope.apiKey = '••••••••••••••••••••••••••••••••';
+					scope.apiKey = '••••••••••••••••••••••••••••••••'
 
 					scope.renewApiKey = function() {
 						clDialog.show(clDialog.confirm()
@@ -151,70 +148,67 @@ angular.module('classeur.optional.settingPage', [])
 									scope.renewApiKeyPending = scope.$watch('socketSvc.isReady', function() {
 										clSocketSvc.sendMsg({
 											type: 'renewUserApiKey'
-										});
-									});
+										})
+									})
 								}
-							});
-					};
+							})
+					}
 
 					function apiKeyHandler(msg) {
 						if (scope.renewApiKeyPending) {
-							scope.apiKey = msg.secret;
-							scope.renewApiKeyPending();
-							scope.renewApiKeyPending = undefined;
-							scope.$evalAsync();
+							scope.apiKey = msg.secret
+							scope.renewApiKeyPending()
+							scope.renewApiKeyPending = undefined
+							scope.$evalAsync()
 						}
 					}
 
-					clSocketSvc.addMsgHandler('userApiKey', apiKeyHandler);
+					clSocketSvc.addMsgHandler('userApiKey', apiKeyHandler)
 					scope.$on('$destroy', function() {
-						clSocketSvc.removeMsgHandler('userApiKey', apiKeyHandler);
-					});
+						clSocketSvc.removeMsgHandler('userApiKey', apiKeyHandler)
+					})
+				})()
 
-				})();
+				/* -----------------------
+				 * Blogs
+				 */
 
-
-				/****
-				Blogs
-				****/
-
-				(function() {
-
+				;(function() {
 					scope.editBlog = function(blog) {
 						clDialog.show({
-								templateUrl: 'optional/settingPage/editBlogDialog.html',
-								controller: ['$scope', function(scope) {
-									scope.blog = blog;
-									scope.form = ({}).cl_extend(blog);
-								}],
-								onComplete: function(scope) {
-									scope.ok = function() {
-										var newBlog = clBlogSvc.createBlog(scope.form);
-										if (newBlog) {
-											if (blog) {
-												newBlog.id = blog.id;
-												clSocketSvc.sendMsg({
-													type: 'updateBlog',
-													blog: newBlog
-												});
-											} else {
-												clSocketSvc.sendMsg({
-													type: 'createBlog',
-													blog: newBlog
-												});
-											}
-											clDialog.hide();
+							templateUrl: 'optional/settingPage/editBlogDialog.html',
+							controller: ['$scope', function(scope) {
+								scope.blog = blog
+								scope.form = ({}).cl_extend(blog)
+							}],
+							onComplete: function(scope) {
+								scope.ok = function() {
+									var newBlog = clBlogSvc.createBlog(scope.form)
+									if (newBlog) {
+										if (blog) {
+											newBlog.id = blog.id
+											clSocketSvc.sendMsg({
+												type: 'updateBlog',
+												blog: newBlog
+											})
+										} else {
+											clSocketSvc.sendMsg({
+												type: 'createBlog',
+												blog: newBlog
+											})
 										}
-									};
-									scope.cancel = function() {
-										clDialog.cancel();
-									};
+										clDialog.hide()
+									}
 								}
-							})
+								scope.cancel = function() {
+									clDialog.cancel()
+								}
+							}
+						})
 							.then(function() {
-								scope.getBlogsPending = true;
-							});
-					};
+								scope.getBlogsPending = true
+							})
+					}
 
 					scope.deleteBlog = function(blog) {
 						clDialog.show(clDialog.confirm()
@@ -228,68 +222,65 @@ angular.module('classeur.optional.settingPage', [])
 										clSocketSvc.sendMsg({
 											type: 'deleteBlog',
 											id: blog.id
-										});
-									});
+										})
+									})
 								}
-							});
-					};
+							})
+					}
 
 					scope.getBlogs = function() {
 						if (!scope.getBlogsPending) {
 							scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
 								clSocketSvc.sendMsg({
 									type: 'getBlogs'
-								});
-							});
-						}
-					};
-
-					function blogsHandler(msg) {
-						if (scope.getBlogsPending) {
-							scope.blogs = msg.blogs;
-							scope.anyDisabled = scope.blogs.cl_some(function(blog) {
-								return blog.status === 'disabled';
-							});
-							scope.getBlogsPending();
-							scope.getBlogsPending = undefined;
-							scope.$evalAsync();
+								})
+							})
 						}
 					}
 
-					clSocketSvc.addMsgHandler('blogs', blogsHandler);
+					function blogsHandler(msg) {
+						if (scope.getBlogsPending) {
+							scope.blogs = msg.blogs
+							scope.anyDisabled = scope.blogs.cl_some(function(blog) {
+								return blog.status === 'disabled'
+							})
+							scope.getBlogsPending()
+							scope.getBlogsPending = undefined
+							scope.$evalAsync()
+						}
+					}
+
+					clSocketSvc.addMsgHandler('blogs', blogsHandler)
 					scope.$on('$destroy', function() {
-						clSocketSvc.removeMsgHandler('blogs', blogsHandler);
-					});
+						clSocketSvc.removeMsgHandler('blogs', blogsHandler)
+					})
+				})()
 
-				})();
+				/* --------------------------
+				 * Trash
+				 */
 
-
-				/****
-				Trash
-				****/
-
-				(function() {
-
+				;(function() {
 					scope.getTrashFiles = function(reset) {
 						if (!scope.getTrashFilesPending) {
 							if (reset) {
-								scope.trashFiles = ({}).cl_extend(clFileSvc.deletedFileMap);
-								scope.trashEmpty = clFileSvc.deletedFiles.length === 0;
-								scope.lastDeleted = undefined;
+								scope.trashFiles = ({}).cl_extend(clFileSvc.deletedFileMap)
+								scope.trashEmpty = clFileSvc.deletedFiles.length === 0
+								scope.lastDeleted = undefined
 							}
 							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function() {
 								clSocketSvc.sendMsg({
 									type: 'getTrashFiles',
 									lastDeleted: scope.lastDeleted
-								});
-							});
+								})
+							})
 						}
-					};
+					}
 
 					scope.recoverFile = function(file) {
-						clSyncSvc.recoverFile(file);
-						clToast('File recovery is pending...');
-					};
+						clSyncSvc.recoverFile(file)
+						clToast('File recovery is pending...')
+					}
 
 					scope.removeFile = function(file) {
 						clDialog.show(clDialog.confirm()
@@ -301,52 +292,51 @@ angular.module('classeur.optional.settingPage', [])
 								clSocketSvc.sendMsg({
 									type: 'deleteFile',
 									id: file.id
-								});
+								})
 								scope.trashFiles = scope.trashFiles.cl_reduce(function(trashFiles, trashFile, id) {
 									if (id !== file.id) {
-										trashFiles[id] = trashFile;
+										trashFiles[id] = trashFile
 									}
-									return trashFiles;
-								}, {});
-							});
-					};
+									return trashFiles
+								}, {})
+							})
+					}
 
 					function trashFilesHandler(msg) {
 						if (scope.getTrashFilesPending) {
 							msg.files.cl_each(function(item) {
-								scope.trashFiles[item.id] = item;
-								scope.lastDeleted = item.deleted;
-								scope.trashEmpty = false;
-							});
-							scope.lastDeleted = msg.hasMore && scope.lastDeleted;
-							scope.getTrashFilesPending();
-							scope.getTrashFilesPending = undefined;
-							scope.$evalAsync();
+								scope.trashFiles[item.id] = item
+								scope.lastDeleted = item.deleted
+								scope.trashEmpty = false
+							})
+							scope.lastDeleted = msg.hasMore && scope.lastDeleted
+							scope.getTrashFilesPending()
+							scope.getTrashFilesPending = undefined
+							scope.$evalAsync()
 						}
 					}
 
-					clSocketSvc.addMsgHandler('trashFiles', trashFilesHandler);
+					clSocketSvc.addMsgHandler('trashFiles', trashFilesHandler)
 					scope.$on('$destroy', function() {
-						clSocketSvc.removeMsgHandler('trashFiles', trashFilesHandler);
-					});
-
-				})();
+						clSocketSvc.removeMsgHandler('trashFiles', trashFilesHandler)
+					})
+				})()
 
 				scope.$watch('selectedTabIndex', function(newIndex) {
-					var tab = tabs[newIndex];
+					var tab = tabs[newIndex]
 					if (tab === 'trash') {
-						scope.getTrashFiles(true);
+						scope.getTrashFiles(true)
 					} else if (tab === 'blogs') {
-						scope.getBlogs();
+						scope.getBlogs()
 					}
-					$location.search('tab', tab);
-				});
+					$location.search('tab', tab)
+				})
 
 				function applyLocationSearch() {
-					scope.selectedTabIndex = tabs.indexOf($location.search().tab);
-					scope.selectedTabIndex = scope.selectedTabIndex === -1 ? 0 : scope.selectedTabIndex;
+					scope.selectedTabIndex = tabs.indexOf($location.search().tab)
+					scope.selectedTabIndex = scope.selectedTabIndex === -1 ? 0 : scope.selectedTabIndex
 				}
-				scope.$on('$locationChangeSuccess', applyLocationSearch);
-				applyLocationSearch();
+				scope.$on('$locationChangeSuccess', applyLocationSearch)
+				applyLocationSearch()
 			}
-		});
+		})

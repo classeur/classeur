@@ -16,7 +16,7 @@
 	.icon-more-vert {
 		padding: 0;
 		font-size: 30px;
-		width: 36px;
+		width: 35px;
 		height: 42px;
 		display: block;
 		color: #fff;
@@ -92,6 +92,7 @@
 		padding-right: 90px;
 		&.clone {
 			position: absolute;
+			z-index: 1;
 			.file.actions > div {
 				padding: 15px 0 0;
 				border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -216,6 +217,7 @@
 		line-height: $file-entry-height;
 		position: relative;
 		border-radius: 6px;
+		z-index: 1;
 		.drag-space {
 			width: 10px;
 			min-width: 10px;
@@ -226,7 +228,7 @@
 			cursor: move;
 			height: $file-entry-height;
 			span {
-				color: transparentize(#000, 0.5);
+				color: rgba(0,0,0,0.6);
 				font-size: 16px;
 				display: inline-block;
 				overflow: hidden;
@@ -250,7 +252,7 @@
 				font-size: 18px;
 				font-weight: 300;
 				&[disabled] {
-					color: rgba(0, 0, 0, 0.87);
+					color: rgba(0, 0, 0, 0.75);
 					cursor: pointer;
 					background-image: none;
 					border-bottom-color: rgba(0, 0, 0, 0.066);
@@ -261,7 +263,7 @@
 		.icon-more-vert {
 			height: $file-entry-height;
 			font-size: 26px;
-			color: rgba(0, 0, 0, 0.5);
+			color: rgba(0, 0, 0, 0.55);
 		}
 	}
 	.btn-grp.panel {
@@ -293,7 +295,6 @@
 				font-size: 12.5px;
 				color: #fff;
 				text-shadow: 1px 1px rgba(0,0,0,0.067);
-				font-weight: normal;
 				border-top-right-radius: $border-radius-binder;
 				border-bottom-right-radius: $border-radius-binder;
 				[class^="icon-"], [class*=" icon-"] {
@@ -469,7 +470,7 @@
 					font-size: 20px;
 					&:disabled {
 						cursor: pointer;
-						color: rgba(0, 0, 0, 0.87);
+						color: rgba(0, 0, 0, 0.75);
 						pointer-events: none;
 					}
 				}
@@ -502,7 +503,7 @@
 				width: 42px;
 				height: 42px;
 				display: block;
-				color: rgba(0, 0, 0, 0.5);
+				color: rgba(0, 0, 0, 0.55);
 			}
 		}
 	}
@@ -555,7 +556,7 @@
 		right: 1px;
 		font-family: $font-family;
 		font-size: 11px;
-		font-weight: bold;
+		font-weight: 500;
 		line-height: 1.1;
 		border-radius: 8px;
 		padding: 0 4px;
@@ -582,7 +583,7 @@
 	.or {
 		text-align: center;
 		text-transform: uppercase;
-		font-weight: bold;
+		font-weight: 500;
 		color: #bbb;
 		margin: 0;
 		span {

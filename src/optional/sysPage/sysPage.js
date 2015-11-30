@@ -5,9 +5,9 @@ angular.module('classeur.optional.sysPage', [])
 				.when('/sys', {
 					template: '<cl-sys-page></cl-sys-page>',
 					controller: function(clAnalytics) {
-						clAnalytics.trackPage('/sys');
+						clAnalytics.trackPage('/sys')
 					}
-				});
+				})
 		})
 	.directive('clSysPage',
 		function($http, $location, clToast, clSocketSvc) {
@@ -15,80 +15,80 @@ angular.module('classeur.optional.sysPage', [])
 				restrict: 'E',
 				templateUrl: 'optional/sysPage/sysPage.html',
 				link: link
-			};
+			}
 
 			function link(scope) {
-				scope.properties = [];
+				scope.properties = []
 				scope.deleteRow = function(propertyToDelete) {
 					scope.properties = scope.properties.cl_filter(function(property) {
-						return property !== propertyToDelete;
-					});
-				};
+						return property !== propertyToDelete
+					})
+				}
 				scope.addRow = function() {
-					scope.properties.push({});
-				};
+					scope.properties.push({})
+				}
 				scope.update = function() {
-					var properties = {};
+					var properties = {}
 					if (Object.keys(scope.properties).length > 255) {
-						return clToast('Too many properties.');
+						return clToast('Too many properties.')
 					}
 					if (
 						scope.properties.cl_some(function(property) {
 							if (!property.key && !property.value) {
-								return;
+								return
 							}
 							if (!property.key) {
-								clToast('Property can\'t be empty.');
-								return true;
+								clToast('Property can\'t be empty.')
+								return true
 							}
 							if (property.key.length > 255) {
-								clToast('Property key is too long.');
-								return true;
+								clToast('Property key is too long.')
+								return true
 							}
 							if (!property.value) {
-								clToast('Property can\'t be empty.');
-								return true;
+								clToast('Property can\'t be empty.')
+								return true
 							}
 							if (property.value.length > 512) {
-								clToast('Property value is too long.');
-								return true;
+								clToast('Property value is too long.')
+								return true
 							}
 							if (properties.hasOwnProperty(property.key)) {
-								clToast('Duplicate property: ' + property.key + '.');
-								return true;
+								clToast('Duplicate property: ' + property.key + '.')
+								return true
 							}
-							properties[property.key] = property.value;
+							properties[property.key] = property.value
 						})
 					) {
-						return;
+						return
 					}
 					$http.post('/api/v1/config/app', {
-							headers: clSocketSvc.makeAuthorizationHeader()
-						})
+						headers: clSocketSvc.makeAuthorizationHeader()
+					})
 						.success(function() {
-							clToast('App config updated.');
+							clToast('App config updated.')
 						})
 						.error(function(err) {
-							clToast('Error: ' + err.reason || 'unknown');
-						});
-				};
+							clToast('Error: ' + err.reason || 'unknown')
+						})
+				}
 
 				function retrieveConfig() {
 					$http.get('/api/v1/config/app', {
-							headers: clSocketSvc.makeAuthorizationHeader()
-						})
+						headers: clSocketSvc.makeAuthorizationHeader()
+					})
 						.success(function(res) {
 							scope.properties = Object.keys(res).sort().cl_map(function(key) {
 								return {
 									key: key,
 									value: res[key]
-								};
-							});
+								}
+							})
 						})
 						.error(function(err) {
-							clToast('Error: ' + err.reason || 'unknown');
-						});
+							clToast('Error: ' + err.reason || 'unknown')
+						})
 				}
-				retrieveConfig();
+				retrieveConfig()
 			}
-		});
+		})

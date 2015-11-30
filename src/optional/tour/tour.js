@@ -4,7 +4,7 @@ angular.module('classeur.optional.tour', [])
 			return {
 				restrict: 'E',
 				link: link
-			};
+			}
 
 			function link() {
 				if (!clLocalSettingSvc.values.tourStep) {
@@ -13,18 +13,18 @@ angular.module('classeur.optional.tour', [])
 							templateUrl: 'optional/tour/tourDialog.html',
 							onComplete: function(scope) {
 								scope.close = function() {
-									clDialog.cancel();
-								};
+									clDialog.cancel()
+								}
 								scope.start = function() {
-									clDialog.hide();
-								};
+									clDialog.hide()
+								}
 							}
 						}).then(function() {
-							clLocalSettingSvc.values.tourStep = 1;
+							clLocalSettingSvc.values.tourStep = 1
 						}, function() {
-							clLocalSettingSvc.values.tourStep = -1;
-						});
-					}, 100);
+							clLocalSettingSvc.values.tourStep = -1
+						})
+					}, 100)
 				}
 			}
 		})
@@ -33,21 +33,21 @@ angular.module('classeur.optional.tour', [])
 			return {
 				restrict: 'A',
 				link: link
-			};
+			}
 
 			function link(scope, element, attr) {
-				var timeoutId;
-				scope.show = false;
+				var timeoutId
+				scope.show = false
 				scope.$watch(attr.clTourStep, function(value) {
-					$timeout.cancel(timeoutId);
+					$timeout.cancel(timeoutId)
 					if (value) {
 						timeoutId = $timeout(function() {
-							scope.show = true;
-						}, 500);
+							scope.show = true
+						}, 500)
 					} else {
-						scope.show = false;
+						scope.show = false
 					}
-				});
+				})
 			}
 		})
 	.directive('clTourNext',
@@ -55,12 +55,12 @@ angular.module('classeur.optional.tour', [])
 			return {
 				restrict: 'A',
 				link: link
-			};
+			}
 
 			function link(scope, element, attr) {
-				var nextStep = parseInt(attr.clTourNext);
+				var nextStep = parseInt(attr.clTourNext, 10)
 				element.on('click', function() {
-					clLocalSettingSvc.values.tourStep === nextStep - 1 && clLocalSettingSvc.values.tourStep++;
-				});
+					clLocalSettingSvc.values.tourStep === nextStep - 1 && clLocalSettingSvc.values.tourStep++
+				})
 			}
-		});
+		})

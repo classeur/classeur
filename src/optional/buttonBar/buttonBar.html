@@ -1,7 +1,7 @@
 <div class="button-bar panel md-whiteframe-z2">
 	<div class="light-1 panel"></div>
 	<div class="light-2 panel"></div>
-	<cl-button class="btn" width="{{btnWidth}}" height="{{btnHeight}}" left="{{btn.offset}}" opacity="0.7" opacity-active="0.7" active="btn.isActive" ng-repeat="btn in btns">
-		<a ng-class="btn.icon" ng-click="btn.click()" title="{{btn.label}} {{btn.keystroke}}" aria-label="{{btn.label}}"></a>
+	<cl-button class="btn" ng-class="{active: btn.isActive}" width="{{::btnWidth}}" height="{{::btnHeight}}" left="{{::btn.offset}}" ng-repeat="btn in btns">
+		<a ng-class="btn.icon" ng-click="btn.click()" title="{{::btn.label}} {{::btn.keystroke}}" aria-label="{{::btn.label}}"></a>
 	</cl-button>
 </div>

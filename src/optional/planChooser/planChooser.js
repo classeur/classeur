@@ -5,21 +5,21 @@ angular.module('classeur.optional.planChooser', [])
 				.when('/choosePlan', {
 					template: '<cl-plan-chooser></cl-plan-chooser>',
 					controller: function(clAnalytics) {
-						clAnalytics.trackPage('/choosePlan');
+						clAnalytics.trackPage('/choosePlan')
 					}
 				})
 				.when('/checkoutSuccess', {
 					template: '',
 					controller: function($location, clDialog, $timeout) {
-						$location.url('/');
+						$location.url('/')
 						$timeout(function() {
 							clDialog.show(clDialog.confirm()
 								.title('Thank you!')
 								.content('Your premium account will be active in a minute.')
-								.ok('Ok'));
-						});
+								.ok('Ok'))
+						})
 					}
-				});
+				})
 		})
 	.directive('clPlanChooser',
 		function($window, $location, $timeout, clDialog, clUserSvc) {
@@ -27,14 +27,14 @@ angular.module('classeur.optional.planChooser', [])
 				restrict: 'E',
 				templateUrl: 'optional/planChooser/planChooser.html',
 				link: link
-			};
+			}
 
 			function link(scope) {
 				if (clUserSvc.user) {
 					if (!clUserSvc.isUserPremium()) {
-						scope.subscribeLink = clUserSvc.getSubscribeLink();
+						scope.subscribeLink = clUserSvc.getSubscribeLink()
 					} else {
-						var unsubscribeLink = clUserSvc.getUnsubscribeLink();
+						var unsubscribeLink = clUserSvc.getUnsubscribeLink()
 						scope.unsubscribe = function() {
 							clDialog.show(clDialog.confirm()
 									.title('Cancel subscription')
@@ -42,15 +42,15 @@ angular.module('classeur.optional.planChooser', [])
 									.ok('Ok')
 									.cancel('Cancel'))
 								.then(function() {
-									$window.location.href = unsubscribeLink;
-								});
-						};
+									$window.location.href = unsubscribeLink
+								})
+						}
 					}
 				}
 
 				scope.signout = function() {
-					$location.url('/');
-					$timeout(clUserSvc.signout);
-				};
+					$location.url('/')
+					$timeout(clUserSvc.signout)
+				}
 			}
-		});
+		})

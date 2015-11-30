@@ -9,13 +9,15 @@
     ng-view > *,
     cl-editor-layout > *,
     .background.panel > *,
+    .background.panel > .panel > *,
     .preview.content > .filename.space {
         display: none !important;
     }
     body > ng-view,
     ng-view > cl-editor-layout,
     cl-editor-layout > .background.panel,
-    .background.panel > .preview.panel,
+    .background.panel > .panel,
+    .background.panel > .panel > .preview.panel,
     .preview.container {
         background-color: transparent !important;
         display: block !important;

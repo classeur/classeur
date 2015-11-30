@@ -4,21 +4,21 @@ angular.module('classeur.blogs.blogger', [])
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/blogger/bloggerBlogForm.html'
-			};
+			}
 		})
 	.directive('clBloggerBlogPostEntry',
 		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/blogger/bloggerBlogPostEntry.html'
-			};
+			}
 		})
 	.directive('clBloggerBlogPostForm',
 		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/blogger/bloggerBlogPostForm.html'
-			};
+			}
 		})
 	.factory('clBloggerBlogPlatform',
 		function(clBlogPlatform, clConfig, clUrlSanitizer) {
@@ -26,29 +26,29 @@ angular.module('classeur.blogs.blogger', [])
 				id: 'blogger',
 				name: 'Blogger',
 				authorizeUrl: 'https://accounts.google.com/o/oauth2/auth'
-			});
+			})
 
 			clBloggerBlogPlatform.createBlogFromSubForm = function(subForm) {
-				var blogUrl = clUrlSanitizer(subForm.blogUrl);
+				var blogUrl = clUrlSanitizer(subForm.blogUrl)
 				if (!blogUrl) {
-					throw 'Blog URL is invalid.';
+					throw new Error('Blog URL is invalid.')
 				}
 				if (blogUrl > 256) {
-					throw 'Repository URL is too long.';
+					throw new Error('Repository URL is too long.')
 				}
 				return {
 					blogUrl: blogUrl
-				};
-			};
+				}
+			}
 
 			clBloggerBlogPlatform.createPostFromSubForm = function(subForm) {
 				if (subForm.postId && subForm.postId.length > 128) {
-					throw 'Post ID is too long.';
+					throw new Error('Post ID is too long.')
 				}
 				return {
 					postId: subForm.postId
-				};
-			};
+				}
+			}
 
 			clBloggerBlogPlatform.getAuthorizeParams = function() {
 				return {
@@ -57,8 +57,8 @@ angular.module('classeur.blogs.blogger', [])
 					redirect_uri: clConfig.appUri + '/oauth/blogger/callback',
 					access_type: 'offline',
 					scope: 'https://www.googleapis.com/auth/blogger profile'
-				};
-			};
+				}
+			}
 
 			clBloggerBlogPlatform.getBlogPostLocation = function(blogPost) {
 				return [
@@ -66,8 +66,8 @@ angular.module('classeur.blogs.blogger', [])
 					blogPost.blog.blogId,
 					'#editor/target=post;postID=',
 					blogPost.postId
-				].join('');
-			};
+				].join('')
+			}
 
-			return clBloggerBlogPlatform;
-		});
+			return clBloggerBlogPlatform
+		})

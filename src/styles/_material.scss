@@ -4,7 +4,7 @@ html,
 textarea,
 input {
     font-family: $font-family;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 input {
@@ -24,12 +24,11 @@ input {
     min-height: 0;
     font-weight: 300;
     height: auto;
-    text-shadow: 1px 1px rgba(255,255,255,0.133);
     &, &.md-fab {
         line-height: 1;
     }
     [class^="icon-"], [class*=" icon-"] {
-        font-size: 0.75em;
+        font-size: 0.85em;
     }
 }
 
@@ -106,7 +105,7 @@ md-dialog {
     .md-title,
     h2 {
         font-size: 1.8em;
-        font-weight: bold;
+        font-weight: 500;
     }
 }
 
@@ -157,11 +156,12 @@ md-input-container.md-classeur-theme .md-input[disabled],
     text-shadow: 1px 1px rgba(0,0,0,0.067);
 }
 
-md-input-container.md-classeur-theme:not(.md-input-invalid).md-input-focused label {
-    text-shadow: 1px 1px rgba(255,255,255,0.133);
+md-input-container.md-classeur-theme:not.md-input-focused label {
+    text-shadow: none;
 }
 
 md-checkbox.md-default-theme .md-icon {
+    border-color: rgba(0,0,0,0.67);
     border-width: 1px;
 }
 
@@ -232,5 +232,4 @@ body > .md-dialog-container {
 
 .md-tab {
     font-weight: 300;
-    text-shadow: 1px 1px rgba(255,255,255,0.133);
 }

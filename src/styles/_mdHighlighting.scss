@@ -1,9 +1,15 @@
 .md-highlighting {
     font-family: inherit;
     font-size: inherit;
+    font-weight: 300;
+    -webkit-font-smoothing: auto;
+    color: $ced-color;
     .code {
         font-family: $font-family-monospace;
         font-size: $font-size-monospace;
+        * {
+            font-size: inherit !important;
+        }
     }
     .pre {
         color: $ced-color;
@@ -19,11 +25,14 @@
     }
     .tag {
         color: $ced-color;
-        font-weight: bold;
+        font-weight: 500;
         font-family: $font-family-monospace;
         font-size: $font-size-monospace;
         .punctuation, .attr-value, .attr-name {
-            font-weight: normal;
+            font-weight: 300;
+        }
+        * {
+            font-size: inherit !important;
         }
     }
     .latex,
@@ -35,20 +44,23 @@
         font-family: $font-family-monospace;
         font-size: $font-size-monospace;
         color: $ced-color;
+        * {
+            font-size: inherit !important;
+        }
     }
     .table {
         font-family: $font-family-monospace;
         font-size: $font-size-monospace;
         * {
-            font-size: inherit;
+            font-size: inherit !important;
         }
     }
     .comment {
-        color: $ced-color-light;
+        color: $ced-color-lighter;
     }
     .keyword {
         color: $ced-color-dark;
-        font-weight: bold;
+        font-weight: 500;
     }
     .code,
     .img,
@@ -75,7 +87,7 @@
         padding: 0.15em;
     }
     .blockquote {
-        font-weight: 300;
+        color: $ced-color-light;
     }
     .h1,
     .h2,
@@ -83,7 +95,7 @@
     .h4,
     .h5,
     .h6 {
-        font-weight: 600;
+        font-weight: 500;
     }
     .h1,
     .h11 {
@@ -106,13 +118,13 @@
         font-size: 0.75em;
     }
     .cl-hash {
-        color: $ced-color-light;
+        color: $ced-color-lighter;
     }
     .cl,
     .hr {
-        color: $ced-color-light;
+        color: $ced-color-lighter;
         font-style: normal;
-        font-weight: normal
+        font-weight: 300;
     }
     .em,
     .em .cl {
@@ -121,7 +133,7 @@
     .strong,
     .strong .cl,
     .term {
-        font-weight: bold;
+        font-weight: 500;
     }
     .cl-del-text {
         text-decoration: line-through
@@ -132,7 +144,7 @@
         text-decoration: underline;
     }
     .linkdef .url {
-        color: $ced-color-light;
+        color: $ced-color-lighter;
     }
     .fn,
     .inlinefn,
@@ -150,7 +162,7 @@
     .imgref,
     .link,
     .linkref {
-        color: $ced-color-light;
+        color: $ced-color-lighter;
         .cl-underlined-text {
             color: $ced-color-dark;
         }

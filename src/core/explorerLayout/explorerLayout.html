@@ -207,7 +207,7 @@
                     </div>
                     <div class="btn-grp panel background no-overflow">
                         <div class="container panel">
-                            <div cl-folder-button cl-file-dragging-target class="folder btn btn-panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
+                            <div cl-folder-button cl-file-dragging-target class="folder btn panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
                                 <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
                                     <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
                                         <div class="public-corner" ng-if="folderDao.userId"><div class="icon-publ"></div></div>
@@ -217,14 +217,14 @@
                                 </md-button>
                             </div>
                         </div>
-                        <div class="current folder btn btn-panel" ng-class="plasticClass">
+                        <div class="current folder btn panel" ng-class="plasticClass">
                             <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
                                 <div class="rotate-90" layout="row" layout-align="center center">
                                     <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
                                 </div>
                             </md-button>
                         </div>
-                        <div cl-folder-button class="create folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
+                        <div cl-folder-button class="create folder btn panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
                             <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-tour-next="4">
                                 <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3">
                                     <p>A classeur is a set of folders.</p>
@@ -233,12 +233,12 @@
                                 <span class="icon-add"></span>
                             </md-button>
                         </div>
-                        <div cl-folder-button cl-file-dragging-target class="unclassified folder btn btn-panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
+                        <div cl-folder-button cl-file-dragging-target class="unclassified folder btn panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
                             <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
                                 <span class="icon-search"></span>
                             </md-button>
                         </div>
-                        <div cl-folder-button class="recent folder btn btn-panel" ng-class="'plastic-' + (classeurIndex % 6)">
+                        <div cl-folder-button class="recent folder btn panel" ng-class="'plastic-' + (classeurIndex % 6)">
                             <md-button ng-click="setFolder()" aria-label="Recent files">
                                 <span class="icon-schedule"></span>
                             </md-button>

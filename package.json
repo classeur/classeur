@@ -23,8 +23,7 @@
     "cldiffutils": "^1.0.0",
     "cledit": "^1.0.0",
     "clgulp": "^1.0.4",
-    "clunderscore": "^0.1.0",
-    "connect": "^3.3.5",
+    "clunderscore": "^1.0.0",
     "filesaver.js": "^0.2.0",
     "googlediff": "^0.1.0",
     "gulp": "^3.8.11",
@@ -47,10 +46,13 @@
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
     "prismjs": "0.0.1",
-    "serve-static": "^1.8.1",
     "streamqueue": "^0.1.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "connect": "^3.3.5",
+    "eslint-config-classeur": "^1.0.0",
+    "serve-static": "^1.8.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/classeur/classeur.git"

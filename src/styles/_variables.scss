@@ -1,9 +1,10 @@
 $font-family: Roboto, sans-serif;
 $font-family-editor: Roboto, sans-serif;
-$font-family-monospace: "Lucida Sans Typewriter", Monaco, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", monospace;
-$font-size-monospace: 0.91em;
+$font-family-monospace: "Office Code Pro", monospace;
+$font-size-monospace: 0.9em;
 $body-color: #ddd;
 $background-color: #fafafa;
+$text-color: rgba(0, 0, 0, 0.87);
 $link-color: #316ED3;
 $code-bg: #eee;
 $border-radius-base: 4px;
@@ -17,6 +18,7 @@ $plastic-colors:
 	/* light gray */ darken(#95a5a6, 2.5%),
 	/* dark gray */ lighten(desaturate(#34495e, 5%), 17.5%);
 $editor-margin-width: 110px;
-$ced-color: rgba(0, 0, 0, 0.87);
-$ced-color-light: rgba(0, 0, 0, 0.26);
+$ced-color: rgba(0, 0, 0, 0.92);
+$ced-color-light: rgba(0, 0, 0, 0.6);
+$ced-color-lighter: rgba(0, 0, 0, 0.28);
 $ced-color-dark: black;

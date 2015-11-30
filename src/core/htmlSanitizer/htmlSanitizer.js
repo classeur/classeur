@@ -1,3 +1,4 @@
+/*eslint-disable */
 angular.module('classeur.core.htmlSanitizer', [])
 	.factory('clHtmlSanitizer',
 		function($$sanitizeUri) {

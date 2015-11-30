@@ -47,16 +47,12 @@
         <div class="header panel background">
             <div class="content">
                 <div class="btn-grp panel">
-                    <div class="close panel">
-                        <cl-button class="close btn" size="32">
-                            <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file"></a>
-                        </cl-button>
-                    </div>
-                    <div class="scroll panel">
-                        <cl-button class="scroll btn" size="32">
-                            <a class="icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top"></a>
-                        </cl-button>
-                    </div>
+                    <cl-button class="close btn" size="32">
+                        <a class="icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file"></a>
+                    </cl-button>
+                    <cl-button class="scroll btn" size="32">
+                        <a class="icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top"></a>
+                    </cl-button>
                 </div>
                 <cl-button class="sharing btn" size="32">
                     <a class="icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share"></a>
@@ -73,12 +69,30 @@
                     <div class="menu content panel">
                         <cl-file-name></cl-file-name>
                         <div class="links">
-                            <a layout="row" layout-align="end end" ng-click="editFileProperties()"><span class="name">Properties</span><span class="icon-view-list"></span></a>
-                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'"><span class="name">Sharing</span><span class="icon-share"></span></a>
-                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'"><span class="name">Post to blog</span><span class="icon-cloud"></span></a>
-                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'"><span class="name">Export</span><span class="icon-file-download"></span></a>
-                            <a layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()"><span class="name">Make a copy</span><span class="icon-content-copy"></span></a>
-                            <a layout="row" layout-align="end end" ng-href="#!/settings"><span class="name">Settings</span><span class="icon-settings"></span></a>
+                            <a layout="row" layout-align="end end" ng-click="editFileProperties()">
+                                <span class="name">Properties</span>
+                                <span class="icon-view-list"></span>
+                            </a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">
+                                <span class="name">Sharing</span>
+                                <span class="icon-share"></span>
+                            </a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'">
+                                <span class="name">Post to blog</span>
+                                <span class="icon-cloud"></span>
+                            </a>
+                            <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">
+                                <span class="name">Export</span>
+                                <span class="icon-file-download"></span>
+                            </a>
+                            <a layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()">
+                                <span class="name">Make a copy</span>
+                                <span class="icon-content-copy"></span>
+                            </a>
+                            <a layout="row" layout-align="end end" ng-href="#!/settings">
+                                <span class="name">Settings</span>
+                                <span class="icon-settings"></span>
+                            </a>
                         </div>
                         <div class="entry">Zoom</div>
                         <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
@@ -109,10 +123,11 @@
                     <a class="icon-filter-none" ng-click="toggleSidePreview()" cl-tour-next="2" aria-label="Side preview" title="Side preview"></a>
                     <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.tourStep === 1">
                         <p>Classeur supports Markdown syntax.</p>
-                        <p>Click <span class="icon-filter-none"></span> to toggle the live preview.</p>
+                        <p>Click
+                            <span class="icon-filter-none"></span> to toggle the live preview.</p>
                     </md-tooltip>
                 </cl-button>
-                <div class="menu btn btn-panel" ng-class="plasticClass">
+                <div class="menu btn panel" ng-class="plasticClass">
                     <md-button ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
                         <div class="rotate-90">
                             Menu

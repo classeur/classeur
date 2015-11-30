@@ -83,17 +83,19 @@
     .cl-preview-section >:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
         text-align: justify;
     }
+    .MathJax {
+        -webkit-font-smoothing: antialiased;
+    }
 }
 
 .toc.content {
     font-size: 9px;
-    color: #4a4a4a;
-    text-shadow: 0 1px #e8e8e8;
+    color: rgba(0, 0, 0, 0.75);
     cursor: pointer;
     padding: 30px;
     white-space: nowrap;
     * {
-        font-weight: normal;
+        font-weight: inherit;
     }
     .cl-toc-section * {
         margin: .3em 0;

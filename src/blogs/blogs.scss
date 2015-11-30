@@ -1,3 +1,5 @@
+@import 'variables';
+
 .blog.entry {
     line-height: 40px;
     md-input-container {
@@ -8,7 +10,7 @@
             font-size: 18px;
             font-weight: 300;
             &[disabled] {
-                color: rgba(0, 0, 0, 0.87);
+                color: $text-color;
             }
         }
     }
@@ -16,7 +18,7 @@
         color: rgba(0, 0, 0, 0.7);
         font-size: 28px;
         padding: 6px 3px;
-        min-width: 42px;
+        min-width: 38px;
         &[disabled] {
             opacity: 0.5;
         }
@@ -29,7 +31,7 @@
         text-align: center;
         span {
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 500;
             line-height: 1.5;
             border-radius: 8px;
             padding: 0 6px;

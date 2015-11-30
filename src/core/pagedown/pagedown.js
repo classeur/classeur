@@ -1,3 +1,4 @@
+/*eslint-disable */
 angular.module('classeur.core.pagedown', [])
 	.factory('clPagedown',
 		function() {

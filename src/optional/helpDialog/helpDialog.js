@@ -5,9 +5,9 @@ angular.module('classeur.optional.helpDialog', [])
 				templateUrl: 'optional/helpDialog/helpDialog.html',
 				onComplete: function(scope) {
 					scope.close = function() {
-						clDialog.cancel();
-					};
+						clDialog.cancel()
+					}
 				}
-			});
-		});
-	});
+			})
+		})
+	})

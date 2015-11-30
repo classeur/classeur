@@ -4,21 +4,21 @@ angular.module('classeur.blogs.wordpress', [])
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/wordpress/wordpressBlogForm.html'
-			};
+			}
 		})
 	.directive('clWordpressBlogPostEntry',
 		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/wordpress/wordpressBlogPostEntry.html'
-			};
+			}
 		})
 	.directive('clWordpressBlogPostForm',
 		function() {
 			return {
 				restrict: 'E',
 				templateUrl: 'blogs/wordpress/wordpressBlogPostForm.html'
-			};
+			}
 		})
 	.factory('clWordpressBlogPlatform',
 		function(clBlogPlatform, clConfig, clUrlSanitizer) {
@@ -26,29 +26,29 @@ angular.module('classeur.blogs.wordpress', [])
 				id: 'wordpress',
 				name: 'WordPress',
 				authorizeUrl: 'https://public-api.wordpress.com/oauth2/authorize'
-			});
+			})
 
 			clWordpressBlogPlatform.createBlogFromSubForm = function(subForm) {
-				var blogUrl = clUrlSanitizer(subForm.blogUrl);
+				var blogUrl = clUrlSanitizer(subForm.blogUrl)
 				if (!blogUrl) {
-					throw 'Blog URL is invalid.';
+					throw new Error('Blog URL is invalid.')
 				}
 				if (blogUrl > 256) {
-					throw 'Repository URL is too long.';
+					throw new Error('Repository URL is too long.')
 				}
 				return {
 					blogUrl: blogUrl
-				};
-			};
+				}
+			}
 
 			clWordpressBlogPlatform.createPostFromSubForm = function(subForm) {
 				if (subForm.postId && subForm.postId.length > 128) {
-					throw 'Post ID is too long.';
+					throw new Error('Post ID is too long.')
 				}
 				return {
 					postId: subForm.postId
-				};
-			};
+				}
+			}
 
 			clWordpressBlogPlatform.getAuthorizeParams = function(blog) {
 				return {
@@ -56,16 +56,16 @@ angular.module('classeur.blogs.wordpress', [])
 					response_type: 'code',
 					redirect_uri: clConfig.appUri + '/oauth/wordpress/callback',
 					blog: blog.blogUrl
-				};
-			};
+				}
+			}
 
 			clWordpressBlogPlatform.getBlogPostLocation = function(blogPost) {
 				return [
 					'https://wordpress.com/post',
 					blogPost.blog.blogId,
 					blogPost.postId
-				].join('/');
-			};
+				].join('/')
+			}
 
-			return clWordpressBlogPlatform;
-		});
+			return clWordpressBlogPlatform
+		})

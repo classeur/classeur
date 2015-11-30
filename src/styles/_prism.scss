@@ -1,7 +1,7 @@
 .token.pre.gfm,
 .prism {
     * {
-        font-weight: normal !important;
+        font-weight: inherit !important;
     }
     .token.comment,
     .token.prolog,
@@ -54,7 +54,7 @@
     }
     .token.important,
     .token.bold {
-        font-weight: bold;
+        font-weight: 500;
     }
     .token.italic {
         font-style: italic;

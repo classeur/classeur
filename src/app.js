@@ -1,5 +1,5 @@
 if (!window.WebSocket || !window.Worker || !window.MutationObserver || !window.crypto) {
-	window.alert('Unsupported browser version. Please upgrade your browser.');
+	window.alert('Unsupported browser version. Please upgrade your browser.')
 } else {
 	angular.module('classeur.app', [
 		'ngRoute',
@@ -62,5 +62,5 @@ if (!window.WebSocket || !window.Worker || !window.MutationObserver || !window.c
 		'classeur.extensions.emoji',
 		'classeur.extensions.markdown',
 		'classeur.extensions.mathJax',
-	]);
+	])
 }

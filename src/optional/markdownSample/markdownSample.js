@@ -5,9 +5,9 @@ angular.module('classeur.optional.markdownSample', [])
 				restrict: 'E',
 				templateUrl: 'optional/markdownSample/markdownSample.html',
 				link: link
-			};
+			}
 
 			function link(scope) {
-				scope.markdownSample = $templateCache.get('optional/markdownSample/markdownSample.md');
+				scope.markdownSample = $templateCache.get('optional/markdownSample/markdownSample.md')
 			}
-		});
+		})

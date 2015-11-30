@@ -1,0 +1,10 @@
+{
+	"preset": "google",
+    "validateIndentation": "\t",
+    "requireSemicolons": false,
+    "requireCamelCaseOrUpperCaseIdentifiers": false,
+    "disallowMultipleVarDecl": false,
+	"requireAlignedMultilineParams": 2,
+	"validateNewlineAfterArrayElements": true,
+	"maximumLineLength": null
+}

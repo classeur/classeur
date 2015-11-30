@@ -15,120 +15,120 @@ angular.module('classeur.optional.exportToDisk', [])
 				txt: 'text/plain',
 				md: 'text/plain',
 				docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-			};
+			}
 
 			function saveAs(byteString, name, format) {
-				var mimeType = mimeTypes[format];
-				var buffer = new ArrayBuffer(byteString.length);
-				var view = new Uint8Array(buffer);
+				var mimeType = mimeTypes[format]
+				var buffer = new ArrayBuffer(byteString.length)
+				var view = new Uint8Array(buffer)
 				for (var i = 0; i < byteString.length; i++) {
-					view[i] = byteString.charCodeAt(i);
+					view[i] = byteString.charCodeAt(i)
 				}
 				var blob = new Blob([view], {
 					type: mimeType
-				});
-				var extension = '.' + format;
+				})
+				var extension = '.' + format
 				if (name.slice(-extension.length) !== extension) {
-					name += extension;
+					name += extension
 				}
-				$window.saveAs(blob, name);
+				$window.saveAs(blob, name)
 			}
 
 			clSocketSvc.addMsgHandler('document', function(msg) {
 				if (msg.error) {
-					return clToast(msg.error.slice(0, 100));
+					return clToast(msg.error.slice(0, 100))
 				}
-				saveAs(atob(msg.content), msg.name, msg.format);
-			});
+				saveAs(atob(msg.content), msg.name, msg.format)
+			})
 
 			var exportConfig = {
 				format: 'text',
 				textTemplateKey: 'Plain text',
 				documentFormatKey: 'pdf',
-			};
+			}
 
 			return {
 				restrict: 'E',
 				link: link
-			};
+			}
 
 			function link(scope) {
 				function closeDialog() {
-					clEditorLayoutSvc.currentControl = undefined;
+					clEditorLayoutSvc.currentControl = undefined
 				}
 
 				function openDialog() {
 					if (clEditorLayoutSvc.currentControl !== 'exportToDisk') {
-						clEditorLayoutSvc.currentControl = 'exportToDisk';
-						return;
+						clEditorLayoutSvc.currentControl = 'exportToDisk'
+						return
 					}
 
-					var textPreview;
+					var textPreview
 					clDialog.show({
 						templateUrl: 'optional/exportToDisk/exportToDisk.html',
 						controller: ['$scope', function(scope) {
-							scope.templates = clSettingSvc.values.exportTemplates;
-							scope.exportConfig = exportConfig;
+							scope.templates = clSettingSvc.values.exportTemplates
+							scope.exportConfig = exportConfig
 							scope.export = function() {
-								clDialog.hide();
-							};
+								clDialog.hide()
+							}
 							scope.cancel = function() {
-								clDialog.cancel();
-							};
+								clDialog.cancel()
+							}
 							scope.manageTemplates = function() {
 								clTemplateManagerDialog(clSettingSvc.values.exportTemplates)
 									.then(function(templates) {
-										clSettingSvc.values.exportTemplates = templates;
-										openDialog();
-									}, openDialog);
-							};
+										clSettingSvc.values.exportTemplates = templates
+										openDialog()
+									}, openDialog)
+							}
 							scope.$watch('exportConfig.textTemplateKey', function(templateKey) {
 								clEditorSvc.applyTemplate(scope.templates[templateKey])
 									.then(function(preview) {
-										textPreview = preview;
-										scope.textPreview = textPreview;
-									});
-							});
+										textPreview = preview
+										scope.textPreview = textPreview
+									})
+							})
 							scope.$watch('textPreview', function() {
-								scope.textPreview = textPreview;
-							});
+								scope.textPreview = textPreview
+							})
 						}],
 						onComplete: function(scope, element) {
-							var textareaElt = element[0].querySelector('textarea');
+							var textareaElt = element[0].querySelector('textarea')
 
 							function select() {
 								setTimeout(function() {
-									textareaElt.select();
-								}, 100);
+									textareaElt.select()
+								}, 100)
 							}
-							textareaElt.addEventListener('focus', select);
-							textareaElt.addEventListener('click', select);
-							textareaElt.addEventListener('keyup', select);
+							textareaElt.addEventListener('focus', select)
+							textareaElt.addEventListener('click', select)
+							textareaElt.addEventListener('keyup', select)
 						}
 					}).then(function() {
-						closeDialog();
+						closeDialog()
 						if (exportConfig.format === 'text') {
-							var template = clSettingSvc.values.exportTemplates[exportConfig.textTemplateKey];
-							var format = template.indexOf('file.content.html') === -1 ? 'txt' : 'html';
+							var template = clSettingSvc.values.exportTemplates[exportConfig.textTemplateKey]
+							var format = template.indexOf('file.content.html') === -1 ? 'txt' : 'html'
 							clEditorSvc.applyTemplate(template)
 								.then(function(text) {
-									saveAs(text, scope.currentFileDao.name, format);
-								});
+									saveAs(text, scope.currentFileDao.name, format)
+								})
 						} else if (exportConfig.format === 'document') {
-							var contentDao = scope.currentFileDao.contentDao;
+							var contentDao = scope.currentFileDao.contentDao
 							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && contentDao.text.length > 5000)) {
 								return clDialog.show({
 									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
 									controller: ['$scope', function(scope) {
-										scope.userSvc = clUserSvc;
+										scope.userSvc = clUserSvc
 										scope.cancel = function() {
-											clDialog.cancel();
-										};
+											clDialog.cancel()
+										}
 									}]
-								});
+								})
 							}
-							clToast('Document is being prepared...');
-							var fileProperties = contentDao.properties;
+							clToast('Document is being prepared...')
+							var fileProperties = contentDao.properties
 							var options = {
 								abbr: fileProperties['ext:markdown:abbr'] !== 'false',
 								breaks: fileProperties['ext:markdown:breaks'] !== 'false',
@@ -142,7 +142,7 @@ angular.module('classeur.optional.exportToDisk', [])
 								table: fileProperties['ext:markdown:table'] !== 'false',
 								typographer: fileProperties['ext:markdown:typographer'] !== 'false',
 								math: fileProperties['ext:mathjax'] !== 'false',
-							};
+							}
 							var extensions = {
 								fenced_code_blocks: options.fence,
 								backtick_code_blocks: options.fence,
@@ -159,7 +159,7 @@ angular.module('classeur.optional.exportToDisk', [])
 								hard_line_breaks: options.breaks,
 								autolink_bare_uris: options.linkify,
 								abbreviations: options.abbr,
-							};
+							}
 							clSocketSvc.sendMsg({
 								type: 'toDocument',
 								name: scope.currentFileDao.name,
@@ -172,14 +172,13 @@ angular.module('classeur.optional.exportToDisk', [])
 								},
 								metadata: contentDao.properties,
 								text: contentDao.text
-							});
+							})
 						}
-					}, closeDialog);
-
+					}, closeDialog)
 				}
 
 				scope.$watch('editorLayoutSvc.currentControl === "exportToDisk"', function(value) {
-					value && openDialog();
-				});
+					value && openDialog()
+				})
 			}
-		});
+		})

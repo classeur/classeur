@@ -5,34 +5,34 @@ angular.module('classeur.core.editor', [])
 				restrict: 'E',
 				templateUrl: 'core/editor/editor.html',
 				link: link
-			};
+			}
 
 			function link(scope, element) {
-				var containerElt = element[0].querySelector('.editor.container');
-				var editorElt = element[0].querySelector('.editor.content');
-				clEditorSvc.setCurrentFileDao(scope.currentFileDao);
-				clEditorSvc.initConverter();
-				clEditorSvc.setEditorElt(editorElt);
+				var containerElt = element[0].querySelector('.editor.container')
+				var editorElt = element[0].querySelector('.editor.content')
+				clEditorSvc.setCurrentFileDao(scope.currentFileDao)
+				clEditorSvc.initConverter()
+				clEditorSvc.setEditorElt(editorElt)
 				clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function(callback) {
-					clEditorSvc.linkDialogCallback = callback;
-					clEditorLayoutSvc.currentControl = 'linkDialog';
-					scope.$evalAsync();
-					return true;
-				});
+					clEditorSvc.linkDialogCallback = callback
+					clEditorLayoutSvc.currentControl = 'linkDialog'
+					scope.$evalAsync()
+					return true
+				})
 				clEditorSvc.pagedownEditor.hooks.set('insertImageDialog', function(callback) {
-					clEditorSvc.imageDialogCallback = callback;
-					clEditorLayoutSvc.currentControl = 'imageDialog';
-					scope.$evalAsync();
-					return true;
-				});
+					clEditorSvc.imageDialogCallback = callback
+					clEditorLayoutSvc.currentControl = 'imageDialog'
+					scope.$evalAsync()
+					return true
+				})
 
-				var state;
+				var state
 				scope.$on('$destroy', function() {
-					state = 'destroyed';
-				});
+					state = 'destroyed'
+				})
 
 				function checkState() {
-					return state === 'destroyed';
+					return state === 'destroyed'
 				}
 
 				function saveState() {
@@ -40,210 +40,208 @@ angular.module('classeur.core.editor', [])
 						selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
 						selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
 						scrollTop: containerElt.scrollTop,
-					};
+					}
 				}
-				containerElt.addEventListener('scroll', saveState);
+				containerElt.addEventListener('scroll', saveState)
 
-				var newSectionList, newSelectionRange;
+				var newSectionList, newSelectionRange
 				var debouncedEditorChanged = $window.cledit.Utils.debounce(function() {
 					if (checkState()) {
-						return;
+						return
 					}
 					if (clEditorSvc.sectionList !== newSectionList) {
-						clEditorSvc.sectionList = newSectionList;
-						state ? debouncedRefreshPreview() : refreshPreview();
+						clEditorSvc.sectionList = newSectionList
+						state ? debouncedRefreshPreview() : refreshPreview()
 					}
-					clEditorSvc.selectionRange = newSelectionRange;
-					scope.currentFileDao.contentDao.text = clEditorSvc.cledit.getContent();
-					saveState();
-					clEditorSvc.lastContentChange = Date.now();
-					scope.$apply();
-				}, 10);
+					clEditorSvc.selectionRange = newSelectionRange
+					scope.currentFileDao.contentDao.text = clEditorSvc.cledit.getContent()
+					saveState()
+					clEditorSvc.lastContentChange = Date.now()
+					scope.$apply()
+				}, 10)
 
 				function refreshPreview() {
-					state = 'ready';
-					clEditorSvc.convert();
-					setTimeout(clEditorSvc.refreshPreview, 10);
+					state = 'ready'
+					clEditorSvc.convert()
+					setTimeout(clEditorSvc.refreshPreview, 10)
 				}
 
 				var debouncedRefreshPreview = $window.cledit.Utils.debounce(function() {
 					if (checkState()) {
-						return;
+						return
 					}
-					refreshPreview();
-					scope.$apply();
-				}, 20);
+					refreshPreview()
+					scope.$apply()
+				}, 20)
 
 				clEditorSvc.cledit.selectionMgr.on('selectionChanged', function(start, end, selectionRange) {
-					newSelectionRange = selectionRange;
-					debouncedEditorChanged();
-				});
+					newSelectionRange = selectionRange
+					debouncedEditorChanged()
+				})
 
-				/*************************
+				/* -----------------------------
 				 * Inline images
 				 */
 
-				var imgCache = Object.create(null);
+				var imgCache = Object.create(null)
 
 				function addToImgCache(imgElt) {
-					var entries = imgCache[imgElt.src];
+					var entries = imgCache[imgElt.src]
 					if (!entries) {
-						entries = [];
-						imgCache[imgElt.src] = entries;
+						entries = []
+						imgCache[imgElt.src] = entries
 					}
-					entries.push(imgElt);
+					entries.push(imgElt)
 				}
 
 				function getFromImgCache(src) {
-					var entries = imgCache[src];
+					var entries = imgCache[src]
 					if (entries) {
-						var imgElt;
+						var imgElt
 						return entries.cl_some(function(entry) {
 							if (!editorElt.contains(entry)) {
-								imgElt = entry;
-								return true;
+								imgElt = entry
+								return true
 							}
-						}) && imgElt;
+						}) && imgElt
 					}
 				}
 
 				var triggerImgCacheGc = $window.cledit.Utils.debounce(function() {
 					Object.keys(imgCache).cl_each(function(src) {
 						var entries = imgCache[src].filter(function(imgElt) {
-							return editorElt.contains(imgElt);
-						});
+							return editorElt.contains(imgElt)
+						})
 						if (entries.length) {
-							imgCache[src] = entries;
+							imgCache[src] = entries
 						} else {
-							delete imgCache[src];
+							delete imgCache[src]
 						}
-					});
-				}, 100);
-				var imgEltsToCache = [];
+					})
+				}, 100)
+				var imgEltsToCache = []
 
 				if (clSettingSvc.values.editorInlineImg) {
 					clEditorSvc.cledit.highlighter.on('sectionHighlighted', function(section) {
 						section.elt.getElementsByClassName('token img').cl_each(function(imgTokenElt) {
-							var srcElt = imgTokenElt.querySelector('.token.cl-src');
+							var srcElt = imgTokenElt.querySelector('.token.cl-src')
 							if (srcElt) {
 								// Create an img element before the .img.token and wrap both elements into a .token.img-wrapper
-								var imgElt = $window.document.createElement('img');
-								imgElt.style.display = 'none';
-								var uri = srcElt.textContent;
+								var imgElt = $window.document.createElement('img')
+								imgElt.style.display = 'none'
+								var uri = srcElt.textContent
 								if (!/^unsafe/.test($$sanitizeUri(uri, true))) {
 									imgElt.onload = function() {
-										imgElt.style.display = '';
-									};
-									imgElt.src = uri;
-									imgEltsToCache.push(imgElt);
+										imgElt.style.display = ''
+									}
+									imgElt.src = uri
+									imgEltsToCache.push(imgElt)
 								}
-								var imgTokenWrapper = $window.document.createElement('span');
-								imgTokenWrapper.className = 'token img-wrapper';
-								imgTokenElt.parentNode.insertBefore(imgTokenWrapper, imgTokenElt);
-								imgTokenWrapper.appendChild(imgElt);
-								imgTokenWrapper.appendChild(imgTokenElt);
+								var imgTokenWrapper = $window.document.createElement('span')
+								imgTokenWrapper.className = 'token img-wrapper'
+								imgTokenElt.parentNode.insertBefore(imgTokenWrapper, imgTokenElt)
+								imgTokenWrapper.appendChild(imgElt)
+								imgTokenWrapper.appendChild(imgTokenElt)
 							}
-						});
-					});
+						})
+					})
 				}
 
 				clEditorSvc.cledit.highlighter.on('highlighted', function() {
 					imgEltsToCache.cl_each(function(imgElt) {
-						var cachedImgElt = getFromImgCache(imgElt.src);
+						var cachedImgElt = getFromImgCache(imgElt.src)
 						if (cachedImgElt) {
 							// Found a previously loaded image that has just been released
-							imgElt.parentNode.replaceChild(cachedImgElt, imgElt);
+							imgElt.parentNode.replaceChild(cachedImgElt, imgElt)
 						} else {
-							addToImgCache(imgElt);
+							addToImgCache(imgElt)
 						}
-					});
-					imgEltsToCache = [];
+					})
+					imgEltsToCache = []
 					// Eject released images from cache
-					triggerImgCacheGc();
-				});
+					triggerImgCacheGc()
+				})
 
 				clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
-					newSectionList = sectionList;
-					debouncedEditorChanged();
-				});
+					newSectionList = sectionList
+					debouncedEditorChanged()
+				})
 
-				var isInited;
+				var isInited
 				scope.$watch('editorSvc.options', function(options) {
-					clEditorSvc.forcePreviewRefresh();
-					options = ({}).cl_extend(options);
+					options = ({}).cl_extend(options)
 					if (!isInited) {
-						options.content = scope.currentFileDao.contentDao.text;
-						['selectionStart', 'selectionEnd', 'scrollTop'].cl_each(function(key) {
-							options[key] = scope.currentFileDao.contentDao.state[key];
-						});
-						isInited = true;
+						options.content = scope.currentFileDao.contentDao.text
+						;['selectionStart', 'selectionEnd', 'scrollTop'].cl_each(function(key) {
+							options[key] = scope.currentFileDao.contentDao.state[key]
+						})
+						isInited = true
 					}
-					clEditorSvc.initCledit(options);
-				});
+					clEditorSvc.initCledit(options)
+				})
 				scope.$watch('editorLayoutSvc.isEditorOpen', function(isOpen) {
-					clEditorSvc.cledit.toggleEditable(isOpen);
-				});
-
+					clEditorSvc.cledit.toggleEditable(isOpen)
+				})
 
 				function onPreviewRefreshed(refreshed) {
 					(refreshed && !clEditorSvc.lastSectionMeasured) ?
-					clEditorSvc.measureSectionDimensions():
-						debouncedMeasureSectionDimension();
+						clEditorSvc.measureSectionDimensions() :
+						debouncedMeasureSectionDimension()
 				}
 
 				var debouncedMeasureSectionDimension = $window.cledit.Utils.debounce(function() {
 					if (checkState()) {
-						return;
+						return
 					}
-					clEditorSvc.measureSectionDimensions();
-					scope.$apply();
-				}, 500);
-				scope.$watch('editorSvc.lastPreviewRefreshed', onPreviewRefreshed);
-				scope.$watchGroup(['editorSvc.editorElt.clientWidth', 'editorSvc.editorElt.clientHeight', 'editorSvc.previewElt.clientWidth', 'editorSvc.previewElt.clientHeight'], debouncedMeasureSectionDimension);
+					clEditorSvc.measureSectionDimensions()
+					scope.$apply()
+				}, 500)
+				scope.$watch('editorSvc.lastPreviewRefreshed', onPreviewRefreshed)
+				scope.$watchGroup(['editorSvc.editorElt.clientWidth', 'editorSvc.editorElt.clientHeight', 'editorSvc.previewElt.clientWidth', 'editorSvc.previewElt.clientHeight'], debouncedMeasureSectionDimension)
 				scope.$watch('editorLayoutSvc.isPreviewVisible', function(isVisible) {
-					isVisible && state && clEditorSvc.measureSectionDimensions();
-				});
+					isVisible && state && clEditorSvc.measureSectionDimensions()
+				})
 				scope.$watch('editorLayoutSvc.currentControl', function(currentControl) {
 					!currentControl && setTimeout(function() {
-						!scope.isDialogOpen && clEditorSvc.cledit && clEditorSvc.cledit.focus();
-					}, 1);
-				});
+						!scope.isDialogOpen && clEditorSvc.cledit && clEditorSvc.cledit.focus()
+					}, 1)
+				})
 			}
 		})
 	.directive('clPreview',
 		function($window, clEditorSvc, clConfig) {
-			var appUri = clConfig.appUri || '';
+			var appUri = clConfig.appUri || ''
 
 			return {
 				restrict: 'E',
 				templateUrl: 'core/editor/preview.html',
 				link: link
-			};
+			}
 
 			function link(scope, element) {
-				clEditorSvc.setPreviewElt(element[0].querySelector('.preview.content'));
-				var containerElt = element[0].querySelector('.preview.container');
-				clEditorSvc.isPreviewTop = containerElt.scrollTop < 10;
+				clEditorSvc.setPreviewElt(element[0].querySelector('.preview.content'))
+				var containerElt = element[0].querySelector('.preview.container')
+				clEditorSvc.isPreviewTop = containerElt.scrollTop < 10
 				containerElt.addEventListener('scroll', function() {
-					var isPreviewTop = containerElt.scrollTop < 10;
+					var isPreviewTop = containerElt.scrollTop < 10
 					if (isPreviewTop !== clEditorSvc.isPreviewTop) {
-						clEditorSvc.isPreviewTop = isPreviewTop;
-						scope.$apply();
+						clEditorSvc.isPreviewTop = isPreviewTop
+						scope.$apply()
 					}
-				});
+				})
 				containerElt.addEventListener('click', function(evt) {
-					var elt = evt.target;
+					var elt = evt.target
 					while (elt !== containerElt) {
 						if (elt.href) {
 							if (elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
-								evt.preventDefault();
-								var wnd = window.open(elt.href, '_blank');
-								return wnd.focus();
+								evt.preventDefault()
+								var wnd = window.open(elt.href, '_blank')
+								return wnd.focus()
 							}
 						}
-						elt = elt.parentNode;
+						elt = elt.parentNode
 					}
-				});
+				})
 			}
 		})
 	.directive('clToc',
@@ -252,130 +250,130 @@ angular.module('classeur.core.editor', [])
 				restrict: 'E',
 				template: '<div class="toc content no-select"></div>',
 				link: link
-			};
+			}
 
 			function link(scope, element) {
-				var tocElt = element[0].querySelector('.toc.content');
-				clEditorSvc.setTocElt(tocElt);
+				var tocElt = element[0].querySelector('.toc.content')
+				clEditorSvc.setTocElt(tocElt)
 
-				var isMousedown;
-				var scrollerElt = tocElt;
+				var isMousedown
+				var scrollerElt = tocElt
 				while (scrollerElt && scrollerElt.tagName !== 'MD-TAB-CONTENT') {
-					scrollerElt = scrollerElt.parentNode;
+					scrollerElt = scrollerElt.parentNode
 				}
 
 				function onClick(e) {
 					if (!isMousedown) {
-						return;
+						return
 					}
-					e.preventDefault();
-					var y = e.clientY + scrollerElt.scrollTop;
+					e.preventDefault()
+					var y = e.clientY + scrollerElt.scrollTop
 
 					clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
 						if (y < sectionDesc.tocDimension.endOffset) {
-							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1);
-							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection;
-							clEditorSvc.editorElt.parentNode.scrollTop = editorScrollTop - clEditorSvc.scrollOffset;
-							var previewScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection;
-							clEditorSvc.previewElt.parentNode.scrollTop = previewScrollTop - clEditorSvc.scrollOffset;
-							return true;
+							var posInSection = (y - sectionDesc.tocDimension.startOffset) / (sectionDesc.tocDimension.height || 1)
+							var editorScrollTop = sectionDesc.editorDimension.startOffset + sectionDesc.editorDimension.height * posInSection
+							clEditorSvc.editorElt.parentNode.scrollTop = editorScrollTop - clEditorSvc.scrollOffset
+							var previewScrollTop = sectionDesc.previewDimension.startOffset + sectionDesc.previewDimension.height * posInSection
+							clEditorSvc.previewElt.parentNode.scrollTop = previewScrollTop - clEditorSvc.scrollOffset
+							return true
 						}
-					});
+					})
 				}
 
-				tocElt.addEventListener("mouseup", function() {
-					isMousedown = false;
-				});
-				tocElt.addEventListener("mouseleave", function() {
-					isMousedown = false;
-				});
-				tocElt.addEventListener("mousedown", function(e) {
-					isMousedown = e.which === 1;
-					onClick(e);
-				});
-				tocElt.addEventListener("mousemove", function(e) {
-					onClick(e);
-				});
+				tocElt.addEventListener('mouseup', function() {
+					isMousedown = false
+				})
+				tocElt.addEventListener('mouseleave', function() {
+					isMousedown = false
+				})
+				tocElt.addEventListener('mousedown', function(e) {
+					isMousedown = e.which === 1
+					onClick(e)
+				})
+				tocElt.addEventListener('mousemove', function(e) {
+					onClick(e)
+				})
 			}
 		})
 	.factory('clEditorClassApplier',
 		function($window, clEditorSvc, clRangeWrapper) {
 			var nextTickCbs = [],
-				savedSelection;
+				savedSelection
 			var execNextTickCbs = $window.cledit.Utils.debounce(function() {
 				while (nextTickCbs.length) {
-					nextTickCbs.pop()();
+					nextTickCbs.pop()()
 				}
-				savedSelection && clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(savedSelection.start, savedSelection.end);
-				savedSelection = undefined;
-			});
+				savedSelection && clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(savedSelection.start, savedSelection.end)
+				savedSelection = undefined
+			})
 
 			function nextTick(cb) {
-				nextTickCbs.push(cb);
-				execNextTickCbs();
+				nextTickCbs.push(cb)
+				execNextTickCbs()
 			}
 
 			function nextTickRestoreSelection() {
 				savedSelection = {
 					start: clEditorSvc.cledit.selectionMgr.selectionStart,
 					end: clEditorSvc.cledit.selectionMgr.selectionEnd
-				};
-				execNextTickCbs();
+				}
+				execNextTickCbs()
 			}
 
 			function EditorClassApplier(classes, offsetGetter, properties) {
 				var classGetter,
 					lastEltCount,
-					elts;
+					elts
 				if (typeof classes === 'function') {
-					classGetter = classes;
-					classes = classGetter();
+					classGetter = classes
+					classes = classGetter()
 				} else {
-					classes = typeof classes === 'string' ? [classes] : classes;
+					classes = typeof classes === 'string' ? [classes] : classes
 				}
-				elts = clEditorSvc.editorElt.getElementsByClassName(classes[0]);
+				elts = clEditorSvc.editorElt.getElementsByClassName(classes[0])
 
 				function applyClass() {
-					var offset = offsetGetter();
+					var offset = offsetGetter()
 					if (!offset || offset.start === offset.end) {
-						return;
+						return
 					}
 					var range = clEditorSvc.cledit.selectionMgr.createRange(
 						Math.min(offset.start, offset.end),
 						Math.max(offset.start, offset.end)
-					);
-					properties = properties || {};
-					classes = classGetter ? classGetter() : classes;
-					properties.className = classes.join(' ');
-					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.wrap.cl_bind(clRangeWrapper, range, properties));
-					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
-					lastEltCount = elts.length;
+					)
+					properties = properties || {}
+					classes = classGetter ? classGetter() : classes
+					properties.className = classes.join(' ')
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.wrap.cl_bind(clRangeWrapper, range, properties))
+					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection()
+					lastEltCount = elts.length
 				}
 
 				function removeClass() {
-					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.unwrap.cl_bind(clRangeWrapper, elts));
-					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection();
+					clEditorSvc.cledit.watcher.noWatch(clRangeWrapper.unwrap.cl_bind(clRangeWrapper, elts))
+					clEditorSvc.cledit.selectionMgr.hasFocus && nextTickRestoreSelection()
 				}
 
 				function restoreClass() {
 					if (elts.length !== lastEltCount) {
-						removeClass();
-						applyClass();
+						removeClass()
+						applyClass()
 					}
 				}
 
 				this.stop = function() {
-					clEditorSvc.cledit.off('contentChanged', restoreClass);
-					nextTick(removeClass);
-				};
+					clEditorSvc.cledit.off('contentChanged', restoreClass)
+					nextTick(removeClass)
+				}
 
-				clEditorSvc.cledit.on('contentChanged', restoreClass);
-				nextTick(applyClass);
+				clEditorSvc.cledit.on('contentChanged', restoreClass)
+				nextTick(applyClass)
 			}
 
 			return function(classes, offsetGetter, properties) {
-				return new EditorClassApplier(classes, offsetGetter, properties);
-			};
+				return new EditorClassApplier(classes, offsetGetter, properties)
+			}
 		})
 	.factory('clPreviewClassApplier',
 		function($window, clEditorSvc, clRangeWrapper) {
@@ -383,51 +381,51 @@ angular.module('classeur.core.editor', [])
 				var classGetter,
 					lastEltCount,
 					elts,
-					timeoutId;
+					timeoutId
 				if (typeof classes === 'function') {
-					classGetter = classes;
-					classes = classGetter();
+					classGetter = classes
+					classes = classGetter()
 				} else {
-					classes = typeof classes === 'string' ? [classes] : classes;
+					classes = typeof classes === 'string' ? [classes] : classes
 				}
-				elts = clEditorSvc.previewElt.getElementsByClassName(classes[0]);
+				elts = clEditorSvc.previewElt.getElementsByClassName(classes[0])
 
 				function applyClass() {
-					timeoutId = undefined;
-					var offset = offsetGetter();
+					timeoutId = undefined
+					var offset = offsetGetter()
 					if (!offset || offset.start === offset.end) {
-						return;
+						return
 					}
-					var start = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.min(offset.start, offset.end));
-					var end = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.max(offset.start, offset.end));
-					var range = $window.document.createRange();
-					range.setStart(start.container, start.offsetInContainer);
-					range.setEnd(end.container, end.offsetInContainer);
-					properties = properties || {};
-					classes = classGetter ? classGetter() : classes;
-					properties.className = classes.join(' ');
-					clRangeWrapper.wrap(range, properties);
-					lastEltCount = elts.length;
+					var start = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.min(offset.start, offset.end))
+					var end = $window.cledit.Utils.findContainer(clEditorSvc.previewElt, Math.max(offset.start, offset.end))
+					var range = $window.document.createRange()
+					range.setStart(start.container, start.offsetInContainer)
+					range.setEnd(end.container, end.offsetInContainer)
+					properties = properties || {}
+					classes = classGetter ? classGetter() : classes
+					properties.className = classes.join(' ')
+					clRangeWrapper.wrap(range, properties)
+					lastEltCount = elts.length
 				}
 
 				this.remove = function() {
-					clearTimeout(timeoutId);
-					clRangeWrapper.unwrap(elts);
-				};
+					clearTimeout(timeoutId)
+					clRangeWrapper.unwrap(elts)
+				}
 
 				this.restore = function() {
 					if (!timeoutId && elts.length !== lastEltCount) {
-						this.remove();
-						applyClass();
+						this.remove()
+						applyClass()
 					}
-				};
+				}
 
-				timeoutId = setTimeout(applyClass, 10); // To come after the clEditorClassApplier
+				timeoutId = setTimeout(applyClass, 10) // To come after the clEditorClassApplier
 			}
 
 			return function(classes, offsetGetter, properties) {
-				return new PreviewClassApplier(classes, offsetGetter, properties);
-			};
+				return new PreviewClassApplier(classes, offsetGetter, properties)
+			}
 		})
 	.filter('clHighlightMarkdown',
 		function($window, $sce, clEditorSvc) {
@@ -443,17 +441,16 @@ angular.module('classeur.core.editor', [])
 				sups: true,
 				maths: true,
 				insideFences: clEditorSvc.insideFences
-			});
+			})
 			return function(value, grammar) {
-				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar || defaultGrammar));
-			};
+				return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar || defaultGrammar))
+			}
 		})
 	.factory('clEditorSvc',
 		function($window, $q, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown, clVersion) {
-
 			// Create aliases for syntax highlighting
-			var Prism = $window.Prism;
-			({
+			var Prism = $window.Prism
+			;({
 				'js': 'javascript',
 				'json': 'javascript',
 				'html': 'markup',
@@ -464,21 +461,21 @@ angular.module('classeur.core.editor', [])
 				'ps1': 'powershell',
 				'psm1': 'powershell'
 			}).cl_each(function(name, alias) {
-				Prism.languages[alias] = Prism.languages[name];
-			});
+				Prism.languages[alias] = Prism.languages[name]
+			})
 
-			var insideFences = {};
+			var insideFences = {}
 			Prism.languages.cl_each(function(language, name) {
 				if (Prism.util.type(language) === 'Object') {
 					insideFences['language-' + name] = {
 						pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
 						inside: {
-							"cl cl-pre": /`{3}.*/,
+							'cl cl-pre': /`{3}.*/,
 							rest: language
 						}
-					};
+					}
 				}
-			});
+			})
 
 			var noSpellcheckTokens = [
 				'code',
@@ -490,24 +487,23 @@ angular.module('classeur.core.editor', [])
 				'math expr inline',
 				'latex block',
 			].cl_reduce(function(noSpellcheckTokens, key) {
-				noSpellcheckTokens[key] = true;
-				return noSpellcheckTokens;
-			}, Object.create(null));
+				noSpellcheckTokens[key] = true
+				return noSpellcheckTokens
+			}, Object.create(null))
 			Prism.hooks.add('wrap', function(env) {
 				if (noSpellcheckTokens[env.type]) {
-					env.attributes.spellcheck = 'false';
+					env.attributes.spellcheck = 'false'
 				}
-			});
+			})
 
-			var editorElt, previewElt, tocElt;
-			var filenameSpaceElt, previewTextStartOffset;
+			var editorElt, previewElt, tocElt
+			var filenameSpaceElt, previewTextStartOffset
 			var prismOptions = {
 				insideFences: insideFences
-			};
-			var forcePreviewRefresh = true;
-			var markdownInitListeners = [];
-			var asyncPreviewListeners = [];
-			var currentFileDao;
+			}
+			var markdownInitListeners = []
+			var asyncPreviewListeners = []
+			var currentFileDao
 			var startSectionBlockTypes = [
 				'paragraph_open',
 				'blockquote_open',
@@ -521,13 +517,14 @@ angular.module('classeur.core.editor', [])
 				'hr',
 				'dl_open',
 				'toc',
-			];
+			]
 			var startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function(map, type) {
-				return (map[type] = true), map;
-			}, Object.create(null));
-			var htmlSectionMarker = '\uF111\uF222\uF333\uF444';
-			var diffMatchPatch = new $window.diff_match_patch();
-			var parsingCtx, conversionCtx;
+				map[type] = true
+				return map
+			}, Object.create(null))
+			var htmlSectionMarker = '\uF111\uF222\uF333\uF444'
+			var diffMatchPatch = new $window.diff_match_patch()
+			var parsingCtx, conversionCtx
 
 			var clEditorSvc = {
 				lastExternalChange: 0,
@@ -535,221 +532,219 @@ angular.module('classeur.core.editor', [])
 				insideFences: insideFences,
 				options: {},
 				setCurrentFileDao: function(fileDao) {
-					currentFileDao = fileDao;
+					currentFileDao = fileDao
 				},
 				onMarkdownInit: function(priority, listener) {
-					markdownInitListeners[priority] = listener;
+					markdownInitListeners[priority] = listener
 				},
 				initConverter: function() {
 					// Let the markdownInitListeners add the rules
-					clEditorSvc.markdown = new $window.markdownit('zero');
-					clEditorSvc.markdown.core.ruler.enable([], true);
-					clEditorSvc.markdown.block.ruler.enable([], true);
-					clEditorSvc.markdown.inline.ruler.enable([], true);
+					clEditorSvc.markdown = new $window.markdownit('zero')
+					clEditorSvc.markdown.core.ruler.enable([], true)
+					clEditorSvc.markdown.block.ruler.enable([], true)
+					clEditorSvc.markdown.inline.ruler.enable([], true)
 
-					asyncPreviewListeners = [];
+					asyncPreviewListeners = []
 					markdownInitListeners.cl_each(function(listener) {
-						listener(clEditorSvc.markdown);
-					});
+						listener(clEditorSvc.markdown)
+					})
 					startSectionBlockTypes.cl_each(function(type) {
-						var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken;
+						var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken
 						clEditorSvc.markdown.renderer.rules[type] = function(tokens, idx) {
 							if (tokens[idx].sectionDelimiter) {
-								return htmlSectionMarker + rule.apply(clEditorSvc.markdown.renderer, arguments);
+								return htmlSectionMarker + rule.apply(clEditorSvc.markdown.renderer, arguments)
 							}
-							return rule.apply(clEditorSvc.markdown.renderer, arguments);
-						};
-					});
+							return rule.apply(clEditorSvc.markdown.renderer, arguments)
+						}
+					})
 				},
 				onAsyncPreview: function(listener) {
-					asyncPreviewListeners.push(listener);
-				},
-				forcePreviewRefresh: function() {
-					forcePreviewRefresh = true;
+					asyncPreviewListeners.push(listener)
 				},
 				setPrismOptions: function(options) {
-					prismOptions = prismOptions.cl_extend(options);
-					this.prismGrammar = $window.mdGrammar(prismOptions);
+					prismOptions = prismOptions.cl_extend(options)
+					this.prismGrammar = $window.mdGrammar(prismOptions)
 					// Create new object to trigger watchers
-					this.options = ({}).cl_extend(this.options);
+					this.options = ({}).cl_extend(this.options)
 					this.options.highlighter = function(text) {
-						return Prism.highlight(text, clEditorSvc.prismGrammar);
-					};
+						return Prism.highlight(text, clEditorSvc.prismGrammar)
+					}
 				},
 				setPreviewElt: function(elt) {
-					previewElt = elt;
-					this.previewElt = elt;
-					filenameSpaceElt = elt.querySelector('.filename.space');
+					previewElt = elt
+					this.previewElt = elt
+					filenameSpaceElt = elt.querySelector('.filename.space')
 				},
 				setTocElt: function(elt) {
-					tocElt = elt;
-					this.tocElt = elt;
+					tocElt = elt
+					this.tocElt = elt
 				},
 				setEditorElt: function(elt) {
-					editorElt = elt;
-					this.editorElt = elt;
-					parsingCtx = undefined;
-					conversionCtx = undefined;
-					clEditorSvc.sectionDescList = [];
-					clEditorSvc.textToPreviewDiffs = undefined;
-					clEditorSvc.cledit = $window.cledit(elt, elt.parentNode);
+					editorElt = elt
+					this.editorElt = elt
+					parsingCtx = undefined
+					conversionCtx = undefined
+					clEditorSvc.sectionDescList = []
+					clEditorSvc.textToPreviewDiffs = undefined
+					clEditorSvc.cledit = $window.cledit(elt, elt.parentNode)
 					clEditorSvc.cledit.on('contentChanged', function(content, sectionList) {
-						parsingCtx.sectionList = sectionList;
-					});
+						parsingCtx.sectionList = sectionList
+					})
 					clEditorSvc.pagedownEditor = clPagedown({
 						input: Object.create(clEditorSvc.cledit)
-					});
-					clEditorSvc.pagedownEditor.run();
+					})
+					clEditorSvc.pagedownEditor.run()
 					editorElt.addEventListener('focus', function() {
 						if (clEditorLayoutSvc.currentControl === 'menu') {
-							clEditorLayoutSvc.currentControl = undefined;
+							clEditorLayoutSvc.currentControl = undefined
 						}
-					});
+					})
 				},
 				initCledit: function(options) {
 					options.sectionParser = function(text) {
-						var markdownState = new clEditorSvc.markdown.core.State(text, clEditorSvc.markdown, {});
-						var markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('');
-						markdownCoreRules[0](markdownState); // Pass the normalize rule
-						markdownCoreRules[1](markdownState); // Pass the block rule
-						var lines = text.split('\n');
-						lines.pop(); // Assume last char is a '\n'
+						var markdownState = new clEditorSvc.markdown.core.State(text, clEditorSvc.markdown, {})
+						var markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('')
+						markdownCoreRules[0](markdownState) // Pass the normalize rule
+						markdownCoreRules[1](markdownState) // Pass the block rule
+						var lines = text.split('\n')
+						lines.pop() // Assume last char is a '\n'
 						var sections = [],
-							i = 0;
+							i = 0
 						parsingCtx = {
 							markdownState: markdownState,
 							markdownCoreRules: markdownCoreRules
-						};
+						}
 
 						function addSection(maxLine) {
-							var section = '';
+							var section = ''
 							for (; i < maxLine; i++) {
-								section += lines[i] + '\n';
+								section += lines[i] + '\n'
 							}
-							section && sections.push(section);
+							section && sections.push(section)
 						}
-						markdownState.tokens.cl_each(function(token) {
-							if (token.level === 0 && startSectionBlockTypeMap[token.type]) {
-								token.sectionDelimiter = true;
-								addSection(token.map[0]);
+						markdownState.tokens.cl_each(function(token, index) {
+							// index === 0 means there are empty lines at the begining of the file
+							if (token.level === 0 && index > 0 && startSectionBlockTypeMap[token.type]) {
+								token.sectionDelimiter = true
+								addSection(token.map[0])
 							}
-						});
-						addSection(lines.length);
-						return sections;
-					};
-					clEditorSvc.cledit.init(options);
+						})
+						addSection(lines.length)
+						return sections
+					}
+					clEditorSvc.cledit.init(options)
 				},
 				setContent: function(content, isExternal) {
 					if (clEditorSvc.cledit) {
 						if (isExternal) {
-							clEditorSvc.lastExternalChange = Date.now();
+							clEditorSvc.lastExternalChange = Date.now()
 						}
-						return clEditorSvc.cledit.setContent(content, isExternal);
+						return clEditorSvc.cledit.setContent(content, isExternal)
 					}
 				}
-			};
+			}
 
 			function hashArray(arr, valueHash, valueArray) {
-				var hash = [];
+				var hash = []
 				arr.cl_each(function(str) {
-					var strHash = valueHash[str];
+					var strHash = valueHash[str]
 					if (strHash === undefined) {
-						strHash = valueArray.length;
-						valueArray.push(str);
-						valueHash[str] = strHash;
+						strHash = valueArray.length
+						valueArray.push(str)
+						valueHash[str] = strHash
 					}
-					hash.push(strHash);
-				});
-				return String.fromCharCode.apply(null, hash);
+					hash.push(strHash)
+				})
+				return String.fromCharCode.apply(null, hash)
 			}
 
 			clEditorSvc.convert = function() {
 				if (!parsingCtx.markdownState.isConverted) { // Convert can be called twice without editor modification
 					parsingCtx.markdownCoreRules.slice(2).cl_each(function(rule) { // Skip previously passed rules
-						rule(parsingCtx.markdownState);
-					});
-					parsingCtx.markdownState.isConverted = true;
+						rule(parsingCtx.markdownState)
+					})
+					parsingCtx.markdownState.isConverted = true
 				}
 				var html = clEditorSvc.markdown.renderer.render(
 					parsingCtx.markdownState.tokens,
 					clEditorSvc.markdown.options,
 					parsingCtx.markdownState.env
-				);
-				var htmlSectionList = html.split(htmlSectionMarker);
-				htmlSectionList[0] === '' && htmlSectionList.shift();
+				)
+				var htmlSectionList = html.split(htmlSectionMarker)
+				htmlSectionList[0] === '' && htmlSectionList.shift()
 				var valueHash = Object.create(null),
-					valueArray = [];
-				var newSectionHash = hashArray(htmlSectionList, valueHash, valueArray);
+					valueArray = []
+				var newSectionHash = hashArray(htmlSectionList, valueHash, valueArray)
 				var htmlSectionDiff = [
 					[1, newSectionHash]
-				];
+				]
 				if (conversionCtx) {
-					var oldSectionHash = hashArray(conversionCtx.htmlSectionList, valueHash, valueArray);
-					htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash, false);
+					var oldSectionHash = hashArray(conversionCtx.htmlSectionList, valueHash, valueArray)
+					htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash, false)
 				}
 				conversionCtx = {
 					sectionList: parsingCtx.sectionList,
 					htmlSectionList: htmlSectionList,
 					htmlSectionDiff: htmlSectionDiff
-				};
-				clEditorSvc.lastConversion = Date.now();
-			};
+				}
+				clEditorSvc.lastConversion = Date.now()
+			}
 
-			var anchorHash = {};
+			var anchorHash = {}
 
 			clEditorSvc.refreshPreview = function() {
-				var newSectionDescList = [];
-				var sectionPreviewElt, sectionTocElt;
+				var newSectionDescList = []
+				var sectionPreviewElt, sectionTocElt
 				var sectionIdx = 0,
-					sectionDescIdx = 0;
+					sectionDescIdx = 0
 				var insertBeforePreviewElt = filenameSpaceElt.nextSibling,
-					insertBeforeTocElt = tocElt.firstChild;
+					insertBeforeTocElt = tocElt.firstChild
 				conversionCtx.htmlSectionDiff.cl_each(function(item) {
 					for (var i = 0; i < item[1].length; i++) {
-						var section = conversionCtx.sectionList[sectionIdx];
+						var section = conversionCtx.sectionList[sectionIdx]
 						if (item[0] === 0) {
-							var sectionDesc = clEditorSvc.sectionDescList[sectionDescIdx++];
-							sectionDesc.editorElt = section.elt;
-							newSectionDescList.push(sectionDesc);
-							sectionIdx++;
-							insertBeforePreviewElt.classList.remove('modified');
-							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling;
-							insertBeforeTocElt.classList.remove('modified');
-							insertBeforeTocElt = insertBeforeTocElt.nextSibling;
+							var sectionDesc = clEditorSvc.sectionDescList[sectionDescIdx++]
+							sectionDesc.editorElt = section.elt
+							newSectionDescList.push(sectionDesc)
+							sectionIdx++
+							insertBeforePreviewElt.classList.remove('modified')
+							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling
+							insertBeforeTocElt.classList.remove('modified')
+							insertBeforeTocElt = insertBeforeTocElt.nextSibling
 						} else if (item[0] === -1) {
-							sectionDescIdx++;
-							sectionPreviewElt = insertBeforePreviewElt;
-							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling;
-							previewElt.removeChild(sectionPreviewElt);
-							sectionTocElt = insertBeforeTocElt;
-							insertBeforeTocElt = insertBeforeTocElt.nextSibling;
-							tocElt.removeChild(sectionTocElt);
+							sectionDescIdx++
+							sectionPreviewElt = insertBeforePreviewElt
+							insertBeforePreviewElt = insertBeforePreviewElt.nextSibling
+							previewElt.removeChild(sectionPreviewElt)
+							sectionTocElt = insertBeforeTocElt
+							insertBeforeTocElt = insertBeforeTocElt.nextSibling
+							tocElt.removeChild(sectionTocElt)
 						} else if (item[0] === 1) {
-							var html = conversionCtx.htmlSectionList[sectionIdx++];
+							var html = conversionCtx.htmlSectionList[sectionIdx++]
 
 							// Create preview section element
-							sectionPreviewElt = document.createElement('div');
-							sectionPreviewElt.className = 'cl-preview-section modified';
-							sectionPreviewElt.innerHTML = clHtmlSanitizer(html);
+							sectionPreviewElt = document.createElement('div')
+							sectionPreviewElt.className = 'cl-preview-section modified'
+							sectionPreviewElt.innerHTML = clHtmlSanitizer(html)
 							if (insertBeforePreviewElt) {
-								previewElt.insertBefore(sectionPreviewElt, insertBeforePreviewElt);
+								previewElt.insertBefore(sectionPreviewElt, insertBeforePreviewElt)
 							} else {
-								previewElt.appendChild(sectionPreviewElt);
+								previewElt.appendChild(sectionPreviewElt)
 							}
 
 							// Create TOC section element
-							sectionTocElt = document.createElement('div');
-							sectionTocElt.className = 'cl-toc-section modified';
-							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6');
+							sectionTocElt = document.createElement('div')
+							sectionTocElt.className = 'cl-toc-section modified'
+							var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6')
 							if (headingElt) {
-								headingElt = headingElt.cloneNode(true);
-								headingElt.removeAttribute('id');
-								sectionTocElt.appendChild(headingElt);
+								headingElt = headingElt.cloneNode(true)
+								headingElt.removeAttribute('id')
+								sectionTocElt.appendChild(headingElt)
 							}
 							if (insertBeforeTocElt) {
-								tocElt.insertBefore(sectionTocElt, insertBeforeTocElt);
+								tocElt.insertBefore(sectionTocElt, insertBeforeTocElt)
 							} else {
-								tocElt.appendChild(sectionTocElt);
+								tocElt.appendChild(sectionTocElt)
 							}
 
 							newSectionDescList.push({
@@ -757,253 +752,251 @@ angular.module('classeur.core.editor', [])
 								editorElt: section.elt,
 								previewElt: sectionPreviewElt,
 								tocElt: sectionTocElt
-							});
+							})
 						}
 					}
-				});
-				clEditorSvc.sectionDescList = newSectionDescList;
-				tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('empty');
-				runAsyncPreview();
-			};
+				})
+				clEditorSvc.sectionDescList = newSectionDescList
+				tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('empty')
+				runAsyncPreview()
+			}
 
 			function runAsyncPreview() {
 				var imgLoadingListeners = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function(imgElt) {
 					return function(cb) {
 						if (!imgElt.src) {
-							return cb();
+							return cb()
 						}
-						var img = new Image();
-						img.onload = cb;
-						img.onerror = cb;
-						img.src = imgElt.src;
-					};
-				});
-				var listeners = asyncPreviewListeners.concat(imgLoadingListeners);
-				var resolved = 0;
+						var img = new Image()
+						img.onload = cb
+						img.onerror = cb
+						img.src = imgElt.src
+					}
+				})
+				var listeners = asyncPreviewListeners.concat(imgLoadingListeners)
+				var resolved = 0
 
 				function attemptResolve() {
 					if (++resolved === listeners.length) {
-						resolve();
+						resolve()
 					}
 				}
 				listeners.cl_each(function(listener) {
-					listener(attemptResolve);
-				});
+					listener(attemptResolve)
+				})
 
 				function resolve() {
 					var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function(html, elt) {
 						if (!elt.exportableHtml) {
-							var clonedElt = elt.cloneNode(true);
+							var clonedElt = elt.cloneNode(true)
 							clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview').cl_each(function(elt) {
-								elt.parentNode.removeChild(elt);
-							});
-							elt.exportableHtml = clonedElt.innerHTML;
+								elt.parentNode.removeChild(elt)
+							})
+							elt.exportableHtml = clonedElt.innerHTML
 						}
-						return html + elt.exportableHtml;
-					}, '');
-					clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '');
-					clEditorSvc.previewText = previewElt.textContent;
-					clEditorSvc.lastPreviewRefreshed = Date.now();
-					debouncedTextToPreviewDiffs();
-					$rootScope.$apply();
+						return html + elt.exportableHtml
+					}, '')
+					clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '')
+					clEditorSvc.previewText = previewElt.textContent
+					clEditorSvc.lastPreviewRefreshed = Date.now()
+					debouncedTextToPreviewDiffs()
+					$rootScope.$apply()
 				}
-
 			}
 
 			var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function() {
-				previewTextStartOffset = filenameSpaceElt.textContent.length;
+				previewTextStartOffset = filenameSpaceElt.textContent.length
 				if (filenameSpaceElt.previousSibling) {
-					previewTextStartOffset += filenameSpaceElt.previousSibling.textContent.length;
+					previewTextStartOffset += filenameSpaceElt.previousSibling.textContent.length
 				}
 				clEditorSvc.sectionDescList.cl_each(function(sectionDesc) {
 					if (!sectionDesc.textToPreviewDiffs) {
-						sectionDesc.previewText = sectionDesc.previewElt.textContent;
-						sectionDesc.textToPreviewDiffs = diffMatchPatch.diff_main(sectionDesc.section.text, sectionDesc.previewText);
+						sectionDesc.previewText = sectionDesc.previewElt.textContent
+						sectionDesc.textToPreviewDiffs = diffMatchPatch.diff_main(sectionDesc.section.text, sectionDesc.previewText)
 					}
-				});
-				clEditorSvc.lastTextToPreviewDiffs = Date.now();
-				$rootScope.$apply();
-			}, 50);
-
+				})
+				clEditorSvc.lastTextToPreviewDiffs = Date.now()
+				$rootScope.$apply()
+			}, 50)
 
 			clEditorSvc.getPreviewOffset = function(textOffset) {
-				var previewOffset = previewTextStartOffset;
+				var previewOffset = previewTextStartOffset
 				clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
 					if (!sectionDesc.textToPreviewDiffs) {
-						previewOffset = undefined;
-						return true;
+						previewOffset = undefined
+						return true
 					}
 					if (sectionDesc.section.text.length >= textOffset) {
-						previewOffset += diffMatchPatch.diff_xIndex(sectionDesc.textToPreviewDiffs, textOffset);
-						return true;
+						previewOffset += diffMatchPatch.diff_xIndex(sectionDesc.textToPreviewDiffs, textOffset)
+						return true
 					}
-					textOffset -= sectionDesc.section.text.length;
-					previewOffset += sectionDesc.previewText.length;
-				});
-				return previewOffset;
-			};
+					textOffset -= sectionDesc.section.text.length
+					previewOffset += sectionDesc.previewText.length
+				})
+				return previewOffset
+			}
 
 			clEditorSvc.getEditorOffset = function(previewOffset) {
-				previewOffset -= previewTextStartOffset;
-				var editorOffset = 0;
+				previewOffset -= previewTextStartOffset
+				var editorOffset = 0
 				clEditorSvc.sectionDescList.cl_some(function(sectionDesc) {
 					if (!sectionDesc.textToPreviewDiffs) {
-						editorOffset = undefined;
-						return true;
+						editorOffset = undefined
+						return true
 					}
 					if (sectionDesc.previewText.length >= previewOffset) {
 						var previewToTextDiffs = sectionDesc.textToPreviewDiffs.cl_map(function(diff) {
-							return [-diff[0], diff[1]];
-						});
-						editorOffset += diffMatchPatch.diff_xIndex(previewToTextDiffs, previewOffset);
-						return true;
+							return [-diff[0], diff[1]]
+						})
+						editorOffset += diffMatchPatch.diff_xIndex(previewToTextDiffs, previewOffset)
+						return true
 					}
-					previewOffset -= sectionDesc.previewText.length;
-					editorOffset += sectionDesc.section.text.length;
-				});
-				return editorOffset;
-			};
+					previewOffset -= sectionDesc.previewText.length
+					editorOffset += sectionDesc.section.text.length
+				})
+				return editorOffset
+			}
 
 			var saveSelection = $window.cledit.Utils.debounce(function() {
-				var selection = $window.getSelection();
-				var range = selection.rangeCount && selection.getRangeAt(0);
+				var selection = $window.getSelection()
+				var range = selection.rangeCount && selection.getRangeAt(0)
 				if (range) {
 					if (!clEditorSvc.previewElt ||
 						!(clEditorSvc.previewElt.compareDocumentPosition(range.startContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY) ||
 						!(clEditorSvc.previewElt.compareDocumentPosition(range.endContainer) & Node.DOCUMENT_POSITION_CONTAINED_BY)
 					) {
-						range = undefined;
+						range = undefined
 					}
 				}
 				if (clEditorSvc.previewSelectionRange !== range) {
-					clEditorSvc.previewSelectionRange = range;
-					clEditorSvc.previewSelectionStartOffset = undefined;
-					clEditorSvc.previewSelectionEndOffset = undefined;
+					clEditorSvc.previewSelectionRange = range
+					clEditorSvc.previewSelectionStartOffset = undefined
+					clEditorSvc.previewSelectionEndOffset = undefined
 					if (range) {
-						var startRange = document.createRange();
-						startRange.setStart(previewElt, 0);
-						startRange.setEnd(range.startContainer, range.startOffset);
-						clEditorSvc.previewSelectionStartOffset = ('' + startRange.toString()).length;
-						clEditorSvc.previewSelectionEndOffset = clEditorSvc.previewSelectionStartOffset + ('' + range.toString()).length;
-						var editorStartOffset = clEditorSvc.getEditorOffset(clEditorSvc.previewSelectionStartOffset);
-						var editorEndOffset = clEditorSvc.getEditorOffset(clEditorSvc.previewSelectionEndOffset);
+						var startRange = document.createRange()
+						startRange.setStart(previewElt, 0)
+						startRange.setEnd(range.startContainer, range.startOffset)
+						clEditorSvc.previewSelectionStartOffset = ('' + startRange.toString()).length
+						clEditorSvc.previewSelectionEndOffset = clEditorSvc.previewSelectionStartOffset + ('' + range.toString()).length
+						var editorStartOffset = clEditorSvc.getEditorOffset(clEditorSvc.previewSelectionStartOffset)
+						var editorEndOffset = clEditorSvc.getEditorOffset(clEditorSvc.previewSelectionEndOffset)
 						if (editorStartOffset !== undefined && editorEndOffset !== undefined) {
-							clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(editorStartOffset, editorEndOffset, false);
+							clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(editorStartOffset, editorEndOffset, false)
 						}
 					}
-					$rootScope.$apply();
+					$rootScope.$apply()
 				}
-			}, 50);
+			}, 50)
 
-			$window.addEventListener('keyup', saveSelection);
-			$window.addEventListener('mouseup', saveSelection);
-			$window.addEventListener('contextmenu', saveSelection);
+			$window.addEventListener('keyup', saveSelection)
+			$window.addEventListener('mouseup', saveSelection)
+			$window.addEventListener('contextmenu', saveSelection)
 
 			function SectionDimension(startOffset, endOffset) {
-				this.startOffset = startOffset;
-				this.endOffset = endOffset;
-				this.height = endOffset - startOffset;
+				this.startOffset = startOffset
+				this.endOffset = endOffset
+				this.height = endOffset - startOffset
 			}
 
 			function dimensionNormalizer(dimensionName) {
 				return function() {
 					var dimensionList = clEditorSvc.sectionDescList.cl_map(function(sectionDesc) {
-						return sectionDesc[dimensionName];
-					});
-					var dimension, i, j;
+						return sectionDesc[dimensionName]
+					})
+					var dimension, i, j
 					for (i = 0; i < dimensionList.length; i++) {
-						dimension = dimensionList[i];
+						dimension = dimensionList[i]
 						if (!dimension.height) {
-							continue;
+							continue
 						}
 						for (j = i + 1; j < dimensionList.length && dimensionList[j].height === 0; j++) {}
-						var normalizeFactor = j - i;
+						var normalizeFactor = j - i
 						if (normalizeFactor === 1) {
-							continue;
+							continue
 						}
-						var normizedHeight = dimension.height / normalizeFactor;
-						dimension.height = normizedHeight;
-						dimension.endOffset = dimension.startOffset + dimension.height;
+						var normizedHeight = dimension.height / normalizeFactor
+						dimension.height = normizedHeight
+						dimension.endOffset = dimension.startOffset + dimension.height
 						for (j = i + 1; j < i + normalizeFactor; j++) {
-							var startOffset = dimension.endOffset;
-							dimension = dimensionList[j];
-							dimension.startOffset = startOffset;
-							dimension.height = normizedHeight;
-							dimension.endOffset = dimension.startOffset + dimension.height;
+							var startOffset = dimension.endOffset
+							dimension = dimensionList[j]
+							dimension.startOffset = startOffset
+							dimension.height = normizedHeight
+							dimension.endOffset = dimension.startOffset + dimension.height
 						}
-						i = j - 1;
+						i = j - 1
 					}
-				};
+				}
 			}
 
-			var normalizeEditorDimensions = dimensionNormalizer('editorDimension');
-			var normalizePreviewDimensions = dimensionNormalizer('previewDimension');
-			var normalizeTocDimensions = dimensionNormalizer('tocDimension');
+			var normalizeEditorDimensions = dimensionNormalizer('editorDimension')
+			var normalizePreviewDimensions = dimensionNormalizer('previewDimension')
+			var normalizeTocDimensions = dimensionNormalizer('tocDimension')
 
 			clEditorSvc.measureSectionDimensions = function() {
-				var editorSectionOffset = 0;
-				var previewSectionOffset = 0;
-				var tocSectionOffset = 0;
-				var sectionDesc = clEditorSvc.sectionDescList[0];
-				var nextSectionDesc;
+				var editorSectionOffset = 0
+				var previewSectionOffset = 0
+				var tocSectionOffset = 0
+				var sectionDesc = clEditorSvc.sectionDescList[0]
+				var nextSectionDesc
 				for (var i = 1; i < clEditorSvc.sectionDescList.length; i++) {
-					nextSectionDesc = clEditorSvc.sectionDescList[i];
+					nextSectionDesc = clEditorSvc.sectionDescList[i]
 
 					// Measure editor section
-					var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset;
-					newEditorSectionOffset = newEditorSectionOffset > editorSectionOffset ? newEditorSectionOffset : editorSectionOffset;
-					sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, newEditorSectionOffset);
-					editorSectionOffset = newEditorSectionOffset;
+					var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset
+					newEditorSectionOffset = newEditorSectionOffset > editorSectionOffset ? newEditorSectionOffset : editorSectionOffset
+					sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, newEditorSectionOffset)
+					editorSectionOffset = newEditorSectionOffset
 
 					// Measure preview section
-					var newPreviewSectionOffset = nextSectionDesc.previewElt ? nextSectionDesc.previewElt.offsetTop : previewSectionOffset;
-					newPreviewSectionOffset = newPreviewSectionOffset > previewSectionOffset ? newPreviewSectionOffset : previewSectionOffset;
-					sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, newPreviewSectionOffset);
-					previewSectionOffset = newPreviewSectionOffset;
+					var newPreviewSectionOffset = nextSectionDesc.previewElt ? nextSectionDesc.previewElt.offsetTop : previewSectionOffset
+					newPreviewSectionOffset = newPreviewSectionOffset > previewSectionOffset ? newPreviewSectionOffset : previewSectionOffset
+					sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, newPreviewSectionOffset)
+					previewSectionOffset = newPreviewSectionOffset
 
 					// Measure TOC section
-					var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight / 2 : tocSectionOffset;
-					newTocSectionOffset = newTocSectionOffset > tocSectionOffset ? newTocSectionOffset : tocSectionOffset;
-					sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, newTocSectionOffset);
-					tocSectionOffset = newTocSectionOffset;
+					var newTocSectionOffset = nextSectionDesc.tocElt ? nextSectionDesc.tocElt.offsetTop + nextSectionDesc.tocElt.offsetHeight / 2 : tocSectionOffset
+					newTocSectionOffset = newTocSectionOffset > tocSectionOffset ? newTocSectionOffset : tocSectionOffset
+					sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, newTocSectionOffset)
+					tocSectionOffset = newTocSectionOffset
 
-					sectionDesc = nextSectionDesc;
+					sectionDesc = nextSectionDesc
 				}
 
 				// Last section
-				sectionDesc = clEditorSvc.sectionDescList[i - 1];
+				sectionDesc = clEditorSvc.sectionDescList[i - 1]
 				if (sectionDesc) {
-					sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight);
-					sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight);
-					sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight);
+					sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, editorElt.scrollHeight)
+					sectionDesc.previewDimension = new SectionDimension(previewSectionOffset, previewElt.scrollHeight)
+					sectionDesc.tocDimension = new SectionDimension(tocSectionOffset, tocElt.scrollHeight)
 				}
 
-				normalizeEditorDimensions();
-				normalizePreviewDimensions();
-				normalizeTocDimensions();
+				normalizeEditorDimensions()
+				normalizePreviewDimensions()
+				normalizeTocDimensions()
 
-				clEditorSvc.lastSectionMeasured = Date.now();
-			};
+				clEditorSvc.lastSectionMeasured = Date.now()
+			}
 
 			clEditorSvc.scrollToAnchor = function(anchor) {
 				var scrollTop = 0,
-					scrollerElt = clEditorSvc.previewElt.parentNode;
-				var sectionDesc = anchorHash[anchor];
+					scrollerElt = clEditorSvc.previewElt.parentNode
+				var sectionDesc = anchorHash[anchor]
 				if (sectionDesc) {
 					if (clEditorLayoutSvc.isPreviewVisible) {
-						scrollTop = sectionDesc.previewDimension.startOffset - filenameSpaceElt.offsetHeight;
+						scrollTop = sectionDesc.previewDimension.startOffset - filenameSpaceElt.offsetHeight
 					} else {
-						scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset;
-						scrollerElt = clEditorSvc.editorElt.parentNode;
+						scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset
+						scrollerElt = clEditorSvc.editorElt.parentNode
 					}
 				} else {
-					var elt = document.getElementById(anchor);
+					var elt = document.getElementById(anchor)
 					if (elt) {
-						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight;
+						scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight
 					}
 				}
-				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start();
-			};
+				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start()
+			}
 
 			clEditorSvc.applyTemplate = function(template) {
 				var view = {
@@ -1015,45 +1008,44 @@ angular.module('classeur.core.editor', [])
 							html: clEditorSvc.previewHtml,
 						},
 					}
-				};
-				var worker = new Worker(clVersion.getAssetPath('templateWorker-min.js'));
-				worker.postMessage([template, view, clSettingSvc.values.handlebarsHelpers]);
+				}
+				var worker = new Worker(clVersion.getAssetPath('templateWorker-min.js'))
+				worker.postMessage([template, view, clSettingSvc.values.handlebarsHelpers])
 				return $q(function(resolve, reject) {
 					worker.addEventListener('message', function(e) {
-						resolve(e.data.toString());
-					});
+						resolve(e.data.toString())
+					})
 					setTimeout(function() {
-						worker.terminate();
-						reject('Template generation timeout.');
-					}, 10000);
-				});
-			};
+						worker.terminate()
+						reject('Template generation timeout.')
+					}, 10000)
+				})
+			}
 
-			return clEditorSvc;
+			return clEditorSvc
 		})
 	.run(
 		function($window, $rootScope, $location, $route, clEditorSvc) {
-
-			var lastSectionMeasured = clEditorSvc.lastSectionMeasured;
+			var lastSectionMeasured = clEditorSvc.lastSectionMeasured
 			var unwatch = $rootScope.$watch('editorSvc.lastSectionMeasured', function(value) {
-				var hash = $location.hash();
+				var hash = $location.hash()
 				if (hash && value !== lastSectionMeasured) {
-					clEditorSvc.scrollToAnchor(hash);
-					unwatch();
+					clEditorSvc.scrollToAnchor(hash)
+					unwatch()
 				}
-			});
+			})
 
 			$rootScope.$on('$locationChangeStart', function(evt, urlAfter, urlBefore) {
 				if (urlBefore !== urlAfter) {
-					var splitUrl = urlAfter.split('#');
+					var splitUrl = urlAfter.split('#')
 					if (splitUrl.length === 3) {
-						var hash = splitUrl[2];
-						var hashPos = splitUrl[0].length + splitUrl[1].length;
+						var hash = splitUrl[2]
+						var hashPos = splitUrl[0].length + splitUrl[1].length
 						if (urlBefore.slice(0, hashPos) === urlAfter.slice(0, hashPos)) {
-							evt.preventDefault();
-							clEditorSvc.scrollToAnchor(hash);
+							evt.preventDefault()
+							clEditorSvc.scrollToAnchor(hash)
 						}
 					}
 				}
-			});
-		});
+			})
+		})

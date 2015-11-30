@@ -1,45 +1,45 @@
-var path = require('path');
-var clgulp = require('clgulp');
-var gulp = clgulp(require('gulp'));
-var exec = clgulp.exec;
-var util = clgulp.util;
-var watch = require('gulp-watch');
-var concat = require('gulp-concat');
-var ngAnnotate = require('gulp-ng-annotate');
-var uglify = require('gulp-uglify');
-var sourcemaps = require('gulp-sourcemaps');
-var streamqueue = require('streamqueue');
-var replace = require('gulp-replace');
-var sass = require('gulp-sass');
-var templateCache = require('gulp-angular-templatecache');
-var size = require('gulp-size');
+var path = require('path')
+var clgulp = require('clgulp')
+var gulp = clgulp(require('gulp'))
+var exec = clgulp.exec
+var util = clgulp.util
+var watch = require('gulp-watch')
+var concat = require('gulp-concat')
+var ngAnnotate = require('gulp-ng-annotate')
+var uglify = require('gulp-uglify')
+var sourcemaps = require('gulp-sourcemaps')
+var streamqueue = require('streamqueue')
+var replace = require('gulp-replace')
+var sass = require('gulp-sass')
+var templateCache = require('gulp-angular-templatecache')
+var size = require('gulp-size')
 
-var isDebug = false;
+var isDebug = false
 
-gulp.task('tag', function(cb) {
-	var version = require('./package').version;
-	var tag = 'v' + version;
-	util.log('Tagging as: ' + util.colors.cyan(tag));
+gulp.task('tag', ['lint'], function(cb) {
+	var version = require('./package').version
+	var tag = 'v' + version
+	util.log('Tagging as: ' + util.colors.cyan(tag))
 	exec([
 		'git add package.json',
 		'git commit -m "Prepare release"',
 		'git tag -a ' + tag + ' -m "Version ' + version + '"',
 		'git push origin master --tags',
 		'npm publish',
-	], cb);
-});
+	], cb)
+})
 
 gulp.task('start', [
 	'watch',
 	'connect'
-]);
+])
 
 gulp.task('default', [
 	'app-css',
 	'base-css',
 	'app-js',
 	'template-worker-js'
-]);
+])
 
 var appVendorJs = [
 	'angular/angular',
@@ -78,14 +78,15 @@ var appVendorJs = [
 	'prismjs/components/prism-clike',
 	'prismjs/components/prism-javascript',
 	'prismjs/components/prism-css',
-].map(require.resolve);
-appVendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'));
+].map(require.resolve)
+appVendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'))
 
-var templateCacheSrc = ['src/**/*.{html,md,json}'];
-var appJsSrc = ['src/app.js', 'src/!(workers)/**/*.js'];
+var templateCacheSrc = ['src/**/*.{html,md,json}']
+var appJsSrc = ['src/app.js', 'src/!(workers)/**/*.js']
 
 gulp.task('app-js', function() {
-	return buildJs(streamqueue({
+	return buildJs(
+		streamqueue({
 			objectMode: true
 		},
 		gulp.src(appVendorJs),
@@ -95,52 +96,55 @@ gulp.task('app-js', function() {
 			module: 'classeur.templates',
 			standalone: true
 		}))
-	), 'app-min.js');
-});
+	), 'app-min.js')
+})
 
 var templateWorkerVendorJs = [
 	'handlebars/dist/handlebars',
-].map(require.resolve);
+].map(require.resolve)
 
-var templateWorkerJsSrc = ['src/workers/templateWorker.js'];
+var templateWorkerJsSrc = ['src/workers/templateWorker.js']
 
 gulp.task('template-worker-js', function() {
-	return buildJs(streamqueue({
+	return buildJs(
+		streamqueue({
 			objectMode: true
 		},
 		gulp.src(templateWorkerVendorJs),
 		gulp.src(templateWorkerJsSrc)
-	), 'templateWorker-min.js');
-});
+	), 'templateWorker-min.js')
+})
 
-var appCssSrc = ['src/**/!(base).scss'];
+var appCssSrc = ['src/**/!(base).scss']
 
 var appVendorCss = [
 	path.join(path.dirname(require.resolve('angular-material')), 'angular-material.css'),
 	path.join(path.dirname(require.resolve('classets/package')), 'public/icons/style.css')
-];
+]
 
 gulp.task('app-css', function() {
-	return buildCss(streamqueue({
+	return buildCss(
+		streamqueue({
 			objectMode: true
 		},
 		gulp.src(appVendorCss).pipe(replace(/@import\s.*/g, '')),
 		gulp.src(appCssSrc)
-	), 'app-min.css');
-});
+	), 'app-min.css')
+})
 
 gulp.task('base-css', function() {
-	return buildCss(streamqueue({
+	return buildCss(
+		streamqueue({
 			objectMode: true
 		},
 		gulp.src('src/styles/base.scss')
-	), 'base-min.css');
-});
+	), 'base-min.css')
+})
 
 gulp.task('connect', function() {
-	process.env.NO_CLUSTER = true;
-	require('./');
-});
+	process.env.NO_CLUSTER = true
+	require('./')
+})
 
 gulp.task('watch', [
 	'debug',
@@ -148,18 +152,18 @@ gulp.task('watch', [
 ], function() {
 	function watchAndStart(src, task) {
 		return watch(src, function(files, cb) {
-			gulp.start(task);
-			cb();
-		});
+			gulp.start(task)
+			cb()
+		})
 	}
-	watchAndStart(['src/**/*.scss'], 'app-css');
-	watchAndStart(templateCacheSrc.concat(appJsSrc), 'app-js');
-	watchAndStart(templateWorkerJsSrc, 'template-worker-js');
-});
+	watchAndStart(['src/**/*.scss'], 'app-css')
+	watchAndStart(templateCacheSrc.concat(appJsSrc), 'app-js')
+	watchAndStart(templateWorkerJsSrc, 'template-worker-js')
+})
 
 gulp.task('debug', function() {
-	isDebug = true;
-});
+	isDebug = true
+})
 
 function buildJs(srcStream, dest) {
 	if (isDebug) {
@@ -168,19 +172,19 @@ function buildJs(srcStream, dest) {
 			.pipe(concat(dest, {
 				newLine: ';'
 			}))
-			.pipe(sourcemaps.write('.'));
+			.pipe(sourcemaps.write('.'))
 	} else {
 		srcStream = srcStream
 			.pipe(size({
-				//showFiles: true
+				// showFiles: true
 			}))
 			.pipe(ngAnnotate())
 			.pipe(uglify())
 			.pipe(concat(dest, {
 				newLine: ';'
-			}));
+			}))
 	}
-	return srcStream.pipe(gulp.dest('public'));
+	return srcStream.pipe(gulp.dest('public'))
 }
 
 function buildCss(srcStream, dest) {
@@ -191,14 +195,14 @@ function buildCss(srcStream, dest) {
 				includePaths: 'src/styles'
 			}).on('error', sass.logError))
 			.pipe(concat(dest))
-			.pipe(sourcemaps.write('.'));
+			.pipe(sourcemaps.write('.'))
 	} else {
 		srcStream = srcStream
 			.pipe(sass({
 				includePaths: 'src/styles',
 				outputStyle: 'compressed'
 			}).on('error', sass.logError))
-			.pipe(concat(dest));
+			.pipe(concat(dest))
 	}
-	return srcStream.pipe(gulp.dest('public'));
+	return srcStream.pipe(gulp.dest('public'))
 }

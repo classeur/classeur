@@ -50,21 +50,19 @@
             overflow: hidden;
         }
         .panel,
-        .edit.btn-panel,
-        .sharing.btn-panel {
+        .btn {
             left: 0;
             width: 32px;
             height: 32px;
-            font-size: 28px;
-        }
-        .panel {
-            font-size: 30px;
+            font-size: 32px;
         }
         .sharing.btn {
             left: 32px;
+            font-size: 30px;
         }
         .edit.btn {
             left: 67px;
+            font-size: 30px;
         }
         .btn a {
             line-height: 32px;
@@ -161,7 +159,7 @@
         }
         .links {
             margin: 12px 6px 36px;
-            font-size: 18px;
+            font-size: 17px;
             a {
                 color: #fff;
                 text-decoration: none;

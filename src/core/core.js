@@ -1,180 +1,179 @@
 angular.module('classeur.core', [])
 	.config(
 		function($routeProvider, $anchorScrollProvider, $locationProvider, $animateProvider, $mdThemingProvider) {
-			$locationProvider.hashPrefix('!');
-			$animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop|md-bottom md-right/);
-			$anchorScrollProvider.disableAutoScrolling();
+			$locationProvider.hashPrefix('!')
+			$animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop|md-bottom md-right/)
+			$anchorScrollProvider.disableAutoScrolling()
 			$mdThemingProvider.theme('default')
 				.primaryPalette('blue')
-				.accentPalette('blue');
-			var menuTheme = $mdThemingProvider.theme('classeur', 'default');
-			menuTheme.dark();
-			menuTheme.foregroundShadow = '';
-			window.BezierEasing.css.materialIn = window.BezierEasing(0.75, 0, 0.8, 0.25);
-			window.BezierEasing.css.materialOut = window.BezierEasing(0.25, 0.8, 0.25, 1.0);
+				.accentPalette('blue')
+			var menuTheme = $mdThemingProvider.theme('classeur', 'default')
+			menuTheme.dark()
+			menuTheme.foregroundShadow = ''
+			window.BezierEasing.css.materialIn = window.BezierEasing(0.75, 0, 0.8, 0.25)
+			window.BezierEasing.css.materialOut = window.BezierEasing(0.25, 0.8, 0.25, 1.0)
 
 			$routeProvider
 				.when('/files/:fileId', {
 					template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
 					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
-						clAnalytics.trackPage('/files');
-						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId);
-						var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao;
-						$scope.loadFile(fileDao);
+						clAnalytics.trackPage('/files')
+						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId)
+						var fileDao = clFileSvc.fileMap[$routeParams.fileId] || publicFileDao
+						$scope.loadFile(fileDao)
 						if (!fileDao.state) {
-							clToast('You appear to be offline.');
-							return $location.url('');
+							clToast('You appear to be offline.')
+							return $location.url('')
 						}
 						$scope.$watch('currentFileDao.state', function(state) {
 							if (!state) {
-								return $location.url('');
+								return $location.url('')
 							} else if (state === 'loaded') {
 								if (!clFileSvc.fileMap[fileDao.id]) {
-									fileDao.deleted = 0;
-									clFileSvc.fileMap[fileDao.id] = fileDao;
-									clFileSvc.fileIds.push(fileDao.id);
-									clFileSvc.init();
+									fileDao.deleted = 0
+									clFileSvc.fileMap[fileDao.id] = fileDao
+									clFileSvc.fileIds.push(fileDao.id)
+									clFileSvc.init()
 								}
 								clEditorLayoutSvc.init(
 									fileDao.userId &&
 									clContentRevSvc.isServerContent(fileDao.id, fileDao.contentDao)
-								);
-								$scope.fileLoaded = true;
+								)
+								$scope.fileLoaded = true
 							}
-						});
+						})
 					}
 				})
 				.when('/folders/:folderId', {
 					template: '',
 					controller: function($location, $routeParams, clAnalytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
-						clAnalytics.trackPage('/folders');
-						clExplorerLayoutSvc.refreshFolders();
-						var folderDao = clFolderSvc.folderMap[$routeParams.folderId];
-						var classeurDao = clClasseurSvc.defaultClasseur;
+						clAnalytics.trackPage('/folders')
+						clExplorerLayoutSvc.refreshFolders()
+						var folderDao = clFolderSvc.folderMap[$routeParams.folderId]
+						var classeurDao = clClasseurSvc.defaultClasseur
 						if (!folderDao) {
-							folderDao = clFolderSvc.createPublicFolder($routeParams.folderId);
-							classeurDao.folders.push(folderDao);
+							folderDao = clFolderSvc.createPublicFolder($routeParams.folderId)
+							classeurDao.folders.push(folderDao)
 						} else {
 							if (clExplorerLayoutSvc.currentClasseurDao.folders.indexOf(folderDao) !== -1) {
-								classeurDao = clExplorerLayoutSvc.currentClasseurDao;
+								classeurDao = clExplorerLayoutSvc.currentClasseurDao
 							} else {
 								clClasseurSvc.classeurs.cl_some(function(classeurToScan) {
 									if (classeurToScan.folders.indexOf(folderDao) !== -1) {
-										classeurDao = classeurToScan;
-										return true;
+										classeurDao = classeurToScan
+										return true
 									}
-								});
+								})
 							}
 						}
-						clExplorerLayoutSvc.setCurrentClasseur(classeurDao);
-						clExplorerLayoutSvc.setCurrentFolder(folderDao);
-						$location.url('');
+						clExplorerLayoutSvc.setCurrentClasseur(classeurDao)
+						clExplorerLayoutSvc.setCurrentFolder(folderDao)
+						$location.url('')
 					}
 				})
 				.when('/states/:stateId', {
 					template: '',
 					controller: function($location, clStateMgr) {
-						$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '');
+						$location.url(clStateMgr.checkedState ? clStateMgr.checkedState.url : '')
 					}
 				})
 				.when('/', {
 					template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
 					controller: function($scope, clAnalytics, clFileSvc) {
 						if (clFileSvc.files.length === 0) {
-							return $scope.createDefaultFile();
+							return $scope.createDefaultFile()
 						}
-						$scope.hasFiles = true;
-						clAnalytics.trackPage('/');
+						$scope.hasFiles = true
+						clAnalytics.trackPage('/')
 					}
 				})
-				.otherwise('/');
-
+				.otherwise('/')
 		})
 	.run(
 		function($window, $rootScope, $location, $timeout, $interval, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
-
 			// Globally accessible services
-			$rootScope.config = clConfig;
-			$rootScope.explorerLayoutSvc = clExplorerLayoutSvc;
-			$rootScope.editorLayoutSvc = clEditorLayoutSvc;
-			$rootScope.editorSvc = clEditorSvc;
-			$rootScope.fileSvc = clFileSvc;
-			$rootScope.folderSvc = clFolderSvc;
-			$rootScope.classeurSvc = clClasseurSvc;
-			$rootScope.socketSvc = clSocketSvc;
-			$rootScope.userSvc = clUserSvc;
-			$rootScope.userInfoSvc = clUserInfoSvc;
-			$rootScope.syncDataSvc = clSyncDataSvc;
-			$rootScope.syncSvc = clSyncSvc;
-			$rootScope.contentSyncSvc = clContentSyncSvc;
-			$rootScope.settingSvc = clSettingSvc;
-			$rootScope.localSettingSvc = clLocalSettingSvc;
+			$rootScope.config = clConfig
+			$rootScope.explorerLayoutSvc = clExplorerLayoutSvc
+			$rootScope.editorLayoutSvc = clEditorLayoutSvc
+			$rootScope.editorSvc = clEditorSvc
+			$rootScope.fileSvc = clFileSvc
+			$rootScope.folderSvc = clFolderSvc
+			$rootScope.classeurSvc = clClasseurSvc
+			$rootScope.socketSvc = clSocketSvc
+			$rootScope.userSvc = clUserSvc
+			$rootScope.userInfoSvc = clUserInfoSvc
+			$rootScope.syncDataSvc = clSyncDataSvc
+			$rootScope.syncSvc = clSyncSvc
+			$rootScope.contentSyncSvc = clContentSyncSvc
+			$rootScope.settingSvc = clSettingSvc
+			$rootScope.localSettingSvc = clLocalSettingSvc
 
 			function loadFile(fileDao) {
-				unloadCurrentFile();
-				$rootScope.currentFileDao = fileDao;
-				fileDao.load && fileDao.load();
+				unloadCurrentFile()
+				$rootScope.currentFileDao = fileDao
+				fileDao.load && fileDao.load()
 			}
 
 			function unloadCurrentFile() {
-				$rootScope.currentFileDao && $rootScope.currentFileDao.unload();
-				$rootScope.currentFileDao = undefined;
+				$rootScope.currentFileDao && $rootScope.currentFileDao.unload()
+				$rootScope.currentFileDao = undefined
 			}
 
 			function setCurrentFile(fileDao, anchor) {
-				unloadCurrentFile();
+				unloadCurrentFile()
 				fileDao && $timeout(function() {
-					$location.url(clUrl.file(fileDao));
-					$location.hash(anchor);
-				});
+					$location.url(clUrl.file(fileDao))
+					$location.hash(anchor)
+				})
 			}
 
 			function makeCurrentFileCopy() {
-				var oldFileDao = $rootScope.currentFileDao;
-				var newFileDao = clFileSvc.createFile();
-				newFileDao.state = 'loaded';
-				newFileDao.readContent();
-				newFileDao.name = oldFileDao.name;
-				newFileDao.contentDao.text = oldFileDao.contentDao.text;
-				newFileDao.contentDao.state = JSON.parse(JSON.stringify(oldFileDao.contentDao.state));
-				newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties));
-				newFileDao.contentDao.discussions = JSON.parse(JSON.stringify(oldFileDao.contentDao.discussions));
-				newFileDao.contentDao.comments = JSON.parse(JSON.stringify(oldFileDao.contentDao.comments));
-				newFileDao.contentDao.conflicts = JSON.parse(JSON.stringify(oldFileDao.contentDao.conflicts));
-				newFileDao.writeContent();
-				setCurrentFile(newFileDao);
-				clToast('Copy created.');
+				var oldFileDao = $rootScope.currentFileDao
+				var newFileDao = clFileSvc.createFile()
+				newFileDao.state = 'loaded'
+				newFileDao.readContent()
+				newFileDao.name = oldFileDao.name
+				newFileDao.contentDao.text = oldFileDao.contentDao.text
+				newFileDao.contentDao.state = JSON.parse(JSON.stringify(oldFileDao.contentDao.state))
+				newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties))
+				newFileDao.contentDao.discussions = JSON.parse(JSON.stringify(oldFileDao.contentDao.discussions))
+				newFileDao.contentDao.comments = JSON.parse(JSON.stringify(oldFileDao.contentDao.comments))
+				newFileDao.contentDao.conflicts = JSON.parse(JSON.stringify(oldFileDao.contentDao.conflicts))
+				newFileDao.writeContent()
+				setCurrentFile(newFileDao)
+				clToast('Copy created.')
 			}
 
 			function createDefaultFile() {
-				var newFileDao = clFileSvc.createFile();
-				newFileDao.state = 'loaded';
-				newFileDao.readContent();
-				newFileDao.name = clFileSvc.firstFileName;
-				newFileDao.contentDao.text = clFileSvc.firstFileContent;
-				newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {};
-				newFileDao.writeContent();
-				setCurrentFile(newFileDao);
+				var newFileDao = clFileSvc.createFile()
+				newFileDao.state = 'loaded'
+				newFileDao.readContent()
+				newFileDao.name = clFileSvc.firstFileName
+				newFileDao.contentDao.text = clFileSvc.firstFileContent
+				newFileDao.contentDao.properties = clSettingSvc.values.defaultFileProperties || {}
+				newFileDao.writeContent()
+				setCurrentFile(newFileDao)
 			}
 
-			$rootScope.unloadCurrentFile = unloadCurrentFile;
-			$rootScope.setCurrentFile = setCurrentFile;
-			$rootScope.loadFile = loadFile;
-			$rootScope.makeCurrentFileCopy = makeCurrentFileCopy;
-			$rootScope.createDefaultFile = createDefaultFile;
+			$rootScope.unloadCurrentFile = unloadCurrentFile
+			$rootScope.setCurrentFile = setCurrentFile
+			$rootScope.loadFile = loadFile
+			$rootScope.makeCurrentFileCopy = makeCurrentFileCopy
+			$rootScope.createDefaultFile = createDefaultFile
 
-			$rootScope.minuteCounter = 0;
+			// A counter to refresh times in the UI
+			$rootScope.minuteCounter = 0
 			$interval(function() {
-				$rootScope.minuteCounter++;
-			}, 60 * 1000);
+				$rootScope.minuteCounter++
+			}, 60 * 1000)
 
 			$rootScope.$on('$routeChangeSuccess', function(event, current) {
-				$timeout(function() {
-					$rootScope.title = $rootScope.currentFileDao ? $rootScope.currentFileDao.name : current.$$route.title || 'Classeur';
-				});
-			});
+				setTimeout(function() {
+					document.title = $rootScope.currentFileDao ? $rootScope.currentFileDao.name : current.$$route.title || 'Classeur'
+				}, 1)
+			})
 
-			var hasToken = clSocketSvc.hasToken;
+			var hasToken = clSocketSvc.hasToken
 			$rootScope.$watch('socketSvc.hasToken', function(value) {
 				if (!value && value !== hasToken) {
 					var clearDataDialog = clDialog.confirm()
@@ -182,24 +181,24 @@ angular.module('classeur.core', [])
 						.content('Would you like to clean all your local data?')
 						.ariaLabel('Clean local data')
 						.ok('Yes please')
-						.cancel('No thanks');
+						.cancel('No thanks')
 					clDialog.show(clearDataDialog).then(function() {
-						clLocalStorage.clear();
-						clSyncSvc.saveAll();
-						clLocalSettingSvc.values.tourStep = -1;
-						createDefaultFile();
-					});
+						clLocalStorage.clear()
+						clSyncSvc.saveAll()
+						clLocalSettingSvc.values.tourStep = -1
+						createDefaultFile()
+					})
 				}
-				hasToken = value;
-			});
+				hasToken = value
+			})
 
 			$rootScope.$on('$routeChangeSuccess', function() {
-				clDialog.cancel();
-				clExplorerLayoutSvc.init();
-			});
+				clDialog.cancel()
+				clExplorerLayoutSvc.init()
+			})
 
 			$window.addEventListener('beforeunload', function() {
-				clSyncSvc.saveAll();
-				//evt.returnValue = 'Are you sure?';
-			});
-		});
+				clSyncSvc.saveAll()
+				// evt.returnValue = 'Are you sure?'
+			})
+		})

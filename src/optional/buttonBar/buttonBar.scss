@@ -35,7 +35,7 @@
             font-size: 28px;
         }
         .icon-hr::before {
-            font-family: $font-family;
+            font-family: sans-serif;
             font-size: 11px;
             letter-spacing: -0.06em;
             vertical-align: middle;
@@ -44,6 +44,9 @@
         &.active a {
             cursor: auto;
             color: #555;
+            &, &:hover {
+                opacity: 0.7;
+            }
         }
     }
 }

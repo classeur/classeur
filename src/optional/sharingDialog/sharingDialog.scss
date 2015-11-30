@@ -1,7 +1,9 @@
+@import 'variables';
+
 .sharing.dialog {
     min-width: 360px;
     .md-input[disabled] {
-        color: rgba(0, 0, 0, 0.87);
+        color: $text-color;
     }
     .btn-grp {
         a, button {
@@ -31,7 +33,7 @@
         display: inline-block;
         font-size: 13px;
         color: #fff;
-        font-weight: bold;
+        font-weight: 500;
         line-height: 1.25;
         border-radius: 8px;
         padding: 0 6px;

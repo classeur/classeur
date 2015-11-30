@@ -30,6 +30,7 @@ $highlighting-color: #ffdf60;
 	border-radius: 10px;
 	color: rgba(128, 128, 128, 0.7);
 	cursor: pointer;
+	line-height: 1.25;
 	-webkit-transform: scale(1, -1);
 	        transform: scale(1, -1);
 	-webkit-transition: 0.16s ease-out color;
@@ -124,13 +125,12 @@ $highlighting-color: #ffdf60;
 			overflow: hidden;
 			.user-name {
 				font-size: 15px;
-				text-shadow: 0 1px #f6f6f6;
 			}
 			.created {
 				padding-left: 12px;
-				color: rgba(0, 0, 0, 0.3);
+				color: rgba(0, 0, 0, 0.5);
 				font-size: 0.7em;
-				text-shadow: 0 1px #eee;
+				text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
 			}
 		}
 		.comment.item {
@@ -178,7 +178,7 @@ $highlighting-color: #ffdf60;
 		font-size: 14px;
 	}
 	.created {
-		color: rgba(0, 0, 0, 0.3);
+		color: rgba(0, 0, 0, 0.4);
 		font-size: 0.8em;
 		padding-left: 28px;
 	}

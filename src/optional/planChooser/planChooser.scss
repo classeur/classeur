@@ -59,7 +59,6 @@
         .header {
             color: #fff;
             text-shadow: 1px 1px rgba(0,0,0,0.067);
-            font-weight: normal;
             height: 175px;
         }
         .body {
@@ -69,11 +68,10 @@
         }
         .name {
             font-size: 24px;
-            font-weight: 300;
             margin-bottom: 15px;
         }
         .price {
-            font-size: 44px;
+            font-size: 46px;
             line-height: 1;
         }
         &.standard {
@@ -131,7 +129,7 @@
         .md-button {
             display: block;
             line-height: 1.8;
-            font-size: 20px;
+            font-size: 18px;
             .icon {
                 font-size: 50px;
             }

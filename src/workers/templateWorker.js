@@ -5,22 +5,22 @@
 
 // Classeur own helpers
 Handlebars.registerHelper('toYaml', function(object) {
-	var yamlSpecialChars = /[:{}[\],&*#?|\-<>=!%@\\]/;
+	var yamlSpecialChars = /[:{}[\],&*#?|\-<>=!%@\\]/
 	if (typeof object === 'object') {
-		var keys = Object.keys(object);
+		var keys = Object.keys(object)
 		return new Handlebars.SafeString(keys.reduce(function(result, key) {
-			var value = object[key].replace("'", "\\'");
-			key = key.replace("'", "\\'");
+			var value = object[key].replace('\'', '\\\'')
+			key = key.replace('\'', '\\\'')
 			if (key.match(yamlSpecialChars)) {
-				key = "'" + key + "'";
+				key = '\'' + key + '\''
 			}
 			if (value.match(yamlSpecialChars)) {
-				value = "'" + value + "'";
+				value = '\'' + value + '\''
 			}
-			return result + key + ': ' + value + '\n';
-		}, ''));
+			return result + key + ': ' + value + '\n'
+		}, ''))
 	}
-});
+})
 
 var whiteList = {
 	'self': 1,
@@ -60,42 +60,43 @@ var whiteList = {
 	'safeEval': 1,
 	'close': 1,
 	'Handlebars': 1
-};
+}
 
-var global = this;
+var global = this
 while (global !== Object.prototype) {
 	Object.getOwnPropertyNames(global).forEach(function(prop) {
 		if (!whiteList.hasOwnProperty(prop)) {
 			try {
 				Object.defineProperty(global, prop, {
 					get: function() {
-						throw 'Security Exception: cannot access ' + prop;
-						return 1;
+						throw new Error('Security Exception: cannot access ' + prop)
 					},
 					configurable: false
-				});
+				})
 			} catch (e) {}
 		}
-	});
-	global = Object.getPrototypeOf(global);
+	})
+	global = Object.getPrototypeOf(global)
 }
 
 function safeEval(code) {
-	"use strict";
-	eval('"use strict";\n' + code);
+	'use strict'
+	/* eslint-disable no-eval */
+	eval('"use strict";\n' + code)
+	/* eslint-enable no-eval */
 }
 
 onmessage = function(evt) {
-	"use strict";
+	'use strict'
 	var template = Handlebars.compile(evt.data[0]),
 		context = evt.data[1],
-		result;
+		result
 	try {
-		safeEval(evt.data[2]);
-		result = template(context);
+		safeEval(evt.data[2])
+		result = template(context)
 	} catch (e) {
-		result = 'Error: ' + e.toString();
+		result = 'Error: ' + e.toString()
 	}
-	postMessage(result);
-	close();
-};
+	postMessage(result)
+	close()
+}
