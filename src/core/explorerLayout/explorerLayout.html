@@ -48,16 +48,14 @@
                     <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs track by classeur.id">
                         <cl-classeur-entry></cl-classeur-entry>
                     </div>
-                    <div class="tile container">
-                        <cl-button class="btn">
-                            <div class="new tile content panel md-whiteframe-z1" aria-label="Create classeur" ng-click="createClasseur()">
-                                <div class="tab-1"></div>
-                                <div class="tab-2"></div>
-                                <div class="icon" layout="row" layout-align="center center">
-                                    <a class="icon-add" aria-label="Create classeur"></a>
-                                </div>
+                    <div class="new tile container">
+                        <div class="tile content panel md-whiteframe-z1" aria-label="Create classeur" ng-click="createClasseur()">
+                            <div class="tab-1"></div>
+                            <div class="tab-2"></div>
+                            <div class="icon" layout="row" layout-align="center center">
+                                <a class="icon-add" aria-label="Create classeur"></a>
                             </div>
-                        </cl-button>
+                        </div>
                     </div>
                 </div>
             </div>

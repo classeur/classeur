@@ -82,7 +82,7 @@ input, textarea {
 @for $i from 1 through length($plastic-colors) {
     $c: nth($plastic-colors, $i);
     .plastic-#{$i - 1} {
-        background-color: mix(desaturate($c, 15%), $background-color, 55%) !important;
+        background-color: mix(desaturate($c, 12.5%), $background-color, 55%) !important;
     }
 }
 
@@ -123,7 +123,7 @@ input, textarea {
 .dialog .tip {
     font-size: 14px;
     display: block;
-    color: rgba(0, 0, 0, 0.4);
+    color: rgba(0, 0, 0, 0.45);
     margin-left: 10px;
     margin-right: 10px;
     ul {

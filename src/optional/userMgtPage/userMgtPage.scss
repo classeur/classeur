@@ -1,33 +1,53 @@
 .user-mgt.page.panel {
+    overflow: auto;
     & > div {
         margin: auto;
         width: 100%;
-        height: 100%;
         max-width: 580px;
-        overflow: auto;
     }
     .title {
         font-size: 32px;
         font-weight: 300;
         margin: 5px 0;
     }
+    .filter {
+        max-width: 200px;
+    }
     .entry {
-        margin-bottom: 5px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 5px 5px 0;
+        & > div {
+            padding-bottom: 10px;
+        }
         .md-button {
             font-size: 22px;
         }
         .text {
-            width: 260px;
             margin: 0 5px;
-            padding: 8px 4px;
-            &.full-width {
-                width: 100%;
+            &.name {
+                font-weight: 500;
+                font-size: 1.1em;
             }
+            &.id {
+                color: rgba(0,0,0,0.4);
+            }
+        }
+        .md-button {
+            margin-right: 5px;
+            &.icon-delete {
+                font-size: 28px;
+            }
+        }
+        img {
+            width: 48px;
+            height: 48px;
+            border-radius: 4px;
         }
         label {
             text-align: center;
-            width: 90px;
-            min-width: 90px;
+            margin: 0 5px;
         }
     }
 }

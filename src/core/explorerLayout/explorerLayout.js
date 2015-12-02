@@ -27,7 +27,7 @@ angular.module('classeur.core.explorerLayout', [])
 						.offsetWidth // Force z-offset to refresh before the animation
 					buttonElt.clanim
 						.duration(duration)
-						.translateX(isSelected ? 0 : isHover ? -3 : -5)
+						.translateX(isSelected ? 0 : isHover ? -2 : -5)
 						.translateY(y)
 						.easing('materialOut')
 						.start(true)
@@ -44,7 +44,7 @@ angular.module('classeur.core.explorerLayout', [])
 						}
 					}
 				}
-				var debounceAnimate = $window.cledit.Utils.debounce(animate, 50)
+				var debounceAnimate = $window.cledit.Utils.debounce(animate, 100)
 
 				buttonElt.addEventListener('mouseenter', function() {
 					isHover = true
@@ -607,9 +607,13 @@ angular.module('classeur.core.explorerLayout', [])
 				}
 
 				scope.removeFolderFromClasseur = function() {
-					clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_filter(function(folderInClasseur) {
-						return folderInClasseur.id !== clExplorerLayoutSvc.currentFolderDao.id
-					})
+					if (clExplorerLayoutSvc.currentFolderDao.userId && !scope.isFolderInOtherClasseur()) {
+						clFolderSvc.removeFolders([clExplorerLayoutSvc.currentFolderDao])
+					} else {
+						clExplorerLayoutSvc.currentClasseurDao.folders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_filter(function(folderInClasseur) {
+							return folderInClasseur.id !== clExplorerLayoutSvc.currentFolderDao.id
+						})
+					}
 					clClasseurSvc.init()
 					clExplorerLayoutSvc.refreshFolders()
 				}

@@ -1,21 +1,38 @@
-<div class="user-mgt page panel background">
-    <div layout="column">
+<div class="user-mgt page panel background" cl-infinite-scroll="showMore()">
+    <div>
         <div layout="row" layout-align="space-between end">
             <div class="title">User management</div>
             <div layout="row">
-                <md-button ng-href="#!/">Close <span class="icon-close"></span></md-button>
+                <md-button ng-href="#!/">Close
+                    <span class="icon-close"></span>
+                </md-button>
             </div>
         </div>
-        <br>
-        <h2>App config</h2>
-        <div layout="row" layout-align="start center" ng-repeat="user in users" class="entry">
-            <input class="text" autocomplete="off" ng-model="user.name" disabled="disabled">
-            <input class="text" autocomplete="off" ng-model="user.id" disabled="disabled">
-            <md-button class="icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
-            <label>
-                <input type="checkbox" ng-model="user.isAdmin">
-                admin
-            </label>
+        <md-input-container class="filter">
+            <label>Filter</label>
+            <input autocomplete="off" ng-model="filter">
+        </md-input-container>
+        <div ng-repeat="user in users" class="entry md-whiteframe-z2">
+            <div layout="row" layout-align="start center">
+                <div class="text name" flex>{{user.name}}</div>
+                <div class="text id">{{user.id}}</div>
+                <md-button class="icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
+                <img ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm"></img>
+            </div>
+            <div layout="row" layout-align="end center">
+                <label ng-if="::config.usePaypal">
+                    premium
+                    <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
+                </label>
+                <label ng-if="::config.usePaypal">
+                    force premium
+                    <input type="checkbox" ng-model="user.newForcePremium">
+                </label>
+                <label>
+                    admin
+                    <input type="checkbox" ng-model="user.isAdmin">
+                </label>
+            </div>
         </div>
     </div>
 </div>

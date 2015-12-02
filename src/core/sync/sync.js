@@ -78,7 +78,7 @@ angular.module('classeur.core.sync', [])
 							folderDao.userId = clSyncDataSvc.userId
 						}
 					})
-					// Remove files that are pending for deletion
+					// Remove folders that are pending for deletion
 					clFolderSvc.removeFolders(clFolderSvc.deletedFolders)
 					clFolderSvc.checkAll()
 

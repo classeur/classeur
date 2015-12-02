@@ -15,7 +15,7 @@ angular.module('classeur.core', [])
 
 			$routeProvider
 				.when('/files/:fileId', {
-					template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
+					template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
 					controller: function($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
 						clAnalytics.trackPage('/files')
 						var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId)

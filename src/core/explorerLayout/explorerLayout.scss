@@ -142,7 +142,7 @@
 	}
 	.new-file.actions {
 		min-height: 35px;
-        font-size: 18px;
+        font-size: 17px;
 		::-webkit-input-placeholder {
 			color: rgba(255, 255, 255, 0.45);
 		}
@@ -305,6 +305,7 @@
 					background-color: transparent;
 				}
 				.rotate-90 {
+					text-shadow: 1px -1px rgba(0,0,0,0.067);
 					position: absolute;
 					width: 110px;
 					height: 32px;
@@ -346,6 +347,7 @@
 			.md-button {
 				.icon-search {
 					display: inline-block;
+					text-shadow: -1px 1px rgba(0,0,0,0.067);
 					-webkit-transform: scale(-1, 1);
 					        transform: scale(-1, 1);
 				}
@@ -418,6 +420,12 @@
 			border-bottom-right-radius: 3px;
 		}
 		.new.tile {
+			-webkit-transition: all 200ms cubic-bezier(0.75, 0, 0.8, 0.25);
+			transition: all 200ms cubic-bezier(0.75, 0, 0.8, 0.25);
+			opacity: 0.7;
+			&:hover {
+				opacity: 1;
+			}
 			.icon {
 				height: 100%;
 				font-size: 48px;
@@ -425,7 +433,7 @@
 					color: #a0a0a0;
 				}
 			}
-			&,
+			& .tile.content,
 			& .tab-1,
 			& .tab-2 {
 				background-color: #e8e8e8;
@@ -525,6 +533,7 @@
 		top: -$public-corner-size;
 		left: 0;
 		padding: 4px;
+		text-shadow: none;
 	}
 	.folder.btn &,
 	.file.entry & {
