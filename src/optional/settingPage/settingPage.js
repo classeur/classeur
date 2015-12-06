@@ -98,9 +98,7 @@ angular.module('classeur.optional.settingPage', [])
 								.ok('Ok')
 								.cancel('Cancel'))
 							.then(function() {
-								clSocketSvc.sendMsg({
-									type: 'deleteUser'
-								})
+								clSocketSvc.sendMsg('deleteUser')
 							})
 					}
 
@@ -126,10 +124,7 @@ angular.module('classeur.optional.settingPage', [])
 								if (clStateMgr.state.$search.userToken) {
 									clToast('Account is already in use.')
 								} else if (newUserToken) {
-									clSocketSvc.sendMsg({
-										type: 'linkUser',
-										token: newUserToken
-									})
+									clSocketSvc.sendMsg('linkUser')
 								}
 							}
 						}
@@ -146,9 +141,7 @@ angular.module('classeur.optional.settingPage', [])
 							.then(function() {
 								if (!scope.renewApiKeyPending) {
 									scope.renewApiKeyPending = scope.$watch('socketSvc.isReady', function() {
-										clSocketSvc.sendMsg({
-											type: 'renewUserApiKey'
-										})
+										clSocketSvc.sendMsg('renewUserApiKey')
 									})
 								}
 							})
@@ -187,13 +180,11 @@ angular.module('classeur.optional.settingPage', [])
 									if (newBlog) {
 										if (blog) {
 											newBlog.id = blog.id
-											clSocketSvc.sendMsg({
-												type: 'updateBlog',
+											clSocketSvc.sendMsg('updateBlog', {
 												blog: newBlog
 											})
 										} else {
-											clSocketSvc.sendMsg({
-												type: 'createBlog',
+											clSocketSvc.sendMsg('createBlog', {
 												blog: newBlog
 											})
 										}
@@ -219,8 +210,7 @@ angular.module('classeur.optional.settingPage', [])
 							.then(function() {
 								if (!scope.getBlogsPending) {
 									scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
-										clSocketSvc.sendMsg({
-											type: 'deleteBlog',
+										clSocketSvc.sendMsg('deleteBlog', {
 											id: blog.id
 										})
 									})
@@ -231,9 +221,7 @@ angular.module('classeur.optional.settingPage', [])
 					scope.getBlogs = function() {
 						if (!scope.getBlogsPending) {
 							scope.getBlogsPending = scope.$watch('socketSvc.isReady', function() {
-								clSocketSvc.sendMsg({
-									type: 'getBlogs'
-								})
+								clSocketSvc.sendMsg('getBlogs')
 							})
 						}
 					}
@@ -269,8 +257,7 @@ angular.module('classeur.optional.settingPage', [])
 								scope.lastDeleted = undefined
 							}
 							scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function() {
-								clSocketSvc.sendMsg({
-									type: 'getTrashFiles',
+								clSocketSvc.sendMsg('getTrashFiles', {
 									lastDeleted: scope.lastDeleted
 								})
 							})
@@ -289,8 +276,7 @@ angular.module('classeur.optional.settingPage', [])
 								.ok('Yes')
 								.cancel('No'))
 							.then(function() {
-								clSocketSvc.sendMsg({
-									type: 'deleteFile',
+								clSocketSvc.sendMsg('deleteFile', {
 									id: file.id
 								})
 								scope.trashFiles = scope.trashFiles.cl_reduce(function(trashFiles, trashFile, id) {

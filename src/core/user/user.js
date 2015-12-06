@@ -10,7 +10,7 @@ angular.module('classeur.core.user', [])
 		})
 	.factory('clUserActivity',
 		function($window, $rootScope, clLocalStorage) {
-			var inactiveAfter = 3 * 60 * 1000, // 3 minutes
+			var inactiveAfter = 2 * 60 * 1000, // 2 minutes
 				lastActivity, lastFocus,
 				lastFocusKey = 'lastWindowFocus',
 				clUserActivity = {}

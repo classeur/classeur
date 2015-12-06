@@ -63,9 +63,7 @@ angular.module('classeur.blogs', [])
 				if (!scope.post) {
 					var loading = $q(function(resolve) {
 						var unwatch = scope.$watch('socketSvc.isReady', function() {
-							clSocketSvc.sendMsg({
-								type: 'getBlogs'
-							})
+							clSocketSvc.sendMsg('getBlogs')
 						})
 
 						function blogsHandler(msg) {

@@ -1,9 +1,22 @@
 angular.module('classeur.core.socket', [])
 	.factory('clSocketSvc',
-		function($rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
-			var socketTokenKey = 'socketToken'
-			var socket, msgHandlers = {}
-			var socketToken
+		function($window, $rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
+			var socketTokenKey = 'socketToken',
+				msgHandlers = {},
+				socketToken
+
+			var clSocketSvc = {
+				hasToken: false,
+				setToken: setToken,
+				makeAuthorizationHeader: makeAuthorizationHeader,
+				clearToken: clearToken,
+				openSocket: openSocket,
+				closeSocket: closeSocket,
+				isOnline: isOnline,
+				sendMsg: sendMsg,
+				addMsgHandler: addMsgHandler,
+				removeMsgHandler: removeMsgHandler,
+			}
 
 			function setToken(token) {
 				clLocalStorage[socketTokenKey] = token
@@ -20,33 +33,36 @@ angular.module('classeur.core.socket', [])
 				return clSocketSvc.hasToken
 			}
 
-			var lastConnectionAttempt = 0
-			var nextConnectionAttempt = 1000
-			var maxNextConnectionAttempt = nextConnectionAttempt * Math.pow(2, 5) // Has to be a power of 2
+			var lastConnectionAttempt = 0,
+				nextConnectionAttempt = 1000,
+				maxNextConnectionAttempt = nextConnectionAttempt * Math.pow(2, 5) // Has to be a power of 2
 
 			function attemptOpenSocket() {
 				lastConnectionAttempt = Date.now()
 				closeSocket()
-				socket = new WebSocket(($location.protocol() === 'https' ? 'wss://' : 'ws://') + $location.host() + ':' + $location.port() + '/?token=' + socketToken)
-				clSocketSvc.ctx = {
-					socket: socket
-				}
-				socket.onopen = function() {
-					nextConnectionAttempt = 1000
-				}
-				socket.onmessage = function(event) {
-					var msg = JSON.parse(event.data)
-					;(msgHandlers[msg.type] || []).cl_each(function(handler) {
-						return handler(JSON.parse(event.data), clSocketSvc.ctx) // Give each handler a different msg object
+				;(function() {
+					var ctx = {
+						socket: $window.eio()
+					}
+					clSocketSvc.ctx = ctx
+					ctx.socket.on('message', function(msg) {
+						var type = JSON.parse(msg)[0]
+						var handlers = msgHandlers[type] || []
+						handlers.cl_each(function(handler) {
+							clSocketSvc.ctx === ctx && handler(JSON.parse(msg)[1], ctx)
+						})
 					})
-				}
-				socket.onclose = function() {
-					closeSocket()
-				}
+					ctx.socket.on('open', function() {
+						nextConnectionAttempt = 1000
+						ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken}]))
+					})
+					ctx.socket.on('error', closeSocket)
+					ctx.socket.on('close', closeSocket)
+				})()
 			}
 
 			function shouldAttempt() {
-				return (!socket || socket.readyState > 1) && checkToken() && clUserActivity.checkActivity() && clIsNavigatorOnline()
+				return !clSocketSvc.ctx && checkToken() && clUserActivity.checkActivity() && clIsNavigatorOnline()
 			}
 
 			function openSocket() {
@@ -60,16 +76,14 @@ angular.module('classeur.core.socket', [])
 			}
 
 			function closeSocket() {
-				if (socket) {
-					socket.onopen = undefined
-					socket.onmessage = undefined
-					socket.onclose = undefined
-					socket.close()
-					socket = undefined
+				if (clSocketSvc.ctx) {
+					clSocketSvc.ctx.socket.close()
+					clSocketSvc.ctx = undefined
+					if (clSocketSvc.isReady) {
+						clSocketSvc.isReady = false
+						$rootScope.$evalAsync()
+					}
 				}
-				clSocketSvc.isReady = false
-				clSocketSvc.ctx = undefined
-				$rootScope.$evalAsync()
 			}
 
 			function isOnline() {
@@ -80,8 +94,8 @@ angular.module('classeur.core.socket', [])
 				closeSocket()
 			}
 
-			function sendMsg(msg) {
-				clSocketSvc.isReady && socket.send(JSON.stringify(msg))
+			function sendMsg(type, msg) {
+				clSocketSvc.isReady && clSocketSvc.ctx.socket.send(JSON.stringify([type, msg]))
 			}
 
 			function addMsgHandler(type, handler) {
@@ -125,19 +139,6 @@ angular.module('classeur.core.socket', [])
 					throw new Error('Restricted access') // Skip the execution
 				}
 				return headers
-			}
-
-			var clSocketSvc = {
-				hasToken: false,
-				setToken: setToken,
-				makeAuthorizationHeader: makeAuthorizationHeader,
-				clearToken: clearToken,
-				openSocket: openSocket,
-				closeSocket: closeSocket,
-				isOnline: isOnline,
-				sendMsg: sendMsg,
-				addMsgHandler: addMsgHandler,
-				removeMsgHandler: removeMsgHandler,
 			}
 
 			openSocket()

@@ -282,8 +282,7 @@ angular.module('classeur.core.sync', [])
 
 			var syncUser = (function() {
 				function retrieveChanges() {
-					clSocketSvc.sendMsg({
-						type: 'getUserData',
+					clSocketSvc.sendMsg('getUserData', {
 						userUpdated: clUserSvc.user && (clSyncDataSvc.userData.user || {}).r,
 						classeursUpdated: (clSyncDataSvc.userData.classeurs || {}).r,
 						settingsUpdated: (clSyncDataSvc.userData.settings || {}).r
@@ -336,9 +335,7 @@ angular.module('classeur.core.sync', [])
 
 				function sendChanges() {
 					var syncData,
-						msg = {
-							type: 'setUserData'
-						}
+						msg = {}
 					syncData = clSyncDataSvc.userData.user || {}
 					if (clUserSvc.user && clUserSvc.updated !== syncData.r) {
 						if (clUserSvc.user.name.length > userNameMaxLength) {
@@ -369,7 +366,7 @@ angular.module('classeur.core.sync', [])
 						syncData.s = clSettingSvc.updated
 						clSyncDataSvc.userData.settings = syncData
 					}
-					Object.keys(msg).length > 1 && clSocketSvc.sendMsg(msg)
+					Object.keys(msg).length > 1 && clSocketSvc.sendMsg('setUserData', msg)
 				}
 
 				return retrieveChanges
@@ -408,8 +405,7 @@ angular.module('classeur.core.sync', [])
 
 			var syncFolders = (function() {
 				function retrieveChanges() {
-					clSocketSvc.sendMsg({
-						type: 'getFolderChanges',
+					clSocketSvc.sendMsg('getFolderChanges', {
 						nextSeq: clSyncDataSvc.nextFolderSeq
 					})
 				}
@@ -475,8 +471,7 @@ angular.module('classeur.core.sync', [])
 					clFolderSvc.folders.cl_each(function(folderDao) {
 						var syncData = clSyncDataSvc.folders[folderDao.id] || {}
 						if (checkUpdated(folderDao, syncData)) {
-							clSocketSvc.sendMsg({
-								type: 'setFolderMetadata',
+							clSocketSvc.sendMsg('setFolderMetadata', {
 								id: folderDao.id,
 								name: folderDao.name,
 								sharing: folderDao.sharing || undefined,
@@ -490,8 +485,7 @@ angular.module('classeur.core.sync', [])
 						var syncData = clSyncDataSvc.folders[folderDao.id]
 						// Folder has been synchronized
 						if (syncData && checkUpdated(folderDao, syncData)) {
-							clSocketSvc.sendMsg({
-								type: 'deleteFolder',
+							clSocketSvc.sendMsg('deleteFolder', {
 								id: folderDao.id
 							})
 							syncData.s = folderDao.updated
@@ -509,8 +503,7 @@ angular.module('classeur.core.sync', [])
 
 			var syncFiles = (function() {
 				function retrieveChanges() {
-					clSocketSvc.sendMsg({
-						type: 'getFileChanges',
+					clSocketSvc.sendMsg('getFileChanges', {
 						nextSeq: clSyncDataSvc.nextFileSeq
 					})
 				}
@@ -581,8 +574,7 @@ angular.module('classeur.core.sync', [])
 						var syncData = clSyncDataSvc.files[fileDao.id] || {}
 						// File has been created
 						if (syncData.r && checkUpdated(fileDao, syncData)) {
-							clSocketSvc.sendMsg({
-								type: 'setFileMetadata',
+							clSocketSvc.sendMsg('setFileMetadata', {
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
@@ -598,8 +590,7 @@ angular.module('classeur.core.sync', [])
 						var syncData = clSyncDataSvc.files[fileDao.id]
 						// File has been synchronized
 						if (syncData && checkUpdated(fileDao, syncData) && !clSyncDataSvc.fileRecoveryDates.hasOwnProperty(fileDao.id)) {
-							clSocketSvc.sendMsg({
-								type: 'setFileMetadata',
+							clSocketSvc.sendMsg('setFileMetadata', {
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
@@ -621,8 +612,7 @@ angular.module('classeur.core.sync', [])
 				var currentDate = Date.now()
 				clSyncDataSvc.fileRecoveryDates[file.id] = currentDate
 				if (!clFileSvc.fileMap[file.id]) {
-					clSocketSvc.sendMsg({
-						type: 'setFileMetadata',
+					clSocketSvc.sendMsg('setFileMetadata', {
 						id: file.id,
 						name: file.name,
 						folderId: file.folderId || undefined,
@@ -655,8 +645,7 @@ angular.module('classeur.core.sync', [])
 							if (clFileSvc.files.length > 1 && fileDao.name === clFileSvc.firstFileName && fileDao.contentDao.text === clFileSvc.firstFileContent) {
 								return filesToRemove.push(fileDao)
 							}
-							clSocketSvc.sendMsg({
-								type: 'createFile',
+							clSocketSvc.sendMsg('createFile', {
 								id: fileDao.id,
 								name: fileDao.name,
 								folderId: fileDao.folderId || undefined,
@@ -856,10 +845,10 @@ angular.module('classeur.core.sync', [])
 		})
 	.factory('clContentSyncSvc',
 		function($window, $rootScope, $timeout, $http, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
-			var textMaxSize = 200000
-			var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
-			var clContentSyncSvc = {}
-			var watchCtx
+			var textMaxSize = 200000,
+				backgroundUpdateContentEvery = 30 * 1000, // 30 sec
+				clContentSyncSvc = {},
+				watchCtx
 
 			function setWatchCtx(ctx) {
 				watchCtx = ctx
@@ -917,14 +906,12 @@ angular.module('classeur.core.sync', [])
 				fileDao.loadPending = false
 				setWatchCtx({
 					fileDao: fileDao,
-					rev: clContentRevSvc.getRev(fileDao.id),
 					userCursors: {},
 					contentChanges: []
 				})
-				clSocketSvc.sendMsg({
-					type: 'startWatchFile',
+				clSocketSvc.sendMsg('startWatchFile', {
 					id: fileDao.id,
-					fromRev: watchCtx.rev
+					fromRev: clContentRevSvc.getRev(fileDao.id)
 				})
 				$timeout.cancel(fileDao.loadingTimeoutId)
 				fileDao.loadingTimeoutId = $timeout(function() {
@@ -934,9 +921,7 @@ angular.module('classeur.core.sync', [])
 
 			function stopWatchFile() {
 				if (watchCtx && watchCtx.fileDao) {
-					clSocketSvc.sendMsg({
-						type: 'stopWatchFile'
-					})
+					clSocketSvc.sendMsg('stopWatchFile')
 					unsetWatchCtx()
 				}
 			}
@@ -973,6 +958,8 @@ angular.module('classeur.core.sync', [])
 				clContentRevSvc.setContent(fileDao.id, serverContent)
 				// Evaluate scope synchronously to have cledit instantiated
 				apply && $rootScope.$apply()
+				// Changes can be received before the watchedFile
+				applyContentChangeMsgs()
 			})
 
 			function getPublicFile(fileDao) {
@@ -1018,7 +1005,7 @@ angular.module('classeur.core.sync', [])
 			}
 
 			function sendContentChange() {
-				if (!watchCtx || watchCtx.text === undefined || watchCtx.sentMsg) {
+				if (!watchCtx || watchCtx.rev === undefined || watchCtx.sentMsg) {
 					return
 				}
 				if (watchCtx.fileDao.userId && (watchCtx.fileDao.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
@@ -1038,7 +1025,6 @@ angular.module('classeur.core.sync', [])
 				}
 				var newRev = watchCtx.rev + 1
 				watchCtx.sentMsg = {
-					type: 'setContentChange',
 					rev: newRev,
 					text: textChanges,
 					properties: propertiesPatches,
@@ -1046,24 +1032,23 @@ angular.module('classeur.core.sync', [])
 					comments: commentsPatches,
 					conflicts: conflictsPatches,
 				}
-				clSocketSvc.sendMsg(watchCtx.sentMsg)
+				clSocketSvc.sendMsg('setContentChange', watchCtx.sentMsg)
 			}
 
-			clSocketSvc.addMsgHandler('contentChange', function(msg) {
-				if (!watchCtx || watchCtx.fileDao.id !== msg.id || watchCtx.rev >= msg.rev) {
+			function applyContentChangeMsgs() {
+				if (watchCtx.rev === undefined) {
 					return
 				}
-				watchCtx.contentChanges[msg.rev] = msg
-				var apply
-				var serverText = watchCtx.text
-				var localText = clEditorSvc.cledit.getContent()
-				var serverProperties = ({}).cl_extend(watchCtx.properties)
-				var serverDiscussions = ({}).cl_extend(watchCtx.discussions)
-				var serverComments = ({}).cl_extend(watchCtx.comments)
-				var serverConflicts = ({}).cl_extend(watchCtx.conflicts)
+				var msg,
+					apply,
+					serverText = watchCtx.text,
+					localText = clEditorSvc.cledit.getContent(),
+					serverProperties = ({}).cl_extend(watchCtx.properties),
+					serverDiscussions = ({}).cl_extend(watchCtx.discussions),
+					serverComments = ({}).cl_extend(watchCtx.comments),
+					serverConflicts = ({}).cl_extend(watchCtx.conflicts)
 				while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
 					watchCtx.rev = msg.rev
-					watchCtx.contentChanges[msg.rev] = undefined
 					if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
 						// It ought to be the previously sent message
 						msg = watchCtx.sentMsg
@@ -1097,6 +1082,11 @@ angular.module('classeur.core.sync', [])
 					}
 					watchCtx.sentMsg = undefined
 				}
+				// This will also remove changes received before watchedFile
+				var revToClean = watchCtx.rev
+				while (watchCtx.contentChanges[revToClean]) {
+					watchCtx.contentChanges[revToClean--] = undefined
+				}
 				watchCtx.fileDao.contentDao.properties = clDiffUtils.mergeObjects(watchCtx.properties, watchCtx.fileDao.contentDao.properties, serverProperties)
 				watchCtx.fileDao.contentDao.discussions = clDiffUtils.mergeObjects(watchCtx.discussions, watchCtx.fileDao.contentDao.discussions, serverDiscussions)
 				watchCtx.fileDao.contentDao.comments = clDiffUtils.mergeObjects(watchCtx.comments, watchCtx.fileDao.contentDao.comments, serverComments)
@@ -1108,6 +1098,14 @@ angular.module('classeur.core.sync', [])
 				watchCtx.conflicts = serverConflicts
 				clContentRevSvc.setContent(watchCtx.fileDao.id, watchCtx)
 				apply && $rootScope.$evalAsync()
+			}
+
+			clSocketSvc.addMsgHandler('contentChange', function(msg) {
+				if (!watchCtx || watchCtx.fileDao.id !== msg.id || watchCtx.rev >= msg.rev) {
+					return
+				}
+				watchCtx.contentChanges[msg.rev] = msg
+				applyContentChangeMsgs()
 			})
 
 			clSetInterval(function() {
@@ -1131,8 +1129,7 @@ angular.module('classeur.core.sync', [])
 							return
 						}
 						if (!clContentRevSvc.isServerContent(fileDao.id, fileDao.contentDao)) {
-							clSocketSvc.sendMsg({
-								type: 'updateContent',
+							clSocketSvc.sendMsg('updateContent', {
 								id: fileDao.id,
 								fromRev: fromRev,
 								text: fileDao.contentDao.text,

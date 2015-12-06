@@ -160,8 +160,7 @@ angular.module('classeur.optional.exportToDisk', [])
 								autolink_bare_uris: options.linkify,
 								abbreviations: options.abbr,
 							}
-							clSocketSvc.sendMsg({
-								type: 'toDocument',
+							clSocketSvc.sendMsg('toDocument', {
 								name: scope.currentFileDao.name,
 								format: exportConfig.documentFormatKey,
 								extensions: extensions,

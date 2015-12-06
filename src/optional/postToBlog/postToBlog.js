@@ -78,8 +78,7 @@ angular.module('classeur.optional.postToBlog', [])
 							scope.updateBlogPost = clPostToBlogSvc.updateBlogPost
 							scope.deleteBlogPost = function(blogPost) {
 								clPostToBlogSvc.deleteBlogPost(blogPost)
-								clSocketSvc.sendMsg({
-									type: 'deleteBlogPost',
+								clSocketSvc.sendMsg('deleteBlogPost', {
 									id: blogPost.id
 								})
 							}
@@ -118,8 +117,7 @@ angular.module('classeur.optional.postToBlog', [])
 								clDialog.hide()
 								clEditorSvc.applyTemplate(blogPost.template)
 									.then(function(content) {
-										clSocketSvc.sendMsg({
-											type: 'createBlogPost',
+										clSocketSvc.sendMsg('createBlogPost', {
 											blogPost: blogPost,
 											content: content,
 											title: title,
@@ -169,12 +167,8 @@ angular.module('classeur.optional.postToBlog', [])
 					if (!isWatching) {
 						return
 					}
-					clSocketSvc.sendMsg({
-						type: 'getBlogs'
-					})
-					clSocketSvc.sendMsg({
-						type: 'getBlogPosts'
-					})
+					clSocketSvc.sendMsg('getBlogs')
+					clSocketSvc.sendMsg('getBlogPosts')
 				})
 				clPostToBlogSvc.setBlogPosts()
 			}
@@ -243,8 +237,7 @@ angular.module('classeur.optional.postToBlog', [])
 				blogPostLight.blog = undefined
 				clEditorSvc.applyTemplate(blogPost.template)
 					.then(function(content) {
-						clSocketSvc.sendMsg({
-							type: 'sendBlogPost',
+						clSocketSvc.sendMsg('sendBlogPost', {
 							blogPost: blogPostLight,
 							content: content,
 							title: title,

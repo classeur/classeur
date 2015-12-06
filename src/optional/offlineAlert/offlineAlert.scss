@@ -3,7 +3,7 @@
     right: -27px;
     height: 48px;
     width: 50px;
-    background-color: #c8c8c8;
+    background-color: #EFA987;
     border-radius: 8px;
     button {
         position: absolute;
@@ -17,15 +17,13 @@
             background-color: transparent;
         }
     }
-    .rotate-90 {
+    .icon-sync-disabled {
+        line-height: 48px;
         position: absolute;
-        width: 48px;
-        height: 50px;
-        left: 49px;
+        width: 26px;
         top: 0;
-        font-size: 20px;
-        -webkit-transform-origin: 0 0;
-        transform-origin: 0 0;
+        right: 0;
+        font-size: 21px;
     }
 }
 

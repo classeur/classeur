@@ -64,6 +64,7 @@ var appVendorJs = [
 	'cledit/scripts/cleditUtils',
 	'cledit/scripts/cleditWatcher',
 	'cledit/demo/mdGrammar',
+	'engine.io-client/engine.io',
 	'filesaver.js/FileSaver',
 	'hammerjs/hammer',
 	'markdown-it/dist/markdown-it',
