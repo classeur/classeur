@@ -4,7 +4,7 @@
 
 This is the frontend application as used in [Classeur](https://app.classeur.io).
 
-This application was made possible thanks to these libraries:
+The application was made possible thanks to these libraries:
 
 - [AngularJS](https://github.com/angular/angular.js)
 - [Markdown It](https://github.com/markdown-it/markdown-it)
