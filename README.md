@@ -2,9 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/classeur/classeur.svg?style=flat)](https://travis-ci.org/classeur/classeur) [![NPM version](https://img.shields.io/npm/v/classeur.svg?style=flat)](https://www.npmjs.org/package/classeur)
 
-This is the frontend application as used in [Classeur](https://app.classeur.io).
-
-The application was made possible thanks to these libraries:
+This is the frontend application as used in [Classeur](https://app.classeur.io). The application was made possible thanks to these libraries:
 
 - [AngularJS](https://github.com/angular/angular.js)
 - [Markdown It](https://github.com/markdown-it/markdown-it)
