@@ -1,6 +1,6 @@
 # Classeur frontend
 
-[![Build Status](https://travis-ci.org/classeur/classeur.svg)](https://travis-ci.org/classeur/classeur)
+[![Build Status](https://img.shields.io/travis/classeur/classeur.svg?style=flat)](https://travis-ci.org/classeur/classeur) [![NPM version](https://img.shields.io/npm/v/classeur.svg?style=flat)](https://www.npmjs.org/package/classeur)
 
 This is the frontend application as used in [Classeur](https://app.classeur.io).
 
@@ -33,4 +33,6 @@ npm start
 
 Classeur works with a back-end in order to provide connected features such as synchronization, sharing and collaboration. Please refer to the [enterprise documentation](http://classeur.io/help/enterprise/) for a full installation of Classeur.
 
+## License
 
+[Apache](https://github.com/classeur/classeur/blob/master/LICENSE)
