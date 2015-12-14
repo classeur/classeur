@@ -170,6 +170,7 @@ md-tooltip {
     border-radius: 6px;
     background-color: $tooltip-background-color;
     overflow: visible;
+    font-weight: inherit;
     p {
         margin: 0.5em 0;
         font-size: 12px;

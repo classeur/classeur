@@ -30,11 +30,12 @@ $highlighting-color: #ffdf60;
 	border-radius: 10px;
 	color: rgba(128, 128, 128, 0.7);
 	cursor: pointer;
-	line-height: 1.25;
+	line-height: 1.25 !important;
 	-webkit-transform: scale(1, -1);
 	        transform: scale(1, -1);
 	-webkit-transition: 0.16s ease-out color;
 	        transition: 0.16s ease-out color;
+	box-shadow: 0px -3px 1px -2px rgba(0, 0, 0, 0.07), 0px -2px 2px 0px rgba(0, 0, 0, 0.049);
 	&:hover {
 		color: rgba(128, 128, 128, 1);
 	}
@@ -52,11 +53,11 @@ $highlighting-color: #ffdf60;
 		opacity: 1;
 	}
 	.discussion.item {
-		margin: 25px 0;
+		margin: 20px 0;
 		-webkit-transition: 0.12s ease-out opacity;
 		        transition: 0.12s ease-out opacity;
-		hr {
-			margin: 0 auto;
+		& > hr {
+			margin: 20px auto;
 			width: 120px;
 		}
 		a.icon-delete {
@@ -180,7 +181,7 @@ $highlighting-color: #ffdf60;
 	.created {
 		color: rgba(0, 0, 0, 0.4);
 		font-size: 0.8em;
-		padding-left: 28px;
+		padding-left: 30px;
 	}
 	.preview.container & {
 		left: 840px;

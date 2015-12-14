@@ -475,6 +475,9 @@ angular.module('classeur.core.explorerLayout', [])
 							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
 								newFileDao.folderId = folderDao.id
 								newFileDao.userId = folderDao.userId
+								if (folderDao.userId) {
+									newFileDao.sharing = folderDao.sharing
+								}
 							} else {
 								newFileDao.classeurId = classeurDao.id
 							}
@@ -501,6 +504,9 @@ angular.module('classeur.core.explorerLayout', [])
 							if (folderDao && clFolderSvc.folderMap[folderDao.id]) {
 								newFileDao.folderId = folderDao.id
 								newFileDao.userId = folderDao.userId
+								if (folderDao.userId) {
+									newFileDao.sharing = folderDao.sharing
+								}
 							} else {
 								newFileDao.classeurId = classeurDao.id
 							}

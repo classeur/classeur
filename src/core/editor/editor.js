@@ -468,9 +468,9 @@ angular.module('classeur.core.editor', [])
 			Prism.languages.cl_each(function(language, name) {
 				if (Prism.util.type(language) === 'Object') {
 					insideFences['language-' + name] = {
-						pattern: new RegExp('`{3}' + name + '\\W[\\s\\S]*'),
+						pattern: new RegExp('(`{3}|~{3})' + name + '\\W[\\s\\S]*'),
 						inside: {
-							'cl cl-pre': /`{3}.*/,
+							'cl cl-pre': /(`{3}|~{3}).*/,
 							rest: language
 						}
 					}
@@ -496,35 +496,36 @@ angular.module('classeur.core.editor', [])
 				}
 			})
 
-			var editorElt, previewElt, tocElt
-			var filenameSpaceElt, previewTextStartOffset
-			var prismOptions = {
-				insideFences: insideFences
-			}
-			var markdownInitListeners = []
-			var asyncPreviewListeners = []
-			var currentFileDao
-			var startSectionBlockTypes = [
-				'paragraph_open',
-				'blockquote_open',
-				'heading_open',
-				'code',
-				'fence',
-				'table_open',
-				'html_block',
-				'bullet_list_open',
-				'ordered_list_open',
-				'hr',
-				'dl_open',
-				'toc',
-			]
-			var startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function(map, type) {
-				map[type] = true
-				return map
-			}, Object.create(null))
-			var htmlSectionMarker = '\uF111\uF222\uF333\uF444'
-			var diffMatchPatch = new $window.diff_match_patch()
-			var parsingCtx, conversionCtx
+			var editorElt, previewElt, tocElt,
+				filenameSpaceElt, previewTextStartOffset,
+				prismOptions = {
+					insideFences: insideFences
+				},
+				markdownInitListeners = [],
+				asyncPreviewListeners = [],
+				currentFileDao,
+				startSectionBlockTypes = [
+					'paragraph_open',
+					'blockquote_open',
+					'heading_open',
+					'code',
+					'fence',
+					'table_open',
+					'html_block',
+					'bullet_list_open',
+					'ordered_list_open',
+					'hr',
+					'dl_open',
+					'toc',
+				],
+				startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function(map, type) {
+					map[type] = true
+					return map
+				}, Object.create(null)),
+				htmlSectionMarker = '\uF111\uF222\uF333\uF444',
+				diffMatchPatch = new $window.diff_match_patch(),
+				parsingCtx, conversionCtx,
+				tokens
 
 			var clEditorSvc = {
 				lastExternalChange: 0,
@@ -665,8 +666,9 @@ angular.module('classeur.core.editor', [])
 					})
 					parsingCtx.markdownState.isConverted = true
 				}
+				tokens = parsingCtx.markdownState.tokens
 				var html = clEditorSvc.markdown.renderer.render(
-					parsingCtx.markdownState.tokens,
+					tokens,
 					clEditorSvc.markdown.options,
 					parsingCtx.markdownState.env
 				)
@@ -914,14 +916,14 @@ angular.module('classeur.core.editor', [])
 						if (normalizeFactor === 1) {
 							continue
 						}
-						var normizedHeight = dimension.height / normalizeFactor
-						dimension.height = normizedHeight
+						var normalizedHeight = dimension.height / normalizeFactor
+						dimension.height = normalizedHeight
 						dimension.endOffset = dimension.startOffset + dimension.height
 						for (j = i + 1; j < i + normalizeFactor; j++) {
 							var startOffset = dimension.endOffset
 							dimension = dimensionList[j]
 							dimension.startOffset = startOffset
-							dimension.height = normizedHeight
+							dimension.height = normalizedHeight
 							dimension.endOffset = dimension.startOffset + dimension.height
 						}
 						i = j - 1
@@ -996,6 +998,10 @@ angular.module('classeur.core.editor', [])
 					}
 				}
 				scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start()
+			}
+
+			clEditorSvc.getPandocAst = function() {
+				return tokens && $window.markdownitPandocRenderer(tokens, clEditorSvc.markdown.options)
 			}
 
 			clEditorSvc.applyTemplate = function(template) {

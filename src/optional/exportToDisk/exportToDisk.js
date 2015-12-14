@@ -115,8 +115,18 @@ angular.module('classeur.optional.exportToDisk', [])
 									saveAs(text, scope.currentFileDao.name, format)
 								})
 						} else if (exportConfig.format === 'document') {
+							var ast = clEditorSvc.getPandocAst()
+							var charCount = 0
+							JSON.stringify(ast, function(key, value) {
+								if (value.t === 'Str' && typeof value.c === 'string') {
+									charCount += value.c.length
+								} else if (value.t === 'Space') {
+									charCount += 1
+								}
+								return value
+							})
 							var contentDao = scope.currentFileDao.contentDao
-							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && contentDao.text.length > 5000)) {
+							if (!clUserSvc.user || (!clUserSvc.isUserPremium() && charCount > 5000)) {
 								return clDialog.show({
 									templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
 									controller: ['$scope', function(scope) {
@@ -127,50 +137,17 @@ angular.module('classeur.optional.exportToDisk', [])
 									}]
 								})
 							}
-							clToast('Document is being prepared...')
-							var fileProperties = contentDao.properties
-							var options = {
-								abbr: fileProperties['ext:markdown:abbr'] !== 'false',
-								breaks: fileProperties['ext:markdown:breaks'] !== 'false',
-								deflist: fileProperties['ext:markdown:deflist'] !== 'false',
-								del: fileProperties['ext:markdown:del'] !== 'false',
-								fence: fileProperties['ext:markdown:fence'] !== 'false',
-								footnote: fileProperties['ext:markdown:footnote'] !== 'false',
-								linkify: fileProperties['ext:markdown:linkify'] !== 'false',
-								sub: fileProperties['ext:markdown:sub'] !== 'false',
-								sup: fileProperties['ext:markdown:sup'] !== 'false',
-								table: fileProperties['ext:markdown:table'] !== 'false',
-								typographer: fileProperties['ext:markdown:typographer'] !== 'false',
-								math: fileProperties['ext:mathjax'] !== 'false',
-							}
-							var extensions = {
-								fenced_code_blocks: options.fence,
-								backtick_code_blocks: options.fence,
-								fenced_code_attributes: options.fence,
-								definition_lists: options.deflist,
-								pipe_tables: options.table,
-								strikeout: options.del,
-								superscript: options.sup,
-								subscript: options.sub,
-								tex_math_dollars: options.math,
-								tex_math_double_backslash: options.math,
-								footnotes: options.footnote,
-								inline_notes: options.footnote,
-								hard_line_breaks: options.breaks,
-								autolink_bare_uris: options.linkify,
-								abbreviations: options.abbr,
-							}
+							clToast('Your document is being prepared...')
 							clSocketSvc.sendMsg('toDocument', {
 								name: scope.currentFileDao.name,
 								format: exportConfig.documentFormatKey,
-								extensions: extensions,
 								options: {
 									highlightStyle: clSettingSvc.values.pandocHighlightStyle,
 									toc: clSettingSvc.values.pandocToc,
 									tocDepth: clSettingSvc.values.pandocTocDepth,
 								},
 								metadata: contentDao.properties,
-								text: contentDao.text
+								ast: ast
 							})
 						}
 					}, closeDialog)

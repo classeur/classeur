@@ -53,13 +53,13 @@ angular.module('classeur.optional.discussions', [])
 						}
 					}
 
+					scope.show = undefined
 					var showButton = $window.cledit.Utils.debounce(function() {
 						if (checkSelection()) {
 							scope.show = true
 							scope.$apply()
 						}
 					}, 500)
-
 					var hideButton = $window.cledit.Utils.debounce(function() {
 						if (!checkSelection()) {
 							scope.show = false
@@ -241,13 +241,13 @@ angular.module('classeur.optional.discussions', [])
 						}
 					}
 
+					scope.show = undefined
 					var showButton = $window.cledit.Utils.debounce(function() {
 						if (checkSelection()) {
 							scope.show = true
 							scope.$apply()
 						}
 					}, 500)
-
 					var hideButton = $window.cledit.Utils.debounce(function() {
 						if (!checkSelection()) {
 							scope.show = false

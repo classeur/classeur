@@ -72,6 +72,8 @@ var appVendorJs = [
 	'markdown-it-deflist/dist/markdown-it-deflist',
 	'markdown-it-emoji/dist/markdown-it-emoji',
 	'markdown-it-footnote/dist/markdown-it-footnote',
+	'markdown-it-mathjax/markdown-it-mathjax',
+	'markdown-it-pandoc-renderer/markdown-it-pandoc-renderer',
 	'markdown-it-sub/dist/markdown-it-sub',
 	'markdown-it-sup/dist/markdown-it-sup',
 	'prismjs/components/prism-core',

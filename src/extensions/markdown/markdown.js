@@ -108,6 +108,9 @@ angular.module('classeur.extensions.markdown', [])
 							}
 							anchorHash[anchor] = true
 							headingOpenToken.headingAnchor = anchor
+							headingOpenToken.attrs = [
+								['id', anchor]
+							]
 							headingOpenToken = undefined
 						} else if (headingOpenToken) {
 							headingContent += token.children.cl_reduce(function(result, child) {
@@ -119,14 +122,6 @@ angular.module('classeur.extensions.markdown', [])
 						}
 					})
 				})
-
-				markdown.renderer.rules.heading_open = function(tokens, idx, options) {
-					var token = tokens[idx]
-					token.attrs = [
-						['id', token.headingAnchor]
-					]
-					return markdown.renderer.renderToken(tokens, idx, options)
-				}
 
 				// Transform style into align attribute to pass the HTML sanitizer
 				var textAlignLength = 'text-align:'.length
@@ -233,13 +228,10 @@ angular.module('classeur.extensions.markdown', [])
 								tocContent += '</div>'
 							}
 							token.content = tocContent
+							token.type = 'html_block'
 						}
 					})
 				})
-
-				markdown.renderer.rules.toc = function(tokens, idx) {
-					return tokens[idx].content
-				}
 
 				markdown.renderer.rules.footnote_ref = function(tokens, idx) {
 					var n = Number(tokens[idx].meta.id + 1).toString()
