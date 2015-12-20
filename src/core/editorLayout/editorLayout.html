@@ -1,6 +1,14 @@
-<div class="side-bar panel">
-    <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false">
-        <md-tab label="Sample">
+<div class="side-bar panel" layout="column">
+    <div class="side-bar header" layout="row" layout-align="space-between center">
+        <div class="title">
+            {{tabTitles[selectedTabIndex]}}
+        </div>
+        <cl-button class="close-side-bar btn" size="42">
+            <a class="icon-clear" ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar"></a>
+        </cl-button>
+    </div>
+    <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
+        <md-tab>
             <md-tab-label>
                 <span class="icon-help"></span>
             </md-tab-label>
@@ -8,7 +16,7 @@
                 <cl-markdown-sample></cl-markdown-sample>
             </md-tab-body>
         </md-tab>
-        <md-tab label="Toc">
+        <md-tab>
             <md-tab-label>
                 <span class="icon-toc"></span>
             </md-tab-label>
@@ -16,7 +24,7 @@
                 <cl-toc></cl-toc>
             </md-tab-body>
         </md-tab>
-        <md-tab label="Discussions">
+        <md-tab>
             <md-tab-label>
                 <span class="icon-question-answer"></span>
             </md-tab-label>
@@ -24,19 +32,16 @@
                 <cl-discussion-tab></cl-discussion-tab>
             </md-tab-body>
         </md-tab>
-        <!-- <md-tab label="History">
+        <md-tab>
             <md-tab-label>
                 <span class="icon-history"></span>
             </md-tab-label>
             <md-tab-body>
-                <cl-history-tab></cl-history-tab>
+                <cl-file-history-tab></cl-file-history-tab>
             </md-tab-body>
-        </md-tab> -->
+        </md-tab>
     </md-tabs>
 </div>
-<cl-button class="close-side-bar btn" size="32">
-    <a class="icon-clear" ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar"></a>
-</cl-button>
 <div class="background panel md-whiteframe-z4">
     <div class="panel no-overflow">
         <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">

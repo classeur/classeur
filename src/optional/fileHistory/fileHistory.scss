@@ -1,0 +1,38 @@
+.file-history.tab {
+	padding: 20px 25px;
+    .file-history.item {
+        .created {
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 0.7em;
+            text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
+            padding-left: 4px;
+            white-space: nowrap;
+        }
+        .users {
+            margin-bottom: 5px;
+            .user-name {
+                font-size: 15px;
+                padding-right: 10px;
+            }
+        }
+        & > hr {
+			margin: 15px auto 15px;
+			width: 120px;
+		}
+        .selector {
+			cursor: pointer;
+			margin: 10px 0;
+		}
+        .md-chips {
+			padding: 0;
+			cursor: pointer;
+		}
+		.md-chip {
+			margin: 0 0 0 5px;
+			font-size: 0.8em;
+			height: 23px;
+			line-height: 23px;
+			cursor: pointer;
+		}
+    }
+}

@@ -42,7 +42,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion.tab {
-	padding: 15px 25px;
+	padding: 0 25px;
 	&.selected .discussion.item {
 		opacity: 0.15;
 		&:hover {

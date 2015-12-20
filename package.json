@@ -65,5 +65,8 @@
   "bugs": {
     "url": "https://github.com/classeur/classeur/issues"
   },
-  "homepage": "https://github.com/classeur/classeur#readme"
+  "homepage": "https://github.com/classeur/classeur#readme",
+  "standard": {
+    "globals": [ "angular" ]
+  }
 }

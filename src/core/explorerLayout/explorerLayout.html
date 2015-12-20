@@ -87,7 +87,7 @@
                                 <cl-folder-name ng-switch-when="true"></cl-folder-name>
                                 <div class="nav" layout="row" layout-align="center center" ng-switch-when="false">
                                     <md-input-container md-theme="classeur" class="folder name">
-                                        <input value="Recent files" disabled="disabled" aria-label="Folder name">
+                                        <input value="Local files" disabled="disabled" aria-label="Folder name">
                                     </md-input-container>
                                 </div>
                                 <div class="file menu" ng-class="plasticClass">
@@ -237,7 +237,7 @@
                             </md-button>
                         </div>
                         <div cl-folder-button class="recent folder btn panel" ng-class="'plastic-' + (classeurIndex % 6)">
-                            <md-button ng-click="setFolder()" aria-label="Recent files">
+                            <md-button ng-click="setFolder()" aria-label="Local files">
                                 <span class="icon-schedule"></span>
                             </md-button>
                         </div>

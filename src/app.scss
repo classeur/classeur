@@ -47,7 +47,7 @@ body {
     outline: none;
 }
 
-input, textarea {
+input:not([disabled]), textarea:not([disabled]) {
     -webkit-font-variant-ligatures: normal;
     font-variant-ligatures: normal;
 }

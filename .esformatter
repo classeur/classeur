@@ -1,0 +1,32 @@
+{
+  "indent": {
+    "value": "\t",
+    "MultipleVariableDeclaration": 0,
+    "MemberExpression": 0,
+    "ReturnStatement": 0
+  },
+  "lineBreak" : {
+    "before": {
+      "VariableDeclarationSemiColon": -1
+    },
+    "after" : {
+      "MemberExpressionClosing" : ">=0"
+    }
+  },
+  "whiteSpace" : {
+    "before" : {
+      "ForInStatementExpressionOpening" : 0,
+      "ForOfStatementExpressionOpening" : 0,
+      "ForStatementExpressionOpening" : 0,
+      "IfStatementConditionalOpening" : 0,
+      "WhileStatementConditionalOpening" : 0
+    }
+  },
+  "plugins": [
+    "esformatter-quotes",
+    "esformatter-semicolon-first"
+  ],
+  "quotes": {
+    "type": "single"
+  }
+}

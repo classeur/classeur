@@ -7,6 +7,22 @@
 
 .side-bar.panel {
     right: 0;
+    .side-bar.header {
+        border-bottom: 1px solid rgba(0,0,0,0.12);
+        background-color: rgba(255,255,255,0.15);
+        .title {
+            font-size: 21px;
+            margin-left: 20px;
+        }
+    }
+    .close-side-bar.btn {
+        position: static;
+        a {
+            font-size: 26px;
+            line-height: 32px;
+            padding: 5px;
+        }
+    }
     md-tab-content {
         overflow-x: hidden;
     }
@@ -20,10 +36,10 @@
         }
     }
     md-tabs {
-        height: 100%;
         md-tabs-wrapper {
             border-width: 1px 0 0;
             border-style: solid;
+            background-color: rgba(255,255,255,0.15);
         }
     }
     md-ink-bar {
@@ -207,13 +223,4 @@
     font-size: 28px;
     padding: 5px;
     cursor: pointer;
-}
-
-.close-side-bar.btn {
-    top: 5px;
-    right: 10px;
-    a {
-        font-size: 26px;
-        line-height: 32px;
-    }
 }

@@ -9,6 +9,6 @@ app.use(serveStatic(path.join(__dirname, 'public')))
 
 var port = process.env.PORT || 11583
 var addr = process.env.BINDING_ADDR || 'localhost'
-http.createServer(app).listen(port, addr, function() {
-	console.log('Server started http://' + addr + ':' + port) // eslint-disable-line no-console
+http.createServer(app).listen(port, addr, function () {
+  console.log('Server started http://' + addr + ':' + port)
 })
