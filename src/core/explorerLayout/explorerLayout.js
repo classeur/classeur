@@ -699,7 +699,7 @@ angular.module('classeur.core.explorerLayout', [])
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()
         })
-        scope.$watch('classeurSvc.classeurs.length', function () {
+        scope.$watchGroup(['classeurSvc.classeurs', 'classeurSvc.classeurs.length'], function () {
           clExplorerLayoutSvc.refreshFolders()
           scope.classeurIndex = clClasseurSvc.classeurs.indexOf(clExplorerLayoutSvc.currentClasseurDao)
         })

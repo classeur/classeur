@@ -57,7 +57,8 @@ angular.module('classeur.core.utils', [])
   .factory('clIsNavigatorOnline',
     function ($window) {
       return function () {
-        return $window.navigator.onLine !== false
+        // return $window.navigator.onLine !== false
+        return true;
       }
     })
   .filter('clTimeSince',

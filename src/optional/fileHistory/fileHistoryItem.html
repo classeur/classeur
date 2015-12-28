@@ -1,5 +1,5 @@
-<div class="file-history item">
-    <div class="selector" ng-click="selectRevision()">
+<div class="file-history item" ng-class="{selected: fileHistorySvc.selectedChangeGroup === changeGroup}">
+    <div class="selector" ng-click="selectChangeGroup(changeGroup)">
         <div class="users">
             <cl-user-name ng-repeat="userId in changeGroup.userIds track by userId" user-id="userId"></cl-user-name>
             <span class="created">
@@ -8,6 +8,16 @@
         </div>
         <div layout="row" layout-align="end">
             <md-chips ng-model="revision" readonly="true"></md-chips>
+        </div>
+    </div>
+    <div ng-if="fileHistorySvc.selectedChangeGroup === changeGroup">
+        <div ng-repeat="textDiff in diffs.text">
+            <div>
+              {{::textDiff.d ? 'Removed text' : 'Added text'}}
+            </div>
+            <div>
+              {{::textDiff.a || textDiff.d}}
+            </div>
         </div>
     </div>
     <hr>

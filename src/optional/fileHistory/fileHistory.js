@@ -1,6 +1,6 @@
 angular.module('classeur.optional.fileHistory', [])
   .directive('clFileHistoryTab',
-    function (clFileHistorySvc) {
+    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils) {
       return {
         restrict: 'E',
         scope: true,
@@ -10,10 +10,40 @@ angular.module('classeur.optional.fileHistory', [])
 
       function link (scope) {
         scope.fileHistorySvc = clFileHistorySvc
+
+        scope.selectChangeGroup = function (changeGroup) {
+          if (clFileHistorySvc.selectedChangeGroup !== changeGroup) {
+            clFileHistorySvc.selectedChangeGroup = changeGroup
+          } else {
+            clFileHistorySvc.selectedChangeGroup = undefined
+          }
+        }
+
+        scope.$watchGroup(['fileHistorySvc.selectedChangeGroup', 'fileHistorySvc.changeGroups'], function () {
+          scope.diffs = undefined
+          var changeGroup = clFileHistorySvc.selectedChangeGroup
+          if (changeGroup) {
+            if (clFileHistorySvc.changeGroups.indexOf(changeGroup) === -1) {
+              clFileHistorySvc.selectedChangeGroup = undefined
+            } else {
+              clContentSyncSvc.retrieveRevision(changeGroup.fromRev)
+                .then(function (result1) {
+                  return clContentSyncSvc.retrieveRevision(changeGroup.toRev)
+                    .then(function (result2) {
+                      if (changeGroup === clFileHistorySvc.selectedChangeGroup) {
+                        scope.diffs = {
+                          text: clDiffUtils.getTextPatches(result1.text, result2.text)
+                        }
+                      }
+                    })
+                })
+            }
+          }
+        })
       }
     })
   .directive('clFileHistoryItem',
-    function (clContentSyncSvc, clDiffUtils) {
+    function () {
       return {
         restrict: 'E',
         templateUrl: 'optional/fileHistory/fileHistoryItem.html',
@@ -22,16 +52,6 @@ angular.module('classeur.optional.fileHistory', [])
 
       function link (scope) {
         scope.revision = ['rev ' + scope.changeGroup.toRev]
-
-        scope.selectRevision = function () {
-          return clContentSyncSvc.retrieveRevision(scope.changeGroup.fromRev)
-            .then(function (result1) {
-              return clContentSyncSvc.retrieveRevision(scope.changeGroup.toRev)
-                .then(function (result2) {
-                  console.log(clDiffUtils.getTextPatches(result1.text, result2.text))
-                })
-            })
-        }
       }
     })
   .factory('clFileHistorySvc',
