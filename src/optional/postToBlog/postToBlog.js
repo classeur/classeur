@@ -262,6 +262,7 @@ angular.module('classeur.optional.postToBlog', [])
           checkIsUpdating()
         }
       }
+
       clPostToBlogSvc.updateAll = function () {
         !clPostToBlogSvc.isUpdating && clToast('Updating blog posts...')
         $q.all(clPostToBlogSvc.blogPosts.cl_map(function (blogPost) {

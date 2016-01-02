@@ -1,8 +1,5 @@
 @import 'variables';
 .explorer.background {
-	.help.btn a {
-		font-size: 30px;
-	}
 	.explorer.container {
 		left: 50%;
 		min-height: 100%;
@@ -21,8 +18,17 @@
 		display: block;
 		color: #fff;
 	}
+
+	.nav-bar.panel {
+		background-color: #fff;
+		padding-left: 912px;
+		padding-right: 952px;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+		height: 32px;
+	}
+
 	.header {
-		height: 80px;
+		height: 75px;
 		position: relative;
 		.classeur.name {
 			padding: 8px 0 0;
@@ -43,14 +49,11 @@
 		}
 		.classeur.toggler {
 			padding: 5px 10px;
+			color: #707070;
 			div {
-				font-size: 20px;
+				font-size: 22px;
 				line-height: 16px;
 			}
-		}
-		.help {
-			font-size: 18px;
-			padding: 2px 4px;
 		}
 		& > div {
 			position: absolute;
@@ -61,28 +64,24 @@
 			}
 		}
 		.user-info {
-			border-bottom-left-radius: 8px;
-			border-bottom-right-radius: 8px;
-			background-color: #484848;
-			color: #fff;
-			padding: 0 12px;
-			font-size: 15px;
-            font-weight: 300;
+			margin-right: -36px;
+			font-weight: 300;
+			color: #555;
 			.md-button {
 				padding: 7px 10px;
+				color: #707070;
 			}
 			.item {
 				display: inline-block;
 				position: relative;
-				text-shadow: 1px 1px rgba(0,0,0,0.33);
 				white-space: nowrap;
 				overflow: hidden;
-				padding: 7px 10px;
-				line-height: 1.1;
+				padding: 0 10px;
+				line-height: 31px;
 			}
-			.settings {
-				padding: 6px;
-				font-size: 18px;
+			.icon {
+				padding: 0 6px;
+				font-size: 22px;
 			}
 		}
 	}
@@ -142,7 +141,7 @@
 	}
 	.new-file.actions {
 		min-height: 35px;
-        font-size: 17px;
+		font-size: 17px;
 		::-webkit-input-placeholder {
 			color: rgba(255, 255, 255, 0.45);
 		}
@@ -219,8 +218,8 @@
 		border-radius: 6px;
 		z-index: 1;
 		.drag-space {
-			width: 10px;
-			min-width: 10px;
+			width: 14px;
+			min-width: 14px;
 		}
 		.drag {
 			padding-left: 2px;
@@ -231,8 +230,6 @@
 				color: rgba(0,0,0,0.6);
 				font-size: 16px;
 				display: inline-block;
-				overflow: hidden;
-				width: 10px;
 				line-height: $file-entry-height;
 			}
 		}
@@ -297,9 +294,10 @@
 				text-shadow: 1px 1px rgba(0,0,0,0.067);
 				border-top-right-radius: $border-radius-binder;
 				border-bottom-right-radius: $border-radius-binder;
-				[class^="icon-"], [class*=" icon-"] {
-			        font-size: 1em;
-			    }
+				[class^='icon-'],
+				[class*=' icon-'] {
+					font-size: 1em;
+				}
 				&:hover,
 				&.md-focused {
 					background-color: transparent;
@@ -421,7 +419,7 @@
 		}
 		.new.tile {
 			-webkit-transition: all 200ms cubic-bezier(0.75, 0, 0.8, 0.25);
-			transition: all 200ms cubic-bezier(0.75, 0, 0.8, 0.25);
+			        transition: all 200ms cubic-bezier(0.75, 0, 0.8, 0.25);
 			opacity: 0.7;
 			&:hover {
 				opacity: 1;

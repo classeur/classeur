@@ -496,8 +496,7 @@ angular.module('classeur.core.editor', [])
         }
       })
 
-      var editorElt, previewElt, tocElt,
-        filenameSpaceElt, previewTextStartOffset
+      var editorElt, previewElt, tocElt, previewTextStartOffset
       var prismOptions = {
         insideFences: insideFences
       }
@@ -574,7 +573,6 @@ angular.module('classeur.core.editor', [])
         setPreviewElt: function (elt) {
           previewElt = elt
           this.previewElt = elt
-          filenameSpaceElt = elt.querySelector('.filename.space')
         },
         setTocElt: function (elt) {
           tocElt = elt
@@ -699,7 +697,7 @@ angular.module('classeur.core.editor', [])
         var sectionPreviewElt, sectionTocElt
         var sectionIdx = 0
         var sectionDescIdx = 0
-        var insertBeforePreviewElt = filenameSpaceElt.nextSibling
+        var insertBeforePreviewElt = previewElt.firstChild
         var insertBeforeTocElt = tocElt.firstChild
         conversionCtx.htmlSectionDiff.cl_each(function (item) {
           for (var i = 0; i < item[1].length; i++) {
@@ -807,10 +805,7 @@ angular.module('classeur.core.editor', [])
       }
 
       var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function () {
-        previewTextStartOffset = filenameSpaceElt.textContent.length
-        if (filenameSpaceElt.previousSibling) {
-          previewTextStartOffset += filenameSpaceElt.previousSibling.textContent.length
-        }
+        previewTextStartOffset = 0
         clEditorSvc.sectionDescList.cl_each(function (sectionDesc) {
           if (!sectionDesc.textToPreviewDiffs) {
             sectionDesc.previewText = sectionDesc.previewElt.textContent
@@ -987,7 +982,7 @@ angular.module('classeur.core.editor', [])
         var sectionDesc = anchorHash[anchor]
         if (sectionDesc) {
           if (clEditorLayoutSvc.isPreviewVisible) {
-            scrollTop = sectionDesc.previewDimension.startOffset - filenameSpaceElt.offsetHeight
+            scrollTop = sectionDesc.previewDimension.startOffset - clEditorLayoutSvc.headerPanelElt.offsetHeight
           } else {
             scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset
             scrollerElt = clEditorSvc.editorElt.parentNode
@@ -995,7 +990,7 @@ angular.module('classeur.core.editor', [])
         } else {
           var elt = document.getElementById(anchor)
           if (elt) {
-            scrollTop = elt.offsetTop - filenameSpaceElt.offsetHeight
+            scrollTop = elt.offsetTop - clEditorLayoutSvc.headerPanelElt.offsetHeight
           }
         }
         scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start()

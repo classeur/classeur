@@ -1,226 +1,245 @@
 @import 'variables';
 .preview.panel {
-    &.hidden {
-        display: none;
+  .frame.container.panel {
+    padding-left: 912px;
+    padding-right: 952px;
+    .frame.content.panel {
+      background-color: rgba(0, 0, 0, 0.02);
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+      position: relative;
     }
+  }
+  .header.panel {
+		height: auto;
+    background-color: #fefefe;
+    padding-left: 912px;
+    padding-right: 952px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		.content {
+			position: relative;
+			min-height: 44px;
+			font-size: 32px;
+			text-transform: uppercase;
+			color: #505050;
+			padding: 6px 0 6px 110px;
+			line-height: 1;
+			text-align: right;
+			letter-spacing: -0.03em;
+			overflow: hidden;
+      .inline-btns {
+        display: inline-block;
+        vertical-align: bottom;
+        width: 110px;
+      }
+		}
+		.btn-grp,
+		.btn {
+      width: 30px;
+      height: 30px;
+			font-size: 30px;
+      display: inline-block;
+      position: static;
+		}
+		.sharing.btn,
+		.edit.btn {
+			font-size: 26px;
+		}
+		.btn a {
+			line-height: 30px;
+		}
+    .btn-grp {
+      .btn {
+        display: block;
+        position: absolute;
+      }
+    }
+	}
+	.preview.container.hidden {
+		display: none;
+	}
 }
 
 .side-bar.panel {
-    right: 0;
-    .side-bar.header {
-        border-bottom: 1px solid rgba(0,0,0,0.12);
-        background-color: rgba(255,255,255,0.15);
-        .title {
-            font-size: 21px;
-            margin-left: 20px;
-        }
-    }
-    .close-side-bar.btn {
-        position: static;
-        a {
-            font-size: 26px;
-            line-height: 32px;
-            padding: 5px;
-        }
-    }
-    md-tab-content {
-        overflow-x: hidden;
-    }
-    .md-tab {
-        padding: 12px 0;
-        width: 56px;
-        font-size: 24px;
-        .icon-toc {
-            font-size: 28px;
-            line-height: 22px;
-        }
-    }
-    md-tabs {
-        md-tabs-wrapper {
-            border-width: 1px 0 0;
-            border-style: solid;
-            background-color: rgba(255,255,255,0.15);
-        }
-    }
-    md-ink-bar {
-        top: 0;
-    }
+	right: 0;
+	.side-bar.header {
+		border-bottom: 1px solid rgba(0,0,0,0.1);
+		background-color: rgba(255,255,255,0.15);
+		.title {
+			font-size: 21px;
+			margin-left: 20px;
+		}
+	}
+	.close-side-bar.btn {
+		position: static;
+		a {
+			font-size: 26px;
+			line-height: 34px;
+			padding: 5px;
+		}
+	}
+	md-tab-content {
+		overflow-x: hidden;
+	}
+	.md-tab {
+		padding: 12px 0;
+		width: 56px;
+		font-size: 24px;
+		.icon-toc {
+			font-size: 28px;
+			line-height: 22px;
+		}
+	}
+	md-tabs {
+		md-tabs-wrapper {
+			border-width: 1px 0 0;
+			border-style: solid;
+      border-color: rgba(0,0,0,0.1);
+			background-color: rgba(255,255,255,0.15);
+		}
+	}
+	md-ink-bar {
+		top: 0;
+	}
 }
 
-.binder.panel {
-    .header.panel {
-        height: auto;
-        left: 105px;
-        .content {
-            /* Any change here has to be done in .filename.space as well */
-            position: relative;
-            min-height: 45px;
-            font-size: 32px;
-            text-transform: uppercase;
-            color: #505050;
-            border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-            padding: 6px 8px 6px 112px;
-            line-height: 1;
-            text-align: right;
-            letter-spacing: -0.03em;
-            overflow: hidden;
-        }
-        .panel,
-        .btn {
-            left: 0;
-            width: 32px;
-            height: 32px;
-            font-size: 32px;
-        }
-        .sharing.btn {
-            left: 32px;
-            font-size: 30px;
-        }
-        .edit.btn {
-            left: 67px;
-            font-size: 30px;
-        }
-        .btn a {
-            line-height: 32px;
-        }
-    }
-    .page.panel {
-        z-index: 2; // To hide material sliders
-        -webkit-transform-origin: 0 100%;
-        transform-origin: 0 100%;
-        .margin.panel {
-            width: 1px;
-            left: $editor-margin-width;
-            background-color: #FFE5E1;
-        }
-        .hole.panel {
-            left: 18px;
-            width: 18px;
-            height: 18px;
-            &.first {
-                top: 22%;
-            }
-            &.second {
-                bottom: 22%;
-            }
-        }
-    }
-    .editor.panel .btn-grp {
-        height: 0; // prevent overlap with help button
-        .btn a {
-            line-height: 34px;
-        }
-        .close.btn {
-            top: 5px;
-            left: 1px;
-            font-size: 27px;
-        }
-        .minimize.btn {
-            top: 32px;
-            left: 3px;
-            font-size: 25px;
-            a {
-                line-height: 30px;
-            }
-        }
-        .preview.btn {
-            top: 59px;
-            left: 1px;
-            font-size: 23px;
-        }
-        $menu-height: 105px;
-        .menu.btn {
-            top: 105px;
-            height: $menu-height;
-            box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
-            border-top-right-radius: $border-radius-binder;
-            border-bottom-right-radius: $border-radius-binder;
-            .md-button {
-                position: absolute;
-                line-height: 34px;
-                width: 100%;
-                height: 100%;
-                font-size: 20px;
-                color: #fff;
-                text-shadow: 1px 1px rgba(0,0,0,0.067);
-                &:hover,
-                &.md-focused {
-                    background-color: transparent;
-                }
-                .rotate-90 {
-                    position: absolute;
-                    width: $menu-height;
-                    height: 30px;
-                    left: 30px;
-                    top: 0;
-                    -webkit-transform-origin: 0 0;
-                    transform-origin: 0 0;
-                }
-            }
-        }
-    }
-    .menu.scroller {
-        overflow: auto;
-        overflow-y: scroll;
-    }
-    .menu.content {
-        padding: 20px 40px 60px;
-        font-size: 16px;
-        height: auto;
-        color: #fff;
-        text-shadow: 1px 1px rgba(0,0,0,0.067);
-        .entry,
-        .md-text {
-            text-align: center;
-        }
-        .links {
-            margin: 12px 6px 36px;
-            font-size: 17px;
-            a {
-                color: #fff;
-                text-decoration: none;
-                cursor: pointer;
-                line-height: 1;
-                padding-bottom: 2px;
-                margin-bottom: 6px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-                [class^="icon-"],
-                [class*=" icon-"] {
-                    font-size: 26px;
-                }
-                .name {
-                    width: 100%;
-                    padding-bottom: 2px;
-                }
-            }
-        }
-        md-switch {
-            margin: 7px 4px 0;
-        }
-    }
-    .file.name {
-        font-size: 21px;
-    }
+.binder.container.panel {
+	.page.panel {
+		z-index: 2; // To hide material sliders
+		-webkit-transform-origin: 0 100%;
+		        transform-origin: 0 100%;
+		.margin.panel {
+			width: 1px;
+			left: $editor-margin-width;
+			background-color: #ffe5e1;
+		}
+		.hole.panel {
+			left: 18px;
+			width: 18px;
+			height: 18px;
+			&.first {
+				top: 22%;
+			}
+			&.second {
+				bottom: 22%;
+			}
+		}
+	}
+	.editor.panel .btn-grp {
+		.btn a {
+			line-height: 34px;
+		}
+		.close.btn {
+			top: 5px;
+			left: 3px;
+			font-size: 26px;
+		}
+		.minimize.btn {
+			top: 32px;
+			left: 5px;
+			font-size: 24px;
+			a {
+				line-height: 30px;
+			}
+		}
+		.preview.btn {
+			top: 59px;
+			left: 3px;
+			font-size: 21px;
+		}
+		$menu-height: 105px;
+		.menu.btn {
+			top: 105px;
+			height: $menu-height;
+			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
+			border-top-right-radius: $border-radius-binder;
+			border-bottom-right-radius: $border-radius-binder;
+			.md-button {
+				position: absolute;
+				line-height: 34px;
+				width: 100%;
+				height: 100%;
+				font-size: 20px;
+				color: #fff;
+				text-shadow: 1px 1px rgba(0,0,0,0.067);
+				&:hover,
+				&.md-focused {
+					background-color: transparent;
+				}
+				.rotate-90 {
+					position: absolute;
+					width: $menu-height;
+					height: 30px;
+					left: 30px;
+					top: 0;
+					-webkit-transform-origin: 0 0;
+					        transform-origin: 0 0;
+				}
+			}
+		}
+	}
+	.menu.scroller {
+		overflow: auto;
+		overflow-y: scroll;
+	}
+	.menu.content {
+		padding: 20px 40px 60px;
+		font-size: 16px;
+		height: auto;
+		color: #fff;
+		text-shadow: 1px 1px rgba(0,0,0,0.067);
+		.entry,
+		.md-text {
+			text-align: center;
+		}
+		.links {
+			margin: 12px 6px 36px;
+			font-size: 17px;
+			a {
+				color: #fff;
+				text-decoration: none;
+				cursor: pointer;
+				line-height: 1;
+				padding-bottom: 2px;
+				margin-bottom: 6px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+				[class^='icon-'],
+				[class*=' icon-'] {
+					font-size: 26px;
+				}
+				.name {
+					width: 100%;
+					padding-bottom: 2px;
+				}
+			}
+		}
+		md-switch {
+			margin: 7px 4px 0;
+		}
+	}
+	.file.name {
+		font-size: 21px;
+	}
 }
 
 .corner.folding.panel {
-    bottom: 0;
-    right: 0;
-    width: 40px;
-    height: 40px;
-    -webkit-transform-origin: 100% 100%;
-    transform-origin: 100% 100%;
-    background-color: #eaeaea;
-    cursor: pointer;
-    .shadow.panel {
-        width: 97px;
-        background-color: #e0e0e0;
-        box-shadow: inset 0px 8px 17px rgba(0, 0, 0, 0.2);
-    }
+	bottom: 0;
+	right: 0;
+	width: 40px;
+	height: 40px;
+	-webkit-transform-origin: 100% 100%;
+	        transform-origin: 100% 100%;
+	background-color: #eaeaea;
+	cursor: pointer;
+	.shadow.panel {
+		width: 97px;
+		background-color: #e0e0e0;
+		box-shadow: inset 0 8px 17px rgba(0, 0, 0, 0.2);
+	}
 }
 
 .corner.folding.btn a {
-    font-size: 28px;
-    padding: 5px;
-    cursor: pointer;
+	font-size: 28px;
+	padding: 5px;
+	cursor: pointer;
 }
