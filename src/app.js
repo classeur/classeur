@@ -15,7 +15,6 @@ if (!window.Worker || !window.MutationObserver || !window.crypto) {
     'classeur.blogs.wordpress',
     'classeur.core',
     'classeur.core.analytics',
-    'classeur.core.button',
     'classeur.core.classeurs',
     'classeur.core.explorerLayout',
     'classeur.core.editor',

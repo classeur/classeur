@@ -1,60 +1,48 @@
 .offline.indicator {
-    top: 230px;
-    right: -27px;
-    height: 48px;
-    width: 50px;
-    background-color: #EFA987;
-    border-radius: 8px;
-    button {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        text-transform: none;
-        color: transparentize(#fff, 0.2);
-        text-shadow: 1px 1px rgba(0,0,0,0.067);
-        &:hover {
-            color: #fff;
-            background-color: transparent;
-        }
-    }
-    .icon-sync-disabled {
-        line-height: 48px;
-        position: absolute;
-        width: 26px;
-        top: 0;
-        right: 0;
-        font-size: 21px;
-    }
+	top: 230px;
+	right: -27px;
+	height: 48px;
+	width: 50px;
+	background-color: #f3a1a1;
+	border-radius: 8px;
+	button {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		text-transform: none;
+		color: #fff;
+		text-shadow: 1px 1px rgba(0,0,0,0.067);
+	}
+	.icon-sync-disabled {
+		line-height: 48px;
+		position: absolute;
+		width: 26px;
+		top: 0;
+		right: 0;
+		font-size: 21px;
+	}
 }
 
 .offline-alert.panel,
 .signin-alert.panel {
-    left: 15px;
-    top: 15px;
-    font-size: 14px;
-    padding-top: 5px;
-    p {
-        line-height: 1.3;
-    }
-    .content.panel {
-        padding: 5px 20px 15px;
-    }
-    .close.btn {
-        top: 0;
-        right: 0;
-        a {
-            font-size: 22px;
-            line-height: 30px;
-        }
-    }
+	left: 15px;
+	top: 15px;
+	font-size: 14px;
+	padding-top: 5px;
+	p {
+		line-height: 1.3;
+	}
+	.content.panel {
+		padding: 5px 20px 15px;
+	}
 }
 
 .offline-alert.panel {
-    width: 210px;
-    height: 210px;
+	width: 210px;
+	height: 210px;
 }
 
 .signin-alert.panel {
-    width: 220px;
-    height: 220px;
+	width: 220px;
+	height: 220px;
 }

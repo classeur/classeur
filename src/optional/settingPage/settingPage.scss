@@ -1,149 +1,151 @@
 @import 'variables';
 
 .setting.page.panel {
-    .logo {
-        width: 180px;
-        height: 64px;
-        background-image: url('assets/images/logo.png');
-        background-size: 180px 60px;
-        background-repeat: no-repeat;
-    }
-    & > * {
-        margin: auto;
-        max-width: 560px;
-        height: 100%;
-        padding: 5px 5px 0;
-    }
-    .plastic-4 {
-        padding: 0 15px 15px;
-        border-radius: 3px;
-    }
-    .nav {
-        & > * {
-            margin: 0;
-            color: #fff;
-        }
-        md-input-container {
-            width: 100%;
-        }
-        .md-button {
-            font-size: 26px;
-            line-height: 0;
-        }
-    }
-    md-tabs {
-        border-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.25);
-    }
-    .title {
-        font-size: 32px;
-        font-weight: 300;
-        margin: 5px 0;
-    }
-    .exit.btn {
-        font-size: 30px;
-        padding: 4px;
-    }
-    .tab {
-        margin: 40px 20px 80px;
-    }
-    .small {
-        max-width: 220px;
-    }
-    .large {
-        max-width: 340px;
-    }
-    .full-width {
-        width: 100%;
-    }
-    .colors {
-        input {
-            margin: 0 5px 30px;
-            background-color: transparent;
-        }
-    }
-    md-select,
-    md-slider {
-        max-width: 250px;
-    }
-    md-select {
-        margin-top: 0;
-    }
-    .menu {
-        padding: 0 5px;
-        .md-button {
-            padding: 10px;
-            color: rgba(0, 0, 0, 0.75);
-        }
-        .icon {
-            font-size: 23px;
-            line-height: 16px;
-        }
-    }
-    .label {
-        font-size: 12.5px;
-        padding: 2px;
-        display: block;
-        color: rgba(0, 0, 0, 0.54);
-    }
-    md-tabs {
-        & md-tabs-content-wrapper,
-        &:not(.md-no-tab-content) {
-            min-height: 0;
-        }
-    }
-    .renew-api-key-btn {
-        font-size: 22px;
-    }
-    .md-chips {
-        padding-bottom: 15px;
-        box-shadow: none;
-    }
-    .file.entry {
-        line-height: 40px;
-        md-input-container {
-            padding-bottom: 8px;
-            .md-input {
-                line-height: 1;
-                font-size: 18px;
-                font-weight: 300;
-                &[disabled] {
-                    color: $text-color;
-                }
-            }
-        }
-        .md-button {
-            color: rgba(0, 0, 0, 0.7);
-            font-size: 28px;
-            padding: 6px 3px;
-        }
-    }
-    md-progress-circular {
-        position: relative;
-        top: 40px;
-        left: 50%;
-        margin-left: -25px;
-    }
+	.logo {
+		width: 150px;
+		height: 54px;
+		background-image: url('assets/images/logo.png');
+		background-size: 150px 50px;
+		background-repeat: no-repeat;
+	}
+	& > * {
+		margin: auto;
+		max-width: 560px;
+		height: 100%;
+		padding: 5px 5px 0;
+	}
+	.plastic-4 {
+		padding: 0 15px 15px;
+		border-radius: 3px;
+	}
+	.nav {
+		& > * {
+			margin: 0;
+			color: #fff;
+		}
+		md-input-container {
+			width: 100%;
+		}
+		.md-button {
+			font-size: 26px;
+			line-height: 0;
+		}
+	}
+	md-tabs {
+		border-radius: 4px;
+		background-color: rgba(255, 255, 255, 0.25);
+	}
+	.title {
+		font-size: 32px;
+		font-weight: 300;
+		margin: 5px 0;
+	}
+	.exit.btn {
+		font-size: 30px;
+		padding: 4px;
+	}
+	.tab {
+		margin: 40px 20px 80px;
+	}
+	.small {
+		max-width: 220px;
+	}
+	.large {
+		max-width: 340px;
+	}
+	.full-width {
+		width: 100%;
+	}
+	.colors {
+		input {
+			margin: 0 5px 30px;
+			background-color: transparent;
+		}
+	}
+	md-select,
+	md-slider {
+		max-width: 250px;
+	}
+	md-select {
+		margin-top: 0;
+	}
+	.menu {
+		padding: 0 5px;
+		.md-button {
+			padding: 10px;
+			color: rgba(0, 0, 0, 0.75);
+		}
+		.icon {
+			font-size: 23px;
+			line-height: 16px;
+		}
+	}
+	.label {
+		font-size: 12.5px;
+		padding: 2px;
+		display: block;
+		color: rgba(0, 0, 0, 0.54);
+	}
+	md-tabs {
+		& md-tabs-content-wrapper,
+		&:not(.md-no-tab-content) {
+			min-height: 0;
+		}
+	}
+	.renew-api-key-btn {
+		font-size: 22px;
+	}
+	.md-chips {
+		padding-bottom: 15px;
+		box-shadow: none;
+	}
+	.file.entry {
+		line-height: 40px;
+		md-input-container {
+      margin: 0;
+			.md-input {
+				font-size: 18px;
+				font-weight: 300;
+				&[disabled] {
+					color: $text-color;
+				}
+			}
+      .md-errors-spacer {
+        display: none;
+      }
+		}
+		.md-button {
+			color: rgba(0, 0, 0, 0.7);
+			font-size: 28px;
+			padding: 6px 3px;
+		}
+	}
+	md-progress-circular {
+		position: relative;
+		top: 40px;
+		left: 50%;
+		margin-left: -25px;
+	}
 }
 
 .edit.blog.dialog {
-    min-width: 340px;
-    md-input-container {
-        padding-bottom: 8px;
-    }
+	min-width: 340px;
+	md-input-container {
+		padding-bottom: 8px;
+	}
 }
 
 .handlebars.helpers.dialog {
-    min-width: 360px;
-    pre.prism {
-        background-color: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        width: 100%;
-        min-height: 120px;
-        word-wrap: normal;
-        overflow: auto;
-    }
-    pre.example {
-        padding-left: 50px;
-    }
+	min-width: 360px;
+	pre.prism {
+		background-color: #fff;
+		border: 1px solid rgba(0, 0, 0, 0.12);
+		width: 100%;
+		min-height: 120px;
+		word-wrap: normal;
+		overflow: auto;
+	}
+	pre.example {
+		padding-left: 50px;
+	}
 }

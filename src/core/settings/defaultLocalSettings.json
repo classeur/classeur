@@ -1,12 +1,13 @@
 {
 	"buttonBar": true,
 	"editorColor": 1,
+	"editorTourStep": 0,
 	"editorZoom": 3,
+	"explorerTourStep": 0,
 	"localFileAlertDismissed": false,
 	"scrollSync": true,
 	"sideBar": false,
 	"sideBarTab": "sample",
 	"stat": false,
-	"tourStep": 0,
 	"zenMode": true
 }

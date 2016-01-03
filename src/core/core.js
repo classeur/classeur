@@ -185,7 +185,8 @@ angular.module('classeur.core', [])
           clDialog.show(clearDataDialog).then(function () {
             clLocalStorage.clear()
             clSyncSvc.saveAll()
-            clLocalSettingSvc.values.tourStep = -1
+            clLocalSettingSvc.values.explorerTourStep = -1
+            clLocalSettingSvc.values.editorTourStep = -1
             createDefaultFile()
           })
         }

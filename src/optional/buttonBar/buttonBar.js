@@ -93,7 +93,7 @@ angular.module('classeur.optional.buttonBar', [])
         icon: 'icon-undo',
         label: 'Undo',
         keystroke: 'Ctrl/Cmd+Z',
-        isActive: true,
+        disabled: true,
         click: function () {
           clEditorSvc.cledit.undoMgr.undo()
         }
@@ -103,7 +103,7 @@ angular.module('classeur.optional.buttonBar', [])
         icon: 'icon-redo',
         label: 'Redo',
         keystroke: 'Ctrl/Cmd+Y',
-        isActive: true,
+        disabled: true,
         click: function () {
           clEditorSvc.cledit.undoMgr.redo()
         }
@@ -165,8 +165,8 @@ angular.module('classeur.optional.buttonBar', [])
         scope.$watch('editorLayoutSvc.isMenuOpen', animate)
 
         function checkBtnActive () {
-          undoButton.isActive = !clEditorSvc.cledit.undoMgr.canUndo()
-          redoButton.isActive = !clEditorSvc.cledit.undoMgr.canRedo()
+          undoButton.disabled = !clEditorSvc.cledit.undoMgr.canUndo()
+          redoButton.disabled = !clEditorSvc.cledit.undoMgr.canRedo()
           scope.$evalAsync()
         }
 

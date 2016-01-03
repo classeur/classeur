@@ -3,9 +3,11 @@
 	.explorer.container {
 		left: 50%;
 		min-height: 100%;
+		padding-top: 44px;
 	}
 	.binder-radius {
 		border-radius: 3px;
+		z-index: 1;
 	}
 	.md-menu {
 		padding: 0;
@@ -21,70 +23,44 @@
 
 	.nav-bar.panel {
 		background-color: #fff;
-		padding-left: 912px;
-		padding-right: 952px;
-		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-		height: 32px;
+		height: auto;
+		z-index: 1;
+		font-size: 17px;
+		.logo {
+			width: 50px;
+			height: 34px;
+			background-image: url('assets/images/logo.png');
+			background-size: 180px 60px;
+			background-position-y: -14px;
+			background-repeat: no-repeat;
+		}
+		.no-padding .logo {
+			display: none;
+		}
+		.classeur.name {
+			color: rgba(0, 0, 0, 0.75);
+			font-size: 30px;
+			letter-spacing: -0.03em;
+			white-space: nowrap;
+		}
+		.classeur.toggler div {
+			font-size: inherit;
+		}
+		.item {
+			display: inline-block;
+			position: relative;
+			white-space: nowrap;
+			overflow: hidden;
+			padding: 0 10px;
+			height: 34px;
+			line-height: 34px;
+		}
+		.icon {
+			padding: 0 6px;
+			font-size: 24px;
+		}
 	}
 
-	.header {
-		height: 75px;
-		position: relative;
-		.classeur.name {
-			padding: 8px 0 0;
-			height: 100%;
-			color: rgba(0, 0, 0, 0.75);
-			font-size: 36px;
-			letter-spacing: -0.03em;
-			font-weight: 300;
-			white-space: nowrap;
-			line-height: 1.15;
-			.logo {
-				width: 50px;
-				height: 64px;
-				background-image: url('assets/images/logo.png');
-				background-size: 180px 60px;
-				background-repeat: no-repeat;
-			}
-		}
-		.classeur.toggler {
-			padding: 5px 10px;
-			color: #707070;
-			div {
-				font-size: 22px;
-				line-height: 16px;
-			}
-		}
-		& > div {
-			position: absolute;
-			width: 100%;
-			top: 0;
-			&:first-child {
-				height: 100%;
-			}
-		}
-		.user-info {
-			margin-right: -36px;
-			font-weight: 300;
-			color: #555;
-			.md-button {
-				padding: 7px 10px;
-				color: #707070;
-			}
-			.item {
-				display: inline-block;
-				position: relative;
-				white-space: nowrap;
-				overflow: hidden;
-				padding: 0 10px;
-				line-height: 31px;
-			}
-			.icon {
-				padding: 0 6px;
-				font-size: 22px;
-			}
-		}
-	}
 	.folder.container {
 		top: 2px;
 		padding-left: 40px;
@@ -135,9 +111,6 @@
 				padding: 0 10px;
 			}
 		}
-		.header .classeur.name .logo {
-			display: none;
-		}
 	}
 	.new-file.actions {
 		min-height: 35px;
@@ -157,15 +130,17 @@
 			color: rgba(255, 255, 255, 0.45);
 		}
 		md-input-container {
+			margin: 0;
 			md-icon {
 				color: rgba(255, 255, 255, 0.45);
 				font-size: 26px;
 			}
-			padding-bottom: 2px;
 			input {
-				margin-left: 35px;
 				font-size: 20px;
 				border-color: transparent !important;
+			}
+			.md-errors-spacer {
+				display: none;
 			}
 		}
 		.search {
@@ -241,7 +216,8 @@
 		}
 		.name {
 			width: 100%;
-			padding-top: 4px;
+			margin: 0;
+			padding-top: 6px;
 			padding-bottom: 6px;
 			cursor: pointer;
 			.md-input {
@@ -256,6 +232,9 @@
 					pointer-events: none;
 				}
 			}
+			.md-errors-spacer {
+				display: none;
+			}
 		}
 		.icon-more-vert {
 			height: $file-entry-height;
@@ -264,7 +243,7 @@
 		}
 	}
 	.btn-grp.panel {
-		top: 8px;
+		top: 10px;
 		width: 2050px;
 		right: -2050px;
 		.container.panel {
@@ -275,11 +254,20 @@
 			left: -2050px;
 			box-shadow: 0 0 28px 0 rgba(0, 0, 0, 0.4);
 		}
-		.folder.btn {
+		.folder.btn.positioner {
+			position: absolute;
+			&.selected .md-button {
+				&:hover,
+				&.md-focused {
+					background-color: transparent;
+				}
+			}
+		}
+		.folder.btn.panel {
 			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.22);
 			height: 110px;
 			width: 32px;
-			margin-bottom: 130px;
+			margin-bottom: 100px;
 			border-top-right-radius: $border-radius-binder;
 			border-bottom-right-radius: $border-radius-binder;
 			.md-button {
@@ -298,34 +286,41 @@
 				[class*=' icon-'] {
 					font-size: 1em;
 				}
-				&:hover,
-				&.md-focused {
-					background-color: transparent;
-				}
 				.rotate-90 {
 					text-shadow: 1px -1px rgba(0,0,0,0.067);
 					position: absolute;
 					width: 110px;
+					max-width: 110px;
 					height: 32px;
 					left: 32px;
 					top: 0;
 					white-space: normal;
-					padding: 0 4px;
+					padding: 0 6px;
 					letter-spacing: 0;
+					text-align: right;
 					-webkit-transform-origin: 0 0;
 					        transform-origin: 0 0;
-				}
-			}
-			&.selected .md-button {
-				&:hover,
-				&.md-focused {
-					background-color: transparent;
+					.public-corner {
+						display: none;
+					}
+					.sharing-indicator::after {
+						left: 2px;
+						right: auto;
+					}
+					&.public {
+						.public-corner {
+							display: block;
+						}
+						.sharing-indicator::after {
+							left: 18px;
+						}
+					}
 				}
 			}
 		}
-		.recent.btn,
-		.unclassified.btn,
-		.create.btn {
+		.recent.folder.btn,
+		.unclassified.folder.btn,
+		.create.folder.btn {
 			height: 44px;
 			width: 42px;
 			z-index: 9998;
@@ -339,7 +334,7 @@
 				}
 			}
 		}
-		.unclassified.btn {
+		.unclassified.folder.btn {
 			top: 43px;
 			width: 40px;
 			.md-button {
@@ -351,14 +346,14 @@
 				}
 			}
 		}
-		.create.btn {
+		.create.folder.btn {
 			top: 86px;
 			width: 38px;
 			.md-button {
 				font-size: 19px;
 			}
 		}
-		.current.btn {
+		.current.folder.btn {
 			display: none;
 			top: 129px;
 			z-index: 10000;
@@ -373,8 +368,8 @@
 			.current.btn {
 				display: block;
 			}
-			.selected.btn {
-				visibility: hidden;
+			.selected.btn .folder.btn.panel {
+				display: none;
 			}
 		}
 	}
@@ -481,7 +476,10 @@
 					}
 				}
 				md-input-container {
-					padding-bottom: 2px;
+					margin: 0;
+				}
+				.md-errors-spacer {
+					display: none;
 				}
 			}
 			&::before {
@@ -533,16 +531,27 @@
 		padding: 4px;
 		text-shadow: none;
 	}
-	.folder.btn &,
 	.file.entry & {
-		$public-file-corner-size: 32px;
-		font-size: 16px;
+		$public-file-corner-size: 34px;
+		font-size: 18px;
 		width: $public-file-corner-size;
 		height: $public-file-corner-size;
 		border-top-width: $public-file-corner-size;
 		border-right-width: $public-file-corner-size;
 		.icon-publ {
 			top: -$public-file-corner-size;
+			padding: 1px;
+		}
+	}
+	.folder.btn.panel & {
+		$public-folder-corner-size: 32px;
+		font-size: 17px;
+		width: $public-folder-corner-size;
+		height: $public-folder-corner-size;
+		border-top-width: $public-folder-corner-size;
+		border-right-width: $public-folder-corner-size;
+		.icon-publ {
+			top: -$public-folder-corner-size;
 			padding: 1px;
 		}
 	}
@@ -567,7 +576,7 @@
 		line-height: 1.1;
 		border-radius: 8px;
 		padding: 0 4px;
-		.folder.btn & {
+		.folder.btn.panel & {
 			padding: 0 3px;
 			font-size: 8px;
 			top: 2px;

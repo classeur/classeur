@@ -1,52 +1,53 @@
 @import 'variables';
 
 .button-bar.panel {
-    left: 50%;
+	left: 50%;
+	border-bottom-left-radius: $border-radius-buttonbar;
+	border-bottom-right-radius: $border-radius-buttonbar;
+	background-color: #4a4a4a;
+	z-index: 3; // Over the page
+	.light-1,
+	.light-2 {
+		border: 0 solid rgba(0,0,0,0.067);
+    width: 96px;
+	}
+	.light-1 {
+		border-top-width: 60px;
+    border-right: 5px solid transparent;
     border-bottom-left-radius: $border-radius-buttonbar;
+    left: 0;
+	}
+	.light-2 {
+		border-top-width: 60px;
+    border-left: 5px solid transparent;
     border-bottom-right-radius: $border-radius-buttonbar;
-    background-color: #404040;
-    z-index: 3; // Over the page
-    .light-1, .light-2 {
-        border: 0 solid transparentize(#000, 0.9);
-        border-bottom-right-radius: $border-radius-buttonbar;
-        right: 0;
-        border-left: 5px solid transparent;
-    }
-    .light-1 {
-        width: 96px;
-        border-top-width: 60px;
-    }
-    .light-2 {
-        width: 378px;
-        border-bottom-width: 60px;
-    }
-    .btn {
-        top: 22px;
-        a {
-            color: #fff;
-            text-shadow: 1px 1px rgba(0, 0, 0, 0.33);
-            font-size: 25px;
-            line-height: 30px;
-        }
-        .icon-code::before {
-            content: "\e8a7\e8a8";
-            letter-spacing: -0.56em;
-            margin-left: -0.6em;
-            font-size: 28px;
-        }
-        .icon-hr::before {
-            font-family: sans-serif;
-            font-size: 11px;
-            letter-spacing: -0.06em;
-            vertical-align: middle;
-            content: "\25A0\25A0\25A0\25A0";
-        }
-        &.active a {
-            cursor: auto;
-            color: #555;
-            &, &:hover {
-                opacity: 0.7;
-            }
-        }
-    }
+    right: 0;
+	}
+	.btn {
+		position: absolute;
+		top: 23px;
+		color: #fff;
+		text-shadow: 1px 1px rgba(0, 0, 0, 0.33);
+		font-size: 28px;
+    width: 29px;
+    height: 30px;
+		line-height: 30px;
+    padding: 0;
+		.icon-code::before {
+			content: '\e8a7\e8a8';
+			letter-spacing: -0.56em;
+			margin-left: -0.6em;
+		}
+		.icon-hr::before {
+			font-family: sans-serif;
+			font-size: 10px;
+			letter-spacing: -0.06em;
+			vertical-align: middle;
+			content: '\25A0\25A0\25A0\25A0';
+		}
+		&[disabled] {
+			color: #606060 !important;
+      text-shadow: none;
+		}
+	}
 }

@@ -2,9 +2,8 @@
     <div>
         <h2>Hold on!</h2>
         <p>You need a premium account to collaborate on this file.</p>
-        <cl-button class="close btn" size="30">
-            <a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
-        </cl-button>
+        <md-button md-no-ink class="close btn icon-clear" ng-click="dismiss()" aria-label="Close">
+        </md-button>
     </div>
     <div layout="row" layout-align="end">
         <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">

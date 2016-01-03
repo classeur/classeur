@@ -3,9 +3,8 @@
         <h2>Hold on!</h2>
         <p><b>You're modifying a read-only file.</b></p>
         <p>Your modifications won't be saved unless you make a copy.</p>
-        <cl-button class="close btn" size="30">
-            <a class="icon-clear" ng-click="dismiss()" aria-label="Close"></a>
-        </cl-button>
+        <md-button md-no-ink class="close btn icon-clear" ng-click="dismiss()" aria-label="Close">
+        </md-button>
     </div>
     <div layout="row" layout-align="end">
         <md-button md-no-ink class="md-primary" ng-click="makeCurrentFileCopy()">

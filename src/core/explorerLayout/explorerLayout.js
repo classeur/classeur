@@ -16,7 +16,7 @@ angular.module('classeur.core.explorerLayout', [])
         }
         var isHover
 
-        function animate () {
+        function animate (adjustScrollTop) {
           var isSelected = clExplorerLayoutSvc.currentFolderDao === scope.folderDao
           buttonElt.classList.toggle('selected', isSelected)
           var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0
@@ -32,10 +32,10 @@ angular.module('classeur.core.explorerLayout', [])
             .easing('materialOut')
             .start(true)
           duration = 400
-          if (isSelected) {
+          if (adjustScrollTop && isSelected) {
             // Adjust scrolling position
             var minY = parentElt.scrollTop + 160
-            var maxY = parentElt.scrollTop + parentElt.clientHeight - 240
+            var maxY = parentElt.scrollTop + parentElt.clientHeight - 180
             if (y > maxY) {
               parentElt.scrollTop += y - maxY
             }
@@ -61,7 +61,7 @@ angular.module('classeur.core.explorerLayout', [])
             clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0]
             clExplorerLayoutSvc.toggleHiddenBtn()
           }
-          animate()
+          animate(true)
         })
       }
     })
@@ -267,6 +267,7 @@ angular.module('classeur.core.explorerLayout', [])
       function link (scope, element) {
         var containerElt = element[0].querySelector('.explorer.container')
         var contentElt = element[0].querySelector('.explorer.content').clanim.translateY(10).start(true)
+        var navbarContainerElt = element[0].querySelector('.nav-bar.container')
         var scrollbarElt = element[0].querySelector('.scrollbar.panel')
         var folderElt = element[0].querySelector('.folder.container.panel')
         var folderCloneElt = element[0].querySelector('.folder.container.clone')
@@ -275,7 +276,6 @@ angular.module('classeur.core.explorerLayout', [])
         var btnGroupElt = element[0].querySelector('.btn-grp')
         var scrollerElt = btnGroupElt.querySelector('.container')
         var createFolderButtonElt = btnGroupElt.querySelector('.create.folder.btn')
-        var classeurTogglerIconElt = element[0].querySelector('.classeur.toggler div').clanim.translateY(-10).rotate(-90).start(true)
 
         clExplorerLayoutSvc.toggleHiddenBtn = function () {
           btnGroupElt.classList.toggle('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
@@ -309,15 +309,14 @@ angular.module('classeur.core.explorerLayout', [])
             .translateX(-clExplorerLayoutSvc.explorerWidth / 2 + 5)
             .start()
             .classList.toggle('no-padding', clExplorerLayoutSvc.noPadding)
+          navbarContainerElt.clanim
+            .width(clExplorerLayoutSvc.explorerWidth)
+            .start()
+            .classList.toggle('no-padding', clExplorerLayoutSvc.noPadding)
           contentElt.clanim
             .translateY(clExplorerLayoutSvc.contentY)
             .duration(300)
             .easing(clExplorerLayoutSvc.isExplorerOpen ? 'materialOut' : 'materialIn')
-            .start(true)
-          classeurTogglerIconElt.clanim
-            .translateY(0)
-            .duration(300)
-            .easing('materialOut')
             .start(true)
           var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth
           scrollbarElt.clanim

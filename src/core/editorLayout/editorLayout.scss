@@ -1,45 +1,48 @@
 @import 'variables';
+cl-editor-layout .background.panel {
+	z-index: 3;
+}
+
 .preview.panel {
-  .frame.container.panel {
-    padding-left: 912px;
-    padding-right: 952px;
-    .frame.content.panel {
-      background-color: rgba(0, 0, 0, 0.02);
-      border-right: 1px solid rgba(0, 0, 0, 0.05);
-      border-left: 1px solid rgba(0, 0, 0, 0.05);
-      position: relative;
-    }
-  }
-  .header.panel {
+	.frame.container.panel {
+		padding-left: 910px;
+		padding-right: 950px;
+		.frame.content.panel {
+			background-color: rgba(0, 0, 0, 0.02);
+			border-right: 1px solid rgba(0, 0, 0, 0.05);
+			border-left: 1px solid rgba(0, 0, 0, 0.05);
+			position: relative;
+		}
+	}
+	.header.panel {
 		height: auto;
-    background-color: #fefefe;
-    padding-left: 912px;
-    padding-right: 952px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		background-color: #fff;
+		padding-left: 912px;
+		padding-right: 952px;
 		.content {
 			position: relative;
 			min-height: 44px;
 			font-size: 32px;
 			text-transform: uppercase;
-			color: #505050;
 			padding: 6px 0 6px 110px;
 			line-height: 1;
 			text-align: right;
 			letter-spacing: -0.03em;
 			overflow: hidden;
-      .inline-btns {
-        display: inline-block;
-        vertical-align: bottom;
-        width: 110px;
-      }
+			.inline-btns {
+				display: inline-block;
+				vertical-align: bottom;
+				width: 110px;
+			}
 		}
 		.btn-grp,
 		.btn {
-      width: 30px;
-      height: 30px;
+      padding: 0;
+			width: 30px;
+			height: 30px;
 			font-size: 30px;
-      display: inline-block;
-      position: static;
+			display: inline-block;
+			position: static;
 		}
 		.sharing.btn,
 		.edit.btn {
@@ -48,12 +51,12 @@
 		.btn a {
 			line-height: 30px;
 		}
-    .btn-grp {
-      .btn {
-        display: block;
-        position: absolute;
-      }
-    }
+		.btn-grp {
+			.btn {
+				display: block;
+				position: absolute;
+			}
+		}
 	}
 	.preview.container.hidden {
 		display: none;
@@ -69,12 +72,10 @@
 			font-size: 21px;
 			margin-left: 20px;
 		}
-	}
-	.close-side-bar.btn {
-		position: static;
-		a {
+		.close-side-bar.btn {
 			font-size: 26px;
 			line-height: 34px;
+			width: 44px;
 			padding: 5px;
 		}
 	}
@@ -94,7 +95,7 @@
 		md-tabs-wrapper {
 			border-width: 1px 0 0;
 			border-style: solid;
-      border-color: rgba(0,0,0,0.1);
+			border-color: rgba(0,0,0,0.1);
 			background-color: rgba(255,255,255,0.15);
 		}
 	}
@@ -125,47 +126,42 @@
 			}
 		}
 	}
-	.editor.panel .btn-grp {
-		.btn a {
-			line-height: 34px;
-		}
-		.close.btn {
-			top: 5px;
-			left: 3px;
-			font-size: 26px;
-		}
-		.minimize.btn {
-			top: 32px;
-			left: 5px;
-			font-size: 24px;
-			a {
-				line-height: 30px;
-			}
-		}
-		.preview.btn {
-			top: 59px;
-			left: 3px;
-			font-size: 21px;
-		}
+	.editor.panel .side-column {
+    .btn-grp {
+      margin: 6px 5px;
+      color: rgba(0,0,0,0.38);
+      .btn {
+        height: 28px;
+        width: 32px;
+        line-height: 28px;
+  			padding: 0;
+  		}
+  		.close.btn {
+  			font-size: 26px;
+  		}
+  		.minimize.btn {
+  			font-size: 24px;
+  		}
+  		.preview.btn {
+  			font-size: 21px;
+  		}
+    }
 		$menu-height: 105px;
 		.menu.btn {
 			top: 105px;
 			height: $menu-height;
+      width: 34px;
 			box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, 0.2);
 			border-top-right-radius: $border-radius-binder;
 			border-bottom-right-radius: $border-radius-binder;
 			.md-button {
 				position: absolute;
 				line-height: 34px;
-				width: 100%;
 				height: 100%;
+				width: 100%;
 				font-size: 20px;
 				color: #fff;
 				text-shadow: 1px 1px rgba(0,0,0,0.067);
-				&:hover,
-				&.md-focused {
-					background-color: transparent;
-				}
 				.rotate-90 {
 					position: absolute;
 					width: $menu-height;
@@ -183,7 +179,7 @@
 		overflow-y: scroll;
 	}
 	.menu.content {
-		padding: 20px 40px 60px;
+		padding: 40px 40px 60px;
 		font-size: 16px;
 		height: auto;
 		color: #fff;
@@ -238,8 +234,17 @@
 	}
 }
 
-.corner.folding.btn a {
+.corner.folding.btn {
+  position: absolute;
 	font-size: 28px;
 	padding: 5px;
-	cursor: pointer;
+  color: rgba(0,0,0,0.38);
+  &.icon-call-made {
+    right: 0;
+    bottom: 35px;
+  }
+  &.icon-call-received {
+    right: 35px;
+    bottom: 0;
+  }
 }

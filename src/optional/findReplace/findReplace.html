@@ -1,16 +1,15 @@
 <div class="findreplace panel no-overflow" layout="row" layout-align="start center">
-    <cl-button class="close btn" size="35">
-        <a class="icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close side bar"></a>
-    </cl-button>
-    <input autocomplete="off" ng-model="findText" class="find input md-whiteframe-z1">
-    <md-button ng-click="find()">
-        Find
-    </md-button>
-    <input autocomplete="off" ng-model="replaceText" class="replace input md-whiteframe-z1">
-    <md-button ng-click="replace()">
-        Replace
-    </md-button>
-    <md-button ng-click="replaceAll()">
-        All
-    </md-button>
+  <md-button md-no-ink class="close btn icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close">
+  </md-button>
+  <input autocomplete="off" ng-model="findText" class="find input md-whiteframe-z1">
+  <md-button ng-click="find()">
+    Find
+  </md-button>
+  <input autocomplete="off" ng-model="replaceText" class="replace input md-whiteframe-z1">
+  <md-button ng-click="replace()">
+    Replace
+  </md-button>
+  <md-button ng-click="replaceAll()">
+    All
+  </md-button>
 </div>

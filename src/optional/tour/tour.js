@@ -7,7 +7,7 @@ angular.module('classeur.optional.tour', [])
       }
 
       function link () {
-        if (!clLocalSettingSvc.values.tourStep) {
+        if (!clLocalSettingSvc.values.explorerTourStep || !clLocalSettingSvc.values.editorTourStep) {
           $timeout(function () {
             clDialog.show({
               templateUrl: 'optional/tour/tourDialog.html',
@@ -20,9 +20,11 @@ angular.module('classeur.optional.tour', [])
                 }
               }
             }).then(function () {
-              clLocalSettingSvc.values.tourStep = 1
+              clLocalSettingSvc.values.explorerTourStep = 1
+              clLocalSettingSvc.values.editorTourStep = 1
             }, function () {
-              clLocalSettingSvc.values.tourStep = -1
+              clLocalSettingSvc.values.explorerTourStep = -1
+              clLocalSettingSvc.values.editorTourStep = -1
             })
           }, 100)
         }
@@ -50,7 +52,7 @@ angular.module('classeur.optional.tour', [])
         })
       }
     })
-  .directive('clTourNext',
+  .directive('clExplorerTourNext',
     function (clLocalSettingSvc) {
       return {
         restrict: 'A',
@@ -58,9 +60,29 @@ angular.module('classeur.optional.tour', [])
       }
 
       function link (scope, element, attr) {
-        var nextStep = parseInt(attr.clTourNext, 10)
         element.on('click', function () {
-          clLocalSettingSvc.values.tourStep === nextStep - 1 && clLocalSettingSvc.values.tourStep++
+          var nextStep = parseInt(attr.clExplorerTourNext, 10)
+          if (isNaN(nextStep) || clLocalSettingSvc.values.explorerTourStep === nextStep - 1) {
+            clLocalSettingSvc.values.explorerTourStep++
+            scope.$evalAsync()
+          }
+        })
+      }
+    })
+  .directive('clEditorTourNext',
+    function (clLocalSettingSvc) {
+      return {
+        restrict: 'A',
+        link: link
+      }
+
+      function link (scope, element, attr) {
+        element.on('click', function () {
+          var nextStep = parseInt(attr.clEditorTourNext, 10)
+          if (isNaN(nextStep) || clLocalSettingSvc.values.editorTourStep === nextStep - 1) {
+            clLocalSettingSvc.values.editorTourStep++
+            scope.$evalAsync()
+          }
         })
       }
     })

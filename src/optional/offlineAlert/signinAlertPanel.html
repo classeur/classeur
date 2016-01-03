@@ -2,9 +2,8 @@
     <div>
         <h2>Disconnected</h2>
         <p>Sign in to turn on synchronization and have your files backed up.</p>
-        <cl-button class="close btn" size="30">
-            <a class="icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close"></a>
-        </cl-button>
+        <md-button md-no-ink class="close btn icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close">
+        </md-button>
     </div>
     <div layout="row" layout-align="end">
         <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!config.loginForm">

@@ -52,7 +52,7 @@ angular.module('classeur.core.editorLayout', [])
         var editorContentElt = elt.querySelector('.editor.content')
         elt.querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start()
         elt.querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start()
-        elt.querySelector('.editor .btn-grp.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
+        elt.querySelector('.editor .side-column.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
         var cornerFoldingElt = elt.querySelector('.corner.folding.panel')
         elt.querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start()
         var headerPanelElt = elt.querySelector('.header.panel')
@@ -372,7 +372,7 @@ angular.module('classeur.core.editorLayout', [])
       var clEditorLayoutSvc = {
         pageMarginLeft: 4,
         pageMarginRight: 6,
-        editorBtnGrpWidth: 34,
+        editorBtnGrpWidth: 36,
         menuWidth: 320,
         sideBarWidth: 280,
         editorLeftOverflow: 1000, // Allows scrolling on the left side of the editor

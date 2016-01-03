@@ -1,29 +1,28 @@
 <form name="form">
   <div class="explorer background panel">
-    <div class="nav-bar panel">
-
-    </div>
-    <div class="explorer container panel">
-      <div class="header">
-        <div layout="row">
-          <div class="classeur name" layout="row" layout-align="start end">
+    <div class="nav-bar panel md-whiteframe-1dp" layout="row" layout-align="center">
+      <div class="nav-bar container light-header">
+        <div layout="row" layout-align="space-between">
+          <div layout="row">
             <div class="logo no-overflow">
             </div>
-            <div class="no-overflow">
+            <div class="item classeur name no-overflow">
               {{explorerLayoutSvc.currentClasseurDao.name}}
             </div>
-            <md-button class="classeur toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-tour-next="3">
-              <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 2">
+            <md-button class="item classeur toggler icon" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
+              <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 1">
                 <p>This is your default classeur.</p>
                 <p>Click
-                  <span class="icon-arrow-back rotate-270"></span> to organize your different classeurs.</p>
+                  <span class="icon-arrow-back rotate-270"></span> to organize your classeurs.
+                </p>
+                <div layout="row" layout-align="end" class="tooltip-actions">
+                  <md-button md-no-ink cl-explorer-tour-next>Ok</md-button>
+                </div>
               </md-tooltip>
-              <div class="icon-arrow-back"></div>
+              <div class="icon-arrow-back rotate-270"></div>
             </md-button>
           </div>
-        </div>
-        <div layout="row" layout-align="end start">
-          <div class="user-info" layout="row">
+          <div layout="row">
             <div class="item" ng-if="userSvc.user">
               Hi <b>{{userSvc.user.name}}</b>
             </div>
@@ -41,11 +40,13 @@
             </md-button>
             <md-button class="item icon icon-settings" ng-href="#!/settings" aria-label="Settings">
             </md-button>
-            <md-button class="item icon icon-help" ng-click="$emit('clHelpDialog')">
+            <md-button class="item icon icon-help" ng-click="$emit('clHelpDialog')" aria-label="Help">
             </md-button>
           </div>
         </div>
       </div>
+    </div>
+    <div class="explorer container panel">
       <div class="classeur list panel no-overflow">
         <div class="scroller panel">
           <div class="tile container" ng-repeat="classeur in classeurSvc.classeurs track by classeur.id">
@@ -101,7 +102,7 @@
                         <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
                       </md-input-container>
                     </div>
-                    <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">
+                    <md-button ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-explorer-tour-next="4">
                       New file
                       <span class="icon-add"></span>
                     </md-button>
@@ -140,9 +141,14 @@
                       </div>
                     </div>
                   </div>
-                  <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 4" style="top: 50px">
+                  <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 3" style="top: 50px">
                     <p>This is your folder.</p>
-                    <p>Click <b>New file</b> to create or import a file in your folder.</p>
+                    <p>
+                      Click <b>New file</b> to create or import a file in your folder.
+                    </p>
+                    <div layout="row" layout-align="end" class="tooltip-actions">
+                      <md-button md-no-ink cl-explorer-tour-next>Ok</md-button>
+                    </div>
                   </md-tooltip>
                 </div>
                 <div class="folder content" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
@@ -212,44 +218,54 @@
           </div>
           <div class="btn-grp panel background no-overflow">
             <div class="container panel">
-              <div cl-folder-button cl-file-dragging-target class="folder btn panel" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
-                <md-button ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
-                  <div class="rotate-90" ng-if="folderDao !== explorerLayoutSvc.createFolder" layout="row" layout-align="center center">
-                    <div class="public-corner" ng-if="folderDao.userId">
-                      <div class="icon-publ"></div>
+              <div cl-folder-button class="folder btn positioner" ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id">
+                <div cl-file-dragging-target class="folder btn panel" ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
+                  <md-button md-no-ink ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
+                    <div class="rotate-90" layout="row" layout-align="end center" ng-class="{public: folderDao.userId}">
+                      <div>{{folderDao.name}}
+                        <div class="public-corner" ng-if="folderDao.userId">
+                          <div class="icon-publ"></div>
+                        </div>
+                        <span class="sharing-indicator" ng-class="{'read-write': folderDao.sharing === 'rw', read: folderDao.sharing === 'r'}"></span>
+                      </div>
                     </div>
-                    <div>{{folderDao.name}}
-                      <span class="sharing-indicator" ng-class="{'read-write': folderDao.sharing === 'rw', read: folderDao.sharing === 'r'}"></span>
-                    </div>
-                  </div>
-                  <div class="icon-add" ng-if="folderDao === explorerLayoutSvc.createFolder"></div>
-                </md-button>
+                  </md-button>
+                </div>
               </div>
             </div>
             <div class="current folder btn panel" ng-class="plasticClass">
-              <md-button aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
-                <div class="rotate-90" layout="row" layout-align="center center">
-                  <div>{{explorerLayoutSvc.currentFolderDao.name}}</div>
+              <md-button md-no-ink aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
+                <div class="rotate-90" layout="row" layout-align="end center" ng-class="{public: explorerLayoutSvc.currentFolderDao.userId}">
+                  <div>{{explorerLayoutSvc.currentFolderDao.name}}
+                    <div class="public-corner">
+                      <div class="icon-publ"></div>
+                    </div>
+                    <span class="sharing-indicator" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.sharing === 'rw', read: explorerLayoutSvc.currentFolderDao.sharing === 'r'}"></span>
+                  </div>
                 </div>
               </md-button>
             </div>
             <div cl-folder-button class="create folder btn panel" ng-class="'plastic-' + ((classeurIndex + 2) % 6)" folder="explorerLayoutSvc.createFolder">
-              <md-button ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-tour-next="4">
-                <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.tourStep === 3">
+              <md-button md-no-ink ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-explorer-tour-next="3">
+                <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 2">
                   <p>A classeur is a set of folders.</p>
                   <p>Click
-                    <span class="icon-add"></span> to create or import a folder in your classeur.</p>
+                    <span class="icon-add"></span> to create or import a folder in your classeur.
+                  </p>
+                  <div layout="row" layout-align="end" class="tooltip-actions">
+                    <md-button md-no-ink cl-explorer-tour-next>Ok</md-button>
+                  </div>
                 </md-tooltip>
                 <span class="icon-add"></span>
               </md-button>
             </div>
             <div cl-folder-button cl-file-dragging-target class="unclassified folder btn panel" ng-class="'plastic-' + ((classeurIndex + 1) % 6)" folder="explorerLayoutSvc.unclassifiedFolder">
-              <md-button ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
+              <md-button md-no-ink ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
                 <span class="icon-search"></span>
               </md-button>
             </div>
             <div cl-folder-button class="recent folder btn panel" ng-class="'plastic-' + (classeurIndex % 6)">
-              <md-button ng-click="setFolder()" aria-label="Local files">
+              <md-button md-no-ink ng-click="setFolder()" aria-label="Local files">
                 <span class="icon-schedule"></span>
               </md-button>
             </div>

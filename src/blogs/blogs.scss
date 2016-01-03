@@ -1,102 +1,105 @@
 @import 'variables';
 
 .blog.entry {
-    line-height: 40px;
-    md-input-container {
-        padding-bottom: 8px;
-        width: 100%;
-        .md-input {
-            line-height: 1;
-            font-size: 18px;
-            font-weight: 300;
-            &[disabled] {
-                color: $text-color;
-            }
-        }
-    }
-    .md-button {
-        color: rgba(0, 0, 0, 0.7);
-        font-size: 28px;
-        padding: 6px 3px;
-        min-width: 38px;
-        &[disabled] {
-            opacity: 0.5;
-        }
-    }
-    .icon {
-        margin-top: 4px;
-    }
-    .status {
-        min-width: 70px;
-        text-align: center;
-        span {
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.5;
-            border-radius: 8px;
-            padding: 0 6px;
-            color: #fff;
-            background-color: #008E3D;
-        }
-        &.error span {
-            background-color: #D33800;
-        }
-    }
-    &.post {
-        line-height: inherit;
-        margin: 5px 0 35px;
-        .details {
-            width: 100%;
-            color: rgba(0, 0, 0, 0.54);
-            font-size: 12.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            padding-right: 10px;
-            b {
-                padding-left: 10px;
-            }
-        }
-    }
+	line-height: 40px;
+	md-input-container {
+    margin: 0;
+		width: 100%;
+		.md-input {
+			font-size: 18px;
+			font-weight: 300;
+			&[disabled] {
+				color: $text-color;
+			}
+		}
+		.md-errors-spacer {
+			display: none;
+		}
+	}
+	.md-button {
+		color: rgba(0, 0, 0, 0.7);
+		font-size: 28px;
+		padding: 6px 3px;
+		min-width: 38px;
+		&[disabled] {
+			opacity: 0.5;
+		}
+	}
+	.icon {
+		margin-top: 4px;
+	}
+	.status {
+		min-width: 70px;
+		text-align: center;
+		span {
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 1.5;
+			border-radius: 8px;
+			padding: 0 6px;
+			color: #fff;
+			background-color: #008e3d;
+		}
+		&.error span {
+			background-color: #d33800;
+		}
+	}
+	&.post {
+		line-height: inherit;
+		margin: 5px 0 35px;
+		.details {
+			width: 100%;
+			color: rgba(0, 0, 0, 0.54);
+			font-size: 12.5px;
+			white-space: nowrap;
+			overflow: hidden;
+			padding-right: 10px;
+			b {
+				padding-left: 10px;
+			}
+		}
+	}
 }
 
 .blog.icon {
-    display: inline-block;
-    min-width: 34px;
-    width: 34px;
-    height: 32px;
-    background-image: url('assets/images/blog_platforms.png');
-    background-repeat: no-repeat;
-    background-size: 340px 32px;
-    margin-right: 10px;
-    &.github {
-        background-position: 0 0;
-    }
-    &.blogger {
-        background-position: -34px 0;
-    }
-    &.dropbox {
-        background-position: -68px 0;
-    }
-    &.tumblr {
-        background-position: -102px 0;
-    }
-    &.wordpress {
-        background-position: -136px 0;
-    }
+	display: inline-block;
+	min-width: 34px;
+	max-width: 34px;
+	width: 34px;
+	height: 32px;
+	background-image: url('assets/images/blog_platforms.png');
+	background-repeat: no-repeat;
+	background-size: 340px 32px;
+	margin-right: 10px;
+	&.github {
+		background-position: 0 0;
+	}
+	&.blogger {
+		background-position: -34px 0;
+	}
+	&.dropbox {
+		background-position: -68px 0;
+	}
+	&.tumblr {
+		background-position: -102px 0;
+	}
+	&.wordpress {
+		background-position: -136px 0;
+	}
 }
 
 .blog.post.form {
-    .blog.info {
-        font-size: 0.9em;
-    }
-    .options {
-        margin-top: 30px;
-        .label {
-            font-size: 12.5px;
-            padding: 2px;
-            display: block;
-            color: rgba(0, 0, 0, 0.54);
-            margin-bottom: -20px;
-        }
-    }
+	.blog.info {
+		font-size: 0.9em;
+	}
+	.options {
+		margin-top: 30px;
+		.label {
+			font-size: 12.5px;
+			padding: 2px;
+			display: block;
+			color: rgba(0, 0, 0, 0.54);
+			margin-bottom: -20px;
+		}
+	}
 }
