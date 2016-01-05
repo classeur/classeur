@@ -6,7 +6,7 @@
   "scripts": {
     "install": "gulp",
     "start": "gulp start",
-    "test": "gulp default lint"
+    "test": "gulp default lint lint-scss"
   },
   "author": "Benoit Schweblin",
   "license": "Apache-2.0",
@@ -19,6 +19,7 @@
     "angular-messages": "^1.4.6",
     "angular-route": "^1.4.6",
     "bezier-easing": "^1.1.1",
+    "bourbon": "^4.2.6",
     "clanim": "^0.1.0",
     "classets": "^1.0.0",
     "cldiffutils": "^1.0.0",
@@ -66,6 +67,8 @@
   },
   "homepage": "https://github.com/classeur/classeur#readme",
   "standard": {
-    "globals": [ "angular" ]
+    "globals": [
+      "angular"
+    ]
   }
 }

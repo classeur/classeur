@@ -1,13 +1,13 @@
 <md-dialog class="new folder dialog">
     <md-dialog-content>
         <h2>Import folder</h2>
-        <p class="tip">
-            <b>Note:</b> Share link must be an existing Classeur folder.
-        </p>
         <md-input-container>
             <label>Share link</label>
             <input autocomplete="off" class="link" ng-model="link" cl-focus cl-enter-ok>
         </md-input-container>
+        <p class="tip">
+            <b>Note:</b> Share link must be an existing Classeur folder.
+        </p>
         <div ng-show="folders.length">
             <p class="or">
                 <span>—</span> or <span>—</span>

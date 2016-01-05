@@ -114,7 +114,7 @@ angular.module('classeur.optional.buttonBar', [])
 
       var props = {
         margin: 25,
-        btnWidth: 29,
+        btnWidth: 28,
         btnHeight: 30,
         height: 60,
         visibleHeight: 42

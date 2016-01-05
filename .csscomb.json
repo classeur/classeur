@@ -1,9 +1,16 @@
 {
+    "remove-empty-rulesets": true,
     "always-semicolon": true,
     "color-case": "lower",
-    "block-indent": "\t",
+    "block-indent": "  ",
     "element-case": "lower",
+    "eof-newline": true,
+    "leading-zero": false,
     "quotes": "single",
+    "sort-order": [
+      ["..."],
+      ["$include"]
+    ],
     "sort-order-fallback": "abc",
     "space-before-colon": "",
     "space-after-colon": " ",
@@ -16,6 +23,6 @@
     "space-before-selector-delimiter": "",
     "space-before-closing-brace": "\n",
     "strip-spaces": true,
-    "unitless-zero": true,
-    "vendor-prefix-align": true
+    "tab-size": true,
+    "unitless-zero": true
 }

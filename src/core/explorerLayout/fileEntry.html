@@ -1,44 +1,47 @@
-<div class="file entry no-overflow" layout="row">
-    <div class="public-corner" ng-if="fileDao.userId"><div class="icon-publ"></div></div>
-    <div class="drag-space">
-        <div ng-if="!fileDao.userId" class="drag" cl-file-dragging-src><span class="icon-view-headline"></span>
-        </div>
+<div class="file-entry cl-no-overflow" layout="row">
+  <div class="file-entry__corner cl-public-corner" ng-if="fileDao.userId">
+    <div class="icon-publ"></div>
+  </div>
+  <div class="file-entry__drag-space">
+    <div class="file-entry__drag" ng-if="!fileDao.userId" cl-file-dragging-src>
+      <span class="file-entry__drag-icon icon-view-headline"></span>
     </div>
-    <md-checkbox md-no-ink ng-model="fileDao.isSelected" aria-label="Select">
-    </md-checkbox>
-    <md-input-container ng-click="open()" class="name">
-        <input autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
-    </md-input-container>
-    <md-menu>
-        <md-button md-no-ink aria-label="Options" class="sharing-indicator icon-more-vert" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}" ng-click="$mdOpenMenu()">
+  </div>
+  <md-checkbox class="file-entry__selector" md-no-ink ng-model="fileDao.isSelected" aria-label="Select">
+  </md-checkbox>
+  <md-input-container class="file-entry__name" ng-click="open()">
+    <input class="file-entry__name-input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
+  </md-input-container>
+  <md-menu>
+    <md-button class="cl-menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="fileDao.effectiveSharing" ng-click="$mdOpenMenu()">
+    </md-button>
+    <md-menu-content width="3">
+      <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">
+        <md-button ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao">
+          <md-icon md-font-icon="icon-share">
+            <span class="cl-sharing-indicator" ng-class="fileDao.effectiveSharing"></span>
+          </md-icon>
+          Sharing
         </md-button>
-        <md-menu-content width="3">
-            <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">
-                <md-button ng-click="explorerLayoutSvc.sharingDialogFileDao = fileDao">
-                    <md-icon md-font-icon="icon-share">
-                        <span class="sharing-indicator" ng-class="{'read-write': fileDao.effectiveSharing === 'rw', read: fileDao.effectiveSharing === 'r'}"></span>
-                    </md-icon>
-                    Sharing
-                </md-button>
-            </md-menu-item>
-            <md-menu-item ng-if="!fileDao.userId || fileDao.sharing === 'rw'">
-                <md-button ng-click="setEditing(true)">
-                    <md-icon md-font-icon="icon-mode-edit"></md-icon>
-                    Rename
-                </md-button>
-            </md-menu-item>
-            <md-menu-item ng-if="fileDao.folderId && folderSvc.folderMap[fileDao.folderId] && explorerLayoutSvc.currentFolderDao !== folderSvc.folderMap[fileDao.folderId]">
-                <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.folderMap[fileDao.folderId])">
-                    <md-icon md-font-icon="icon-folder-open"></md-icon>
-                    Go to folder
-                </md-button>
-            </md-menu-item>
-            <md-menu-item ng-if="!fileDao.userId || fileDao.sharing === 'rw'">
-                <md-button ng-click="deleteFile(fileDao)">
-                    <md-icon md-font-icon="icon-delete"></md-icon>
-                    Delete
-                </md-button>
-            </md-menu-item>
-        </md-menu-content>
-    </md-menu>
+      </md-menu-item>
+      <md-menu-item ng-if="!fileDao.userId || fileDao.sharing === 'rw'">
+        <md-button ng-click="setEditing(true)">
+          <md-icon md-font-icon="icon-mode-edit"></md-icon>
+          Rename
+        </md-button>
+      </md-menu-item>
+      <md-menu-item ng-if="fileDao.folderId && folderSvc.folderMap[fileDao.folderId] && explorerLayoutSvc.currentFolderDao !== folderSvc.folderMap[fileDao.folderId]">
+        <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.folderMap[fileDao.folderId])">
+          <md-icon md-font-icon="icon-folder-open"></md-icon>
+          Go to folder
+        </md-button>
+      </md-menu-item>
+      <md-menu-item ng-if="!fileDao.userId || fileDao.sharing === 'rw'">
+        <md-button ng-click="deleteFile(fileDao)">
+          <md-icon md-font-icon="icon-delete"></md-icon>
+          Delete
+        </md-button>
+      </md-menu-item>
+    </md-menu-content>
+  </md-menu>
 </div>

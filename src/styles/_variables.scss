@@ -1,24 +1,23 @@
 $font-family: Roboto, sans-serif;
 $font-family-editor: Roboto, sans-serif;
-$font-family-monospace: "Office Code Pro", monospace;
-$font-size-monospace: 0.9em;
+$font-family-monospace: 'Office Code Pro', monospace;
+$font-size-monospace: .9em;
 $body-color: #e0e0e0;
-$background-color: #fbfbfb;
-$text-color: rgba(0, 0, 0, 0.87);
-$link-color: #316ED3;
+$background-color: #fafafa;
+$text-color: rgba(0, 0, 0, .87);
+$link-color: #316ed3;
 $code-bg: #eee;
 $border-radius-base: 4px;
 $border-radius-binder: 6px;
 $border-radius-buttonbar: 10px;
-$plastic-colors:
-	/* blue */ #3a9cdd,
-	/* yellow */ lighten(desaturate(#F2B50D, 17.5%), 5%),
-	/* green */ lighten(desaturate(#20bc9c, 30%), 2.5%),
-	/* red */ lighten(desaturate(#ea6a3c, 10%), 2.5%),
-	/* light gray */ darken(#95a5a6, 2.5%),
-	/* dark gray */ lighten(desaturate(#34495e, 5%), 17.5%);
+$plastic-color-0: #3a9cdd; // blue
+$plastic-color-1: lighten(desaturate(#f2b50d, 17.5%), 5%); // yellow
+$plastic-color-2: lighten(desaturate(#20bc9c, 30%), 2.5%); // green
+$plastic-color-3: lighten(desaturate(#ea6a3c, 10%), 2.5%); // red
+$plastic-color-4: darken(#95a5a6, 2.5%); // light gray
+$plastic-color-5: lighten(desaturate(#34495e, 5%), 17.5%); // dark gray
 $editor-margin-width: 110px;
-$ced-color: rgba(0, 0, 0, 0.92);
-$ced-color-light: rgba(0, 0, 0, 0.6);
-$ced-color-lighter: rgba(0, 0, 0, 0.28);
-$ced-color-dark: black;
+$ced-color: rgba(0, 0, 0, .92);
+$ced-color-light: rgba(0, 0, 0, .6);
+$ced-color-lighter: rgba(0, 0, 0, .28);
+$ced-color-dark: #000;

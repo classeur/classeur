@@ -1,0 +1,6 @@
+linters:
+  ColorVariable:
+    enabled: false
+
+  SelectorFormat:
+    convention: hyphenated_BEM

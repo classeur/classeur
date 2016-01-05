@@ -1,15 +1,15 @@
-<div class="nav" layout="row" layout-align="center center">
-    <md-input-container md-theme="classeur" class="folder name">
-        <input autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
+<div class="folder-name cl-nav" layout="row" layout-align="center center">
+    <md-input-container class="folder-name__input-container" md-theme="classeur">
+        <input class="folder-name__input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <md-menu ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
-        <md-button md-no-ink aria-label="Options" class="sharing-indicator icon-more-vert" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}" ng-click="$mdOpenMenu()">
+        <md-button class="cl-menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolderDao.effectiveSharing" ng-click="$mdOpenMenu()">
         </md-button>
         <md-menu-content width="3">
             <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">
                 <md-button ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolderDao">
                     <md-icon md-font-icon="icon-share">
-                        <span class="sharing-indicator" ng-class="{'read-write': explorerLayoutSvc.currentFolderDao.effectiveSharing === 'rw', read: explorerLayoutSvc.currentFolderDao.effectiveSharing === 'r'}"></span>
+                        <span class="cl-sharing-indicator" ng-class="explorerLayoutSvc.currentFolderDao.effectiveSharing"></span>
                     </md-icon>
                     Sharing
                 </md-button>

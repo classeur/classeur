@@ -13,10 +13,11 @@ var replace = require('gulp-replace')
 var sass = require('gulp-sass')
 var templateCache = require('gulp-angular-templatecache')
 var size = require('gulp-size')
+var bourbon = require('bourbon')
 
 var isDebug = false
 
-gulp.task('tag', ['lint'], function (cb) {
+gulp.task('tag', ['lint', 'lint-scss'], function (cb) {
   var version = require('./package').version
   var tag = 'v' + version
   util.log('Tagging as: ' + util.colors.cyan(tag))
@@ -195,14 +196,14 @@ function buildCss (srcStream, dest) {
     srcStream = srcStream
       .pipe(sourcemaps.init())
       .pipe(sass({
-        includePaths: 'src/styles'
+        includePaths: bourbon.includePaths.concat('src/styles')
       }).on('error', sass.logError))
       .pipe(concat(dest))
       .pipe(sourcemaps.write('.'))
   } else {
     srcStream = srcStream
       .pipe(sass({
-        includePaths: 'src/styles',
+        includePaths: bourbon.includePaths.concat('src/styles'),
         outputStyle: 'compressed'
       }).on('error', sass.logError))
       .pipe(concat(dest))

@@ -8,8 +8,8 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function link (scope, element, attr) {
-        var buttonElt = element[0]
-        var parentElt = buttonElt.parentNode
+        var folderEntryElt = element[0]
+        var parentElt = folderEntryElt.parentNode
         var duration
         if (attr.folder) {
           scope.folderDao = scope.$eval(attr.folder)
@@ -18,14 +18,14 @@ angular.module('classeur.core.explorerLayout', [])
 
         function animate (adjustScrollTop) {
           var isSelected = clExplorerLayoutSvc.currentFolderDao === scope.folderDao
-          buttonElt.classList.toggle('selected', isSelected)
+          folderEntryElt.classList.toggle('folder-entry--selected', isSelected)
           var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0
           var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997)
-          buttonElt.clanim
+          folderEntryElt.clanim
             .zIndex(z)
             .start()
             .offsetWidth // Force z-offset to refresh before the animation
-          buttonElt.clanim
+          folderEntryElt.clanim
             .duration(duration)
             .translateX(isSelected ? 0 : isHover ? -2 : -5)
             .translateY(y)
@@ -46,11 +46,11 @@ angular.module('classeur.core.explorerLayout', [])
         }
         var debounceAnimate = $window.cledit.Utils.debounce(animate, 100)
 
-        buttonElt.addEventListener('mouseenter', function () {
+        folderEntryElt.addEventListener('mouseenter', function () {
           isHover = true
           debounceAnimate()
         })
-        buttonElt.addEventListener('mouseleave', function () {
+        folderEntryElt.addEventListener('mouseleave', function () {
           isHover = false
           debounceAnimate()
         })
@@ -58,8 +58,8 @@ angular.module('classeur.core.explorerLayout', [])
         scope.$watch('$index', animate)
         scope.$watch('explorerLayoutSvc.currentFolderDao === folderDao', function (isSelected) {
           if (isSelected) {
-            clExplorerLayoutSvc.currentFolderButtonElt = scope.$index !== undefined && element[0]
-            clExplorerLayoutSvc.toggleHiddenBtn()
+            clExplorerLayoutSvc.currentFolderEntryElt = scope.$index !== undefined && folderEntryElt
+            clExplorerLayoutSvc.toggleCurrentFolderEntry()
           }
           animate(true)
         })
@@ -74,13 +74,13 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function link (scope, element) {
-        var nameInput = element[0].querySelector('.name input')
-        nameInput.addEventListener('keydown', function (e) {
+        var nameInputElt = element[0].querySelector('.file-entry__name input')
+        nameInputElt.addEventListener('keydown', function (e) {
           if (e.which === 27) {
             scope.form.$rollbackViewValue()
-            nameInput.blur()
+            nameInputElt.blur()
           } else if (e.which === 13) {
-            nameInput.blur()
+            nameInputElt.blur()
           }
         })
         scope.name = function (name) {
@@ -101,7 +101,7 @@ angular.module('classeur.core.explorerLayout', [])
           if (value) {
             scope.isEditing = true
             setTimeout(function () {
-              nameInput.focus()
+              nameInputElt.focus()
             }, 10)
           } else {
             unsetTimeout = $timeout(function () {
@@ -121,13 +121,13 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function link (scope, element) {
-        var nameInput = element[0].querySelector('.name input')
-        nameInput.addEventListener('keydown', function (e) {
+        var nameInputElt = element[0].querySelector('.folder-name__input')
+        nameInputElt.addEventListener('keydown', function (e) {
           if (e.which === 27) {
             scope.form.$rollbackViewValue()
-            nameInput.blur()
+            nameInputElt.blur()
           } else if (e.which === 13) {
-            nameInput.blur()
+            nameInputElt.blur()
           }
         })
         scope.name = function (name) {
@@ -145,7 +145,7 @@ angular.module('classeur.core.explorerLayout', [])
           if (value) {
             scope.isEditing = true
             setTimeout(function () {
-              nameInput.focus()
+              nameInputElt.focus()
             }, 10)
           } else {
             unsetTimeout = $timeout(function () {
@@ -165,13 +165,13 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function link (scope, element) {
-        var nameInput = element[0].querySelector('.name textarea')
-        nameInput.addEventListener('keydown', function (e) {
+        var nameInputElt = element[0].querySelector('.classeur-entry__name-input')
+        nameInputElt.addEventListener('keydown', function (e) {
           if (e.which === 27) {
             scope.form.$rollbackViewValue()
-            nameInput.blur()
+            nameInputElt.blur()
           } else if (e.which === 13) {
-            nameInput.blur()
+            nameInputElt.blur()
           }
         })
         scope.name = function (name) {
@@ -192,7 +192,7 @@ angular.module('classeur.core.explorerLayout', [])
           if (value) {
             scope.isEditing = true
             setTimeout(function () {
-              nameInput.focus()
+              nameInputElt.focus()
             }, 10)
           } else {
             unsetTimeout = $timeout(function () {
@@ -201,7 +201,9 @@ angular.module('classeur.core.explorerLayout', [])
             }, 250)
           }
         }
-        element[0].querySelector('.footer.panel').addEventListener('click', function (evt) {
+
+        // Prevent from selecting the classeur when clicking the menu
+        element[0].querySelector('.classeur-entry__menu').addEventListener('click', function (evt) {
           evt.stopPropagation()
         })
       }
@@ -265,31 +267,30 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function link (scope, element) {
-        var containerElt = element[0].querySelector('.explorer.container')
-        var contentElt = element[0].querySelector('.explorer.content').clanim.translateY(10).start(true)
-        var navbarContainerElt = element[0].querySelector('.nav-bar.container')
-        var scrollbarElt = element[0].querySelector('.scrollbar.panel')
-        var folderElt = element[0].querySelector('.folder.container.panel')
-        var folderCloneElt = element[0].querySelector('.folder.container.clone')
-        var fileMenuElt = element[0].querySelector('.folder.container.panel .file.menu')
-        var tabContainerElt = element[0].querySelector('.btn-grp .container')
-        var btnGroupElt = element[0].querySelector('.btn-grp')
-        var scrollerElt = btnGroupElt.querySelector('.container')
-        var createFolderButtonElt = btnGroupElt.querySelector('.create.folder.btn')
+        var explorerInnerElt = element[0].querySelector('.explorer__inner-2')
+        var binderElt = element[0].querySelector('.binder').clanim.translateY(10).start(true)
+        var navbarInnerElt = element[0].querySelector('.navbar__inner')
+        var binderScrollerElt = element[0].querySelector('.binder__scroller')
+        var folderElt = element[0].querySelector('.folder-view--main')
+        var folderCloneElt = element[0].querySelector('.folder-view--clone')
+        var fileActionsElt = folderElt.querySelector('.file-actions')
+        var folderListElt = element[0].querySelector('.folder-list')
+        var folderListScrollerElt = folderListElt.querySelector('.folder-list__scroller')
+        var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create .folder-entry__inner')
 
-        clExplorerLayoutSvc.toggleHiddenBtn = function () {
-          btnGroupElt.classList.toggle('hidden-btn', !!clExplorerLayoutSvc.currentFolderButtonElt &&
-            clExplorerLayoutSvc.currentFolderButtonElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1)
+        clExplorerLayoutSvc.toggleCurrentFolderEntry = function () {
+          folderListElt.classList.toggle('folder-list__show-current', !!clExplorerLayoutSvc.currentFolderEntryElt &&
+            clExplorerLayoutSvc.currentFolderEntryElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1)
         }
 
-        function toggleHiddenFileMenu () {
-          folderCloneElt.classList.toggle('hidden', folderElt.scrollTop < fileMenuElt.offsetTop)
+        function toggleFolderCloneElt () {
+          folderCloneElt.classList.toggle('folder-view--hidden', folderElt.scrollTop < fileActionsElt.offsetTop)
         }
 
-        folderElt.addEventListener('scroll', toggleHiddenFileMenu)
-        setTimeout(toggleHiddenFileMenu, 1)
+        folderElt.addEventListener('scroll', toggleFolderCloneElt)
+        setTimeout(toggleFolderCloneElt, 1)
 
-        scrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleHiddenBtn)
+        folderListScrollerElt.addEventListener('scroll', clExplorerLayoutSvc.toggleCurrentFolderEntry)
 
         function updateLayout () {
           var explorerWidth = document.body.clientWidth
@@ -298,28 +299,28 @@ angular.module('classeur.core.explorerLayout', [])
           }
           clExplorerLayoutSvc.explorerWidth = explorerWidth
           clExplorerLayoutSvc.noPadding = explorerWidth < noPaddingWidth
-          clExplorerLayoutSvc.contentY = clExplorerLayoutSvc.isExplorerOpen ? 0 : hideOffsetY
+          clExplorerLayoutSvc.binderY = clExplorerLayoutSvc.isExplorerOpen ? 0 : hideOffsetY
         }
 
         function animateLayout () {
           clExplorerLayoutSvc.scrollbarWidth = folderElt.offsetWidth - folderElt.clientWidth
           updateLayout()
-          containerElt.clanim
+          explorerInnerElt.clanim
             .width(clExplorerLayoutSvc.explorerWidth - 50)
             .translateX(-clExplorerLayoutSvc.explorerWidth / 2 + 5)
             .start()
-            .classList.toggle('no-padding', clExplorerLayoutSvc.noPadding)
-          navbarContainerElt.clanim
+            .classList.toggle('explorer__inner-2--no-padding', clExplorerLayoutSvc.noPadding)
+          navbarInnerElt.clanim
             .width(clExplorerLayoutSvc.explorerWidth)
             .start()
-            .classList.toggle('no-padding', clExplorerLayoutSvc.noPadding)
-          contentElt.clanim
-            .translateY(clExplorerLayoutSvc.contentY)
+            .classList.toggle('navbar__inner--no-padding', clExplorerLayoutSvc.noPadding)
+          binderElt.clanim
+            .translateY(clExplorerLayoutSvc.binderY)
             .duration(300)
             .easing(clExplorerLayoutSvc.isExplorerOpen ? 'materialOut' : 'materialIn')
             .start(true)
           var folderContainerWidth = clExplorerLayoutSvc.explorerWidth + clExplorerLayoutSvc.scrollbarWidth
-          scrollbarElt.clanim
+          binderScrollerElt.clanim
             .width(folderContainerWidth)
             .start()
           folderCloneElt.clanim
@@ -665,7 +666,7 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         scope.setClasseur = function (classeurDao) {
-          tabContainerElt.scrollTop = 0
+          folderListScrollerElt.scrollTop = 0
           clExplorerLayoutSvc.setCurrentClasseur(classeurDao)
           clExplorerLayoutSvc.setCurrentFolder(classeurDao.lastFolder)
           clExplorerLayoutSvc.refreshFolders()

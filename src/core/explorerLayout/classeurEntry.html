@@ -1,34 +1,36 @@
-<div class="tile content panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
-    <div class="tab-1" ng-class="'plastic-' + (($index + 1) % 6)"></div>
-    <div class="tab-2" ng-class="'plastic-' + (($index + 2) % 6)"></div>
-    <div class="name">
-        <md-input-container>
-            <textarea ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Classeur name"></textarea>
-        </md-input-container>
+<div class="classeur-entry">
+  <div class="classeur-entry__inner app__panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
+    <div class="classeur-entry__tab-1" ng-class="'plastic-' + (($index + 1) % 6)"></div>
+    <div class="classeur-entry__tab-2" ng-class="'plastic-' + (($index + 2) % 6)"></div>
+    <div class="classeur-entry__name">
+      <md-input-container>
+        <textarea class="classeur-entry__name-input" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Classeur name"></textarea>
+      </md-input-container>
     </div>
-    <div class="info" ng-switch="classeur.folders.length > 1">
-        <div ng-show="classeur.isDefault"><b>default</b></div>
-        <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
-        <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
+    <div class="classeur-entry__info" ng-switch="classeur.folders.length > 1">
+      <div ng-show="classeur.isDefault"><b>default</b></div>
+      <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
+      <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
     </div>
-    <div class="footer panel" layout="row" layout-align="center">
-        <md-menu>
-            <md-button md-no-ink aria-label="Options" class="icon-more-vert" ng-click="$mdOpenMenu()">
+    <div class="classeur-entry__menu app__panel" layout="row" layout-align="center">
+      <md-menu>
+        <md-button class="classeur-entry__menu-btn cl-menu-btn icon-more-vert" md-no-ink aria-label="Options" ng-click="$mdOpenMenu()">
+        </md-button>
+        <md-menu-content width="3">
+          <md-menu-item>
+            <md-button ng-click="setEditing(true)">
+              <md-icon md-font-icon="icon-mode-edit"></md-icon>
+              Rename
             </md-button>
-            <md-menu-content width="3">
-                <md-menu-item>
-                    <md-button ng-click="setEditing(true)">
-                        <md-icon md-font-icon="icon-mode-edit"></md-icon>
-                        Rename
-                    </md-button>
-                </md-menu-item>
-                <md-menu-item ng-if="!classeur.isDefault">
-                    <md-button ng-click="deleteClasseur(classeur)">
-                        <md-icon md-font-icon="icon-delete"></md-icon>
-                        Delete
-                    </md-button>
-                </md-menu-item>
-            </md-menu-content>
-        </md-menu>
+          </md-menu-item>
+          <md-menu-item ng-if="!classeur.isDefault">
+            <md-button ng-click="deleteClasseur(classeur)">
+              <md-icon md-font-icon="icon-delete"></md-icon>
+              Delete
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
     </div>
+  </div>
 </div>

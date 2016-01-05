@@ -5,8 +5,8 @@ cl-editor-layout .background.panel {
 
 .preview.panel {
 	.frame.container.panel {
-		padding-left: 910px;
-		padding-right: 950px;
+		padding-left: 911px;
+		padding-right: 951px;
 		.frame.content.panel {
 			background-color: rgba(0, 0, 0, 0.02);
 			border-right: 1px solid rgba(0, 0, 0, 0.05);
@@ -128,11 +128,11 @@ cl-editor-layout .background.panel {
 	}
 	.editor.panel .side-column {
     .btn-grp {
-      margin: 6px 5px;
+      margin: 6px 7px;
       color: rgba(0,0,0,0.38);
       .btn {
         height: 28px;
-        width: 32px;
+        width: 28px;
         line-height: 28px;
   			padding: 0;
   		}
@@ -162,7 +162,7 @@ cl-editor-layout .background.panel {
 				font-size: 20px;
 				color: #fff;
 				text-shadow: 1px 1px rgba(0,0,0,0.067);
-				.rotate-90 {
+				.cl-rotate-90 {
 					position: absolute;
 					width: $menu-height;
 					height: 30px;

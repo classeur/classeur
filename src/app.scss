@@ -2,187 +2,211 @@
 @import 'mdHighlighting';
 @import 'material';
 @import 'print';
+@import 'bourbon';
+
 body {
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background-color: $body-color;
-	text-rendering: auto;
-	-moz-tab-size: 4;
-	  -o-tab-size: 4;
-	     tab-size: 4;
-	font-weight: 300;
+  background-color: $body-color;
+  bottom: 0;
+  font-weight: 300;
+  left: 0;
+  position: fixed;
+  right: 0;
+  tab-size: 4;
+  text-rendering: auto;
+  top: 0;
 }
 
 *,
-*:before,
-*:after {
-	box-sizing: border-box;
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 * {
-	-ms-overflow-style: -ms-autohiding-scrollbar;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 *::-webkit-scrollbar {
-	-webkit-appearance: none;
+  -webkit-appearance: none;
 }
 
 *::-webkit-scrollbar:vertical {
-	width: 7px;
+  width: 7px;
 }
 
 *::-webkit-scrollbar:horizontal {
-	height: 7px;
+  height: 7px;
 }
 
 *::-webkit-scrollbar-thumb {
-	border-radius: 4px;
-	background-color: rgba(0, 0, 0, .25);
+  background-color: rgba(0, 0, 0, .25);
+  border-radius: 4px;
 }
 
 :focus {
-	outline: none;
+  outline: none;
 }
 
 input:not([disabled]),
 textarea:not([disabled]) {
-	-webkit-font-variant-ligatures: normal;
-	        font-variant-ligatures: normal;
+  @include font-feature-settings('liga');
 }
 
-.panel {
-	position: absolute;
-	width: 100%;
-	height: 100%;
+.panel,
+.app__panel {
+  height: 100%;
+  position: absolute;
+  width: 100%;
 }
 
-.no-overflow {
-	overflow: hidden;
+.no-overflow,
+.cl-no-overflow {
+  overflow: hidden;
 }
 
 .no-select {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	 -khtml-user-select: none;
-	   -moz-user-select: none;
-	    -ms-user-select: none;
-	        user-select: none;
+  @include user-select(none);
 }
 
-.background {
-	background-color: $background-color;
+.background,
+.app__background {
+  background-color: $background-color;
 }
 
 .paper {
-	background-color: #fff;
+  background-color: #fff;
 }
 
-@for $i from 1 through length($plastic-colors) {
-    $c: nth($plastic-colors, $i);
-    .plastic-#{$i - 1} {
-        background-color: mix(desaturate($c, 12.5%), $background-color, 55%) !important;
-    }
+// scss-lint:disable ImportantRule
+.plastic-0 {
+  background-color: mix(desaturate($plastic-color-0, 12.5%), $background-color, 55%) !important;
 }
+
+.plastic-1 {
+  background-color: mix(desaturate($plastic-color-1, 12.5%), $background-color, 55%) !important;
+}
+
+.plastic-2 {
+  background-color: mix(desaturate($plastic-color-2, 12.5%), $background-color, 55%) !important;
+}
+
+.plastic-3 {
+  background-color: mix(desaturate($plastic-color-3, 12.5%), $background-color, 55%) !important;
+}
+
+.plastic-4 {
+  background-color: mix(desaturate($plastic-color-4, 12.5%), $background-color, 55%) !important;
+}
+
+.plastic-5 {
+  background-color: mix(desaturate($plastic-color-5, 12.5%), $background-color, 55%) !important;
+}
+// scss-lint:enable ImportantRule
 
 .hole {
-	box-shadow: inset 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-	border-radius: 10px;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 5px 0 rgba(0, 0, 0, .26);
 }
 
 .postit {
-	background-color: #fff7b2;
-	padding: 15px 20px;
-	font-size: 14px;
-	-webkit-transform: rotate(-1deg);
-	        transform: rotate(-1deg);
-	z-index: 3;
-	.close.btn {
-		position: absolute;
-		color: rgba(0, 0, 0, 0.38);
-		top: 0;
-		right: 0;
-		font-size: 22px;
-		line-height: 30px;
-		padding: 5px 8px;
-	}
+  @include transform(rotate(-1deg));
+
+  background-color: #fff7b2;
+  font-size: 14px;
+  padding: 15px 20px;
+  z-index: 3;
+
+  .close.btn {
+    color: rgba(0, 0, 0, .38);
+    font-size: 22px;
+    line-height: 30px;
+    padding: 5px 8px;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 
 .postit,
 .dialog {
-	h1,
-	h2,
-	h3,
-	h4,
-	h5,
-	h6,
-	p,
-	blockquote,
-	pre,
-	ul,
-	ol,
-	dl {
-		margin: 1em 0;
-	}
-}
-
-.dialog .tip {
-	font-size: 14px;
-	display: block;
-	color: rgba(0, 0, 0, 0.45);
-	margin-left: 10px;
-	margin-right: 10px;
-	ul {
-		margin: 0.5em 0;
-	}
-}
-
-.warning {
-	padding: 10px 5px;
-	color: rgba(0, 0, 0, 0.67);
-}
-
-.light-header {
-  color: rgba(0,0,0,0.6);
-  [class^='icon-'], [class*=' icon-'] {
-    color: rgba(0,0,0,0.54);
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  pre,
+  ul,
+  ol,
+  dl {
+    margin: 1em 0;
   }
 }
 
-.nav {
-	height: 120px;
-	md-input-container {
-		padding-bottom: 10px;
-		.md-errors-spacer {
-			display: none;
-		}
-	}
-	.md-input {
-		font-weight: 300;
-		font-size: 32px;
-	}
-	.md-button {
-		text-shadow: 1px 1px rgba(0,0,0,0.06);
-		[class^='icon-'],
-		[class*=' icon-'] {
-			font-size: inherit;
-		}
-	}
+.dialog .tip {
+  color: rgba(0, 0, 0, .45);
+  display: block;
+  font-size: 14px;
+  margin-left: 10px;
+  margin-right: 10px;
+
+  ul {
+    margin: .5em 0;
+  }
 }
 
-.rotate-90 {
-	-webkit-transform: rotate(90deg);
-	        transform: rotate(90deg);
+.warning {
+  color: rgba(0, 0, 0, .67);
+  padding: 10px 5px;
 }
 
-.rotate-180 {
-	-webkit-transform: rotate(180deg);
-	        transform: rotate(180deg);
+.light-header,
+.app__light-header {
+  color: rgba(0, 0, 0, .6);
+
+  [class^='icon-'],
+  [class*=' icon-'] {
+    color: rgba(0, 0, 0, .54);
+  }
 }
 
-.rotate-270 {
-	-webkit-transform: rotate(270deg);
-	        transform: rotate(270deg);
+.nav,
+.cl-nav {
+  height: 120px;
+
+  md-input-container {
+    padding-bottom: 10px;
+
+    .md-errors-spacer {
+      display: none;
+    }
+  }
+
+  .md-input {
+    font-size: 32px;
+    font-weight: 300;
+  }
+
+  .md-button {
+    text-shadow: 1px 1px rgba(0, 0, 0, .06);
+
+    [class^='icon-'],
+    [class*=' icon-'] {
+      font-size: inherit;
+    }
+  }
+}
+
+.cl-rotate-90 {
+  @include transform(rotate(90deg));
+}
+
+.cl-rotate-180 {
+  @include transform(rotate(180deg));
+}
+
+.cl-rotate-270 {
+  @include transform(rotate(270deg));
 }
