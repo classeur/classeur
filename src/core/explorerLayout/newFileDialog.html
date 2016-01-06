@@ -1,20 +1,20 @@
-<md-dialog class="new file dialog">
-    <md-dialog-content>
-        <h2>New file</h2>
-        <md-input-container>
-            <label>Name</label>
-            <input autocomplete="off" ng-model="value" cl-focus cl-enter-ok>
-        </md-input-container>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="import()">
-            Import...
-        </md-button>
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Ok
-        </md-button>
-    </div>
+<md-dialog class="creation-dialog creation-dialog--new-file">
+  <md-dialog-content>
+    <h2>New file</h2>
+    <md-input-container>
+      <label>Name</label>
+      <input autocomplete="off" ng-model="value" cl-focus cl-enter-ok>
+    </md-input-container>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="import()">
+      Import...
+    </md-button>
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="ok()" class="md-primary">
+      Ok
+    </md-button>
+  </div>
 </md-dialog>

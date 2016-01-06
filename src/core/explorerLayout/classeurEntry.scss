@@ -1,0 +1,134 @@
+@import 'bourbon';
+
+.explorer {
+  .classeur-entry {
+    float: left;
+    height: 220px;
+    margin: 15px 0;
+    position: relative;
+    width: 33%;
+
+    @media screen and (max-width: 720px) {
+      width: 50%;
+    }
+
+    @media screen and (max-width: 480px) {
+      float: none;
+      width: auto;
+    }
+  }
+
+  .classeur-entry--new {
+    opacity: .7;
+
+    @include transition(all 200ms cubic-bezier(.75, 0, .8, .25));
+
+    &:hover {
+      opacity: 1;
+    }
+
+    .classeur-entry__inner,
+    .classeur-entry__tab-1,
+    .classeur-entry__tab-2 {
+      background-color: #e8e8e8;
+    }
+  }
+
+  .classeur-entry__inner {
+    border-radius: 2px;
+    cursor: pointer;
+    left: 8%;
+    top: 0;
+    width: 84%;
+
+    &::before {
+      background-color: inherit;
+      right: -12px;
+      width: 12px;
+    }
+  }
+
+  .classeur-entry__inner::before,
+  .classeur-entry__tab-1,
+  .classeur-entry__tab-2 {
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+    content: '';
+    height: 40px;
+    position: absolute;
+    right: -10px;
+    top: 6px;
+    width: 10px;
+  }
+
+  .classeur-entry__tab-1 {
+    top: 45px;
+    z-index: -1;
+  }
+
+  .classeur-entry__tab-2 {
+    top: 84px;
+    z-index: -2;
+  }
+
+  .classeur-entry__name {
+    background-color: rgba(255, 255, 255, .2);
+    border-radius: 3px;
+    margin: 20px 5px 15px;
+    padding: 2px;
+
+    md-input-container {
+      margin: 0;
+    }
+
+    .md-errors-spacer {
+      display: none;
+    }
+  }
+
+  .classeur-entry__name-input {
+    font-size: 20px;
+    font-weight: 300;
+    text-align: center;
+
+    &:disabled {
+      color: rgba(0, 0, 0, .75);
+      cursor: pointer;
+      pointer-events: none;
+    }
+  }
+
+  .classeur-entry__info {
+    color: rgba(0, 0, 0, .35);
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .classeur-entry__icon {
+    font-size: 48px;
+    height: 100%;
+
+    a {
+      color: #a0a0a0;
+    }
+  }
+
+  .classeur-entry__menu {
+    background-color: rgba(255, 255, 255, .2);
+    bottom: 0;
+    cursor: auto;
+    font-size: 26px;
+    height: 42px;
+    text-align: center;
+  }
+
+  .classeur-entry__menu-btn {
+    color: rgba(0, 0, 0, .55);
+    display: block;
+    font-size: 26px;
+    height: 42px;
+    padding: 0;
+    width: 42px;
+  }
+}

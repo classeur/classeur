@@ -2,5 +2,8 @@ linters:
   ColorVariable:
     enabled: false
 
+  DeclarationOrder:
+    enabled: false
+
   SelectorFormat:
     convention: hyphenated_BEM

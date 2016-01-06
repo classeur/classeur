@@ -145,7 +145,8 @@ textarea:not([disabled]) {
   }
 }
 
-.dialog .tip {
+.dialog .tip,
+.cl-tip {
   color: rgba(0, 0, 0, .45);
   display: block;
   font-size: 14px;
@@ -197,6 +198,30 @@ textarea:not([disabled]) {
       font-size: inherit;
     }
   }
+}
+
+.drop-zone {
+  border: 3px dashed #bbb;
+  border-radius: 16px;
+  color: #bbb;
+  padding: 32px;
+  position: relative;
+  text-align: center;
+}
+
+.drop-zone__input {
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.drop-zone__icon {
+  font-size: 44px;
 }
 
 .cl-rotate-90 {

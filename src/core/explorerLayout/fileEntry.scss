@@ -1,0 +1,68 @@
+$file-entry-height: 40px;
+
+.explorer {
+  .file-entry {
+    border-radius: 6px;
+    line-height: $file-entry-height;
+    position: relative;
+    z-index: 1;
+
+    .cl-menu-btn {
+      color: rgba(0, 0, 0, .55);
+      font-size: 26px;
+      height: $file-entry-height;
+    }
+  }
+
+  .file-entry__drag-space {
+    min-width: 14px;
+    width: 14px;
+  }
+
+  .file-entry__drag {
+    cursor: move;
+    height: $file-entry-height;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .file-entry__drag-icon {
+    color: rgba(0, 0, 0, .6);
+    display: inline-block;
+    font-size: 16px;
+    line-height: $file-entry-height;
+  }
+
+  .file-entry__selector {
+    margin: 0 10px;
+
+    md-label {
+      display: none;
+    }
+  }
+
+  .file-entry__name {
+    cursor: pointer;
+    margin: 0;
+    padding-bottom: 6px;
+    padding-top: 6px;
+    width: 100%;
+
+    .md-errors-spacer {
+      display: none;
+    }
+  }
+
+  .file-entry__name-input {
+    font-size: 18px;
+    line-height: 1;
+
+    &[disabled] {
+      background-image: none;
+      border-bottom-color: rgba(0, 0, 0, .066);
+      color: rgba(0, 0, 0, .75);
+      cursor: pointer;
+      pointer-events: none;
+    }
+  }
+}

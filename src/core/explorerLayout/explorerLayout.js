@@ -276,7 +276,7 @@ angular.module('classeur.core.explorerLayout', [])
         var fileActionsElt = folderElt.querySelector('.file-actions')
         var folderListElt = element[0].querySelector('.folder-list')
         var folderListScrollerElt = folderListElt.querySelector('.folder-list__scroller')
-        var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create .folder-entry__inner')
+        var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create .folder-entry__inner-1')
 
         clExplorerLayoutSvc.toggleCurrentFolderEntry = function () {
           folderListElt.classList.toggle('folder-list__show-current', !!clExplorerLayoutSvc.currentFolderEntryElt &&
@@ -396,6 +396,7 @@ angular.module('classeur.core.explorerLayout', [])
 
         function importFolder () {
           makeInputDialog('core/explorerLayout/importFolderDialog.html', function (scope) {
+            scope.importType = 'otherUser'
             var classeurFolders = clExplorerLayoutSvc.currentClasseurDao.folders.cl_reduce(function (classeurFolders, folderDao) {
               return (classeurFolders[folderDao.id] = folderDao, classeurFolders)
             }, {})
@@ -405,7 +406,10 @@ angular.module('classeur.core.explorerLayout', [])
             scope.move = true
             var ok = scope.ok
             scope.ok = function () {
-              if (scope.folderId) {
+              if (scope.importType === 'otherClasseur') {
+                if (!scope.folderId) {
+                  return clToast('Please select a folder.')
+                }
                 var folderDao = clFolderSvc.folderMap[scope.folderId]
                 folderDao && importExistingFolder(folderDao, scope.move)
                 return clDialog.cancel()

@@ -1,31 +1,28 @@
-<md-dialog class="new folder dialog">
-    <md-dialog-content>
-        <h2>Import folder</h2>
-        <md-input-container>
-            <label>Share link</label>
-            <input autocomplete="off" class="link" ng-model="link" cl-focus cl-enter-ok>
-        </md-input-container>
-        <p class="tip">
-            <b>Note:</b> Share link must be an existing Classeur folder.
-        </p>
-        <div ng-show="folders.length">
-            <p class="or">
-                <span>—</span> or <span>—</span>
-            </p>
-            <md-select placeholder="From other classeur" ng-model="folderId">
-                <md-option ng-repeat="folderDao in folders | orderBy:'name' track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
-            </md-select>
-            <md-checkbox ng-model="move" aria-label="Move folder">
-                Move folder
-            </md-checkbox>
-        </div>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Import
-        </md-button>
-    </div>
+<md-dialog class="creation-dialog creation-dialog--import-folder">
+  <md-dialog-content>
+    <h2>Import folder</h2>
+    <md-radio-group ng-model="importType">
+      <md-radio-button value="otherUser">From other user</md-radio-button>
+      <md-input-container>
+        <label>Share link</label>
+        <input autocomplete="off" ng-model="link" cl-focus cl-enter-ok ng-focus="importType = 'otherUser'">
+      </md-input-container>
+      <br>
+      <md-radio-button value="otherClasseur">From other classeur</md-radio-button>
+      <md-select placeholder="Select folder" ng-model="folderId" ng-focus="importType = 'otherClasseur'">
+        <md-option ng-repeat="folderDao in folders | orderBy:'name' track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
+      </md-select>
+      <md-checkbox ng-model="move" aria-label="Move folder">
+        Move folder
+      </md-checkbox>
+    </md-radio-group>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="ok()" class="md-primary">
+      Import
+    </md-button>
+  </div>
 </md-dialog>
