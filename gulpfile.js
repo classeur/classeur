@@ -1,8 +1,11 @@
+var fs = require('fs')
 var path = require('path')
 var clgulp = require('clgulp')
 var gulp = clgulp(require('gulp'))
 var exec = clgulp.exec
 var util = clgulp.util
+var through2 = require('through2')
+var plumber = require('gulp-plumber')
 var watch = require('gulp-watch')
 var concat = require('gulp-concat')
 var ngAnnotate = require('gulp-ng-annotate')
@@ -11,13 +14,18 @@ var sourcemaps = require('gulp-sourcemaps')
 var streamqueue = require('streamqueue')
 var replace = require('gulp-replace')
 var sass = require('gulp-sass')
+var scsslint = require('gulp-scss-lint')
 var templateCache = require('gulp-angular-templatecache')
 var size = require('gulp-size')
 var bourbon = require('bourbon')
+var Comb = require('csscomb')
+var beautifyHtml = require('js-beautify').html
+var stripJsonComments = require('strip-json-comments')
+var htmlhint = require('gulp-htmlhint')
 
 var isDebug = false
 
-gulp.task('tag', ['lint', 'lint-scss'], function (cb) {
+gulp.task('tag', ['lint-all'], function (cb) {
   var version = require('./package').version
   var tag = 'v' + version
   util.log('Tagging as: ' + util.colors.cyan(tag))
@@ -145,6 +153,70 @@ gulp.task('base-css', function () {
     ), 'base-min.css')
 })
 
+gulp.task('lint-all', [
+  'lint',
+  'lint-scss',
+  'lint-scss-format',
+  'lint-html',
+  'lint-html-format'
+])
+
+gulp.task('lint-scss', function () {
+  return gulp.src(appCssSrc)
+    .pipe(scsslint())
+    .pipe(scsslint.failReporter())
+})
+
+gulp.task('lint-scss-format', function () {
+  var comb = new Comb()
+  comb.configure(require('./.csscomb.json'))
+  return gulp.src(appCssSrc)
+    .pipe(checkFormat('csscomb-lint', function (content) {
+      return comb.processString(content, {
+        syntax: 'scss'
+      })
+    }))
+})
+
+gulp.task('format-scss', function () {
+  var comb = new Comb()
+  comb.configure(require('./.csscomb.json'))
+  return gulp.src(appCssSrc)
+    .pipe(format('csscomb', function (content) {
+      return comb.processString(content, {
+        syntax: 'scss'
+      })
+    }))
+    .pipe(gulp.dest('src'))
+})
+
+var htmlSrc = ['src/**/*.html', 'public/**/*.html']
+
+gulp.task('lint-html', function () {
+  return gulp.src(htmlSrc)
+    .pipe(htmlhint('.htmlhintrc'))
+    .pipe(htmlhint.failReporter())
+})
+
+gulp.task('lint-html-format', function () {
+  var options = fs.readFileSync('.jsbeautifyrc', 'utf8')
+  options = JSON.parse(stripJsonComments(options))
+  return gulp.src(htmlSrc)
+    .pipe(checkFormat('js-beautify-lint', function (content) {
+      return beautifyHtml(content, options.html)
+    }))
+})
+
+gulp.task('format-html', function () {
+  var options = fs.readFileSync('.jsbeautifyrc', 'utf8')
+  options = JSON.parse(stripJsonComments(options))
+  return gulp.src('src/**/*.html')
+    .pipe(format('js-beautify', function (content) {
+      return beautifyHtml(content, options.html)
+    }))
+    .pipe(gulp.dest('src'))
+})
+
 gulp.task('connect', function () {
   process.env.NO_CLUSTER = true
   require('./')
@@ -194,19 +266,60 @@ function buildJs (srcStream, dest) {
 function buildCss (srcStream, dest) {
   if (isDebug) {
     srcStream = srcStream
+      .pipe(plumber())
       .pipe(sourcemaps.init())
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles')
-      }).on('error', sass.logError))
+      }))
       .pipe(concat(dest))
       .pipe(sourcemaps.write('.'))
   } else {
     srcStream = srcStream
+      .pipe(plumber())
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles'),
         outputStyle: 'compressed'
-      }).on('error', sass.logError))
+      }))
       .pipe(concat(dest))
   }
   return srcStream.pipe(gulp.dest('public'))
+}
+
+function checkFormat (pluginName, format) {
+  var errorCount = 0
+  return through2.obj(function (file, enc, cb) {
+    if (file.isNull()) {
+      return cb(null, file)
+    }
+
+    if (file.isStream()) {
+      cb(new util.PluginError(pluginName, 'Streaming not supported!'))
+    }
+
+    var content = String(file.contents)
+    if (content !== format(content)) {
+      var filename = path.relative(file.cwd, file.path)
+      util.log(util.colors.red(pluginName + ': ' + filename))
+      errorCount++
+    }
+    cb()
+  }, function (cb) {
+    var err = errorCount ? new util.PluginError(pluginName, util.colors.red(errorCount + ' file(s) not formatted with ' + pluginName)) : undefined
+    cb(err)
+  })
+}
+
+function format (pluginName, format) {
+  return through2.obj(function (file, enc, cb) {
+    if (file.isNull()) {
+      return cb(null, file)
+    }
+
+    if (file.isStream()) {
+      cb(new util.PluginError(pluginName, 'Streaming not supported!'))
+    }
+
+    file.contents = new Buffer(format(String(file.contents)))
+    cb(null, file)
+  })
 }

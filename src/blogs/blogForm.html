@@ -1,14 +1,19 @@
 <md-select placeholder="Platform" ng-model="form.platformId" ng-if="!blog" class="blog platform selector">
-    <md-option ng-repeat="platform in platforms" value="{{platform.id}}"><div layout="row" layout-align="start center"><div class="blog icon" ng-class="platform.id"></div><div>{{platform.name}}</div></div></md-option>
-<!--     <md-option><div layout="row" layout-align="start center"><span class="blog icon blogger"></span> Blogger</div></md-option>
+  <md-option ng-repeat="platform in platforms" value="{{platform.id}}">
+    <div layout="row" layout-align="start center">
+      <div class="blog icon" ng-class="platform.id"></div>
+      <div>{{platform.name}}</div>
+    </div>
+  </md-option>
+  <!--     <md-option><div layout="row" layout-align="start center"><span class="blog icon blogger"></span> Blogger</div></md-option>
     <md-option><div layout="row" layout-align="start center"><span class="blog icon dropbox"></span> Dropbox</div></md-option>
     <md-option><div layout="row" layout-align="start center"><span class="blog icon github"></span> GitHub</div></md-option>
     <md-option><div layout="row" layout-align="start center"><span class="blog icon tumblr"></span> Tumblr</div></md-option>
     <md-option><div layout="row" layout-align="start center"><span class="blog icon wordpress"></span> WordPress</div></md-option>
  --></md-select>
 <md-input-container>
-    <label>Friendly name</label>
-    <input autocomplete="off" ng-model="form.name">
+  <label>Friendly name</label>
+  <input autocomplete="off" ng-model="form.name">
 </md-input-container>
 <cl-blogger-blog-form ng-if="form.platformId === 'blogger'"></cl-blogger-blog-form>
 <cl-github-blog-form ng-if="form.platformId === 'github'"></cl-github-blog-form>
