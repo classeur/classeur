@@ -268,7 +268,7 @@ angular.module('classeur.core.explorerLayout', [])
 
       function link (scope, element) {
         var explorerInnerElt = element[0].querySelector('.explorer__inner-2')
-        var binderElt = element[0].querySelector('.binder').clanim.translateY(10).start(true)
+        var binderElt = element[0].querySelector('.binder')
         var navbarInnerElt = element[0].querySelector('.navbar__inner')
         var binderScrollerElt = element[0].querySelector('.binder__scroller')
         var folderElt = element[0].querySelector('.folder-view--main')

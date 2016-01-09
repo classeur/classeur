@@ -40,26 +40,25 @@ angular.module('classeur.core.editorLayout', [])
 
       function link (scope, element) {
         var elt = element[0]
-        elt.querySelector('.side-bar.panel').clanim.width(clEditorLayoutSvc.sideBarWidth).start()
-        var backgroundPanelElt = elt.querySelector('.background.panel')
-        var previewPanelElt = elt.querySelector('.preview.panel')
+        elt.querySelector('.sidebar').clanim.width(clEditorLayoutSvc.sideBarWidth).start()
+        var editorLayoutElt = elt.querySelector('.editor-layout')
+        var previewElt = elt.querySelector('.editor-layout__preview')
         var previewContainerElt = elt.querySelector('.preview.container')
-        var binderContainerElt = elt.querySelector('.binder.container.panel').clanim.top(-hideOffsetY).start()
-        var binderContentElt = elt.querySelector('.binder.content.panel').clanim.top(hideOffsetY).start()
-        var editorPanelElt = elt.querySelector('.editor.panel')
-        var pagePanelElt = elt.querySelector('.page.panel').clanim.left(clEditorLayoutSvc.pageMarginLeft).start()
+        var binderElt = elt.querySelector('.binder').clanim.top(-hideOffsetY).start()
+        var binderInner1Elt = elt.querySelector('.binder__inner-1').clanim.top(hideOffsetY).start()
+        var binderInner2Elt = elt.querySelector('.binder__inner-2')
+        var pageElt = elt.querySelector('.page').clanim.left(clEditorLayoutSvc.pageMarginLeft).start()
         var editorContainerElt = elt.querySelector('.editor.container')
         var editorContentElt = elt.querySelector('.editor.content')
-        elt.querySelector('.menu.scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start()
-        elt.querySelector('.menu.content').clanim.width(clEditorLayoutSvc.menuWidth).start()
-        elt.querySelector('.editor .side-column.panel').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
-        var cornerFoldingElt = elt.querySelector('.corner.folding.panel')
-        elt.querySelector('.corner.folding .shadow.panel').clanim.rotate(-45).start()
-        var headerPanelElt = elt.querySelector('.header.panel')
-        clEditorLayoutSvc.headerPanelElt = headerPanelElt
-        var headerBtnGrpElt = headerPanelElt.querySelector('.btn-grp.panel')
-        var closeButtonElt = headerPanelElt.querySelector('.close.btn')
-        var scrollButtonElt = headerPanelElt.querySelector('.scroll.btn')
+        elt.querySelector('.menu__scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start()
+        elt.querySelector('.menu__inner').clanim.width(clEditorLayoutSvc.menuWidth).start()
+        elt.querySelector('.right-margin').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
+        var cornerFoldElt = elt.querySelector('.corner-fold__inner')
+        elt.querySelector('.corner-fold__shadow').clanim.rotate(-45).start()
+        var navbarElt = clEditorLayoutSvc.navbarElt = elt.querySelector('.navbar')
+        var animatedBtnElt = elt.querySelector('.navbar__animated-btn')
+        var closeBtnElt = elt.querySelector('.navbar__btn--close')
+        var scrollBtnElt = elt.querySelector('.navbar__btn--scroll')
 
         editorContainerElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px'
         editorContainerElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px'
@@ -114,18 +113,18 @@ angular.module('classeur.core.editorLayout', [])
             clLocalSettingSvc.values.sideBar = false
           }
 
-          clEditorLayoutSvc.backgroundX = clLocalSettingSvc.values.sideBar ? -clEditorLayoutSvc.sideBarWidth : 0
+          clEditorLayoutSvc.editorLayoutX = clLocalSettingSvc.values.sideBar ? -clEditorLayoutSvc.sideBarWidth : 0
           clEditorLayoutSvc.binderWidth = clEditorLayoutSvc.pageWidth - clEditorLayoutSvc.editorBtnGrpWidth
           clEditorLayoutSvc.binderX = bgWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight
           clEditorLayoutSvc.binderX += clLocalSettingSvc.values.sideBar ? clEditorLayoutSvc.sideBarWidth : 0
-          clEditorLayoutSvc.binderY = clEditorLayoutSvc.isEditorOpen ? 0 : hideOffsetY
-          clEditorLayoutSvc.headerY = clEditorLayoutSvc.isEditorOpen ? -hideOffsetY : 0
+          clEditorLayoutSvc.binderInnerX = clEditorLayoutSvc.isMenuOpen ? 8 : 0
+          clEditorLayoutSvc.binderInnerY = clEditorLayoutSvc.isEditorOpen ? 0 : hideOffsetY
+          clEditorLayoutSvc.navbarY = clEditorLayoutSvc.isEditorOpen ? -hideOffsetY : 0
           clEditorLayoutSvc.binderMargin = marginRight
           clEditorLayoutSvc.previewWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust + 2000
           clEditorLayoutSvc.previewHeaderWidth = clEditorLayoutSvc.pageWidth - previewSizeAdjust - 20
           clEditorLayoutSvc.previewX = clEditorLayoutSvc.binderX
           clEditorLayoutSvc.previewX += clEditorLayoutSvc.isSidePreviewOpen ? clEditorLayoutSvc.pageWidth - previewSizeAdjust / 2 : 20
-          clEditorLayoutSvc.editorX = clEditorLayoutSvc.isMenuOpen ? 5 : 0
           clEditorLayoutSvc.pageX = clEditorLayoutSvc.isMenuOpen ? -clEditorLayoutSvc.menuWidth : 0
           clEditorLayoutSvc.pageY = clEditorLayoutSvc.isMenuOpen ? -50 : 0
           clEditorLayoutSvc.pageRotate = clEditorLayoutSvc.isMenuOpen ? -2 : 0
@@ -169,23 +168,23 @@ angular.module('classeur.core.editorLayout', [])
 
           clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px'
           clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em'
-          binderContainerElt.clanim
+          binderElt.clanim
             .width(clEditorLayoutSvc.binderWidth)
             .left(-clEditorLayoutSvc.binderWidth / 2)
             .start()
-          previewPanelElt.clanim
+          previewElt.clanim
             .width(clEditorLayoutSvc.previewWidth)
             .left(-clEditorLayoutSvc.previewWidth / 2)
             .start()
-          var pagePanelWidth = clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight
-          pagePanelElt.clanim
-            .width(pagePanelWidth)
+          var pageWidth = clEditorLayoutSvc.binderWidth - clEditorLayoutSvc.pageMarginLeft - clEditorLayoutSvc.pageMarginRight
+          pageElt.clanim
+            .width(pageWidth)
             .start()
           editorContainerElt.clanim
-            .width(pagePanelWidth + clEditorLayoutSvc.editorLeftOverflow)
+            .width(pageWidth + clEditorLayoutSvc.editorLeftOverflow)
             .start()
           hidePreview()
-          clEditorSvc.previewElt.style.paddingTop = headerPanelElt.offsetHeight + 'px'
+          clEditorSvc.previewElt.style.paddingTop = navbarElt.offsetHeight + 'px'
 
           if (scrollSectionDesc) {
             setTimeout(function () {
@@ -199,17 +198,17 @@ angular.module('classeur.core.editorLayout', [])
         function animateLayout () {
           showPreview()
           updateLayout()
-          backgroundPanelElt.clanim
-            .translateX(clEditorLayoutSvc.backgroundX)
+          editorLayoutElt.clanim
+            .translateX(clEditorLayoutSvc.editorLayoutX)
             .duration(isInited && 300)
             .easing('materialOut')
             .start()
-          binderContainerElt.clanim
+          binderElt.clanim
             .translateX(clEditorLayoutSvc.binderX)
             .duration(isInited && 300)
             .easing('materialOut')
             .start()
-          previewPanelElt.clanim
+          previewElt.clanim
             .translateX(clEditorLayoutSvc.previewX)
             .duration(isInited && 300)
             .easing('materialOut')
@@ -227,13 +226,13 @@ angular.module('classeur.core.editorLayout', [])
         function animateEditor () {
           showPreview()
           updateLayout()
-          headerPanelElt.clanim
-            .translateY(clEditorLayoutSvc.headerY)
+          navbarElt.clanim
+            .translateY(clEditorLayoutSvc.navbarY)
             .duration(isInited && 300)
             .easing(clEditorLayoutSvc.isEditorOpen ? 'materialIn' : 'materialOut')
             .start(true)
-          binderContentElt.clanim
-            .translateY(clEditorLayoutSvc.binderY)
+          binderInner1Elt.clanim
+            .translateY(clEditorLayoutSvc.binderInnerY)
             .duration(isInited && 300)
             .easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
             .start(true)
@@ -247,15 +246,15 @@ angular.module('classeur.core.editorLayout', [])
 
         function animateMenu () {
           updateLayout()
-          pagePanelElt.clanim
+          pageElt.clanim
             .translateX(clEditorLayoutSvc.pageX)
             .translateY(clEditorLayoutSvc.pageY)
             .rotate(clEditorLayoutSvc.pageRotate)
             .duration(200)
             .easing('materialOut')
             .start(true)
-          editorPanelElt.clanim
-            .translateX(clEditorLayoutSvc.editorX)
+          binderInner2Elt.clanim
+            .translateX(clEditorLayoutSvc.binderInnerX)
             .duration(isInited && 200)
             .easing('materialOut')
             .start(true)
@@ -265,7 +264,7 @@ angular.module('classeur.core.editorLayout', [])
           if (!clEditorLayoutSvc.isCornerFoldingOpen) {
             clEditorLayoutSvc.isCornerFoldingVisible = false
           }
-          cornerFoldingElt.clanim
+          cornerFoldElt.clanim
             .duration(isInited && 200)
             .scale(clEditorLayoutSvc.isCornerFoldingOpen ? 2.5 : 1)
             .start(function () {
@@ -277,17 +276,17 @@ angular.module('classeur.core.editorLayout', [])
         }
 
         function animatePreviewButtons (isPreviewTop) {
-          headerBtnGrpElt.clanim
+          animatedBtnElt.clanim
             .duration(isInited && 200)
             .rotate(isPreviewTop ? 0 : 90)
             .start(true)
-          closeButtonElt.clanim
+          closeBtnElt.clanim
             .zIndex(isPreviewTop ? 0 : -1)
             .opacity(isPreviewTop ? 1 : 0)
             .duration(isInited && 200)
             .easing('materialOut')
             .start(true)
-          scrollButtonElt.clanim
+          scrollBtnElt.clanim
             .zIndex(isPreviewTop ? -1 : 0)
             .opacity(isPreviewTop ? 0 : 1)
             .duration(isInited && 200)
@@ -397,7 +396,7 @@ angular.module('classeur.core.editorLayout', [])
         toggleStat: function (isOpen) {
           clLocalSettingSvc.values.stat = isOpen === undefined ? !clLocalSettingSvc.values.stat : isOpen
         },
-        toggleCornerFolding: function (isOpen) {
+        toggleCornerFold: function (isOpen) {
           this.isCornerFoldingOpen = isOpen === undefined ? !this.isCornerFoldingOpen : isOpen
         },
         clean: function () {

@@ -89,8 +89,8 @@ angular.module('classeur.optional.zenMode', [])
 
         level1Elt.clanim.opacity(0).start()
         hidePanel()
-        var containerElt = document.querySelector('.background.panel')
-        containerElt.addEventListener('keydown', function (evt) {
+        var editorLayoutElt = document.querySelector('.editor-layout')
+        editorLayoutElt.addEventListener('keydown', function (evt) {
           if (evt.altKey || evt.ctrlKey || evt.metaKey) {
             return
           }
@@ -98,13 +98,13 @@ angular.module('classeur.optional.zenMode', [])
           showLevel1()
           showLevel2()
         })
-        containerElt.addEventListener('mousemove', hidePanel)
-        containerElt.addEventListener('click', hidePanel)
+        editorLayoutElt.addEventListener('mousemove', hidePanel)
+        editorLayoutElt.addEventListener('click', hidePanel)
 
         scope.$watch('editorLayoutSvc.isEditorOpen', hidePanel.cl_bind(null, null))
         scope.$on('$destroy', function () {
-          containerElt.removeEventListener('mousemove', hidePanel)
-          containerElt.removeEventListener('click', hidePanel)
+          editorLayoutElt.removeEventListener('mousemove', hidePanel)
+          editorLayoutElt.removeEventListener('click', hidePanel)
         })
       }
     })

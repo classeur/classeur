@@ -53,7 +53,7 @@ textarea:not([disabled]) {
 }
 
 .panel,
-.app__panel {
+.cl-panel {
   height: 100%;
   position: absolute;
   width: 100%;
@@ -69,12 +69,8 @@ textarea:not([disabled]) {
 }
 
 .background,
-.app__background {
+.cl-background {
   background-color: $background-color;
-}
-
-.paper {
-  background-color: #fff;
 }
 
 // scss-lint:disable ImportantRule
@@ -102,11 +98,6 @@ textarea:not([disabled]) {
   background-color: mix(desaturate($plastic-color-5, 12.5%), $background-color, 55%) !important;
 }
 // scss-lint:enable ImportantRule
-
-.hole {
-  border-radius: 10px;
-  box-shadow: inset 0 2px 5px 0 rgba(0, 0, 0, .26);
-}
 
 .postit {
   @include transform(rotate(-1deg));
@@ -164,7 +155,7 @@ textarea:not([disabled]) {
 }
 
 .light-header,
-.app__light-header {
+.cl-light-header {
   color: rgba(0, 0, 0, .6);
 
   [class^='icon-'],

@@ -101,12 +101,6 @@ Markdown converts text to HTML.
 *[HTML]: HyperText Markup Language
 
 
-Table of contents
-----------------------------
-
-[TOC]
-
-
 LaTeX math
 ----------------------------
 

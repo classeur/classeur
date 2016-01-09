@@ -5,7 +5,6 @@ var gulp = clgulp(require('gulp'))
 var exec = clgulp.exec
 var util = clgulp.util
 var through2 = require('through2')
-var plumber = require('gulp-plumber')
 var watch = require('gulp-watch')
 var concat = require('gulp-concat')
 var ngAnnotate = require('gulp-ng-annotate')
@@ -167,26 +166,24 @@ gulp.task('lint-scss', function () {
     .pipe(scsslint.failReporter())
 })
 
-gulp.task('lint-scss-format', function () {
+function csscombFormatter () {
   var comb = new Comb()
   comb.configure(require('./.csscomb.json'))
+  return function (content) {
+    return comb.processString(content, {
+      syntax: 'scss'
+    })
+  }
+}
+
+gulp.task('lint-scss-format', function () {
   return gulp.src(appCssSrc)
-    .pipe(checkFormat('csscomb-lint', function (content) {
-      return comb.processString(content, {
-        syntax: 'scss'
-      })
-    }))
+    .pipe(checkFormat('csscomb-lint', csscombFormatter()))
 })
 
 gulp.task('format-scss', function () {
-  var comb = new Comb()
-  comb.configure(require('./.csscomb.json'))
   return gulp.src(appCssSrc)
-    .pipe(format('csscomb', function (content) {
-      return comb.processString(content, {
-        syntax: 'scss'
-      })
-    }))
+    .pipe(format('csscomb', csscombFormatter()))
     .pipe(gulp.dest('src'))
 })
 
@@ -198,22 +195,22 @@ gulp.task('lint-html', function () {
     .pipe(htmlhint.failReporter())
 })
 
-gulp.task('lint-html-format', function () {
+function jsbeautifyHtmlFormatter () {
   var options = fs.readFileSync('.jsbeautifyrc', 'utf8')
   options = JSON.parse(stripJsonComments(options))
+  return function (content) {
+    return beautifyHtml(content, options.html)
+  }
+}
+
+gulp.task('lint-html-format', function () {
   return gulp.src(htmlSrc)
-    .pipe(checkFormat('js-beautify-lint', function (content) {
-      return beautifyHtml(content, options.html)
-    }))
+    .pipe(checkFormat('js-beautify-lint', jsbeautifyHtmlFormatter()))
 })
 
 gulp.task('format-html', function () {
-  var options = fs.readFileSync('.jsbeautifyrc', 'utf8')
-  options = JSON.parse(stripJsonComments(options))
   return gulp.src('src/**/*.html')
-    .pipe(format('js-beautify', function (content) {
-      return beautifyHtml(content, options.html)
-    }))
+    .pipe(format('js-beautify', jsbeautifyHtmlFormatter()))
     .pipe(gulp.dest('src'))
 })
 
@@ -266,7 +263,6 @@ function buildJs (srcStream, dest) {
 function buildCss (srcStream, dest) {
   if (isDebug) {
     srcStream = srcStream
-      .pipe(plumber())
       .pipe(sourcemaps.init())
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles')
@@ -275,7 +271,6 @@ function buildCss (srcStream, dest) {
       .pipe(sourcemaps.write('.'))
   } else {
     srcStream = srcStream
-      .pipe(plumber())
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles'),
         outputStyle: 'compressed'

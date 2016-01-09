@@ -1,9 +1,9 @@
-<div class="side-bar panel" layout="column">
-  <div class="side-bar header light-header" layout="row" layout-align="space-between center">
+<div class="sidebar cl-panel" layout="column">
+  <div class="sidebar__header cl-light-header" layout="row" layout-align="space-between center">
     <div class="title">
       {{tabTitles[selectedTabIndex]}}
     </div>
-    <md-button md-no-ink class="close-side-bar btn icon-clear" ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar">
+    <md-button class="sidebar__close-btn icon-clear" md-no-ink ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar">
     </md-button>
   </div>
   <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
@@ -41,27 +41,27 @@
     </md-tab>
   </md-tabs>
 </div>
-<div class="background panel md-whiteframe-z4">
-  <div class="panel no-overflow">
-    <div class="preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
-      <div class="frame container panel">
-        <div class="frame content panel">
+<div class="editor-layout cl-background cl-panel md-whiteframe-z4">
+  <div class="editor-layout__inner-1 cl-panel cl-no-overflow">
+    <div class="editor-layout__preview cl-panel" ng-click="editorLayoutSvc.currentControl = undefined">
+      <div class="frame cl-panel">
+        <div class="frame-inner cl-panel">
         </div>
       </div>
       <cl-preview></cl-preview>
-      <div class="header panel light-header md-whiteframe-1dp">
-        <div class="content">
+      <div class="navbar cl-panel cl-light-header md-whiteframe-1dp">
+        <div class="navbar__inner">
           {{currentFileDao.name}}
-          <div class="inline-btns">
+          <div class="navbar__btns">
             <div layout="row" layout-align="end">
-              <md-button md-no-ink class="sharing btn icon-share" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share">
+              <md-button class="navbar__btn navbar__btn--sharing icon-share" md-no-ink ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share">
               </md-button>
-              <md-button md-no-ink class="edit btn icon-mode-edit" ng-click="openEditor()" aria-label="Edit" title="Edit">
+              <md-button class="navbar__btn navbar__btn--edit icon-mode-edit" md-no-ink ng-click="openEditor()" aria-label="Edit" title="Edit">
               </md-button>
-              <div class="btn-grp panel">
-                <md-button md-no-ink class="close btn icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file">
+              <div class="navbar__animated-btn">
+                <md-button class="navbar__btn navbar__btn--close icon-clear" md-no-ink ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file">
                 </md-button>
-                <md-button md-no-ink class="scroll btn icon-arrow-back" ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
+                <md-button class="navbar__btn navbar__btn--scroll icon-arrow-back" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
                 </md-button>
               </div>
             </div>
@@ -70,43 +70,43 @@
       </div>
     </div>
   </div>
-  <div class="binder container panel">
-    <div class="binder content panel">
-      <div class="editor panel md-whiteframe-z2" ng-class="plasticClass">
-        <div class="panel no-overflow">
-          <div class="menu scroller panel">
-            <div class="menu content panel">
+  <div class="binder cl-panel">
+    <div class="binder__inner-1 cl-panel">
+      <div class="binder__inner-2 cl-panel md-whiteframe-z2" ng-class="plasticClass">
+        <div class="menu cl-no-overflow">
+          <div class="menu__scroller cl-panel">
+            <div class="menu__inner cl-panel">
               <cl-file-name></cl-file-name>
-              <div class="links">
-                <a layout="row" layout-align="end end" ng-click="editFileProperties()">
-                  <span class="name">Properties</span>
-                  <span class="icon-view-list"></span>
+              <div class="menu__links">
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="editFileProperties()">
+                  <span class="menu__link-text">Properties</span>
+                  <span class="menu__link-icon icon-view-list"></span>
                 </a>
-                <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">
-                  <span class="name">Sharing</span>
-                  <span class="icon-share"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'sharingDialog'">
+                  <span class="menu__link-text">Sharing</span>
+                  <span class="menu__link-icon icon-share"></span>
                 </a>
-                <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'">
-                  <span class="name">Post to blog</span>
-                  <span class="icon-cloud"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'">
+                  <span class="menu__link-text">Post to blog</span>
+                  <span class="menu__link-icon icon-cloud"></span>
                 </a>
-                <a layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">
-                  <span class="name">Export</span>
-                  <span class="icon-file-download"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">
+                  <span class="menu__link-text">Export</span>
+                  <span class="menu__link-icon icon-file-download"></span>
                 </a>
-                <a layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()">
-                  <span class="name">Make a copy</span>
-                  <span class="icon-content-copy"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()">
+                  <span class="menu__link-text">Make a copy</span>
+                  <span class="menu__link-icon icon-content-copy"></span>
                 </a>
-                <a layout="row" layout-align="end end" ng-href="#!/settings">
-                  <span class="name">Settings</span>
-                  <span class="icon-settings"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-href="#!/settings">
+                  <span class="menu__link-text">Settings</span>
+                  <span class="menu__link-icon icon-settings"></span>
                 </a>
               </div>
-              <div class="entry">Zoom</div>
+              <div class="menu__entry">Zoom</div>
               <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
               </md-slider>
-              <div class="entry">Binder color</div>
+              <div class="menu__entry">Binder color</div>
               <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
               </md-slider>
               <cl-button-bar-settings></cl-button-bar-settings>
@@ -121,13 +121,13 @@
             </div>
           </div>
         </div>
-        <div class="side-column panel">
-          <div class="btn-grp" layout="column">
-            <md-button md-no-ink class="close btn icon-clear" ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor" title="Close editor">
+        <div class="right-margin cl-panel">
+          <div class="right-margin__btns" layout="column">
+            <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor" title="Close editor">
             </md-button>
-            <md-button md-no-ink class="minimize btn icon-remove" ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
+            <md-button class="right-margin__btn right-margin__btn--minimize icon-remove" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
             </md-button>
-            <md-button md-no-ink class="preview btn icon-filter-none" ng-click="toggleSidePreview()" cl-editor-tour-next="2" aria-label="Side preview" title="Side preview">
+            <md-button class="right-margin__btn right-margin__btn--preview icon-filter-none" md-no-ink ng-click="toggleSidePreview()" cl-editor-tour-next="2" aria-label="Side preview" title="Side preview">
               <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.editorTourStep === 1">
                 <p>Classeur supports Markdown syntax.</p>
                 <p>Click
@@ -139,22 +139,22 @@
               </md-tooltip>
             </md-button>
           </div>
-          <div class="menu btn panel" ng-class="plasticClass">
-            <md-button md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
-              <div class="cl-rotate-90">
+          <div class="menu-btn cl-panel" ng-class="plasticClass">
+            <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
+              <div class="menu-btn__inner cl-rotate-90">
                 Menu
               </div>
             </md-button>
           </div>
         </div>
-        <div class="page panel">
+        <div class="page cl-panel">
           <cl-update-blog-posts-button></cl-update-blog-posts-button>
           <cl-offline-indicator></cl-offline-indicator>
-          <div class="panel paper md-whiteframe-z1">
-            <div class="hole panel first" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-            <div class="hole panel second" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+          <div class="page__inner cl-panel md-whiteframe-z1">
+            <div class="page__hole page__hole--top cl-panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+            <div class="page__hole page__hole--bottom cl-panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
             <cl-zen-mode></cl-zen-mode>
-            <div class="margin panel"></div>
+            <div class="page__margin cl-panel"></div>
             <cl-editor></cl-editor>
           </div>
         </div>
@@ -164,14 +164,14 @@
   </div>
   <cl-stat></cl-stat>
   <cl-find-replace></cl-find-replace>
-  <div ng-mouseenter="editorLayoutSvc.toggleCornerFolding(true)" ng-mouseleave="editorLayoutSvc.toggleCornerFolding(false)">
-    <div class="corner folding panel md-whiteframe-z4 no-overflow">
-      <div class="shadow panel"></div>
+  <div class="corner-fold" ng-mouseenter="editorLayoutSvc.toggleCornerFold(true)" ng-mouseleave="editorLayoutSvc.toggleCornerFold(false)">
+    <div class="corner-fold__inner cl-panel cl-no-overflow md-whiteframe-z4">
+      <div class="corner-fold__shadow cl-panel"></div>
     </div>
     <div ng-if="editorLayoutSvc.isCornerFoldingVisible">
-      <md-button md-no-ink class="corner folding btn icon-call-made" ng-click="editorLayoutSvc.toggleSideBar()" aria-label="Toggle side bar" title="Toggle side bar">
+      <md-button class="corner-fold__btn corner-fold__btn--left icon-call-received" md-no-ink ng-click="editorLayoutSvc.toggleStat()" aria-label="Toggle stats" title="Toggle stats">
       </md-button>
-      <md-button md-no-ink class="corner folding btn icon-call-received" ng-click="editorLayoutSvc.toggleStat()" aria-label="Toggle stats" title="Toggle stats">
+      <md-button class="corner-fold__btn corner-fold__btn--right icon-call-made" md-no-ink ng-click="editorLayoutSvc.toggleSideBar()" aria-label="Toggle side bar" title="Toggle side bar">
       </md-button>
     </div>
   </div>

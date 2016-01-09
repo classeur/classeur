@@ -1,26 +1,28 @@
 @import 'variables';
 
 .cledit-section {
-    &::before {
-        position: absolute;
-        display: none;
-        font-family: icomoon;
-        font-style: normal;
-        font-weight: normal;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-        content: "\e715";
-        font-size: 14px;
-        left: ($editor-margin-width + 1000 - 20);
-        color: transparentize(#000, 0.75);
-        cursor: pointer;
-    }
+  &::before {
+    color: transparentize(#000, .75);
+    content: '\e715';
+    cursor: pointer;
+    display: none;
+    font-family: icomoon;
+    font-size: 13px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    left: ($editor-margin-width + 1000 - 20);
+    line-height: 1;
+    position: absolute;
+    text-transform: none;
+  }
 }
+
 .cledit-section.folding-hover::before {
-    display: block;
+  display: block;
 }
+
 .cledit-section.folded::before {
-    display: block;
-	content: "\e6ff";
+  content: '\e6ff';
+  display: block;
 }

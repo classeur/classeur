@@ -982,7 +982,7 @@ angular.module('classeur.core.editor', [])
         var sectionDesc = anchorHash[anchor]
         if (sectionDesc) {
           if (clEditorLayoutSvc.isPreviewVisible) {
-            scrollTop = sectionDesc.previewDimension.startOffset - clEditorLayoutSvc.headerPanelElt.offsetHeight
+            scrollTop = sectionDesc.previewDimension.startOffset - clEditorLayoutSvc.navbarElt.offsetHeight
           } else {
             scrollTop = sectionDesc.editorDimension.startOffset - clEditorSvc.scrollOffset
             scrollerElt = clEditorSvc.editorElt.parentNode
@@ -990,7 +990,7 @@ angular.module('classeur.core.editor', [])
         } else {
           var elt = document.getElementById(anchor)
           if (elt) {
-            scrollTop = elt.offsetTop - clEditorLayoutSvc.headerPanelElt.offsetHeight
+            scrollTop = elt.offsetTop - clEditorLayoutSvc.navbarElt.offsetHeight
           }
         }
         scrollerElt.clanim.scrollTop(scrollTop > 0 ? scrollTop : 0).duration(360).easing('materialOut').start()

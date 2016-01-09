@@ -39,7 +39,7 @@ angular.module('classeur.optional.stat', [])
             width -= clEditorLayoutSvc.sideBarWidth
           }
           statPanelElt.clanim
-            .translateX(-clEditorLayoutSvc.backgroundX)
+            .translateX(-clEditorLayoutSvc.editorLayoutX)
             .translateY(clLocalSettingSvc.values.stat ? 0 : 30)
             .width(width)
             .duration(duration)

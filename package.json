@@ -6,7 +6,7 @@
   "scripts": {
     "install": "gulp",
     "start": "gulp start",
-    "test": "gulp default lint lint-scss"
+    "test": "gulp default lint"
   },
   "author": "Benoit Schweblin",
   "license": "Apache-2.0",
