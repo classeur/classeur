@@ -50,7 +50,7 @@ if (!window.Worker || !window.MutationObserver || !window.crypto) {
     'classeur.optional.recentAlert',
     'classeur.optional.urlDialog',
     'classeur.optional.scrollSync',
-    'classeur.optional.settingPage',
+    'classeur.optional.settingsPage',
     'classeur.optional.sharingDialog',
     'classeur.optional.spinner',
     'classeur.optional.stat',

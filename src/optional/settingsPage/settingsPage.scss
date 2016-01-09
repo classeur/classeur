@@ -1,0 +1,139 @@
+@import 'variables';
+
+.settings-page {
+  .navbar__inner {
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .settings-page__inner-1 {
+    height: 100%;
+    margin: auto;
+    max-width: 560px;
+    padding: 33px 5px 0;
+  }
+
+  .settings-page__inner-2 {
+    border-radius: 3px;
+    padding: 20px 15px;
+  }
+
+  md-tabs {
+    background-color: rgba(255, 255, 255, .25);
+    border-radius: 4px;
+  }
+
+  .settings-page__tab {
+    margin: 40px 20px 80px;
+  }
+
+  .settings-page__entry {
+    width: 100%;
+  }
+
+  .settings-page__entry--small {
+    max-width: 220px;
+  }
+
+  .settings-page__entry--large {
+    max-width: 340px;
+  }
+
+  .settings-page__entry-label {
+    color: rgba(0, 0, 0, .54);
+    display: block;
+    font-size: 12.5px;
+    padding: 2px;
+  }
+
+  .settings-page__entry-btn {
+    color: rgba(0, 0, 0, .67);
+    font-size: 22px;
+  }
+
+  .file-entry {
+    line-height: 40px;
+  }
+
+  .file-entry__inner {
+    margin: 0;
+    width: 100%;
+
+    .md-errors-spacer {
+      display: none;
+    }
+  }
+
+  .file-entry__input {
+    font-size: 18px;
+    font-weight: 300;
+
+    &[disabled] {
+      color: $text-color;
+    }
+  }
+
+  .file-entry__button {
+    color: rgba(0, 0, 0, .67);
+    font-size: 28px;
+    padding: 6px 3px;
+  }
+
+  md-progress-circular {
+    left: 50%;
+    margin-left: -25px;
+    position: relative;
+    top: 40px;
+  }
+
+  md-select,
+  md-slider {
+    max-width: 250px;
+  }
+
+  md-select {
+    margin-top: 0;
+  }
+
+  .footer {
+    padding: 0 5px;
+  }
+
+  .footer__button {
+    color: rgba(0, 0, 0, .75);
+    padding: 10px;
+  }
+
+  .footer__icon {
+    font-size: 23px;
+    line-height: 16px;
+    padding: 10px 0;
+    text-align: center;
+    width: 35px;
+  }
+}
+
+.blog-dialog {
+  min-width: 340px;
+
+  md-input-container {
+    padding-bottom: 8px;
+  }
+}
+
+.handlebars-dialog {
+  min-width: 360px;
+
+  .prism--editor {
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .12);
+    min-height: 120px;
+    overflow: auto;
+    width: 100%;
+    word-wrap: normal;
+  }
+}
+
+.handlebars-dialog__example {
+  padding-left: 30px;
+}

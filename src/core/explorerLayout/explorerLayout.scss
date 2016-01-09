@@ -6,46 +6,8 @@
     padding: 0;
   }
 
-  .navbar {
-    background-color: #fff;
-    height: auto;
-    z-index: 1;
-  }
-
-  .navbar__item {
-    display: inline-block;
-    height: 34px;
-    line-height: 34px;
-    overflow: hidden;
-    padding: 0 10px;
-    position: relative;
-    white-space: nowrap;
-  }
-
-  .navbar__icon {
-    font-size: 23px;
-    padding: 0 6px;
-  }
-
-  .navbar__logo {
-    background-image: url('assets/images/logo.png');
-    background-position-y: -14px;
-    background-repeat: no-repeat;
-    background-size: 180px 60px;
-    height: 34px;
-    width: 50px;
-  }
-
   .navbar__inner--no-padding .navbar__logo {
     display: none;
-  }
-
-  .navbar__classeur-name {
-    color: rgba(0, 0, 0, .75);
-    font-size: 30px;
-    letter-spacing: -.03em;
-    padding: 0 5px;
-    white-space: nowrap;
   }
 
   .navbar__classeur-toggler div {
@@ -123,6 +85,11 @@
 .folder-name__input-container {
   letter-spacing: -.01em;
   width: 100%;
+}
+
+.folder-name__menu-btn {
+  height: 42px;
+  width: 38px;
 }
 
 .file-actions__grp-1 {
@@ -229,9 +196,7 @@
   color: #fff;
   display: block;
   font-size: 30px;
-  height: 42px;
   padding: 0;
-  width: 35px;
 }
 
 $public-corner-size: 64px;

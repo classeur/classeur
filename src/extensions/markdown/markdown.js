@@ -257,7 +257,7 @@ angular.module('classeur.extensions.markdown', [])
         })
 
         clEditorSvc.onAsyncPreview(function (cb) {
-          clEditorSvc.previewElt.querySelectorAll('pre > code.prism').cl_each(function (elt) {
+          clEditorSvc.previewElt.querySelectorAll('.prism').cl_each(function (elt) {
             !elt.highlighted && $window.Prism.highlightElement(elt)
             elt.highlighted = true
           })

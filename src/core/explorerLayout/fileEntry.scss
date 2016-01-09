@@ -6,12 +6,6 @@ $file-entry-height: 40px;
     line-height: $file-entry-height;
     position: relative;
     z-index: 1;
-
-    .cl-menu-btn {
-      color: rgba(0, 0, 0, .55);
-      font-size: 26px;
-      height: $file-entry-height;
-    }
   }
 
   .file-entry__drag-space {
@@ -56,6 +50,7 @@ $file-entry-height: 40px;
   .file-entry__name-input {
     font-size: 18px;
     line-height: 1;
+
     &[disabled] {
       background-image: none;
       border-bottom-color: rgba(0, 0, 0, .066);
@@ -63,5 +58,13 @@ $file-entry-height: 40px;
       cursor: pointer;
       pointer-events: none;
     }
+  }
+
+  .file-entry__menu-btn {
+    color: rgba(0, 0, 0, .55);
+    font-size: 26px;
+    height: $file-entry-height - 2;
+    margin: 1px 0;
+    width: 36px;
   }
 }

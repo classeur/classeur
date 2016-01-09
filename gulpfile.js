@@ -266,7 +266,7 @@ function buildCss (srcStream, dest) {
       .pipe(sourcemaps.init())
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles')
-      }))
+      }).on('error', sass.logError))
       .pipe(concat(dest))
       .pipe(sourcemaps.write('.'))
   } else {
@@ -274,7 +274,7 @@ function buildCss (srcStream, dest) {
       .pipe(sass({
         includePaths: bourbon.includePaths.concat('src/styles'),
         outputStyle: 'compressed'
-      }))
+      }).on('error', sass.logError))
       .pipe(concat(dest))
   }
   return srcStream.pipe(gulp.dest('public'))

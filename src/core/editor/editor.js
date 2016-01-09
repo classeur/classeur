@@ -8,11 +8,11 @@ angular.module('classeur.core.editor', [])
       }
 
       function link (scope, element) {
-        var containerElt = element[0].querySelector('.editor.container')
-        var editorElt = element[0].querySelector('.editor.content')
+        var editorElt = element[0].querySelector('.editor')
+        var editorInnerElt = element[0].querySelector('.editor__inner')
         clEditorSvc.setCurrentFileDao(scope.currentFileDao)
         clEditorSvc.initConverter()
-        clEditorSvc.setEditorElt(editorElt)
+        clEditorSvc.setEditorElt(editorInnerElt)
         clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function (callback) {
           clEditorSvc.linkDialogCallback = callback
           clEditorLayoutSvc.currentControl = 'linkDialog'
@@ -39,10 +39,10 @@ angular.module('classeur.core.editor', [])
           scope.currentFileDao.contentDao.state = {
             selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
             selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
-            scrollTop: containerElt.scrollTop
+            scrollTop: editorElt.scrollTop
           }
         }
-        containerElt.addEventListener('scroll', saveState)
+        editorElt.addEventListener('scroll', saveState)
 
         var newSectionList, newSelectionRange
         var debouncedEditorChanged = $window.cledit.Utils.debounce(function () {
@@ -98,7 +98,7 @@ angular.module('classeur.core.editor', [])
           if (entries) {
             var imgElt
             return entries.cl_some(function (entry) {
-              if (!editorElt.contains(entry)) {
+              if (!editorInnerElt.contains(entry)) {
                 imgElt = entry
                 return true
               }
@@ -109,7 +109,7 @@ angular.module('classeur.core.editor', [])
         var triggerImgCacheGc = $window.cledit.Utils.debounce(function () {
           Object.keys(imgCache).cl_each(function (src) {
             var entries = imgCache[src].filter(function (imgElt) {
-              return editorElt.contains(imgElt)
+              return editorInnerElt.contains(imgElt)
             })
             if (entries.length) {
               imgCache[src] = entries
@@ -219,19 +219,19 @@ angular.module('classeur.core.editor', [])
       }
 
       function link (scope, element) {
-        clEditorSvc.setPreviewElt(element[0].querySelector('.preview.content'))
-        var containerElt = element[0].querySelector('.preview.container')
-        clEditorSvc.isPreviewTop = containerElt.scrollTop < 10
-        containerElt.addEventListener('scroll', function () {
-          var isPreviewTop = containerElt.scrollTop < 10
+        clEditorSvc.setPreviewElt(element[0].querySelector('.preview__inner'))
+        var previewElt = element[0].querySelector('.preview')
+        clEditorSvc.isPreviewTop = previewElt.scrollTop < 10
+        previewElt.addEventListener('scroll', function () {
+          var isPreviewTop = previewElt.scrollTop < 10
           if (isPreviewTop !== clEditorSvc.isPreviewTop) {
             clEditorSvc.isPreviewTop = isPreviewTop
             scope.$apply()
           }
         })
-        containerElt.addEventListener('click', function (evt) {
+        previewElt.addEventListener('click', function (evt) {
           var elt = evt.target
-          while (elt !== containerElt) {
+          while (elt !== previewElt) {
             if (elt.href) {
               if (elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
                 evt.preventDefault()
@@ -248,12 +248,12 @@ angular.module('classeur.core.editor', [])
     function (clEditorSvc) {
       return {
         restrict: 'E',
-        template: '<div class="toc content no-select"></div>',
+        template: '<div class="toc-tab no-select"></div>',
         link: link
       }
 
       function link (scope, element) {
-        var tocElt = element[0].querySelector('.toc.content')
+        var tocElt = element[0].querySelector('.toc-tab')
         clEditorSvc.setTocElt(tocElt)
 
         var isMousedown
@@ -757,7 +757,7 @@ angular.module('classeur.core.editor', [])
           }
         })
         clEditorSvc.sectionDescList = newSectionDescList
-        tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('empty')
+        tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('toc-tab--empty')
         runAsyncPreview()
       }
 

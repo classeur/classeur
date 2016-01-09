@@ -1,16 +1,16 @@
-angular.module('classeur.optional.settingPage', [])
+angular.module('classeur.optional.settingsPage', [])
   .config(
     function ($routeProvider) {
       $routeProvider.when('/settings', {
         title: 'Settings',
-        template: '<cl-setting-page></cl-setting-page>',
+        template: '<cl-settings-page></cl-settings-page>',
         reloadOnSearch: false,
         controller: function (clAnalytics) {
           clAnalytics.trackPage('/settings')
         }
       })
     })
-  .directive('clSettingPage',
+  .directive('clSettingsPage',
     function ($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
       clSocketSvc.addMsgHandler('linkedUser', function (msg) {
         clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.')
@@ -29,7 +29,7 @@ angular.module('classeur.optional.settingPage', [])
 
       return {
         restrict: 'E',
-        templateUrl: 'optional/settingPage/settingPage.html',
+        templateUrl: 'optional/settingsPage/settingsPage.html',
         link: link
       }
 
@@ -51,11 +51,11 @@ angular.module('classeur.optional.settingPage', [])
           $location.url('/')
         }
 
-        scope.handlerbarsHelpers = function () {
+        scope.handlerbarsDialog = function () {
           return clDialog.show({
-            templateUrl: 'optional/settingPage/handlebarsHelpersDialog.html',
+            templateUrl: 'optional/settingsPage/handlebarsDialog.html',
             onComplete: function (scope, element) {
-              var preElt = element[0].querySelector('pre.prism')
+              var preElt = element[0].querySelector('.prism--editor')
               var cledit = $window.cledit(preElt)
               cledit.init({
                 highlighter: function (text) {
@@ -171,7 +171,7 @@ angular.module('classeur.optional.settingPage', [])
         ;(function () {
           scope.editBlog = function (blog) {
             clDialog.show({
-              templateUrl: 'optional/settingPage/editBlogDialog.html',
+              templateUrl: 'optional/settingsPage/editBlogDialog.html',
               controller: ['$scope', function (scope) {
                 scope.blog = blog
                 scope.form = ({}).cl_extend(blog)
@@ -317,7 +317,10 @@ angular.module('classeur.optional.settingPage', [])
           } else if (tab === 'blogs') {
             scope.getBlogs()
           }
-          $location.search('tab', tab)
+          // If search location is empty, update it only if tab is not the default one
+          if (newIndex || $location.search().tab) {
+            $location.search('tab', tab)
+          }
         })
 
         function applyLocationSearch () {

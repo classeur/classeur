@@ -13,8 +13,7 @@
   ng-view > *,
   cl-editor-layout > *,
   .editor-layout > *,
-  .editor-layout__inner-1 > *,
-  .preview.content > .filename.space {
+  .editor-layout__inner-1 > * {
     display: none !important;
   }
 
@@ -23,7 +22,7 @@
   cl-editor-layout > .editor-layout,
   .editor-layout > .editor-layout__inner-1,
   .editor-layout__inner-1 > .preview.panel,
-  .preview.container {
+  .preview {
     background-color: transparent !important;
     box-shadow: none !important;
     display: block !important;
@@ -34,7 +33,7 @@
     width: auto !important;
   }
 
-  .preview.content {
+  .preview__inner {
     padding: 0 50px !important;
   }
   // scss-lint:enable ImportantRule

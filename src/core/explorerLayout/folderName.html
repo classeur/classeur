@@ -3,7 +3,7 @@
         <input class="folder-name__input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <md-menu ng-if="explorerLayoutSvc.currentFolderDao !== explorerLayoutSvc.unclassifiedFolder">
-        <md-button class="cl-menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolderDao.effectiveSharing" ng-click="$mdOpenMenu()">
+        <md-button class="folder-name__menu-btn cl-menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolderDao.effectiveSharing" ng-click="$mdOpenMenu()">
         </md-button>
         <md-menu-content width="3">
             <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">

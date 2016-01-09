@@ -43,13 +43,13 @@ angular.module('classeur.core.editorLayout', [])
         elt.querySelector('.sidebar').clanim.width(clEditorLayoutSvc.sideBarWidth).start()
         var editorLayoutElt = elt.querySelector('.editor-layout')
         var previewElt = elt.querySelector('.editor-layout__preview')
-        var previewContainerElt = elt.querySelector('.preview.container')
+        var previewInnerElt = elt.querySelector('.preview')
         var binderElt = elt.querySelector('.binder').clanim.top(-hideOffsetY).start()
         var binderInner1Elt = elt.querySelector('.binder__inner-1').clanim.top(hideOffsetY).start()
         var binderInner2Elt = elt.querySelector('.binder__inner-2')
         var pageElt = elt.querySelector('.page').clanim.left(clEditorLayoutSvc.pageMarginLeft).start()
-        var editorContainerElt = elt.querySelector('.editor.container')
-        var editorContentElt = elt.querySelector('.editor.content')
+        var editorElt = elt.querySelector('.editor')
+        var editorInnerElt = elt.querySelector('.editor__inner')
         elt.querySelector('.menu__scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start()
         elt.querySelector('.menu__inner').clanim.width(clEditorLayoutSvc.menuWidth).start()
         elt.querySelector('.right-margin').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
@@ -60,8 +60,8 @@ angular.module('classeur.core.editorLayout', [])
         var closeBtnElt = elt.querySelector('.navbar__btn--close')
         var scrollBtnElt = elt.querySelector('.navbar__btn--scroll')
 
-        editorContainerElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px'
-        editorContainerElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px'
+        editorElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px'
+        editorElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px'
 
         var binderMinWidth = 280
         var previewSizeAdjust = 160
@@ -133,15 +133,15 @@ angular.module('classeur.core.editorLayout', [])
         function hidePreview () {
           if (clEditorLayoutSvc.isEditorOpen && !clEditorLayoutSvc.isSidePreviewOpen) {
             clEditorLayoutSvc.isPreviewVisible = false
-            previewContainerElt.classList.add('hidden')
+            previewInnerElt.classList.add('hidden')
           }
         }
 
         function showPreview () {
           if (!clEditorLayoutSvc.isEditorOpen || clEditorLayoutSvc.isSidePreviewOpen) {
             clEditorLayoutSvc.isPreviewVisible = true
-            previewContainerElt.classList.remove('hidden')
-            previewContainerElt.offsetHeight // Force refresh
+            previewInnerElt.classList.remove('hidden')
+            previewInnerElt.offsetHeight // Force repaint
             updateLayoutSize() // Update width according to scrollbar visibility
           }
         }
@@ -149,7 +149,7 @@ angular.module('classeur.core.editorLayout', [])
         var sectionDescList
 
         function updateLayoutSize () {
-          editorContentElt.style.paddingBottom = document.body.clientHeight / 2 + 'px'
+          editorInnerElt.style.paddingBottom = document.body.clientHeight / 2 + 'px'
           var eltToScroll = clEditorSvc.editorElt.parentNode
           var dimensionKey = 'editorDimension'
           if (!clEditorLayoutSvc.isEditorOpen) {
@@ -180,7 +180,7 @@ angular.module('classeur.core.editorLayout', [])
           pageElt.clanim
             .width(pageWidth)
             .start()
-          editorContainerElt.clanim
+          editorElt.clanim
             .width(pageWidth + clEditorLayoutSvc.editorLeftOverflow)
             .start()
           hidePreview()
@@ -362,7 +362,7 @@ angular.module('classeur.core.editorLayout', [])
           sectionDescList = clEditorSvc.sectionDescList
         })
         scope.$watch('editorLayoutSvc.fontSizePx', function (fontSize) {
-          editorContainerElt.style.fontSize = fontSize
+          editorElt.style.fontSize = fontSize
         })
       }
     })

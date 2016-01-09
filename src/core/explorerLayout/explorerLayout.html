@@ -6,10 +6,10 @@
           <div layout="row">
             <div class="navbar__logo cl-no-overflow">
             </div>
-            <div class="navbar__classeur-name navbar__item">
+            <div class="navbar__item navbar__item--title">
               {{explorerLayoutSvc.currentClasseurDao.name}}
             </div>
-            <md-button class="navbar__item navbar__icon navbar__classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
+            <md-button class="navbar__item navbar__item--icon navbar__classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
               <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 1">
                 <p>This is your default classeur.</p>
                 <p>Click
@@ -38,9 +38,9 @@
             <md-button class="navbar__item" ng-href="#!/choosePlan" ng-if="userSvc.user && !userSvc.isUserPremium()">
               Go premium
             </md-button>
-            <md-button class="navbar__item navbar__icon icon-settings" ng-href="#!/settings" aria-label="Settings">
+            <md-button class="navbar__item navbar__item--icon icon-settings" ng-href="#!/settings" aria-label="Settings">
             </md-button>
-            <md-button class="navbar__item navbar__icon icon-help" ng-click="$emit('clHelpDialog')" aria-label="Help">
+            <md-button class="navbar__item navbar__item--icon icon-help" ng-click="$emit('clHelpDialog')" aria-label="Help">
             </md-button>
           </div>
         </div>
@@ -141,7 +141,7 @@
                   <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length"></cl-recent-alert>
                 </div>
               </div>
-              <div class="folder-view folder-view--clone hidden">
+              <div class="folder-view folder-view--clone folder-view--hidden">
                 <div class="file-actions" ng-class="plasticClass">
                   <div class="file-actions__grp-1" layout="row" layout-align="space-between end">
                     <div class="file-actions__search">

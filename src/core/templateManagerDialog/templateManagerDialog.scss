@@ -1,14 +1,14 @@
 .template.manager.dialog {
-    min-width: 360px;
-    pre.prism {
-        background-color: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        width: 100%;
-        min-height: 120px;
-        word-wrap: normal;
-        overflow: auto;
-    }
-    pre.example {
-        padding-left: 50px;
-    }
+  min-width: 360px;
+  .prism--editor {
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .12);
+    min-height: 120px;
+    overflow: auto;
+    width: 100%;
+    word-wrap: normal;
+  }
+  pre.example {
+    padding-left: 50px;
+  }
 }

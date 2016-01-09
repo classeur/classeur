@@ -100,21 +100,22 @@ textarea:not([disabled]) {
 // scss-lint:enable ImportantRule
 
 .postit {
-  @include transform(rotate(-1deg));
-
   background-color: #fff7b2;
   font-size: 14px;
   padding: 15px 20px;
   z-index: 3;
 
+  @include transform(rotate(-1deg));
+
   .close.btn {
     color: rgba(0, 0, 0, .38);
     font-size: 22px;
-    line-height: 30px;
-    padding: 5px 8px;
+    height: 32px;
+    padding: 0;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: 5px;
+    top: 5px;
+    width: 32px;
   }
 }
 
@@ -147,6 +148,12 @@ textarea:not([disabled]) {
   ul {
     margin: .5em 0;
   }
+}
+
+.prism--editor {
+  border: 0;
+  color: #000;
+  padding: 0;
 }
 
 .warning {
@@ -189,6 +196,47 @@ textarea:not([disabled]) {
       font-size: inherit;
     }
   }
+}
+
+.navbar {
+  background-color: #fff;
+  height: auto;
+  z-index: 1;
+}
+
+.navbar__logo {
+  background-image: url('assets/images/logo.png');
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 180px 60px;
+  height: 34px;
+  width: 50px;
+}
+
+.navbar__item {
+  display: inline-block;
+  height: 30px;
+  line-height: 30px;
+  margin: 2px 1px;
+  overflow: hidden;
+  padding: 0 10px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.navbar__item--title {
+  color: rgba(0, 0, 0, .75);
+  font-size: 30px;
+  height: 34px;
+  letter-spacing: -.03em;
+  line-height: 34px;
+  margin: 0;
+  padding: 0 5px;
+}
+
+.navbar__item--icon {
+  font-size: 23px;
+  padding: 0 4px;
 }
 
 .drop-zone {
