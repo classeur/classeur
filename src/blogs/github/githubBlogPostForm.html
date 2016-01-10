@@ -1,22 +1,22 @@
 <div class="cl-tip">
-    <b>Repository URL:</b> {{form.subForm.repoUrl}}
+  <b>Repository URL:</b> {{form.subForm.repoUrl}}
 </div>
 <br>
 <div class="cl-tip">
-    <b>Add a YAML front matter in your template:</b>
-    <pre ng-non-bindable>
+  <b>Add a YAML front matter in your template:</b>
+  <pre ng-non-bindable>
 ---
 {{#toYaml file.content.properties}}{{/toYaml}}
 ---</pre>
 </div>
 <md-input-container>
-    <label>File path</label>
-    <input autocomplete="off" ng-model="form.subForm.filePath">
+  <label>File path</label>
+  <input autocomplete="off" ng-model="form.subForm.filePath">
 </md-input-container>
 <p class="cl-tip">
-    <b>Example:</b> docs/README.md
+  <b>Example:</b> docs/README.md
 </p>
 <md-input-container>
-    <label>Branch</label>
-    <input autocomplete="off" ng-model="form.subForm.branch">
+  <label>Branch</label>
+  <input autocomplete="off" ng-model="form.subForm.branch">
 </md-input-container>

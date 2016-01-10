@@ -1,4 +1,56 @@
 angular.module('classeur.core.classeurs', [])
+  .directive('clClasseurEntry',
+    function ($timeout, clClasseurSvc) {
+      return {
+        restrict: 'E',
+        templateUrl: 'core/classeurs/classeurEntry.html',
+        link: link
+      }
+
+      function link (scope, element) {
+        var nameInputElt = element[0].querySelector('.classeur-entry__name-input')
+        nameInputElt.addEventListener('keydown', function (e) {
+          if (e.which === 27) {
+            scope.form.$rollbackViewValue()
+            nameInputElt.blur()
+          } else if (e.which === 13) {
+            nameInputElt.blur()
+          }
+        })
+        scope.name = function (name) {
+          if (name) {
+            scope.classeur.name = name
+          } else if (!scope.classeur.name) {
+            scope.classeur.name = 'Untitled'
+          }
+          return scope.classeur.name
+        }
+        scope.name()
+        scope.open = function () {
+          !scope.isEditing && scope.setClasseur(scope.classeur)
+        }
+        var unsetTimeout
+        scope.setEditing = function (value) {
+          $timeout.cancel(unsetTimeout)
+          if (value) {
+            scope.isEditing = true
+            setTimeout(function () {
+              nameInputElt.focus()
+            }, 10)
+          } else {
+            unsetTimeout = $timeout(function () {
+              scope.isEditing = false
+              clClasseurSvc.init()
+            }, 250)
+          }
+        }
+
+        // Prevent from selecting the classeur when clicking the menu
+        element[0].querySelector('.classeur-entry__menu').addEventListener('click', function (evt) {
+          evt.stopPropagation()
+        })
+      }
+    })
   .factory('clClasseurSvc',
     function (clUid, clLocalStorageObject, clFolderSvc) {
       var clClasseurSvc = clLocalStorageObject('classeurSvc', {

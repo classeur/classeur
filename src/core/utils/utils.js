@@ -57,8 +57,7 @@ angular.module('classeur.core.utils', [])
   .factory('clIsNavigatorOnline',
     function ($window) {
       return function () {
-        // return $window.navigator.onLine !== false
-        return true;
+        return $window.navigator.onLine !== false
       }
     })
   .filter('clTimeSince',
@@ -436,18 +435,21 @@ angular.module('classeur.core.utils', [])
         },
         unwrap: function (elts) {
           elts.cl_each(function (elt) {
-            var child = elt.firstChild
-            if (child.nodeType === 3) {
-              if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
-                child.nodeValue = elt.previousSibling.nodeValue + child.nodeValue
-                elt.parentNode.removeChild(elt.previousSibling)
+            var child
+            // Loop in case another wrapper has been added inside
+            while ((child = elt.firstChild)) {
+              if (child.nodeType === 3) {
+                if (elt.previousSibling && elt.previousSibling.nodeType === 3) {
+                  child.nodeValue = elt.previousSibling.nodeValue + child.nodeValue
+                  elt.parentNode.removeChild(elt.previousSibling)
+                }
+                if (!child.nextSibling && elt.nextSibling && elt.nextSibling.nodeType === 3) {
+                  child.nodeValue = child.nodeValue + elt.nextSibling.nodeValue
+                  elt.parentNode.removeChild(elt.nextSibling)
+                }
               }
-              if (elt.nextSibling && elt.nextSibling.nodeType === 3) {
-                child.nodeValue = child.nodeValue + elt.nextSibling.nodeValue
-                elt.parentNode.removeChild(elt.nextSibling)
-              }
+              elt.parentNode.insertBefore(child, elt)
             }
-            elt.parentNode.insertBefore(child, elt)
             elt.parentNode.removeChild(elt)
           })
         }

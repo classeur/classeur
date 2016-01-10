@@ -1,43 +1,45 @@
 @import 'variables';
-.update.posts.button {
-    top: 230px;
-    right: -30px;
-    height: 48px;
-    width: 50px;
-    background-color: #c8c8c8;
-    border-radius: 8px;
-    button {
-        position: absolute;
-        line-height: 50px;
-        width: 100%;
-        height: 100%;
-        text-transform: none;
-        color: transparentize(#fff, 0.2);
-        text-shadow: 1px 1px rgba(0,0,0,0.067);
-        &:hover {
-            color: #fff;
-            background-color: transparent;
-        }
-        &[disabled] {
-            color: #fff;
-            opacity: 0.5;
-        }
-    }
-    .cl-rotate-90 {
-        position: absolute;
-        width: 48px;
-        height: 50px;
-        left: 49px;
-        top: 0;
-        font-size: 20px;
-        -webkit-transform-origin: 0 0;
-        transform-origin: 0 0;
-    }
+@import 'bourbon';
+
+.blog-post-dialog {
+  min-width: 340px;
+
+  md-input-container {
+    padding-bottom: 8px;
+  }
 }
 
-.blog.post.dialog {
-    min-width: 340px;
-    md-input-container {
-        padding-bottom: 8px;
-    }
+.update-posts-btn {
+  background-color: #c8c8c8;
+  border-radius: $border-radius-binder;
+  height: 48px;
+  right: -30px;
+  top: 230px;
+  width: 50px;
+}
+
+.update-posts-btn__button {
+  border-radius: $border-radius-binder;
+  color: #fff;
+  height: 100%;
+  line-height: 50px;
+  position: absolute;
+  text-shadow: 1px 1px rgba(0, 0, 0, .067);
+  text-transform: none;
+  width: 100%;
+}
+
+.update-posts-btn__icon {
+  height: 50px;
+  left: 49px;
+  position: absolute;
+  top: 0;
+  width: 48px;
+
+  @include transform(rotate(90deg));
+  @include transform-origin(0 0);
+
+  &::before {
+    font-size: 20px;
+  }
 }

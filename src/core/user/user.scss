@@ -1,57 +1,49 @@
-.signin-form.panel,
-.new-user-form.panel {
-	overflow: auto;
-	.logo {
-		width: 150px;
-		height: 54px;
-		background-image: url('assets/images/logo.png');
-		background-size: 150px 50px;
-		background-repeat: no-repeat;
-	}
-	& > * {
-		margin: auto;
-		max-width: 440px;
-		height: 100%;
-	}
-	.plastic-0 {
-		overflow: auto;
-		padding: 0 30px 30px;
-		border-radius: 3px;
-	}
-	.nav {
-		& > * {
-			margin: 0;
-			color: #fff;
-		}
-		md-input-container {
-			width: 100%;
-		}
-		.md-button {
-			font-size: 26px;
-			line-height: 0;
-		}
-	}
-	.content {
-		padding: 30px;
-		border-radius: 4px;
-		background-color: rgba(255, 255, 255, 0.25);
-	}
-	.terms {
-		margin: 40px 0;
-		font-size: 12px;
-	}
+.new-user-form,
+.signin-form {
+  overflow: auto;
+
+  .navbar {
+    position: fixed;
+  }
+
+  .navbar__inner {
+    max-width: 440px;
+    width: 100%;
+  }
+}
+
+.new-user-form__inner-1,
+.signin-form__inner-1 {
+  margin: auto;
+  max-width: 440px;
+  padding: 33px 5px 50px;
+}
+
+.new-user-form__inner-2,
+.signin-form__inner-2 {
+  border-radius: 3px;
+  padding: 20px 15px;
+}
+
+.new-user-form__inner-3,
+.signin-form__inner-3 {
+  background-color: rgba(255, 255, 255, .25);
+  border-radius: 4px;
+  padding: 30px;
 }
 
 .user-name {
-	white-space: nowrap;
-	font-weight: 500;
-	img {
-		height: 1.6em;
-		width: 1.6em;
-		vertical-align: bottom;
-		margin-right: 5px;
-		&.hidden {
-			visibility: hidden;
-		}
-	}
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.user-name__img {
+  height: 1.6em;
+  margin-right: 5px;
+  vertical-align: bottom;
+  width: 1.6em;
+}
+
+.user-name__img--hidden {
+  visibility: hidden;
 }

@@ -64,10 +64,6 @@ textarea:not([disabled]) {
   overflow: hidden;
 }
 
-.no-select {
-  @include user-select(none);
-}
-
 .background,
 .cl-background {
   background-color: $background-color;
@@ -102,21 +98,22 @@ textarea:not([disabled]) {
 .postit {
   background-color: #fff7b2;
   font-size: 14px;
+  overflow: hidden;
   padding: 15px 20px;
   z-index: 3;
 
   @include transform(rotate(-1deg));
+}
 
-  .close.btn {
-    color: rgba(0, 0, 0, .38);
-    font-size: 22px;
-    height: 32px;
-    padding: 0;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    width: 32px;
-  }
+.postit__close-btn {
+  color: rgba(0, 0, 0, .38);
+  font-size: 22px;
+  height: 32px;
+  padding: 0;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 32px;
 }
 
 .postit,
@@ -156,7 +153,8 @@ textarea:not([disabled]) {
   padding: 0;
 }
 
-.warning {
+.warning,
+.cl-warning {
   color: rgba(0, 0, 0, .67);
   padding: 10px 5px;
 }
@@ -177,10 +175,6 @@ textarea:not([disabled]) {
 
   md-input-container {
     padding-bottom: 10px;
-
-    .md-errors-spacer {
-      display: none;
-    }
   }
 
   .md-input {
@@ -201,7 +195,7 @@ textarea:not([disabled]) {
 .navbar {
   background-color: #fff;
   height: auto;
-  z-index: 1;
+  z-index: 2;
 }
 
 .navbar__logo {

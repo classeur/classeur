@@ -1,37 +1,37 @@
-<md-dialog class="file properties dialog">
-    <md-dialog-content>
-        <h2>File properties</h2>
-        <div layout="row" ng-repeat="property in properties">
-            <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete property"></md-button>
-            <md-input-container>
-                <label>Key</label>
-                <input autocomplete="off" ng-model="property.key">
-            </md-input-container>
-            <md-input-container>
-                <label>Value</label>
-                <input autocomplete="off" ng-model="property.value">
-            </md-input-container>
-        </div>
-        <div layout="row" layout-align="end">
-            <md-button ng-click="addRow()">
-                Add
-                <span class="icon-add"></span>
-            </md-button>
-        </div>
-        <div class="tip">
-            <b>Tip:</b> To activate Emoji:
-        <pre class="example">ext:emoji      true</pre>
-        </div>
-        <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/extensions/">
-            More about extensions...
-        </md-button>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Ok
-        </md-button>
+<md-dialog class="properties-dialog">
+  <md-dialog-content>
+    <h2>File properties</h2>
+    <div ng-repeat="property in properties" layout="row" layout-align="center center">
+      <md-button class="properties-dialog__button properties-dialog__button--remove icon-remove" ng-click="deleteRow(property)" aria-label="Delete property"></md-button>
+      <md-input-container>
+        <label>Key</label>
+        <input autocomplete="off" ng-model="property.key">
+      </md-input-container>
+      <md-input-container>
+        <label>Value</label>
+        <input autocomplete="off" ng-model="property.value">
+      </md-input-container>
     </div>
+    <div layout="row" layout-align="end">
+      <md-button ng-click="addRow()">
+        Add
+        <span class="icon-add"></span>
+      </md-button>
+    </div>
+    <div class="cl-tip">
+      <b>Tip:</b> To activate Emoji:
+      <pre class="properties-dialog__example">ext:emoji      true</pre>
+    </div>
+    <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/extensions/">
+      More about extensions...
+    </md-button>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="ok()" class="md-primary">
+      Ok
+    </md-button>
+  </div>
 </md-dialog>

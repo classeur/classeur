@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="settings-page__inner-1" layout="column" layout-align="center">
-    <div class="settings-page__inner-2 md-whiteframe-1dp plastic-4" layout="column" flex>
+    <div class="settings-page__inner-2 cl-no-overflow md-whiteframe-1dp plastic-4" layout="column" flex>
       <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
         <md-tab label="App">
           <div class="settings-page__tab">
@@ -203,8 +203,8 @@
             </p>
             <div ng-switch-when="true">
               <div class="file-entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.fileMap[file.id]">
-                <md-input-container class="file-entry__inner">
-                  <input class="file-entry__input" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
+                <md-input-container class="file-entry__name">
+                  <input class="file-entry__name-input" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                 </md-input-container>
                 <md-button class="file-entry__button icon-settings-backup-restore" ng-if="!syncDataSvc.fileRecoveryDates.hasOwnProperty(file.id)" md-no-ink ng-click="recoverFile(file)" aria-label="Recover"></md-button>
                 <md-button class="file-entry__button icon-delete" md-no-ink ng-click="removeFile(file)" aria-label="Remove"></md-button>

@@ -1,51 +1,66 @@
-.user-mgt.page.panel {
-    overflow: auto;
-    & > div {
-        margin: auto;
-        width: 100%;
-        max-width: 580px;
-    }
-    .title {
-        font-size: 32px;
-        font-weight: 300;
-        margin: 5px 0;
-    }
-    .filter {
-        max-width: 200px;
-    }
-    .entry {
-        margin-bottom: 15px;
-        background-color: #fff;
-        padding: 5px 5px 0;
-        & > div {
-            padding-bottom: 10px;
-        }
-        .md-button {
-            font-size: 22px;
-        }
-        .text {
-            margin: 0 5px;
-            &.name {
-                font-weight: 500;
-                font-size: 1.1em;
-            }
-            &.id {
-                color: rgba(0,0,0,0.4);
-            }
-        }
-        .md-button {
-            margin-right: 5px;
-            &.icon-delete {
-                font-size: 28px;
-            }
-        }
-        img {
-            width: 48px;
-            height: 48px;
-        }
-        label {
-            text-align: center;
-            margin: 0 5px;
-        }
-    }
+.user-mgt-page {
+  overflow: auto;
+
+  .navbar {
+    position: fixed;
+  }
+
+  .navbar__inner {
+    max-width: 580px;
+    width: 100%;
+  }
+}
+
+.user-mgt-page__inner {
+  margin: auto;
+  max-width: 580px;
+  padding: 40px 5px 100px;
+}
+
+.user-mgt-page__filter {
+  max-width: 200px;
+}
+
+.user-entry {
+  background-color: #fff;
+  border-radius: 3px;
+  margin-bottom: 15px;
+  padding: 5px 5px 0;
+}
+
+.user-entry__row {
+  padding-bottom: 10px;
+}
+
+.user-entry__button {
+  color: rgba(0, 0, 0, .67);
+  font-size: 22px;
+  margin-right: 5px;
+}
+
+.user-entry__text {
+  margin: 0 5px;
+}
+
+.user-entry__text--name {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.user-entry__text--id {
+  color: rgba(0, 0, 0, .4);
+}
+
+.user-entry__button--delete {
+  font-size: 28px;
+}
+
+.user-entry__img {
+  height: 48px;
+  width: 48px;
+}
+
+.user-entry__checkbox {
+  margin: 0 5px;
+  text-align: center;
 }

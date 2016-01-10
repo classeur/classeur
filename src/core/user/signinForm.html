@@ -1,33 +1,38 @@
-<div class="signin-form panel background">
-    <div layout="column" layout-align="center">
-        <div class="logo">
+<div class="signin-form cl-panel cl-background">
+  <div class="navbar cl-panel md-whiteframe-1dp" layout="row" layout-align="center">
+    <div class="navbar__inner cl-light-header">
+      <div layout="row" layout-align="space-between">
+        <div layout="row">
+          <div class="navbar__logo cl-no-overflow">
+          </div>
+          <div class="navbar__item navbar__item--title">
+            Sign in
+          </div>
         </div>
-        <div class="md-whiteframe-z2 plastic-0">
-            <div class="nav" layout="row" layout-align="space-between center">
-                <md-input-container md-theme="classeur">
-                    <input value="Sign in" disabled="disabled" aria-label="Sign in">
-                </md-input-container>
-                <md-button md-no-ink ng-click="close()" aria-label="Close">
-                    <span class="icon-close"></span>
-                </md-button>
-            </div>
-            <div class="content">
-                <form ng-submit="signin()">
-                    <md-input-container>
-                        <label>Login</label>
-                        <input autocomplete="off" ng-model="user.username" md-maxlength="64" cl-focus>
-                    </md-input-container>
-                    <md-input-container>
-                        <label>Password</label>
-                        <input autocomplete="off" type="password" ng-model="user.password" md-maxlength="64">
-                    </md-input-container>
-                    <div layout="row" layout-align="end">
-                        <md-button class="md-primary">
-                            Sign in
-                        </md-button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <md-button class="navbar__item navbar__item--icon icon-close" ng-click="close()" aria-label="Close">
+        </md-button>
+      </div>
     </div>
+  </div>
+  <div class="signin-form__inner-1" layout="column" layout-align="center">
+    <div class="signin-form__inner-2 md-whiteframe-1dp plastic-0" layout="column" flex>
+      <div class="signin-form__inner-3">
+        <form ng-submit="signin()">
+          <md-input-container>
+            <label>Login</label>
+            <input autocomplete="off" ng-model="user.username" md-maxlength="64" cl-focus>
+          </md-input-container>
+          <md-input-container>
+            <label>Password</label>
+            <input autocomplete="off" type="password" ng-model="user.password" md-maxlength="64">
+          </md-input-container>
+          <div layout="row" layout-align="end">
+            <md-button type="submit" class="md-primary">
+              Sign in
+            </md-button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

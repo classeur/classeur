@@ -1,67 +1,6 @@
 @import 'variables';
 
-.blog-entry {
-  line-height: 40px;
-  md-input-container {
-    margin: 0;
-    width: 100%;
-    .md-input {
-      font-size: 18px;
-      font-weight: 300;
-      &[disabled] {
-        color: $text-color;
-      }
-    }
-    .md-errors-spacer {
-      display: none;
-    }
-  }
-  .md-button {
-    color: rgba(0, 0, 0, .7);
-    font-size: 28px;
-    min-width: 38px;
-    padding: 6px 3px;
-    &[disabled] {
-      opacity: .5;
-    }
-  }
-  .icon {
-    margin-top: 4px;
-  }
-  .status {
-    min-width: 70px;
-    text-align: center;
-    span {
-      background-color: #008e3d;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.5;
-      padding: 0 6px;
-    }
-    &.error span {
-      background-color: #d33800;
-    }
-  }
-  &.post {
-    line-height: inherit;
-    margin: 5px 0 35px;
-    .details {
-      color: rgba(0, 0, 0, .54);
-      font-size: 12.5px;
-      overflow: hidden;
-      padding-right: 10px;
-      white-space: nowrap;
-      width: 100%;
-      b {
-        padding-left: 10px;
-      }
-    }
-  }
-}
-
-.blog.icon {
+.blog-icon {
   background-image: url('assets/images/blog_platforms.png');
   background-repeat: no-repeat;
   background-size: 340px 32px;
@@ -71,35 +10,107 @@
   max-width: 34px;
   min-width: 34px;
   width: 34px;
-  &.github {
-    background-position: 0 0;
+}
+
+.blog-icon--github {
+  background-position: 0 0;
+}
+
+.blog-icon--blogger {
+  background-position: -34px 0;
+}
+
+.blog-icon--dropbox {
+  background-position: -68px 0;
+}
+
+.blog-icon--tumblr {
+  background-position: -102px 0;
+}
+
+.blog-icon--wordpress {
+  background-position: -136px 0;
+}
+
+.blog-entry {
+  line-height: 40px;
+
+  md-input-container {
+    margin: 0;
+    width: 100%;
   }
-  &.blogger {
-    background-position: -34px 0;
-  }
-  &.dropbox {
-    background-position: -68px 0;
-  }
-  &.tumblr {
-    background-position: -102px 0;
-  }
-  &.wordpress {
-    background-position: -136px 0;
+
+  .blog-icon {
+    margin-top: 2px;
   }
 }
 
-.blog.post.form {
-  .blog.info {
-    font-size: .9em;
+.blog-entry__name {
+  font-size: 18px;
+  font-weight: 300;
+
+  body &[disabled] {
+    color: $text-color;
   }
-  .options {
-    margin-top: 30px;
-    .label {
-      color: rgba(0, 0, 0, .54);
-      display: block;
-      font-size: 12.5px;
-      margin-bottom: -20px;
-      padding: 2px;
-    }
+}
+
+.blog-entry__status {
+  min-width: 70px;
+  text-align: center;
+}
+
+.blog-entry__status-text {
+  background-color: #008e45;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 0 6px;
+}
+
+.blog-entry__status--error .blog-entry__status-text {
+  background-color: #d33800;
+}
+
+.blog-post-entry {
+  margin: 5px 0 35px;
+}
+
+.blog-post-entry__info {
+  color: rgba(0, 0, 0, .54);
+  font-size: 12.5px;
+  overflow: hidden;
+  padding-right: 10px;
+  white-space: nowrap;
+  width: 100%;
+
+  b {
+    padding-left: 10px;
   }
+}
+
+.blog-entry__button,
+.blog-post-entry__button {
+  color: rgba(0, 0, 0, .7);
+  font-size: 28px;
+  height: 38px;
+  max-width: 36px;
+  min-width: 36px;
+  padding: 0;
+
+  &[disabled] {
+    opacity: .5;
+  }
+}
+
+.blog-post-form__options {
+  margin-top: 30px;
+}
+
+.blog-post-form__label {
+  color: rgba(0, 0, 0, .54);
+  display: block;
+  font-size: 12.5px;
+  margin-bottom: -20px;
+  padding: 2px;
 }

@@ -268,13 +268,14 @@ angular.module('classeur.core.sync', [])
     })
   .factory('clSyncSvc',
     function ($rootScope, $location, $http, $templateCache, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
-      var clSyncSvc = {}
       var userNameMaxLength = 64
       var nameMaxLength = 128
       var longInactivityThreshold = 40 * 1000 // 40 sec
       var shortInactivityThreshold = 10 * 1000 // 10 sec
       var createFileTimeout = 30 * 1000 // 30 sec
       var recoverFileTimeout = 30 * 1000 // 30 sec
+      var clSyncSvc = {}
+      clSyncSvc.userNameMaxLength = userNameMaxLength
 
       /* -----------------------
        * User

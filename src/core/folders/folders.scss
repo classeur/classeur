@@ -1,0 +1,143 @@
+@import 'bourbon';
+@import 'variables';
+
+.folder-name__input-container {
+  letter-spacing: -.01em;
+  width: 100%;
+}
+
+.folder-name__menu-btn {
+  color: #fff;
+  display: block;
+  font-size: 30px;
+  height: 42px;
+  padding: 0;
+  width: 38px;
+}
+
+.folder-entry {
+  position: absolute;
+}
+
+.folder-entry__inner-1 {
+  border-bottom-right-radius: $border-radius-binder;
+  border-top-right-radius: $border-radius-binder;
+  box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, .22);
+  height: 110px;
+  margin-bottom: 100px;
+  width: 32px;
+}
+
+.folder-entry__button {
+  border-bottom-right-radius: $border-radius-binder;
+  border-top-right-radius: $border-radius-binder;
+  color: #fff;
+  font-size: 12.5px;
+  height: 100%;
+  line-height: 1;
+  padding: 0;
+  position: absolute;
+  text-shadow: 1px 1px rgba(0, 0, 0, .067);
+  text-transform: none;
+  width: 100%;
+
+  [class^='icon-'],
+  [class*=' icon-'] {
+    font-size: 1em;
+  }
+}
+
+.folder-entry__inner-2 {
+  height: 32px;
+  left: 32px;
+  letter-spacing: 0;
+  max-width: 110px;
+  padding: 0 6px;
+  position: absolute;
+  text-align: right;
+  text-shadow: 1px -1px rgba(0, 0, 0, .067);
+  top: 0;
+  white-space: normal;
+  width: 110px;
+
+  @include transform-origin(0 0);
+  @include transform(rotate(90deg));
+
+  .cl-public-corner {
+    display: none;
+  }
+
+  .cl-sharing-indicator::after {
+    left: 2px;
+    right: auto;
+  }
+}
+
+.folder-entry__inner-2--public {
+  .cl-public-corner {
+    display: block;
+  }
+
+  .cl-sharing-indicator::after {
+    left: 18px;
+  }
+}
+
+.folder-entry--selected .folder-entry__button {
+  &.md-focused,
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.folder-entry--recent,
+.folder-entry--unclassified,
+.folder-entry--create {
+  .folder-entry__inner-1 {
+    border-bottom-right-radius: $border-radius-binder;
+    border-top-right-radius: $border-radius-binder;
+    height: 44px;
+    width: 42px;
+    z-index: 9998;
+  }
+
+  .folder-entry__button {
+    font-size: 22px;
+    padding: 0;
+  }
+}
+
+.folder-entry--unclassified {
+  .folder-entry__inner-1 {
+    top: 43px;
+    width: 40px;
+  }
+
+  .icon-search {
+    display: inline-block;
+    text-shadow: -1px 1px rgba(0, 0, 0, .067);
+
+    @include transform(scale(-1, 1));
+  }
+}
+
+.folder-entry--create {
+  .folder-entry__inner-1 {
+    top: 86px;
+    width: 38px;
+  }
+
+  .folder-entry__button {
+    font-size: 19px;
+  }
+}
+
+.folder-entry__icon {
+  line-height: 44px;
+}
+
+.folder-entry--current {
+  display: none;
+  top: 129px;
+  z-index: 10000;
+}

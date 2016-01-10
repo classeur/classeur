@@ -1,56 +1,56 @@
-<md-dialog class="export-to-disk dialog">
-    <md-dialog-content>
-        <h2>Export
+<md-dialog class="export-dialog">
+  <md-dialog-content>
+    <h2>Export
         </h2>
-        <md-radio-group ng-model="exportConfig.format">
-            <div layout="row" layout-align="start center">
-                <md-radio-button value="text">Text</md-radio-button>
-                <md-select ng-model="exportConfig.textTemplateKey" ng-focus="exportConfig.format = 'text'" aria-label="Select template">
-                    <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
-                </md-select>
-            </div>
-            <div class="options">
-                <md-input-container flex>
-                    <label>Preview</label>
-                    <textarea ng-model="textPreview" row="3"></textarea>
-                </md-input-container>
-            </div>
-            <div layout="row" layout-align="start center">
-                <md-radio-button value="document">Document</md-radio-button>
-                <md-select ng-model="exportConfig.documentFormatKey" ng-focus="exportConfig.format = 'document'" aria-label="Select document format">
-                    <md-option value="epub">EPUB</md-option>
-                    <md-option value="epub3">EPUB v3</md-option>
-                    <md-option value="latex">LaTeX</md-option>
-                    <md-option value="odt">OpenOffice</md-option>
-                    <md-option value="pdf">PDF</md-option>
-                    <md-option value="rtf">Rich Text Format</md-option>
-                    <md-option value="docx">Word</md-option>
-                </md-select>
-            </div>
-            <div class="options">
-                <p class="tip">
-                    <b>Tip:</b> File properties are set as Pandoc metadata.
-                </p>
-            </div>
-        </md-radio-group>
-        <br>
-        <p>
-        <md-button class="md-primary" ng-click="manageTemplates()">
-            Manage templates...
-        </md-button>
+    <md-radio-group ng-model="exportConfig.format">
+      <div layout="row" layout-align="start center">
+        <md-radio-button class="export-dialog__radio-btn" value="text">Text</md-radio-button>
+        <md-select ng-model="exportConfig.textTemplateKey" ng-focus="exportConfig.format = 'text'" aria-label="Select template">
+          <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
+        </md-select>
+      </div>
+      <div class="export-dialog__options">
+        <md-input-container flex>
+          <label>Preview</label>
+          <textarea class="export-dialog__preview" ng-model="textPreview" row="3"></textarea>
+        </md-input-container>
+      </div>
+      <div layout="row" layout-align="start center">
+        <md-radio-button class="export-dialog__radio-btn" value="document">Document</md-radio-button>
+        <md-select ng-model="exportConfig.documentFormatKey" ng-focus="exportConfig.format = 'document'" aria-label="Select document format">
+          <md-option value="epub">EPUB</md-option>
+          <md-option value="epub3">EPUB v3</md-option>
+          <md-option value="latex">LaTeX</md-option>
+          <md-option value="odt">OpenOffice</md-option>
+          <md-option value="pdf">PDF</md-option>
+          <md-option value="rtf">Rich Text Format</md-option>
+          <md-option value="docx">Word</md-option>
+        </md-select>
+      </div>
+      <div class="export-dialog__options">
+        <p class="cl-tip">
+          <b>Tip:</b> File properties are set as Pandoc metadata.
         </p>
-        <p>
-        <md-button class="md-primary" ng-href="#!/settings?tab=app">
-            Pandoc options...
-        </md-button>
-        </p>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-        <md-button ng-click="export()" class="md-primary">
-            Export
-        </md-button>
-    </div>
+      </div>
+    </md-radio-group>
+    <br>
+    <p>
+      <md-button class="md-primary" ng-click="manageTemplates()">
+        Manage templates...
+      </md-button>
+    </p>
+    <p>
+      <md-button class="md-primary" ng-href="#!/settings?tab=app">
+        Pandoc options...
+      </md-button>
+    </p>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="export()" class="md-primary">
+      Export
+    </md-button>
+  </div>
 </md-dialog>

@@ -152,7 +152,7 @@ angular.module('classeur.optional.buttonBar', [])
         var openOffsetY = props.visibleHeight - props.height
         var closedOffsetY = -props.height - 10
 
-        var buttonBarElt = element[0].querySelector('.button-bar.panel').clanim
+        var buttonBarElt = element[0].querySelector('.button-bar').clanim
           .width(props.width)
           .height(props.height)
           .top(2000)

@@ -1,7 +1,7 @@
-<div class="button-bar panel md-whiteframe-2dp">
-	<div class="light-1 panel"></div>
-	<div class="light-2 panel"></div>
-	<md-button ng-repeat="btn in btns" class="btn" ng-disabled="btn.disabled" style="left: {{::btn.offset}}px" ng-click="btn.click()" title="{{::btn.label}} {{::btn.keystroke}}" aria-label="{{::btn.label}}">
-		<span ng-class="btn.icon"></span>
-	</md-button>
+<div class="button-bar cl-panel md-whiteframe-2dp">
+  <div class="button-bar__light-1 cl-panel"></div>
+  <div class="button-bar__light-2 cl-panel"></div>
+  <md-button class="button-bar__button" ng-repeat="btn in btns" ng-disabled="btn.disabled" style="left: {{::btn.offset}}px" ng-click="btn.click()" title="{{::btn.label}} {{::btn.keystroke}}" aria-label="{{::btn.label}}">
+    <span ng-class="btn.icon"></span>
+  </md-button>
 </div>

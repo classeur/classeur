@@ -236,16 +236,16 @@ angular.module('classeur.core.user', [])
           })
           var imgElt = element[0].querySelector('img')
           imgElt.addEventListener('error', function () {
-            imgElt.classList.add('hidden')
+            imgElt.classList.add('user-name__img--hidden')
           })
           imgElt.addEventListener('load', function () {
-            imgElt.classList.remove('hidden')
+            imgElt.classList.remove('user-name__img--hidden')
           })
         }
       }
     })
   .directive('clNewUserForm',
-    function ($location, $http, clToast, clUserSvc, clStateMgr) {
+    function ($location, $http, clToast, clUserSvc, clStateMgr, clSyncSvc) {
       return {
         restrict: 'E',
         templateUrl: 'core/user/newUserForm.html',
@@ -272,7 +272,10 @@ angular.module('classeur.core.user', [])
 
           scope.create = function () {
             if (!scope.newUser.name) {
-              return
+              return clToast('Please enter a user name.')
+            }
+            if (scope.newUser.name.length > clSyncSvc.userNameMaxLength) {
+              return clToast('User name is too long.')
             }
             scope.isLoading = true
             $http.post('/api/v1/users', {

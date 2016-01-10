@@ -10,22 +10,22 @@ angular.module('classeur.optional.postToBlog', [])
       function link (scope, element) {
         scope.postToBlogSvc = clPostToBlogSvc
         var isHover
-        var panelElt = element[0].querySelector('.panel')
+        var elt = element[0].querySelector('.update-posts-btn')
         var duration
 
         function toggle () {
-          panelElt.clanim
+          elt.clanim
             .duration(duration)
             .translateX(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5)
             .start(true)
           duration = 200
         }
 
-        panelElt.addEventListener('mouseenter', function () {
+        elt.addEventListener('mouseenter', function () {
           isHover = true
           toggle()
         })
-        panelElt.addEventListener('mouseleave', function () {
+        elt.addEventListener('mouseleave', function () {
           isHover = false
           toggle()
         })
@@ -118,6 +118,7 @@ angular.module('classeur.optional.postToBlog', [])
                 clDialog.hide()
                 clEditorSvc.applyTemplate(blogPost.template)
                   .then(function (content) {
+                    clToast('Publishing blog post...')
                     clSocketSvc.sendMsg('createBlogPost', {
                       blogPost: blogPost,
                       content: content,

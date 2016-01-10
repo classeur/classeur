@@ -1,6 +1,6 @@
-<div class="offline indicator panel md-whiteframe-z1" ng-show="show">
-    <md-button ng-click="editorLayoutSvc.currentControl = socketSvc.hasToken ? 'offlineAlert' : 'signinAlert'" aria-label="Offline">
-        <div class="icon-sync-disabled">
-        </div>
-    </md-button>
+<div class="offline-indicator cl-panel md-whiteframe-z1" ng-show="show">
+  <md-button class="offline-indicator__button" ng-click="editorLayoutSvc.currentControl = socketSvc.hasToken ? 'offlineAlert' : 'signinAlert'" aria-label="Offline">
+    <div class="offline-indicator__icon icon-sync-disabled">
+    </div>
+  </md-button>
 </div>

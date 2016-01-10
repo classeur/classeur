@@ -1,38 +1,45 @@
-<div class="user-mgt page panel background" cl-infinite-scroll="showMore()">
-    <div>
-        <div layout="row" layout-align="space-between end">
-            <div class="title">User management</div>
-            <div layout="row">
-                <md-button ng-href="#!/">Close
-                    <span class="icon-close"></span>
-                </md-button>
-            </div>
+<div class="user-mgt-page cl-panel cl-background">
+  <div class="navbar cl-panel md-whiteframe-1dp" layout="row" layout-align="center">
+    <div class="navbar__inner cl-light-header">
+      <div layout="row" layout-align="space-between">
+        <div layout="row">
+          <div class="navbar__logo cl-no-overflow">
+          </div>
+          <div class="navbar__item navbar__item--title">
+            User management
+          </div>
         </div>
-        <md-input-container class="filter">
-            <label>Filter</label>
-            <input autocomplete="off" ng-model="filter">
-        </md-input-container>
-        <div ng-repeat="user in users" class="entry md-whiteframe-z1">
-            <div layout="row" layout-align="start center">
-                <div class="text name" flex>{{user.name}}</div>
-                <div class="text id">{{user.id}}</div>
-                <md-button class="icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
-                <img ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm"></img>
-            </div>
-            <div layout="row" layout-align="end center">
-                <label ng-if="::config.usePaypal">
-                    premium
-                    <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
-                </label>
-                <label ng-if="::config.usePaypal">
-                    force premium
-                    <input type="checkbox" ng-model="user.newForcePremium">
-                </label>
-                <label>
-                    admin
-                    <input type="checkbox" ng-model="user.isAdmin">
-                </label>
-            </div>
-        </div>
+        <md-button class="navbar__item navbar__item--icon icon-close" ng-href="#!/" aria-label="Close">
+        </md-button>
+      </div>
     </div>
+  </div>
+  <div class="user-mgt-page__inner">
+    <md-input-container class="user-mgt-page__filter">
+      <label>Filter</label>
+      <input autocomplete="off" ng-model="filter">
+    </md-input-container>
+    <div class="user-entry md-whiteframe-z1" ng-repeat="user in users">
+      <div class="user-entry__row" layout="row" layout-align="start center">
+        <div class="user-entry__text user-entry__text--name" flex>{{user.name}}</div>
+        <div class="user-entry__text user-entry__text--id">{{user.id}}</div>
+        <md-button class="user-entry__button user-entry__button--delete icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
+        <img class="user-entry__img" ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm" />
+      </div>
+      <div class="user-entry__row" layout="row" layout-align="end center">
+        <label class="user-entry__checkbox" ng-if="::config.usePaypal">
+          premium
+          <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
+        </label>
+        <label class="user-entry__checkbox" ng-if="::config.usePaypal">
+          force premium
+          <input type="checkbox" ng-model="user.newForcePremium">
+        </label>
+        <label class="user-entry__checkbox">
+          admin
+          <input type="checkbox" ng-model="user.isAdmin">
+        </label>
+      </div>
+    </div>
+  </div>
 </div>

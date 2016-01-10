@@ -1,10 +1,11 @@
-body.file.dragging * {
-	cursor: move !important;
+.body--file-dragging * {
+	// scss-lint:disable ImportantRule
+  cursor: move !important;
 }
 
-.file.dragging.panel {
-    pointer-events: none;
-	opacity: 0.5;
-	top: 0;
-	left: 0;
+.file-dragging {
+  left: 0;
+  opacity: .5;
+  pointer-events: none;
+  top: 0;
 }

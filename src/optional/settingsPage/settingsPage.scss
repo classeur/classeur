@@ -51,32 +51,13 @@
     font-size: 22px;
   }
 
-  .file-entry {
-    line-height: 40px;
-  }
-
-  .file-entry__inner {
-    margin: 0;
-    width: 100%;
-
-    .md-errors-spacer {
-      display: none;
-    }
-  }
-
-  .file-entry__input {
-    font-size: 18px;
-    font-weight: 300;
-
-    &[disabled] {
-      color: $text-color;
-    }
-  }
-
   .file-entry__button {
     color: rgba(0, 0, 0, .67);
     font-size: 28px;
-    padding: 6px 3px;
+    height: 38px;
+    max-width: 32px;
+    min-width: 32px;
+    padding: 0;
   }
 
   md-progress-circular {
@@ -126,7 +107,8 @@
 
   .prism--editor {
     background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, .12);
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 3px;
     min-height: 120px;
     overflow: auto;
     width: 100%;

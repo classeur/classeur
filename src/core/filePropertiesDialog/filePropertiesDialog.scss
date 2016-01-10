@@ -1,12 +1,18 @@
-.file.properties.dialog {
-    min-width: 360px;
-    .md-button {
-    	margin-top: 20px;
-    }
-    md-input-container {
-    	padding-bottom: 0;
-    }
-    pre.example {
-        padding-left: 50px;
-    }
+.properties-dialog {
+  min-width: 360px;
+
+  md-input-container {
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+}
+
+.properties-dialog__button--remove {
+  height: 32px;
+  padding: 0;
+  width: 32px;
+}
+
+.properties-dialog__example {
+  padding-left: 30px;
 }

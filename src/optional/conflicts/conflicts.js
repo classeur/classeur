@@ -24,7 +24,7 @@ angular.module('classeur.optional.conflicts', [])
           conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
             'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
           )).cl_each(function (elt) {
-            elt.classList.add('hover')
+            elt.classList.add('conflict-highlighting--hover')
           })
         })
         parentElt.addEventListener('mouseout', function (evt) {
@@ -32,7 +32,7 @@ angular.module('classeur.optional.conflicts', [])
           conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
             'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
           )).cl_each(function (elt) {
-            elt.classList.remove('hover')
+            elt.classList.remove('conflict-highlighting--hover')
           })
         })
         parentElt.addEventListener('click', function (evt) {
@@ -43,7 +43,7 @@ angular.module('classeur.optional.conflicts', [])
             var offsets = clConflictSvc.getConflictOffsets(text, conflict)
             if (offsets) {
               clDialog.show({
-                templateUrl: 'optional/conflicts/fixConflictDialog.html',
+                templateUrl: 'optional/conflicts/conflictDialog.html',
                 controller: ['$scope', function (scope) {
                   scope.part1 = text.slice(offsets[0], offsets[1])
                   scope.part2 = text.slice(offsets[1], offsets[2])

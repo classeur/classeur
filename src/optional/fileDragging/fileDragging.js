@@ -28,7 +28,7 @@ angular.module('classeur.optional.fileDragging', [])
             .width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 210))
             .start()
           movePanel(evt)
-          bodyElt.addClass('file dragging')
+          bodyElt.addClass('body--file-dragging')
           scope.$apply()
         })
         hammertime.on('panmove', function (evt) {
@@ -38,7 +38,7 @@ angular.module('classeur.optional.fileDragging', [])
           clFileDraggingSvc.moveFiles()
           clFileDraggingSvc.files = []
           clFileDraggingSvc.setTargetFolder()
-          bodyElt.removeClass('file dragging')
+          bodyElt.removeClass('body--file-dragging')
           scope.$apply()
         })
       }
@@ -76,7 +76,7 @@ angular.module('classeur.optional.fileDragging', [])
 
       function link (scope, element) {
         scope.fileDraggingSvc = clFileDraggingSvc
-        clFileDraggingSvc.panelElt = element[0].querySelector('.panel')
+        clFileDraggingSvc.panelElt = element[0].querySelector('.file-dragging')
       }
     })
   .factory('clFileDraggingSvc',

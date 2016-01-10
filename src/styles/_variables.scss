@@ -11,11 +11,11 @@ $border-radius-base: 4px;
 $border-radius-binder: 6px;
 $border-radius-buttonbar: 10px;
 $plastic-color-0: #3a9cdd; // blue
-$plastic-color-1: lighten(desaturate(#f2b50d, 17.5%), 5%); // yellow
-$plastic-color-2: lighten(desaturate(#20bc9c, 30%), 2.5%); // green
-$plastic-color-3: lighten(desaturate(#ea6a3c, 10%), 2.5%); // red
-$plastic-color-4: darken(#95a5a6, 2.5%); // light gray
-$plastic-color-5: lighten(desaturate(#34495e, 5%), 17.5%); // dark gray
+$plastic-color-1: lighten(desaturate(#f2b50d, 17.5%), 2.5%); // yellow
+$plastic-color-2: desaturate(#20bc9c, 30%); // green
+$plastic-color-3: desaturate(#ea6a3c, 10%); // red
+$plastic-color-4: darken(#95a5a6, 5%); // light gray
+$plastic-color-5: lighten(desaturate(#34495e, 5%), 15%); // dark gray
 $editor-margin-width: 110px;
 $ced-color: rgba(0, 0, 0, .92);
 $ced-color-light: rgba(0, 0, 0, .6);

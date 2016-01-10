@@ -1,17 +1,23 @@
-.export-to-disk.dialog {
-    min-width: 360px;
-    md-radio-button .md-label {
-        width: 100px;
-    }
-    .options {
-        margin-left: 150px;
-        textarea {
-            height: 65px !important;
-            max-height: 65px;
-            max-height: 65px;
-            font-size: 14px;
-            line-height: inherit;
-            color: #888;
-        }
-    }
+.export-dialog {
+  min-width: 360px;
+}
+
+.export-dialog__radio-btn {
+  margin: 20px 0 26px;
+
+  .md-label {
+    width: 100px;
+  }
+}
+
+.export-dialog__options {
+  margin-left: 130px;
+}
+
+.export-dialog__preview {
+  color: #888;
+  font-size: 14px;
+  line-height: inherit;
+  max-height: 65px;
+  min-height: 65px;
 }

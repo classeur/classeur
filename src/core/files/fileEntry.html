@@ -10,10 +10,10 @@
   <md-checkbox class="file-entry__selector" md-no-ink ng-model="fileDao.isSelected" aria-label="Select">
   </md-checkbox>
   <md-input-container class="file-entry__name" ng-click="open()">
-    <input class="file-entry__name-input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
+    <input class="file-entry__name-input file-entry__name-input--clickable" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
   </md-input-container>
   <md-menu>
-    <md-button class="file-entry__menu-btn cl-menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="fileDao.effectiveSharing" ng-click="$mdOpenMenu()">
+    <md-button class="file-entry__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="fileDao.effectiveSharing" ng-click="$mdOpenMenu()">
     </md-button>
     <md-menu-content width="3">
       <md-menu-item ng-if="socketSvc.hasToken || fileDao.userId">

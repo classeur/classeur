@@ -1,44 +1,44 @@
-<md-dialog class="template manager dialog">
-    <md-dialog-content>
-        <h2>Templates</h2>
-        <div layout="row">
-            <md-select placeholder="New template" ng-model="selectedKey">
-                <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
-            </md-select>
-        </div>
-        <md-input-container>
-            <label>Name</label>
-            <input autocomplete="off" ng-model="templateKey">
-        </md-input-container>
-        <div layout="row" layout-align="end">
-            <md-button class="md-primary" ng-if="canBeRemoved" ng-click="remove()">
-                Remove
-            </md-button>
-            <md-button class="md-primary" ng-if="!selectedKey" ng-click="add()">
-                Add
-            </md-button>
-            <md-button class="md-primary" ng-if="selectedKey" ng-click="add()">
-                Replace
-            </md-button>
-        </div>
-        <pre class="prism prism--editor"></pre>
-        <div class="tip">
-            <b>Tip:</b> Classeur uses Mustache templates, for example:
-            <pre class="example" ng-non-bindable>
+<md-dialog class="template-dialog">
+  <md-dialog-content>
+    <h2>Templates</h2>
+    <div layout="row">
+      <md-select placeholder="Existing templates" ng-model="selectedKey">
+        <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
+      </md-select>
+    </div>
+    <md-input-container>
+      <label>Name</label>
+      <input autocomplete="off" ng-model="templateKey">
+    </md-input-container>
+    <div layout="row" layout-align="end">
+      <md-button class="md-primary" ng-if="canBeRemoved" ng-click="remove()">
+        Remove
+      </md-button>
+      <md-button class="md-primary" ng-if="!selectedKey" ng-click="add()">
+        Add
+      </md-button>
+      <md-button class="md-primary" ng-if="selectedKey" ng-click="add()">
+        Replace
+      </md-button>
+    </div>
+    <pre class="prism prism--editor"></pre>
+    <div class="cl-tip">
+      <b>Tip:</b> Use Mustache variables:
+      <pre class="template-dialog__example" ng-non-bindable>
 {{file.name}}
 {{{file.content.text}}}
 {{{file.content.html}}}</pre>
-        </div>
-        <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/templates/">
-            More about templates...
-        </md-button>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-        <md-button ng-click="ok()" class="md-primary">
-            Ok
-        </md-button>
     </div>
+    <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/templates/">
+      More about templates...
+    </md-button>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="ok()" class="md-primary">
+      Ok
+    </md-button>
+  </div>
 </md-dialog>

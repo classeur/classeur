@@ -203,6 +203,8 @@ $menu-height: 105px;
   }
 
   .menu-btn__button {
+    border-bottom-right-radius: $border-radius-binder;
+    border-top-right-radius: $border-radius-binder;
     color: #fff;
     font-size: 20px;
     height: 100%;

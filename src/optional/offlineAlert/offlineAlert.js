@@ -10,22 +10,22 @@ angular.module('classeur.optional.offlineAlert', [])
 
       function link (scope, element) {
         var isHover
-        var panelElt = element[0].querySelector('.panel')
+        var elt = element[0].querySelector('.offline-indicator')
         var duration
 
         function toggle () {
-          panelElt.clanim
+          elt.clanim
             .duration(duration)
             .translateX(isHover ? 0 : -2)
             .start(true)
           duration = 200
         }
 
-        panelElt.addEventListener('mouseenter', function () {
+        elt.addEventListener('mouseenter', function () {
           isHover = true
           toggle()
         })
-        panelElt.addEventListener('mouseleave', function () {
+        elt.addEventListener('mouseleave', function () {
           isHover = false
           toggle()
         })

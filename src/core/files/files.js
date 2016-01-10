@@ -1,4 +1,51 @@
 angular.module('classeur.core.files', [])
+  .directive('clFileEntry',
+    function ($timeout, clExplorerLayoutSvc) {
+      return {
+        restrict: 'E',
+        templateUrl: 'core/files/fileEntry.html',
+        link: link
+      }
+
+      function link (scope, element) {
+        var nameInputElt = element[0].querySelector('.file-entry__name input')
+        nameInputElt.addEventListener('keydown', function (e) {
+          if (e.which === 27) {
+            scope.form.$rollbackViewValue()
+            nameInputElt.blur()
+          } else if (e.which === 13) {
+            nameInputElt.blur()
+          }
+        })
+        scope.name = function (name) {
+          if (name) {
+            scope.fileDao.name = name
+          } else if (!scope.fileDao.name) {
+            scope.fileDao.name = 'Untitled'
+          }
+          return scope.fileDao.name
+        }
+        scope.name()
+        scope.open = function () {
+          !scope.isEditing && scope.setCurrentFile(scope.fileDao)
+        }
+        var unsetTimeout
+        scope.setEditing = function (value) {
+          $timeout.cancel(unsetTimeout)
+          if (value) {
+            scope.isEditing = true
+            setTimeout(function () {
+              nameInputElt.focus()
+            }, 10)
+          } else {
+            unsetTimeout = $timeout(function () {
+              scope.isEditing = false
+              clExplorerLayoutSvc.refreshFiles()
+            }, 250)
+          }
+        }
+      }
+    })
   .factory('clFileSvc',
     function ($timeout, $templateCache, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
       var maxLocalFiles = 30

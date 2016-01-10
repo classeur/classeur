@@ -1,0 +1,74 @@
+$file-entry-height: 40px;
+
+.file-entry {
+  border-radius: 6px;
+  line-height: $file-entry-height;
+  position: relative;
+  z-index: 1;
+}
+
+.file-entry__drag-space {
+  min-width: 20px;
+  width: 20px;
+}
+
+.file-entry__drag {
+  cursor: move;
+  height: $file-entry-height;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.file-entry__drag-icon {
+  color: rgba(0, 0, 0, .6);
+  display: inline-block;
+  font-size: 16px;
+  line-height: $file-entry-height;
+}
+
+.file-entry__selector {
+  body & {
+    margin: 0 5px;
+  }
+
+  md-label {
+    display: none;
+  }
+}
+
+.file-entry__name {
+  cursor: pointer;
+  height: $file-entry-height;
+  margin: 0;
+  padding-bottom: 0;
+  padding-top: 5px;
+  width: 100%;
+}
+
+.file-entry__name-input {
+  font-size: 18px;
+  line-height: 1;
+
+  body &[disabled] {
+    color: rgba(0, 0, 0, .75);
+  }
+}
+
+.file-entry__name-input--clickable {
+  body &[disabled] {
+    background-image: none;
+    border-bottom-color: rgba(0, 0, 0, .066);
+    cursor: pointer;
+    pointer-events: none;
+  }
+}
+
+.file-entry__menu-btn {
+  color: rgba(0, 0, 0, .55);
+  display: block;
+  font-size: 26px;
+  height: $file-entry-height - 2;
+  margin: 1px 0;
+  padding: 0;
+  width: 36px;
+}

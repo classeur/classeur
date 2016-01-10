@@ -9,7 +9,7 @@
             <div class="navbar__item navbar__item--title">
               {{explorerLayoutSvc.currentClasseurDao.name}}
             </div>
-            <md-button class="navbar__item navbar__item--icon navbar__classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
+            <md-button class="navbar__item navbar__item--icon classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
               <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 1">
                 <p>This is your default classeur.</p>
                 <p>Click
@@ -19,7 +19,7 @@
                   <md-button md-no-ink cl-explorer-tour-next>Ok</md-button>
                 </div>
               </md-tooltip>
-              <div class="icon-arrow-back cl-rotate-270"></div>
+              <div class="classeur-toggler__inner icon-arrow-back cl-rotate-270"></div>
             </md-button>
           </div>
           <div layout="row">

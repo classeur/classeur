@@ -5,14 +5,14 @@
   .md-menu {
     padding: 0;
   }
+}
 
-  .navbar__inner--no-padding .navbar__logo {
-    display: none;
-  }
+.navbar__inner--no-padding .navbar__logo {
+  display: none;
+}
 
-  .navbar__classeur-toggler div {
-    font-size: inherit;
-  }
+.classeur-toggler__inner::before {
+  font-size: 24px;
 }
 
 .explorer__inner-2 {
@@ -82,16 +82,6 @@
   display: none;
 }
 
-.folder-name__input-container {
-  letter-spacing: -.01em;
-  width: 100%;
-}
-
-.folder-name__menu-btn {
-  height: 42px;
-  width: 38px;
-}
-
 .file-actions__grp-1 {
   font-size: 17px;
   min-height: 35px;
@@ -121,10 +111,6 @@
     @include placeholder {
       color: rgba(255, 255, 255, .45);
     }
-  }
-
-  .md-errors-spacer {
-    display: none;
   }
 }
 
@@ -190,13 +176,6 @@
   box-shadow: 0 0 28px 0 rgba(0, 0, 0, .4);
   left: -2050px;
   z-index: 9999;
-}
-
-.cl-menu-btn {
-  color: #fff;
-  display: block;
-  font-size: 30px;
-  padding: 0;
 }
 
 $public-corner-size: 64px;

@@ -1,4 +1,48 @@
 angular.module('classeur.core.folders', [])
+  .directive('clFolderName',
+    function ($timeout, clExplorerLayoutSvc) {
+      return {
+        restrict: 'E',
+        templateUrl: 'core/folders/folderName.html',
+        link: link
+      }
+
+      function link (scope, element) {
+        var nameInputElt = element[0].querySelector('.folder-name__input')
+        nameInputElt.addEventListener('keydown', function (e) {
+          if (e.which === 27) {
+            scope.form.$rollbackViewValue()
+            nameInputElt.blur()
+          } else if (e.which === 13) {
+            nameInputElt.blur()
+          }
+        })
+        scope.name = function (name) {
+          if (name) {
+            clExplorerLayoutSvc.currentFolderDao.name = name
+          } else if (!clExplorerLayoutSvc.currentFolderDao.name) {
+            clExplorerLayoutSvc.currentFolderDao.name = 'Untitled'
+          }
+          return clExplorerLayoutSvc.currentFolderDao.name
+        }
+        scope.name()
+        var unsetTimeout
+        scope.setEditing = function (value) {
+          $timeout.cancel(unsetTimeout)
+          if (value) {
+            scope.isEditing = true
+            setTimeout(function () {
+              nameInputElt.focus()
+            }, 10)
+          } else {
+            unsetTimeout = $timeout(function () {
+              scope.isEditing = false
+              scope.folderNameModified()
+            }, 250)
+          }
+        }
+      }
+    })
   .factory('clFolderSvc',
     function (clLocalStorage, clUid, clLocalStorageObject) {
       var folderDaoProto = clLocalStorageObject('F', {

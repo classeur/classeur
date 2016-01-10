@@ -1,62 +1,73 @@
+@import 'bourbon';
+
 .conflict-highlighting {
-    -webkit-transition: 0.12s ease-out background-color;
-    transition: 0.12s ease-out background-color;
-    padding: 0.25em 0;
-    cursor: pointer;
-    &.hover,
-    &.selected {
-        * {
-            background-color: transparent;
-        }
-    }
-    &.del {
-        text-decoration: line-through;
-    }
+  cursor: pointer;
+  padding: .25em 0;
+
+  @include transition(.12s ease-out background-color);
 }
 
-$highlighting-color-part-1: #FF6060;
+.conflict-highlighting--hover,
+.conflict-highlighting--selected {
+  * {
+    background-color: transparent;
+  }
+}
+
+.conflict-highlighting--selected {
+  background-color: #c3e6db;
+}
+
+.conflict-highlighting--deleted {
+  * {
+    text-decoration: line-through;
+  }
+}
+
+$highlighting-color-part-1: #ff6060;
 $highlighting-color-part-2: #d070a0;
+
 .conflict-highlighting-part-1 {
-    background-color: mix(#fff, $highlighting-color-part-1, 60%);
-    &.hover {
-        background-color: mix(#fff, $highlighting-color-part-1, 20%);
-    }
+  background-color: mix(#fff, $highlighting-color-part-1, 60%);
+
+  &.conflict-highlighting--hover {
+    background-color: mix(#fff, $highlighting-color-part-1, 20%);
+  }
 }
 
 .conflict-highlighting-part-2 {
-    background-color: mix(#fff, $highlighting-color-part-2, 60%);
-    &.hover {
-        background-color: mix(#fff, $highlighting-color-part-2, 20%);
-    }
+  background-color: mix(#fff, $highlighting-color-part-2, 60%);
+
+  &.conflict-highlighting--hover {
+    background-color: mix(#fff, $highlighting-color-part-2, 20%);
+  }
 }
 
-.conflict-alert.panel {
-    width: 220px;
-    height: 220px;
-    left: 15px;
-    top: 15px;
-    font-size: 14px;
-    padding-top: 5px;
-    p {
-        line-height: 1.3;
-    }
+.conflict-alert {
+  font-size: 14px;
+  height: 220px;
+  left: 15px;
+  padding-top: 5px;
+  top: 15px;
+  width: 220px;
+
+  p {
+    line-height: 1.3;
+  }
 }
 
-.fix.conflict.dialog {
-    .md-highlighting {
-        .h1,
-        .h11,
-        .h2,
-        .h22,
-        .h3,
-        .h4,
-        .h5,
-        .h6,
-        .md-toc {
-            font-size: inherit;
-        }
+.conflict-dialog {
+  .md-highlighting {
+    .h1,
+    .h11,
+    .h2,
+    .h22,
+    .h3,
+    .h4,
+    .h5,
+    .h6,
+    .md-toc {
+      font-size: inherit;
     }
-    .conflict-highlighting.selected {
-        background-color: #C3E6DB;
-    }
+  }
 }
