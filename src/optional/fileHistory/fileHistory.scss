@@ -1,49 +1,98 @@
-.file-history.tab {
-	padding: 20px 25px;
-	&.selected .file-history.item {
-		opacity: 0.15;
-		&:hover {
-			opacity: 0.4;
-		}
-	}
-	&.selected .file-history.item.selected {
-		opacity: 1;
-	}
-	.file-history.item {
-		-webkit-transition: 0.12s ease-out opacity;
-		        transition: 0.12s ease-out opacity;
-		.created {
-			color: rgba(0, 0, 0, 0.5);
-			font-size: 0.7em;
-			text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
-			padding-left: 4px;
-			white-space: nowrap;
-		}
-		.users {
-			margin-bottom: 5px;
-			.user-name {
-				font-size: 15px;
-				padding-right: 10px;
-			}
-		}
-		& > hr {
-			margin: 15px auto 15px;
-			width: 120px;
-		}
-		.selector {
-			cursor: pointer;
-			margin: 10px 0;
-		}
-		.md-chips {
-			padding: 0;
-			cursor: pointer;
-		}
-		.md-chip {
-			margin: 0 0 0 5px;
-			font-size: 0.8em;
-			height: 23px;
-			line-height: 23px;
-			cursor: pointer;
-		}
-	}
+@import 'bourbon';
+
+.file-history-tab {
+  padding: 20px 25px;
+}
+
+.file-history-tab--selected {
+  .file-history-entry {
+    opacity: .15;
+
+    &:hover {
+      opacity: .4;
+    }
+  }
+
+  .file-history-entry--selected {
+    &,
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.file-history-tab__show-more {
+  font-size: 14px;
+}
+
+.file-history-entry {
+  @include transition(.12s ease-out opacity);
+
+  .md-chips {
+    padding-bottom: 0;
+  }
+}
+
+.file-history-entry__selector {
+  cursor: pointer;
+}
+
+.file-history-entry__header {
+  margin-bottom: 5px;
+}
+
+.file-history-entry__user-name {
+  font-size: 15px;
+  padding-right: 10px;
+}
+
+.file-history-entry__created {
+  color: rgba(0, 0, 0, .5);
+  font-size: .7em;
+  padding-left: 4px;
+  text-shadow: 1px 1px rgba(255, 255, 255, .5);
+  white-space: nowrap;
+}
+
+.file-history-entry__chip {
+  .file-history-entry & {
+    cursor: pointer;
+    font-size: 10px;
+    height: 22px;
+    line-height: 22px;
+    margin: 0;
+  }
+}
+
+.file-history-entry__separator {
+  margin: 15px auto;
+  width: 120px;
+}
+
+.file-change-list {
+  margin-bottom: 20px;
+}
+
+.file-change {
+  margin: 10px 0;
+}
+
+.file-change__type {
+  color: rgba(0, 0, 0, .5);
+  font-size: 13px;
+  margin: 3px 0;
+  text-shadow: 1px 1px rgba(255, 255, 255, .5);
+  white-space: nowrap;
+}
+
+.file-change__text,
+.file-change__comment {
+  font-size: 14px;
+}
+
+.file-change__text--removed,
+.file-change__comment--removed {
+  * {
+    text-decoration: line-through;
+  }
 }

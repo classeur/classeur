@@ -155,7 +155,7 @@ angular.module('classeur.optional.conflicts', [])
         }, 2000)
 
         scope.$watch('currentFileDao.contentDao.conflicts', function () {
-          if (clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {
+          if (contentDao.conflicts && clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {
             clEditorLayoutSvc.currentControl = undefined
           }
         })

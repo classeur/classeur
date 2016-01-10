@@ -62,47 +62,196 @@ angular.module('classeur.core.utils', [])
     })
   .filter('clTimeSince',
     function () {
-      var time_formats = [
-        [60 * 2, '1 minute ago', '1 minute from now'],
-        [60 * 60, 'minutes', 60],
-        [60 * 60 * 2, '1 hour ago', '1 hour from now'],
-        [60 * 60 * 24, 'hours', 60 * 60],
-        [60 * 60 * 24 * 2, 'Yesterday', 'Tomorrow'],
-        [60 * 60 * 24 * 7, 'days', 60 * 60 * 24],
-        [60 * 60 * 24 * 7 * 4 * 2, 'Last week', 'Next week'],
-        [60 * 60 * 24 * 7 * 4, 'weeks', 60 * 60 * 24 * 7],
-        [60 * 60 * 24 * 7 * 4 * 2, 'Last month', 'Next month'],
-        [60 * 60 * 24 * 7 * 4 * 12, 'months', 60 * 60 * 24 * 7 * 4],
-        [60 * 60 * 24 * 7 * 4 * 12 * 2, 'Last year', 'Next year'],
-        [60 * 60 * 24 * 7 * 4 * 12 * 100, 'years', 60 * 60 * 24 * 7 * 4 * 12],
-        [60 * 60 * 24 * 7 * 4 * 12 * 100 * 2, 'Last century', 'Next century'],
-        [60 * 60 * 24 * 7 * 4 * 12 * 100 * 20, 'centuries', 60 * 60 * 24 * 7 * 4 * 12 * 100]
-      ]
-      return function (time) {
-        var seconds = (+new Date() - time) / 1000
-        var token = 'ago'
-        var list_choice = 1
+      // Credit: https://github.com/github/time-elements/
+      var weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-        if (seconds > -60 && seconds < 60) {
-          return 'Just now'
-        }
-        if (seconds < 0) {
-          seconds = Math.abs(seconds)
-          token = 'from now'
-          list_choice = 2
-        }
-        var i = 0
-        var format
-        while ((format = time_formats[i++])) {
-          if (seconds < format[0]) {
-            if (typeof format[2] === 'string') {
-              return format[list_choice]
-            } else {
-              return Math.floor(seconds / format[2]) + ' ' + format[1] + ' ' + token
-            }
+      function pad (num) {
+        return ('0' + num).slice(-2)
+      }
+
+      function strftime (time, formatString) {
+        var day = time.getDay()
+        var date = time.getDate()
+        var month = time.getMonth()
+        var year = time.getFullYear()
+        var hour = time.getHours()
+        var minute = time.getMinutes()
+        var second = time.getSeconds()
+        return formatString.replace(/%([%aAbBcdeHIlmMpPSwyYZz])/g, function (_arg) {
+          var match
+          var modifier = _arg[1]
+          switch (modifier) {
+            case '%':
+              return '%'
+            case 'a':
+              return weekdays[day].slice(0, 3)
+            case 'A':
+              return weekdays[day]
+            case 'b':
+              return months[month].slice(0, 3)
+            case 'B':
+              return months[month]
+            case 'c':
+              return time.toString()
+            case 'd':
+              return pad(date)
+            case 'e':
+              return date
+            case 'H':
+              return pad(hour)
+            case 'I':
+              return pad(strftime(time, '%l'))
+            case 'l':
+              if (hour === 0 || hour === 12) {
+                return 12
+              } else {
+                return (hour + 12) % 12
+              }
+              break
+            case 'm':
+              return pad(month + 1)
+            case 'M':
+              return pad(minute)
+            case 'p':
+              if (hour > 11) {
+                return 'PM'
+              } else {
+                return 'AM'
+              }
+              break
+            case 'P':
+              if (hour > 11) {
+                return 'pm'
+              } else {
+                return 'am'
+              }
+              break
+            case 'S':
+              return pad(second)
+            case 'w':
+              return day
+            case 'y':
+              return pad(year % 100)
+            case 'Y':
+              return year
+            case 'Z':
+              match = time.toString().match(/\((\w+)\)$/)
+              return match ? match[1] : ''
+            case 'z':
+              match = time.toString().match(/\w([+-]\d\d\d\d) /)
+              return match ? match[1] : ''
           }
+        })
+      }
+
+      function RelativeTime (date) {
+        this.date = date
+      }
+
+      RelativeTime.prototype.toString = function () {
+        var ago = this.timeElapsed()
+        if (ago) {
+          return ago
+        } else {
+          return 'on ' + this.formatDate()
         }
-        return time
+      }
+
+      RelativeTime.prototype.timeElapsed = function () {
+        var ms = new Date().getTime() - this.date.getTime()
+        var sec = Math.round(ms / 1000)
+        var min = Math.round(sec / 60)
+        var hr = Math.round(min / 60)
+        var day = Math.round(hr / 24)
+        if (ms < 0) {
+          return 'just now'
+        } else if (sec < 10) {
+          return 'just now'
+        } else if (sec < 45) {
+          return sec + ' seconds ago'
+        } else if (sec < 90) {
+          return 'a minute ago'
+        } else if (min < 45) {
+          return min + ' minutes ago'
+        } else if (min < 90) {
+          return 'an hour ago'
+        } else if (hr < 24) {
+          return hr + ' hours ago'
+        } else if (hr < 36) {
+          return 'a day ago'
+        } else if (day < 30) {
+          return day + ' days ago'
+        } else {
+          return null
+        }
+      }
+
+      // Private: Determine if the day should be formatted before the month name in
+      // the user's current locale. For example, `9 Jun` for en-GB and `Jun 9`
+      // for en-US.
+      //
+      // Returns true if the day appears before the month.
+      function isDayFirst () {
+        if (dayFirst !== null) {
+          return dayFirst
+        }
+
+        if (!('Intl' in window)) {
+          return false
+        }
+
+        var options = {day: 'numeric', month: 'short'}
+        var formatter = new window.Intl.DateTimeFormat(undefined, options)
+        var output = formatter.format(new Date(0))
+
+        dayFirst = !!output.match(/^\d/)
+        return dayFirst
+      }
+      var dayFirst = null
+
+      // Private: Determine if the year should be separated from the month and day
+      // with a comma. For example, `9 Jun 2014` in en-GB and `Jun 9, 2014` in en-US.
+      //
+      // Returns true if the date needs a separator.
+      function isYearSeparator () {
+        if (yearSeparator !== null) {
+          return yearSeparator
+        }
+
+        if (!('Intl' in window)) {
+          return true
+        }
+
+        var options = {day: 'numeric', month: 'short', year: 'numeric'}
+        var formatter = new window.Intl.DateTimeFormat(undefined, options)
+        var output = formatter.format(new Date(0))
+
+        yearSeparator = !!output.match(/\d,/)
+        return yearSeparator
+      }
+      var yearSeparator = null
+
+      // Private: Determine if the date occurs in the same year as today's date.
+      //
+      // date - The Date to test.
+      //
+      // Returns true if it's this year.
+      function isThisYear (date) {
+        var now = new Date()
+        return now.getUTCFullYear() === date.getUTCFullYear()
+      }
+
+      RelativeTime.prototype.formatDate = function () {
+        var format = isDayFirst() ? '%e %b' : '%b %e'
+        if (!isThisYear(this.date)) {
+          format += isYearSeparator() ? ', %Y' : ' %Y'
+        }
+        return strftime(this.date, format)
+      }
+
+      return function (time) {
+        return time && new RelativeTime(new Date(time)).toString()
       }
     })
   .factory('clDialog',

@@ -1,9 +1,9 @@
 <md-dialog class="conflict-dialog">
   <md-dialog-content>
     <h2>Fix conflict</h2>
-    <div class="conflict-highlighting md-highlighting" ng-class="{'conflict-highlighting--selected': selectedPart === 1, 'conflict-highlighting--deleted': selectedPart === 2}" ng-click="selectedPart = 1" ng-bind-html="part1 | clHighlightMarkdown:editorSvc.prismGrammar">
+    <div class="conflict-highlighting markdown-highlighting markdown-highlighting--inline" ng-class="{'conflict-highlighting--selected': selectedPart === 1, 'conflict-highlighting--deleted': selectedPart === 2}" ng-click="selectedPart = 1" ng-bind-html="part1 | clHighlightMarkdown:editorSvc.prismGrammar">
     </div>
-    <div class="conflict-highlighting md-highlighting" ng-class="{'conflict-highlighting--selected': selectedPart === 2, 'conflict-highlighting--deleted': selectedPart === 1}" ng-click="selectedPart = 2" ng-bind-html="part2 | clHighlightMarkdown:editorSvc.prismGrammar">
+    <div class="conflict-highlighting markdown-highlighting markdown-highlighting--inline" ng-class="{'conflict-highlighting--selected': selectedPart === 2, 'conflict-highlighting--deleted': selectedPart === 1}" ng-click="selectedPart = 2" ng-bind-html="part2 | clHighlightMarkdown:editorSvc.prismGrammar">
     </div>
   </md-dialog-content>
   <div class="md-actions">

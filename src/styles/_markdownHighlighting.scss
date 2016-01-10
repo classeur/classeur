@@ -1,5 +1,5 @@
 // scss-lint:disable ImportantRule
-.md-highlighting {
+.markdown-highlighting {
   color: $ced-color;
   font-family: inherit;
   font-size: inherit;
@@ -212,5 +212,19 @@
 
   .cl-title {
     color: $ced-color;
+  }
+}
+
+.markdown-highlighting--inline {
+  .h1,
+  .h11,
+  .h2,
+  .h22,
+  .h3,
+  .h4,
+  .h5,
+  .h6,
+  .cl-toc {
+    font-size: inherit;
   }
 }

@@ -53,7 +53,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-tab--selected {
-  .discussion-item {
+  .discussion-entry {
     opacity: .15;
 
     &:hover {
@@ -61,7 +61,7 @@ $highlighting-color: #ffdf60;
     }
   }
 
-  .discussion-item--selected {
+  .discussion-entry--selected {
     &,
     &:hover {
       opacity: 1;
@@ -69,7 +69,7 @@ $highlighting-color: #ffdf60;
   }
 }
 
-.discussion-item {
+.discussion-entry {
   margin: 20px 0;
 
   @include transition(.12s ease-out opacity);
@@ -77,32 +77,18 @@ $highlighting-color: #ffdf60;
   .md-chips {
     padding-bottom: 0;
   }
-
-  .md-highlighting {
-    .h1,
-    .h11,
-    .h2,
-    .h22,
-    .h3,
-    .h4,
-    .h5,
-    .h6,
-    .md-toc {
-      font-size: inherit;
-    }
-  }
 }
 
-.discussion-item__selector {
+.discussion-entry__selector {
   cursor: pointer;
 }
 
-.discussion-item__separator {
+.discussion-entry__separator {
   margin: 20px auto;
   width: 120px;
 }
 
-.discussion-item__text {
+.discussion-entry__text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -113,31 +99,31 @@ $highlighting-color: #ffdf60;
     display: inline;
   }
 
-  .discussion-item__text-span {
+  .discussion-entry__text-span {
     padding: .2em 0;
   }
 
-  .discussion-item--selected & {
+  .discussion-entry--selected & {
     text-overflow: clip;
     white-space: normal;
 
-    .discussion-item__text-span {
+    .discussion-entry__text-span {
       background-color: mix($body-color, $highlighting-color, 20%);
     }
   }
 }
 
-.discussion-item__chip {
-  .discussion-item & {
+.discussion-entry__chip {
+  .discussion-entry & {
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
     height: 22px;
     line-height: 22px;
     margin: 0;
   }
 }
 
-.discussion-item__show-more {
+.discussion-entry__show-more {
   font-size: 14px;
 }
 
@@ -169,6 +155,7 @@ $highlighting-color: #ffdf60;
 .comment-entry__input {
   background-color: #fff;
   font-size: .9em;
+  font-variant-ligatures: no-common-ligatures;
   margin: 5px 0 5px 20px;
   min-height: 60px;
   overflow: auto;
@@ -176,8 +163,6 @@ $highlighting-color: #ffdf60;
   white-space: pre-wrap;
   word-break: break-word;
   word-wrap: break-word;
-
-  @include font-feature-settings(normal);
 }
 
 .comment-info {
@@ -239,11 +224,10 @@ $highlighting-color: #ffdf60;
   }
 
   pre {
+    font-variant-ligatures: no-common-ligatures;
     white-space: pre-wrap;
     word-break: break-word;
     word-wrap: break-word;
-
-    @include font-feature-settings(normal);
   }
 
   img,

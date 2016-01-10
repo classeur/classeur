@@ -1059,7 +1059,7 @@ angular.module('classeur.core.sync', [])
           if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
             // It ought to be the previously sent message
             msg = watchCtx.sentMsg
-            watchCtx.contentChanges = watchCtx.sentMsg
+            watchCtx.contentChanges[msg.rev] = watchCtx.sentMsg
           }
           var oldText = serverText
           watchCtx.chars = clDiffUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.userId)

@@ -1,5 +1,5 @@
 <div class="editor" cl-keystrokes cl-folding cl-scroll-sync-editor>
-  <pre class="editor__inner md-highlighting" ng-class="::{monospaced: settingSvc.values.editorMonospacedFont}" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
+  <pre class="editor__inner markdown-highlighting" ng-class="::{monospaced: settingSvc.values.editorMonospacedFont}" style="font-size: {{editorLayoutSvc.fontSizeEm}};"></pre>
   <cl-user-cursor ng-repeat="(userId, userCursor) in contentSyncSvc.watchCtx.userCursors"></cl-user-cursor>
   <cl-conflict-decorator></cl-conflict-decorator>
   <cl-editor-discussion-decorator></cl-editor-discussion-decorator>

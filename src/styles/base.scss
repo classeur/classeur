@@ -11,11 +11,11 @@ html {
 html,
 body {
   color: $text-color;
+  font-variant-ligatures: common-ligatures;
   line-height: 1.5;
 
   @include prefixer(font-smoothing, auto, webkit);
   @include prefixer(osx-font-smoothing, auto, moz);
-  @include font-feature-settings('liga');
 }
 
 h1,

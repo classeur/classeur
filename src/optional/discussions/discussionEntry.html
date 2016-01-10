@@ -1,0 +1,19 @@
+<div class="discussion-entry" ng-class="{'discussion-entry--selected': discussionSvc.currentDiscussionId === discussionId}" ng-switch="discussionSvc.currentDiscussionId === discussionId">
+  <div class="discussion-entry__selector" ng-click="selectDiscussion()">
+    <div layout="row" layout-align="space-between start">
+      <div class="discussion-entry__text markdown-highlighting markdown-highlighting--inline" flex>
+        “<span class="discussion-entry__text-span" ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.prismGrammar"></span>”
+      </div>
+      <md-chips ng-switch-when="false">
+        <md-chip class="discussion-entry__chip">{{commentsTotalCount}}</md-chip>
+      </md-chips>
+    </div>
+    <div class="comment-info" ng-switch-when="false">
+      <cl-user-name class="comment-info__user-name" user-id="lastComment.userId"></cl-user-name>
+      <span class="comment-info__created">{{lastComment.created | clTimeSince:minuteCounter}}</span>
+    </div>
+  </div>
+  <md-button ng-if="hasMore" ng-click="more()">Show more</md-button>
+  <cl-discussion-comment-list ng-switch-when="true"></cl-discussion-comment-list>
+  <hr class="discussion-entry__separator">
+</div>

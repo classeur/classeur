@@ -11,13 +11,13 @@
 
 .editor__inner {
   font-family: $font-family-editor;
+  font-variant-ligatures: no-common-ligatures;
   margin: 0;
   padding: 80px 20px 360px $editor-margin-width;
   white-space: pre-wrap;
   word-break: break-word;
   word-wrap: break-word;
 
-  @include font-feature-settings(normal);
   * {
     line-height: 1.6;
   }

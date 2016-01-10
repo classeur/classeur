@@ -7,12 +7,11 @@
 
 .markdown-sample-tab__inner {
   font-size: .9em;
+  font-variant-ligatures: no-common-ligatures;
   line-height: 1.25;
   white-space: pre-wrap;
   word-break: break-word;
   word-wrap: break-word;
-
-  @include font-feature-settings(normal);
 
   .code,
   .img,

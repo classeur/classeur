@@ -1,5 +1,5 @@
 @import 'base';
-@import 'mdHighlighting';
+@import 'markdownHighlighting';
 @import 'material';
 @import 'print';
 @import 'bourbon';
@@ -49,7 +49,7 @@ body {
 
 input:not([disabled]),
 textarea:not([disabled]) {
-  @include font-feature-settings('liga');
+  font-variant-ligatures: common-ligatures;
 }
 
 .panel {

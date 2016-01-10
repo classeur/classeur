@@ -604,6 +604,7 @@ angular.module('classeur.optional.discussions', [])
 
       function link (scope) {
         scope.discussionSvc = clDiscussionSvc
+        clDiscussionSvc.currentDiscussionId = undefined
         scope.$watch('discussionSvc.currentDiscussionId === discussionSvc.newDiscussionId', function (isNew) {
           scope.discussion = isNew && clDiscussionSvc.newDiscussion
           scope.discussionId = isNew && clDiscussionSvc.newDiscussionId
@@ -615,11 +616,11 @@ angular.module('classeur.optional.discussions', [])
         })
       }
     })
-  .directive('clDiscussionItem',
+  .directive('clDiscussionEntry',
     function ($window, clDiscussionSvc, clDialog, clToast, clEditorSvc, clEditorLayoutSvc) {
       return {
         restrict: 'E',
-        templateUrl: 'optional/discussions/discussionItem.html',
+        templateUrl: 'optional/discussions/discussionEntry.html',
         link: link
       }
 

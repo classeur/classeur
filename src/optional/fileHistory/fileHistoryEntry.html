@@ -1,0 +1,40 @@
+<div class="file-history-entry" ng-class="{'file-history-entry--selected': fileHistorySvc.selectedChangeGroup === changeGroup}">
+  <div class="file-history-entry__selector" ng-click="selectChangeGroup(changeGroup)">
+    <div class="file-history-entry__header">
+      <cl-user-name class="file-history-entry__user-name" ng-repeat="userId in changeGroup.userIds track by userId" user-id="userId"></cl-user-name>
+      <span class="file-history-entry__created">
+        {{changeGroup.created | clTimeSince:minuteCounter}}
+      </span>
+    </div>
+    <div layout="row" layout-align="end">
+      <md-chips>
+        <md-chip class="file-history-entry__chip">rev {{changeGroup.toRev}}</md-chip>
+      </md-chips>
+    </div>
+  </div>
+  <div ng-if="fileHistorySvc.selectedChangeGroup === changeGroup" ng-switch="isLoading">
+    <cl-block-spinner ng-switch-when="true"></cl-block-spinner>
+    <div class="file-change-list" ng-switch-when="false">
+      <div class="file-change" ng-if="!diffs.text">
+        <div class="file-change__type">
+          No text change.
+        </div>
+      </div>
+      <div class="file-change" ng-repeat="textDiff in diffs.text">
+        <div class="file-change__type">
+          {{::textDiff.d ? 'Removed text:' : 'Added text:'}}
+        </div>
+        <div class="file-change__text markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__text--removed': textDiff.d}" ng-bind-html="::textDiff.a || textDiff.d | clHighlightMarkdown:editorSvc.prismGrammar">
+        </div>
+      </div>
+      <div class="file-change" ng-repeat="comment in diffs.comments">
+        <div class="file-change__type">
+          {{::comment.d ? 'Removed comment:' : 'Added comment:'}}
+        </div>
+        <div class="file-change__comment markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__comment--removed': comment.d}" ng-bind-html="::comment.a ? comment.a.text : comment.d.text | clHighlightMarkdown:editorSvc.prismGrammar">
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="file-history-entry__separator">
+</div>
