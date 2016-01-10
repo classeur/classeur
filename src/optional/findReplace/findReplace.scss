@@ -1,25 +1,27 @@
-.findreplace.panel {
-	background-color: transparentize(#dadada, 0.05);
-	color: #404040;
-	bottom: 0;
-	height: 35px;
-	font-size: 14px;
-	.close.btn {
-		font-size: 22px;
-    color: rgba(0,0,0,0.48);
-    line-height: 14px;
-	}
-	.input {
-		width: 150px;
-		margin: 0 5px;
-		padding: 5px 2px;
-	}
+.find-replace {
+  background-color: transparentize(#dadada, .05);
+  bottom: 0;
+  color: #404040;
+  font-size: 14px;
+  height: 35px;
+}
+
+.find-replace__input {
+  margin: 0 5px;
+  padding: 5px 2px;
+  width: 150px;
+}
+
+.find-replace__close-btn {
+  color: rgba(0, 0, 0, .48);
+  font-size: 22px;
+  line-height: 14px;
 }
 
 .find-replace-highlighting {
-	background-color: #ff0;
+  background-color: #ff0;
 }
 
 .find-replace-selection {
-	background-color: #ff9632;
+  background-color: #ff9632;
 }

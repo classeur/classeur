@@ -13,7 +13,7 @@ angular.module('classeur.optional.folding', [])
         function removeSectionGroupHover () {
           if (sectionGroupHover) {
             var elt = sectionGroupHover.sections[0].elt
-            elt.className = elt.className.replace(/ folding-hover/g, '')
+            elt.className = elt.className.replace(/ folding--hover/g, '')
             sectionGroupHover = undefined
           }
         }
@@ -21,7 +21,7 @@ angular.module('classeur.optional.folding', [])
         function setSectionGroupHover (sectionGroup) {
           removeSectionGroupHover()
           sectionGroupHover = sectionGroup
-          sectionGroupHover.sections[0].elt.className += ' folding-hover'
+          sectionGroupHover.sections[0].elt.className += ' folding--hover'
           clearTimeout(timeoutId)
           timeoutId = setTimeout(removeSectionGroupHover, 3000)
         }
@@ -126,7 +126,7 @@ angular.module('classeur.optional.folding', [])
         }
         elt && showElt(elt)
         // Set folded state
-        this.sections[0].elt.className += ' folded'
+        this.sections[0].elt.className += ' folding--folded'
         this.isFolded = true
       }
 
@@ -140,7 +140,7 @@ angular.module('classeur.optional.folding', [])
         this.children.cl_each(function (childGroup) {
           // Unset folded state in case child was folded
           var elt = childGroup.sections[0].elt
-          elt.className = elt.className.replace(/ folded/g, '')
+          elt.className = elt.className.replace(/ folding--folded/g, '')
           childGroup.isFolded = false
           childGroup.isParentFolded = true
           childGroup.hideSections()
@@ -156,7 +156,7 @@ angular.module('classeur.optional.folding', [])
           sectionGroup.showSections()
           // Unset folded state
           var elt = sectionGroup.sections[0].elt
-          elt.className = elt.className.replace(/ folded/g, '')
+          elt.className = elt.className.replace(/ folding--folded/g, '')
           sectionGroup.isFolded = false
           return true
         }

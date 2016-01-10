@@ -1,40 +1,11 @@
-.link.dialog,
-.image.dialog {
-    min-width: 360px;
-    .or {
-        text-align: center;
-        text-transform: uppercase;
-        font-weight: 500;
-        color: #bbb;
-        span {
-            font-weight: 300;
-        }
-    }
-    .drop-zone {
-        border: 3px dashed #bbb;
-        border-radius: 16px;
-        padding: 32px;
-        text-align: center;
-        color: #bbb;
-        position: relative;
-        .icon {
-            font-size: 42px;
-        }
-        input {
-            position: absolute;
-            display: block;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-    }
-    .powered-by {
-        color: #bbb;
-        font-size: 12px;
-        padding: 10px;
-        text-align: right;
-    }
+.link-dialog,
+.image-dialog {
+  min-width: 360px;
+}
+
+.image-dialog__powered-by {
+  color: #bbb;
+  font-size: 12px;
+  padding: 10px;
+  text-align: right;
 }

@@ -1,7 +1,5 @@
-<div class="discussion-postit postit cl-panel" ng-click="select()">
-    <div>
-        <cl-user-name user-id="lastComment.userId"></cl-user-name>
-    </div>
-    <div class="created">{{lastComment.created | clTimeSince:minuteCounter}}</div>
-    <div class="comment text" ng-bind-html="lastComment.text | clConvertMarkdown"></div>
+<div class="discussion-postit postit panel" ng-click="select()">
+  <cl-user-name class="discussion-postit__user-name" user-id="lastComment.userId"></cl-user-name>
+  <div class="discussion-postit__created">{{lastComment.created | clTimeSince:minuteCounter}}</div>
+  <div class="discussion-postit__text comment-text" ng-bind-html="lastComment.text | clConvertMarkdown"></div>
 </div>

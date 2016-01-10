@@ -1,9 +1,19 @@
 @import 'bourbon';
 @import 'variables';
 
+.folder-name {
+  height: 120px;
+}
+
 .folder-name__input-container {
   letter-spacing: -.01em;
+  margin: 0 0 10px;
   width: 100%;
+}
+
+.folder-name__input {
+  font-size: 32px;
+  font-weight: 300;
 }
 
 .folder-name__menu-btn {
@@ -12,6 +22,7 @@
   font-size: 30px;
   height: 42px;
   padding: 0;
+  text-shadow: 1px 1px rgba(0, 0, 0, .06);
   width: 38px;
 }
 

@@ -1,27 +1,35 @@
-<div class="sys page panel background">
-    <div layout="column">
-        <div layout="row" layout-align="space-between end">
-            <div class="title">System configuration</div>
-            <div layout="row">
-                <md-button ng-href="#!/">Close <span class="icon-close"></span></md-button>
-            </div>
+<div class="sys-page panel background">
+  <div class="navbar panel md-whiteframe-1dp" layout="row" layout-align="center">
+    <div class="navbar__inner">
+      <div layout="row" layout-align="space-between">
+        <div layout="row">
+          <div class="navbar__logo no-overflow">
+          </div>
+          <div class="navbar__item navbar__item--title">
+            System configuration
+          </div>
         </div>
-        <br>
-        <h2>App config</h2>
-        <div layout="row" ng-repeat="property in properties" class="entry">
-            <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete key"></md-button>
-            <input autocomplete="off" ng-model="property.key" placeholder="label">
-            <input autocomplete="off" ng-model="property.value" placeholder="value">
-        </div>
-        <br>
-        <div layout="row" layout-align="space-between">
-            <md-button ng-click="addRow()">
-                Add property
-                <span class="icon-add"></span>
-            </md-button>
-            <md-button ng-click="update()" class="md-primary">
-                Update
-            </md-button>
-        </div>
+        <md-button class="navbar__item navbar__item--icon icon-close" ng-href="#!/" aria-label="Close">
+        </md-button>
+      </div>
     </div>
+  </div>
+  <div class="sys-page__inner">
+    <h2>App config</h2>
+    <div class="sys-page__entry" layout="row" ng-repeat="property in properties">
+      <md-button class="icon-remove" ng-click="deleteRow(property)" aria-label="Delete key"></md-button>
+      <input class="sys-page__entry-input" autocomplete="off" ng-model="property.key" placeholder="label">
+      <input class="sys-page__entry-input" autocomplete="off" ng-model="property.value" placeholder="value">
+    </div>
+    <br>
+    <div layout="row" layout-align="space-between">
+      <md-button ng-click="addRow()">
+        Add property
+        <span class="icon-add"></span>
+      </md-button>
+      <md-button ng-click="update()" class="md-primary">
+        Update
+      </md-button>
+    </div>
+  </div>
 </div>

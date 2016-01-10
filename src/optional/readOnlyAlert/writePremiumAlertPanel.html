@@ -1,19 +1,19 @@
-<div class="write-premium-alert postit cl-panel md-whiteframe-z2" layout="column" layout-align="space-between">
-    <div>
-        <h2>Hold on!</h2>
-        <p>You need a premium account to collaborate on this file.</p>
-        <md-button class="postit__close-btn icon-clear" md-no-ink ng-click="dismiss()" aria-label="Close">
-        </md-button>
-    </div>
-    <div layout="row" layout-align="end">
-        <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">
-            Sign in with Google
-        </md-button>
-        <md-button md-no-ink class="md-primary" ng-href="#!/signin" ng-if="!socketSvc.hasToken && config.loginForm">
-            Sign in
-        </md-button>
-        <md-button ng-if="userSvc.user" ng-href="#!/choosePlan" md-no-ink class="md-primary">
-            Go premium
-        </md-button>
-    </div>
+<div class="write-premium-alert postit panel md-whiteframe-z2" layout="column" layout-align="space-between">
+  <div>
+    <h2>Hold on!</h2>
+    <p>You need a premium account to collaborate on this file.</p>
+    <md-button class="postit__close-btn icon-clear" md-no-ink ng-click="dismiss()" aria-label="Close">
+    </md-button>
+  </div>
+  <div layout="row" layout-align="end">
+    <md-button md-no-ink class="md-primary" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">
+      Sign in with Google
+    </md-button>
+    <md-button md-no-ink class="md-primary" ng-href="#!/signin" ng-if="!socketSvc.hasToken && config.loginForm">
+      Sign in
+    </md-button>
+    <md-button ng-if="userSvc.user" ng-href="#!/choosePlan" md-no-ink class="md-primary">
+      Go premium
+    </md-button>
+  </div>
 </div>

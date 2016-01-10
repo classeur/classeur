@@ -1,138 +1,126 @@
-.plan.chooser {
-	height: 100%;
-	overflow: auto;
-	.container {
-		margin: auto;
-		max-width: 900px;
-		padding: 0 20px;
-	}
-	.footer {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
-		color: rgba(0, 0, 0, 0.75);
-		.icon {
-			font-size: 23px;
-			line-height: 16px;
-		}
-	}
-	.logo {
-		width: 180px;
-		height: 60px;
-		background-image: url('assets/images/logo.png');
-		background-size: 180px 60px;
-		background-repeat: no-repeat;
-	}
-	.icon-close {
-		font-size: 28px;
-	}
-	.scroller {
-		overflow: auto;
-	}
-	.menu {
-		margin: 0 -5px;
-		padding: 0 5px;
-		border-top: 1px solid rgba(128, 128, 128, 0.2);
-		.md-button {
-			padding: 10px;
-		}
-	}
-	.title {
-		text-align: center;
-		font-size: 46px;
-		font-weight: 300;
-		margin: 40px 0 60px;
-	}
-	@media (min-width: 600px) {
-		.perspective {
-			perspective: 1000px;
-		}
-	}
-	.plan.item {
-		position: relative;
-		background-color: #fbfbfb;
-		margin: 0 -8px 60px;
-		height: 530px;
-		text-align: center;
-		padding: 0 10px 10px;
-		border-radius: 3px;
-		.header {
-			color: #fff;
-			text-shadow: 1px 1px rgba(0,0,0,0.067);
-			height: 175px;
-		}
-		.body {
-			padding-top: 20px;
-			border-radius: 4px;
-			background-color: rgba(255, 255, 255, 0.25);
-		}
-		.name {
-			font-size: 24px;
-			margin-bottom: 15px;
-		}
-		.price {
-			font-size: 46px;
-			line-height: 1;
-		}
-		&.standard {
-			transform: rotateY(8deg);
-		}
-		&.enterprise {
-			transform: rotateY(-8deg);
-			font-size: 14px;
-			.name {
-				margin-bottom: 10px;
-			}
-			.price {
-				font-size: 36px;
-			}
-		}
-		&.premium {
-			z-index: 1;
-			height: 560px;
-			margin-top: -15px;
-			.header {
-				height: 190px;
-			}
-		}
-		ul {
-			margin: 0;
-			padding: 0;
-		}
-		li {
-			font-size: 14px;
-			padding: 8px 12px;
-			list-style-type: none;
-			line-height: 1.3;
-		}
-		.md-button {
-			font-size: 22px;
-			padding: 10px 15px;
-			margin: 15px;
-			display: block;
-			.info {
-				padding-top: 6px;
-				text-transform: none;
-				font-size: 14px;
-			}
-		}
-	}
-	.info {
-		text-align: center;
-	}
-	.discount {
-		background-color: #fff;
-		padding: 30px;
-		margin: 30px auto 120px;
-		width: 400px;
-		text-align: center;
-		.md-button {
-			display: block;
-			line-height: 1.8;
-			font-size: 18px;
-			.icon {
-				font-size: 50px;
-			}
-		}
-	}
+.plan-chooser {
+  overflow: auto;
+
+  @media (min-width: 600px) {
+    .perspective {
+      perspective: 1000px;
+    }
+  }
+
+  .navbar {
+    position: fixed;
+  }
+
+  .navbar__inner {
+    max-width: 900px;
+    width: 100%;
+  }
+}
+
+.plan-chooser__inner {
+  margin: auto;
+  max-width: 900px;
+  padding: 100px 5px;
+}
+
+.plan-entry {
+  background-color: #fbfbfb;
+  border-radius: 3px;
+  height: 530px;
+  margin: 0 -8px 60px;
+  padding: 0 10px 10px;
+  position: relative;
+  text-align: center;
+}
+
+.plan-entry__header {
+  color: #fff;
+  height: 175px;
+  text-shadow: 1px 1px rgba(0, 0, 0, .067);
+}
+
+.plan-entry__body {
+  background-color: rgba(255, 255, 255, .25);
+  border-radius: 4px;
+  padding-top: 20px;
+}
+
+.plan-entry__name {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.plan-entry__price {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.plan-entry__items {
+  margin: 0;
+  padding: 0;
+
+  li {
+    font-size: 14px;
+    line-height: 1.3;
+    list-style-type: none;
+    padding: 8px 12px;
+  }
+}
+
+.plan-entry__button {
+  display: block;
+  font-size: 22px;
+  margin: 15px;
+  padding: 10px 15px;
+}
+
+.plan-entry__button-info {
+  font-size: 14px;
+  padding-top: 6px;
+  text-transform: none;
+}
+
+.plan-entry--standard {
+  transform: rotateY(8deg);
+}
+
+.plan-entry--enterprise {
+  font-size: 14px;
+  transform: rotateY(-8deg);
+
+  .plan-entry__name {
+    margin-bottom: 10px;
+  }
+
+  .plan-entry__price {
+    font-size: 36px;
+  }
+}
+
+.plan-entry--premium {
+  height: 560px;
+  margin-top: -15px;
+  z-index: 1;
+
+  .plan-entry__header {
+    height: 190px;
+  }
+}
+
+.plan-info {
+  background-color: #fff;
+  margin: 30px auto 120px;
+  padding: 30px;
+  text-align: center;
+  width: 400px;
+}
+
+.plan-info__button {
+  display: block;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.plan-info__button-icon::before {
+  font-size: 50px;
 }

@@ -1,5 +1,5 @@
 <div class="classeur-entry">
-  <div class="classeur-entry__inner cl-panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
+  <div class="classeur-entry__inner panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
     <div class="classeur-entry__tab-1" ng-class="'plastic-' + (($index + 1) % 6)"></div>
     <div class="classeur-entry__tab-2" ng-class="'plastic-' + (($index + 2) % 6)"></div>
     <div class="classeur-entry__name">
@@ -12,7 +12,7 @@
       <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
       <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
     </div>
-    <div class="classeur-entry__menu cl-panel" layout="row" layout-align="center">
+    <div class="classeur-entry__menu panel" layout="row" layout-align="center">
       <md-menu>
         <md-button class="classeur-entry__menu-btn icon-more-vert" md-no-ink aria-label="Options" ng-click="$mdOpenMenu()">
         </md-button>

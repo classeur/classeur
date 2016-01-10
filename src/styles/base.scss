@@ -122,7 +122,6 @@ kbd {
   background-color: #fff;
   border: 1px solid rgba(63, 63, 63, .25);
   border-radius: 3px;
-  -webkit-box-shadow: 0 1px 0 rgba(63, 63, 63, .25);
   box-shadow: 0 1px 0 rgba(63, 63, 63, .25);
   color: #333;
   display: inline-block;
@@ -132,9 +131,11 @@ kbd {
   white-space: nowrap;
 }
 
-abbr[title] {
-  border-bottom: 1px dotted #777;
-  cursor: help;
+abbr {
+  &[title] {
+    border-bottom: 1px dotted #777;
+    cursor: help;
+  }
 }
 
 .footnote {
@@ -149,7 +150,7 @@ abbr[title] {
   margin-left: auto;
   margin-right: auto;
 
-  & > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+  > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
     text-align: justify;
   }
 }

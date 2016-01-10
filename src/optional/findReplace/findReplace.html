@@ -1,11 +1,11 @@
-<div class="findreplace panel no-overflow" layout="row" layout-align="start center">
-  <md-button md-no-ink class="close btn icon-clear" ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close">
+<div class="find-replace panel no-overflow" layout="row" layout-align="start center">
+  <md-button class="find-replace__close-btn icon-clear" md-no-ink ng-click="editorLayoutSvc.currentControl = undefined" aria-label="Close">
   </md-button>
-  <input autocomplete="off" ng-model="findText" class="find input md-whiteframe-z1">
+  <input class="find-replace__input find-replace__input--find md-whiteframe-z1" autocomplete="off" ng-model="findText">
   <md-button ng-click="find()">
     Find
   </md-button>
-  <input autocomplete="off" ng-model="replaceText" class="replace input md-whiteframe-z1">
+  <input class="find-replace__input find-replace__input--replace md-whiteframe-z1" autocomplete="off" ng-model="replaceText">
   <md-button ng-click="replace()">
     Replace
   </md-button>

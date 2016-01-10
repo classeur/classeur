@@ -9,9 +9,9 @@ angular.module('classeur.optional.findReplace', [])
       }
 
       function link (scope, element) {
-        var findReplaceElt = element[0].querySelector('.findreplace.panel')
-        var findInputElt = findReplaceElt.querySelector('.find.input')
-        var replaceInputElt = findReplaceElt.querySelector('.replace.input')
+        var findReplaceElt = element[0].querySelector('.find-replace')
+        var findInputElt = findReplaceElt.querySelector('.find-replace__input--find')
+        var replaceInputElt = findReplaceElt.querySelector('.find-replace__input--replace')
         var duration
 
         function isOpen () {
@@ -31,7 +31,7 @@ angular.module('classeur.optional.findReplace', [])
             replaceInputElt.readOnly = true
           }
           findReplaceElt.clanim
-            .translateX(-clEditorLayoutSvc.backgroundX || 0)
+            .translateX(-clEditorLayoutSvc.editorLayoutX || 0)
             .translateY(isOpen() ? 0 : 40)
             .duration(duration)
             .start(function () {

@@ -1,54 +1,60 @@
 @import 'variables';
 
-.sharing.dialog {
-    min-width: 360px;
-    .md-input[disabled] {
-        color: $text-color;
-    }
-    .btn-grp {
-        a, button {
-            margin-left: 4px;
-            font-size: 18px;
-            padding: 0;
-        }
-        .icon-facebook {
-            background-color: #3b5998 !important;
-        }
-        .icon-linkedin {
-            background-color: #007bb6 !important;
-        }
-        .icon-twitter {
-            background-color: #00aced !important;
-        }
-        .icon-google-plus {
-            background-color: #dd4b39 !important;
-        }
-    }
-    .label {
-        &.indicator {
-            position: relative;
-            top: -15px;
-            left: -5px;
-        }
-        display: inline-block;
-        font-size: 13px;
-        color: #fff;
-        font-weight: 500;
-        line-height: 1.25;
-        border-radius: 8px;
-        padding: 0 6px;
-        &.read {
-            background-color: #2164D3;
-        }
-        &.read-write {
-            background-color: #D33800;
-        }
-    }
-    .help {
-        color: rgba(0, 0, 0, 0.67);
-        font-size: 12px;
-        padding-left: 40px;
-        margin-top: -10px;
-        line-height: 1;
-    }
+.sharing-dialog {
+  min-width: 360px;
+}
+
+.sharing-dialog__label {
+  border-radius: 8px;
+  color: #fff;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  padding: 0 6px;
+}
+
+.sharing-dialog__label--indicator {
+  left: -5px;
+  position: relative;
+  top: -15px;
+}
+
+.sharing-dialog__label--read {
+  background-color: #2164d3;
+}
+
+.sharing-dialog__label--read-write {
+  background-color: #d33800;
+}
+
+.sharing-dialog__info {
+  color: rgba(0, 0, 0, .67);
+  font-size: 12px;
+  line-height: 1;
+  margin-top: -10px;
+  padding-left: 30px;
+}
+
+.sharing-dialog__share-button {
+  font-size: 18px;
+  margin-left: 4px;
+  padding: 0;
+}
+
+// scss-lint:disable ImportantRule
+.sharing-dialog__share-button--facebook {
+  background-color: #3b5998 !important;
+}
+
+.sharing-dialog__share-button--linkedin {
+  background-color: #007bb6 !important;
+}
+
+.sharing-dialog__share-button--twitter {
+  background-color: #00aced !important;
+}
+
+.sharing-dialog__share-button--google-plus {
+  background-color: #dd4b39 !important;
 }

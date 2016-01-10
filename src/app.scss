@@ -52,20 +52,17 @@ textarea:not([disabled]) {
   @include font-feature-settings('liga');
 }
 
-.panel,
-.cl-panel {
+.panel {
   height: 100%;
   position: absolute;
   width: 100%;
 }
 
-.no-overflow,
-.cl-no-overflow {
+.no-overflow {
   overflow: hidden;
 }
 
-.background,
-.cl-background {
+.background {
   background-color: $background-color;
 }
 
@@ -103,21 +100,7 @@ textarea:not([disabled]) {
   z-index: 3;
 
   @include transform(rotate(-1deg));
-}
 
-.postit__close-btn {
-  color: rgba(0, 0, 0, .38);
-  font-size: 22px;
-  height: 32px;
-  padding: 0;
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  width: 32px;
-}
-
-.postit,
-.dialog {
   h1,
   h2,
   h3,
@@ -134,8 +117,18 @@ textarea:not([disabled]) {
   }
 }
 
-.dialog .tip,
-.cl-tip {
+.postit__close-btn {
+  color: rgba(0, 0, 0, .38);
+  font-size: 22px;
+  height: 32px;
+  padding: 0;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 32px;
+}
+
+.tip {
   color: rgba(0, 0, 0, .45);
   display: block;
   font-size: 14px;
@@ -147,53 +140,20 @@ textarea:not([disabled]) {
   }
 }
 
+.warning {
+  color: rgba(0, 0, 0, .67);
+  padding: 10px 5px;
+}
+
 .prism--editor {
   border: 0;
   color: #000;
   padding: 0;
 }
 
-.warning,
-.cl-warning {
-  color: rgba(0, 0, 0, .67);
-  padding: 10px 5px;
-}
-
-.light-header,
-.cl-light-header {
-  color: rgba(0, 0, 0, .6);
-
-  [class^='icon-'],
-  [class*=' icon-'] {
-    color: rgba(0, 0, 0, .54);
-  }
-}
-
-.nav,
-.cl-nav {
-  height: 120px;
-
-  md-input-container {
-    padding-bottom: 10px;
-  }
-
-  .md-input {
-    font-size: 32px;
-    font-weight: 300;
-  }
-
-  .md-button {
-    text-shadow: 1px 1px rgba(0, 0, 0, .06);
-
-    [class^='icon-'],
-    [class*=' icon-'] {
-      font-size: inherit;
-    }
-  }
-}
-
 .navbar {
   background-color: #fff;
+  color: rgba(0, 0, 0, .6);
   height: auto;
   z-index: 2;
 }
@@ -229,6 +189,7 @@ textarea:not([disabled]) {
 }
 
 .navbar__item--icon {
+  color: rgba(0, 0, 0, .54);
   font-size: 23px;
   padding: 0 4px;
 }
@@ -257,14 +218,14 @@ textarea:not([disabled]) {
   font-size: 44px;
 }
 
-.cl-rotate-90 {
+.rotate-90 {
   @include transform(rotate(90deg));
 }
 
-.cl-rotate-180 {
+.rotate-180 {
   @include transform(rotate(180deg));
 }
 
-.cl-rotate-270 {
+.rotate-270 {
   @include transform(rotate(270deg));
 }

@@ -30,7 +30,7 @@ angular.module('classeur.optional.stat', [])
         scope.htmlStats = htmlStats
         scope.editor = clEditorSvc
 
-        var statPanelElt = element[0].querySelector('.stat.panel')
+        var statPanelElt = element[0].querySelector('.stat-panel')
         var duration
 
         function move () {

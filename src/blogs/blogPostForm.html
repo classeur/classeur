@@ -1,5 +1,5 @@
 <div class="blog-post-form">
-  <p class="cl-warning" ng-if="!blogs.length">You don't have any linked blog yet.</p>
+  <p class="warning" ng-if="!blogs.length">You don't have any linked blog yet.</p>
   <md-select ng-if="blogs.length" placeholder="Select blog" ng-model="form.blogId" md-on-open="loadBlogs()">
     <md-option ng-repeat="blog in blogs" value="{{blog.id}}">
       <div layout="row" layout-align="start center"><span class="blog-icon" ng-class="'blog-icon--' + blog.platform.id"></span> {{blog.name}}</div>
@@ -10,7 +10,7 @@
   </md-button>
   <div ng-show="form.blog">
     <br>
-    <div class="cl-tip">
+    <div class="tip">
       <b>Platform:</b> {{form.blog.platform.name}}
     </div>
     <cl-blogger-blog-post-form ng-if="form.blog.platformId === 'blogger'"></cl-blogger-blog-post-form>

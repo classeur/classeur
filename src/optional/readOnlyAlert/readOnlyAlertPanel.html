@@ -1,14 +1,14 @@
-<div class="read-only-alert postit cl-panel md-whiteframe-z2" layout="column" layout-align="space-between">
-    <div>
-        <h2>Hold on!</h2>
-        <p><b>You're modifying a read-only file.</b></p>
-        <p>Your modifications won't be saved unless you make a copy.</p>
-        <md-button class="postit__close-btn icon-clear" md-no-ink ng-click="dismiss()" aria-label="Close">
-        </md-button>
-    </div>
-    <div layout="row" layout-align="end">
-        <md-button md-no-ink class="md-primary" ng-click="makeCurrentFileCopy()">
-            Make a copy
-        </md-button>
-    </div>
+<div class="read-only-alert postit panel md-whiteframe-z2" layout="column" layout-align="space-between">
+  <div>
+    <h2>Hold on!</h2>
+    <p><b>You're modifying a read-only file.</b></p>
+    <p>Your modifications won't be saved unless you make a copy.</p>
+    <md-button class="postit__close-btn icon-clear" md-no-ink ng-click="dismiss()" aria-label="Close">
+    </md-button>
+  </div>
+  <div layout="row" layout-align="end">
+    <md-button md-no-ink class="md-primary" ng-click="makeCurrentFileCopy()">
+      Make a copy
+    </md-button>
+  </div>
 </div>

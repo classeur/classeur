@@ -1,9 +1,0 @@
-{
-	"extends": ["classeur"],
-	"env": {
-		"browser": true
-	},
-	"globals": {
-		"angular": true
-	}
-}

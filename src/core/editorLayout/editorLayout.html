@@ -1,6 +1,6 @@
-<div class="sidebar cl-panel" layout="column">
-  <div class="sidebar__header cl-light-header" layout="row" layout-align="space-between center">
-    <div class="title">
+<div class="sidebar panel" layout="column">
+  <div class="sidebar__header" layout="row" layout-align="space-between center">
+    <div class="sidebar__header-text">
       {{tabTitles[selectedTabIndex]}}
     </div>
     <md-button class="sidebar__close-btn icon-clear" md-no-ink ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar">
@@ -41,15 +41,15 @@
     </md-tab>
   </md-tabs>
 </div>
-<div class="editor-layout cl-background cl-panel md-whiteframe-z4">
-  <div class="editor-layout__inner-1 cl-panel cl-no-overflow">
-    <div class="editor-layout__preview cl-panel" ng-click="editorLayoutSvc.currentControl = undefined">
-      <div class="frame cl-panel">
-        <div class="frame-inner cl-panel">
+<div class="editor-layout background panel md-whiteframe-z4">
+  <div class="editor-layout__inner-1 panel no-overflow">
+    <div class="editor-layout__preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
+      <div class="frame panel">
+        <div class="frame-inner panel">
         </div>
       </div>
       <cl-preview></cl-preview>
-      <div class="navbar cl-panel cl-light-header md-whiteframe-1dp">
+      <div class="navbar panel md-whiteframe-1dp">
         <div class="navbar__inner">
           {{currentFileDao.name}}
           <div class="navbar__btns">
@@ -70,12 +70,12 @@
       </div>
     </div>
   </div>
-  <div class="binder cl-panel">
-    <div class="binder__inner-1 cl-panel">
-      <div class="binder__inner-2 cl-panel md-whiteframe-z2" ng-class="plasticClass">
-        <div class="menu cl-panel cl-no-overflow">
-          <div class="menu__scroller cl-panel">
-            <div class="menu__inner cl-panel">
+  <div class="binder panel">
+    <div class="binder__inner-1 panel">
+      <div class="binder__inner-2 panel md-whiteframe-z2" ng-class="plasticClass">
+        <div class="menu panel no-overflow">
+          <div class="menu__scroller panel">
+            <div class="menu__inner panel">
               <cl-file-name></cl-file-name>
               <div class="menu__links">
                 <a class="menu__link" layout="row" layout-align="end end" ng-click="editFileProperties()">
@@ -121,7 +121,7 @@
             </div>
           </div>
         </div>
-        <div class="right-margin cl-panel">
+        <div class="right-margin panel">
           <div class="right-margin__btns" layout="column">
             <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor" title="Close editor">
             </md-button>
@@ -139,22 +139,22 @@
               </md-tooltip>
             </md-button>
           </div>
-          <div class="menu-btn cl-panel" ng-class="plasticClass">
+          <div class="menu-btn panel" ng-class="plasticClass">
             <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
-              <div class="menu-btn__inner cl-rotate-90">
+              <div class="menu-btn__inner">
                 Menu
               </div>
             </md-button>
           </div>
         </div>
-        <div class="page cl-panel">
+        <div class="page panel">
           <cl-update-blog-posts-button></cl-update-blog-posts-button>
           <cl-offline-indicator></cl-offline-indicator>
-          <div class="page__inner cl-panel md-whiteframe-z1">
-            <div class="page__hole page__hole--top cl-panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-            <div class="page__hole page__hole--bottom cl-panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+          <div class="page__inner panel md-whiteframe-z1">
+            <div class="page__hole page__hole--top panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+            <div class="page__hole page__hole--bottom panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
             <cl-zen-mode></cl-zen-mode>
-            <div class="page__margin cl-panel"></div>
+            <div class="page__margin panel"></div>
             <cl-editor></cl-editor>
           </div>
         </div>
@@ -165,8 +165,8 @@
   <cl-stat></cl-stat>
   <cl-find-replace></cl-find-replace>
   <div class="corner-fold" ng-mouseenter="editorLayoutSvc.toggleCornerFold(true)" ng-mouseleave="editorLayoutSvc.toggleCornerFold(false)">
-    <div class="corner-fold__inner cl-panel cl-no-overflow md-whiteframe-z4">
-      <div class="corner-fold__shadow cl-panel"></div>
+    <div class="corner-fold__inner panel no-overflow md-whiteframe-z4">
+      <div class="corner-fold__shadow panel"></div>
     </div>
     <div ng-if="editorLayoutSvc.isCornerFoldingVisible">
       <md-button class="corner-fold__btn corner-fold__btn--left icon-call-received" md-no-ink ng-click="editorLayoutSvc.toggleStat()" aria-label="Toggle stats" title="Toggle stats">

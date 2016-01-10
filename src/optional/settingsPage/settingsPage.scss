@@ -6,65 +6,9 @@
     width: 100%;
   }
 
-  .settings-page__inner-1 {
-    height: 100%;
-    margin: auto;
-    max-width: 560px;
-    padding: 33px 5px 0;
-  }
-
-  .settings-page__inner-2 {
-    border-radius: 3px;
-    padding: 20px 15px;
-  }
-
   md-tabs {
     background-color: rgba(255, 255, 255, .25);
     border-radius: 4px;
-  }
-
-  .settings-page__tab {
-    margin: 40px 20px 80px;
-  }
-
-  .settings-page__entry {
-    width: 100%;
-  }
-
-  .settings-page__entry--small {
-    max-width: 220px;
-  }
-
-  .settings-page__entry--large {
-    max-width: 340px;
-  }
-
-  .settings-page__entry-label {
-    color: rgba(0, 0, 0, .54);
-    display: block;
-    font-size: 12.5px;
-    padding: 2px;
-  }
-
-  .settings-page__entry-btn {
-    color: rgba(0, 0, 0, .67);
-    font-size: 22px;
-  }
-
-  .file-entry__button {
-    color: rgba(0, 0, 0, .67);
-    font-size: 28px;
-    height: 38px;
-    max-width: 32px;
-    min-width: 32px;
-    padding: 0;
-  }
-
-  md-progress-circular {
-    left: 50%;
-    margin-left: -25px;
-    position: relative;
-    top: 40px;
   }
 
   md-select,
@@ -92,6 +36,55 @@
     text-align: center;
     width: 35px;
   }
+}
+
+.settings-page__inner-1 {
+  height: 100%;
+  margin: auto;
+  max-width: 560px;
+  padding: 33px 5px 0;
+}
+
+.settings-page__inner-2 {
+  border-radius: 3px;
+  padding: 20px 15px;
+}
+
+.settings-page__tab {
+  margin: 40px 20px 80px;
+}
+
+.settings-page__entry {
+  width: 100%;
+}
+
+.settings-page__entry--small {
+  max-width: 220px;
+}
+
+.settings-page__entry--large {
+  max-width: 340px;
+}
+
+.settings-page__entry-label {
+  color: rgba(0, 0, 0, .54);
+  display: block;
+  font-size: 12.5px;
+  padding: 2px;
+}
+
+.settings-page__entry-btn {
+  color: rgba(0, 0, 0, .67);
+  font-size: 22px;
+}
+
+.file-entry__button {
+  color: rgba(0, 0, 0, .67);
+  font-size: 28px;
+  height: 38px;
+  max-width: 32px;
+  min-width: 32px;
+  padding: 0;
 }
 
 .blog-dialog {

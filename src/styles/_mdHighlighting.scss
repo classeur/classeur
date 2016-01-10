@@ -1,173 +1,216 @@
+// scss-lint:disable ImportantRule
 .md-highlighting {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: 300;
-    -webkit-font-smoothing: auto;
+  color: $ced-color;
+  font-family: inherit;
+  font-size: inherit;
+  -webkit-font-smoothing: auto;
+  font-weight: 300;
+
+  .code {
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
+
+    * {
+      font-size: inherit !important;
+    }
+  }
+
+  .pre {
     color: $ced-color;
-    .code {
-        font-family: $font-family-monospace;
-        font-size: $font-size-monospace;
-        * {
-            font-size: inherit !important;
-        }
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
+    word-break: break-all;
+
+    [class*='language-'] {
+      color: $ced-color-dark;
     }
-    .pre {
-        color: $ced-color;
-        font-family: $font-family-monospace;
-        font-size: $font-size-monospace;
-        word-break: break-all;
-        [class*="language-"] {
-            color: $ced-color-dark;
-        }
-        * {
-            font-size: inherit !important;
-        }
+
+    * {
+      font-size: inherit !important;
     }
-    .tag {
-        color: $ced-color;
-        font-weight: 500;
-        font-family: $font-family-monospace;
-        font-size: $font-size-monospace;
-        .punctuation, .attr-value, .attr-name {
-            font-weight: 300;
-        }
-        * {
-            font-size: inherit !important;
-        }
+  }
+
+  .tag {
+    color: $ced-color;
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
+    font-weight: 500;
+
+    .punctuation,
+    .attr-value,
+    .attr-name {
+      font-weight: 300;
     }
-    .latex,
-    .math {
-        color: $ced-color;
+
+    * {
+      font-size: inherit !important;
     }
-    .entity {
-        font-style: italic;
-        font-family: $font-family-monospace;
-        font-size: $font-size-monospace;
-        color: $ced-color;
-        * {
-            font-size: inherit !important;
-        }
+  }
+
+  .latex,
+  .math {
+    color: $ced-color;
+  }
+
+  .entity {
+    color: $ced-color;
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
+    font-style: italic;
+
+    * {
+      font-size: inherit !important;
     }
-    .table {
-        font-family: $font-family-monospace;
-        font-size: $font-size-monospace;
-        * {
-            font-size: inherit !important;
-        }
+  }
+
+  .table {
+    font-family: $font-family-monospace;
+    font-size: $font-size-monospace;
+
+    * {
+      font-size: inherit !important;
     }
-    .comment {
-        color: $ced-color-lighter;
+  }
+
+  .comment {
+    color: $ced-color-lighter;
+  }
+
+  .keyword {
+    color: $ced-color-dark;
+    font-weight: 500;
+  }
+
+  .code,
+  .img,
+  .img-wrapper,
+  .imgref,
+  .cl-toc {
+    background-color: $code-bg;
+    border-radius: $border-radius-base;
+    padding: .15em 0;
+  }
+
+  .img-wrapper {
+    display: inline-block;
+
+    .img {
+      display: inline-block;
+      padding: 0;
     }
-    .keyword {
-        color: $ced-color-dark;
-        font-weight: 500;
+
+    img {
+      max-width: 100%;
+      padding: 0 .15em;
     }
-    .code,
-    .img,
-    .img-wrapper,
-    .imgref,
-    .cl-toc {
-        background-color: $code-bg;
-        border-radius: $border-radius-base;
-        padding: 0.15em 0;
-    }
-    .img-wrapper {
-        display: inline-block;
-        .img {
-            display: inline-block;
-            padding: 0;
-        }
-        img {
-            max-width: 100%;
-            padding: 0 0.15em;
-        }
-    }
-    .cl-toc {
-        font-size: 2.8em;
-        padding: 0.15em;
-    }
-    .blockquote {
-        color: $ced-color-light;
-    }
-    .h1,
-    .h2,
-    .h3,
-    .h4,
-    .h5,
-    .h6 {
-        font-weight: 500;
-    }
-    .h1,
-    .h11 {
-        font-size: 2em;
-    }
-    .h2,
-    .h22 {
-        font-size: 1.5em;
-    }
-    .h3 {
-        font-size: 1.17em;
-    }
-    .h4 {
-        font-size: 1em;
-    }
-    .h5 {
-        font-size: 0.83em;
-    }
-    .h6 {
-        font-size: 0.75em;
-    }
-    .cl-hash {
-        color: $ced-color-lighter;
-    }
-    .cl,
-    .hr {
-        color: $ced-color-lighter;
-        font-style: normal;
-        font-weight: 300;
-    }
-    .em,
-    .em .cl {
-        font-style: italic;
-    }
-    .strong,
-    .strong .cl,
-    .term {
-        font-weight: 500;
-    }
-    .cl-del-text {
-        text-decoration: line-through
-    }
-    .url,
-    .email,
+  }
+
+  .cl-toc {
+    font-size: 2.8em;
+    padding: .15em;
+  }
+
+  .blockquote {
+    color: $ced-color-light;
+  }
+
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
+    font-weight: 500;
+  }
+
+  .h1,
+  .h11 {
+    font-size: 2em;
+  }
+
+  .h2,
+  .h22 {
+    font-size: 1.5em;
+  }
+
+  .h3 {
+    font-size: 1.17em;
+  }
+
+  .h4 {
+    font-size: 1em;
+  }
+
+  .h5 {
+    font-size: .83em;
+  }
+
+  .h6 {
+    font-size: .75em;
+  }
+
+  .cl-hash {
+    color: $ced-color-lighter;
+  }
+
+  .cl,
+  .hr {
+    color: $ced-color-lighter;
+    font-style: normal;
+    font-weight: 300;
+  }
+
+  .em,
+  .em .cl {
+    font-style: italic;
+  }
+
+  .strong,
+  .strong .cl,
+  .term {
+    font-weight: 500;
+  }
+
+  .cl-del-text {
+    text-decoration: line-through;
+  }
+
+  .url,
+  .email,
+  .cl-underlined-text {
+    text-decoration: underline;
+  }
+
+  .linkdef .url {
+    color: $ced-color-lighter;
+  }
+
+  .fn,
+  .inlinefn,
+  .sup {
+    font-size: smaller;
+    position: relative;
+    top: -.5em;
+  }
+
+  .sub {
+    bottom: -.25em;
+    font-size: smaller;
+    position: relative;
+  }
+
+  .img,
+  .imgref,
+  .link,
+  .linkref {
+    color: $ced-color-lighter;
+
     .cl-underlined-text {
-        text-decoration: underline;
+      color: $ced-color-dark;
     }
-    .linkdef .url {
-        color: $ced-color-lighter;
-    }
-    .fn,
-    .inlinefn,
-    .sup {
-        position: relative;
-        top: -0.5em;
-        font-size: smaller;
-    }
-    .sub {
-        position: relative;
-        bottom: -0.25em;
-        font-size: smaller;
-    }
-    .img,
-    .imgref,
-    .link,
-    .linkref {
-        color: $ced-color-lighter;
-        .cl-underlined-text {
-            color: $ced-color-dark;
-        }
-    }
-    .cl-title {
-        color: $ced-color;
-    }
+  }
+
+  .cl-title {
+    color: $ced-color;
+  }
 }

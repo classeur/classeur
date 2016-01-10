@@ -13,7 +13,8 @@
   ng-view > *,
   cl-editor-layout > *,
   .editor-layout > *,
-  .editor-layout__inner-1 > * {
+  .editor-layout__inner-1 > *,
+  .editor-layout__preview > * {
     display: none !important;
   }
 
@@ -21,7 +22,8 @@
   ng-view > cl-editor-layout,
   cl-editor-layout > .editor-layout,
   .editor-layout > .editor-layout__inner-1,
-  .editor-layout__inner-1 > .preview.panel,
+  .editor-layout__inner-1 > .editor-layout__preview,
+  .editor-layout__preview > cl-preview,
   .preview {
     background-color: transparent !important;
     box-shadow: none !important;
@@ -29,7 +31,7 @@
     height: auto !important;
     overflow: visible !important;
     position: static !important;
-    @include transform(none !important);
+    transform: none !important;
     width: auto !important;
   }
 

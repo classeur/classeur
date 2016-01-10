@@ -1,22 +1,22 @@
 <div class="blog-entry" layout="row">
-    <div class="blog-icon" ng-class="'blog-icon--' + blogPost.blog.platform.id"></div>
-    <md-input-container>
-        <input class="blog-entry__name" ng-model="blogPost.blog.name" disabled="disabled" aria-label="Blog name">
-    </md-input-container>
-    <div class="blog-entry__status" ng-class="{blog-entry__status--error: blogPost.blog.status !== 'linked'}">
+  <div class="blog-icon" ng-class="'blog-icon--' + blogPost.blog.platform.id"></div>
+  <md-input-container>
+    <input class="blog-entry__name" ng-model="blogPost.blog.name" disabled="disabled" aria-label="Blog name">
+  </md-input-container>
+  <div class="blog-entry__status" ng-class="{blog-entry__status--error: blogPost.blog.status !== 'linked'}">
     <span class="blog-entry__status-text">{{blogPost.blog.status | clBlogStatus}}</span>
-    </div>
+  </div>
 </div>
 <div class="blog-post-entry" layout="row">
-    <div class="blog-post-entry__info">
+  <div class="blog-post-entry__info">
     <cl-blogger-blog-post-entry ng-if="blogPost.blog.platformId === 'blogger'"></cl-blogger-blog-post-entry>
     <cl-github-blog-post-entry ng-if="blogPost.blog.platformId === 'github'"></cl-github-blog-post-entry>
     <cl-wordpress-blog-post-entry ng-if="blogPost.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-entry>
-    </div>
-    <md-button class="blog-post-entry__button icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post" title="Update blog post">
-    </md-button>
-    <md-button class="blog-post-entry__button icon-open-in-new" ng-href="{{::blogPost.blog.platform.getBlogPostLocation(blogPost)}}" target="_blank" aria-label="Open blog post" title="Open blog post">
-    </md-button>
-    <md-button class="blog-post-entry__button icon-delete" ng-click="deleteBlogPost(blogPost)" aria-label="Delete blog post" title="Delete blog post">
-    </md-button>
+  </div>
+  <md-button class="blog-post-entry__button icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post" title="Update blog post">
+  </md-button>
+  <md-button class="blog-post-entry__button icon-open-in-new" ng-href="{{::blogPost.blog.platform.getBlogPostLocation(blogPost)}}" target="_blank" aria-label="Open blog post" title="Open blog post">
+  </md-button>
+  <md-button class="blog-post-entry__button icon-delete" ng-click="deleteBlogPost(blogPost)" aria-label="Delete blog post" title="Delete blog post">
+  </md-button>
 </div>

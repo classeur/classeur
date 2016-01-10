@@ -1,20 +1,23 @@
-.stat.panel {
-    background-color: transparentize(#dadada, 0.05);
-	text-shadow: 1px 1px rgba(255, 255, 255, 0.5);
-    color: #404040;
-    bottom: 0;
-    height: 22px;
-    font-size: 13px;
-    div {
-    	position: relative;
-    	display: inline-block;
-    	margin: 2px;
-		.name {
-			font-weight: 500;
-			margin: 0 10px;
-		}
-		.value {
-			font-weight: 500;
-		}
-    }
+.stat-panel {
+  background-color: transparentize(#dadada, .05);
+  bottom: 0;
+  color: #404040;
+  font-size: 13px;
+  height: 22px;
+  text-shadow: 1px 1px rgba(255, 255, 255, .5);
+}
+
+.stat-panel__block {
+  display: inline-block;
+  margin: 2px;
+  position: relative;
+}
+
+.stat-panel__block-name {
+  font-weight: 500;
+  margin: 0 10px;
+}
+
+.stat-panel__value {
+  font-weight: 500;
 }

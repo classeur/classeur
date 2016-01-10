@@ -1,22 +1,22 @@
-.help.dialog {
+.help-dialog {
   min-width: 340px;
   text-align: center;
+}
 
-  .problem {
-    color: rgba(0, 0, 0, .4);
-    margin-bottom: 10px;
-  }
+.help-dialog__problem {
+  color: rgba(0, 0, 0, .4);
+  margin-bottom: 10px;
+}
 
-  .solution {
-    display: block;
+.help-dialog__solution {
+  display: block;
+}
 
-    .icon {
-      font-size: 40px;
-    }
-  }
+.help-dialog__icon::before {
+  font-size: 40px;
+}
 
-  hr {
-    margin: 20px auto;
-    width: 120px;
-  }
+.help-dialog__separator {
+  margin: 20px auto;
+  width: 120px;
 }

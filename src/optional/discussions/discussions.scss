@@ -1,25 +1,32 @@
 @import 'variables';
+@import 'bourbon';
 $highlighting-color: #ffdf60;
+
 .discussion-editor-highlighting,
 .discussion-preview-highlighting {
   background-color: mix(#fff, $highlighting-color, 60%);
   padding: .25em 0;
-  -webkit-transition: .12s ease-out background-color;
-  transition: .12s ease-out background-color;
-  &.hover,
-  &.selected {
-    background-color: mix(#fff, $highlighting-color, 20%);
-    * {
-      background-color: transparent;
-    }
+
+  @include transition(.12s ease-out background-color);
+}
+
+.discussion-editor-highlighting--hover,
+.discussion-editor-highlighting--selected,
+.discussion-preview-highlighting--hover,
+.discussion-preview-highlighting--selected {
+  background-color: mix(#fff, $highlighting-color, 20%);
+
+  * {
+    background-color: transparent;
   }
 }
 
 .discussion-preview-highlighting {
   cursor: pointer;
-  &.selected {
-    cursor: auto;
-  }
+}
+
+.discussion-preview-highlighting--selected {
+  cursor: auto;
 }
 
 .new-discussion-btn {
@@ -29,143 +36,164 @@ $highlighting-color: #ffdf60;
   color: rgba(128, 128, 128, .7);
   cursor: pointer;
   font-size: 13px;
-  line-height: 1.25 !important;
+  line-height: 1.25;
   padding: 2px 2px 1px;
   position: absolute;
-  -webkit-transform: scale(1, -1);
-  transform: scale(1, -1);
-  -webkit-transition: .16s ease-out color;
-  transition: .16s ease-out color;
+
+  @include transform(scale(1, -1));
+  @include transition(.16s ease-out color);
+
   &:hover {
     color: rgba(128, 128, 128, 1);
   }
 }
 
-.discussion.tab {
+.discussion-tab {
   padding: 0 25px;
-  &.selected .discussion.item {
+}
+
+.discussion-tab--selected {
+  .discussion-item {
     opacity: .15;
+
     &:hover {
       opacity: .4;
     }
   }
-  &.selected .discussion.item.selected {
+
+  .discussion-item--selected {
+    &,
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.discussion-item {
+  margin: 20px 0;
+
+  @include transition(.12s ease-out opacity);
+
+  .md-chips {
+    padding-bottom: 0;
+  }
+
+  .md-highlighting {
+    .h1,
+    .h11,
+    .h2,
+    .h22,
+    .h3,
+    .h4,
+    .h5,
+    .h6,
+    .md-toc {
+      font-size: inherit;
+    }
+  }
+}
+
+.discussion-item__selector {
+  cursor: pointer;
+}
+
+.discussion-item__separator {
+  margin: 20px auto;
+  width: 120px;
+}
+
+.discussion-item__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+
+  span {
+    background-color: transparent;
+    display: inline;
+  }
+
+  .discussion-item__text-span {
+    padding: .2em 0;
+  }
+
+  .discussion-item--selected & {
+    text-overflow: clip;
+    white-space: normal;
+
+    .discussion-item__text-span {
+      background-color: mix($body-color, $highlighting-color, 20%);
+    }
+  }
+}
+
+.discussion-item__chip {
+  .discussion-item & {
+    cursor: pointer;
+    font-size: 12px;
+    height: 22px;
+    line-height: 22px;
+    margin: 0;
+  }
+}
+
+.discussion-item__show-more {
+  font-size: 14px;
+}
+
+.comment-entry {
+  margin: 6px 0;
+}
+
+.comment-entry__text {
+  font-size: 14px;
+}
+
+.comment-entry__delete-btn {
+  color: rgba(0, 0, 0, .5);
+  height: 26px;
+  margin-right: 4px;
+  margin-top: 4px;
+  max-width: 26px;
+  min-width: 26px;
+  opacity: 0;
+  padding: 0;
+
+  @include transition(.16s ease-out all);
+
+  .comment-entry__inner:hover & {
     opacity: 1;
   }
-  .discussion.item {
-    margin: 20px 0;
-    -webkit-transition: .12s ease-out opacity;
-    transition: .12s ease-out opacity;
-    & > hr {
-      margin: 20px auto;
-      width: 120px;
-    }
-    a.icon-delete {
-      color: inherit;
-      cursor: pointer;
-      opacity: .3;
-      text-align: center;
-      -webkit-transition: .16s ease-out opacity;
-      transition: .16s ease-out opacity;
-      &:hover {
-        opacity: .6;
-      }
-    }
-    .md-highlighting {
-      .h1,
-      .h11,
-      .h2,
-      .h22,
-      .h3,
-      .h4,
-      .h5,
-      .h6,
-      .md-toc {
-        font-size: inherit;
-      }
-    }
-    pre.md-highlighting {
-      background-color: #fff;
-      font-size: .9em;
-      -webkit-font-variant-ligatures: normal;
-      font-variant-ligatures: normal;
-      margin: 5px 0 5px 20px;
-      min-height: 60px;
-      overflow: auto;
-      padding: 4px 8px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      word-wrap: break-word;
-    }
-    .discussion.text {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: 100%;
-      span {
-        background-color: transparent;
-        display: inline;
-      }
-      & > span {
-        padding: .2em 0;
-      }
-    }
-    .discussion.selector {
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    &.selected .discussion.text {
-      text-overflow: clip;
-      white-space: normal;
-      & > span {
-        background-color: mix($body-color, $highlighting-color, 20%);
-      }
-    }
-    .comment.info {
-      margin: 10px 0 5px -10px;
-      overflow: hidden;
-      .user-name {
-        font-size: 15px;
-      }
-      .created {
-        color: rgba(0, 0, 0, .5);
-        font-size: .7em;
-        padding-left: 12px;
-        text-shadow: 1px 1px rgba(255, 255, 255, .5);
-      }
-    }
-    .comment.item {
-      margin: 6px 0;
-      .comment.text {
-        font-size: 14px;
-      }
-      a.icon-delete {
-        font-size: 20px;
-        opacity: 0;
-        padding: 6px 6px 6px 0;
-      }
-      .comment.content:hover a.icon-delete {
-        opacity: .3;
-        &:hover {
-          opacity: .6;
-        }
-      }
-    }
-    .show-more {
-      font-size: 14px;
-    }
-    .md-chips {
-      cursor: pointer;
-      padding: 0;
-    }
-    .md-chip {
-      cursor: pointer;
-      font-size: .8em;
-      height: 23px;
-      line-height: 23px;
-      margin: 0 0 0 5px;
-    }
-  }
+}
+
+.comment-entry__input {
+  background-color: #fff;
+  font-size: .9em;
+  margin: 5px 0 5px 20px;
+  min-height: 60px;
+  overflow: auto;
+  padding: 4px 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  word-wrap: break-word;
+
+  @include font-feature-settings(normal);
+}
+
+.comment-info {
+  margin: 10px 0 5px -10px;
+  overflow: hidden;
+}
+
+.comment-info__user-name {
+  font-size: 15px;
+}
+
+.comment-info__created {
+  color: rgba(0, 0, 0, .5);
+  font-size: .7em;
+  padding-left: 12px;
+  text-shadow: 1px 1px rgba(255, 255, 255, .5);
 }
 
 .discussion-postit {
@@ -175,21 +203,26 @@ $highlighting-color: #ffdf60;
   left: 920px;
   top: -200px;
   width: 160px;
-  .user-name {
-    font-size: 14px;
-  }
-  .created {
-    color: rgba(0, 0, 0, .4);
-    font-size: .8em;
-    padding-left: 30px;
-  }
+
   .preview & {
     left: 840px;
   }
 }
 
-.comment.text {
+.discussion-postit__user-name {
+  display: block;
+  font-size: 14px;
+}
+
+.discussion-postit__created {
+  color: rgba(0, 0, 0, .4);
+  font-size: .8em;
+  padding-left: 30px;
+}
+
+.comment-text {
   width: 100%;
+
   h1,
   h2,
   h3,
@@ -204,13 +237,15 @@ $highlighting-color: #ffdf60;
   dl {
     margin: .5em 0;
   }
+
   pre {
-    -webkit-font-variant-ligatures: normal;
-    font-variant-ligatures: normal;
     white-space: pre-wrap;
     word-break: break-word;
     word-wrap: break-word;
+
+    @include font-feature-settings(normal);
   }
+
   img,
   table {
     max-width: 100%;

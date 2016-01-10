@@ -1,9 +1,16 @@
 angular.module('classeur.optional.spinner', [])
+  .directive('clBlockSpinner', function () {
+    return {
+      restrict: 'E',
+      scope: true,
+      template: '<div layout="row" layout-align="center center"><cl-spinner></cl-spinner></div>'
+    }
+  })
   .directive('clCenteredSpinner', function () {
     return {
       restrict: 'E',
       scope: true,
-      template: '<div class="cl-panel" layout="row" layout-align="center center"><cl-spinner></cl-spinner></div>'
+      template: '<div class="panel" layout="row" layout-align="center center"><cl-spinner></cl-spinner></div>'
     }
   })
   .directive('clSpinner', function () {

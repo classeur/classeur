@@ -1,19 +1,21 @@
-.read-only-alert.panel, .write-premium-alert.panel {
-	left: 15px;
-	top: 15px;
-	font-size: 14px;
-    padding-top: 5px;
-	p {
-		line-height: 1.3;
-	}
+.read-only-alert,
+.write-premium-alert {
+  font-size: 14px;
+  left: 15px;
+  padding-top: 5px;
+  top: 15px;
+
+  p {
+    line-height: 1.3;
+  }
 }
 
-.read-only-alert.panel {
-	width: 240px;
-	height: 240px;
+.read-only-alert {
+  height: 240px;
+  width: 240px;
 }
 
-.write-premium-alert.panel {
-	width: 210px;
-	height: 210px;
+.write-premium-alert {
+  height: 210px;
+  width: 210px;
 }

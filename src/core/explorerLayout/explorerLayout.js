@@ -75,7 +75,7 @@ angular.module('classeur.core.explorerLayout', [])
             var reader = new $window.FileReader()
             reader.onload = function (e) {
               var content = e.target.result
-              if (content.match(/[\u0000\uFFF0-\uFFFF]/)) {
+              if (content.match(/\uFFFD/)) {
                 return clToast('File is not readable.')
               }
               clDialog.hide({

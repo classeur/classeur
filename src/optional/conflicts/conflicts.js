@@ -22,7 +22,7 @@ angular.module('classeur.optional.conflicts', [])
         parentElt.addEventListener('mouseover', function (evt) {
           var conflictElt = getConflictElt(evt.target)
           conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
-            'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
+            'conflict-highlighting-' + conflictElt.conflictId + '--part-' + conflictElt.conflictPart
           )).cl_each(function (elt) {
             elt.classList.add('conflict-highlighting--hover')
           })
@@ -30,7 +30,7 @@ angular.module('classeur.optional.conflicts', [])
         parentElt.addEventListener('mouseout', function (evt) {
           var conflictElt = getConflictElt(evt.target)
           conflictElt && Array.prototype.slice.call(parentElt.getElementsByClassName(
-            'conflict-highlighting-part-' + conflictElt.conflictPart + '-' + conflictElt.conflictId
+            'conflict-highlighting-' + conflictElt.conflictId + '--part-' + conflictElt.conflictPart
           )).cl_each(function (elt) {
             elt.classList.remove('conflict-highlighting--hover')
           })
@@ -86,9 +86,9 @@ angular.module('classeur.optional.conflicts', [])
         var contentDao = scope.currentFileDao.contentDao
 
         var classApplier1 = clEditorClassApplier([
-          'conflict-highlighting-part-1-' + scope.conflictId,
+          'conflict-highlighting-' + scope.conflictId + '--part-1',
           'conflict-highlighting-' + scope.conflictId,
-          'conflict-highlighting-part-1',
+          'conflict-highlighting--part-1',
           'conflict-highlighting'
         ], function () {
           if (!clEditorSvc.cledit.options) {
@@ -109,9 +109,9 @@ angular.module('classeur.optional.conflicts', [])
         })
 
         var classApplier2 = clEditorClassApplier([
-          'conflict-highlighting-part-2-' + scope.conflictId,
+          'conflict-highlighting-' + scope.conflictId + '--part-2',
           'conflict-highlighting-' + scope.conflictId,
-          'conflict-highlighting-part-2',
+          'conflict-highlighting--part-2',
           'conflict-highlighting'
         ], function () {
           if (!clEditorSvc.cledit.options) {

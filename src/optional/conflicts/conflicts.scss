@@ -27,7 +27,7 @@
 $highlighting-color-part-1: #ff6060;
 $highlighting-color-part-2: #d070a0;
 
-.conflict-highlighting-part-1 {
+.conflict-highlighting--part-1 {
   background-color: mix(#fff, $highlighting-color-part-1, 60%);
 
   &.conflict-highlighting--hover {
@@ -35,7 +35,7 @@ $highlighting-color-part-2: #d070a0;
   }
 }
 
-.conflict-highlighting-part-2 {
+.conflict-highlighting--part-2 {
   background-color: mix(#fff, $highlighting-color-part-2, 60%);
 
   &.conflict-highlighting--hover {

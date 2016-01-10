@@ -88,13 +88,13 @@ angular.module('classeur.optional.discussions', [])
           clEditorSvc.editorElt.addEventListener('mouseover', function (evt) {
             var discussionId = getEditorDiscussionId(evt.target)
             discussionId && clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId).cl_each(function (elt) {
-              elt.classList.add('hover')
+              elt.classList.add('discussion-editor-highlighting--hover')
             })
           })
           clEditorSvc.editorElt.addEventListener('mouseout', function (evt) {
             var discussionId = getEditorDiscussionId(evt.target)
             discussionId && clEditorSvc.editorElt.getElementsByClassName('discussion-editor-highlighting-' + discussionId).cl_each(function (elt) {
-              elt.classList.remove('hover')
+              elt.classList.remove('discussion-editor-highlighting--hover')
             })
           })
           clEditorSvc.editorElt.addEventListener('click', function (evt) {
@@ -275,13 +275,13 @@ angular.module('classeur.optional.discussions', [])
           clEditorSvc.previewElt.addEventListener('mouseover', function (evt) {
             var discussionId = getPreviewDiscussionId(evt.target)
             discussionId && clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId).cl_each(function (elt) {
-              elt.classList.add('hover')
+              elt.classList.add('discussion-preview-highlighting--hover')
             })
           })
           clEditorSvc.previewElt.addEventListener('mouseout', function (evt) {
             var discussionId = getPreviewDiscussionId(evt.target)
             discussionId && clEditorSvc.previewElt.getElementsByClassName('discussion-preview-highlighting-' + discussionId).cl_each(function (elt) {
-              elt.classList.remove('hover')
+              elt.classList.remove('discussion-preview-highlighting--hover')
             })
           })
           clEditorSvc.previewElt.addEventListener('click', function (evt) {
@@ -373,7 +373,7 @@ angular.module('classeur.optional.discussions', [])
 
         var editorClassApplier = clEditorClassApplier(function () {
           var result = ['discussion-editor-highlighting-' + scope.discussionId, 'discussion-editor-highlighting']
-          clDiscussionSvc.currentDiscussionId === scope.discussionId && result.push('selected')
+          clDiscussionSvc.currentDiscussionId === scope.discussionId && result.push('discussion-editor-highlighting--selected')
           return result
         }, function () {
           if (!clEditorSvc.cledit.options) {
@@ -397,7 +397,7 @@ angular.module('classeur.optional.discussions', [])
 
         var previewClassApplier = clPreviewClassApplier(function () {
           var result = ['discussion-preview-highlighting-' + scope.discussionId, 'discussion-preview-highlighting']
-          clDiscussionSvc.currentDiscussionId === scope.discussionId && result.push('selected')
+          clDiscussionSvc.currentDiscussionId === scope.discussionId && result.push('discussion-preview-highlighting--selected')
           return result
         }, function () {
           if (!offset || offset.start === -1 || offset.end === -1) {
@@ -415,10 +415,14 @@ angular.module('classeur.optional.discussions', [])
 
         scope.$watch('discussionSvc.currentDiscussionId === discussionId', function (selected) {
           $window.document.querySelectorAll(
-            '.discussion-editor-highlighting-' + scope.discussionId +
-            ', .discussion-preview-highlighting-' + scope.discussionId
+            '.discussion-editor-highlighting-' + scope.discussionId
           ).cl_each(function (elt) {
-            elt.classList.toggle('selected', selected)
+            elt.classList.toggle('discussion-editor-highlighting--selected', selected)
+          })
+          $window.document.querySelectorAll(
+            '.discussion-preview-highlighting-' + scope.discussionId
+          ).cl_each(function (elt) {
+            elt.classList.toggle('discussion-preview-highlighting--selected', selected)
           })
         })
 
@@ -650,7 +654,7 @@ angular.module('classeur.optional.discussions', [])
           } else {
             var deleteDialog = clDialog.confirm()
               .title('Delete discussion')
-              .content("You're about to delete a discussion. Are you sure?")
+              .content("You're about to delete the entire discussion. Are you sure?")
               .ariaLabel('Delete discussion')
               .ok('Yes')
               .cancel('No')
@@ -668,13 +672,13 @@ angular.module('classeur.optional.discussions', [])
           }
         }
 
-        function refreshCommentCounter () {
+        function refreshCommentsCount () {
           if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
             return
           }
-          scope.chips = [contentDao.comments.cl_reduce(function (counter, comment) {
+          scope.commentsTotalCount = contentDao.comments.cl_reduce(function (counter, comment) {
             return comment.discussionId === scope.discussionId ? counter + 1 : counter
-          }, 0)]
+          }, 0)
         }
 
         scope.discussionSvc = clDiscussionSvc
@@ -682,8 +686,8 @@ angular.module('classeur.optional.discussions', [])
           // Not the new discussion item
           scope.discussionId = scope.lastComment.discussionId
           scope.discussion = contentDao.discussions[scope.discussionId]
-          scope.$on('clCommentUpdated', refreshCommentCounter)
-          refreshCommentCounter()
+          scope.$on('clCommentUpdated', refreshCommentsCount)
+          refreshCommentsCount()
         }
 
         var elt = element[0]
@@ -725,8 +729,8 @@ angular.module('classeur.optional.discussions', [])
 
       function link (scope, element) {
         var contentDao = scope.currentFileDao.contentDao
-        var newDiscussionCommentElt = element[0].querySelector('.discussion.comment')
-        var cledit = $window.cledit(newDiscussionCommentElt)
+        var inputElt = element[0].querySelector('.comment-entry__input')
+        var cledit = $window.cledit(inputElt)
         var maxShow = pageSize
 
         cledit.addKeystroke(new $window.cledit.Keystroke(function (evt) {
@@ -763,7 +767,6 @@ angular.module('classeur.optional.discussions', [])
             return comment1.created - comment2.created
           })
           var count = scope.comments.length
-          scope.chips = [count]
           scope.comments = scope.comments.slice(-maxShow)
           scope.hasMore = maxShow < count
         }

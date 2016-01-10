@@ -1,20 +1,20 @@
-<div class="stat panel no-overflow">
-	<div class="text">
-		<span class="name">
-			Text
-			<small ng-show="isTextSelection">(selection)</small>
-		</span>
-		<span ng-repeat="stat in textStats">
-			<span class="value">{{stat.value}}</span> {{stat.name}}
-		</span>
-	</div>
-	<div class="html">
-		<span class="name">
-			HTML
-			<small ng-show="isHtmlSelection">(selection)</small>
-		</span>
-		<span ng-repeat="stat in htmlStats">
-			<span class="value">{{stat.value}}</span> {{stat.name}}
-		</span>
-	</div>
+<div class="stat-panel panel no-overflow">
+  <div class="stat-panel__block">
+    <span class="stat-panel__block-name">
+      Text
+      <small ng-show="isTextSelection">(selection)</small>
+    </span>
+    <span ng-repeat="stat in textStats">
+      <span class="stat-panel__value">{{stat.value}}</span> {{stat.name}}
+    </span>
+  </div>
+  <div class="stat-panel__block">
+    <span class="stat-panel__block-name">
+      HTML
+      <small ng-show="isHtmlSelection">(selection)</small>
+    </span>
+    <span ng-repeat="stat in htmlStats">
+      <span class="stat-panel__value">{{stat.value}}</span> {{stat.name}}
+    </span>
+  </div>
 </div>

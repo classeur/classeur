@@ -1,9 +1,9 @@
-<div class="settings-page cl-panel cl-background">
-  <div class="navbar cl-panel md-whiteframe-1dp" layout="row" layout-align="center">
-    <div class="navbar__inner cl-light-header">
+<div class="settings-page panel background">
+  <div class="navbar panel md-whiteframe-1dp" layout="row" layout-align="center">
+    <div class="navbar__inner">
       <div layout="row" layout-align="space-between">
         <div layout="row">
-          <div class="navbar__logo cl-no-overflow">
+          <div class="navbar__logo no-overflow">
           </div>
           <div class="navbar__item navbar__item--title">
             Settings
@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="settings-page__inner-1" layout="column" layout-align="center">
-    <div class="settings-page__inner-2 cl-no-overflow md-whiteframe-1dp plastic-4" layout="column" flex>
+    <div class="settings-page__inner-2 no-overflow md-whiteframe-1dp plastic-4" layout="column" flex>
       <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
         <md-tab label="App">
           <div class="settings-page__tab">
@@ -173,7 +173,7 @@
               </md-button>
             </p>
             <div ng-switch-when="true" ng-switch="!!getBlogsPending">
-              <cl-spinner ng-switch-when="true"></cl-spinner>
+              <cl-block-spinner ng-switch-when="true"></cl-block-spinner>
               <div ng-switch-when="false">
                 <md-button class="md-primary" ng-click="editBlog()">
                   Link blog
@@ -210,7 +210,7 @@
                 <md-button class="file-entry__button icon-delete" md-no-ink ng-click="removeFile(file)" aria-label="Remove"></md-button>
               </div>
               <div class="warning" ng-if="!getTrashFilesPending && trashEmpty">Trash is empty.</div>
-              <cl-spinner ng-if="getTrashFilesPending"></cl-spinner>
+              <cl-block-spinner ng-if="getTrashFilesPending"></cl-block-spinner>
               <br>
               <md-button ng-if="!getTrashFilesPending && lastDeleted" class="md-primary" ng-click="getTrashFiles()">More deleted files</md-button>
             </div>

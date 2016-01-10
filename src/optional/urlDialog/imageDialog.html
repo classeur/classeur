@@ -1,33 +1,33 @@
-<md-dialog class="image dialog">
-    <md-dialog-content>
-        <h2>Add image</h2>
-        <md-input-container>
-            <label>URL</label>
-            <input autocomplete="off" ng-model="url" cl-focus cl-enter-ok>
-        </md-input-container>
-        <div layout="row" layout-align="end center">
-            <md-button ng-click="ok()" class="md-primary">
-                Add
-            </md-button>
+<md-dialog class="image-dialog">
+  <md-dialog-content>
+    <h2>Add image</h2>
+    <md-radio-group ng-model="type">
+      <md-radio-button value="link">Link</md-radio-button>
+      <md-input-container>
+        <label>URL</label>
+        <input autocomplete="off" ng-model="url" cl-focus cl-enter-ok ng-focus="type = 'link'">
+      </md-input-container>
+      <br>
+      <md-radio-button value="upload">Upload</md-radio-button>
+      <div class="drop-zone">
+        <input class="drop-zone__input" type="file" cl-image-drop-input ng-focus="type = 'upload'">
+        <div ng-show="!isUploading">
+          <div class="drop-zone__icon icon-crop-original"></div>
+          Drop image here
         </div>
-        <p class="or">
-            <span>—</span> or <span>—</span>
-        </p>
-        <div class="drop-zone">
-            <input type="file" cl-image-drop-input>
-            <div ng-show="!isUploading">
-                <div class="icon icon-crop-original"></div>
-                Drop image here
-            </div>
-            <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isUploading">
-                <cl-spinner></cl-spinner>
-            </div>
+        <div layout="row" layout-sm="column" layout-align="space-around" ng-show="isUploading">
+          <cl-spinner></cl-spinner>
         </div>
-        <div class="powered-by">Powered by <a href="https://imgur.com/" target="_blank">Imgur</a></div>
-    </md-dialog-content>
-    <div class="md-actions">
-        <md-button ng-click="cancel()" class="md-primary">
-            Cancel
-        </md-button>
-    </div>
+      </div>
+      <div class="image-dialog__powered-by">Powered by <a href="https://imgur.com/" target="_blank">Imgur</a></div>
+    </md-radio-group>
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+    <md-button ng-click="ok()" class="md-primary">
+      Add
+    </md-button>
+  </div>
 </md-dialog>

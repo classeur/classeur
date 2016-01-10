@@ -323,7 +323,7 @@ angular.module('classeur.core.editorLayout', [])
         }
 
         var tabs = ['sample', 'toc', 'discussions', 'history']
-        scope.tabTitles = ['Sample', 'Table Of Contents', 'Discussions', 'History']
+        scope.tabTitles = ['Markdown Sample', 'Table Of Contents', 'Discussions', 'History']
         scope.$watch('localSettingSvc.values.sideBarTab', function (tab) {
           scope.selectedTabIndex = tabs.indexOf(tab)
           scope.selectedTabIndex = scope.selectedTabIndex === -1 ? 0 : scope.selectedTabIndex

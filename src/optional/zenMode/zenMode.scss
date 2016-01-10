@@ -1,12 +1,15 @@
-.zen.panel.level-1 {
-    pointer-events: none;
-    &.hidden {
-        display: none;
-    }
-    .mask {
-        width: 50%;
-    }
-    .level-2 {
-        opacity: 0.9;
-    }
+.zen-panel {
+  pointer-events: none;
+}
+
+.zen-panel--hidden {
+  display: none;
+}
+
+.zen-panel__mask {
+  width: 50%;
+}
+
+.zen-panel__inner {
+  opacity: .9;
 }

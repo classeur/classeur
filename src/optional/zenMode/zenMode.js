@@ -10,13 +10,13 @@ angular.module('classeur.optional.zenMode', [])
     function ($window, clEditorLayoutSvc, clLocalSettingSvc) {
       return {
         restrict: 'E',
-        template: '<div class="zen panel level-1 hidden"><div class="panel mask background"></div><div class="panel level-2 background"></div></div>',
+        templateUrl: 'optional/zenMode/zenMode.html',
         link: link
       }
 
       function link (scope, element) {
-        var level1Elt = element[0].querySelector('.level-1').clanim.width(4000).right(-1500).start()
-        var level2Elt = element[0].querySelector('.level-2')
+        var zenPanelElt = element[0].querySelector('.zen-panel').clanim.width(4000).right(-1500).start()
+        var zenPanelInnerElt = element[0].querySelector('.zen-panel__inner')
         var parentNode = element[0].parentNode
         var lastClientX
         var lastClientY
@@ -36,9 +36,9 @@ angular.module('classeur.optional.zenMode', [])
           if (!isEnabled()) {
             return
           }
-          level1Elt.classList.remove('hidden')
-          level1Elt.offsetWidth
-          level1Elt.clanim
+          zenPanelElt.classList.remove('zen-panel--hidden')
+          zenPanelElt.offsetWidth
+          zenPanelElt.clanim
             .opacity(1)
             .duration(1500)
             .easing('ease-out')
@@ -47,7 +47,7 @@ angular.module('classeur.optional.zenMode', [])
         }, 3000)
 
         var showLevel2 = $window.cledit.Utils.debounce(function () {
-          isEnabled() && level2Elt.clanim
+          isEnabled() && zenPanelInnerElt.clanim
             .opacity(1)
             .duration(300)
             .easing('ease-out')
@@ -67,7 +67,7 @@ angular.module('classeur.optional.zenMode', [])
               if (evt.clientX < minLeft) {
                 unhide = false
               }
-              level2Elt.clanim
+              zenPanelInnerElt.clanim
                 .duration(100)
                 .opacity(0.85)
                 .easing('ease-out')
@@ -76,18 +76,18 @@ angular.module('classeur.optional.zenMode', [])
             showLevel1()
             showLevel2()
           }
-          unhide && !isHidden && level1Elt.clanim
+          unhide && !isHidden && zenPanelElt.clanim
             .opacity(0)
             .duration(100)
             .easing('ease-out')
             .start(function () {
               isHidden = true
               isTyping = false
-              level1Elt.classList.add('hidden')
+              zenPanelElt.classList.add('zen-panel--hidden')
             })
         }
 
-        level1Elt.clanim.opacity(0).start()
+        zenPanelElt.clanim.opacity(0).start()
         hidePanel()
         var editorLayoutElt = document.querySelector('.editor-layout')
         editorLayoutElt.addEventListener('keydown', function (evt) {

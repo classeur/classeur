@@ -1,4 +1,4 @@
-<div class="discussion tab" ng-class="{selected: discussionSvc.currentDiscussionId}">
-    <cl-discussion-item ng-if="discussion"></cl-discussion-item>
-    <cl-discussion-item ng-repeat="lastComment in discussionSvc.lastComments track by lastComment.discussionId"></cl-discussion-item>
+<div class="discussion-tab" ng-class="{'discussion-tab--selected': discussionSvc.currentDiscussionId}">
+  <cl-discussion-item ng-if="discussion"></cl-discussion-item>
+  <cl-discussion-item ng-repeat="lastComment in discussionSvc.lastComments track by lastComment.discussionId"></cl-discussion-item>
 </div>

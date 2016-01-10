@@ -1,24 +1,27 @@
-.sys.page.panel {
-    & > div {
-        margin: auto;
-        width: 100%;
-        height: 100%;
-        max-width: 580px;
-        overflow: auto;
-    }
-    .title {
-        font-size: 32px;
-        font-weight: 300;
-        margin: 5px 0;
-    }
-    .entry {
-        margin-bottom: 10px;
-        input {
-            width: 260px;
-            margin: 0 5px;
-            &.full-width {
-                width: 100%;
-            }
-        }
-    }
+.sys-page {
+  overflow: auto;
+
+  .navbar {
+    position: fixed;
+  }
+
+  .navbar__inner {
+    max-width: 580px;
+    width: 100%;
+  }
+}
+
+.sys-page__inner {
+  margin: auto;
+  max-width: 580px;
+  padding: 40px 5px 100px;
+}
+
+.sys-page__entry {
+  margin-bottom: 10px;
+}
+
+.sys-page__entry-input {
+  margin: 0 5px;
+  width: 260px;
 }
