@@ -112,6 +112,7 @@ angular.module('classeur.optional.exportToDisk', [])
               var format = template.indexOf('file.content.html') === -1 ? 'txt' : 'html'
               clEditorSvc.applyTemplate(template)
                 .then(function (text) {
+                  text = unescape(encodeURIComponent(text)) // UTF-8 to ByteString
                   saveAs(text, scope.currentFileDao.name, format)
                 })
             } else if (exportConfig.format === 'document') {
