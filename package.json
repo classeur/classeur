@@ -25,7 +25,7 @@
     "classets": "~1.0.0",
     "cldiffutils": "~1.0.0",
     "cledit": "~1.0.0",
-    "clgulp": "~1.0.4",
+    "clgulp": "~1.1.0",
     "clunderscore": "~1.0.0",
     "engine.io-client": "~1.6.4",
     "filesaver.js": "~0.2.0",
