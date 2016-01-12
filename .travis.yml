@@ -1,3 +1,4 @@
+before_install: gem install bundler; bundle install;
 language: node_js
 node_js:
   - "4"
