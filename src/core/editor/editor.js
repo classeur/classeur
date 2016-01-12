@@ -1041,7 +1041,7 @@ angular.module('classeur.core.editor', [])
         if (urlBefore !== urlAfter) {
           var splitUrl = urlAfter.split('#')
           if (splitUrl.length === 3) {
-            var hash = splitUrl[2]
+            var hash = decodeURIComponent(splitUrl[2])
             var hashPos = splitUrl[0].length + splitUrl[1].length
             if (urlBefore.slice(0, hashPos) === urlAfter.slice(0, hashPos)) {
               evt.preventDefault()
