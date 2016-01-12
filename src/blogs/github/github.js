@@ -93,7 +93,7 @@ angular.module('classeur.blogs.github', [])
           client_id: clConfig.githubClientId,
           response_type: 'code',
           redirect_uri: clConfig.appUri + '/oauth/github/callback',
-          scope: blog.private ? 'repo' : 'public_repo'
+          scope: blog.privateRepo ? 'repo' : 'public_repo'
         }
       }
 
