@@ -132,7 +132,7 @@ angular.module('classeur.core', [])
         var newFileDao = clFileSvc.createFile()
         newFileDao.state = 'loaded'
         newFileDao.readContent()
-        newFileDao.name = oldFileDao.name
+        newFileDao.name = oldFileDao.name.trim() + ' copy'
         newFileDao.contentDao.text = oldFileDao.contentDao.text
         newFileDao.contentDao.state = JSON.parse(JSON.stringify(oldFileDao.contentDao.state))
         newFileDao.contentDao.properties = JSON.parse(JSON.stringify(oldFileDao.contentDao.properties))
