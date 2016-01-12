@@ -1,6 +1,6 @@
 angular.module('classeur.optional.fileHistory', [])
   .directive('clFileHistoryTab',
-    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils) {
+    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils, clDialog, clEditorSvc) {
       return {
         restrict: 'E',
         scope: true,
@@ -20,6 +20,25 @@ angular.module('classeur.optional.fileHistory', [])
           }
         }
 
+        scope.restoreRevision = function (revision) {
+          var fileDao = scope.currentFileDao
+          var confirm = clDialog.confirm()
+            .title('Restore revision')
+            .textContent('Are you sure you want to restore the selected revision?')
+            .ariaLabel('Restore revision')
+            .ok('Yes')
+            .cancel('No')
+          clDialog.show(confirm).then(function () {
+            clContentSyncSvc.retrieveRevision(revision)
+              .then(function (result) {
+                if (fileDao !== scope.currentFileDao || fileDao.state !== 'loaded') {
+                  return
+                }
+                clEditorSvc.setContent(result.text)
+              })
+          })
+        }
+
         clFileHistorySvc.selectedChangeGroup = undefined
         scope.$watchGroup(['fileHistorySvc.selectedChangeGroup', 'fileHistorySvc.changeGroups'], function () {
           scope.isLoading = true
@@ -34,9 +53,14 @@ angular.module('classeur.optional.fileHistory', [])
                     .then(function (result2) {
                       if (changeGroup === clFileHistorySvc.selectedChangeGroup) {
                         scope.isLoading = false
-                        scope.diffs = {
-                          text: clDiffUtils.getTextPatches(result1.text, result2.text),
-                          comments: clDiffUtils.getObjectPatches(result1.comments, result2.comments)
+                        scope.textChanges = clDiffUtils.getTextPatches(result1.text, result2.text)
+                        scope.commentChanges = clDiffUtils.getObjectPatches(result1.comments, result2.comments)
+                        scope.noChange = !scope.textChanges
+                        if (scope.commentChanges) {
+                          scope.commentChanges = scope.commentChanges.cl_filter(function (commentChange) {
+                            return commentChange.a
+                          })
+                          scope.noChange &= !scope.commentChanges.length
                         }
                       }
                     })

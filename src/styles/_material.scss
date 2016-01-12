@@ -171,6 +171,10 @@ md-tooltip {
     background-color: rgba(40, 40, 40, .9);
   }
 
+  &.md-show {
+    @include transition(none);
+  }
+
   .md-content {
     background-color: $tooltip-background-color;
     border-radius: 4px;
@@ -195,17 +199,17 @@ md-tooltip {
 
   &.bottom::before {
     border-bottom-color: $tooltip-background-color;
-    border-width: 0 5px 5px;
+    border-width: 0 9px 7px;
     left: 50%;
-    margin-left: -5px;
-    top: -5px;
+    margin-left: -9px;
+    top: -7px;
   }
 
   &.left::before {
     border-left-color: $tooltip-background-color;
-    border-width: 5px 0 5px 5px;
-    margin-top: -5px;
-    right: -5px;
+    border-width: 9px 0 9px 7px;
+    margin-top: -9px;
+    right: -7px;
     top: 50%;
   }
 

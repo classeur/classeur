@@ -4,23 +4,14 @@ var clgulp = require('clgulp')
 var gulp = clgulp(require('gulp'))
 var exec = clgulp.exec
 var util = clgulp.util
-var through2 = require('through2')
-var watch = require('gulp-watch')
 var concat = require('gulp-concat')
 var ngAnnotate = require('gulp-ng-annotate')
 var uglify = require('gulp-uglify')
-var sourcemaps = require('gulp-sourcemaps')
 var streamqueue = require('streamqueue')
-var replace = require('gulp-replace')
 var sass = require('gulp-sass')
-var scsslint = require('gulp-scss-lint')
 var templateCache = require('gulp-angular-templatecache')
 var size = require('gulp-size')
 var bourbon = require('bourbon')
-var Comb = require('csscomb')
-var beautifyHtml = require('js-beautify').html
-var stripJsonComments = require('strip-json-comments')
-var htmlhint = require('gulp-htmlhint')
 
 var isDebug = false
 
@@ -129,7 +120,7 @@ gulp.task('template-worker-js', function () {
 var appCssSrc = ['src/**/!(base).scss']
 
 var appVendorCss = [
-  path.join(path.dirname(require.resolve('angular-material')), 'angular-material.css'),
+  path.join(path.dirname(require.resolve('angular-material')), 'angular-material.scss'),
   path.join(path.dirname(require.resolve('classets/package')), 'public/icons/style.css')
 ]
 
@@ -138,7 +129,7 @@ gulp.task('app-css', function () {
     streamqueue({
       objectMode: true
     },
-      gulp.src(appVendorCss).pipe(replace(/@import\s.*/g, '')),
+      gulp.src(appVendorCss),
       gulp.src(appCssSrc)
     ), 'app-min.css')
 })
@@ -161,12 +152,14 @@ gulp.task('lint-all', [
 ])
 
 gulp.task('lint-scss', function () {
+  var scsslint = require('gulp-scss-lint')
   return gulp.src(appCssSrc)
     .pipe(scsslint())
     .pipe(scsslint.failReporter())
 })
 
 function csscombFormatter () {
+  var Comb = require('csscomb')
   var comb = new Comb()
   comb.configure(require('./.csscomb.json'))
   return function (content) {
@@ -190,12 +183,15 @@ gulp.task('format-scss', function () {
 var htmlSrc = ['src/**/*.html', 'public/**/*.html']
 
 gulp.task('lint-html', function () {
+  var htmlhint = require('gulp-htmlhint')
   return gulp.src(htmlSrc)
     .pipe(htmlhint('.htmlhintrc'))
     .pipe(htmlhint.failReporter())
 })
 
 function jsbeautifyHtmlFormatter () {
+  var beautifyHtml = require('js-beautify').html
+  var stripJsonComments = require('strip-json-comments')
   var options = fs.readFileSync('.jsbeautifyrc', 'utf8')
   options = JSON.parse(stripJsonComments(options))
   return function (content) {
@@ -223,6 +219,7 @@ gulp.task('watch', [
   'debug',
   'default'
 ], function () {
+  var watch = require('gulp-watch')
   function watchAndStart (src, task) {
     return watch(src, function (files, cb) {
       gulp.start(task)
@@ -240,6 +237,7 @@ gulp.task('debug', function () {
 
 function buildJs (srcStream, dest) {
   if (isDebug) {
+    var sourcemaps = require('gulp-sourcemaps')
     srcStream = srcStream
       .pipe(sourcemaps.init())
       .pipe(concat(dest, {
@@ -262,6 +260,7 @@ function buildJs (srcStream, dest) {
 
 function buildCss (srcStream, dest) {
   if (isDebug) {
+    var sourcemaps = require('gulp-sourcemaps')
     srcStream = srcStream
       .pipe(sourcemaps.init())
       .pipe(sass({
@@ -281,6 +280,7 @@ function buildCss (srcStream, dest) {
 }
 
 function checkFormat (pluginName, format) {
+  var through2 = require('through2')
   var errorCount = 0
   return through2.obj(function (file, enc, cb) {
     if (file.isNull()) {
@@ -305,6 +305,7 @@ function checkFormat (pluginName, format) {
 }
 
 function format (pluginName, format) {
+  var through2 = require('through2')
   return through2.obj(function (file, enc, cb) {
     if (file.isNull()) {
       return cb(null, file)

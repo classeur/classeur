@@ -54,6 +54,19 @@
   white-space: nowrap;
 }
 
+.file-history-entry__button {
+  color: rgba(0, 0, 0, .67);
+  font-size: 20px;
+  height: 28px;
+  padding: 0;
+  visibility: hidden;
+  width: 28px;
+
+  .file-history-entry--selected & {
+    visibility: visible;
+  }
+}
+
 .file-history-entry__chip {
   .file-history-entry & {
     cursor: pointer;
@@ -90,8 +103,7 @@
   font-size: 14px;
 }
 
-.file-change__text--removed,
-.file-change__comment--removed {
+.file-change__text--removed {
   * {
     text-decoration: line-through;
   }

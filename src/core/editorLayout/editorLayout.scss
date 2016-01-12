@@ -267,6 +267,7 @@ $menu-height: 105px;
   height: 40px;
   right: 0;
   width: 40px;
+  z-index: 1;
 
   @include transform-origin(100% 100%);
 }
@@ -282,6 +283,7 @@ $menu-height: 105px;
   font-size: 28px;
   padding: 2px;
   position: absolute;
+  z-index: 1;
 }
 
 .corner-fold__btn--left {

@@ -17,6 +17,6 @@ angular.module('classeur.optional.spinner', [])
     return {
       restrict: 'E',
       scope: true,
-      template: '<md-progress-circular class="md-accent md-hue-2" md-mode="indeterminate" md-diameter="60"></md-progress-circular>'
+      template: '<md-progress-circular class="md-accent md-hue-2" md-mode="indeterminate" md-diameter="70"></md-progress-circular>'
     }
   })

@@ -6,7 +6,8 @@
         {{changeGroup.created | clTimeSince:minuteCounter}}
       </span>
     </div>
-    <div layout="row" layout-align="end">
+    <div layout="row" layout-align="end center">
+      <md-button class="file-history-entry__button icon-restore" md-no-ink aria-label="Restore revision" title="Restore revision" ng-click="restoreRevision(changeGroup.toRev); $event.stopPropagation()"></md-button>
       <md-chips>
         <md-chip class="file-history-entry__chip">rev {{changeGroup.toRev}}</md-chip>
       </md-chips>
@@ -15,23 +16,23 @@
   <div ng-if="fileHistorySvc.selectedChangeGroup === changeGroup" ng-switch="isLoading">
     <cl-block-spinner ng-switch-when="true"></cl-block-spinner>
     <div class="file-change-list" ng-switch-when="false">
-      <div class="file-change" ng-if="!diffs.text">
+      <div class="file-change" ng-if="noChange">
         <div class="file-change__type">
-          No text change.
+          No change.
         </div>
       </div>
-      <div class="file-change" ng-repeat="textDiff in diffs.text">
+      <div class="file-change" ng-repeat="textChange in textChanges">
         <div class="file-change__type">
-          {{::textDiff.d ? 'Removed text:' : 'Added text:'}}
+          {{::textChange.d ? 'Removed text:' : 'Added text:'}}
         </div>
-        <div class="file-change__text markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__text--removed': textDiff.d}" ng-bind-html="::textDiff.a || textDiff.d | clHighlightMarkdown:editorSvc.prismGrammar">
+        <div class="file-change__text markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__text--removed': textChange.d}" ng-bind-html="::textChange.a || textChange.d | clHighlightMarkdown:editorSvc.prismGrammar">
         </div>
       </div>
-      <div class="file-change" ng-repeat="comment in diffs.comments">
+      <div class="file-change" ng-repeat="commentChange in commentChanges">
         <div class="file-change__type">
-          {{::comment.d ? 'Removed comment:' : 'Added comment:'}}
+          Added comment:
         </div>
-        <div class="file-change__comment markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__comment--removed': comment.d}" ng-bind-html="::comment.a ? comment.a.text : comment.d.text | clHighlightMarkdown:editorSvc.prismGrammar">
+        <div class="file-change__comment comment-text" ng-bind-html="::commentChange.a.text | clConvertMarkdown">
         </div>
       </div>
     </div>
