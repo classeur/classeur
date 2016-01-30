@@ -3,7 +3,9 @@
 [![Build Status](https://img.shields.io/travis/classeur/classeur.svg?style=flat)](https://travis-ci.org/classeur/classeur) [![NPM version](https://img.shields.io/npm/v/classeur.svg?style=flat)](https://www.npmjs.org/package/classeur)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
-Frontend application as used in [Classeur](https://app.classeur.io). This app was made possible thanks to these great libraries:
+> Frontend application as used in [Classeur](https://app.classeur.io).
+
+This app was made possible thanks to these great libraries:
 
 - [AngularJS](https://github.com/angular/angular.js)
 - [Markdown It](https://github.com/markdown-it/markdown-it)
