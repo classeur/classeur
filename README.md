@@ -3,13 +3,13 @@
 [![Build Status](https://img.shields.io/travis/classeur/classeur.svg?style=flat)](https://travis-ci.org/classeur/classeur) [![NPM version](https://img.shields.io/npm/v/classeur.svg?style=flat)](https://www.npmjs.org/package/classeur)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
-This is the frontend application as used in [Classeur](https://app.classeur.io). The application was made possible thanks to these libraries:
+Frontend application as used in [Classeur](https://app.classeur.io). This app was made possible thanks to these great libraries:
 
 - [AngularJS](https://github.com/angular/angular.js)
 - [Markdown It](https://github.com/markdown-it/markdown-it)
 - [Prism](https://github.com/PrismJS/prism)
 
-The [cledit library](https://github.com/classeur/cledit) developed by the Classeur team is also an important part of the project.
+The [cledit library](https://github.com/classeur/cledit) is also an important part of the project.
 
 
 ## Get started
@@ -30,6 +30,9 @@ Classeur works with a back-end in order to provide connected features such as sy
 
 
 ## Contributing
+
+We gladly accept new features if they are useful for others and don't degrade the user experience.
+
 
 ### Code format
 
