@@ -152,7 +152,7 @@ angular.module('classeur.core.socket', [])
     function ($http, clSocketSvc) {
       function listLoop (url, params, rangeStart, rangeEnd, result) {
         result = result || []
-        rangeStart = rangeStart >= 0 ? rangeStart : 0
+        rangeStart = rangeStart > 0 ? rangeStart : 0
         rangeEnd = rangeEnd >= 0 ? rangeEnd : 999999999
         var headers = clSocketSvc.makeAuthorizationHeader()
         headers.range = 'items=' + rangeStart + '-' + rangeEnd

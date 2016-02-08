@@ -52,7 +52,6 @@ angular.module('classeur.core.files', [])
       var fileDaoProto = clLocalStorageObject('f', {
         name: 'string',
         folderId: 'string',
-        classeurId: 'string',
         sharing: 'string',
         userId: 'string',
         deleted: 'int'
@@ -196,7 +195,6 @@ angular.module('classeur.core.files', [])
         name: true,
         sharing: true,
         folderId: true,
-        classeurId: true,
         deleted: true
       }
 
@@ -396,7 +394,6 @@ angular.module('classeur.core.files', [])
           }
           fileDao.name = change.name || ''
           fileDao.folderId = change.folderId || ''
-          fileDao.classeurId = change.classeurId || ''
           fileDao.sharing = change.sharing || ''
           fileDao.userId = ''
           fileDao.$setExtUpdate(change.updated)
