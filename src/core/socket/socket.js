@@ -29,8 +29,12 @@ angular.module('classeur.core.socket', [])
 
       function checkToken () {
         socketToken = clLocalStorage[socketTokenKey]
-        clSocketSvc.hasToken = !!socketToken
-        return clSocketSvc.hasToken
+        var hasToken = !!socketToken
+        if (clSocketSvc.hasToken !== hasToken) {
+          clSocketSvc.hasToken = hasToken
+          $rootScope.$evalAsync()
+        }
+        return hasToken
       }
 
       var lastConnectionAttempt = 0
@@ -54,7 +58,7 @@ angular.module('classeur.core.socket', [])
           })
           ctx.socket.on('open', function () {
             nextConnectionAttempt = 1000
-            ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken}]))
+            ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken, protocolVersion: 1}]))
           })
           ctx.socket.on('error', closeSocket)
           ctx.socket.on('close', closeSocket)
@@ -143,4 +147,43 @@ angular.module('classeur.core.socket', [])
 
       openSocket()
       return clSocketSvc
+    })
+  .factory('clRestSvc',
+    function ($http, clSocketSvc) {
+      function listLoop (url, params, rangeStart, rangeEnd, result) {
+        result = result || []
+        rangeStart = rangeStart >= 0 ? rangeStart : 0
+        rangeEnd = rangeEnd >= 0 ? rangeEnd : 999999999
+        var headers = clSocketSvc.makeAuthorizationHeader()
+        headers.range = 'items=' + rangeStart + '-' + rangeEnd
+        return $http.get(url, {
+          headers: headers,
+          params: params,
+          timeout: clRestSvc.timeout
+        })
+          .then(function (res) {
+            switch (res.status) {
+              case 416:
+                return result
+              case 206:
+                var parsedRange = res.headers('Content-Range').match(/^items (\d+)-(\d+)\/(\d+)$/)
+                result = result.concat(res.data)
+                var last = parseInt(parsedRange[2], 10)
+                var count = parseInt(parsedRange[3], 10)
+                if (result.length > rangeEnd - rangeStart || last + 1 === count) {
+                  return result
+                }
+                return listLoop(url, params, last + 1, rangeEnd, result)
+            }
+          })
+      }
+
+      var clRestSvc = {
+        timeout: 30 * 1000, // 30 sec
+        list: function (url, params, rangeStart, rangeEnd) {
+          return listLoop(url, params, rangeStart, rangeEnd)
+        }
+      }
+
+      return clRestSvc
     })

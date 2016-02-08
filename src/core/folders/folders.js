@@ -67,7 +67,7 @@ angular.module('classeur.core.folders', [])
 
       FolderDao.prototype.write = function (updated) {
         this.$write()
-        updated && this.$writeUpdate(updated)
+        this.extUpdated = undefined
       }
 
       var clFolderSvc = clLocalStorageObject('folderSvc', {
@@ -94,8 +94,14 @@ angular.module('classeur.core.folders', [])
         var deletedFolderMap = Object.create(null)
         clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function (id) {
           var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id] || new FolderDao(id)
-          return (!folderDao.deleted && !folderMap[id] && (folderMap[id] = folderDao)) ||
-          (folderDao.deleted && !deletedFolderMap[id] && (deletedFolderMap[id] = folderDao))
+          if (!folderDao.deleted && !folderMap[id]) {
+            folderMap[id] = folderDao
+            return true
+          }
+          if (folderDao.deleted && !deletedFolderMap[id]) {
+            deletedFolderMap[id] = folderDao
+            return true
+          }
         })
         clFolderSvc.folderMap = folderMap
         clFolderSvc.deletedFolderMap = deletedFolderMap
@@ -124,20 +130,13 @@ angular.module('classeur.core.folders', [])
         }
       }
 
-      function write () {
-        clFolderSvc.$write()
-        clFolderSvc.folders.cl_each(function (folderDao) {
-          folderDao.write()
-        })
-      }
-
-      function checkAll (skipWrite) {
+      function checkLocalStorage () {
         // Check folder id list
         var checkFolderSvcUpdate = clFolderSvc.$checkUpdate()
         clFolderSvc.$readUpdate()
         if (checkFolderSvcUpdate && clFolderSvc.$check()) {
           clFolderSvc.folderIds = undefined
-        } else if (!skipWrite) {
+        } else {
           clFolderSvc.$write()
         }
 
@@ -147,7 +146,7 @@ angular.module('classeur.core.folders', [])
         clFolderSvc.folders.concat(clFolderSvc.deletedFolders).cl_each(function (folderDao) {
           if (checkFolderUpdate && folderDao.$checkUpdate()) {
             folderDao.read()
-          } else if (!skipWrite) {
+          } else {
             folderDao.write()
           }
         })
@@ -174,16 +173,21 @@ angular.module('classeur.core.folders', [])
         return folderDao
       }
 
+      // Remove folderDao from folders and deletedFolders
       function removeFolders (folderDaoList) {
         if (!folderDaoList.length) {
           return
         }
-        var folderIds = {}
-        folderDaoList.cl_each(function (folderDao) {
+
+        // Create hash for fast filter
+        var folderIds = folderDaoList.cl_reduce(function (folderIds, folderDao) {
           folderIds[folderDao.id] = 1
-        })
+          return folderIds
+        }, Object.create(null))
+
+        // Filter
         clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function (folderId) {
-          return !folderIds.hasOwnProperty(folderId)
+          return !folderIds[folderId]
         })
         init()
       }
@@ -221,26 +225,20 @@ angular.module('classeur.core.folders', [])
           folderDao.name = change.name || ''
           folderDao.sharing = change.sharing || ''
           folderDao.userId = ''
-          folderDao.write(change.updated)
+          folderDao.$setExtUpdate(change.updated)
         })
         init()
       }
 
-      function getLastUpdated () {
-        return folderDaoProto.gUpdated
-      }
-
-      clFolderSvc.folderDaoProto = folderDaoProto
+      clFolderSvc.FolderDao = FolderDao
       clFolderSvc.init = init
-      clFolderSvc.write = write
-      clFolderSvc.checkAll = checkAll
+      clFolderSvc.checkLocalStorage = checkLocalStorage
       clFolderSvc.createFolder = createFolder
       clFolderSvc.createPublicFolder = createPublicFolder
       clFolderSvc.removeFolders = removeFolders
       clFolderSvc.setDeletedFolders = setDeletedFolders
       clFolderSvc.setDeletedFolder = setDeletedFolder
       clFolderSvc.updateUserFolders = updateUserFolders
-      clFolderSvc.getLastUpdated = getLastUpdated
       clFolderSvc.folders = []
       clFolderSvc.deletedFolders = []
       clFolderSvc.folderMap = Object.create(null)

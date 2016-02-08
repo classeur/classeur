@@ -85,26 +85,26 @@ angular.module('classeur.core.user', [])
         clUserSvc.user = null
       }
 
-      clUserSvc.read = function () {
-        this.$read()
-        this.$readUpdate()
+      function read () {
+        clUserSvc.$read()
+        clUserSvc.$readUpdate()
       }
 
-      clUserSvc.write = function (updated) {
-        this.$write()
-        updated && this.$writeUpdate(updated)
+      function write () {
+        clUserSvc.$write()
+        clUserSvc.extUpdated = undefined
       }
 
       clUserSvc.isUserPremium = function () {
         return this.user && this.user.roles && this.user.roles.indexOf('premium_user') !== -1
       }
 
-      function checkAll () {
+      function checkLocalStorage () {
         if (clUserSvc.$checkUpdate()) {
-          clUserSvc.read()
+          read()
           return true
         } else {
-          clUserSvc.write()
+          write()
         }
       }
 
@@ -127,7 +127,7 @@ angular.module('classeur.core.user', [])
         return clConfig.paypalUri + '?' + makeQueryString(params)
       }
 
-      clUserSvc.read()
+      read()
 
       clSocketSvc.addMsgHandler('invalidToken', function () {
         signout()
@@ -139,7 +139,7 @@ angular.module('classeur.core.user', [])
       }
       clUserSvc.signin = signin
       clUserSvc.signout = signout
-      clUserSvc.checkAll = checkAll
+      clUserSvc.checkLocalStorage = checkLocalStorage
       clUserSvc.getSubscribeLink = getSubscribeLink
       clUserSvc.getUnsubscribeLink = getUnsubscribeLink
 
@@ -217,7 +217,7 @@ angular.module('classeur.core.user', [])
         clUserInfoSvc.lastUserInfo = Date.now()
       }
 
-      clSetInterval(getUserInfos, 1100)
+      clSetInterval(getUserInfos, 1200)
       $rootScope.$watch('userSvc.user', buildNames)
 
       return clUserInfoSvc

@@ -2,6 +2,7 @@ angular.module('classeur.core.sync', [])
   .factory('clSyncDataSvc',
     function (clLocalStorage, clLocalStorageObject, clFileSvc, clFolderSvc, clSocketSvc) {
       var cleanPublicObjectAfter = 86400000 // 1 day
+      var lastSendNewFileKey = 'lastSendNewFile'
 
       function parseSyncData (data) {
         return JSON.parse(data, function (id, value) {
@@ -18,7 +19,12 @@ angular.module('classeur.core.sync', [])
       }
 
       var clSyncDataSvc = clLocalStorageObject('syncData', {
-        lastActivity: 'int',
+        classeurs: {
+          default: '{}',
+          parser: parseSyncData,
+          serializer: serializeSyncData
+        },
+        classeurLastUpdated: 'int',
         folders: {
           default: '{}',
           parser: parseSyncData,
@@ -31,7 +37,7 @@ angular.module('classeur.core.sync', [])
           parser: parseSyncData,
           serializer: serializeSyncData
         },
-        nextFileSeq: 'int',
+        lastFileSeq: 'int',
         fileLastUpdated: 'int',
         userId: 'string',
         userData: {
@@ -52,13 +58,80 @@ angular.module('classeur.core.sync', [])
             clLocalStorage.removeItem(key)
           }
         })
-        read()
+        checkLocalStorage()
       }
 
-      var initialized
+      function read () {
+        clSyncDataSvc.$read()
+        clSyncDataSvc.$readUpdate()
+      }
 
-      function checkUserChange (userId) {
-        if (userId !== clSyncDataSvc.userId) {
+      function write () {
+        clSyncDataSvc.$write()
+      }
+
+      function init () {
+        var currentDate = Date.now()
+
+        // Eject old public deletedFiles from clSyncDataSvc
+        clSyncDataSvc.files = clSyncDataSvc.files.cl_reduce(function (files, syncData, id) {
+          var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id]
+          if (fileDao && (!fileDao.userId || !fileDao.deleted || currentDate - fileDao.deleted < cleanPublicObjectAfter)) {
+            files[id] = syncData
+          }
+          return files
+        }, {})
+
+        // Eject old public deletedFolders from clSyncDataSvc
+        clSyncDataSvc.folders = clSyncDataSvc.folders.cl_reduce(function (folders, syncData, id) {
+          var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id]
+          if (folderDao && (!folderDao.userId || !folderDao.deleted || currentDate - folderDao.deleted < cleanPublicObjectAfter)) {
+            folders[id] = syncData
+          }
+          return folders
+        }, {})
+
+        // Eject old folderRefreshDates
+        clSyncDataSvc.folderRefreshDates.cl_each(function (date, folderId) {
+          if (currentDate - date > cleanPublicObjectAfter) {
+            delete clSyncDataSvc.folderRefreshDates[folderId]
+          }
+        })
+
+        clFileSvc.removeFiles(
+          // Remove deletedFiles that are not synced anymore
+          clFileSvc.deletedFiles.cl_filter(function (fileDao) {
+            if (!clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
+              return true
+            }
+          })
+            // Remove public files that are not local and not refreshed recently
+            .concat(clFileSvc.files.cl_filter(function (fileDao) {
+              if (fileDao.userId &&
+                !fileDao.contentDao.isLocal &&
+                (!fileDao.folderId || !clSyncDataSvc.folderRefreshDates.hasOwnProperty(fileDao.folderId))
+              ) {
+                return true
+              }
+            }))
+        )
+
+        // Remove deletedFolders not synced anymore
+        clFolderSvc.removeFolders(clFolderSvc.deletedFolders.cl_filter(function (folderDao) {
+          if (!clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
+            return true
+          }
+        }))
+      }
+
+      function checkLocalStorage (ctx) {
+        if (clSyncDataSvc.$checkUpdate()) {
+          read()
+        } else {
+          write()
+        }
+
+        if (ctx && ctx.userId && ctx.userId !== clSyncDataSvc.userId) {
           // Add userId to synced files owned by previous user
           var filesToRemove = clFileSvc.files.cl_filter(function (fileDao) {
             if (!fileDao.userId && clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
@@ -70,7 +143,6 @@ angular.module('classeur.core.sync', [])
           clFileSvc.removeFiles(filesToRemove)
           // Remove files that are pending for deletion
           clFileSvc.removeFiles(clFileSvc.deletedFiles)
-          clFileSvc.checkAll()
 
           // Add userId to synced folders owned by previous user
           clFolderSvc.folders.cl_each(function (folderDao) {
@@ -80,93 +152,20 @@ angular.module('classeur.core.sync', [])
           })
           // Remove folders that are pending for deletion
           clFolderSvc.removeFolders(clFolderSvc.deletedFolders)
-          clFolderSvc.checkAll()
 
           reset()
-          clSyncDataSvc.userId = userId
-          // Force sync
-          write(1)
+          clSyncDataSvc.userId = ctx.userId
           return true
         }
       }
 
-      function read (ctx) {
-        var checkSyncDataUpdate = clSyncDataSvc.$checkUpdate()
-        if (initialized && !checkSyncDataUpdate) {
-          return
-        }
-
-        clSyncDataSvc.$read()
-        clSyncDataSvc.$readUpdate()
-
-        if (!initialized) {
-          var currentDate = Date.now()
-
-          // Eject old public deletedFiles from clSyncDataSvc
-          clSyncDataSvc.files = clSyncDataSvc.files.cl_reduce(function (files, syncData, id) {
-            var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id]
-            if (fileDao && (!fileDao.userId || !fileDao.deleted || currentDate - fileDao.deleted < cleanPublicObjectAfter)) {
-              files[id] = syncData
-            }
-            return files
-          }, {})
-
-          // Eject old public deletedFolders from clSyncDataSvc
-          clSyncDataSvc.folders = clSyncDataSvc.folders.cl_reduce(function (folders, syncData, id) {
-            var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id]
-            if (folderDao && (!folderDao.userId || !folderDao.deleted || currentDate - folderDao.deleted < cleanPublicObjectAfter)) {
-              folders[id] = syncData
-            }
-            return folders
-          }, {})
-
-          // Eject old folderRefreshDates
-          clSyncDataSvc.folderRefreshDates.cl_each(function (date, folderId) {
-            if (currentDate - date > cleanPublicObjectAfter) {
-              delete clSyncDataSvc.folderRefreshDates[folderId]
-            }
-          })
-
-          clFileSvc.removeFiles(
-            // Remove deletedFiles that are not synced anymore
-            clFileSvc.deletedFiles.cl_filter(function (fileDao) {
-              if (!clSyncDataSvc.files.hasOwnProperty(fileDao.id)) {
-                return true
-              }
-            })
-              // Remove public files that are not local and not refreshed recently
-              .concat(clFileSvc.files.cl_filter(function (fileDao) {
-                if (fileDao.userId &&
-                  !fileDao.contentDao.isLocal &&
-                  (!fileDao.folderId || !clSyncDataSvc.folderRefreshDates.hasOwnProperty(fileDao.folderId))
-                ) {
-                  return true
-                }
-              }))
-          )
-
-          // Remove deletedFolders that are not synced anymore
-          clFolderSvc.removeFolders(clFolderSvc.deletedFolders.cl_filter(function (folderDao) {
-            if (!clSyncDataSvc.folders.hasOwnProperty(folderDao.id)) {
-              return true
-            }
-          }))
-
-          initialized = true
-        }
-
-        return ctx && ctx.userId && checkUserChange(ctx.userId)
+      function setLastSendNewFile () {
+        clLocalStorage[lastSendNewFileKey] = Date.now()
       }
 
-      function write (lastActivity) {
-        clSyncDataSvc.lastActivity = lastActivity || Date.now()
-        clSyncDataSvc.$write()
+      function getLastSendNewFile () {
+        return parseInt(clLocalStorage[lastSendNewFileKey] || 0, 10)
       }
-
-      clSocketSvc.addMsgHandler('userToken', function (msg) {
-        read()
-        checkUserChange(msg.userId)
-      })
 
       function isFilePendingCreation (fileDao) {
         var isWritable = !fileDao.userId || fileDao.sharing === 'rw'
@@ -185,10 +184,10 @@ angular.module('classeur.core.sync', [])
           if ((metadata.updated !== syncData.r && metadata.updated !== syncData.s) || fileDao.sharing !== metadata.permission) {
             fileDao.name = metadata.name || ''
             // For public files we take the permission as the file sharing
-            fileDao.sharing = metadata.permission || ''
+            fileDao.sharing = metadata.permission || metadata.permission || ''
             fileDao.updated = metadata.updated
             fileDao.userId = clSyncDataSvc.userId !== metadata.userId ? metadata.userId : ''
-            fileDao.write(fileDao.updated)
+            fileDao.$setExtUpdate(fileDao.updated)
           }
           syncData.r = metadata.updated
           clSyncDataSvc.files[fileDao.id] = syncData
@@ -202,20 +201,34 @@ angular.module('classeur.core.sync', [])
           folderDao.sharing = metadata.sharing || ''
           folderDao.updated = metadata.updated
           folderDao.userId = clSyncDataSvc.userId !== metadata.userId ? metadata.userId : ''
-          folderDao.write(folderDao.updated)
+          folderDao.$setExtUpdate(folderDao.updated)
         }
         syncData.r = metadata.updated
         clSyncDataSvc.folders[folderDao.id] = syncData
       }
 
-      clSyncDataSvc.read = read
-      clSyncDataSvc.write = write
+      function updatePublicClasseurMetadata (classeurDao, metadata) {
+        var syncData = clSyncDataSvc.classeur[classeurDao.id] || {}
+        if (metadata.updated && metadata.updated !== syncData.r && metadata.updated !== syncData.s) {
+          classeurDao.name = metadata.name || ''
+          classeurDao.updated = metadata.updated
+          classeurDao.$setExtUpdate(classeurDao.updated)
+        }
+        syncData.r = metadata.updated
+        clSyncDataSvc.classeur[classeurDao.id] = syncData
+      }
+
+      clSyncDataSvc.checkLocalStorage = checkLocalStorage
+      clSyncDataSvc.setLastSendNewFile = setLastSendNewFile
+      clSyncDataSvc.getLastSendNewFile = getLastSendNewFile
       clSyncDataSvc.isFilePendingCreation = isFilePendingCreation
       clSyncDataSvc.updatePublicFileMetadata = updatePublicFileMetadata
       clSyncDataSvc.updatePublicFolderMetadata = updatePublicFolderMetadata
+      clSyncDataSvc.updatePublicClasseurMetadata = updatePublicClasseurMetadata
       clSyncDataSvc.loadingTimeout = 30 * 1000 // 30 sec
 
       read()
+      init()
       return clSyncDataSvc
     })
   .factory('clContentRevSvc',
@@ -267,15 +280,69 @@ angular.module('classeur.core.sync', [])
       }
     })
   .factory('clSyncSvc',
-    function ($rootScope, $location, $http, $templateCache, clIsNavigatorOnline, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
+    function ($rootScope, $location, $http, $templateCache, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clSyncDataSvc, clContentRevSvc) {
       var userNameMaxLength = 64
       var nameMaxLength = 128
-      var longInactivityThreshold = 40 * 1000 // 40 sec
-      var shortInactivityThreshold = 10 * 1000 // 10 sec
       var createFileTimeout = 30 * 1000 // 30 sec
       var recoverFileTimeout = 30 * 1000 // 30 sec
       var clSyncSvc = {}
       clSyncSvc.userNameMaxLength = userNameMaxLength
+
+      var localStorageObjects = [
+        clFileSvc.FileDao.prototype,
+        clFolderSvc.FolderDao.prototype,
+        clUserSvc,
+        clClasseurSvc,
+        clSettingSvc,
+        clLocalSettingSvc
+      ]
+
+      var localStorageCheckers = [
+        clFileSvc,
+        clFolderSvc,
+        clUserSvc,
+        clClasseurSvc,
+        clSettingSvc,
+        clLocalSettingSvc
+      ]
+
+      function doInLocalStorage (todo) {
+        // Check all localStorage objects to write current tab changes and read other tabs
+        var userChanged = clSyncDataSvc.checkLocalStorage(clSocketSvc.ctx)
+        var apply = localStorageCheckers.cl_reduce(function (apply, checker) {
+          apply |= checker.checkLocalStorage()
+          return apply
+        }, userChanged)
+
+        !userChanged && todo && todo()
+
+        // If todo() made external changes from the server, persist them asap so that we can detect further changes.
+        if (localStorageObjects
+            .cl_some(function (localStorageObject) {
+              return localStorageObject.gExtUpdated
+            })
+        ) {
+          clSyncDataSvc.checkLocalStorage()
+          localStorageCheckers.cl_each(function (checker) {
+            checker.checkLocalStorage()
+          })
+          localStorageObjects.cl_each(function (localStorageObject) {
+            localStorageObject.gExtUpdated = undefined
+          })
+          apply = true
+        }
+
+        // Apply possible UI changes
+        apply && $rootScope.$evalAsync()
+        return userChanged
+      }
+
+      clSyncSvc.saveAll = doInLocalStorage.cl_bind()
+
+      $rootScope.$watch('socketSvc.ctx.userId', function (userId) {
+        // Make some cleaning when user changes
+        userId && clSyncSvc.saveAll()
+      })
 
       /* -----------------------
        * User
@@ -291,47 +358,43 @@ angular.module('classeur.core.sync', [])
         }
 
         clSocketSvc.addMsgHandler('userData', function (msg, ctx) {
-          if (clSyncDataSvc.read(ctx)) {
-            return
-          }
-          var apply, syncData
-          if (msg.user) {
-            syncData = clSyncDataSvc.userData.user || {}
-            if (syncData.s !== msg.userUpdated) {
-              clUserSvc.user = msg.user
-              clUserSvc.write(msg.userUpdated)
-              apply = true
+          doInLocalStorage(function () {
+            clSyncDataSvc.setLastActivity()
+            var syncData
+            if (msg.user) {
+              syncData = clSyncDataSvc.userData.user || {}
+              if (syncData.s !== msg.userUpdated) {
+                clUserSvc.user = msg.user
+                clUserSvc.$setExtUpdate(msg.userUpdated)
+              }
+              clSyncDataSvc.userData.user = {
+                r: msg.userUpdated
+              }
             }
-            clSyncDataSvc.userData.user = {
-              r: msg.userUpdated
+            if (msg.classeurs) {
+              syncData = clSyncDataSvc.userData.classeurs || {}
+              if (syncData.s !== msg.classeursUpdated) {
+                clClasseurSvc.init(msg.classeurs)
+                clClasseurSvc.$setExtUpdate(msg.classeursUpdated)
+              }
+              clSyncDataSvc.userData.classeurs = {
+                r: msg.classeursUpdated
+              }
+              getPublicFoldersMetadata()
             }
-          }
-          if (msg.classeurs) {
-            syncData = clSyncDataSvc.userData.classeurs || {}
-            if (syncData.s !== msg.classeursUpdated) {
-              clClasseurSvc.init(msg.classeurs)
-              clClasseurSvc.write(msg.classeursUpdated)
-              apply = true
+            if (msg.settings) {
+              syncData = clSyncDataSvc.userData.settings || {}
+              if (syncData.s !== msg.settingsUpdated) {
+                clSettingSvc.updateSettings(msg.settings)
+                clSettingSvc.$setExtUpdate(msg.settingsUpdated)
+              }
+              clSyncDataSvc.userData.settings = {
+                r: msg.settingsUpdated
+              }
             }
-            clSyncDataSvc.userData.classeurs = {
-              r: msg.classeursUpdated
-            }
-            getPublicFoldersMetadata()
-          }
-          if (msg.settings) {
-            syncData = clSyncDataSvc.userData.settings || {}
-            if (syncData.s !== msg.settingsUpdated) {
-              clSettingSvc.updateSettings(msg.settings)
-              clSettingSvc.write(msg.settingsUpdated)
-              apply = true
-            }
-            clSyncDataSvc.userData.settings = {
-              r: msg.settingsUpdated
-            }
-          }
-          apply && $rootScope.$evalAsync()
-          sendChanges()
-          clSyncDataSvc.write()
+            // Use setTimeout to let doInLocalStorage persist external changes
+            setTimeout(sendChanges, 10)
+          })
         })
 
         function sendChanges () {
@@ -412,47 +475,44 @@ angular.module('classeur.core.sync', [])
         }
 
         clSocketSvc.addMsgHandler('folderChanges', function (msg, ctx) {
-          if (clSyncDataSvc.read(ctx)) {
-            return
-          }
-          var apply = clFolderSvc.checkAll(true)
-          var foldersToUpdate = []
-          ;(msg.changes || []).cl_each(function (change) {
-            var folderDao = clFolderSvc.folderMap[change.id]
-            var syncData = clSyncDataSvc.folders[change.id] || {}
-            if (
-              // Has been deleted on the server
-              (change.deleted && folderDao) ||
-              // Has been created on the server and is not pending for deletion locally
-              (!change.deleted && !folderDao && !clFolderSvc.deletedFolderMap[change.id]) ||
-              // Has been updated on the server and is different from local
-              (folderDao && folderDao.updated !== change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
-            ) {
-              foldersToUpdate.push(change)
-            }
-            if (change.deleted) {
-              delete clSyncDataSvc.folders[change.id]
-            } else {
-              clSyncDataSvc.folders[change.id] = {
-                r: change.updated
+          doInLocalStorage(function () {
+            clSyncDataSvc.setLastActivity()
+            var foldersToUpdate = []
+            ;(msg.changes || []).cl_each(function (change) {
+              var folderDao = clFolderSvc.folderMap[change.id]
+              var syncData = clSyncDataSvc.folders[change.id] || {}
+              if (
+                // Has been deleted on the server
+                (change.deleted && folderDao) ||
+                // Has been created on the server and is not pending for deletion locally
+                (!change.deleted && !folderDao && !clFolderSvc.deletedFolderMap[change.id]) ||
+                // Has been updated on the server and is different from local
+                (folderDao && folderDao.updated !== change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
+              ) {
+                foldersToUpdate.push(change)
               }
+              if (change.deleted) {
+                delete clSyncDataSvc.folders[change.id]
+              } else {
+                clSyncDataSvc.folders[change.id] = {
+                  r: change.updated
+                }
+              }
+            })
+            if (foldersToUpdate.length) {
+              clFolderSvc.updateUserFolders(foldersToUpdate)
+            }
+            clSyncDataSvc.nextFolderSeq = msg.nextSeq || clSyncDataSvc.nextFolderSeq
+            if (msg.hasMore) {
+              retrieveChanges()
+            } else {
+              // Sync user's classeurs once all folders are synced
+              syncUser()
+              clSyncDataSvc.fileSyncReady = '1'
+              // Use setTimeout to let doInLocalStorage persist external changes
+              setTimeout(sendChanges, 10)
             }
           })
-          if (foldersToUpdate.length) {
-            clFolderSvc.updateUserFolders(foldersToUpdate)
-            apply = true
-          }
-          clSyncDataSvc.nextFolderSeq = msg.nextSeq || clSyncDataSvc.nextFolderSeq
-          if (msg.hasMore) {
-            retrieveChanges()
-          } else {
-            // Sync user's classeurs once all folders are synced
-            syncUser()
-            sendChanges()
-            clSyncDataSvc.fileSyncReady = '1'
-          }
-          clSyncDataSvc.write()
-          apply && $rootScope.$evalAsync()
         })
 
         function checkUpdated (folderDao, syncData) {
@@ -492,7 +552,7 @@ angular.module('classeur.core.sync', [])
               syncData.s = folderDao.updated
             }
           })
-          clSyncDataSvc.folderLastUpdated = clFolderSvc.getLastUpdated()
+          clSyncDataSvc.folderLastUpdated = clFolderSvc.FolderDao.prototype.gUpdated || 0
         }
 
         return retrieveChanges
@@ -505,55 +565,52 @@ angular.module('classeur.core.sync', [])
       var syncFiles = (function () {
         function retrieveChanges () {
           clSocketSvc.sendMsg('getFileChanges', {
-            nextSeq: clSyncDataSvc.nextFileSeq
+            nextSeq: clSyncDataSvc.lastFileSeq
           })
         }
 
         clSocketSvc.addMsgHandler('fileChanges', function (msg, ctx) {
-          if (clSyncDataSvc.read(ctx)) {
-            return
-          }
-          var apply = clFileSvc.checkAll(true)
-          var filesToUpdate = []
-          ;(msg.changes || []).cl_each(function (change) {
-            var fileDao = clFileSvc.fileMap[change.id]
-            if (fileDao && fileDao.userId && change.deleted) {
-              // We just lost ownership of the file
-              return
-            }
-            var syncData = clSyncDataSvc.files[change.id] || {}
-            if (
-              // Has been deleted on the server
-              (change.deleted && fileDao) ||
-              // Has been created on the server and is not pending for deletion locally
-              (!change.deleted && !fileDao && !clFileSvc.deletedFileMap[change.id]) ||
-              // Has been updated on the server and is different from local
-              (fileDao && fileDao.updated !== change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
-            ) {
-              filesToUpdate.push(change)
-            }
-            if (change.deleted) {
-              delete clSyncDataSvc.files[change.id]
-            } else {
-              clSyncDataSvc.files[change.id] = {
-                r: change.updated
+          doInLocalStorage(function () {
+            clSyncDataSvc.setLastActivity()
+            var filesToUpdate = []
+            ;(msg.changes || []).cl_each(function (change) {
+              var fileDao = clFileSvc.fileMap[change.id]
+              if (fileDao && fileDao.userId && change.deleted) {
+                // We just lost ownership of the file
+                return
               }
+              var syncData = clSyncDataSvc.files[change.id] || {}
+              if (
+                // Has been deleted on the server
+                (change.deleted && fileDao) ||
+                // Has been created on the server and is not pending for deletion locally
+                (!change.deleted && !fileDao && !clFileSvc.deletedFileMap[change.id]) ||
+                // Has been updated on the server and is different from local
+                (fileDao && fileDao.updated !== change.updated && syncData.r !== change.updated && syncData.s !== change.updated)
+              ) {
+                filesToUpdate.push(change)
+              }
+              if (change.deleted) {
+                delete clSyncDataSvc.files[change.id]
+              } else {
+                clSyncDataSvc.files[change.id] = {
+                  r: change.updated
+                }
+              }
+            })
+            if (filesToUpdate.length) {
+              clFileSvc.updateUserFiles(filesToUpdate)
+            }
+            clSyncDataSvc.lastFileSeq = msg.nextSeq || clSyncDataSvc.lastFileSeq
+            if (msg.hasMore) {
+              retrieveChanges()
+            } else {
+              // Sync user's folders once all files are synced
+              syncFolders()
+              // Use setTimeout to let doInLocalStorage persist external changes
+              setTimeout(sendChanges, 10)
             }
           })
-          if (filesToUpdate.length) {
-            clFileSvc.updateUserFiles(filesToUpdate)
-            apply = true
-          }
-          clSyncDataSvc.nextFileSeq = msg.nextSeq || clSyncDataSvc.nextFileSeq
-          if (msg.hasMore) {
-            retrieveChanges()
-          } else {
-            // Sync user's folders once all files are synced
-            syncFolders()
-            sendChanges()
-          }
-          clSyncDataSvc.write()
-          apply && $rootScope.$evalAsync()
         })
 
         function checkUpdated (fileDao, syncData) {
@@ -603,7 +660,7 @@ angular.module('classeur.core.sync', [])
               syncData.s = fileDao.updated
             }
           })
-          clSyncDataSvc.fileLastUpdated = clFileSvc.getLastUpdated()
+          clSyncDataSvc.fileLastUpdated = clFileSvc.FileDao.prototype.gUpdated || 0
         }
 
         return retrieveChanges
@@ -646,6 +703,7 @@ angular.module('classeur.core.sync', [])
               if (clFileSvc.files.length > 1 && fileDao.name === clFileSvc.firstFileName && fileDao.contentDao.text === clFileSvc.firstFileContent) {
                 return filesToRemove.push(fileDao)
               }
+              clSyncDataSvc.setLastSendNewFile()
               clSocketSvc.sendMsg('createFile', {
                 id: fileDao.id,
                 name: fileDao.name,
@@ -670,88 +728,90 @@ angular.module('classeur.core.sync', [])
         }
 
         clSocketSvc.addMsgHandler('createdFile', function (msg, ctx) {
-          if (clSyncDataSvc.read(ctx)) {
-            return
-          }
-          delete clSyncDataSvc.fileCreationDates[msg.id]
-          var fileDao = clFileSvc.fileMap[msg.id]
-          if (!fileDao) {
-            return
-          }
-          if (fileDao.folderId) {
-            fileDao.folderId = msg.folderId
-          }
-          if (msg.userId) {
-            fileDao.userId = msg.userId !== clSyncDataSvc.userId ? msg.userId : ''
-          } else {
-            // Was an existing file from another user
-            fileDao.userId = '0'
-          }
-          fileDao.write()
-          clSyncDataSvc.files[msg.id] = {
-            r: msg.updated
-          }
-          if (msg.content) {
-            clContentRevSvc.setContent(msg.id, msg.content)
-          }
-          clSyncDataSvc.write(clSyncDataSvc.lastActivity)
+          doInLocalStorage(function () {
+            delete clSyncDataSvc.fileCreationDates[msg.id]
+            var fileDao = clFileSvc.fileMap[msg.id]
+            if (!fileDao) {
+              return
+            }
+            if (fileDao.folderId) {
+              fileDao.folderId = msg.folderId
+            }
+            if (msg.userId) {
+              fileDao.userId = msg.userId !== clSyncDataSvc.userId ? msg.userId : ''
+            } else {
+              // Was an existing file from another user
+              fileDao.userId = '0'
+            }
+            clSyncDataSvc.files[msg.id] = {
+              r: msg.updated
+            }
+            if (msg.content) {
+              clContentRevSvc.setContent(msg.id, msg.content)
+            }
+          })
         })
 
         return sendNewFiles
       })()
 
-      clSyncSvc.saveAll = function () {
-        return clUserSvc.checkAll() |
-        clFileSvc.checkAll() |
-        clFolderSvc.checkAll() |
-        clClasseurSvc.checkAll() |
-        clSettingSvc.checkAll() |
-        clLocalSettingSvc.checkAll()
-      }
+      var isSyncActive = (function () {
+        var lastSyncActivityKey = 'lastSyncActivity'
+        var lastSyncActivity
+        var inactivityThreshold = 10000 // 10 sec
+
+        return function (currentDate) {
+          if (!clSocketSvc.isOnline()) {
+            return
+          }
+          var storedLastSyncActivity = parseInt(clLocalStorage[lastSyncActivityKey], 10) || 0
+          if (lastSyncActivity === storedLastSyncActivity || storedLastSyncActivity < currentDate - inactivityThreshold) {
+            clLocalStorage[lastSyncActivityKey] = currentDate
+            lastSyncActivity = currentDate
+            return true
+          }
+        }
+      })()
 
       clSetInterval(function () {
-        clSyncDataSvc.read(clSocketSvc.ctx)
+        doInLocalStorage(function () {
+          var currentDate = Date.now()
 
-        // Need to save here to have the `updated` attributes up to date
-        clSyncSvc.saveAll() && $rootScope.$apply()
-
-        if (!clUserActivity.checkActivity() || !clSocketSvc.isOnline()) {
-          return
-        }
-
-        var currentDate = Date.now()
-
-        clSyncDataSvc.fileRecoveryDates.cl_each(function (date, fileId) {
-          if (currentDate - date > recoverFileTimeout) {
-            delete clSyncDataSvc.fileRecoveryDates[fileId]
+          if (!isSyncActive(currentDate)) {
+            return
           }
+
+          clSyncDataSvc.fileRecoveryDates.cl_each(function (date, fileId) {
+            if (currentDate - date > recoverFileTimeout) {
+              delete clSyncDataSvc.fileRecoveryDates[fileId]
+            }
+          })
+
+          if (!clSocketSvc.ctx.syncState) {
+            clSocketSvc.ctx.syncState = 'starting'
+            clRestSvc.list('/api/v2/users/' + clSyncDataSvc.userId + '/files', {
+              minSeq: clSyncDataSvc.lastFileSeq,
+              outFormat: 'private'
+            })
+            .then(function (items) {
+              console.log(items)
+            })
+          }
+
+
+          // Check last sync activity to prevent overlap with other tabs
+          // if (currentDate - clSyncDataSvc.getLastActivity() > inactivityThreshold) {
+          //   clSyncDataSvc.setLastActivity()
+          //   // Start the chain: files, then folders, then user
+          //   syncFiles()
+          // }
+
+          // Check last file sent to prevent overlap with other tabs
+          // if (clSyncDataSvc.fileSyncReady && currentDate - clSyncDataSvc.getLastSendNewFile() > shortInactivityThreshold) {
+          //   sendNewFiles()
+          // }
         })
-
-        var inactivityThreshold = longInactivityThreshold
-        var userSyncData = clSyncDataSvc.userData.user || {}
-        var classeursSyncData = clSyncDataSvc.userData.classeurs || {}
-        var settingsSyncData = clSyncDataSvc.userData.settings || {}
-        if (
-          clSyncDataSvc.fileLastUpdated !== clFileSvc.getLastUpdated() ||
-          clSyncDataSvc.folderLastUpdated !== clFolderSvc.getLastUpdated() ||
-          (clUserSvc.updated !== userSyncData.r && clUserSvc.updated !== userSyncData.s) ||
-          (clClasseurSvc.updated !== classeursSyncData.r && clClasseurSvc.updated !== classeursSyncData.s) ||
-          (clSettingSvc.updated !== settingsSyncData.r && clSettingSvc.updated !== settingsSyncData.s)
-        ) {
-          inactivityThreshold = shortInactivityThreshold
-        }
-
-        if (currentDate - clSyncDataSvc.lastActivity > inactivityThreshold) {
-          // Start the chain: files, then folders, then user
-          syncFiles()
-          clSyncDataSvc.write()
-        }
-
-        // Send new files
-        if (clSyncDataSvc.fileSyncReady) {
-          sendNewFiles()
-        }
-      }, 1100)
+      }, 1200)
 
       return clSyncSvc
     })
@@ -848,7 +908,7 @@ angular.module('classeur.core.sync', [])
       }
     })
   .factory('clContentSyncSvc',
-    function ($window, $rootScope, $timeout, $http, $q, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
+    function ($window, $rootScope, $timeout, $http, $q, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clContentRevSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc, clSyncSvc) {
       var textMaxSize = 200000
       var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
       var clContentSyncSvc = {}
@@ -858,8 +918,7 @@ angular.module('classeur.core.sync', [])
         watchCtx = ctx
         clContentSyncSvc.watchCtx = ctx
       }
-      var unsetWatchCtx = setWatchCtx.cl_bind(null, null)
-      clSocketSvc.addMsgHandler('userToken', unsetWatchCtx)
+      clSocketSvc.addMsgHandler('userToken', setWatchCtx.cl_bind(null, null))
 
       function setLoadedContent (fileDao, serverContent) {
         fileDao.contentDao.text = serverContent.text
@@ -903,19 +962,33 @@ angular.module('classeur.core.sync', [])
         }
       }
 
-      function startWatchFile (fileDao) {
-        if (!fileDao || !fileDao.state || fileDao.isReadOnly || fileDao.isLocalFile || clSyncDataSvc.isFilePendingCreation(fileDao) || (watchCtx && fileDao === watchCtx.fileDao)) {
+      function watchFile (fileDao) {
+        if (watchCtx) {
+          if (fileDao === watchCtx.fileDao) {
+            // File already being watched
+            return
+          } else {
+            // Stop previous file watching
+            clSocketSvc.sendMsg('stopWatchContent', {
+              id: watchCtx.id
+            })
+            setWatchCtx()
+          }
+        }
+        if (!fileDao || !fileDao.state || fileDao.isReadOnly || fileDao.isLocalFile || clSyncDataSvc.isFilePendingCreation(fileDao)) {
           return
         }
         fileDao.loadPending = false
         setWatchCtx({
+          id: clUid(),
           fileDao: fileDao,
           userCursors: {},
           contentChanges: []
         })
-        clSocketSvc.sendMsg('startWatchFile', {
-          id: fileDao.id,
-          fromRev: clContentRevSvc.getRev(fileDao.id)
+        clSocketSvc.sendMsg('startWatchContent', {
+          id: watchCtx.id,
+          fileId: fileDao.id,
+          previousRev: clContentRevSvc.getRev(fileDao.id)
         })
         $timeout.cancel(fileDao.loadingTimeoutId)
         fileDao.loadingTimeoutId = $timeout(function () {
@@ -923,15 +996,8 @@ angular.module('classeur.core.sync', [])
         }, clSyncDataSvc.loadingTimeout)
       }
 
-      function stopWatchFile () {
-        if (watchCtx && watchCtx.fileDao) {
-          clSocketSvc.sendMsg('stopWatchFile')
-          unsetWatchCtx()
-        }
-      }
-
-      clSocketSvc.addMsgHandler('watchedFile', function (msg) {
-        if (!watchCtx || !watchCtx.fileDao.state || watchCtx.fileDao.id !== msg.id) {
+      clSocketSvc.addMsgHandler('watchedContent', function (msg) {
+        if (!watchCtx || !watchCtx.fileDao.state || watchCtx.id !== msg.id) {
           return
         }
         var fileDao = watchCtx.fileDao
@@ -939,19 +1005,10 @@ angular.module('classeur.core.sync', [])
         if (msg.error) {
           return setLoadingError(fileDao)
         }
-        fileDao.userId && clSyncDataSvc.updatePublicFileMetadata(fileDao, msg)
-        msg.contentChanges = msg.contentChanges || []
-        var apply = msg.contentChanges.cl_some(function (contentChange) {
-          return contentChange.properties || contentChange.discussions || contentChange.comments || contentChange.conflicts
-        })
-        msg.contentChanges.cl_each(function (contentChange) {
-          watchCtx.contentChanges[contentChange.rev] = contentChange
-        })
-        var oldContent = clDiffUtils.flattenContent(msg.content, true)
-        var serverContent = clDiffUtils.applyFlattenedContentChanges(oldContent, msg.contentChanges, true)
+        var oldContent = clDiffUtils.flattenContent(msg.previousContent || msg.lastContent, true)
+        var serverContent = clDiffUtils.flattenContent(msg.lastContent, true)
         if (fileDao.state === 'loading') {
           setLoadedContent(fileDao, serverContent)
-          apply = true
         } else {
           applyServerContent(fileDao, oldContent, serverContent)
         }
@@ -964,7 +1021,7 @@ angular.module('classeur.core.sync', [])
         watchCtx.rev = serverContent.rev
         clContentRevSvc.setContent(fileDao.id, serverContent)
         // Evaluate scope synchronously to have cledit instantiated
-        apply && $rootScope.$apply()
+        $rootScope.$apply()
         // Changes can be received before the watchedFile
         applyContentChangeMsgs()
       })
@@ -1032,6 +1089,7 @@ angular.module('classeur.core.sync', [])
         }
         var newRev = watchCtx.rev + 1
         watchCtx.sentMsg = {
+          id: watchCtx.id,
           rev: newRev,
           text: textChanges,
           properties: propertiesPatches,
@@ -1104,7 +1162,7 @@ angular.module('classeur.core.sync', [])
       }
 
       clSocketSvc.addMsgHandler('contentChange', function (msg) {
-        if (!watchCtx || watchCtx.fileDao.id !== msg.id || watchCtx.rev >= msg.rev) {
+        if (!watchCtx || watchCtx.id !== msg.id || watchCtx.rev >= msg.rev) {
           return
         }
         watchCtx.contentChanges[msg.rev] = msg
@@ -1220,9 +1278,8 @@ angular.module('classeur.core.sync', [])
           currentFileDao.loadPending = true
         }
         if (clSocketSvc.isOnline()) {
-          clSyncDataSvc.read(clSocketSvc.ctx)
-          stopWatchFile()
-          startWatchFile(currentFileDao)
+          clSyncSvc.saveAll()
+          watchFile(currentFileDao)
         } else if (!clSocketSvc.hasToken) {
           getPublicFile(currentFileDao)
         }
@@ -1232,15 +1289,11 @@ angular.module('classeur.core.sync', [])
         if (!clUserActivity.checkActivity()) {
           return
         }
-        var currentFileDao = $rootScope.currentFileDao
         if (clSocketSvc.isOnline()) {
-          if (clSyncDataSvc.read(clSocketSvc.ctx)) {
-            stopWatchFile()
-          }
-          startWatchFile(currentFileDao)
+          watchFile($rootScope.currentFileDao)
           sendContentChange()
         } else if (!clSocketSvc.hasToken) {
-          getPublicFile(currentFileDao)
+          getPublicFile($rootScope.currentFileDao)
         }
       }, 200)
 

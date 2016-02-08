@@ -372,7 +372,7 @@ angular.module('classeur.core.utils', [])
                 clLocalStorage.setItem(lsKey, sValue)
               }
               var currentDate = Date.now()
-              this.$writeUpdate(currentDate)
+              this.$writeUpdate(this.extUpdated || currentDate)
               this.$writeGlobalUpdate && this.$writeGlobalUpdate(currentDate)
               return true
             }),
@@ -385,15 +385,21 @@ angular.module('classeur.core.utils', [])
               this[sKey] = undefined
               this[key] = undefined
             }
-
           }
           return $attrHelpers
         }, {})
 
         this.$globalPrefix = prefix ? prefix + '.' : ''
         this.$setId()
+
+        var self = this // Hold a reference to the __proto__ object
+        this.$setExtUpdate = function (updated) {
+          this.extUpdated = updated
+          // Flag external updates on the __proto__ object
+          self.gExtUpdated = updated
+        }
+
         if (globalUpdate) {
-          var self = this // Make sure we update the __proto__ object
           var globalUpdateKey = this.$globalPrefix + 'gu'
           this.$checkGlobalUpdate = function () {
             return self.gUpdated !== parseInt(clLocalStorage[globalUpdateKey], 10)
@@ -460,7 +466,6 @@ angular.module('classeur.core.utils', [])
         return new LocalStorageObject(prefix, attrs, globalUpdate)
       }
       clLocalStorageObject.simpleObjectSerializer = simpleObjectSerializer
-      clLocalStorageObject.simpleObjectParser = JSON.parse
       return clLocalStorageObject
     })
   .factory('clStateMgr',

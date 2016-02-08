@@ -17,27 +17,27 @@ angular.module('classeur.core.settings', [])
       var clSettingSvc = clLocalStorageObject('settings', {
         values: {
           default: defaultSettings,
-          parser: clLocalStorageObject.simpleObjectParser,
+          parser: JSON.parse,
           serializer: clLocalStorageObject.simpleObjectSerializer
         }
       })
 
-      clSettingSvc.read = function () {
-        this.$read()
-        this.$readUpdate()
+      function read () {
+        clSettingSvc.$read()
+        clSettingSvc.$readUpdate()
       }
 
-      clSettingSvc.write = function (updated) {
-        this.$write()
-        updated && this.$writeUpdate(updated)
+      function write (updated) {
+        clSettingSvc.$write()
+        clSettingSvc.extUpdated = undefined
       }
 
-      function checkAll () {
+      function checkLocalStorage () {
         if (clSettingSvc.$checkUpdate()) {
-          clSettingSvc.read()
+          read()
           return true
         } else {
-          clSettingSvc.write()
+          write()
         }
       }
 
@@ -63,11 +63,11 @@ angular.module('classeur.core.settings', [])
       }
 
       clSettingSvc.defaultValues = JSON.parse(defaultSettings)
-      clSettingSvc.checkAll = checkAll
+      clSettingSvc.checkLocalStorage = checkLocalStorage
       clSettingSvc.updateSettings = updateSettings
       clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates
 
-      clSettingSvc.read()
+      read()
       // Sanitize in case of app update
       updateSettings(clSettingSvc.values)
       return clSettingSvc
@@ -79,33 +79,33 @@ angular.module('classeur.core.settings', [])
       var clLocalSettingSvc = clLocalStorageObject('localSettings', {
         values: {
           default: defaultLocalSettings,
-          parser: clLocalStorageObject.simpleObjectParser,
+          parser: JSON.parse,
           serializer: clLocalStorageObject.simpleObjectSerializer
         }
       })
 
-      clLocalSettingSvc.read = function () {
-        this.$read()
-        this.$readUpdate()
+      function read () {
+        clLocalSettingSvc.$read()
+        clLocalSettingSvc.$readUpdate()
       }
 
-      clLocalSettingSvc.write = function (updated) {
-        this.$write()
-        updated && this.$writeUpdate(updated)
+      function write () {
+        clLocalSettingSvc.$write()
+        clLocalSettingSvc.extUpdated = undefined
       }
 
-      function checkAll () {
+      function checkLocalStorage () {
         if (clLocalSettingSvc.$checkUpdate()) {
-          clLocalSettingSvc.read()
+          read()
           return true
         } else {
-          clLocalSettingSvc.write()
+          write()
         }
       }
 
-      clLocalSettingSvc.checkAll = checkAll
+      clLocalSettingSvc.checkLocalStorage = checkLocalStorage
 
-      clLocalSettingSvc.read()
+      read()
       // Sanitize in case of app update
       clLocalSettingSvc.values = JSON.parse(defaultLocalSettings).cl_reduce(function (sanitizedValues, defaultValue, key) {
         if (clLocalSettingSvc.values.hasOwnProperty(key)) {

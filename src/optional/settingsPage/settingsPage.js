@@ -261,7 +261,7 @@ angular.module('classeur.optional.settingsPage', [])
               scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function () {
                 clSocketSvc.sendMsg('getTrashFiles', {
                   lastDeleted: scope.lastDeleted
-                })
+                });
               })
             }
           }

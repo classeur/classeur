@@ -114,7 +114,7 @@ angular.module('classeur.optional.discussions', [])
         })
 
         clDiscussionSvc.updateEditorPostitPosition = $window.cledit.Utils.debounce(function () {
-          if (!isDestroyed) {
+          if (!isDestroyed && contentDao.discussions) {
             clDiscussionSvc.discussionsByOffset = Object.keys(contentDao.discussions).cl_filter(function (discussionId) {
               return clDiscussionSvc.discussionOffsets.hasOwnProperty(discussionId)
             }).sort(function (discussionId1, discussionId2) {
@@ -301,7 +301,7 @@ angular.module('classeur.optional.discussions', [])
 
         var isDestroyed = false
         clDiscussionSvc.updatePreviewPostitPosition = $window.cledit.Utils.debounce(function () {
-          if (!isDestroyed) {
+          if (!isDestroyed && contentDao.discussions) {
             clDiscussionSvc.discussionsByOffset = Object.keys(contentDao.discussions).cl_filter(function (discussionId) {
               return clDiscussionSvc.discussionOffsets.hasOwnProperty(discussionId)
             }).sort(function (discussionId1, discussionId2) {

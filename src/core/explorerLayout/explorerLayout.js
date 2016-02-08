@@ -501,7 +501,7 @@ angular.module('classeur.core.explorerLayout', [])
           })
 
           function remove () {
-            clClasseurSvc.removeClasseur(classeurDao)
+            clClasseurSvc.setDeletedClasseurs([classeurDao])
           }
 
           if (!foldersToRemove.length) {

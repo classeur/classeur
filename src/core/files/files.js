@@ -48,7 +48,7 @@ angular.module('classeur.core.files', [])
     })
   .factory('clFileSvc',
     function ($timeout, $templateCache, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
-      var maxLocalFiles = 30
+      var maxLocalFiles = 25
       var fileDaoProto = clLocalStorageObject('f', {
         name: 'string',
         folderId: 'string',
@@ -85,9 +85,9 @@ angular.module('classeur.core.files', [])
         this.$readUpdate()
       }
 
-      FileDao.prototype.write = function (updated) {
+      FileDao.prototype.write = function () {
         this.$write()
-        updated && this.$writeUpdate(updated)
+        this.extUpdated = undefined
       }
 
       FileDao.prototype.readContent = function () {
@@ -216,7 +216,6 @@ angular.module('classeur.core.files', [])
       var isInitialized
 
       function init () {
-        // FileIds contains both files and deletedFiles
         if (!clFileSvc.fileIds) {
           clFileSvc.$read()
         }
@@ -225,8 +224,14 @@ angular.module('classeur.core.files', [])
         var deletedFileMap = Object.create(null)
         clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (id) {
           var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id)
-          return (!fileDao.deleted && !fileMap[id] && (fileMap[id] = fileDao)) ||
-          (fileDao.deleted && !deletedFileMap[id] && (deletedFileMap[id] = fileDao))
+          if (!fileDao.deleted && !fileMap[id]) {
+            fileMap[id] = fileDao
+            return true
+          }
+          if (fileDao.deleted && !deletedFileMap[id]) {
+            deletedFileMap[id] = fileDao
+            return true
+          }
         })
 
         clFileSvc.files.cl_each(function (fileDao) {
@@ -284,21 +289,13 @@ angular.module('classeur.core.files', [])
         }
       }
 
-      function write () {
-        clFileSvc.$write()
-        clFileSvc.files.cl_each(function (fileDao) {
-          fileDao.write()
-          fileDao.writeContent()
-        })
-      }
-
-      function checkAll (skipWrite) {
+      function checkLocalStorage () {
         // Check file id list
         var checkFileSvcUpdate = clFileSvc.$checkUpdate()
         clFileSvc.$readUpdate()
         if (checkFileSvcUpdate && clFileSvc.$check()) {
           clFileSvc.fileIds = undefined
-        } else if (!skipWrite) {
+        } else {
           clFileSvc.$write()
         }
 
@@ -311,13 +308,13 @@ angular.module('classeur.core.files', [])
         clFileSvc.files.concat(clFileSvc.deletedFiles).cl_each(function (fileDao) {
           if (checkFileUpdate && fileDao.$checkUpdate()) {
             fileDao.read()
-          } else if (!skipWrite) {
+          } else {
             fileDao.write()
           }
           if (checkContentUpdate && fileDao.contentDao.$checkUpdate()) {
             fileDao.unload()
             fileDao.readContent()
-          } else if (!skipWrite) {
+          } else {
             fileDao.writeContent()
           }
         })
@@ -363,11 +360,11 @@ angular.module('classeur.core.files', [])
         var fileIds = fileDaoList.cl_reduce(function (fileIds, fileDao) {
           fileIds[fileDao.id] = 1
           return fileIds
-        }, {})
+        }, Object.create(null))
 
         // Filter
         clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (fileId) {
-          return !fileIds.hasOwnProperty(fileId)
+          return !fileIds[fileId]
         })
         init()
       }
@@ -402,26 +399,20 @@ angular.module('classeur.core.files', [])
           fileDao.classeurId = change.classeurId || ''
           fileDao.sharing = change.sharing || ''
           fileDao.userId = ''
-          fileDao.write(change.updated)
+          fileDao.$setExtUpdate(change.updated)
         })
         init()
       }
 
-      function getLastUpdated () {
-        return fileDaoProto.gUpdated || 0
-      }
-
       clFileSvc.FileDao = FileDao
       clFileSvc.init = init
-      clFileSvc.write = write
-      clFileSvc.checkAll = checkAll
+      clFileSvc.checkLocalStorage = checkLocalStorage
       clFileSvc.createFile = createFile
       clFileSvc.createPublicFile = createPublicFile
       clFileSvc.createReadOnlyFile = createReadOnlyFile
       clFileSvc.removeFiles = removeFiles
       clFileSvc.setDeletedFiles = setDeletedFiles
       clFileSvc.updateUserFiles = updateUserFiles
-      clFileSvc.getLastUpdated = getLastUpdated
       clFileSvc.files = []
       clFileSvc.deletedFiles = []
       clFileSvc.fileMap = Object.create(null)
