@@ -10,7 +10,7 @@ angular.module('classeur.core.editor', [])
       function link (scope, element) {
         var editorElt = element[0].querySelector('.editor')
         var editorInnerElt = element[0].querySelector('.editor__inner')
-        clEditorSvc.setCurrentFileDao(scope.currentFileDao)
+        clEditorSvc.setCurrentFileDao(scope.currentFile)
         clEditorSvc.initConverter()
         clEditorSvc.setEditorElt(editorInnerElt)
         clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function (callback) {
@@ -36,7 +36,7 @@ angular.module('classeur.core.editor', [])
         }
 
         function saveState () {
-          scope.currentFileDao.contentDao.state = {
+          scope.currentFile.content.state = {
             selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
             selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
             scrollTop: editorElt.scrollTop
@@ -54,7 +54,7 @@ angular.module('classeur.core.editor', [])
             state ? debouncedRefreshPreview() : refreshPreview()
           }
           clEditorSvc.selectionRange = newSelectionRange
-          scope.currentFileDao.contentDao.text = clEditorSvc.cledit.getContent()
+          scope.currentFile.content.text = clEditorSvc.cledit.getContent()
           saveState()
           clEditorSvc.lastContentChange = Date.now()
           scope.$apply()
@@ -170,9 +170,9 @@ angular.module('classeur.core.editor', [])
         scope.$watch('editorSvc.options', function (options) {
           options = ({}).cl_extend(options)
           if (!isInited) {
-            options.content = scope.currentFileDao.contentDao.text
+            options.content = scope.currentFile.content.text
             ;['selectionStart', 'selectionEnd', 'scrollTop'].cl_each(function (key) {
-              options[key] = scope.currentFileDao.contentDao.state[key]
+              options[key] = scope.currentFile.content.state[key]
             })
             isInited = true
           }
@@ -502,7 +502,7 @@ angular.module('classeur.core.editor', [])
       }
       var markdownInitListeners = []
       var asyncPreviewListeners = []
-      var currentFileDao
+      var currentFile
       var startSectionBlockTypes = [
         'paragraph_open',
         'blockquote_open',
@@ -531,8 +531,8 @@ angular.module('classeur.core.editor', [])
         scrollOffset: 80,
         insideFences: insideFences,
         options: {},
-        setCurrentFileDao: function (fileDao) {
-          currentFileDao = fileDao
+        setCurrentFileDao: function (file) {
+          currentFile = file
         },
         onMarkdownInit: function (priority, listener) {
           markdownInitListeners[priority] = listener
@@ -1003,10 +1003,10 @@ angular.module('classeur.core.editor', [])
       clEditorSvc.applyTemplate = function (template) {
         var view = {
           file: {
-            name: currentFileDao.name,
+            name: currentFile.name,
             content: {
-              properties: currentFileDao.contentDao.properties,
-              text: currentFileDao.contentDao.text,
+              properties: currentFile.content.properties,
+              text: currentFile.content.text,
               html: clEditorSvc.previewHtml
             }
           }

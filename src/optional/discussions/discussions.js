@@ -10,7 +10,7 @@ angular.module('classeur.optional.discussions', [])
 
       function link (scope, element) {
         var selection
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
         var unwatch
         var isDestroyed = false
 
@@ -99,7 +99,7 @@ angular.module('classeur.optional.discussions', [])
           })
           clEditorSvc.editorElt.addEventListener('click', function (evt) {
             var discussionId = getEditorDiscussionId(evt.target)
-            if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+            if (discussionId && content.discussions.hasOwnProperty(discussionId)) {
               clLocalSettingSvc.values.sideBar = true
               clLocalSettingSvc.values.sideBarTab = 'discussions'
               clDiscussionSvc.currentDiscussionId = discussionId
@@ -114,8 +114,8 @@ angular.module('classeur.optional.discussions', [])
         })
 
         clDiscussionSvc.updateEditorPostitPosition = $window.cledit.Utils.debounce(function () {
-          if (!isDestroyed && contentDao.discussions) {
-            clDiscussionSvc.discussionsByOffset = Object.keys(contentDao.discussions).cl_filter(function (discussionId) {
+          if (!isDestroyed && content.discussions) {
+            clDiscussionSvc.discussionsByOffset = Object.keys(content.discussions).cl_filter(function (discussionId) {
               return clDiscussionSvc.discussionOffsets.hasOwnProperty(discussionId)
             }).sort(function (discussionId1, discussionId2) {
               return clDiscussionSvc.discussionOffsets[discussionId1] - clDiscussionSvc.discussionOffsets[discussionId2]
@@ -189,7 +189,7 @@ angular.module('classeur.optional.discussions', [])
 
       function link (scope, element) {
         var selection
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
 
         var unwatch = scope.$watch('editorSvc.cledit', function (cledit) {
           if (!cledit) {
@@ -286,7 +286,7 @@ angular.module('classeur.optional.discussions', [])
           })
           clEditorSvc.previewElt.addEventListener('click', function (evt) {
             var discussionId = getPreviewDiscussionId(evt.target)
-            if (discussionId && contentDao.discussions.hasOwnProperty(discussionId)) {
+            if (discussionId && content.discussions.hasOwnProperty(discussionId)) {
               clLocalSettingSvc.values.sideBar = true
               clLocalSettingSvc.values.sideBarTab = 'discussions'
               clDiscussionSvc.currentDiscussionId = discussionId
@@ -301,8 +301,8 @@ angular.module('classeur.optional.discussions', [])
 
         var isDestroyed = false
         clDiscussionSvc.updatePreviewPostitPosition = $window.cledit.Utils.debounce(function () {
-          if (!isDestroyed && contentDao.discussions) {
-            clDiscussionSvc.discussionsByOffset = Object.keys(contentDao.discussions).cl_filter(function (discussionId) {
+          if (!isDestroyed && content.discussions) {
+            clDiscussionSvc.discussionsByOffset = Object.keys(content.discussions).cl_filter(function (discussionId) {
               return clDiscussionSvc.discussionOffsets.hasOwnProperty(discussionId)
             }).sort(function (discussionId1, discussionId2) {
               return clDiscussionSvc.discussionOffsets[discussionId1] - clDiscussionSvc.discussionOffsets[discussionId2]
@@ -503,7 +503,7 @@ angular.module('classeur.optional.discussions', [])
         }
 
         scope.$watch('discussionSvc.lastCommentIds[discussionId]', function (commentId) {
-          scope.lastComment = scope.currentFileDao.contentDao.comments[commentId]
+          scope.lastComment = scope.currentFile.content.comments[commentId]
         })
 
         scope.$watch('discussionSvc.currentDiscussionId === discussionId', function (value) {
@@ -581,7 +581,7 @@ angular.module('classeur.optional.discussions', [])
         }
 
         scope.$watch('discussionSvc.lastCommentIds[discussionId]', function (commentId) {
-          scope.lastComment = scope.currentFileDao.contentDao.comments[commentId]
+          scope.lastComment = scope.currentFile.content.comments[commentId]
         })
 
         scope.$watch('discussionSvc.currentDiscussionId === discussionId', function (value) {
@@ -625,7 +625,7 @@ angular.module('classeur.optional.discussions', [])
       }
 
       function link (scope, element) {
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
 
         scope.selectDiscussion = function () {
           if (clDiscussionSvc.currentDiscussionId !== scope.discussionId) {
@@ -660,9 +660,9 @@ angular.module('classeur.optional.discussions', [])
               .ok('Yes')
               .cancel('No')
             clDialog.show(deleteDialog).then(function () {
-              delete contentDao.discussions[scope.discussionId]
-              contentDao.comments = Object.keys(contentDao.comments).cl_reduce(function (comments, commentId) {
-                var comment = contentDao.comments[commentId]
+              delete content.discussions[scope.discussionId]
+              content.comments = Object.keys(content.comments).cl_reduce(function (comments, commentId) {
+                var comment = content.comments[commentId]
                 if (comment.discussionId !== scope.discussionId) {
                   comments[commentId] = comment
                 }
@@ -674,10 +674,10 @@ angular.module('classeur.optional.discussions', [])
         }
 
         function refreshCommentsCount () {
-          if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
+          if (!scope.currentFile || scope.currentFile.state !== 'loaded') {
             return
           }
-          scope.commentsTotalCount = contentDao.comments.cl_reduce(function (counter, comment) {
+          scope.commentsTotalCount = content.comments.cl_reduce(function (counter, comment) {
             return comment.discussionId === scope.discussionId ? counter + 1 : counter
           }, 0)
         }
@@ -686,7 +686,7 @@ angular.module('classeur.optional.discussions', [])
         if (scope.lastComment) {
           // Not the new discussion item
           scope.discussionId = scope.lastComment.discussionId
-          scope.discussion = contentDao.discussions[scope.discussionId]
+          scope.discussion = content.discussions[scope.discussionId]
           scope.$on('clCommentUpdated', refreshCommentsCount)
           refreshCommentsCount()
         }
@@ -729,7 +729,7 @@ angular.module('classeur.optional.discussions', [])
       }
 
       function link (scope, element) {
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
         var inputElt = element[0].querySelector('.comment-entry__input')
         var cledit = $window.cledit(inputElt)
         var maxShow = pageSize
@@ -755,13 +755,13 @@ angular.module('classeur.optional.discussions', [])
         }
 
         function refreshComments () {
-          if (!scope.currentFileDao || scope.currentFileDao.state !== 'loaded') {
+          if (!scope.currentFile || scope.currentFile.state !== 'loaded') {
             return
           }
-          scope.comments = Object.keys(contentDao.comments).cl_filter(function (commentId) {
-            return contentDao.comments[commentId].discussionId === scope.discussionId
+          scope.comments = Object.keys(content.comments).cl_filter(function (commentId) {
+            return content.comments[commentId].discussionId === scope.discussionId
           }).cl_map(function (commentId) {
-            var comment = ({}).cl_extend(contentDao.comments[commentId])
+            var comment = ({}).cl_extend(content.comments[commentId])
             comment.id = commentId
             return comment
           }).sort(function (comment1, comment2) {
@@ -791,12 +791,12 @@ angular.module('classeur.optional.discussions', [])
           if (commentText.length > 2000) {
             return clToast('Comment text is too long.')
           }
-          if (contentDao.comments.length > 1999) {
+          if (content.comments.length > 1999) {
             return clToast('Too many comments in the file.')
           }
           var discussionId = scope.discussionId
           if (discussionId === clDiscussionSvc.newDiscussionId) {
-            if (Object.keys(contentDao.discussions).length > 99) {
+            if (Object.keys(content.discussions).length > 99) {
               return clToast('Too many discussions in the file.')
             }
             // Create new discussion
@@ -805,7 +805,7 @@ angular.module('classeur.optional.discussions', [])
               text: scope.discussion.text,
               patches: scope.discussion.patches
             }
-            contentDao.discussions[discussionId] = discussion
+            content.discussions[discussionId] = discussion
             clDiscussionSvc.currentDiscussionId = discussionId
             clDiscussionSvc.updateEditorPostitPosition()
           }
@@ -816,7 +816,7 @@ angular.module('classeur.optional.discussions', [])
             text: commentText,
             created: Date.now()
           }
-          contentDao.comments[clUid()] = comment
+          content.comments[clUid()] = comment
           clDiscussionSvc.onCommentUpdated()
           scope.scrollToTextfield()
         }
@@ -829,7 +829,7 @@ angular.module('classeur.optional.discussions', [])
             .ok('Yes')
             .cancel('No')
           clDialog.show(deleteDialog).then(function () {
-            delete contentDao.comments[commentId]
+            delete content.comments[commentId]
             clDiscussionSvc.onCommentUpdated()
           })
         }
@@ -859,21 +859,21 @@ angular.module('classeur.optional.discussions', [])
       }
 
       function onCommentUpdated () {
-        if (!$rootScope.currentFileDao || $rootScope.currentFileDao.state !== 'loaded') {
+        if (!$rootScope.currentFile || $rootScope.currentFile.state !== 'loaded') {
           return
         }
-        var contentDao = $rootScope.currentFileDao.contentDao
-        clDiscussionSvc.lastCommentIds = Object.keys(contentDao.comments).sort(function (commentId1, commentId2) {
-          return contentDao.comments[commentId2].created - contentDao.comments[commentId1].created
+        var content = $rootScope.currentFile.content
+        clDiscussionSvc.lastCommentIds = Object.keys(content.comments).sort(function (commentId1, commentId2) {
+          return content.comments[commentId2].created - content.comments[commentId1].created
         }).cl_reduce(function (lastComments, commentId) {
-          var comment = contentDao.comments[commentId]
-          if (contentDao.discussions.hasOwnProperty(comment.discussionId)) {
+          var comment = content.comments[commentId]
+          if (content.discussions.hasOwnProperty(comment.discussionId)) {
             lastComments[comment.discussionId] = lastComments[comment.discussionId] || commentId
           }
           return lastComments
         }, {})
         clDiscussionSvc.lastComments = clDiscussionSvc.lastCommentIds.cl_map(function (commentId) {
-          return contentDao.comments[commentId]
+          return content.comments[commentId]
         })
         $rootScope.$broadcast('clCommentUpdated')
       }
@@ -906,7 +906,7 @@ angular.module('classeur.optional.discussions', [])
         clLocalSettingSvc.values.sideBarTab === 'discussions'
       }
 
-      $rootScope.$watch('currentFileDao.contentDao.comments', onCommentUpdated)
+      $rootScope.$watch('currentFile.content.comments', onCommentUpdated)
 
       clDiscussionSvc.onCommentUpdated = onCommentUpdated
       clDiscussionSvc.getTrimmedSelection = getTrimmedSelection

@@ -10,7 +10,7 @@
       <br>
       <md-radio-button value="otherClasseur">From other classeur</md-radio-button>
       <md-select placeholder="Select folder" ng-model="folderId" ng-focus="importType = 'otherClasseur'">
-        <md-option ng-repeat="folderDao in folders | orderBy:'name' track by folderDao.id" value="{{folderDao.id}}">{{folderDao.name}}</md-option>
+        <md-option ng-repeat="folder in folders | orderBy:'name' track by folder.id" value="{{folder.id}}">{{folder.name}}</md-option>
       </md-select>
       <md-checkbox ng-model="move" aria-label="Move folder">
         Move folder

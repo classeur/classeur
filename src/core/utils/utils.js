@@ -5,20 +5,21 @@ angular.module('classeur.core.utils', [])
     })
   .factory('clVersion',
     function ($window) {
-      var clVersion = $window.CL_VERSION || {}
+      var clVersion = angular.extend({}, $window.CL_VERSION || {})
       clVersion.getAssetPath = function (file) {
         return clVersion.classeur ? clVersion.classeur + '/' + file : file
       }
       return clVersion
     })
   .factory('clLocalStorage',
-    function ($window) {
+    function ($window, clVersion) {
       var clLocalStorage = $window.localStorage
       var version = parseInt(clLocalStorage.getItem('version'), 10)
       if (isNaN(version)) {
         version = 1
       }
       clLocalStorage.setItem('version', version)
+      clVersion.localStorageVersion = version
       return clLocalStorage
     })
   .factory('clSetInterval',
@@ -517,9 +518,9 @@ angular.module('classeur.core.utils', [])
   .factory('clUrl',
     function () {
       return {
-        file: function (fileDao) {
-          if (fileDao.id) {
-            return '/files/' + fileDao.id
+        file: function (file) {
+          if (file.id) {
+            return '/files/' + file.id
           } else {
             return ''
           }
@@ -529,9 +530,9 @@ angular.module('classeur.core.utils', [])
             fileName: fileName
           })
         },
-        folder: function (folderDao) {
-          if (folderDao.id) {
-            return '/folders/' + folderDao.id
+        folder: function (folder) {
+          if (folder.id) {
+            return '/folders/' + folder.id
           } else {
             return ''
           }
@@ -547,7 +548,7 @@ angular.module('classeur.core.utils', [])
         if (url.indexOf('http') !== 0) {
           url = 'http://' + url
         }
-        if (addSlash && url.indexOf('/', url.length - 1) === -1) {
+        if (addSlash && url.slice(-1) !== '/') {
           url += '/'
         }
         return url

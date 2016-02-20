@@ -19,15 +19,15 @@ angular.module('classeur.core.files', [])
         })
         scope.name = function (name) {
           if (name) {
-            scope.fileDao.name = name
-          } else if (!scope.fileDao.name) {
-            scope.fileDao.name = 'Untitled'
+            scope.file.name = name
+          } else if (!scope.file.name) {
+            scope.file.name = 'Untitled'
           }
-          return scope.fileDao.name
+          return scope.file.name
         }
         scope.name()
         scope.open = function () {
-          !scope.isEditing && scope.setCurrentFile(scope.fileDao)
+          !scope.isEditing && scope.setCurrentFile(scope.file)
         }
         var unsetTimeout
         scope.setEditing = function (value) {
@@ -71,8 +71,8 @@ angular.module('classeur.core.files', [])
       function FileDao (id) {
         this.id = id
         this.$setId(id)
-        this.contentDao = Object.create(contentDaoProto)
-        this.contentDao.$setId(id)
+        this.content = Object.create(contentDaoProto)
+        this.content.$setId(id)
         this.read()
         this.readContent()
       }
@@ -90,49 +90,49 @@ angular.module('classeur.core.files', [])
       }
 
       FileDao.prototype.readContent = function () {
-        this.contentDao.$read.isLocal()
-        this.contentDao.$read.lastChange()
+        this.content.$read.isLocal()
+        this.content.$read.lastChange()
         if (this.state === 'loaded') {
-          this.contentDao.$read.text()
-          this.contentDao.$read.serverHash()
-          this.contentDao.$read.properties()
-          this.contentDao.$read.discussions()
-          this.contentDao.$read.comments()
-          this.contentDao.$read.conflicts()
-          this.contentDao.$read.state()
+          this.content.$read.text()
+          this.content.$read.serverHash()
+          this.content.$read.properties()
+          this.content.$read.discussions()
+          this.content.$read.comments()
+          this.content.$read.conflicts()
+          this.content.$read.state()
         }
-        this.contentDao.$readUpdate()
+        this.content.$readUpdate()
       }
 
       FileDao.prototype.freeContent = function () {
-        this.contentDao.$free.serverHash()
-        this.contentDao.$free.text()
-        this.contentDao.$free.properties()
-        this.contentDao.$free.discussions()
-        this.contentDao.$free.comments()
-        this.contentDao.$free.conflicts()
-        this.contentDao.$free.state()
+        this.content.$free.serverHash()
+        this.content.$free.text()
+        this.content.$free.properties()
+        this.content.$free.discussions()
+        this.content.$free.comments()
+        this.content.$free.conflicts()
+        this.content.$free.state()
       }
 
       FileDao.prototype.writeContent = function (updateLastChange) {
-        this.contentDao.$write.isLocal()
+        this.content.$write.isLocal()
         if (this.state === 'loaded') {
-          this.contentDao.$write.serverHash()
-          updateLastChange |= this.contentDao.$write.text()
-          updateLastChange |= this.contentDao.$write.properties()
-          updateLastChange |= this.contentDao.$write.discussions()
-          updateLastChange |= this.contentDao.$write.comments()
-          updateLastChange |= this.contentDao.$write.conflicts()
-          this.contentDao.$write.state()
+          this.content.$write.serverHash()
+          updateLastChange |= this.content.$write.text()
+          updateLastChange |= this.content.$write.properties()
+          updateLastChange |= this.content.$write.discussions()
+          updateLastChange |= this.content.$write.comments()
+          updateLastChange |= this.content.$write.conflicts()
+          this.content.$write.state()
         }
-        if (!this.contentDao.isLocal) {
-          if (this.contentDao.lastChange) {
-            this.contentDao.lastChange = 0
-            this.contentDao.$write.lastChange()
+        if (!this.content.isLocal) {
+          if (this.content.lastChange) {
+            this.content.lastChange = 0
+            this.content.$write.lastChange()
           }
         } else if (updateLastChange) {
-          this.contentDao.lastChange = Date.now()
-          this.contentDao.$write.lastChange()
+          this.content.lastChange = Date.now()
+          this.content.$write.lastChange()
         }
       }
 
@@ -140,7 +140,7 @@ angular.module('classeur.core.files', [])
         if (this.state) {
           return
         }
-        if (this.contentDao.isLocal) {
+        if (this.content.isLocal) {
           this.state = 'loading'
           $timeout(function () {
             if (this.state === 'loading') {
@@ -165,14 +165,15 @@ angular.module('classeur.core.files', [])
         }
         this.state = 'loaded'
         this.readContent()
-        cb()
+        var result = cb()
         this.freeContent()
         this.state = state
+        return result
       }
 
       function ReadOnlyFile (name, content) {
         this.name = name
-        this.contentDao = {
+        this.content = {
           text: content,
           state: {},
           properties: {},
@@ -221,41 +222,41 @@ angular.module('classeur.core.files', [])
         var fileMap = Object.create(null)
         var deletedFileMap = Object.create(null)
         clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (id) {
-          var fileDao = clFileSvc.fileMap[id] || clFileSvc.deletedFileMap[id] || new FileDao(id)
-          if (!fileDao.deleted && !fileMap[id]) {
-            fileMap[id] = fileDao
+          var file = clFileSvc.daoMap[id] || clFileSvc.deletedDaoMap[id] || new FileDao(id)
+          if (!file.deleted && !fileMap[id]) {
+            fileMap[id] = file
             return true
           }
-          if (fileDao.deleted && !deletedFileMap[id]) {
-            deletedFileMap[id] = fileDao
+          if (file.deleted && !deletedFileMap[id]) {
+            deletedFileMap[id] = file
             return true
           }
         })
 
-        clFileSvc.files.cl_each(function (fileDao) {
-          !fileMap[fileDao.id] && fileDao.unload()
+        clFileSvc.daos.cl_each(function (file) {
+          !fileMap[file.id] && file.unload()
         })
 
-        clFileSvc.files = Object.keys(fileMap).cl_map(function (id) {
+        clFileSvc.daos = Object.keys(fileMap).cl_map(function (id) {
           return fileMap[id]
         })
-        clFileSvc.fileMap = fileMap
+        clFileSvc.daoMap = fileMap
 
-        clFileSvc.deletedFiles = Object.keys(deletedFileMap).cl_map(function (id) {
+        clFileSvc.deletedDaos = Object.keys(deletedFileMap).cl_map(function (id) {
           return deletedFileMap[id]
         })
-        clFileSvc.deletedFileMap = deletedFileMap
+        clFileSvc.deletedDaoMap = deletedFileMap
 
-        clFileSvc.localFiles = clFileSvc.files.cl_filter(function (fileDao) {
-          return fileDao.contentDao.isLocal
+        clFileSvc.localFiles = clFileSvc.daos.cl_filter(function (file) {
+          return file.content.isLocal
         })
 
-        clFileSvc.localFiles.sort(function (fileDao1, fileDao2) {
-          return fileDao2.contentDao.lastChange - fileDao1.contentDao.lastChange
-        }).splice(maxLocalFiles).cl_each(function (fileDao) {
-          fileDao.unload()
-          fileDao.contentDao.isLocal = ''
-          fileDao.writeContent()
+        clFileSvc.localFiles.sort(function (file1, file2) {
+          return file2.content.lastChange - file1.content.lastChange
+        }).splice(maxLocalFiles).cl_each(function (file) {
+          file.unload()
+          file.content.isLocal = ''
+          file.writeContent()
         })
 
         if (!isInitialized) {
@@ -265,7 +266,7 @@ angular.module('classeur.core.files', [])
             if (key.charCodeAt(0) === 0x66 /* f */) {
               match = key.match(keyPrefix)
               if (match) {
-                if ((!clFileSvc.fileMap[match[1]] && !clFileSvc.deletedFileMap[match[1]]) ||
+                if ((!clFileSvc.daoMap[match[1]] && !clFileSvc.deletedDaoMap[match[1]]) ||
                   !fileAuthorizedKeys.hasOwnProperty(match[2])
                 ) {
                   clLocalStorage.removeItem(key)
@@ -274,9 +275,9 @@ angular.module('classeur.core.files', [])
             } else if (key.charCodeAt(0) === 0x63 /* c */) {
               match = key.match(keyPrefix)
               if (match) {
-                if (!clFileSvc.fileMap[match[1]] ||
+                if (!clFileSvc.daoMap[match[1]] ||
                   !contentAuthorizedKeys.hasOwnProperty(match[2]) ||
-                  !clFileSvc.fileMap[match[1]].contentDao.isLocal
+                  !clFileSvc.daoMap[match[1]].content.isLocal
                 ) {
                   clLocalStorage.removeItem(key)
                 }
@@ -303,17 +304,17 @@ angular.module('classeur.core.files', [])
         fileDaoProto.$readGlobalUpdate()
         var checkContentUpdate = contentDaoProto.$checkGlobalUpdate()
         contentDaoProto.$readGlobalUpdate()
-        clFileSvc.files.concat(clFileSvc.deletedFiles).cl_each(function (fileDao) {
-          if (checkFileUpdate && fileDao.$checkUpdate()) {
-            fileDao.read()
+        clFileSvc.daos.concat(clFileSvc.deletedDaos).cl_each(function (file) {
+          if (checkFileUpdate && file.$checkUpdate()) {
+            file.read()
           } else {
-            fileDao.write()
+            file.write()
           }
-          if (checkContentUpdate && fileDao.contentDao.$checkUpdate()) {
-            fileDao.unload()
-            fileDao.readContent()
+          if (checkContentUpdate && file.content.$checkUpdate()) {
+            file.unload()
+            file.readContent()
           } else {
-            fileDao.writeContent()
+            file.writeContent()
           }
         })
         // console.log('Dirty checking took ' + (Date.now() - startTime) + 'ms')
@@ -326,37 +327,37 @@ angular.module('classeur.core.files', [])
 
       function createFile (id) {
         id = id || clUid()
-        var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id)
-        fileDao.deleted = 0
-        fileDao.isSelected = false
-        fileDao.contentDao.isLocal = '1'
-        fileDao.writeContent(true)
+        var file = clFileSvc.deletedDaoMap[id] || new FileDao(id)
+        file.deleted = 0
+        file.isSelected = false
+        file.content.isLocal = '1'
+        file.writeContent(true)
         clFileSvc.fileIds.push(id)
-        clFileSvc.fileMap[id] = fileDao
+        clFileSvc.daoMap[id] = file
         init()
-        return fileDao
+        return file
       }
 
       function createPublicFile (id) {
-        var fileDao = clFileSvc.deletedFileMap[id] || new FileDao(id)
-        fileDao.isSelected = false
-        fileDao.userId = fileDao.userId || '0' // Will be filled by sync module
-        return fileDao // Will be added to the list by core module
+        var file = clFileSvc.deletedDaoMap[id] || new FileDao(id)
+        file.isSelected = false
+        file.userId = file.userId || '0' // Will be filled by sync module
+        return file // Will be added to the list by core module
       }
 
       function createReadOnlyFile (name, content) {
         return new ReadOnlyFile(name, content)
       }
 
-      // Remove fileDao from files and deletedFiles
-      function removeFiles (fileDaoList) {
-        if (!fileDaoList.length) {
+      // Remove file from files and deletedFiles
+      function removeFiles (fileList) {
+        if (!fileList.length) {
           return
         }
 
         // Create hash for fast filter
-        var fileIds = fileDaoList.cl_reduce(function (fileIds, fileDao) {
-          fileIds[fileDao.id] = 1
+        var fileIds = fileList.cl_reduce(function (fileIds, file) {
+          fileIds[file.id] = 1
           return fileIds
         }, Object.create(null))
 
@@ -367,36 +368,39 @@ angular.module('classeur.core.files', [])
         init()
       }
 
-      function setDeletedFiles (fileDaoList) {
-        if (!fileDaoList.length) {
+      function setDeletedFiles (fileList) {
+        if (!fileList.length) {
           return
         }
         var currentDate = Date.now()
-        fileDaoList.cl_each(function (fileDao) {
-          fileDao.deleted = currentDate
+        fileList.cl_each(function (file) {
+          file.deleted = currentDate
         })
         init()
       }
 
-      function updateUserFiles (changes) {
-        changes.cl_each(function (change) {
-          var fileDao = clFileSvc.fileMap[change.id]
-          if (change.deleted && fileDao) {
-            fileDao.unload()
-            clFileSvc.fileMap[change.id] = undefined
-            var index = clFileSvc.files.indexOf(fileDao)
+      function applyFileChanges (items) {
+        items.cl_each(function (item) {
+          var file = clFileSvc.daoMap[item.id]
+          if (item.deleted && file) {
+            file.unload()
+            clFileSvc.daoMap[item.id] = undefined
+            var index = clFileSvc.daos.indexOf(file)
             clFileSvc.fileIds.splice(index, 1)
-          } else if (!change.deleted && !fileDao) {
-            fileDao = new FileDao(change.id)
-            fileDao.deleted = 0
-            clFileSvc.fileMap[change.id] = fileDao
-            clFileSvc.fileIds.push(change.id)
+          } else if (!item.deleted && !file) {
+            file = new FileDao(item.id)
+            file.deleted = 0
+            clFileSvc.daoMap[item.id] = file
+            clFileSvc.fileIds.push(item.id)
           }
-          fileDao.name = change.name || ''
-          fileDao.folderId = change.folderId || ''
-          fileDao.sharing = change.sharing || ''
-          fileDao.userId = ''
-          fileDao.$setExtUpdate(change.updated)
+          file.userId = item.userId || ''
+          file.name = item.name || ''
+          // Change doesn't contain folderId for public file
+          if (!file.userId || !file.folderId || item.folderId) {
+            file.folderId = item.folderId || ''
+          }
+          file.sharing = item.sharing || ''
+          file.$setExtUpdate(item.updated)
         })
         init()
       }
@@ -407,13 +411,13 @@ angular.module('classeur.core.files', [])
       clFileSvc.createFile = createFile
       clFileSvc.createPublicFile = createPublicFile
       clFileSvc.createReadOnlyFile = createReadOnlyFile
-      clFileSvc.removeFiles = removeFiles
+      clFileSvc.removeDaos = removeFiles
       clFileSvc.setDeletedFiles = setDeletedFiles
-      clFileSvc.updateUserFiles = updateUserFiles
-      clFileSvc.files = []
-      clFileSvc.deletedFiles = []
-      clFileSvc.fileMap = Object.create(null)
-      clFileSvc.deletedFileMap = Object.create(null)
+      clFileSvc.applyFileChanges = applyFileChanges
+      clFileSvc.daos = []
+      clFileSvc.deletedDaos = []
+      clFileSvc.daoMap = Object.create(null)
+      clFileSvc.deletedDaoMap = Object.create(null)
       clFileSvc.firstFileContent = $templateCache.get('core/explorerLayout/firstFile.md')
       clFileSvc.firstFileName = 'My first file'
 

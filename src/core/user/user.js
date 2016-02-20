@@ -14,7 +14,9 @@ angular.module('classeur.core.user', [])
       var lastActivity
       var lastFocus
       var lastFocusKey = 'lastWindowFocus'
-      var clUserActivity = {}
+      var clUserActivity = {
+        inactiveAfter: inactiveAfter
+      }
 
       function setLastActivity () {
         lastActivity = Date.now()
@@ -96,7 +98,7 @@ angular.module('classeur.core.user', [])
       }
 
       clUserSvc.isUserPremium = function () {
-        return this.user && this.user.roles && this.user.roles.indexOf('premium_user') !== -1
+        return this.user && this.user.roles && ~this.user.roles.indexOf('premium_user')
       }
 
       function checkLocalStorage () {

@@ -14,8 +14,8 @@ angular.module('classeur.optional.electron', [])
           clEditorLayoutSvc.currentControl = undefined
         }
 
-        scope.$watch('currentFileDao.state === "loaded"', function (loaded) {
-          if (!clLocalSettingSvc.values.localFileAlertDismissed && scope.currentFileDao && scope.currentFileDao.isLocalFile && loaded) {
+        scope.$watch('currentFile.state === "loaded"', function (loaded) {
+          if (!clLocalSettingSvc.values.localFileAlertDismissed && scope.currentFile && scope.currentFile.isLocalFile && loaded) {
             $timeout(function () {
               clEditorLayoutSvc.currentControl = 'localFileAlert'
             }, 1000)
@@ -47,35 +47,35 @@ angular.module('classeur.optional.electron', [])
             if (!clElectronSvc.watchedFile) {
               return $location.url('')
             }
-            var fileDao = new clFileSvc.FileDao(clUid())
-            fileDao.isLocalFile = true
-            fileDao.path = clElectronSvc.watchedFile.path
-            fileDao.name = clElectronSvc.watchedFile.path.split(/[\\\/]/).slice(-1)[0]
-            fileDao.read = unimplemented
-            fileDao.write = unimplemented
-            fileDao.readContent = unimplemented
-            fileDao.freeContent = unimplemented
-            fileDao.writeContent = unimplemented
-            fileDao.load = function () {
-              if (fileDao.state) {
+            var file = new clFileSvc.FileDao(clUid())
+            file.isLocalFile = true
+            file.path = clElectronSvc.watchedFile.path
+            file.name = clElectronSvc.watchedFile.path.split(/[\\\/]/).slice(-1)[0]
+            file.read = unimplemented
+            file.write = unimplemented
+            file.readContent = unimplemented
+            file.freeContent = unimplemented
+            file.writeContent = unimplemented
+            file.load = function () {
+              if (file.state) {
                 return
               }
-              fileDao.state = 'loading'
+              file.state = 'loading'
               $timeout(function () {
-                if (fileDao.state === 'loading') {
-                  clElectronSvc.loadWatchedFile(fileDao)
-                  fileDao.contentDao.conflicts = {}
-                  fileDao.contentDao.state = {}
-                  fileDao.state = 'loaded'
+                if (file.state === 'loading') {
+                  clElectronSvc.loadWatchedFile(file)
+                  file.content.conflicts = {}
+                  file.content.state = {}
+                  file.state = 'loaded'
                 }
               })
             }
-            fileDao.unload = function () {
+            file.unload = function () {
               clElectron.stopWatching(this.path)
               this.state = undefined
             }
-            $scope.loadFile(fileDao)
-            $scope.$watch('currentFileDao.state', function (state) {
+            $scope.loadFile(file)
+            $scope.$watch('currentFile.state', function (state) {
               if (!state) {
                 clElectronSvc.watchedFile = undefined
                 return $location.url('')
@@ -85,8 +85,8 @@ angular.module('classeur.optional.electron', [])
                   if (
                     lastRead !== value &&
                     clElectronSvc.watchedFile &&
-                    fileDao.path === clElectronSvc.watchedFile.path &&
-                    clElectronSvc.serializeContent(fileDao.contentDao) !== clElectronSvc.watchedFile.content
+                    file.path === clElectronSvc.watchedFile.path &&
+                    clElectronSvc.serializeContent(file.content) !== clElectronSvc.watchedFile.content
                   ) {
                     var reloadDialog = clDialog.confirm()
                       .title('Reload from disk')
@@ -95,8 +95,8 @@ angular.module('classeur.optional.electron', [])
                       .ok('Reload')
                       .cancel('Discard')
                     clDialog.show(reloadDialog).then(function () {
-                      clElectronSvc.loadWatchedFile(fileDao)
-                      clEditorSvc.setContent(fileDao.contentDao.text)
+                      clElectronSvc.loadWatchedFile(file)
+                      clEditorSvc.setContent(file.content.text)
                     })
                   }
                 })
@@ -122,8 +122,8 @@ angular.module('classeur.optional.electron', [])
       $rootScope.electronSvc = clElectronSvc
       $rootScope.$watch('electronSvc.watchedFile.path', function (path) {
         if (path) {
-          $rootScope.currentFileDao && $rootScope.currentFileDao.unload()
-          $rootScope.currentFileDao = undefined
+          $rootScope.currentFile && $rootScope.currentFile.unload()
+          $rootScope.currentFile = undefined
           $timeout(function () {
             $location.url('/localFile')
           })
@@ -140,14 +140,14 @@ angular.module('classeur.optional.electron', [])
       })
 
       clSetInterval(function () {
-        if (!clElectronSvc.watchedFile || !$rootScope.currentFileDao) {
+        if (!clElectronSvc.watchedFile || !$rootScope.currentFile) {
           return
         }
-        var content = clElectronSvc.serializeContent($rootScope.currentFileDao.contentDao)
-        if (clElectronSvc.watchedFile.path === $rootScope.currentFileDao.path &&
-          $rootScope.currentFileDao.contentDao.savedContent !== content
+        var content = clElectronSvc.serializeContent($rootScope.currentFile.content)
+        if (clElectronSvc.watchedFile.path === $rootScope.currentFile.path &&
+          $rootScope.currentFile.content.savedContent !== content
         ) {
-          $rootScope.currentFileDao.contentDao.savedContent = content
+          $rootScope.currentFile.content.savedContent = content
           clElectron.saveFile({
             path: clElectronSvc.watchedFile.path,
             content: content
@@ -289,32 +289,32 @@ angular.module('classeur.optional.electron', [])
     })
   .factory('clElectronSvc', function () {
     return {
-      loadWatchedFile: function (fileDao) {
-        fileDao.contentDao.savedContent = this.watchedFile.content
+      loadWatchedFile: function (file) {
+        file.content.savedContent = this.watchedFile.content
         var parsedContent = this.watchedFile.content.match(/^([\s\S]*?)(?:<!--cldata:(.*)-->)?\s*$/)
-        fileDao.contentDao.text = parsedContent[1]
+        file.content.text = parsedContent[1]
         try {
           var parsedAttributes = JSON.parse(decodeURI(parsedContent[2]))
-          fileDao.contentDao.properties = parsedAttributes.properties || {}
-          fileDao.contentDao.discussions = parsedAttributes.discussions || {}
-          fileDao.contentDao.comments = parsedAttributes.comments || {}
+          file.content.properties = parsedAttributes.properties || {}
+          file.content.discussions = parsedAttributes.discussions || {}
+          file.content.comments = parsedAttributes.comments || {}
         } catch (e) {
-          fileDao.contentDao.properties = {}
-          fileDao.contentDao.discussions = {}
-          fileDao.contentDao.comments = {}
+          file.content.properties = {}
+          file.content.discussions = {}
+          file.content.comments = {}
         }
       },
-      serializeContent: function (contentDao) {
-        var content = contentDao.text
+      serializeContent: function (content) {
+        var content = content.text
         var attributes = {}
-        if (Object.keys(contentDao.properties).length) {
-          attributes.properties = contentDao.properties
+        if (Object.keys(content.properties).length) {
+          attributes.properties = content.properties
         }
-        if (Object.keys(contentDao.discussions).length) {
-          attributes.discussions = contentDao.discussions
+        if (Object.keys(content.discussions).length) {
+          attributes.discussions = content.discussions
         }
-        if (Object.keys(contentDao.comments).length) {
-          attributes.comments = contentDao.comments
+        if (Object.keys(content.comments).length) {
+          attributes.comments = content.comments
         }
         if (Object.keys(attributes).length) {
           content += '<!--cldata:' + encodeURI(JSON.stringify(attributes)) + '-->'

@@ -1,6 +1,7 @@
 if (!window.Worker || !window.MutationObserver || !window.crypto) {
   window.alert('Unsupported browser version. Please upgrade your browser.')
 } else {
+  window.ES6Promise.polyfill()
   angular.module('classeur.app', [
     'ngRoute',
     'ngMaterial',

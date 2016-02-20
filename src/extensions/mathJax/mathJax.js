@@ -156,7 +156,7 @@ angular.module('classeur.extensions.mathJax', [])
 
       function link (scope) {
         function checkConfig () {
-          var fileProperties = scope.currentFileDao.contentDao.properties
+          var fileProperties = scope.currentFile.content.properties
 
           var newConfig = fileProperties['ext:mathjax'] !== 'false' ? (function () {
             var tex2jax, tex
@@ -223,7 +223,7 @@ angular.module('classeur.extensions.mathJax', [])
         }
 
         checkConfig()
-        scope.$watch('currentFileDao.contentDao.properties', function (properties) {
+        scope.$watch('currentFile.content.properties', function (properties) {
           if (properties && checkConfig()) {
             clEditorSvc.initConverter()
           }

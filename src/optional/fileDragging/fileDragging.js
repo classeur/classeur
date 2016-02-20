@@ -23,7 +23,7 @@ angular.module('classeur.optional.fileDragging', [])
         })
         hammertime.on('panstart', function (evt) {
           clFileDraggingSvc.setTargetFolder()
-          clFileDraggingSvc.setFileSrc(scope.fileDao)
+          clFileDraggingSvc.setFileSrc(scope.file)
           clFileDraggingSvc.panelElt.clanim
             .width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 210))
             .start()
@@ -51,16 +51,16 @@ angular.module('classeur.optional.fileDragging', [])
       }
 
       function link (scope, element) {
-        if (scope.folderDao === clExplorerLayoutSvc.createFolder) {
+        if (scope.folder === clExplorerLayoutSvc.createFolder) {
           return
         }
         element[0].addEventListener('mouseenter', function () {
           if (clFileDraggingSvc.files.length) {
-            clFileDraggingSvc.setTargetFolder(scope.folderDao)
+            clFileDraggingSvc.setTargetFolder(scope.folder)
           }
         })
         element[0].addEventListener('mouseleave', function () {
-          if (clFileDraggingSvc.targetFolder === scope.folderDao) {
+          if (clFileDraggingSvc.targetFolder === scope.folder) {
             clFileDraggingSvc.setTargetFolder()
           }
         })
@@ -81,16 +81,16 @@ angular.module('classeur.optional.fileDragging', [])
     })
   .factory('clFileDraggingSvc',
     function (clDialog, clExplorerLayoutSvc, clToast) {
-      function setFileSrc (fileDao) {
-        clFileDraggingSvc.files = fileDao.isSelected ? clExplorerLayoutSvc.files.cl_filter(function (fileDao) {
-          return !fileDao.userId && fileDao.isSelected
-        }).concat(clExplorerLayoutSvc.extraFiles.cl_filter(function (fileDao) {
-          return !fileDao.userId && fileDao.isSelected
-        })) : [fileDao]
+      function setFileSrc (file) {
+        clFileDraggingSvc.files = file.isSelected ? clExplorerLayoutSvc.files.cl_filter(function (file) {
+          return !file.userId && file.isSelected
+        }).concat(clExplorerLayoutSvc.extraFiles.cl_filter(function (file) {
+          return !file.userId && file.isSelected
+        })) : [file]
       }
 
-      function setTargetFolder (folderDao) {
-        clFileDraggingSvc.targetFolder = folderDao
+      function setTargetFolder (folder) {
+        clFileDraggingSvc.targetFolder = folder
       }
 
       function doMoveFiles (targetFolder, files) {
@@ -98,13 +98,13 @@ angular.module('classeur.optional.fileDragging', [])
         var targetClasseurId = ''
         if (targetFolder === clExplorerLayoutSvc.unclassifiedFolder) {
           targetFolderId = ''
-          targetClasseurId = clExplorerLayoutSvc.currentClasseurDao.id
+          targetClasseurId = clExplorerLayoutSvc.currentClasseur.id
         }
-        files = files.cl_filter(function (fileDao) {
-          if (fileDao.folderId !== targetFolderId || fileDao.classeurId !== targetClasseurId) {
-            fileDao.folderId = targetFolderId
-            fileDao.classeurId = targetClasseurId
-            fileDao.userId = targetFolder.userId
+        files = files.cl_filter(function (file) {
+          if (file.folderId !== targetFolderId || file.classeurId !== targetClasseurId) {
+            file.folderId = targetFolderId
+            file.classeurId = targetClasseurId
+            file.userId = targetFolder.userId
             return true
           }
         })
@@ -118,7 +118,7 @@ angular.module('classeur.optional.fileDragging', [])
       }
 
       function moveFiles () {
-        if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolderDao) {
+        if (clFileDraggingSvc.targetFolder && clFileDraggingSvc.targetFolder !== clExplorerLayoutSvc.currentFolder) {
           var files = clFileDraggingSvc.files
           var targetFolder = clFileDraggingSvc.targetFolder
           if (clFileDraggingSvc.targetFolder.userId) {

@@ -113,7 +113,7 @@ angular.module('classeur.optional.exportToDisk', [])
               clEditorSvc.applyTemplate(template)
                 .then(function (text) {
                   text = unescape(encodeURIComponent(text)) // UTF-8 to ByteString
-                  saveAs(text, scope.currentFileDao.name, format)
+                  saveAs(text, scope.currentFile.name, format)
                 })
             } else if (exportConfig.format === 'document') {
               var ast = clEditorSvc.getPandocAst()
@@ -126,7 +126,7 @@ angular.module('classeur.optional.exportToDisk', [])
                 }
                 return value
               })
-              var contentDao = scope.currentFileDao.contentDao
+              var content = scope.currentFile.content
               if (!clUserSvc.user || (!clUserSvc.isUserPremium() && charCount > 5000)) {
                 return clDialog.show({
                   templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
@@ -140,14 +140,14 @@ angular.module('classeur.optional.exportToDisk', [])
               }
               clToast('Your document is being prepared...')
               clSocketSvc.sendMsg('toDocument', {
-                name: scope.currentFileDao.name,
+                name: scope.currentFile.name,
                 format: exportConfig.documentFormatKey,
                 options: {
                   highlightStyle: clSettingSvc.values.pandocHighlightStyle,
                   toc: clSettingSvc.values.pandocToc,
                   tocDepth: clSettingSvc.values.pandocTocDepth
                 },
-                metadata: contentDao.properties,
+                metadata: content.properties,
                 ast: ast
               })
             }

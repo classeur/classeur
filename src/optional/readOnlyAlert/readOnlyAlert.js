@@ -17,9 +17,9 @@ angular.module('classeur.optional.readOnlyAlert', [])
         }
 
         var text
-        if (scope.currentFileDao.isReadOnly || scope.currentFileDao.userId) {
-          scope.$watch('currentFileDao.contentDao.text', function (newtext) {
-            if (text === undefined || !scope.currentFileDao) {
+        if (scope.currentFile.isReadOnly || scope.currentFile.userId) {
+          scope.$watch('currentFile.content.text', function (newtext) {
+            if (text === undefined || !scope.currentFile) {
               text = newtext
               return
             }
@@ -29,7 +29,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
             if (clEditorSvc.lastContentChange - clEditorSvc.lastExternalChange < 1500) {
               return
             }
-            if (scope.currentFileDao.isReadOnly || scope.currentFileDao.sharing !== 'rw') {
+            if (scope.currentFile.isReadOnly || scope.currentFile.sharing !== 'rw') {
               clEditorLayoutSvc.currentControl = 'readOnlyAlert'
               return
             }

@@ -254,8 +254,8 @@ angular.module('classeur.optional.settingsPage', [])
           scope.getTrashFiles = function (reset) {
             if (!scope.getTrashFilesPending) {
               if (reset) {
-                scope.trashFiles = ({}).cl_extend(clFileSvc.deletedFileMap)
-                scope.trashEmpty = clFileSvc.deletedFiles.length === 0
+                scope.trashFiles = ({}).cl_extend(clFileSvc.deletedDoaMap)
+                scope.trashEmpty = clFileSvc.deletedDaos.length === 0
                 scope.lastDeleted = undefined
               }
               scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function () {

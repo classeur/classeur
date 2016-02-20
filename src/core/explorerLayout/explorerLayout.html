@@ -7,7 +7,7 @@
             <div class="navbar__logo no-overflow">
             </div>
             <div class="navbar__item navbar__item--title">
-              {{explorerLayoutSvc.currentClasseurDao.name}}
+              {{explorerLayoutSvc.currentClasseur.name}}
             </div>
             <md-button class="navbar__item navbar__item--icon classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
               <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 1">
@@ -50,7 +50,7 @@
       <div class="explorer__inner-2 panel">
         <div class="classeur-list panel no-overflow">
           <div class="classeur-list__scroller panel">
-            <cl-classeur-entry ng-repeat="classeur in classeurSvc.classeurs track by classeur.id"></cl-classeur-entry>
+            <cl-classeur-entry ng-repeat="classeur in classeurSvc.daos track by classeur.id"></cl-classeur-entry>
             <div class="classeur-entry classeur-entry--new">
               <div class="classeur-entry__inner panel md-whiteframe-z1" aria-label="Create classeur" ng-click="createClasseur()">
                 <div class="classeur-entry__tab-1"></div>
@@ -66,7 +66,7 @@
           <div class="binder__inner-1 panel md-whiteframe-z2" ng-class="plasticClass">
             <div class="binder__inner-2 panel no-overflow">
               <div class="binder__scroller panel">
-                <div class="folder-view folder-view--main panel" ng-switch="!!explorerLayoutSvc.currentFolderDao" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
+                <div class="folder-view folder-view--main panel" ng-switch="!!explorerLayoutSvc.currentFolder" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
                   <cl-folder-name ng-switch-when="true"></cl-folder-name>
                   <div class="folder-name cl-nav" layout="row" layout-align="center center" ng-switch-when="false">
                     <md-input-container class="folder-name__input-container" md-theme="classeur">
@@ -81,7 +81,7 @@
                           <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
                         </md-input-container>
                       </div>
-                      <md-button class="file-actions__new-file" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-explorer-tour-next="4">
+                      <md-button class="file-actions__new-file" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'" cl-explorer-tour-next="4">
                         New file
                         <span class="icon-add"></span>
                       </md-button>
@@ -106,7 +106,7 @@
                             </md-button>
                           </div>
                         </div>
-                        <div class="file-actions__sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolderDao" ng-switch="!!explorerLayoutSvc.isSortedByDate">
+                        <div class="file-actions__sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolder" ng-switch="!!explorerLayoutSvc.isSortedByDate">
                           <div ng-switch-when="false">
                             <md-button class="md-primary" ng-click="sortByDate(true)">
                               <span class="icon-keyboard-backspace rotate-270"></span> By date
@@ -131,12 +131,12 @@
                     </md-tooltip>
                   </div>
                   <div class="file-list" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
-                    <cl-file-entry ng-repeat="fileDao in explorerLayoutSvc.pagedFiles track by fileDao.id"></cl-file-entry>
+                    <cl-file-entry ng-repeat="file in explorerLayoutSvc.pagedFiles track by file.id"></cl-file-entry>
                     <div ng-if="explorerLayoutSvc.pagedExtraFiles.length">
                       <div class="file-list__extra">From other classeurs</div>
-                      <cl-file-entry ng-repeat="fileDao in explorerLayoutSvc.pagedExtraFiles track by fileDao.id"></cl-file-entry>
+                      <cl-file-entry ng-repeat="file in explorerLayoutSvc.pagedExtraFiles track by file.id"></cl-file-entry>
                     </div>
-                    <cl-spinner ng-if="explorerLayoutSvc.currentFolderDao.userId && !explorerLayoutSvc.currentFolderDao.refreshed"></cl-spinner>
+                    <cl-spinner ng-if="explorerLayoutSvc.currentFolder.userId && !explorerLayoutSvc.currentFolder.refreshed"></cl-spinner>
                   </div>
                   <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length"></cl-recent-alert>
                 </div>
@@ -150,7 +150,7 @@
                         <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
                       </md-input-container>
                     </div>
-                    <md-button class="file-actions__new-file" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolderDao.userId || explorerLayoutSvc.currentFolderDao.sharing === 'rw'" cl-tour-next="5">
+                    <md-button class="file-actions__new-file" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'" cl-tour-next="5">
                       New file
                       <span class="icon-add"></span>
                     </md-button>
@@ -175,7 +175,7 @@
                           </md-button>
                         </div>
                       </div>
-                      <div class="file-actions__sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolderDao" ng-switch="!!explorerLayoutSvc.isSortedByDate">
+                      <div class="file-actions__sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolder" ng-switch="!!explorerLayoutSvc.isSortedByDate">
                         <div ng-switch-when="false">
                           <md-button class="md-primary" ng-click="sortByDate(true)">
                             <span class="icon-keyboard-backspace rotate-270"></span> By date
@@ -191,21 +191,21 @@
                   </div>
                 </div>
               </div>
-              <div class="folder-view__corner cl-public-corner" ng-if="explorerLayoutSvc.currentFolderDao.userId">
+              <div class="folder-view__corner cl-public-corner" ng-if="explorerLayoutSvc.currentFolder.userId">
                 <div class="icon-publ"></div>
               </div>
             </div>
             <div class="folder-list panel background no-overflow">
               <div class="folder-list__scroller panel">
-                <div class="folder-entry" cl-folder-button ng-repeat="folderDao in explorerLayoutSvc.folders track by folderDao.id">
+                <div class="folder-entry" cl-folder-button ng-repeat="folder in explorerLayoutSvc.folders track by folder.id">
                   <div class="folder-entry__inner-1 panel" cl-file-dragging-target ng-class="'plastic-' + ((classeurIndex + $index + 3) % 6)">
-                    <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(folderDao)" aria-label="{{folder.name}}">
-                      <div class="folder-entry__inner-2" layout="row" layout-align="end center" ng-class="{'folder-entry__inner-2--public': folderDao.userId}">
-                        <div>{{folderDao.name}}
-                          <div class="cl-public-corner" ng-if="folderDao.userId">
+                    <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(folder)" aria-label="{{folder.name}}">
+                      <div class="folder-entry__inner-2" layout="row" layout-align="end center" ng-class="{'folder-entry__inner-2--public': folder.userId}">
+                        <div>{{folder.name}}
+                          <div class="cl-public-corner" ng-if="folder.userId">
                             <div class="icon-publ"></div>
                           </div>
-                          <span class="cl-sharing-indicator" ng-class="folderDao.sharing"></span>
+                          <span class="cl-sharing-indicator" ng-class="folder.sharing"></span>
                         </div>
                       </div>
                     </md-button>
@@ -214,13 +214,13 @@
               </div>
               <div class="folder-entry folder-entry--current">
                 <div class="folder-entry__inner-1 panel" ng-class="plasticClass">
-                  <md-button class="folder-entry__button" md-no-ink aria-label="{{explorerLayoutSvc.currentFolderDao.name}}">
-                    <div class="folder-entry__inner-2" layout="row" layout-align="end center" ng-class="{public: explorerLayoutSvc.currentFolderDao.userId}">
-                      <div>{{explorerLayoutSvc.currentFolderDao.name}}
+                  <md-button class="folder-entry__button" md-no-ink aria-label="{{explorerLayoutSvc.currentFolder.name}}">
+                    <div class="folder-entry__inner-2" layout="row" layout-align="end center" ng-class="{public: explorerLayoutSvc.currentFolder.userId}">
+                      <div>{{explorerLayoutSvc.currentFolder.name}}
                         <div class="cl-public-corner">
                           <div class="icon-publ"></div>
                         </div>
-                        <span class="cl-sharing-indicator" ng-class="explorerLayoutSvc.currentFolderDao.sharing"></span>
+                        <span class="cl-sharing-indicator" ng-class="explorerLayoutSvc.currentFolder.sharing"></span>
                       </div>
                     </div>
                   </md-button>

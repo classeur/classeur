@@ -9,7 +9,7 @@ angular.module('classeur.optional.conflicts', [])
 
       function link (scope, element) {
         var parentElt = element[0].parentNode
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
 
         function getConflictElt (elt) {
           while (elt && elt !== parentElt) {
@@ -37,9 +37,9 @@ angular.module('classeur.optional.conflicts', [])
         })
         parentElt.addEventListener('click', function (evt) {
           var conflictElt = getConflictElt(evt.target)
-          if (conflictElt && contentDao.conflicts.hasOwnProperty(conflictElt.conflictId)) {
+          if (conflictElt && content.conflicts.hasOwnProperty(conflictElt.conflictId)) {
             var text = clEditorSvc.cledit.getContent()
-            var conflict = contentDao.conflicts[conflictElt.conflictId]
+            var conflict = content.conflicts[conflictElt.conflictId]
             var offsets = clConflictSvc.getConflictOffsets(text, conflict)
             if (offsets) {
               clDialog.show({
@@ -66,7 +66,7 @@ angular.module('classeur.optional.conflicts', [])
                       : text.slice(offsets[1], offsets[2])
                     newText += text.slice(offsets[2])
                     clEditorSvc.cledit.setContent(newText)
-                    clConflictSvc.deleteConflict(contentDao, conflictElt.conflictId)
+                    clConflictSvc.deleteConflict(content, conflictElt.conflictId)
                   }
                 }
               })
@@ -83,7 +83,7 @@ angular.module('classeur.optional.conflicts', [])
       }
 
       function link (scope) {
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
 
         var classApplier1 = clEditorClassApplier([
           'conflict-highlighting-' + scope.conflictId + '--part-1',
@@ -102,7 +102,7 @@ angular.module('classeur.optional.conflicts', [])
               end: offsets[1]
             }
           }
-          clConflictSvc.deleteConflict(contentDao, scope.conflictId)
+          clConflictSvc.deleteConflict(content, scope.conflictId)
         }, {
           conflictId: scope.conflictId,
           conflictPart: 1
@@ -125,7 +125,7 @@ angular.module('classeur.optional.conflicts', [])
               end: offsets[2]
             }
           }
-          clConflictSvc.deleteConflict(contentDao, scope.conflictId)
+          clConflictSvc.deleteConflict(content, scope.conflictId)
         }, {
           conflictId: scope.conflictId,
           conflictPart: 2
@@ -147,15 +147,15 @@ angular.module('classeur.optional.conflicts', [])
       }
 
       function link (scope) {
-        var contentDao = scope.currentFileDao.contentDao
+        var content = scope.currentFile.content
         var timeoutId = $timeout(function () {
-          if (contentDao.conflicts && Object.keys(contentDao.conflicts).length) {
+          if (content.conflicts && Object.keys(content.conflicts).length) {
             clEditorLayoutSvc.currentControl = 'conflictAlert'
           }
         }, 2000)
 
-        scope.$watch('currentFileDao.contentDao.conflicts', function () {
-          if (contentDao.conflicts && clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(contentDao.conflicts).length) {
+        scope.$watch('currentFile.content.conflicts', function () {
+          if (content.conflicts && clEditorLayoutSvc.currentControl === 'conflictAlert' && !Object.keys(content.conflicts).length) {
             clEditorLayoutSvc.currentControl = undefined
           }
         })
@@ -166,7 +166,7 @@ angular.module('classeur.optional.conflicts', [])
 
         var conflictId
         scope.next = function () {
-          var conflictKeys = Object.keys(contentDao.conflicts)
+          var conflictKeys = Object.keys(content.conflicts)
           conflictId = conflictKeys[(conflictKeys.indexOf(conflictId) + 1) % conflictKeys.length]
           var elt = $window.document.querySelector('.conflict-highlighting-' + conflictId)
           if (!elt) {
@@ -200,9 +200,9 @@ angular.module('classeur.optional.conflicts', [])
         return offsets[0] !== -1 && offsets[1] !== -1 && offsets[2] !== -1 && offsets
       }
 
-      function deleteConflict (contentDao, conflictIdToRemove) {
+      function deleteConflict (content, conflictIdToRemove) {
         // Create a new object to trigger watchers
-        contentDao.conflicts = contentDao.conflicts.cl_reduce(function (conflicts, conflict, conflictId) {
+        content.conflicts = content.conflicts.cl_reduce(function (conflicts, conflict, conflictId) {
           if (conflictId !== conflictIdToRemove) {
             conflicts[conflictId] = conflict
           }

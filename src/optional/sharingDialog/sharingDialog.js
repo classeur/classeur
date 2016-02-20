@@ -13,13 +13,13 @@ angular.module('classeur.optional.sharingDialog', [])
           clExplorerLayoutSvc.sharingDialogFolderDao = undefined
         }
 
-        function showDialog (objectDao, sharingUrl, isFile, folderDao) {
+        function showDialog (objectDao, sharingUrl, isFile, folder) {
           clDialog.show({
             templateUrl: 'optional/sharingDialog/sharingDialog.html',
             controller: ['$scope', function (scope) {
               scope.isFile = isFile
               scope.objectDao = objectDao
-              scope.folderDao = folderDao
+              scope.folder = folder
               scope.encodedSharingUrl = encodeURIComponent(sharingUrl)
               scope.encodedName = encodeURIComponent(objectDao.name)
               scope.sharingUrl = sharingUrl
@@ -45,7 +45,7 @@ angular.module('classeur.optional.sharingDialog', [])
               inputElt.addEventListener('keyup', select)
               scope.$watch('objectDao.effectiveSharing', function () {
                 if (!objectDao.userId) {
-                  if (!isFile || !folderDao || folderDao.sharing < objectDao.effectiveSharing) {
+                  if (!isFile || !folder || folder.sharing < objectDao.effectiveSharing) {
                     objectDao.sharing = objectDao.effectiveSharing
                   } else {
                     objectDao.sharing = ''
@@ -59,35 +59,35 @@ angular.module('classeur.optional.sharingDialog', [])
             }
           }).then(function () {
             closeDialog()
-            if (folderDao) {
-              showFolderDialog(folderDao)
+            if (folder) {
+              showFolderDialog(folder)
             }
           }, closeDialog)
         }
 
-        function showFileDialog (fileDao, anchor) {
-          var folderDao = clFolderSvc.folderMap[fileDao.folderId]
-          fileDao.effectiveSharing = fileDao.sharing
-          if (folderDao && folderDao.sharing > fileDao.sharing) {
-            fileDao.effectiveSharing = folderDao.sharing
+        function showFileDialog (file, anchor) {
+          var folder = clFolderSvc.daoMap[file.folderId]
+          file.effectiveSharing = file.sharing
+          if (folder && folder.sharing > file.sharing) {
+            file.effectiveSharing = folder.sharing
           }
-          var sharingUrl = clConfig.appUri + '/#!' + clUrl.file(fileDao, clUserSvc.user)
+          var sharingUrl = clConfig.appUri + '/#!' + clUrl.file(file, clUserSvc.user)
           if (anchor) {
             sharingUrl += '#' + anchor
           }
-          showDialog(fileDao, sharingUrl, true, folderDao)
+          showDialog(file, sharingUrl, true, folder)
         }
 
-        function showFolderDialog (folderDao) {
-          folderDao.effectiveSharing = folderDao.sharing
-          var sharingUrl = clConfig.appUri + '/#!' + clUrl.folder(folderDao, clUserSvc.user)
-          showDialog(folderDao, sharingUrl)
+        function showFolderDialog (folder) {
+          folder.effectiveSharing = folder.sharing
+          var sharingUrl = clConfig.appUri + '/#!' + clUrl.folder(folder, clUserSvc.user)
+          showDialog(folder, sharingUrl)
         }
 
         scope.$watch('editorLayoutSvc.currentControl', function (currentControl) {
           var split = (currentControl || '').split('#')
           if (split[0] === 'sharingDialog') {
-            if (scope.currentFileDao.isLocalFile) {
+            if (scope.currentFile.isLocalFile) {
               var createCopyDialog = clDialog.confirm()
                 .title('Sharing')
                 .content("Hard drive file can't be shared. Please make a copy in your Classeur.")
@@ -114,15 +114,15 @@ angular.module('classeur.optional.sharingDialog', [])
                 }
               }, closeDialog)
             } else {
-              showFileDialog(scope.currentFileDao, split[1])
+              showFileDialog(scope.currentFile, split[1])
             }
           }
         })
-        scope.$watch('explorerLayoutSvc.sharingDialogFileDao', function (fileDao) {
-          fileDao && showFileDialog(fileDao)
+        scope.$watch('explorerLayoutSvc.sharingDialogFileDao', function (file) {
+          file && showFileDialog(file)
         })
-        scope.$watch('explorerLayoutSvc.sharingDialogFolderDao', function (folderDao) {
-          folderDao && showFolderDialog(folderDao)
+        scope.$watch('explorerLayoutSvc.sharingDialogFolderDao', function (folder) {
+          folder && showFolderDialog(folder)
         })
       }
     })

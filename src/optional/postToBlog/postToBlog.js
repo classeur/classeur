@@ -45,7 +45,7 @@ angular.module('classeur.optional.postToBlog', [])
         }
 
         function open () {
-          if (scope.currentFileDao.isLocalFile) {
+          if (scope.currentFile.isLocalFile) {
             var createCopyDialog = clDialog.confirm()
               .title('Post to blog')
               .content("Hard drive file can't be published. Please make a copy in your Classeur.")
@@ -91,9 +91,9 @@ angular.module('classeur.optional.postToBlog', [])
         }
 
         function newPost () {
-          var fileDao = scope.currentFileDao
-          var properties = fileDao.contentDao.properties
-          var title = properties.title || fileDao.name
+          var file = scope.currentFile
+          var properties = file.content.properties
+          var title = properties.title || file.name
           return clDialog.show({
             templateUrl: 'optional/postToBlog/newBlogPostDialog.html',
             controller: ['$scope', function (scope) {
@@ -143,7 +143,7 @@ angular.module('classeur.optional.postToBlog', [])
             return clToast(msg.error)
           }
           clToast('Blog post successfully created.')
-          msg.fileId === scope.currentFileDao.id && clPostToBlogSvc.addBlogPost(msg.blogPost)
+          msg.fileId === scope.currentFile.id && clPostToBlogSvc.addBlogPost(msg.blogPost)
         }
 
         function blogsHandler (msg) {
@@ -152,7 +152,7 @@ angular.module('classeur.optional.postToBlog', [])
         }
 
         function blogPostsHandler (msg) {
-          msg.fileId === scope.currentFileDao.id && clPostToBlogSvc.setBlogPosts(msg.blogPosts)
+          msg.fileId === scope.currentFile.id && clPostToBlogSvc.setBlogPosts(msg.blogPosts)
           scope.$evalAsync()
         }
 
@@ -231,9 +231,9 @@ angular.module('classeur.optional.postToBlog', [])
       }
 
       function updateBlogPost (blogPost) {
-        var fileDao = $rootScope.currentFileDao
-        var properties = fileDao.contentDao.properties
-        var title = properties.title || fileDao.name
+        var file = $rootScope.currentFile
+        var properties = file.content.properties
+        var title = properties.title || file.name
         var blogPostLight = ({}).cl_extend(blogPost)
         blogPostLight.template = undefined
         blogPostLight.blog = undefined

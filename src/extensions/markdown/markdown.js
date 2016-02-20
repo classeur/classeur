@@ -272,7 +272,7 @@ angular.module('classeur.extensions.markdown', [])
 
       function link (scope) {
         function checkOptions () {
-          var fileProperties = scope.currentFileDao.contentDao.properties
+          var fileProperties = scope.currentFile.content.properties
           var tocDepth = parseInt(fileProperties['ext:markdown:tocdepth'], 10)
           var newOptions = {
             abbr: fileProperties['ext:markdown:abbr'] !== 'false',
@@ -296,7 +296,7 @@ angular.module('classeur.extensions.markdown', [])
         }
 
         checkOptions()
-        scope.$watch('currentFileDao.contentDao.properties', function (properties) {
+        scope.$watch('currentFile.content.properties', function (properties) {
           if (properties && checkOptions()) {
             clEditorSvc.initConverter()
           }

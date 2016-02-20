@@ -21,7 +21,7 @@ angular.module('classeur.optional.fileHistory', [])
         }
 
         scope.restoreRevision = function (revision) {
-          var fileDao = scope.currentFileDao
+          var file = scope.currentFile
           var confirm = clDialog.confirm()
             .title('Restore revision')
             .textContent('Are you sure you want to restore the selected revision?')
@@ -31,7 +31,7 @@ angular.module('classeur.optional.fileHistory', [])
           clDialog.show(confirm).then(function () {
             clContentSyncSvc.retrieveRevision(revision)
               .then(function (result) {
-                if (fileDao !== scope.currentFileDao || fileDao.state !== 'loaded') {
+                if (file !== scope.currentFile || file.state !== 'loaded') {
                   return
                 }
                 clEditorSvc.setContent(result.text)

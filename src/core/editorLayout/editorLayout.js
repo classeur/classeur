@@ -8,14 +8,14 @@ angular.module('classeur.core.editorLayout', [])
       }
 
       function link (scope) {
-        var fileDao = scope.currentFileDao
+        var file = scope.currentFile
         scope.name = function (name) {
           if (name) {
-            fileDao.name = name
-          } else if (!fileDao.name) {
-            fileDao.name = 'Untitled'
+            file.name = name
+          } else if (!file.name) {
+            file.name = 'Untitled'
           }
-          return fileDao.name
+          return file.name
         }
         scope.name()
         scope.keydown = function (e) {
@@ -296,12 +296,12 @@ angular.module('classeur.core.editorLayout', [])
 
         scope.editFileProperties = function () {
           clEditorLayoutSvc.currentControl = 'editProperties'
-          var fileDao = scope.currentFileDao
-          clFilePropertiesDialog(fileDao.contentDao.properties)
+          var file = scope.currentFile
+          clFilePropertiesDialog(file.content.properties)
             .then(function (properties) {
               clEditorLayoutSvc.currentControl = undefined
-              if (fileDao === scope.currentFileDao) {
-                fileDao.contentDao.properties = properties
+              if (file === scope.currentFile) {
+                file.content.properties = properties
               }
             }, function () {
               clEditorLayoutSvc.currentControl = undefined
@@ -326,7 +326,7 @@ angular.module('classeur.core.editorLayout', [])
         scope.tabTitles = ['Markdown Sample', 'Table Of Contents', 'Discussions', 'History']
         scope.$watch('localSettingSvc.values.sideBarTab', function (tab) {
           scope.selectedTabIndex = tabs.indexOf(tab)
-          scope.selectedTabIndex = scope.selectedTabIndex === -1 ? 0 : scope.selectedTabIndex
+          scope.selectedTabIndex = ~scope.selectedTabIndex ? scope.selectedTabIndex : 0
         })
         scope.$watch('selectedTabIndex', function (index) {
           clLocalSettingSvc.values.sideBarTab = tabs[index || 0]

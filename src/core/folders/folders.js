@@ -19,11 +19,11 @@ angular.module('classeur.core.folders', [])
         })
         scope.name = function (name) {
           if (name) {
-            clExplorerLayoutSvc.currentFolderDao.name = name
-          } else if (!clExplorerLayoutSvc.currentFolderDao.name) {
-            clExplorerLayoutSvc.currentFolderDao.name = 'Untitled'
+            clExplorerLayoutSvc.currentFolder.name = name
+          } else if (!clExplorerLayoutSvc.currentFolder.name) {
+            clExplorerLayoutSvc.currentFolder.name = 'Untitled'
           }
-          return clExplorerLayoutSvc.currentFolderDao.name
+          return clExplorerLayoutSvc.currentFolder.name
         }
         scope.name()
         var unsetTimeout
@@ -93,23 +93,23 @@ angular.module('classeur.core.folders', [])
         var folderMap = Object.create(null)
         var deletedFolderMap = Object.create(null)
         clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function (id) {
-          var folderDao = clFolderSvc.folderMap[id] || clFolderSvc.deletedFolderMap[id] || new FolderDao(id)
-          if (!folderDao.deleted && !folderMap[id]) {
-            folderMap[id] = folderDao
+          var folder = clFolderSvc.daoMap[id] || clFolderSvc.deletedDaoMap[id] || new FolderDao(id)
+          if (!folder.deleted && !folderMap[id]) {
+            folderMap[id] = folder
             return true
           }
-          if (folderDao.deleted && !deletedFolderMap[id]) {
-            deletedFolderMap[id] = folderDao
+          if (folder.deleted && !deletedFolderMap[id]) {
+            deletedFolderMap[id] = folder
             return true
           }
         })
-        clFolderSvc.folderMap = folderMap
-        clFolderSvc.deletedFolderMap = deletedFolderMap
+        clFolderSvc.daoMap = folderMap
+        clFolderSvc.deletedDaoMap = deletedFolderMap
 
-        clFolderSvc.folders = Object.keys(folderMap).cl_map(function (id) {
+        clFolderSvc.daos = Object.keys(folderMap).cl_map(function (id) {
           return folderMap[id]
         })
-        clFolderSvc.deletedFolders = Object.keys(deletedFolderMap).cl_map(function (id) {
+        clFolderSvc.deletedDaos = Object.keys(deletedFolderMap).cl_map(function (id) {
           return deletedFolderMap[id]
         })
 
@@ -119,7 +119,7 @@ angular.module('classeur.core.folders', [])
             if (key.charCodeAt(0) === 0x46 /* F */) {
               var match = key.match(keyPrefix)
               if (match) {
-                if ((!clFolderSvc.folderMap[match[1]] && !clFolderSvc.deletedFolderMap[match[1]]) ||
+                if ((!clFolderSvc.daoMap[match[1]] && !clFolderSvc.deletedDaoMap[match[1]]) ||
                   !authorizedKeys.hasOwnProperty(match[2])) {
                   clLocalStorage.removeItem(key)
                 }
@@ -143,11 +143,11 @@ angular.module('classeur.core.folders', [])
         // Check every folder
         var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate()
         folderDaoProto.$readGlobalUpdate()
-        clFolderSvc.folders.concat(clFolderSvc.deletedFolders).cl_each(function (folderDao) {
-          if (checkFolderUpdate && folderDao.$checkUpdate()) {
-            folderDao.read()
+        clFolderSvc.daos.concat(clFolderSvc.deletedDaos).cl_each(function (folder) {
+          if (checkFolderUpdate && folder.$checkUpdate()) {
+            folder.read()
           } else {
-            folderDao.write()
+            folder.write()
           }
         })
 
@@ -159,29 +159,29 @@ angular.module('classeur.core.folders', [])
 
       function createFolder (id) {
         id = id || clUid()
-        var folderDao = clFolderSvc.deletedFolderMap[id] || new FolderDao(id)
-        folderDao.deleted = 0
+        var folder = clFolderSvc.deletedDaoMap[id] || new FolderDao(id)
+        folder.deleted = 0
         clFolderSvc.folderIds.push(id)
-        clFolderSvc.folderMap[id] = folderDao
+        clFolderSvc.daoMap[id] = folder
         init()
-        return folderDao
+        return folder
       }
 
       function createPublicFolder (id) {
-        var folderDao = createFolder(id)
-        folderDao.userId = folderDao.userId || '0' // Will be filled by the sync module
-        return folderDao
+        var folder = createFolder(id)
+        folder.userId = folder.userId || '0' // Will be filled by the sync module
+        return folder
       }
 
-      // Remove folderDao from folders and deletedFolders
-      function removeFolders (folderDaoList) {
-        if (!folderDaoList.length) {
+      // Remove folder from folders and deletedFolders
+      function removeFolders (folderList) {
+        if (!folderList.length) {
           return
         }
 
         // Create hash for fast filter
-        var folderIds = folderDaoList.cl_reduce(function (folderIds, folderDao) {
-          folderIds[folderDao.id] = 1
+        var folderIds = folderList.cl_reduce(function (folderIds, folder) {
+          folderIds[folder.id] = 1
           return folderIds
         }, Object.create(null))
 
@@ -192,40 +192,40 @@ angular.module('classeur.core.folders', [])
         init()
       }
 
-      function setDeletedFolders (folderDaoList) {
-        if (!folderDaoList.length) {
+      function setDeletedFolders (folderList) {
+        if (!folderList.length) {
           return
         }
         var currentDate = Date.now()
-        folderDaoList.cl_each(function (folderDao) {
-          folderDao.deleted = currentDate
+        folderList.cl_each(function (folder) {
+          folder.deleted = currentDate
         })
         init()
       }
 
-      function setDeletedFolder (folderDao) {
-        var index = clFolderSvc.folders.indexOf(folderDao)
-        if (index !== -1) {
-          setDeletedFolders([folderDao])
+      function setDeletedFolder (folder) {
+        var index = clFolderSvc.daos.indexOf(folder)
+        if (~index) {
+          setDeletedFolders([folder])
         }
         return index
       }
 
-      function updateUserFolders (changes) {
-        changes.cl_each(function (change) {
-          var folderDao = clFolderSvc.folderMap[change.id]
-          if (change.deleted && folderDao) {
-            var index = clFolderSvc.folders.indexOf(folderDao)
+      function applyFolderChanges (items) {
+        items.cl_each(function (item) {
+          var folder = clFolderSvc.daoMap[item.id]
+          if (item.deleted && folder) {
+            var index = clFolderSvc.daos.indexOf(folder)
             clFolderSvc.folderIds.splice(index, 1)
-          } else if (!change.deleted && !folderDao) {
-            folderDao = new FolderDao(change.id)
-            clFolderSvc.folderMap[change.id] = folderDao
-            clFolderSvc.folderIds.push(change.id)
+          } else if (!item.deleted && !folder) {
+            folder = new FolderDao(item.id)
+            clFolderSvc.daoMap[item.id] = folder
+            clFolderSvc.folderIds.push(item.id)
           }
-          folderDao.name = change.name || ''
-          folderDao.sharing = change.sharing || ''
-          folderDao.userId = ''
-          folderDao.$setExtUpdate(change.updated)
+          folder.userId = item.userId || ''
+          folder.name = item.name || ''
+          folder.sharing = item.sharing || ''
+          folder.$setExtUpdate(item.updated)
         })
         init()
       }
@@ -235,14 +235,14 @@ angular.module('classeur.core.folders', [])
       clFolderSvc.checkLocalStorage = checkLocalStorage
       clFolderSvc.createFolder = createFolder
       clFolderSvc.createPublicFolder = createPublicFolder
-      clFolderSvc.removeFolders = removeFolders
+      clFolderSvc.removeDaos = removeFolders
       clFolderSvc.setDeletedFolders = setDeletedFolders
       clFolderSvc.setDeletedFolder = setDeletedFolder
-      clFolderSvc.updateUserFolders = updateUserFolders
-      clFolderSvc.folders = []
-      clFolderSvc.deletedFolders = []
-      clFolderSvc.folderMap = Object.create(null)
-      clFolderSvc.deletedFolderMap = Object.create(null)
+      clFolderSvc.applyFolderChanges = applyFolderChanges
+      clFolderSvc.daos = []
+      clFolderSvc.deletedDaos = []
+      clFolderSvc.daoMap = Object.create(null)
+      clFolderSvc.deletedDaoMap = Object.create(null)
 
       init()
       return clFolderSvc

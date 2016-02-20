@@ -1,6 +1,8 @@
 angular.module('classeur.core.socket', [])
+
   .factory('clSocketSvc',
     function ($window, $rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
+      var socketTimeout = clUserActivity.inactiveAfter + 60 * 1000 // 2 + 1 min
       var socketTokenKey = 'socketToken'
       var msgHandlers = {}
       var socketToken
@@ -46,8 +48,14 @@ angular.module('classeur.core.socket', [])
         closeSocket()
         ;(function () {
           var ctx = {
-            socket: $window.eio()
+            socket: $window.eio(),
+            extendSocketTimeout: $window.cledit.Utils.debounce(function () {
+              if (clSocketSvc.ctx === ctx) {
+                closeSocket()
+              }
+            }, socketTimeout)
           }
+          ctx.extendSocketTimeout()
           clSocketSvc.ctx = ctx
           ctx.socket.on('message', function (msg) {
             var type = JSON.parse(msg)[0]
@@ -81,7 +89,9 @@ angular.module('classeur.core.socket', [])
 
       function closeSocket () {
         if (clSocketSvc.ctx) {
-          clSocketSvc.ctx.socket.close()
+          try {
+            clSocketSvc.ctx.socket.close()
+          } catch (e) {}
           clSocketSvc.ctx = undefined
           if (clSocketSvc.isReady) {
             clSocketSvc.isReady = false
@@ -99,7 +109,10 @@ angular.module('classeur.core.socket', [])
       }
 
       function sendMsg (type, msg) {
-        clSocketSvc.isReady && clSocketSvc.ctx.socket.send(JSON.stringify([type, msg]))
+        if (clSocketSvc.isReady) {
+          clSocketSvc.ctx.socket.send(JSON.stringify([type, msg]))
+          clSocketSvc.ctx.extendSocketTimeout()
+        }
       }
 
       function addMsgHandler (type, handler) {
@@ -148,40 +161,193 @@ angular.module('classeur.core.socket', [])
       openSocket()
       return clSocketSvc
     })
+
   .factory('clRestSvc',
-    function ($http, clSocketSvc) {
+    function ($window, clSocketSvc) {
+      function parseHeaders (xhr) {
+        var pairs = xhr.getAllResponseHeaders().trim().split('\n')
+        return pairs.cl_reduce(function (headers, header) {
+          var split = header.trim().split(':')
+          var key = split.shift().trim().toLowerCase()
+          var value = split.join(':').trim()
+          headers[key] = value
+          return headers
+        }, {})
+      }
+
+      function request (config) {
+        // Assume user is active, so keep socket alive
+        clSocketSvc.ctx && clSocketSvc.ctx.extendSocketTimeout()
+
+        var retryAfter = 500 // 500 ms
+        var maxRetryAfter = 30 * 1000 // 30 sec
+        config = angular.extend({}, config || {})
+        config.headers = angular.extend({}, config.headers || {}, {
+          'content-type': 'application/json'
+        }, clSocketSvc.makeAuthorizationHeader())
+
+        return (function tryRequest () {
+          // Implement custom http layer to avoid unnecessary angular scope.$apply
+          return new Promise(function (resolve, reject) {
+            var xhr = new $window.XMLHttpRequest()
+
+            xhr.onload = function () {
+              clearTimeout(timeout)
+              var result = {
+                status: xhr.status,
+                headers: parseHeaders(xhr),
+                body: xhr.responseText
+              }
+              try {
+                result.body = JSON.parse(result.body)
+              } catch (e) {}
+              if (result.status >= 200 && result.status < 300) {
+                return resolve(result)
+              }
+              // Reason field is a snake_case message, make it pretty
+              var message = ((result.body.reason || 'unknown_network_error') + '.').replace(/_/g, ' ')
+              result.message = message[0].toUpperCase() + message.slice(1)
+              reject(result)
+            }
+
+            xhr.onerror = function () {
+              clearTimeout(timeout)
+              reject(new Error('Network request failed.'))
+            }
+
+            var timeout = setTimeout(function () {
+              xhr.abort()
+              reject(new Error('Network request timeout.'))
+            }, clRestSvc.timeout)
+
+            // Add query params to URL
+            var url = config.url || ''
+            if (config.params) {
+              var params = config.params
+                .cl_map(function (value, key) {
+                  return encodeURIComponent(key) + '=' + encodeURIComponent(value)
+                })
+              if (params.length) {
+                url += '?' + params.join('&')
+              }
+            }
+
+            xhr.open(config.method, url)
+            config.headers.cl_each(function (value, name) {
+              xhr.setRequestHeader(name, value)
+            })
+            xhr.send(config.body ? JSON.stringify(config.body) : null)
+          })
+            .catch(function (err) {
+              // Try again later in case of server error (like 503)
+              if (err.status >= 500 && err.status < 600 && retryAfter < maxRetryAfter) {
+                return new Promise(function (resolve) {
+                  setTimeout(resolve, retryAfter)
+                  // Exponential backoff
+                  retryAfter *= 2
+                })
+                  .then(tryRequest)
+              }
+              throw err
+            })
+        })()
+      }
+
+      // Save bandwidth when ETag was received through websocket
+      function requestIgnore304 (config, updated) {
+        var etag = 'W/"' + updated + '"'
+        config.headers = angular.extend({}, config.headers || {}, {
+          'If-None-Match': etag
+        })
+        return request(config)
+          .catch(function (err) {
+            if (err.status !== 304) {
+              throw err
+            }
+          })
+      }
+
       function listLoop (url, params, rangeStart, rangeEnd, result) {
         result = result || []
         rangeStart = rangeStart > 0 ? rangeStart : 0
         rangeEnd = rangeEnd >= 0 ? rangeEnd : 999999999
-        var headers = clSocketSvc.makeAuthorizationHeader()
-        headers.range = 'items=' + rangeStart + '-' + rangeEnd
-        return $http.get(url, {
-          headers: headers,
+        var config = {
+          method: 'GET',
+          url: url,
           params: params,
-          timeout: clRestSvc.timeout
-        })
+          headers: {
+            range: 'items=' + rangeStart + '-' + rangeEnd
+          }
+        }
+
+        return request(config)
           .then(function (res) {
-            switch (res.status) {
-              case 416:
-                return result
-              case 206:
-                var parsedRange = res.headers('Content-Range').match(/^items (\d+)-(\d+)\/(\d+)$/)
-                result = result.concat(res.data)
-                var last = parseInt(parsedRange[2], 10)
-                var count = parseInt(parsedRange[3], 10)
-                if (result.length > rangeEnd - rangeStart || last + 1 === count) {
-                  return result
-                }
-                return listLoop(url, params, last + 1, rangeEnd, result)
+            var parsedRange = res.headers['content-range'].match(/^items (\d+)-(\d+)\/(\d+)$/)
+            result = result.concat(res.body)
+            var last = parseInt(parsedRange[2], 10)
+            var count = parseInt(parsedRange[3], 10)
+            if (result.length > rangeEnd - rangeStart || last + 1 === count) {
+              return result
             }
+            return listLoop(url, params, last + 1, rangeEnd, result)
+          }, function (err) {
+            // Error 416 means response is empty
+            if (err.status === 416) {
+              return result
+            }
+            throw err
+          })
+      }
+
+      function listFromSeqLoop (url, minSeq, params, result) {
+        result = result || []
+        var config = {
+          method: 'GET',
+          url: url,
+          params: angular.extend({}, params || {}, {
+            minSeq: minSeq,
+            view: 'private'
+          }),
+          headers: {
+            range: 'items=0-999999999'
+          }
+        }
+
+        return request(config)
+          .then(function (res) {
+            var parsedRange = res.headers['content-range'].match(/^items (\d+)-(\d+)\/(\d+)$/)
+            result = result.concat(res.body)
+            var count = parseInt(parsedRange[3], 10)
+            if (res.body.length === count) {
+              return result
+            }
+            // Make sure we don't miss an item with the same `seq`
+            var lastItem = result.pop()
+            while (result.length && result[result.length - 1].seq === lastItem.seq) {
+              result.pop()
+            }
+            if (!result.length) {
+              return result
+            }
+            return listFromSeqLoop(url, result[result.length - 1].seq + 1, params, result)
+          }, function (err) {
+            // Error 416 means response is empty
+            if (err.status === 416) {
+              return result
+            }
+            throw err
           })
       }
 
       var clRestSvc = {
         timeout: 30 * 1000, // 30 sec
+        request: request,
+        requestIgnore304: requestIgnore304,
         list: function (url, params, rangeStart, rangeEnd) {
           return listLoop(url, params, rangeStart, rangeEnd)
+        },
+        listFromSeq: function (url, minSeq, params) {
+          return listFromSeqLoop(url, minSeq, params)
         }
       }
 

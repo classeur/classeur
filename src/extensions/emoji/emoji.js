@@ -42,7 +42,7 @@ angular.module('classeur.extensions.emoji', [])
 
       function link (scope) {
         function checkEnabled () {
-          var fileProperties = scope.currentFileDao.contentDao.properties
+          var fileProperties = scope.currentFile.content.properties
           var newOptions = fileProperties['ext:emoji'] === 'true' ? {
             shortcuts: fileProperties['ext:emoji:shortcuts'] !== 'false'
           } : undefined
@@ -53,7 +53,7 @@ angular.module('classeur.extensions.emoji', [])
         }
 
         checkEnabled()
-        scope.$watch('currentFileDao.contentDao.properties', function (properties) {
+        scope.$watch('currentFile.content.properties', function (properties) {
           if (properties && checkEnabled()) {
             clEditorSvc.initConverter()
           }
