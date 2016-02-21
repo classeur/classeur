@@ -362,7 +362,7 @@ angular.module('classeur.core.classeurs', [])
           classeur.name = item.name || ''
           classeur.$setExtUpdate(item.updated)
         })
-        init()
+        items.length && init()
       }
 
       function mergeDefaultClasseur (newDefaultClasseur) {

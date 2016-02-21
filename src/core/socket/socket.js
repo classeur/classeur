@@ -187,7 +187,7 @@ angular.module('classeur.core.socket', [])
         }, clSocketSvc.makeAuthorizationHeader())
 
         return (function tryRequest () {
-          // Implement custom http layer to avoid unnecessary angular scope.$apply
+          // Reimplement http layer to avoid unnecessary angular scope.$apply
           return new Promise(function (resolve, reject) {
             var xhr = new $window.XMLHttpRequest()
 
@@ -239,8 +239,8 @@ angular.module('classeur.core.socket', [])
             xhr.send(config.body ? JSON.stringify(config.body) : null)
           })
             .catch(function (err) {
-              // Try again later in case of server error (like 503)
-              if (err.status >= 500 && err.status < 600 && retryAfter < maxRetryAfter) {
+              // Try again later in case of error 503
+              if (err.status === 503 && retryAfter < maxRetryAfter) {
                 return new Promise(function (resolve) {
                   setTimeout(resolve, retryAfter)
                   // Exponential backoff
@@ -267,7 +267,7 @@ angular.module('classeur.core.socket', [])
           })
       }
 
-      function listLoop (url, params, rangeStart, rangeEnd, result) {
+      function list (url, params, rangeStart, rangeEnd, result) {
         result = result || []
         rangeStart = rangeStart > 0 ? rangeStart : 0
         rangeEnd = rangeEnd >= 0 ? rangeEnd : 999999999
@@ -282,6 +282,9 @@ angular.module('classeur.core.socket', [])
 
         return request(config)
           .then(function (res) {
+            if (!res.body.length) {
+              return result
+            }
             var parsedRange = res.headers['content-range'].match(/^items (\d+)-(\d+)\/(\d+)$/)
             result = result.concat(res.body)
             var last = parseInt(parsedRange[2], 10)
@@ -289,17 +292,11 @@ angular.module('classeur.core.socket', [])
             if (result.length > rangeEnd - rangeStart || last + 1 === count) {
               return result
             }
-            return listLoop(url, params, last + 1, rangeEnd, result)
-          }, function (err) {
-            // Error 416 means response is empty
-            if (err.status === 416) {
-              return result
-            }
-            throw err
+            return list(url, params, last + 1, rangeEnd, result)
           })
       }
 
-      function listFromSeqLoop (url, minSeq, params, result) {
+      function listFromSeq (url, minSeq, params, result) {
         result = result || []
         var config = {
           method: 'GET',
@@ -315,13 +312,16 @@ angular.module('classeur.core.socket', [])
 
         return request(config)
           .then(function (res) {
+            if (!res.body.length) {
+              return result
+            }
             var parsedRange = res.headers['content-range'].match(/^items (\d+)-(\d+)\/(\d+)$/)
             result = result.concat(res.body)
             var count = parseInt(parsedRange[3], 10)
             if (res.body.length === count) {
               return result
             }
-            // Make sure we don't miss an item with the same `seq`
+            // Make sure we don't miss any item with the same `seq`
             var lastItem = result.pop()
             while (result.length && result[result.length - 1].seq === lastItem.seq) {
               result.pop()
@@ -329,13 +329,7 @@ angular.module('classeur.core.socket', [])
             if (!result.length) {
               return result
             }
-            return listFromSeqLoop(url, result[result.length - 1].seq + 1, params, result)
-          }, function (err) {
-            // Error 416 means response is empty
-            if (err.status === 416) {
-              return result
-            }
-            throw err
+            return listFromSeq(url, result[result.length - 1].seq + 1, params, result)
           })
       }
 
@@ -343,12 +337,8 @@ angular.module('classeur.core.socket', [])
         timeout: 30 * 1000, // 30 sec
         request: request,
         requestIgnore304: requestIgnore304,
-        list: function (url, params, rangeStart, rangeEnd) {
-          return listLoop(url, params, rangeStart, rangeEnd)
-        },
-        listFromSeq: function (url, minSeq, params) {
-          return listFromSeqLoop(url, minSeq, params)
-        }
+        list: list,
+        listFromSeq: listFromSeq
       }
 
       return clRestSvc

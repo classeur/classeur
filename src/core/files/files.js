@@ -402,7 +402,7 @@ angular.module('classeur.core.files', [])
           file.sharing = item.sharing || ''
           file.$setExtUpdate(item.updated)
         })
-        init()
+        items.length && init()
       }
 
       clFileSvc.FileDao = FileDao

@@ -227,7 +227,7 @@ angular.module('classeur.core.folders', [])
           folder.sharing = item.sharing || ''
           folder.$setExtUpdate(item.updated)
         })
-        init()
+        items.length && init()
       }
 
       clFolderSvc.FolderDao = FolderDao
