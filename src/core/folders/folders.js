@@ -71,8 +71,7 @@ angular.module('classeur.core.folders', [])
       }
 
       var clFolderSvc = clLocalStorageObject('folderSvc', {
-        folderIds: 'array',
-        foldersToRemove: 'array'
+        folderIds: 'array'
       })
 
       var authorizedKeys = {

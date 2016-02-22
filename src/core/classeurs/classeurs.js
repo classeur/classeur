@@ -80,7 +80,6 @@ angular.module('classeur.core.classeurs', [])
 
       var clClasseurSvc = clLocalStorageObject('classeurSvc', {
         classeurIds: 'array',
-        classeursToRemove: 'array',
         classeurFolders: 'object',
         classeurAddedFolders: 'object',
         classeurRemovedFolders: 'object'
