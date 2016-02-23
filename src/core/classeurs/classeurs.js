@@ -52,69 +52,58 @@ angular.module('classeur.core.classeurs', [])
       }
     })
   .factory('clClasseurSvc',
-    function (clUid, clLocalStorage, clLocalStorageObject, clFolderSvc, clSettingSvc) {
-      var classeurDaoProto = clLocalStorageObject('C', {
+    function (clUid, clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc) {
+      var clClasseurSvc = {
+        classeurFolders: {},
+        classeurAddedFolders: {},
+        classeurRemovedFolders: {},
+        init: init,
+        readAll: readAll,
+        writeAll: writeAll,
+        createClasseur: createClasseur,
+        removeDaos: removeDaos,
+        setDeletedClasseurs: setDeletedClasseurs,
+        addFolderToClasseur: addFolderToClasseur,
+        removeFolderFromClasseur: removeFolderFromClasseur,
+        applyServerChanges: applyServerChanges,
+        mergeDefaultClasseur: mergeDefaultClasseur
+      }
+
+      var store = clLocalDbStore('classeurs', {
         name: 'string',
-        sharing: 'string',
         userId: 'string',
         deleted: 'int'
-      }, true)
-
-      function ClasseurDao (id) {
-        this.id = id
-        this.$setId(id)
-        this.read()
-      }
-
-      ClasseurDao.prototype = classeurDaoProto
-
-      ClasseurDao.prototype.read = function () {
-        this.$read()
-        this.$readUpdate()
-      }
-
-      ClasseurDao.prototype.write = function () {
-        this.$write()
-        this.extUpdated = undefined
-      }
-
-      var clClasseurSvc = clLocalStorageObject('classeurSvc', {
-        classeurIds: 'array',
-        classeurFolders: 'object',
-        classeurAddedFolders: 'object',
-        classeurRemovedFolders: 'object'
       })
 
-      var classeurAuthorizedKeys = {
-        u: true,
-        name: true,
-        sharing: true,
-        userId: true,
-        deleted: true
+      function Classeur (id) {
+        this.id = id || clUid()
+        this.name = ''
+        this.userId = ''
+        this.deleted = 0
       }
 
       function folderChecker (objectName) {
-        return function (classeur, folder) {
-          var folderIds = clClasseurSvc[objectName][classeur.id] || []
-          return ~folderIds.indexOf(folder.id)
+        return function (classeurId, folderId) {
+          var folderIds = clClasseurSvc[objectName][classeurId] || []
+          return ~folderIds.indexOf(folderId)
         }
       }
 
       function folderAdder (objectName) {
-        return function (classeur, folder) {
-          var folderIds = clClasseurSvc[objectName][classeur.id] || []
-          folderIds.push(folder.id)
-          clClasseurSvc[objectName][classeur.id] = folderIds
+        return function (classeurId, folderId) {
+          var folderIds = clClasseurSvc[objectName][classeurId] || []
+          folderIds.push(folderId)
+          clClasseurSvc[objectName][classeurId] = folderIds
         }
       }
 
       function folderRemover (objectName) {
-        return function (classeur, folder) {
-          var folderIds = clClasseurSvc[objectName][classeur.id] || []
-          var index = folderIds.indexOf(folder.id)
+        return function (classeurId, folderId) {
+          var folderIds = clClasseurSvc[objectName][classeurId] || []
+          var index = folderIds.indexOf(folderId)
           if (~index) {
             folderIds.splice(index, 1)
-            clClasseurSvc[objectName][classeur.id] = folderIds
+            clClasseurSvc[objectName][classeurId] = folderIds
           }
         }
       }
@@ -131,102 +120,92 @@ angular.module('classeur.core.classeurs', [])
       var removeFolderInClasseurAddedFolders = folderRemover('classeurAddedFolders')
       var removeFolderInClasseurRemovedFolders = folderRemover('classeurRemovedFolders')
 
-      function isFolderInClasseur (classeur, folder) {
-        return !isFolderInClasseurRemovedFolders(classeur, folder) && (
-        isFolderInClasseurFolders(classeur, folder) ||
-        isFolderInClasseurAddedFolders(classeur, folder)
+      function isFolderInClasseur (classeurId, folderId) {
+        return !isFolderInClasseurRemovedFolders(classeurId, folderId) && (
+        isFolderInClasseurFolders(classeurId, folderId) ||
+        isFolderInClasseurAddedFolders(classeurId, folderId)
         )
       }
 
-      function setClasseurFolder (classeur, folder) {
-        if (!isFolderInClasseurFolders(classeur, folder)) {
-          addFolderInClasseurFolders(classeur, folder)
+      function setClasseurFolder (classeurId, folderId) {
+        if (!isFolderInClasseurFolders(classeurId, folderId)) {
+          addFolderInClasseurFolders(classeurId, folderId)
         }
-        removeFolderInClasseurAddedFolders(classeur, folder)
+        removeFolderInClasseurAddedFolders(classeurId, folderId)
       }
 
-      function unsetClasseurFolder (classeur, folder) {
-        removeFolderInClasseurFolders(classeur, folder)
-        removeFolderInClasseurRemovedFolders(classeur, folder)
+      function unsetClasseurFolder (classeurId, folderId) {
+        removeFolderInClasseurFolders(classeurId, folderId)
+        removeFolderInClasseurRemovedFolders(classeurId, folderId)
       }
 
-      function addFolderToClasseur (classeur, folder) {
-        if (!isFolderInClasseur(classeur, folder)) {
-          addFolderInClasseurAddedFolders(classeur, folder)
+      function addFolderToClasseur (classeurId, folderId) {
+        if (!isFolderInClasseur(classeurId, folderId)) {
+          addFolderInClasseurAddedFolders(classeurId, folderId)
         }
       }
 
-      function removeFolderFromClasseur (classeur, folder) {
-        if (isFolderInClasseur(classeur, folder)) {
-          addFolderInClasseurRemovedFolders(classeur, folder)
+      function removeFolderFromClasseur (classeurId, folderId) {
+        if (isFolderInClasseur(classeurId, folderId)) {
+          addFolderInClasseurRemovedFolders(classeurId, folderId)
         }
       }
 
       var isInitialized
+      var daoMap = {}
 
       function init () {
-        if (!clClasseurSvc.classeurIds) {
-          clClasseurSvc.$read()
-        }
-
-        var classeurMap = Object.create(null)
-        var deletedClasseurMap = Object.create(null)
-        clClasseurSvc.classeurIds = clClasseurSvc.classeurIds.cl_filter(function (id) {
-          var classeur = clClasseurSvc.daoMap[id] || clClasseurSvc.deletedDaoMap[id] || new ClasseurDao(id)
-          if (!classeur.deleted && !classeurMap[id]) {
-            classeurMap[id] = classeur
-            return true
-          }
-          if (classeur.deleted && !deletedClasseurMap[id]) {
-            deletedClasseurMap[id] = classeur
-            return true
-          }
-        })
-        clClasseurSvc.daoMap = classeurMap
-        clClasseurSvc.deletedDaoMap = deletedClasseurMap
-
         if (!isInitialized) {
           // Backward compatibility
+          var done = clLocalStorage.getItem('classeurSvc.done')
+          clLocalStorage.setItem('classeurSvc.done', 1)
           var oldClasseurs = clLocalStorage.getItem('classeurSvc.classeurs')
-          if (oldClasseurs) {
+          clLocalStorage.removeItem('classeurSvc.classeurs')
+          if (!done && oldClasseurs) {
             JSON.parse(oldClasseurs).cl_each(function (item) {
-              if (item.isDefault) {
-                return
-              }
-              var classeur = new ClasseurDao(item.id)
+              var classeur = new Classeur(item.id)
               classeur.name = item.name
-              classeur.deleted = 0
-              clClasseurSvc.classeurIds.push(item.id)
-              clClasseurSvc.daoMap[item.id] = classeur
+              daoMap[classeur.id] = classeur
+              if (item.isDefault) {
+                clSettingSvc.values.defaultClasseurId = item.id
+              }
               item.folders.cl_each(function (folderId) {
-                var folder = clFolderSvc.daoMap[folderId]
-                folder && setClasseurFolder(classeur, folder)
+                addFolderToClasseur(classeur.id, folderId)
               })
             })
-            clLocalStorage.removeItem('classeurSvc.classeurs')
-            return init()
           }
         }
+
+        var activeDaoMap = clClasseurSvc.activeDaoMap = Object.create(null)
+        var deletedDaoMap = clClasseurSvc.deletedDaoMap = Object.create(null)
+
+        daoMap.cl_each(function (dao, id) {
+          if (dao.deleted) {
+            deletedDaoMap[id] = dao
+          } else {
+            activeDaoMap[id] = dao
+          }
+        })
 
         var foldersInClasseurs = Object.create(null)
         clClasseurSvc.defaultClasseur = undefined
-        clClasseurSvc.daos = Object.keys(classeurMap).cl_map(function (id) {
-          var classeur = classeurMap[id]
+        clClasseurSvc.activeDaos = Object.keys(activeDaoMap).cl_map(function (id) {
+          var classeur = daoMap[id]
 
           if (id === clSettingSvc.values.defaultClasseurId) {
             clClasseurSvc.defaultClasseur = classeur
           }
           classeur.isDefault = undefined
 
-          // List files in this classeur
+          // List folders in this classeur
           var foldersInClasseur = Object.create(null)
           var folderIds = (clClasseurSvc.classeurFolders[classeur.id] || []).concat(clClasseurSvc.classeurAddedFolders[classeur.id] || [])
           var removedFolderIds = clClasseurSvc.classeurRemovedFolders[classeur.id] || []
           classeur.folders = folderIds.cl_reduce(function (folders, folderId) {
-            var folder = clFolderSvc.daoMap[folderId]
+            var folder = clFolderSvc.activeDaoMap[folderId]
             if (folder && !foldersInClasseur[folderId] && !~removedFolderIds.indexOf(folderId)) {
-              foldersInClasseur[folderId] = 1
-              foldersInClasseurs[folderId] = 1
+              foldersInClasseur[folderId] = true
+              foldersInClasseurs[folderId] = true
               folders.push(folder)
             }
             return folders
@@ -235,131 +214,82 @@ angular.module('classeur.core.classeurs', [])
           return classeur
         })
 
-        clClasseurSvc.deletedDaos = Object.keys(deletedClasseurMap).cl_map(function (id) {
-          return deletedClasseurMap[id]
+        clClasseurSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
+          var classeur = daoMap[id]
+          classeur.folders = undefined // Release folders for garbage collection
+          return classeur
         })
 
+        // Create default classeur if not existing
         if (!clClasseurSvc.defaultClasseur) {
-          // Create default classeur
-          clClasseurSvc.defaultClasseur = new ClasseurDao(clUid())
+          clClasseurSvc.defaultClasseur = new Classeur()
           clClasseurSvc.defaultClasseur.name = 'Classeur'
-          clClasseurSvc.defaultClasseur.isDefault = true
-          clClasseurSvc.classeurIds.push(clClasseurSvc.defaultClasseur.id)
-          clClasseurSvc.daoMap[clClasseurSvc.defaultClasseur.id] = clClasseurSvc.defaultClasseur
           clSettingSvc.values.defaultClasseurId = clClasseurSvc.defaultClasseur.id
           return init()
         }
 
         // Add remaining folders in the default classeur
         clClasseurSvc.defaultClasseur.isDefault = true
-        clFolderSvc.daos.cl_each(function (folder) {
+        clFolderSvc.activeDaos.cl_each(function (folder) {
           if (!foldersInClasseurs[folder.id]) {
             clClasseurSvc.defaultClasseur.folders.push(folder)
           }
         })
 
-        if (!isInitialized) {
-          var classeurKeyPrefix = /^C\.(\w+)\.(\w+)/
-          Object.keys(clLocalStorage).cl_each(function (key) {
-            if (key.charCodeAt(0) === 0x43 /* C */) {
-              var match = key.match(classeurKeyPrefix)
-              if (match) {
-                if ((!clClasseurSvc.daoMap[match[1]] && !clClasseurSvc.deletedDaoMap[match[1]]) ||
-                  !classeurAuthorizedKeys.hasOwnProperty(match[2])
-                ) {
-                  clLocalStorage.removeItem(key)
-                }
-              }
-            }
-          })
-
-          isInitialized = true
-        }
+        isInitialized = true
       }
 
-      function checkLocalStorage () {
-        // Check classeur id list
-        var checkClasseurSvcUpdate = clClasseurSvc.$checkUpdate()
-        clClasseurSvc.$readUpdate()
-        if (checkClasseurSvcUpdate && clClasseurSvc.$check()) {
-          clClasseurSvc.classeurIds = undefined
-        } else {
-          clClasseurSvc.$write()
-        }
-
-        // Check every classeur
-        // var startTime = Date.now()
-        var checkClasseurUpdate = classeurDaoProto.$checkGlobalUpdate()
-        classeurDaoProto.$readGlobalUpdate()
-        clClasseurSvc.daos.concat(clClasseurSvc.deletedDaos).cl_each(function (classeur) {
-          if (checkClasseurUpdate && classeur.$checkUpdate()) {
-            classeur.read()
-          } else {
-            classeur.write()
+      function readAll (tx, cb) {
+        store.readAll(daoMap, tx, function (hasChanged) {
+          if (hasChanged || !isInitialized) {
+            init()
           }
+          cb(hasChanged)
         })
-        // console.log('Dirty checking took ' + (Date.now() - startTime) + 'ms')
-
-        if (checkClasseurSvcUpdate || checkClasseurUpdate) {
-          init()
-          return true
-        }
       }
 
-      function createClasseur (name) {
-        var classeur = new ClasseurDao(clUid())
-        classeur.name = name
+      function writeAll (tx) {
+        store.writeAll(daoMap, tx)
+      }
+
+      function createClasseur (id) {
+        var classeur = clClasseurSvc.deletedDaoMap[id] || new Classeur(id)
         classeur.deleted = 0
-        clClasseurSvc.classeurIds.push(classeur.id)
-        clClasseurSvc.daoMap[classeur.id] = classeur
+        daoMap[classeur.id] = classeur
         init()
         return classeur
       }
 
       function setDeletedClasseurs (classeurList) {
-        if (!classeurList.length) {
-          return
+        if (classeurList.length) {
+          var currentDate = Date.now()
+          classeurList.cl_each(function (classeur) {
+            classeur.deleted = currentDate
+          })
+          init()
         }
-        var currentDate = Date.now()
-        classeurList.cl_each(function (classeur) {
-          classeur.deleted = currentDate
-        })
-        init()
       }
 
-      // Remove classeur from classeurs and deletedClasseurs
-      function removeClasseurs (classeurList) {
-        if (!classeurList.length) {
-          return
-        }
-
-        // Create hash for fast filter
-        var classeurIds = classeurList.cl_reduce(function (classeurIds, classeur) {
-          classeurIds[classeur.id] = 1
-          return classeurIds
-        }, Object.create(null))
-
-        // Filter
-        clClasseurSvc.classeurIds = clClasseurSvc.classeurIds.cl_filter(function (classeurId) {
-          return !classeurIds[classeurId]
+      // Remove classeurs from daoMap
+      function removeDaos (daos) {
+        daos.cl_each(function (dao) {
+          delete daoMap[dao.id]
         })
-        init()
+        daos.length && init()
       }
 
-      function applyClasseurChanges (items) {
+      function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var classeur = clClasseurSvc.daoMap[item.id]
-          if (item.deleted && classeur) {
-            var index = clClasseurSvc.daos.indexOf(classeur)
-            clClasseurSvc.classeurIds.splice(index, 1)
-          } else if (!item.deleted && !classeur) {
-            classeur = new ClasseurDao(item.id)
-            clClasseurSvc.daoMap[item.id] = classeur
-            clClasseurSvc.classeurIds.push(item.id)
+          var dao = daoMap[item.id] || new Classeur(item.id)
+          if (item.deleted) {
+            delete daoMap[item.id]
+          } else if (!item.deleted) {
+            dao.deleted = 0
+            daoMap[item.id] = dao
           }
-          classeur.userId = item.userId || ''
-          classeur.name = item.name || ''
-          classeur.$setExtUpdate(item.updated)
+          dao.userId = item.userId || ''
+          dao.name = item.name || ''
+          dao.updated = item.updated
         })
         items.length && init()
       }
@@ -369,7 +299,7 @@ angular.module('classeur.core.classeurs', [])
           .concat(clClasseurSvc.classeurAddedFolders[clClasseurSvc.defaultClasseur.id] || [])
         var removedFolderIds = clClasseurSvc.classeurRemovedFolders[clClasseurSvc.defaultClasseur.id] || []
         folderIds.cl_each(function (folderId) {
-          var folder = clFolderSvc.daoMap[folderId]
+          var folder = clFolderSvc.activeDaoMap[folderId]
           if (folder && !~removedFolderIds.indexOf(folderId)) {
             addFolderToClasseur(newDefaultClasseur, folder)
           }
@@ -377,18 +307,5 @@ angular.module('classeur.core.classeurs', [])
         setDeletedClasseurs([clClasseurSvc.defaultClasseur])
       }
 
-      clClasseurSvc.init = init
-      clClasseurSvc.checkLocalStorage = checkLocalStorage
-      clClasseurSvc.createClasseur = createClasseur
-      clClasseurSvc.removeDaos = removeClasseurs
-      clClasseurSvc.setDeletedClasseurs = setDeletedClasseurs
-      clClasseurSvc.addFolderToClasseur = addFolderToClasseur
-      clClasseurSvc.removeFolderFromClasseur = removeFolderFromClasseur
-      clClasseurSvc.applyClasseurChanges = applyClasseurChanges
-      clClasseurSvc.mergeDefaultClasseur = mergeDefaultClasseur
-      clClasseurSvc.daoMap = Object.create(null)
-      clClasseurSvc.deletedDaoMap = Object.create(null)
-
-      init()
       return clClasseurSvc
     })

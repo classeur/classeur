@@ -4,11 +4,11 @@ angular.module('classeur.core.localDb', [])
       var lastSeqMargin = 1000 // 1 sec
       var deletedMarkerMaxAge = 24 * 60 * 60 * 1000 // 24h
 
-      return function (name, schema) {
-        function identity (val) {
-          return val
-        }
+      function identity (value) {
+        return value
+      }
 
+      return function (storeName, schema) {
         var attributeCheckers = {}
         var attributeReaders = {}
         var attributeWriters = {}
@@ -86,8 +86,8 @@ angular.module('classeur.core.localDb', [])
         }
 
         function readAll (daoMap, tx, cb) {
-          var daoChanged
-          var store = tx.objectStore(name)
+          var hasChanged
+          var store = tx.objectStore(storeName)
           var index = store.index('seq')
           var range = $window.IDBKeyRange.lowerBound(lastSeq - lastSeqMargin)
           var currentDate = Date.now()
@@ -98,10 +98,10 @@ angular.module('classeur.core.localDb', [])
               itemsToDelete.cl_each(function (item) {
                 store.delete(item.id)
               })
-              return cb(daoChanged)
+              return cb(hasChanged)
             }
             var item = cursor.value
-            daoChanged |= readFromDb(item, daoMap)
+            hasChanged |= readFromDb(item, daoMap)
             // Remove old deleted markers
             if (!item.updated && currentDate - item.seq > deletedMarkerMaxAge) {
               itemsToDelete.push(item)
@@ -112,7 +112,7 @@ angular.module('classeur.core.localDb', [])
 
         function writeAll (daoMap, tx) {
           var currentDate = Date.now()
-          var store = tx.objectStore(name)
+          var store = tx.objectStore(storeName)
           var daoChanged, updatedChanged
           // Remove deleted daos
           for (id in storeSeqs) {

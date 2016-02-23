@@ -44,124 +44,104 @@ angular.module('classeur.core.folders', [])
       }
     })
   .factory('clFolderSvc',
-    function (clLocalStorage, clUid, clLocalStorageObject) {
-      var folderDaoProto = clLocalStorageObject('F', {
+    function (clUid, clLocalStorage, clLocalDbStore) {
+      var clFolderSvc = {
+        init: init,
+        readAll: readAll,
+        writeAll: writeAll,
+        createFolder: createFolder,
+        createPublicFolder: createPublicFolder,
+        removeDaos: removeDaos,
+        setDeletedFolders: setDeletedFolders,
+        setDeletedFolder: setDeletedFolder,
+        applyServerChanges: applyServerChanges
+      }
+
+      var store = clLocalDbStore('classeurs', {
         name: 'string',
         sharing: 'string',
         userId: 'string',
         deleted: 'int'
-      }, true)
-
-      function FolderDao (id) {
-        this.id = id
-        this.$setId(id)
-        this.read()
-      }
-
-      FolderDao.prototype = folderDaoProto
-
-      FolderDao.prototype.read = function () {
-        this.$read()
-        this.$readUpdate()
-      }
-
-      FolderDao.prototype.write = function (updated) {
-        this.$write()
-        this.extUpdated = undefined
-      }
-
-      var clFolderSvc = clLocalStorageObject('folderSvc', {
-        folderIds: 'array'
       })
 
-      var authorizedKeys = {
-        u: true,
-        userId: true,
-        name: true,
-        sharing: true,
-        deleted: true
+      function Folder (id) {
+        this.id = id || clUid()
+        this.name = ''
+        this.sharing = ''
+        this.userId = ''
+        this.deleted = 0
       }
 
       var isInitialized
+      var daoMap = {}
 
       function init () {
-        if (!clFolderSvc.folderIds) {
-          clFolderSvc.$read()
-        }
-
-        var folderMap = Object.create(null)
-        var deletedFolderMap = Object.create(null)
-        clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function (id) {
-          var folder = clFolderSvc.daoMap[id] || clFolderSvc.deletedDaoMap[id] || new FolderDao(id)
-          if (!folder.deleted && !folderMap[id]) {
-            folderMap[id] = folder
-            return true
-          }
-          if (folder.deleted && !deletedFolderMap[id]) {
-            deletedFolderMap[id] = folder
-            return true
-          }
-        })
-        clFolderSvc.daoMap = folderMap
-        clFolderSvc.deletedDaoMap = deletedFolderMap
-
-        clFolderSvc.daos = Object.keys(folderMap).cl_map(function (id) {
-          return folderMap[id]
-        })
-        clFolderSvc.deletedDaos = Object.keys(deletedFolderMap).cl_map(function (id) {
-          return deletedFolderMap[id]
-        })
-
         if (!isInitialized) {
-          var keyPrefix = /^F\.(\w+)\.(\w+)/
-          Object.keys(clLocalStorage).cl_each(function (key) {
-            if (key.charCodeAt(0) === 0x46 /* F */) {
-              var match = key.match(keyPrefix)
-              if (match) {
-                if ((!clFolderSvc.daoMap[match[1]] && !clFolderSvc.deletedDaoMap[match[1]]) ||
-                  !authorizedKeys.hasOwnProperty(match[2])) {
-                  clLocalStorage.removeItem(key)
-                }
+          // Backward compatibility
+          var done = clLocalStorage.getItem('folderSvc.done')
+          clLocalStorage.setItem('folderSvc.done', 1)
+          var folderIds = clLocalStorage.getItem('folderSvc.folderIds')
+          clLocalStorage.removeItem('folderSvc.folderIds')
+          if (!done && folderIds) {
+            JSON.parse(folderIds).cl_each(function (id) {
+              var folder = {
+                id: id,
+                name: clLocalStorage.getItem('f.' + id + '.name') || '',
+                userId: clLocalStorage.getItem('f.' + id + '.userId') || '',
+                sharing: clLocalStorage.getItem('f.' + id + '.sharing') || '',
+                deleted: parseInt(clLocalStorage.getItem('f.' + id + '.deleted') || 0, 10),
+                updated: parseInt(clLocalStorage.getItem('f.' + id + '.u') || 0, 10)
               }
-            }
-          })
-          isInitialized = true
+              daoMap[folder.id] = folder
+            })
+            // Clean up local storage
+            var keyMatcher = /^F\.(\w+)\.(\w+)/
+            Object.keys(clLocalStorage).cl_each(function (key) {
+              if (key.match(keyMatcher)) {
+                clLocalStorage.removeItem(key)
+              }
+            })
+          }
         }
+
+        var activeDaoMap = clFolderSvc.activeDaoMap = Object.create(null)
+        var deletedDaoMap = clFolderSvc.deletedDaoMap = Object.create(null)
+
+        daoMap.cl_each(function (dao, id) {
+          if (dao.deleted) {
+            deletedDaoMap[id] = dao
+          } else {
+            activeDaoMap[id] = dao
+          }
+        })
+
+        clFolderSvc.activeDaos = Object.keys(activeDaoMap).cl_map(function (id) {
+          return daoMap[id]
+        })
+        clFolderSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
+          return daoMap[id]
+        })
+
+        isInitialized = true
       }
 
-      function checkLocalStorage () {
-        // Check folder id list
-        var checkFolderSvcUpdate = clFolderSvc.$checkUpdate()
-        clFolderSvc.$readUpdate()
-        if (checkFolderSvcUpdate && clFolderSvc.$check()) {
-          clFolderSvc.folderIds = undefined
-        } else {
-          clFolderSvc.$write()
-        }
-
-        // Check every folder
-        var checkFolderUpdate = folderDaoProto.$checkGlobalUpdate()
-        folderDaoProto.$readGlobalUpdate()
-        clFolderSvc.daos.concat(clFolderSvc.deletedDaos).cl_each(function (folder) {
-          if (checkFolderUpdate && folder.$checkUpdate()) {
-            folder.read()
-          } else {
-            folder.write()
+      function readAll (tx, cb) {
+        store.readAll(daoMap, tx, function (hasChanged) {
+          if (hasChanged || !isInitialized) {
+            init()
           }
+          cb(hasChanged)
         })
+      }
 
-        if (checkFolderSvcUpdate || checkFolderUpdate) {
-          init()
-          return true
-        }
+      function writeAll (tx) {
+        store.writeAll(daoMap, tx)
       }
 
       function createFolder (id) {
-        id = id || clUid()
-        var folder = clFolderSvc.deletedDaoMap[id] || new FolderDao(id)
+        var folder = clFolderSvc.deletedDaoMap[id] || new Folder(id)
         folder.deleted = 0
-        clFolderSvc.folderIds.push(id)
-        clFolderSvc.daoMap[id] = folder
+        daoMap[folder.id] = folder
         init()
         return folder
       }
@@ -172,77 +152,48 @@ angular.module('classeur.core.folders', [])
         return folder
       }
 
-      // Remove folder from folders and deletedFolders
-      function removeFolders (folderList) {
-        if (!folderList.length) {
-          return
-        }
-
-        // Create hash for fast filter
-        var folderIds = folderList.cl_reduce(function (folderIds, folder) {
-          folderIds[folder.id] = 1
-          return folderIds
-        }, Object.create(null))
-
-        // Filter
-        clFolderSvc.folderIds = clFolderSvc.folderIds.cl_filter(function (folderId) {
-          return !folderIds[folderId]
-        })
-        init()
-      }
-
       function setDeletedFolders (folderList) {
-        if (!folderList.length) {
-          return
+        if (folderList.length) {
+          var currentDate = Date.now()
+          folderList.cl_each(function (folder) {
+            folder.deleted = currentDate
+          })
+          init()
         }
-        var currentDate = Date.now()
-        folderList.cl_each(function (folder) {
-          folder.deleted = currentDate
-        })
-        init()
       }
 
       function setDeletedFolder (folder) {
-        var index = clFolderSvc.daos.indexOf(folder)
+        var index = clFolderSvc.activeDaos.indexOf(folder)
         if (~index) {
           setDeletedFolders([folder])
         }
         return index
       }
 
-      function applyFolderChanges (items) {
+      // Remove classeurs from daoMap
+      function removeDaos (daos) {
+        daos.cl_each(function (dao) {
+          delete daoMap[dao.id]
+        })
+        daos.length && init()
+      }
+
+      function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var folder = clFolderSvc.daoMap[item.id]
-          if (item.deleted && folder) {
-            var index = clFolderSvc.daos.indexOf(folder)
-            clFolderSvc.folderIds.splice(index, 1)
-          } else if (!item.deleted && !folder) {
-            folder = new FolderDao(item.id)
-            clFolderSvc.daoMap[item.id] = folder
-            clFolderSvc.folderIds.push(item.id)
+          var dao = daoMap[item.id] || new Folder(item.id)
+          if (item.deleted) {
+            delete daoMap[item.id]
+          } else if (!item.deleted) {
+            dao.deleted = 0
+            daoMap[item.id] = dao
           }
-          folder.userId = item.userId || ''
-          folder.name = item.name || ''
-          folder.sharing = item.sharing || ''
-          folder.$setExtUpdate(item.updated)
+          dao.userId = item.userId || ''
+          dao.name = item.name || ''
+          dao.sharing = item.sharing || ''
+          dao.updated = item.updated
         })
         items.length && init()
       }
 
-      clFolderSvc.FolderDao = FolderDao
-      clFolderSvc.init = init
-      clFolderSvc.checkLocalStorage = checkLocalStorage
-      clFolderSvc.createFolder = createFolder
-      clFolderSvc.createPublicFolder = createPublicFolder
-      clFolderSvc.removeDaos = removeFolders
-      clFolderSvc.setDeletedFolders = setDeletedFolders
-      clFolderSvc.setDeletedFolder = setDeletedFolder
-      clFolderSvc.applyFolderChanges = applyFolderChanges
-      clFolderSvc.daos = []
-      clFolderSvc.deletedDaos = []
-      clFolderSvc.daoMap = Object.create(null)
-      clFolderSvc.deletedDaoMap = Object.create(null)
-
-      init()
       return clFolderSvc
     })

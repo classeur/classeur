@@ -50,7 +50,7 @@
       <div class="explorer__inner-2 panel">
         <div class="classeur-list panel no-overflow">
           <div class="classeur-list__scroller panel">
-            <cl-classeur-entry ng-repeat="classeur in classeurSvc.daos track by classeur.id"></cl-classeur-entry>
+            <cl-classeur-entry ng-repeat="classeur in classeurSvc.activeDaos track by classeur.id"></cl-classeur-entry>
             <div class="classeur-entry classeur-entry--new">
               <div class="classeur-entry__inner panel md-whiteframe-z1" aria-label="Create classeur" ng-click="createClasseur()">
                 <div class="classeur-entry__tab-1"></div>

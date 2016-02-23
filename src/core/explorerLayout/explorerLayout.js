@@ -230,7 +230,7 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         function importExistingFolder (folder, move) {
-          move && clClasseurSvc.daos.cl_each(function (classeur) {
+          move && clClasseurSvc.activeDaos.cl_each(function (classeur) {
             var index = classeur.folders.indexOf(folder)
             ~index && classeur.folders.splice(index, 1)
           })
@@ -243,7 +243,7 @@ angular.module('classeur.core.explorerLayout', [])
 
         function importPublicFolder (folderId) {
           var folder = clFolderSvc.createPublicFolder(folderId)
-          // Classeurs are updated when evaluating folderSvc.daos
+          // Classeurs are updated when evaluating folderSvc.activeDaos
           clExplorerLayoutSvc.currentClasseur.folders.push(folder)
           $timeout(function () {
             clExplorerLayoutSvc.setCurrentFolder(folder)
@@ -257,7 +257,7 @@ angular.module('classeur.core.explorerLayout', [])
             var classeurFolders = clExplorerLayoutSvc.currentClasseur.folders.cl_reduce(function (classeurFolders, folder) {
               return (classeurFolders[folder.id] = folder, classeurFolders)
             }, {})
-            scope.folders = clFolderSvc.daos.cl_filter(function (filterDao) {
+            scope.folders = clFolderSvc.activeDaos.cl_filter(function (filterDao) {
               return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id)
             })
             scope.move = true
@@ -267,7 +267,7 @@ angular.module('classeur.core.explorerLayout', [])
                 if (!scope.folderId) {
                   return clToast('Please select a folder.')
                 }
-                var folder = clFolderSvc.daoMap[scope.folderId]
+                var folder = clFolderSvc.activeDaoMap[scope.folderId]
                 folder && importExistingFolder(folder, scope.move)
                 return clDialog.cancel()
               }
@@ -285,7 +285,7 @@ angular.module('classeur.core.explorerLayout', [])
                 })) {
               clToast('Folder is already in the classeur.')
             }
-            var folder = clFolderSvc.daoMap[folderId]
+            var folder = clFolderSvc.activeDaoMap[folderId]
             folder ? importExistingFolder(folder) : importPublicFolder(folderId)
           })
         }
@@ -299,7 +299,7 @@ angular.module('classeur.core.explorerLayout', [])
           }).then(function (name) {
             var folder = clFolderSvc.createFolder()
             folder.name = name
-            // Classeurs are updated when evaluating folderSvc.daos
+            // Classeurs are updated when evaluating folderSvc.activeDaos
             clExplorerLayoutSvc.currentClasseur.folders.push(folder)
             $timeout(function () {
               clExplorerLayoutSvc.setCurrentFolder(folder)
@@ -326,7 +326,7 @@ angular.module('classeur.core.explorerLayout', [])
               newFileDao.content.text = file.content
               newFileDao.content.properties = clSettingSvc.values.defaultFileProperties || {}
               newFileDao.writeContent()
-              if (folder && clFolderSvc.daoMap[folder.id]) {
+              if (folder && clFolderSvc.activeDaoMap[folder.id]) {
                 newFileDao.folderId = folder.id
                 newFileDao.userId = folder.userId
                 if (folder.userId) {
@@ -355,7 +355,7 @@ angular.module('classeur.core.explorerLayout', [])
               newFileDao.name = name
               newFileDao.content.properties = clSettingSvc.values.defaultFileProperties || {}
               newFileDao.writeContent()
-              if (folder && clFolderSvc.daoMap[folder.id]) {
+              if (folder && clFolderSvc.activeDaoMap[folder.id]) {
                 newFileDao.folderId = folder.id
                 newFileDao.userId = folder.userId
                 if (folder.userId) {
@@ -371,7 +371,7 @@ angular.module('classeur.core.explorerLayout', [])
         // setInterval(function() {
         // 	var file = clFileSvc.createFile()
         // 	file.name = 'File ' + file.id
-        // 	file.folderId = clFolderSvc.daos[Math.random() * clFolderSvc.daos.length | 0].id
+        // 	file.folderId = clFolderSvc.activeDaos[Math.random() * clFolderSvc.activeDaos.length | 0].id
         // 	scope.$apply()
         // }, 1000)
 
@@ -461,7 +461,7 @@ angular.module('classeur.core.explorerLayout', [])
         })()
 
         scope.isFolderInOtherClasseur = function () {
-          return clClasseurSvc.daos.cl_some(function (classeur) {
+          return clClasseurSvc.activeDaos.cl_some(function (classeur) {
             return classeur !== clExplorerLayoutSvc.currentClasseur && ~classeur.folders.indexOf(clExplorerLayoutSvc.currentFolder)
           })
         }
@@ -481,7 +481,8 @@ angular.module('classeur.core.explorerLayout', [])
         scope.createClasseur = function () {
           makeInputDialog('core/explorerLayout/newClasseurDialog.html')
             .then(function (name) {
-              var classeur = clClasseurSvc.createClasseur(name)
+              var classeur = clClasseurSvc.createClasseur()
+              classeur.name = name
               scope.setClasseur(classeur)
             })
         }
@@ -489,7 +490,7 @@ angular.module('classeur.core.explorerLayout', [])
         scope.deleteClasseur = function (classeur) {
           var filesToRemove = []
           var foldersToRemove = classeur.folders.cl_filter(function (folder) {
-            if (!clClasseurSvc.daos
+            if (!clClasseurSvc.activeDaos
                 .cl_some(function (otherClasseurDao) {
                   return otherClasseurDao !== classeur && ~otherClasseurDao.folders.indexOf(folder)
                 })) {
@@ -547,19 +548,19 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         scope.$watch('explorerLayoutSvc.isExplorerOpen', animateLayout)
-        scope.$watch('fileSvc.daos', clExplorerLayoutSvc.refreshFiles)
-        scope.$watch('folderSvc.daos', function () {
+        scope.$watch('fileSvc.activeDaos', clExplorerLayoutSvc.refreshFiles)
+        scope.$watch('folderSvc.activeDaos', function () {
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()
         })
-        scope.$watchGroup(['classeurSvc.daos', 'classeurSvc.daos.length'], function () {
+        scope.$watchGroup(['classeurSvc.activeDaos', 'classeurSvc.activeDaos.length'], function () {
           clExplorerLayoutSvc.refreshFolders()
-          scope.classeurIndex = clClasseurSvc.daos.indexOf(clExplorerLayoutSvc.currentClasseur)
+          scope.classeurIndex = clClasseurSvc.activeDaos.indexOf(clExplorerLayoutSvc.currentClasseur)
         })
         scope.$watchGroup(['explorerLayoutSvc.currentClasseur', 'explorerLayoutSvc.currentFolder'], function () {
           scope.userInputFilter = undefined
           refreshFiles()
-          scope.classeurIndex = clClasseurSvc.daos.indexOf(clExplorerLayoutSvc.currentClasseur)
+          scope.classeurIndex = clClasseurSvc.activeDaos.indexOf(clExplorerLayoutSvc.currentClasseur)
           setPlasticClass()
           clPublicSyncSvc.getFolder(clExplorerLayoutSvc.currentFolder)
         })
@@ -620,15 +621,15 @@ angular.module('classeur.core.explorerLayout', [])
 
       function refreshFiles () {
         var filters = []
-        var files = clFileSvc.daos
+        var files = clFileSvc.activeDaos
         var extraFiles = []
 
         function currentClasseurFilter (file) {
           var result = clExplorerLayoutSvc.currentClasseur.isDefault
-          var classeur = clClasseurSvc.daoMap[file.classeurId]
+          var classeur = clClasseurSvc.activeDaoMap[file.classeurId]
           if (classeur) {
             result = classeur === clExplorerLayoutSvc.currentClasseur
-          } else if (clFolderSvc.daoMap[file.folderId]) {
+          } else if (clFolderSvc.activeDaoMap[file.folderId]) {
             result = clExplorerLayoutSvc.currentClasseur.folders.cl_some(function (folder) {
               return folder.id === file.folderId
             })
@@ -699,7 +700,7 @@ angular.module('classeur.core.explorerLayout', [])
         }
         clExplorerLayoutSvc.files.concat(clExplorerLayoutSvc.extraFiles).cl_each(function (file) {
           file.effectiveSharing = file.sharing
-          var folder = clFolderSvc.daoMap[file.folderId]
+          var folder = clFolderSvc.activeDaoMap[file.folderId]
           if (folder && folder.sharing > file.sharing) {
             file.effectiveSharing = folder.sharing
           }
@@ -715,13 +716,13 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function setCurrentClasseur (classeur) {
-        classeur = (classeur && clClasseurSvc.daoMap[classeur.id]) || clClasseurSvc.defaultClasseur
+        classeur = (classeur && clClasseurSvc.activeDaoMap[classeur.id]) || clClasseurSvc.defaultClasseur
         clExplorerLayoutSvc.currentClasseur = classeur
         clLocalStorage.setItem(lastClasseurKey, classeur.id)
       }
 
       function setCurrentFolder (folder) {
-        folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.daoMap[folder.id])
+        folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.activeDaoMap[folder.id])
         if (folder && folder !== unclassifiedFolder && ~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
           folder = undefined
         }
@@ -731,7 +732,7 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function setCurrentFolderInClasseur (folder) {
-        if (!clClasseurSvc.daos
+        if (!clClasseurSvc.activeDaos
             .cl_some(function (classeur) {
               if (~classeur.folders.indexOf(folder)) {
                 setCurrentClasseur(classeur)
@@ -762,6 +763,11 @@ angular.module('classeur.core.explorerLayout', [])
         setCurrentFolder: setCurrentFolder,
         setCurrentFolderInClasseur: setCurrentFolderInClasseur,
         init: function () {
+          setCurrentClasseur(clClasseurSvc.activeDaoMap[clLocalStorage[lastClasseurKey]])
+          setCurrentFolder(clFolderSvc.activeDaoMap[clLocalStorage[lastFolderKey]])
+          moreFiles(true)
+        },
+        reset: function () {
           this.isExplorerOpen = true
         },
         clean: function () {
@@ -771,10 +777,6 @@ angular.module('classeur.core.explorerLayout', [])
           this.isExplorerOpen = isOpen === undefined ? !this.isExplorerOpen : isOpen
         }
       }
-
-      setCurrentClasseur(clClasseurSvc.daoMap[clLocalStorage[lastClasseurKey]])
-      setCurrentFolder(clFolderSvc.daoMap[clLocalStorage[lastFolderKey]])
-      moreFiles(true)
 
       return clExplorerLayoutSvc
     })

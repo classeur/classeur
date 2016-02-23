@@ -30,8 +30,8 @@
           Rename
         </md-button>
       </md-menu-item>
-      <md-menu-item ng-if="file.folderId && folderSvc.daoMap[file.folderId] && explorerLayoutSvc.currentFolder !== folderSvc.daoMap[file.folderId]">
-        <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.daoMap[file.folderId])">
+      <md-menu-item ng-if="file.folderId && folderSvc.activeDaoMap[file.folderId] && explorerLayoutSvc.currentFolder !== folderSvc.activeDaoMap[file.folderId]">
+        <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.activeDaoMap[file.folderId])">
           <md-icon md-font-icon="icon-folder-open"></md-icon>
           Go to folder
         </md-button>

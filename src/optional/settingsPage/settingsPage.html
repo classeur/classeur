@@ -202,7 +202,7 @@
               </md-button>
             </p>
             <div ng-switch-when="true">
-              <div class="file-entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.daoMap[file.id]">
+              <div class="file-entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.activeDaoMap[file.id]">
                 <md-input-container class="file-entry__name">
                   <input class="file-entry__name-input" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                 </md-input-container>

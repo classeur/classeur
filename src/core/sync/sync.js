@@ -78,7 +78,7 @@ angular.module('classeur.core.sync', [])
 
         // Remove public files that are not local and not refreshed recently
         clFileSvc.removeDaos(
-          clFileSvc.daos.cl_filter(function (file) {
+          clFileSvc.activeDaos.cl_filter(function (file) {
             if (file.userId &&
               !file.content.isLocal &&
               (!file.folderId || !clSyncDataSvc.folderRefreshDates.hasOwnProperty(file.folderId))
@@ -98,7 +98,7 @@ angular.module('classeur.core.sync', [])
 
         if (ctx && ctx.userId && ctx.userId !== clSyncDataSvc.userId) {
           // Add userId to synced files owned by previous user
-          var filesToRemove = clFileSvc.daos.cl_filter(function (file) {
+          var filesToRemove = clFileSvc.activeDaos.cl_filter(function (file) {
             if (!file.userId && clSyncDataSvc.files.hasOwnProperty(file.id)) {
               file.userId = clSyncDataSvc.userId
               return !file.content.isLocal
@@ -110,7 +110,7 @@ angular.module('classeur.core.sync', [])
           clFileSvc.removeDaos(clFileSvc.deletedDaos)
 
           // Add userId to synced folders owned by previous user
-          clFolderSvc.daos.cl_each(function (folder) {
+          clFolderSvc.activeDaos.cl_each(function (folder) {
             if (!folder.userId && clSyncDataSvc.folders.hasOwnProperty(folder.id)) {
               folder.userId = clSyncDataSvc.userId
             }
@@ -120,7 +120,7 @@ angular.module('classeur.core.sync', [])
 
           // Remove classeurs that belong to previous user
           clClasseurSvc.removeDaos(
-            clClasseurSvc.daos.cl_filter(function (classeur) {
+            clClasseurSvc.activeDaos.cl_filter(function (classeur) {
               return !classeur.userId && clSyncDataSvc.classeurs.hasOwnProperty(classeur.id)
             })
           )
@@ -195,7 +195,7 @@ angular.module('classeur.core.sync', [])
         if (key.charCodeAt(0) === 0x63 /* c */) {
           var match = key.match(fileKeyPrefix)
           if (match) {
-            if (!clFileSvc.daoMap[match[1]] || !clFileSvc.daoMap[match[1]].content.isLocal) {
+            if (!clFileSvc.activeDaoMap[match[1]] || !clFileSvc.activeDaoMap[match[1]].content.isLocal) {
               clLocalStorage.removeItem(key)
             }
           }
@@ -306,7 +306,7 @@ angular.module('classeur.core.sync', [])
       clSyncSvc.recoverFile = function (file) {
         var currentDate = Date.now()
         clSyncDataSvc.fileRecoveryDates[file.id] = currentDate
-        if (!clFileSvc.daoMap[file.id]) {
+        if (!clFileSvc.activeDaoMap[file.id]) {
           clSocketSvc.sendMsg('putFile', {
             id: file.id,
             userId: file.userId || clSyncDataSvc.userId,
@@ -540,7 +540,7 @@ angular.module('classeur.core.sync', [])
           if (syncQueue.classeurs) {
             changesToApply = []
             pendingChangeGroups.classeurs.cl_each(function (item) {
-              var classeur = clClasseurSvc.daoMap[item.id]
+              var classeur = clClasseurSvc.activeDaoMap[item.id]
               if (
                 // Was deleted on the server
                 (item.deleted && classeur) ||
@@ -567,7 +567,7 @@ angular.module('classeur.core.sync', [])
               }
               delete syncQueue.classeurs[item.id] // Assume we received the change we sent
             })
-            clClasseurSvc.applyClasseurChanges(changesToApply)
+            clClasseurSvc.applyServerChanges(changesToApply)
             pendingChangeGroups.classeurs = new PendingChangeGroup()
 
             // Send classeur changes, after settings are merged
@@ -588,7 +588,7 @@ angular.module('classeur.core.sync', [])
               }
 
               // Send a new/modified classeur
-              clClasseurSvc.daos.cl_some(function (classeur) {
+              clClasseurSvc.activeDaos.cl_some(function (classeur) {
                 if (isToBeUpdated(classeur)) {
                   syncQueue.classeurs[classeur.id] = classeur.updated
                   result = clRestSvc.request({
@@ -633,7 +633,7 @@ angular.module('classeur.core.sync', [])
             var lastFolderSeq = clSyncDataSvc.lastFolderSeq
             pendingChangeGroups.folders.cl_each(function (item) {
               lastFolderSeq = Math.max(lastFolderSeq, item.seq || 0)
-              var folder = clFolderSvc.daoMap[item.id]
+              var folder = clFolderSvc.activeDaoMap[item.id]
               if (
                 // Was deleted on the server
                 (item.deleted && folder) ||
@@ -658,7 +658,7 @@ angular.module('classeur.core.sync', [])
               }
               delete syncQueue.folders[item.id] // Assume we received the change we sent
             })
-            clFolderSvc.applyFolderChanges(changesToApply)
+            clFolderSvc.applyServerChanges(changesToApply)
             clSyncDataSvc.lastFolderSeq = lastFolderSeq
             pendingChangeGroups.folders = new PendingChangeGroup()
 
@@ -681,7 +681,7 @@ angular.module('classeur.core.sync', [])
               }
 
               // Send a new/modified folder
-              clFolderSvc.daos.cl_some(function (folder) {
+              clFolderSvc.activeDaos.cl_some(function (folder) {
                 if (isToBeUpdated(folder)) {
                   syncQueue.folders[folder.id] = folder.updated
                   result = clRestSvc.request({
@@ -727,7 +727,7 @@ angular.module('classeur.core.sync', [])
             var lastFileSeq = clSyncDataSvc.lastFileSeq
             pendingChangeGroups.files.cl_each(function (item) {
               lastFileSeq = Math.max(lastFileSeq, item.seq || 0)
-              var file = clFileSvc.daoMap[item.id]
+              var file = clFileSvc.activeDaoMap[item.id]
               if (file && file.userId && item.deleted) {
                 // We just lost ownership of the file
                 delete syncQueue.files[item.id]
@@ -757,7 +757,7 @@ angular.module('classeur.core.sync', [])
               }
               delete syncQueue.files[item.id] // Assume we received the change we sent
             })
-            clFileSvc.applyFileChanges(changesToApply)
+            clFileSvc.applyServerChanges(changesToApply)
             clSyncDataSvc.lastFileSeq = lastFileSeq
             pendingChangeGroups.files = new PendingChangeGroup()
 
@@ -767,7 +767,7 @@ angular.module('classeur.core.sync', [])
               var result
 
               function isToBeUpdated (file) {
-                var folder = clFolderSvc.daoMap[file.folderId]
+                var folder = clFolderSvc.activeDaoMap[file.folderId]
                 if (file.name && file.updated &&
                   file.updated !== clSyncDataSvc.files[file.id] &&
                   file.updated !== syncQueue.files[file.id] &&
@@ -789,7 +789,7 @@ angular.module('classeur.core.sync', [])
                     }
                     return file.loadExecUnload(function () {
                       // Remove first file in case existing user signs in (see #13)
-                      if (clFileSvc.daos.length > 1 && file.name === clFileSvc.firstFileName && file.content.text === clFileSvc.firstFileContent) {
+                      if (clFileSvc.activeDaos.length > 1 && file.name === clFileSvc.firstFileName && file.content.text === clFileSvc.firstFileContent) {
                         filesToRemove.push(file)
                         return
                       }
@@ -801,7 +801,7 @@ angular.module('classeur.core.sync', [])
               }
 
               // Send a new/modified file
-              clFileSvc.daos.cl_some(function (file) {
+              clFileSvc.activeDaos.cl_some(function (file) {
                 if (isToBeUpdated(file)) {
                   syncQueue.files[file.id] = file.updated
                   // Remove from folder only if file belongs to user
@@ -872,7 +872,7 @@ angular.module('classeur.core.sync', [])
               ) {
                 var newDefaultClasseur
                 if (settings.defaultClasseurId !== clSettingSvc.values.defaultClasseurId) {
-                  newDefaultClasseur = clClasseurSvc.daoMap[settings.defaultClasseurId]
+                  newDefaultClasseur = clClasseurSvc.activeDaoMap[settings.defaultClasseurId]
                 }
 
                 clSettingSvc.updateSettings(settings)
@@ -939,7 +939,7 @@ angular.module('classeur.core.sync', [])
           .success(function (res) {
             lastGetExtFileAttempt = 0
             res.cl_each(function (item) {
-              var file = clFileSvc.daoMap[item.id]
+              var file = clFileSvc.activeDaoMap[item.id]
               if (file) {
                 clSyncDataSvc.updatePublicFileMetadata(file, item)
                 !item.updated && clToast('File not accessible: ' + (file.name || file.id))
@@ -964,18 +964,18 @@ angular.module('classeur.core.sync', [])
             folder.refreshed = currentDate
             clSyncDataSvc.updatePublicFolderMetadata(folder, res)
             var filesToMove = {}
-            clFileSvc.daos.cl_each(function (file) {
+            clFileSvc.activeDaos.cl_each(function (file) {
               if (file.folderId === folder.id) {
                 filesToMove[file.id] = file
               }
             })
             res.files.cl_each(function (item) {
               delete filesToMove[item.id]
-              var file = clFileSvc.daoMap[item.id]
+              var file = clFileSvc.activeDaoMap[item.id]
               if (!file) {
                 file = clFileSvc.createPublicFile(item.id)
                 file.deleted = 0
-                clFileSvc.daoMap[file.id] = file
+                clFileSvc.activeDaoMap[file.id] = file
                 clFileSvc.fileIds.push(file.id)
               }
               file.folderId = folder.id
@@ -1343,7 +1343,7 @@ angular.module('classeur.core.sync', [])
       }, backgroundUpdateContentEvery)
 
       clSocketSvc.addMsgHandler('updatedContent', function (msg) {
-        var file = clFileSvc.daoMap[msg.id]
+        var file = clFileSvc.activeDaoMap[msg.id]
         // Check that file still exists and content is still local
         if (!file || !file.content.isLocal) {
           return

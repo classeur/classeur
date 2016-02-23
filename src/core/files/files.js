@@ -222,7 +222,7 @@ angular.module('classeur.core.files', [])
         var fileMap = Object.create(null)
         var deletedFileMap = Object.create(null)
         clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (id) {
-          var file = clFileSvc.daoMap[id] || clFileSvc.deletedDaoMap[id] || new FileDao(id)
+          var file = clFileSvc.activeDaoMap[id] || clFileSvc.deletedDaoMap[id] || new FileDao(id)
           if (!file.deleted && !fileMap[id]) {
             fileMap[id] = file
             return true
@@ -233,21 +233,21 @@ angular.module('classeur.core.files', [])
           }
         })
 
-        clFileSvc.daos.cl_each(function (file) {
+        clFileSvc.activeDaos.cl_each(function (file) {
           !fileMap[file.id] && file.unload()
         })
 
-        clFileSvc.daos = Object.keys(fileMap).cl_map(function (id) {
+        clFileSvc.activeDaos = Object.keys(fileMap).cl_map(function (id) {
           return fileMap[id]
         })
-        clFileSvc.daoMap = fileMap
+        clFileSvc.activeDaoMap = fileMap
 
         clFileSvc.deletedDaos = Object.keys(deletedFileMap).cl_map(function (id) {
           return deletedFileMap[id]
         })
         clFileSvc.deletedDaoMap = deletedFileMap
 
-        clFileSvc.localFiles = clFileSvc.daos.cl_filter(function (file) {
+        clFileSvc.localFiles = clFileSvc.activeDaos.cl_filter(function (file) {
           return file.content.isLocal
         })
 
@@ -266,7 +266,7 @@ angular.module('classeur.core.files', [])
             if (key.charCodeAt(0) === 0x66 /* f */) {
               match = key.match(keyPrefix)
               if (match) {
-                if ((!clFileSvc.daoMap[match[1]] && !clFileSvc.deletedDaoMap[match[1]]) ||
+                if ((!clFileSvc.activeDaoMap[match[1]] && !clFileSvc.deletedDaoMap[match[1]]) ||
                   !fileAuthorizedKeys.hasOwnProperty(match[2])
                 ) {
                   clLocalStorage.removeItem(key)
@@ -275,9 +275,9 @@ angular.module('classeur.core.files', [])
             } else if (key.charCodeAt(0) === 0x63 /* c */) {
               match = key.match(keyPrefix)
               if (match) {
-                if (!clFileSvc.daoMap[match[1]] ||
+                if (!clFileSvc.activeDaoMap[match[1]] ||
                   !contentAuthorizedKeys.hasOwnProperty(match[2]) ||
-                  !clFileSvc.daoMap[match[1]].content.isLocal
+                  !clFileSvc.activeDaoMap[match[1]].content.isLocal
                 ) {
                   clLocalStorage.removeItem(key)
                 }
@@ -304,7 +304,7 @@ angular.module('classeur.core.files', [])
         fileDaoProto.$readGlobalUpdate()
         var checkContentUpdate = contentDaoProto.$checkGlobalUpdate()
         contentDaoProto.$readGlobalUpdate()
-        clFileSvc.daos.concat(clFileSvc.deletedDaos).cl_each(function (file) {
+        clFileSvc.activeDaos.concat(clFileSvc.deletedDaos).cl_each(function (file) {
           if (checkFileUpdate && file.$checkUpdate()) {
             file.read()
           } else {
@@ -333,7 +333,7 @@ angular.module('classeur.core.files', [])
         file.content.isLocal = '1'
         file.writeContent(true)
         clFileSvc.fileIds.push(id)
-        clFileSvc.daoMap[id] = file
+        clFileSvc.activeDaoMap[id] = file
         init()
         return file
       }
@@ -379,18 +379,18 @@ angular.module('classeur.core.files', [])
         init()
       }
 
-      function applyFileChanges (items) {
+      function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var file = clFileSvc.daoMap[item.id]
+          var file = clFileSvc.activeDaoMap[item.id]
           if (item.deleted && file) {
             file.unload()
-            clFileSvc.daoMap[item.id] = undefined
-            var index = clFileSvc.daos.indexOf(file)
+            clFileSvc.activeDaoMap[item.id] = undefined
+            var index = clFileSvc.activeDaos.indexOf(file)
             clFileSvc.fileIds.splice(index, 1)
           } else if (!item.deleted && !file) {
             file = new FileDao(item.id)
             file.deleted = 0
-            clFileSvc.daoMap[item.id] = file
+            clFileSvc.activeDaoMap[item.id] = file
             clFileSvc.fileIds.push(item.id)
           }
           file.userId = item.userId || ''
@@ -413,10 +413,10 @@ angular.module('classeur.core.files', [])
       clFileSvc.createReadOnlyFile = createReadOnlyFile
       clFileSvc.removeDaos = removeFiles
       clFileSvc.setDeletedFiles = setDeletedFiles
-      clFileSvc.applyFileChanges = applyFileChanges
-      clFileSvc.daos = []
+      clFileSvc.applyServerChanges = applyServerChanges
+      clFileSvc.activeDaos = []
       clFileSvc.deletedDaos = []
-      clFileSvc.daoMap = Object.create(null)
+      clFileSvc.activeDaoMap = Object.create(null)
       clFileSvc.deletedDaoMap = Object.create(null)
       clFileSvc.firstFileContent = $templateCache.get('core/explorerLayout/firstFile.md')
       clFileSvc.firstFileName = 'My first file'

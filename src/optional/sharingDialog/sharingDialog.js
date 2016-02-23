@@ -66,7 +66,7 @@ angular.module('classeur.optional.sharingDialog', [])
         }
 
         function showFileDialog (file, anchor) {
-          var folder = clFolderSvc.daoMap[file.folderId]
+          var folder = clFolderSvc.activeDaoMap[file.folderId]
           file.effectiveSharing = file.sharing
           if (folder && folder.sharing > file.sharing) {
             file.effectiveSharing = folder.sharing

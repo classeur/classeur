@@ -19,7 +19,7 @@ angular.module('classeur.core', [])
           controller: function ($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
             clAnalytics.trackPage('/files')
             var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId)
-            var file = clFileSvc.daoMap[$routeParams.fileId] || publicFileDao
+            var file = clFileSvc.activeDaoMap[$routeParams.fileId] || publicFileDao
             $scope.loadFile(file)
             if (!file.state) {
               clToast('You appear to be offline.')
@@ -29,9 +29,9 @@ angular.module('classeur.core', [])
               if (!state) {
                 return $location.url('')
               } else if (state === 'loaded') {
-                if (!clFileSvc.daoMap[file.id]) {
+                if (!clFileSvc.activeDaoMap[file.id]) {
                   file.deleted = 0
-                  clFileSvc.daoMap[file.id] = file
+                  clFileSvc.activeDaoMap[file.id] = file
                   clFileSvc.fileIds.push(file.id)
                   clFileSvc.init()
                 }
@@ -49,7 +49,7 @@ angular.module('classeur.core', [])
           controller: function ($location, $routeParams, clAnalytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
             clAnalytics.trackPage('/folders')
             clExplorerLayoutSvc.refreshFolders()
-            var folder = clFolderSvc.daoMap[$routeParams.folderId]
+            var folder = clFolderSvc.activeDaoMap[$routeParams.folderId]
             var classeur = clClasseurSvc.defaultClasseur
             if (!folder) {
               folder = clFolderSvc.createPublicFolder($routeParams.folderId)
@@ -58,7 +58,7 @@ angular.module('classeur.core', [])
               if (clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder) !== -1) {
                 classeur = clExplorerLayoutSvc.currentClasseur
               } else {
-                clClasseurSvc.daos.cl_some(function (classeurToScan) {
+                clClasseurSvc.activeDaos.cl_some(function (classeurToScan) {
                   if (classeurToScan.folders.indexOf(folder) !== -1) {
                     classeur = classeurToScan
                     return true
@@ -80,7 +80,7 @@ angular.module('classeur.core', [])
         .when('/', {
           template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
           controller: function ($scope, clAnalytics, clFileSvc) {
-            if (clFileSvc.daos.length === 0) {
+            if (clFileSvc.activeDaos.length === 0) {
               return $scope.createDefaultFile()
             }
             $scope.hasFiles = true
@@ -195,7 +195,7 @@ angular.module('classeur.core', [])
 
       $rootScope.$on('$routeChangeSuccess', function () {
         clDialog.cancel()
-        clExplorerLayoutSvc.init()
+        clExplorerLayoutSvc.reset()
       })
 
       $window.addEventListener('beforeunload', function () {
