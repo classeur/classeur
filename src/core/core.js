@@ -18,7 +18,7 @@ angular.module('classeur.core', [])
           template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
           controller: function ($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
             clAnalytics.trackPage('/files')
-            var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId)
+            var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId, true)
             var file = clFileSvc.activeDaoMap[$routeParams.fileId] || publicFileDao
             $scope.loadFile(file)
             if (!file.state) {
@@ -29,12 +29,7 @@ angular.module('classeur.core', [])
               if (!state) {
                 return $location.url('')
               } else if (state === 'loaded') {
-                if (!clFileSvc.activeDaoMap[file.id]) {
-                  file.deleted = 0
-                  clFileSvc.activeDaoMap[file.id] = file
-                  clFileSvc.fileIds.push(file.id)
-                  clFileSvc.init()
-                }
+                file.addToDaos && file.addToDaos()
                 clEditorLayoutSvc.init(
                   file.userId &&
                   clContentRevSvc.isServerContent(file.id, file.content)
@@ -184,6 +179,9 @@ angular.module('classeur.core', [])
             .cancel('No thanks')
           clDialog.show(clearDataDialog).then(function () {
             clLocalStorage.clear()
+
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             clSyncSvc.saveAll()
             clLocalSettingSvc.values.explorerTourStep = -1
             clLocalSettingSvc.values.editorTourStep = -1
@@ -196,10 +194,5 @@ angular.module('classeur.core', [])
       $rootScope.$on('$routeChangeSuccess', function () {
         clDialog.cancel()
         clExplorerLayoutSvc.reset()
-      })
-
-      $window.addEventListener('beforeunload', function () {
-        clSyncSvc.saveAll()
-      // evt.returnValue = 'Are you sure?'
       })
     })

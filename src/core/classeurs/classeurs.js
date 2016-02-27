@@ -52,7 +52,7 @@ angular.module('classeur.core.classeurs', [])
       }
     })
   .factory('clClasseurSvc',
-    function (clUid, clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc) {
+    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc) {
       var clClasseurSvc = {
         classeurFolders: {},
         classeurAddedFolders: {},
@@ -70,17 +70,10 @@ angular.module('classeur.core.classeurs', [])
       }
 
       var store = clLocalDbStore('classeurs', {
-        name: 'string',
+        name: 'string128',
         userId: 'string',
         deleted: 'int'
       })
-
-      function Classeur (id) {
-        this.id = id || clUid()
-        this.name = ''
-        this.userId = ''
-        this.deleted = 0
-      }
 
       function folderChecker (objectName) {
         return function (classeurId, folderId) {
@@ -157,13 +150,11 @@ angular.module('classeur.core.classeurs', [])
       function init () {
         if (!isInitialized) {
           // Backward compatibility
-          var done = clLocalStorage.getItem('classeurSvc.done')
-          clLocalStorage.setItem('classeurSvc.done', 1)
           var oldClasseurs = clLocalStorage.getItem('classeurSvc.classeurs')
           clLocalStorage.removeItem('classeurSvc.classeurs')
-          if (!done && oldClasseurs) {
+          if (oldClasseurs) {
             JSON.parse(oldClasseurs).cl_each(function (item) {
-              var classeur = new Classeur(item.id)
+              var classeur = store.createDao(item.id)
               classeur.name = item.name
               daoMap[classeur.id] = classeur
               if (item.isDefault) {
@@ -222,7 +213,7 @@ angular.module('classeur.core.classeurs', [])
 
         // Create default classeur if not existing
         if (!clClasseurSvc.defaultClasseur) {
-          clClasseurSvc.defaultClasseur = new Classeur()
+          clClasseurSvc.defaultClasseur = store.createDao()
           clClasseurSvc.defaultClasseur.name = 'Classeur'
           clSettingSvc.values.defaultClasseurId = clClasseurSvc.defaultClasseur.id
           return init()
@@ -241,9 +232,7 @@ angular.module('classeur.core.classeurs', [])
 
       function readAll (tx, cb) {
         store.readAll(daoMap, tx, function (hasChanged) {
-          if (hasChanged || !isInitialized) {
-            init()
-          }
+          hasChanged && init()
           cb(hasChanged)
         })
       }
@@ -253,7 +242,7 @@ angular.module('classeur.core.classeurs', [])
       }
 
       function createClasseur (id) {
-        var classeur = clClasseurSvc.deletedDaoMap[id] || new Classeur(id)
+        var classeur = clClasseurSvc.deletedDaoMap[id] || store.createDao(id)
         classeur.deleted = 0
         daoMap[classeur.id] = classeur
         init()
@@ -270,7 +259,6 @@ angular.module('classeur.core.classeurs', [])
         }
       }
 
-      // Remove classeurs from daoMap
       function removeDaos (daos) {
         daos.cl_each(function (dao) {
           delete daoMap[dao.id]
@@ -280,15 +268,15 @@ angular.module('classeur.core.classeurs', [])
 
       function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var dao = daoMap[item.id] || new Classeur(item.id)
+          var dao = daoMap[item.id] || store.createDao(item.id)
           if (item.deleted) {
             delete daoMap[item.id]
           } else if (!item.deleted) {
             dao.deleted = 0
             daoMap[item.id] = dao
           }
-          dao.userId = item.userId || ''
-          dao.name = item.name || ''
+          dao.userId = item.userId
+          dao.name = item.name
           dao.updated = item.updated
         })
         items.length && init()

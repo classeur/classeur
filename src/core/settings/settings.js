@@ -1,6 +1,6 @@
 angular.module('classeur.core.settings', [])
   .factory('clSettingSvc',
-    function ($templateCache, clLocalStorageObject) {
+    function ($templateCache) {
       var defaultSettings = $templateCache.get('core/settings/defaultSettings.json')
 
       var defaultTemplatePaths = {
@@ -14,31 +14,12 @@ angular.module('classeur.core.settings', [])
       })
       defaultSettings = JSON.stringify(defaultSettings)
 
-      var clSettingSvc = clLocalStorageObject('settings', {
-        values: {
-          default: defaultSettings,
-          parser: JSON.parse,
-          serializer: clLocalStorageObject.simpleObjectSerializer
-        }
-      })
-
-      function read () {
-        clSettingSvc.$read()
-        clSettingSvc.$readUpdate()
-      }
-
-      function write (updated) {
-        clSettingSvc.$write()
-        clSettingSvc.extUpdated = undefined
-      }
-
-      function checkLocalStorage () {
-        if (clSettingSvc.$checkUpdate()) {
-          read()
-          return true
-        } else {
-          write()
-        }
+      var clSettingSvc = {
+        init: init,
+        defaultSettings: defaultSettings,
+        defaultValues: JSON.parse(defaultSettings),
+        updateSettings: updateSettings,
+        sanitizeExportTemplates: sanitizeExportTemplates
       }
 
       function sanitizeExportTemplates (exportTemplates) {
@@ -62,58 +43,33 @@ angular.module('classeur.core.settings', [])
         }, {})
       }
 
-      clSettingSvc.defaultValues = JSON.parse(defaultSettings)
-      clSettingSvc.checkLocalStorage = checkLocalStorage
-      clSettingSvc.updateSettings = updateSettings
-      clSettingSvc.sanitizeExportTemplates = sanitizeExportTemplates
+      function init () {
+        // Sanitize in case of app update
+        updateSettings(clSettingSvc.values)
+      }
 
-      read()
-      // Sanitize in case of app update
-      updateSettings(clSettingSvc.values)
       return clSettingSvc
     })
   .factory('clLocalSettingSvc',
-    function ($templateCache, clLocalStorageObject) {
+    function ($templateCache) {
       var defaultLocalSettings = $templateCache.get('core/settings/defaultLocalSettings.json')
 
-      var clLocalSettingSvc = clLocalStorageObject('localSettings', {
-        values: {
-          default: defaultLocalSettings,
-          parser: JSON.parse,
-          serializer: clLocalStorageObject.simpleObjectSerializer
-        }
-      })
-
-      function read () {
-        clLocalSettingSvc.$read()
-        clLocalSettingSvc.$readUpdate()
+      var clLocalSettingSvc = {
+        init: init,
+        defaultLocalSettings: defaultLocalSettings
       }
 
-      function write () {
-        clLocalSettingSvc.$write()
-        clLocalSettingSvc.extUpdated = undefined
+      function init () {
+        // Sanitize in case of app update
+        clLocalSettingSvc.values = JSON.parse(defaultLocalSettings).cl_reduce(function (sanitizedValues, defaultValue, key) {
+          if (clLocalSettingSvc.values.hasOwnProperty(key)) {
+            sanitizedValues[key] = clLocalSettingSvc.values[key]
+          } else {
+            sanitizedValues[key] = defaultValue
+          }
+          return sanitizedValues
+        }, {})
       }
 
-      function checkLocalStorage () {
-        if (clLocalSettingSvc.$checkUpdate()) {
-          read()
-          return true
-        } else {
-          write()
-        }
-      }
-
-      clLocalSettingSvc.checkLocalStorage = checkLocalStorage
-
-      read()
-      // Sanitize in case of app update
-      clLocalSettingSvc.values = JSON.parse(defaultLocalSettings).cl_reduce(function (sanitizedValues, defaultValue, key) {
-        if (clLocalSettingSvc.values.hasOwnProperty(key)) {
-          sanitizedValues[key] = clLocalSettingSvc.values[key]
-        } else {
-          sanitizedValues[key] = defaultValue
-        }
-        return sanitizedValues
-      }, {})
       return clLocalSettingSvc
     })

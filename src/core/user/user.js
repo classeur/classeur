@@ -44,14 +44,17 @@ angular.module('classeur.core.user', [])
       return clUserActivity
     })
   .factory('clUserSvc',
-    function ($window, $rootScope, $location, clLocalStorageObject, clSocketSvc, clConfig, clStateMgr) {
-      var clUserSvc = clLocalStorageObject('userSvc', {
-        user: {
-          default: null,
-          parser: JSON.parse,
-          serializer: JSON.stringify
-        }
-      })
+    function ($window, $rootScope, $location, clSocketSvc, clConfig, clStateMgr) {
+      var clUserSvc = {
+        signin: signin,
+        signout: signout,
+        getSubscribeLink: getSubscribeLink,
+        getUnsubscribeLink: getUnsubscribeLink,
+        isUserPremium: isUserPremium
+      }
+      if (!clConfig.loginForm) {
+        clUserSvc.startOAuth = startOAuth
+      }
 
       function makeQueryString (params) {
         return params.cl_map(function (value, key) {
@@ -87,27 +90,8 @@ angular.module('classeur.core.user', [])
         clUserSvc.user = null
       }
 
-      function read () {
-        clUserSvc.$read()
-        clUserSvc.$readUpdate()
-      }
-
-      function write () {
-        clUserSvc.$write()
-        clUserSvc.extUpdated = undefined
-      }
-
-      clUserSvc.isUserPremium = function () {
+      function isUserPremium () {
         return this.user && this.user.roles && ~this.user.roles.indexOf('premium_user')
-      }
-
-      function checkLocalStorage () {
-        if (clUserSvc.$checkUpdate()) {
-          read()
-          return true
-        } else {
-          write()
-        }
       }
 
       function getSubscribeLink () {
@@ -129,21 +113,10 @@ angular.module('classeur.core.user', [])
         return clConfig.paypalUri + '?' + makeQueryString(params)
       }
 
-      read()
-
       clSocketSvc.addMsgHandler('invalidToken', function () {
         signout()
         $rootScope.$evalAsync()
       })
-
-      if (!clConfig.loginForm) {
-        clUserSvc.startOAuth = startOAuth
-      }
-      clUserSvc.signin = signin
-      clUserSvc.signout = signout
-      clUserSvc.checkLocalStorage = checkLocalStorage
-      clUserSvc.getSubscribeLink = getSubscribeLink
-      clUserSvc.getUnsubscribeLink = getUnsubscribeLink
 
       return clUserSvc
     })

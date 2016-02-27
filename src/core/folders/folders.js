@@ -44,7 +44,7 @@ angular.module('classeur.core.folders', [])
       }
     })
   .factory('clFolderSvc',
-    function (clUid, clLocalStorage, clLocalDbStore) {
+    function (clLocalStorage, clLocalDbStore) {
       var clFolderSvc = {
         init: init,
         readAll: readAll,
@@ -58,19 +58,11 @@ angular.module('classeur.core.folders', [])
       }
 
       var store = clLocalDbStore('classeurs', {
-        name: 'string',
+        name: 'string128',
         sharing: 'string',
         userId: 'string',
         deleted: 'int'
       })
-
-      function Folder (id) {
-        this.id = id || clUid()
-        this.name = ''
-        this.sharing = ''
-        this.userId = ''
-        this.deleted = 0
-      }
 
       var isInitialized
       var daoMap = {}
@@ -78,24 +70,20 @@ angular.module('classeur.core.folders', [])
       function init () {
         if (!isInitialized) {
           // Backward compatibility
-          var done = clLocalStorage.getItem('folderSvc.done')
-          clLocalStorage.setItem('folderSvc.done', 1)
           var folderIds = clLocalStorage.getItem('folderSvc.folderIds')
           clLocalStorage.removeItem('folderSvc.folderIds')
-          if (!done && folderIds) {
+          if (folderIds) {
             JSON.parse(folderIds).cl_each(function (id) {
-              var folder = {
-                id: id,
-                name: clLocalStorage.getItem('f.' + id + '.name') || '',
-                userId: clLocalStorage.getItem('f.' + id + '.userId') || '',
-                sharing: clLocalStorage.getItem('f.' + id + '.sharing') || '',
-                deleted: parseInt(clLocalStorage.getItem('f.' + id + '.deleted') || 0, 10),
-                updated: parseInt(clLocalStorage.getItem('f.' + id + '.u') || 0, 10)
-              }
+              var folder = store.createDao(id)
+              folder.name = clLocalStorage.getItem('F.' + id + '.name')
+              folder.userId = clLocalStorage.getItem('F.' + id + '.userId')
+              folder.sharing = clLocalStorage.getItem('F.' + id + '.sharing')
+              folder.deleted = parseInt(clLocalStorage.getItem('F.' + id + '.deleted') || 0, 10)
+              folder.updated = parseInt(clLocalStorage.getItem('F.' + id + '.u') || 0, 10)
               daoMap[folder.id] = folder
             })
             // Clean up local storage
-            var keyMatcher = /^F\.(\w+)\.(\w+)/
+            var keyMatcher = /^F\.\w+\.\w+/
             Object.keys(clLocalStorage).cl_each(function (key) {
               if (key.match(keyMatcher)) {
                 clLocalStorage.removeItem(key)
@@ -127,9 +115,7 @@ angular.module('classeur.core.folders', [])
 
       function readAll (tx, cb) {
         store.readAll(daoMap, tx, function (hasChanged) {
-          if (hasChanged || !isInitialized) {
-            init()
-          }
+          hasChanged && init()
           cb(hasChanged)
         })
       }
@@ -139,7 +125,7 @@ angular.module('classeur.core.folders', [])
       }
 
       function createFolder (id) {
-        var folder = clFolderSvc.deletedDaoMap[id] || new Folder(id)
+        var folder = clFolderSvc.deletedDaoMap[id] || store.createDao(id)
         folder.deleted = 0
         daoMap[folder.id] = folder
         init()
@@ -170,7 +156,6 @@ angular.module('classeur.core.folders', [])
         return index
       }
 
-      // Remove classeurs from daoMap
       function removeDaos (daos) {
         daos.cl_each(function (dao) {
           delete daoMap[dao.id]
@@ -180,16 +165,16 @@ angular.module('classeur.core.folders', [])
 
       function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var dao = daoMap[item.id] || new Folder(item.id)
+          var dao = daoMap[item.id] || store.createDao(item.id)
           if (item.deleted) {
             delete daoMap[item.id]
           } else if (!item.deleted) {
             dao.deleted = 0
             daoMap[item.id] = dao
           }
-          dao.userId = item.userId || ''
-          dao.name = item.name || ''
-          dao.sharing = item.sharing || ''
+          dao.userId = item.userId
+          dao.name = item.name
+          dao.sharing = item.sharing
           dao.updated = item.updated
         })
         items.length && init()

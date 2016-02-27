@@ -41,21 +41,22 @@ angular.module('classeur.optional.electron', [])
         .when('/localFile', {
           template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
           controller: function ($scope, $timeout, $location, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc, clDialog, clEditorSvc) {
-            function unimplemented () {
-              throw new Error('Unimplemented')
-            }
             if (!clElectronSvc.watchedFile) {
               return $location.url('')
             }
-            var file = new clFileSvc.FileDao(clUid())
-            file.isLocalFile = true
-            file.path = clElectronSvc.watchedFile.path
-            file.name = clElectronSvc.watchedFile.path.split(/[\\\/]/).slice(-1)[0]
-            file.read = unimplemented
-            file.write = unimplemented
-            file.readContent = unimplemented
-            file.freeContent = unimplemented
-            file.writeContent = unimplemented
+            function noop () {}
+
+            var file = {
+              id: clUid(),
+              isLocalFile: true,
+              path: clElectronSvc.watchedFile.path,
+              name: clElectronSvc.watchedFile.path.split(/[\\\/]/).slice(-1)[0],
+              content: clFileSvc.defaultContent(),
+              readContent: noop,
+              writeContent: noop,
+              freeContent: noop,
+              removeContent: noop
+            }
             file.load = function () {
               if (file.state) {
                 return
@@ -305,7 +306,7 @@ angular.module('classeur.optional.electron', [])
         }
       },
       serializeContent: function (content) {
-        var content = content.text
+        var text = content.text
         var attributes = {}
         if (Object.keys(content.properties).length) {
           attributes.properties = content.properties
@@ -317,9 +318,9 @@ angular.module('classeur.optional.electron', [])
           attributes.comments = content.comments
         }
         if (Object.keys(attributes).length) {
-          content += '<!--cldata:' + encodeURI(JSON.stringify(attributes)) + '-->'
+          text += '<!--cldata:' + encodeURI(JSON.stringify(attributes)) + '-->'
         }
-        return content
+        return text
       }
     }
   })

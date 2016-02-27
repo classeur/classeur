@@ -17,7 +17,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
         }
 
         var text
-        if (scope.currentFile.isReadOnly || scope.currentFile.userId) {
+        if (scope.currentFile.userId) {
           scope.$watch('currentFile.content.text', function (newtext) {
             if (text === undefined || !scope.currentFile) {
               text = newtext
@@ -29,7 +29,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
             if (clEditorSvc.lastContentChange - clEditorSvc.lastExternalChange < 1500) {
               return
             }
-            if (scope.currentFile.isReadOnly || scope.currentFile.sharing !== 'rw') {
+            if (scope.currentFile.sharing !== 'rw') {
               clEditorLayoutSvc.currentControl = 'readOnlyAlert'
               return
             }

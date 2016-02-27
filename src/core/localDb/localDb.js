@@ -1,48 +1,115 @@
 angular.module('classeur.core.localDb', [])
   .factory('clLocalDbStore',
-    function ($window, clLocalDb) {
-      var lastSeqMargin = 1000 // 1 sec
-      var deletedMarkerMaxAge = 24 * 60 * 60 * 1000 // 24h
+    function ($window, clUid, clLocalDb) {
+      var deletedMarkerMaxAge = 60 * 60 * 1000 // 1h
 
       function identity (value) {
         return value
       }
 
       return function (storeName, schema) {
+        schema = angular.extend({}, schema, {
+          updated: 'int'
+        })
+
+        var schemaKeys = Object.keys(schema)
+        var schemaKeysLen = schemaKeys.length
+        var complexKeys = []
+        var complexKeysLen = 0
         var attributeCheckers = {}
         var attributeReaders = {}
         var attributeWriters = {}
 
-        angular.extend({
-          updated: 'int'
-        }, schema)
-          .cl_each(function (value, key) {
-            var storedValueKey = '$_' + key
-            var defaultStoredValue = value.default === undefined ? '' : value.default
-            var serializer = value.serializer || identity
-            var parser = value.parser || identity
-            if (value === 'int') {
-              defaultStoredValue = 0
-            } else if (value === 'object' || value === 'array') {
-              defaultStoredValue = value === 'object' ? '{}' : '[]'
-              parser = JSON.parse
-              serializer = JSON.stringify
+        function Dao (id, skipInit) {
+          this.id = id || clUid()
+          if (!skipInit) {
+            var fakeItem = {}
+            for (var i = 0; i < schemaKeysLen; i++) {
+              attributeReaders[schemaKeys[i]](fakeItem, this)
             }
-            /* eslint-disable no-new-func */
-            // Some dirty checking optimization
-            attributeCheckers[key] = (new Function('serializer',
-              'return function (dao) { return serializer(dao.' + key + ') !== dao.' + storedValueKey + '}'
-            ))(serializer)
-            if (value === 'string' || value === 'int') {
-              attributeCheckers[key] = new Function('dao',
-                'return dao.' + key + ' !== dao.' + storedValueKey
-              )
+            this.$dirty = true
+          }
+        }
+
+        function createDao (id) {
+          return new Dao(id)
+        }
+
+        schema.cl_each(function (value, key) {
+          var storedValueKey = '_' + key
+          var defaultValue = value.default === undefined ? '' : value.default
+          var serializer = value.serializer || identity
+          var parser = value.parser || identity
+          if (value === 'int') {
+            defaultValue = 0
+          } else if (value === 'object') {
+            defaultValue = 'null'
+            parser = JSON.parse
+            serializer = JSON.stringify
+          }
+
+          attributeReaders[key] = function (dbItem, dao) {
+            dao[storedValueKey] = dbItem[key] || defaultValue
+          }
+          attributeWriters[key] = function (dbItem, dao) {
+            var storedValue = dao[storedValueKey]
+            if (storedValue && storedValue !== defaultValue) {
+              dbItem[key] = storedValue
             }
-            /* eslint-enable no-new-func */
+          }
+
+          function getter () {
+            return this[storedValueKey]
+          }
+
+          function setter (value) {
+            value = value || defaultValue
+            if (this[storedValueKey] !== value) {
+              this[storedValueKey] = value
+              this.$dirty = true
+              return true
+            }
+          }
+
+          if (key === 'updated') {
+            Object.defineProperty(Dao.prototype, key, {
+              get: getter,
+              set: function (value) {
+                if (setter(value)) {
+                  this.$dirtyUpdated = true
+                }
+              }
+            })
+          } else if (value === 'string' || value === 'int') {
+            Object.defineProperty(Dao.prototype, key, {
+              get: getter,
+              set: setter
+            })
+          } else if (![64, 128] // Handle string64 and string128
+              .cl_some(function (length) {
+                if (value === 'string' + length) {
+                  Object.defineProperty(Dao.prototype, key, {
+                    get: getter,
+                    set: function (value) {
+                      if (value && value.length > length) {
+                        value = value.slice(0, length)
+                      }
+                      setter(value)
+                    }
+                  })
+                  return true
+                }
+              })
+          ) {
+            // Other types go to complexKeys list
+            complexKeys.push(key)
+            complexKeysLen++
+
+            // And have complex readers/writers
             attributeReaders[key] = function (dbItem, dao) {
               var storedValue = dbItem[key]
               if (!storedValue) {
-                storedValue = defaultStoredValue
+                storedValue = defaultValue
               }
               dao[storedValueKey] = storedValue
               dao[key] = parser(storedValue)
@@ -50,47 +117,67 @@ angular.module('classeur.core.localDb', [])
             attributeWriters[key] = function (dbItem, dao) {
               var storedValue = serializer(dao[key])
               dao[storedValueKey] = storedValue
-              if (storedValue && storedValue !== defaultStoredValue) {
+              if (storedValue && storedValue !== defaultValue) {
                 dbItem[key] = storedValue
               }
             }
-          })
+
+            // Checkers are only for complex types
+            attributeCheckers[key] = function (dao) {
+              return serializer(dao[key]) !== dao[storedValueKey]
+            }
+          }
+        })
 
         var lastSeq = 0
-        var storeSeqs = {}
+        var storedSeqs = Object.create(null)
 
-        function readFromDb (item, daoMap) {
+        function readDbItem (item, daoMap) {
           lastSeq = Math.max(lastSeq, item.seq || 0)
-          var dao = daoMap[item.id] || {}
+          var dao = daoMap[item.id] || new Dao(item.id, true)
           if (!item.updated) {
-            delete storeSeqs[item.id]
+            delete storedSeqs[item.id]
             if (dao.updated) {
               delete daoMap[item.id]
               return true
             }
             return
           }
-          if (storeSeqs[item.id] === item.seq) {
+          if (storedSeqs[item.id] === item.seq) {
             return
           }
-          storeSeqs[item.id] = item.seq
-          if (item.updated === dao.updated) {
-            return
+          storedSeqs[item.id] = item.seq
+          for (var i = 0; i < schemaKeysLen; i++) {
+            attributeReaders[schemaKeys[i]](item, dao)
           }
-          for (var key in schema) {
-            attributeReaders[key](item, dao)
-          }
-          attributeReaders.updated(item, dao)
+          dao.$dirty = false
+          dao.$dirtyUpdated = false
           daoMap[item.id] = dao
           return true
         }
 
+        var lastReadAll
+
         function readAll (daoMap, tx, cb) {
-          var hasChanged
+          var currentDate = Date.now()
+          var hasChanged = !lastReadAll
+
+          // We may have missed some deleted markers
+          if (lastReadAll && currentDate - lastReadAll > deletedMarkerMaxAge) {
+            // Delete all dirty daos, user was asleep anyway...
+            Object.keys(daoMap).cl_each(function (key) {
+              delete daoMap[key]
+            })
+            // And retrieve everything from DB
+            lastSeq = 0
+            storedSeqs = Object.create(null)
+            hasChanged = true
+          }
+          lastReadAll = currentDate
+
           var store = tx.objectStore(storeName)
           var index = store.index('seq')
-          var range = $window.IDBKeyRange.lowerBound(lastSeq - lastSeqMargin)
-          var currentDate = Date.now()
+          var range = $window.IDBKeyRange.lowerBound(lastSeq, true)
           var itemsToDelete = []
           index.openCursor(range).onsuccess = function (event) {
             var cursor = event.target.result
@@ -101,7 +188,7 @@ angular.module('classeur.core.localDb', [])
               return cb(hasChanged)
             }
             var item = cursor.value
-            hasChanged |= readFromDb(item, daoMap)
+            hasChanged |= readDbItem(item, daoMap)
             // Remove old deleted markers
             if (!item.updated && currentDate - item.seq > deletedMarkerMaxAge) {
               itemsToDelete.push(item)
@@ -113,28 +200,35 @@ angular.module('classeur.core.localDb', [])
         function writeAll (daoMap, tx) {
           var currentDate = Date.now()
           var store = tx.objectStore(storeName)
-          var daoChanged, updatedChanged
+
           // Remove deleted daos
-          for (id in storeSeqs) {
+          var storedIds = Object.keys(storedSeqs)
+          var storedIdsLen = storedIds.length
+          for (var i = 0; i < storedIdsLen; i++) {
+            var id = storedIds[i]
             if (!daoMap[id]) {
-              // Put an deleted marker to notify other tabs
+              // Put a deleted marker to notify other tabs
               store.put({
                 id: id,
                 seq: currentDate
               })
-              delete storeSeqs[id]
+              delete storedSeqs[id]
             }
           }
+
           // Put changes
-          for (var id in daoMap) {
-            var dao = daoMap[id]
-            // Dirty checking
-            daoChanged = updatedChanged = attributeCheckers.updated(dao)
-            for (var key in schema) {
-              daoChanged |= attributeCheckers[key](dao)
+          var daoIds = Object.keys(daoMap)
+          var daoIdsLen = daoIds.length
+          for (i = 0; i < daoIdsLen; i++) {
+            var dao = daoMap[daoIds[i]]
+            var dirty = dao.$dirty
+            if (!dirty) {
+              for (var j = 0; j < complexKeysLen; j++) {
+                dirty |= attributeCheckers[complexKeys[j]](dao)
+              }
             }
-            if (daoChanged) {
-              if (!updatedChanged) {
+            if (dirty) {
+              if (!dao.$dirtyUpdated) {
                 // Force update the `updated` attribute
                 dao.updated = currentDate
               }
@@ -142,19 +236,22 @@ angular.module('classeur.core.localDb', [])
                 id: id,
                 seq: currentDate
               }
-              attributeWriters.updated(item, dao)
-              for (key in schema) {
-                attributeWriters[key](item, dao)
+              for (j = 0; j < schemaKeysLen; j++) {
+                attributeWriters[schemaKeys[j]](item, dao)
               }
               store.put(item)
-              storeSeqs[item.id] = item.seq
+              storedSeqs[item.id] = item.seq
+              dao.$dirty = false
+              dao.$dirtyUpdated = false
             }
           }
         }
 
         var store = {
           readAll: readAll,
-          writeAll: writeAll
+          writeAll: writeAll,
+          createDao: createDao,
+          Dao: Dao
         }
 
         return store
@@ -164,11 +261,8 @@ angular.module('classeur.core.localDb', [])
   .factory('clLocalDb',
     function ($window, clLocalStorage) {
       var db
-      var lastTx = Date.now()
-      var lastTxMaxAge = 24 * 60 * 60 * 1000 // 24h
       var getTxCbs = []
       var storeNames = [
-        'contents',
         'files',
         'folders',
         'classeurs',
@@ -176,12 +270,10 @@ angular.module('classeur.core.localDb', [])
       ]
 
       function createTx () {
-        var currentDate = Date.now()
-        // Deleted markers have been possibly removed or DB version has changed (Safari)
-        if (currentDate - lastTx > lastTxMaxAge || parseInt(clLocalStorage.localDbVersion, 10) !== db.version) {
+        // If DB version has changed (Safari support)
+        if (parseInt(clLocalStorage.localDbVersion, 10) !== db.version) {
           return $window.location.reload()
         }
-        lastTx = currentDate
         var tx = db.transaction(storeNames, 'readwrite')
         tx.oncomplete = function (event) {
           console.log('IDB commit', event)
@@ -226,7 +318,6 @@ angular.module('classeur.core.localDb', [])
           switch (oldVersion) {
             case 0:
               ;[
-                'contents',
                 'files',
                 'folders',
                 'classeurs',

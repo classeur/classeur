@@ -113,7 +113,7 @@ angular.module('classeur.core.explorerLayout', [])
       }
     })
   .directive('clExplorerLayout',
-    function ($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clPublicSyncSvc, clSettingSvc) {
+    function ($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clSyncSvc, clSettingSvc) {
       var explorerMaxWidth = 760
       var noPaddingWidth = 580
       var hideOffsetY = 2000
@@ -562,7 +562,7 @@ angular.module('classeur.core.explorerLayout', [])
           refreshFiles()
           scope.classeurIndex = clClasseurSvc.activeDaos.indexOf(clExplorerLayoutSvc.currentClasseur)
           setPlasticClass()
-          clPublicSyncSvc.getFolder(clExplorerLayoutSvc.currentFolder)
+          clSyncSvc.getFolder(clExplorerLayoutSvc.currentFolder)
         })
         scope.$watch('userInputFilter', function (value) {
           clExplorerLayoutSvc.setUserInputFilter(value)

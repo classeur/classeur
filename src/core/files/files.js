@@ -47,380 +47,379 @@ angular.module('classeur.core.files', [])
       }
     })
   .factory('clFileSvc',
-    function ($timeout, $templateCache, clLocalStorage, clUid, clLocalStorageObject, clSocketSvc, clIsNavigatorOnline) {
+    function ($timeout, $templateCache, clLocalStorage, clUid, clLocalDbStore, clSocketSvc, clIsNavigatorOnline, clDiffUtils, clHash) {
+      var clFileSvc = {
+        init: init,
+        readAll: readAll,
+        writeAll: writeAll,
+        createFile: createFile,
+        createPublicFile: createPublicFile,
+        removeDaos: removeDaos,
+        setDeletedFiles: setDeletedFiles,
+        applyServerChanges: applyServerChanges,
+        defaultContent: defaultContent,
+        firstFileContent: $templateCache.get('core/explorerLayout/firstFile.md'),
+        firstFileName: 'My first file'
+      }
+
       var maxLocalFiles = 25
-      var fileDaoProto = clLocalStorageObject('f', {
-        name: 'string',
+      var store = clLocalDbStore('classeurs', {
+        name: 'string128',
         folderId: 'string',
         sharing: 'string',
         userId: 'string',
         deleted: 'int'
-      }, true)
-      var contentDaoProto = clLocalStorageObject('c', {
-        isLocal: 'string',
-        lastChange: 'int',
-        serverHash: 'string',
-        text: 'string',
-        properties: 'object',
-        discussions: 'object',
-        comments: 'object',
-        conflicts: 'object',
-        state: 'object'
-      }, true)
+      })
 
-      function FileDao (id) {
-        this.id = id
-        this.$setId(id)
-        this.content = Object.create(contentDaoProto)
-        this.content.$setId(id)
-        this.read()
-        this.readContent()
-      }
+      var contentMap = Object.create(null) // Faster when checking for a missing key
 
-      FileDao.prototype = fileDaoProto
-
-      FileDao.prototype.read = function () {
-        this.$read()
-        this.$readUpdate()
-      }
-
-      FileDao.prototype.write = function () {
-        this.$write()
-        this.extUpdated = undefined
-      }
-
-      FileDao.prototype.readContent = function () {
-        this.content.$read.isLocal()
-        this.content.$read.lastChange()
-        if (this.state === 'loaded') {
-          this.content.$read.text()
-          this.content.$read.serverHash()
-          this.content.$read.properties()
-          this.content.$read.discussions()
-          this.content.$read.comments()
-          this.content.$read.conflicts()
-          this.content.$read.state()
-        }
-        this.content.$readUpdate()
-      }
-
-      FileDao.prototype.freeContent = function () {
-        this.content.$free.serverHash()
-        this.content.$free.text()
-        this.content.$free.properties()
-        this.content.$free.discussions()
-        this.content.$free.comments()
-        this.content.$free.conflicts()
-        this.content.$free.state()
-      }
-
-      FileDao.prototype.writeContent = function (updateLastChange) {
-        this.content.$write.isLocal()
-        if (this.state === 'loaded') {
-          this.content.$write.serverHash()
-          updateLastChange |= this.content.$write.text()
-          updateLastChange |= this.content.$write.properties()
-          updateLastChange |= this.content.$write.discussions()
-          updateLastChange |= this.content.$write.comments()
-          updateLastChange |= this.content.$write.conflicts()
-          this.content.$write.state()
-        }
-        if (!this.content.isLocal) {
-          if (this.content.lastChange) {
-            this.content.lastChange = 0
-            this.content.$write.lastChange()
-          }
-        } else if (updateLastChange) {
-          this.content.lastChange = Date.now()
-          this.content.$write.lastChange()
-        }
-      }
-
-      FileDao.prototype.load = function () {
-        if (this.state) {
-          return
-        }
-        if (this.content.isLocal) {
-          this.state = 'loading'
-          $timeout(function () {
-            if (this.state === 'loading') {
-              this.state = 'loaded' // Need to set this before readContent
-              this.readContent()
+      function readLocalFileChanges () {
+        try {
+          var result
+          var localFileChanges = JSON.parse(clLocalStorage.getItem('localFileChanges'))
+          localFileChanges.cl_each(function (lastChange, id) {
+            var content = contentMap[id] || {}
+            contentMap[id] = content
+            // If content was modified by another tab
+            if (lastChange > content.lastChange || 0) {
+              content.lastChange = lastChange
+              // Unload the file if loaded
+              daoMap[id] && daoMap[id].unload()
+              result = true
             }
-          }.cl_bind(this))
-        } else if (clSocketSvc.isReady || (this.userId && clIsNavigatorOnline())) {
-          this.state = 'loading'
+          })
+          return result
+        } catch (e) {
+          contentMap = {}
+          return true
         }
       }
 
-      FileDao.prototype.unload = function () {
-        this.freeContent()
-        this.state = undefined
+      function writeLocalFileChanges () {
+        var localFileChanges = Object.keys(contentMap).cl_reduce(function (localFileChanges, id) {
+          localFileChanges[id] = contentMap[id].lastChange
+          return localFileChanges
+        }, {})
+        clLocalStorage.setItem('localFileChanges', JSON.stringify(localFileChanges))
       }
 
-      FileDao.prototype.loadExecUnload = function (cb) {
-        var state = this.state
-        if (state === 'loaded') {
-          return cb()
-        }
-        this.state = 'loaded'
-        this.readContent()
-        var result = cb()
-        this.freeContent()
-        this.state = state
-        return result
-      }
-
-      function ReadOnlyFile (name, content) {
-        this.name = name
-        this.content = {
-          text: content,
+      function defaultContent () {
+        return {
           state: {},
+          text: '\n',
           properties: {},
           discussions: {},
           comments: {},
           conflicts: {}
         }
-        this.isReadOnly = true
-        this.state = 'loaded'
-        this.unload = function () {}
       }
 
-      var clFileSvc = clLocalStorageObject('fileSvc', {
-        fileIds: 'array'
+      var strippedContentKeys = (function () {
+        var obj = defaultContent()
+        delete obj.state
+        return Object.keys(obj)
+      })()
+
+      function stripContent (content) {
+        return strippedContentKeys.cl_reduce(function (strippedContent, key) {
+          strippedContent[key] = content[key]
+          return strippedContent
+        }, {})
+      }
+
+      function getContentHash (content) {
+        return clHash(clDiffUtils.serializeObject(stripContent(content)))
+      }
+
+      Object.defineProperty(store.Dao.prototype, 'content', {
+        set: function (value) {}, // Not supposed to be set
+        get: function () {
+          return contentMap[this.id]
+        }
       })
 
-      var fileAuthorizedKeys = {
-        u: true,
-        userId: true,
-        name: true,
-        sharing: true,
-        folderId: true,
-        deleted: true
+      store.Dao.prototype.readContent = function () {
+        try {
+          if (contentMap[this.id]) {
+            var content = JSON.parse(clLocalStorage.getItem('fileContent.' + this.id))
+            angular.extend(contentMap[this.id], defaultContent(), content)
+            var strippedContent = stripContent(content)
+            contentMap[this.id].$storedContent = JSON.stringify(strippedContent)
+            return
+          }
+        } catch (e) {
+          this.removeContent()
+        }
+        throw new Error('File is not local.')
       }
 
-      var contentAuthorizedKeys = {
-        u: true,
-        lastChange: true,
-        isLocal: true,
-        serverHash: true,
-        text: true,
-        properties: true,
-        discussions: true,
-        comments: true,
-        conflicts: true,
-        state: true
+      store.Dao.prototype.writeContent = function () {
+        // If content exist and is loaded
+        if (contentMap[this.id] && contentMap[this.id].state) {
+          // Pick only relevant content keys
+          var strippedContent = stripContent(contentMap[this.id])
+          var storedContent = JSON.stringify(strippedContent)
+          // If content has changed
+          if (contentMap[this.id].$storedContent !== storedContent) {
+            // Store the stripped content + state + syncedRev + syncedHash
+            strippedContent.state = contentMap[this.id].state
+            strippedContent.syncedRev = contentMap[this.id].syncedRev
+            strippedContent.syncedHash = contentMap[this.id].syncedHash
+            clLocalStorage.setItem('fileContent.' + this.id, JSON.stringify(strippedContent))
+            // Update lastChange
+            contentMap[this.id].lastChange = Date.now()
+          }
+        }
+      }
+
+      store.Dao.prototype.freeContent = function () {
+        if (contentMap[this.id] && contentMap[this.id].state) {
+          contentMap[this.id] = {
+            // Keep only lastChange attribute
+            lastChange: contentMap[this.id].lastChange
+          }
+        }
+      }
+
+      store.Dao.prototype.removeContent = function () {
+        this.freeContent()
+        this.state = undefined
+        readLocalFileChanges()
+        delete contentMap[this.id]
+        writeLocalFileChanges()
+        clLocalStorage.removeItem('fileContent.' + this.id)
+      }
+
+      store.Dao.prototype.load = function () {
+        if (this.state) {
+          return
+        }
+        readLocalFileChanges()
+        try {
+          this.readContent()
+          this.state = 'loading'
+          $timeout(function () {
+            if (this.state === 'loading') {
+              this.state = 'loaded'
+            }
+          }.cl_bind(this))
+        } catch (e) {
+          // File is not local
+          if (clSocketSvc.isReady || (this.userId && clIsNavigatorOnline())) {
+            this.state = 'loading'
+          }
+        }
+      }
+
+      store.Dao.prototype.unload = function () {
+        this.freeContent()
+        this.state = undefined
+      }
+
+      store.Dao.prototype.loadDoUnload = function (todo) {
+        if (contentMap[this.id] && contentMap[this.id].state) {
+          return todo()
+        }
+        this.readContent()
+        var result = todo()
+        this.freeContent()
+        return result
+      }
+
+      store.Dao.prototype.setContentSynced = function (rev) {
+        if (contentMap[this.id] && contentMap[this.id].state) {
+          contentMap[this.id].syncedRev = rev
+          contentMap[this.id].syncedHash = getContentHash(contentMap[this.id])
+        }
+      }
+
+      store.Dao.prototype.isContentSynced = function () {
+        if (contentMap[this.id] && contentMap[this.id].state) {
+          return contentMap[this.id].syncedHash === getContentHash(contentMap[this.id])
+        }
       }
 
       var isInitialized
+      var daoMap = {}
 
       function init () {
-        if (!clFileSvc.fileIds) {
-          clFileSvc.$read()
-        }
-
-        var fileMap = Object.create(null)
-        var deletedFileMap = Object.create(null)
-        clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (id) {
-          var file = clFileSvc.activeDaoMap[id] || clFileSvc.deletedDaoMap[id] || new FileDao(id)
-          if (!file.deleted && !fileMap[id]) {
-            fileMap[id] = file
-            return true
-          }
-          if (file.deleted && !deletedFileMap[id]) {
-            deletedFileMap[id] = file
-            return true
-          }
-        })
-
-        clFileSvc.activeDaos.cl_each(function (file) {
-          !fileMap[file.id] && file.unload()
-        })
-
-        clFileSvc.activeDaos = Object.keys(fileMap).cl_map(function (id) {
-          return fileMap[id]
-        })
-        clFileSvc.activeDaoMap = fileMap
-
-        clFileSvc.deletedDaos = Object.keys(deletedFileMap).cl_map(function (id) {
-          return deletedFileMap[id]
-        })
-        clFileSvc.deletedDaoMap = deletedFileMap
-
-        clFileSvc.localFiles = clFileSvc.activeDaos.cl_filter(function (file) {
-          return file.content.isLocal
-        })
-
-        clFileSvc.localFiles.sort(function (file1, file2) {
-          return file2.content.lastChange - file1.content.lastChange
-        }).splice(maxLocalFiles).cl_each(function (file) {
-          file.unload()
-          file.content.isLocal = ''
-          file.writeContent()
-        })
-
         if (!isInitialized) {
-          var keyPrefix = /^[fc]\.(\w+)\.(\w+)/
+          readLocalFileChanges()
+
+          // Removed unreachable contents
+          var keyMatcher = /^fileContent\.(\w+)/
           Object.keys(clLocalStorage).cl_each(function (key) {
-            var match
-            if (key.charCodeAt(0) === 0x66 /* f */) {
-              match = key.match(keyPrefix)
-              if (match) {
-                if ((!clFileSvc.activeDaoMap[match[1]] && !clFileSvc.deletedDaoMap[match[1]]) ||
-                  !fileAuthorizedKeys.hasOwnProperty(match[2])
-                ) {
-                  clLocalStorage.removeItem(key)
-                }
-              }
-            } else if (key.charCodeAt(0) === 0x63 /* c */) {
-              match = key.match(keyPrefix)
-              if (match) {
-                if (!clFileSvc.activeDaoMap[match[1]] ||
-                  !contentAuthorizedKeys.hasOwnProperty(match[2]) ||
-                  !clFileSvc.activeDaoMap[match[1]].content.isLocal
-                ) {
-                  clLocalStorage.removeItem(key)
-                }
-              }
+            var match = key.match(keyMatcher)
+            if (match && !contentMap[match[1]]) {
+              clLocalStorage.removeItem(key)
             }
           })
-          isInitialized = true
-        }
-      }
 
-      function checkLocalStorage () {
-        // Check file id list
-        var checkFileSvcUpdate = clFileSvc.$checkUpdate()
-        clFileSvc.$readUpdate()
-        if (checkFileSvcUpdate && clFileSvc.$check()) {
-          clFileSvc.fileIds = undefined
-        } else {
-          clFileSvc.$write()
-        }
+          // Backward compatibility
+          var fileIds = clLocalStorage.getItem('fileSvc.fileIds')
+          clLocalStorage.removeItem('fileSvc.fileIds')
+          if (fileIds) {
+            JSON.parse(fileIds).cl_each(function (id) {
+              var file = store.createDao(id)
+              file.name = clLocalStorage.getItem('f.' + id + '.name')
+              file.folderId = clLocalStorage.getItem('f.' + id + '.folderId')
+              file.userId = clLocalStorage.getItem('f.' + id + '.userId')
+              file.sharing = clLocalStorage.getItem('f.' + id + '.sharing')
+              file.deleted = parseInt(clLocalStorage.getItem('f.' + id + '.deleted') || 0, 10)
+              file.updated = parseInt(clLocalStorage.getItem('f.' + id + '.u') || 0, 10)
+              daoMap[file.id] = file
+              if (clLocalStorage.getItem('c.' + id + '.isLocal')) {
+                contentMap[id] = {
+                  state: JSON.parse(clLocalStorage.getItem('c.' + id + '.state') || '{}'),
+                  text: clLocalStorage.getItem('c.' + id + '.text') || '\n',
+                  properties: JSON.parse(clLocalStorage.getItem('c.' + id + '.properties') || '{}'),
+                  discussions: JSON.parse(clLocalStorage.getItem('c.' + id + '.discussions') || '{}'),
+                  comments: JSON.parse(clLocalStorage.getItem('c.' + id + '.comments') || '{}'),
+                  conflicts: JSON.parse(clLocalStorage.getItem('c.' + id + '.conflicts') || '{}')
+                }
+                var syncedRev = parseInt(clLocalStorage.getItem('cr.' + id), 10)
+                var syncedHash = parseInt(clLocalStorage.getItem('ch.' + id), 10)
+                if (!isNaN(syncedRev) && !isNaN(syncedHash)) {
+                  contentMap[id].syncedRev = syncedRev
+                  contentMap[id].syncedHash = syncedHash
+                }
+                file.writeContent()
+                file.freeContent()
+                contentMap[this.id].lastChange = parseInt(clLocalStorage.getItem('c.' + id + '.lastChange') || contentMap[this.id].lastChange, 10)
+              }
+            })
 
-        // Check every file
-        // var startTime = Date.now()
-        var checkFileUpdate = fileDaoProto.$checkGlobalUpdate()
-        fileDaoProto.$readGlobalUpdate()
-        var checkContentUpdate = contentDaoProto.$checkGlobalUpdate()
-        contentDaoProto.$readGlobalUpdate()
-        clFileSvc.activeDaos.concat(clFileSvc.deletedDaos).cl_each(function (file) {
-          if (checkFileUpdate && file.$checkUpdate()) {
-            file.read()
-          } else {
-            file.write()
+            // Clean up local storage
+            keyMatcher = /^(f|c|cr|ch)\.\w+/
+            Object.keys(clLocalStorage).cl_each(function (key) {
+              if (key.match(keyMatcher)) {
+                clLocalStorage.removeItem(key)
+              }
+            })
           }
-          if (checkContentUpdate && file.content.$checkUpdate()) {
-            file.unload()
-            file.readContent()
+        }
+
+        var activeDaoMap = clFileSvc.activeDaoMap = Object.create(null)
+        var deletedDaoMap = clFileSvc.deletedDaoMap = Object.create(null)
+
+        daoMap.cl_each(function (dao, id) {
+          if (dao.deleted) {
+            deletedDaoMap[id] = dao
           } else {
-            file.writeContent()
+            activeDaoMap[id] = dao
           }
         })
-        // console.log('Dirty checking took ' + (Date.now() - startTime) + 'ms')
 
-        if (checkFileSvcUpdate || checkFileUpdate || checkContentUpdate) {
-          init()
-          return true
+        // Filter contents that have to be removed
+        var localFileIds = Object.keys(contentMap)
+        var filteredLocalFileIds = localFileIds.cl_filter(function (id) {
+          return activeDaoMap[id]
+        }).sort(function (id1, id2) {
+          return contentMap[id1].lastChange - contentMap[id2].lastChange
+        })
+        filteredLocalFileIds.splice(maxLocalFiles)
+        if (localFileIds.length !== filteredLocalFileIds.length) {
+          localFileIds.cl_each(function (id) {
+            if (!~filteredLocalFileIds.indexOf(id)) {
+              daoMap[id].removeContent()
+            }
+          })
+          return init()
         }
+
+        clFileSvc.activeDaos = Object.keys(activeDaoMap).cl_map(function (id) {
+          return daoMap[id]
+        })
+        clFileSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
+          return daoMap[id]
+        })
+        clFileSvc.localFiles = localFileIds.cl_map(function (id) {
+          return daoMap[id]
+        })
+
+        isInitialized = true
+      }
+
+      function readAll (tx, cb) {
+        store.readAll(daoMap, tx, function (hasChanged) {
+          hasChanged |= readLocalFileChanges()
+          writeLocalFileChanges()
+          hasChanged && init()
+          cb(hasChanged)
+        })
+      }
+
+      function writeAll (tx) {
+        store.writeAll(daoMap, tx)
       }
 
       function createFile (id) {
-        id = id || clUid()
-        var file = clFileSvc.deletedDaoMap[id] || new FileDao(id)
+        var file = clFileSvc.deletedDaoMap[id] || store.createDao(id)
         file.deleted = 0
         file.isSelected = false
-        file.content.isLocal = '1'
-        file.writeContent(true)
-        clFileSvc.fileIds.push(id)
-        clFileSvc.activeDaoMap[id] = file
+        contentMap[file.id] = defaultContent()
+        file.writeContent()
+        file.freeContent()
+        daoMap[file.id] = file
         init()
         return file
       }
 
-      function createPublicFile (id) {
-        var file = clFileSvc.deletedDaoMap[id] || new FileDao(id)
+      function createPublicFile (id, addLater) {
+        var file = clFileSvc.deletedDaoMap[id] || store.createDao(id)
         file.isSelected = false
         file.userId = file.userId || '0' // Will be filled by sync module
-        return file // Will be added to the list by core module
-      }
-
-      function createReadOnlyFile (name, content) {
-        return new ReadOnlyFile(name, content)
-      }
-
-      // Remove file from files and deletedFiles
-      function removeFiles (fileList) {
-        if (!fileList.length) {
-          return
+        if (addLater) {
+          file.addToDaos = function () {
+            file.addToDaos = undefined
+            file.deleted = 0
+            daoMap[file.id] = file
+            init()
+          }
+        } else {
+          file.deleted = 0
+          daoMap[file.id] = file
         }
-
-        // Create hash for fast filter
-        var fileIds = fileList.cl_reduce(function (fileIds, file) {
-          fileIds[file.id] = 1
-          return fileIds
-        }, Object.create(null))
-
-        // Filter
-        clFileSvc.fileIds = clFileSvc.fileIds.cl_filter(function (fileId) {
-          return !fileIds[fileId]
-        })
-        init()
+        return file
       }
 
       function setDeletedFiles (fileList) {
-        if (!fileList.length) {
-          return
+        if (fileList.length) {
+          var currentDate = Date.now()
+          fileList.cl_each(function (file) {
+            file.deleted = currentDate
+          })
+          init()
         }
-        var currentDate = Date.now()
-        fileList.cl_each(function (file) {
-          file.deleted = currentDate
+      }
+
+      function removeDaos (daos) {
+        daos.cl_each(function (dao) {
+          delete daoMap[dao.id]
         })
-        init()
+        daos.length && init()
       }
 
       function applyServerChanges (items) {
         items.cl_each(function (item) {
-          var file = clFileSvc.activeDaoMap[item.id]
-          if (item.deleted && file) {
-            file.unload()
-            clFileSvc.activeDaoMap[item.id] = undefined
-            var index = clFileSvc.activeDaos.indexOf(file)
-            clFileSvc.fileIds.splice(index, 1)
-          } else if (!item.deleted && !file) {
-            file = new FileDao(item.id)
-            file.deleted = 0
-            clFileSvc.activeDaoMap[item.id] = file
-            clFileSvc.fileIds.push(item.id)
+          var dao = daoMap[item.id] || store.createDao(item.id)
+          if (item.deleted) {
+            delete daoMap[item.id]
+          } else if (!item.deleted) {
+            dao.deleted = 0
+            daoMap[item.id] = dao
           }
-          file.userId = item.userId || ''
-          file.name = item.name || ''
+          dao.userId = item.userId
+          dao.name = item.name
           // Change doesn't contain folderId for public file
-          if (!file.userId || !file.folderId || item.folderId) {
-            file.folderId = item.folderId || ''
+          if (!dao.userId || !dao.folderId || item.folderId) {
+            dao.folderId = item.folderId
           }
-          file.sharing = item.sharing || ''
-          file.$setExtUpdate(item.updated)
+          dao.sharing = item.sharing
+          dao.updated = item.updated
         })
         items.length && init()
       }
 
-      clFileSvc.FileDao = FileDao
-      clFileSvc.init = init
-      clFileSvc.checkLocalStorage = checkLocalStorage
-      clFileSvc.createFile = createFile
-      clFileSvc.createPublicFile = createPublicFile
-      clFileSvc.createReadOnlyFile = createReadOnlyFile
-      clFileSvc.removeDaos = removeFiles
-      clFileSvc.setDeletedFiles = setDeletedFiles
-      clFileSvc.applyServerChanges = applyServerChanges
-      clFileSvc.activeDaos = []
-      clFileSvc.deletedDaos = []
-      clFileSvc.activeDaoMap = Object.create(null)
-      clFileSvc.deletedDaoMap = Object.create(null)
-      clFileSvc.firstFileContent = $templateCache.get('core/explorerLayout/firstFile.md')
-      clFileSvc.firstFileName = 'My first file'
-
-      init()
       return clFileSvc
     })

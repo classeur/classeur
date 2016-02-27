@@ -43,7 +43,7 @@ angular.module('classeur.optional.settingsPage', [])
             .ok('Yes')
             .cancel('No'))
             .then(function () {
-              clSettingSvc.values = JSON.parse(JSON.stringify(clSettingSvc.defaultValues))
+              clSettingSvc.values = JSON.parse(clSettingSvc.defaultSettings)
             })
         }
 

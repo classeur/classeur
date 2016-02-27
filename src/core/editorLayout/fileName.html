@@ -1,6 +1,6 @@
 <form name="nameForm">
   <md-input-container class="file-name" md-theme="classeur">
     <label>Filename</label>
-    <input autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-keydown="keydown($event)" ng-disabled="currentFile.isReadOnly || currentFile.isLocalFile || (currentFile.userId && currentFile.sharing !== 'rw')">
+    <input autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-keydown="keydown($event)" ng-disabled="currentFile.isLocalFile || (currentFile.userId && currentFile.sharing !== 'rw')">
   </md-input-container>
 </form>
