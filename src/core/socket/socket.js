@@ -1,7 +1,8 @@
 angular.module('classeur.core.socket', [])
 
   .factory('clSocketSvc',
-    function ($window, $rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline) {
+    function ($window, $rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline, clDebug) {
+      var debug = clDebug('classeur:clSocketSvc')
       var socketTimeout = clUserActivity.inactiveAfter + 60 * 1000 // 2 + 1 min
       var socketTokenKey = 'socketToken'
       var msgHandlers = {}
@@ -65,6 +66,7 @@ angular.module('classeur.core.socket', [])
             })
           })
           ctx.socket.on('open', function () {
+            debug('Socket is open')
             nextConnectionAttempt = 1000
             ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken, protocolVersion: 1}]))
           })
@@ -88,6 +90,7 @@ angular.module('classeur.core.socket', [])
       }
 
       function closeSocket () {
+        debug('Socket was closed')
         if (clSocketSvc.ctx) {
           try {
             clSocketSvc.ctx.socket.close()

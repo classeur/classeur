@@ -47,8 +47,9 @@ angular.module('classeur.core.folders', [])
     function (clLocalStorage, clLocalDbStore) {
       var clFolderSvc = {
         init: init,
-        readAll: readAll,
+        getPatch: getPatch,
         writeAll: writeAll,
+        clearAll: clearAll,
         createFolder: createFolder,
         createPublicFolder: createPublicFolder,
         removeDaos: removeDaos,
@@ -57,7 +58,7 @@ angular.module('classeur.core.folders', [])
         applyServerChanges: applyServerChanges
       }
 
-      var store = clLocalDbStore('classeurs', {
+      var store = clLocalDbStore('folders', {
         name: 'string128',
         sharing: 'string',
         userId: 'string',
@@ -113,15 +114,23 @@ angular.module('classeur.core.folders', [])
         isInitialized = true
       }
 
-      function readAll (tx, cb) {
-        store.readAll(daoMap, tx, function (hasChanged) {
-          hasChanged && init()
-          cb(hasChanged)
+      function getPatch (tx, cb) {
+        store.getPatch(tx, function (patch) {
+          cb(function () {
+            var hasChanged = patch(daoMap)
+            hasChanged && init()
+            return hasChanged
+          })
         })
       }
 
       function writeAll (tx) {
         store.writeAll(daoMap, tx)
+      }
+
+      function clearAll () {
+        daoMap = {}
+        init()
       }
 
       function createFolder (id) {

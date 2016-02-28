@@ -1,6 +1,7 @@
 angular.module('classeur.core.localDb', [])
   .factory('clLocalDbStore',
-    function ($window, clUid, clLocalDb) {
+    function ($window, clUid, clLocalDb, clDebug) {
+      var debug = clDebug('classeur:clLocalDbStore')
       var deletedMarkerMaxAge = 60 * 60 * 1000 // 1h
 
       function identity (value) {
@@ -75,7 +76,7 @@ angular.module('classeur.core.localDb', [])
             Object.defineProperty(Dao.prototype, key, {
               get: getter,
               set: function (value) {
-                if (setter(value)) {
+                if (setter.call(this, value)) {
                   this.$dirtyUpdated = true
                 }
               }
@@ -94,7 +95,7 @@ angular.module('classeur.core.localDb', [])
                       if (value && value.length > length) {
                         value = value.slice(0, length)
                       }
-                      setter(value)
+                      setter.call(this, value)
                     }
                   })
                   return true
@@ -158,19 +159,17 @@ angular.module('classeur.core.localDb', [])
 
         var lastReadAll
 
-        function readAll (daoMap, tx, cb) {
+        function getPatch (tx, cb) {
           var currentDate = Date.now()
           var hasChanged = !lastReadAll
+          var resetMap
 
           // We may have missed some deleted markers
           if (lastReadAll && currentDate - lastReadAll > deletedMarkerMaxAge) {
             // Delete all dirty daos, user was asleep anyway...
-            Object.keys(daoMap).cl_each(function (key) {
-              delete daoMap[key]
-            })
+            resetMap = true
             // And retrieve everything from DB
             lastSeq = 0
-            storedSeqs = Object.create(null)
             hasChanged = true
           }
           lastReadAll = currentDate
@@ -178,6 +177,7 @@ angular.module('classeur.core.localDb', [])
           var store = tx.objectStore(storeName)
           var index = store.index('seq')
           var range = $window.IDBKeyRange.lowerBound(lastSeq, true)
+          var items = []
           var itemsToDelete = []
           index.openCursor(range).onsuccess = function (event) {
             var cursor = event.target.result
@@ -185,10 +185,23 @@ angular.module('classeur.core.localDb', [])
               itemsToDelete.cl_each(function (item) {
                 store.delete(item.id)
               })
-              return cb(hasChanged)
+              items.length && debug('Got ' + items.length + ' ' + storeName + ' items')
+              // Return a patch, to apply changes later
+              return cb(function (daoMap) {
+                if (resetMap) {
+                  Object.keys(daoMap).cl_each(function (key) {
+                    delete daoMap[key]
+                  })
+                  storedSeqs = Object.create(null)
+                }
+                items.cl_each(function (item) {
+                  hasChanged |= readDbItem(item, daoMap)
+                })
+                return hasChanged
+              })
             }
             var item = cursor.value
-            hasChanged |= readDbItem(item, daoMap)
+            items.push(item)
             // Remove old deleted markers
             if (!item.updated && currentDate - item.seq > deletedMarkerMaxAge) {
               itemsToDelete.push(item)
@@ -233,12 +246,13 @@ angular.module('classeur.core.localDb', [])
                 dao.updated = currentDate
               }
               var item = {
-                id: id,
+                id: daoIds[i],
                 seq: currentDate
               }
               for (j = 0; j < schemaKeysLen; j++) {
                 attributeWriters[schemaKeys[j]](item, dao)
               }
+              debug('Put ' + storeName + ' item')
               store.put(item)
               storedSeqs[item.id] = item.seq
               dao.$dirty = false
@@ -248,7 +262,7 @@ angular.module('classeur.core.localDb', [])
         }
 
         var store = {
-          readAll: readAll,
+          getPatch: getPatch,
           writeAll: writeAll,
           createDao: createDao,
           Dao: Dao
@@ -259,7 +273,8 @@ angular.module('classeur.core.localDb', [])
     }
 )
   .factory('clLocalDb',
-    function ($window, clLocalStorage) {
+    function ($window, clLocalStorage, clDebug) {
+      var debug = clDebug('classeur:clLocalDb')
       var db
       var getTxCbs = []
       var storeNames = [
@@ -275,11 +290,8 @@ angular.module('classeur.core.localDb', [])
           return $window.location.reload()
         }
         var tx = db.transaction(storeNames, 'readwrite')
-        tx.oncomplete = function (event) {
-          console.log('IDB commit', event)
-        }
-        tx.onerror = function (event) {
-          console.log('IDB rollback', event)
+        tx.onerror = function (evt) {
+          debug('Rollback transaction', evt)
         }
         return tx
       }

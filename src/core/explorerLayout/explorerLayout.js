@@ -577,6 +577,8 @@ angular.module('classeur.core.explorerLayout', [])
         scope.$on('$destroy', function () {
           clExplorerLayoutSvc.clean()
         })
+
+        clExplorerLayoutSvc.init()
       }
     })
   .factory('clExplorerLayoutSvc',
@@ -591,6 +593,46 @@ angular.module('classeur.core.explorerLayout', [])
       var createFolder = {
         id: 'create',
         name: 'Create folder'
+      }
+
+      var clExplorerLayoutSvc = {
+        scrollbarWidth: 0,
+        folders: [],
+        files: [],
+        extraFiles: [],
+        selectedFiles: [],
+        unclassifiedFolder: unclassifiedFolder,
+        createFolder: createFolder,
+        refreshFolders: refreshFolders,
+        refreshFiles: refreshFiles,
+        moreFiles: moreFiles,
+        setUserInputFilter: setUserInputFilter,
+        updateSelectedFiles: updateSelectedFiles,
+        setEffectiveSharing: setEffectiveSharing,
+        setCurrentClasseur: setCurrentClasseur,
+        setCurrentFolder: setCurrentFolder,
+        setCurrentFolderInClasseur: setCurrentFolderInClasseur,
+        init: init,
+        reset: function () {
+          this.isExplorerOpen = true
+        },
+        clean: function () {
+          clExplorerLayoutSvc.sharingDialogFileDao = undefined
+        },
+        toggleExplorer: function (isOpen) {
+          this.isExplorerOpen = isOpen === undefined ? !this.isExplorerOpen : isOpen
+        }
+      }
+
+      var isInitialized
+
+      function init () {
+        if (!isInitialized) {
+          setCurrentClasseur(clClasseurSvc.activeDaoMap[clLocalStorage[lastClasseurKey]])
+          setCurrentFolder(clFolderSvc.activeDaoMap[clLocalStorage[lastFolderKey]])
+          moreFiles(true)
+          isInitialized = true
+        }
       }
 
       var endFileIndex, userInputFilter
@@ -723,7 +765,7 @@ angular.module('classeur.core.explorerLayout', [])
 
       function setCurrentFolder (folder) {
         folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.activeDaoMap[folder.id])
-        if (folder && folder !== unclassifiedFolder && ~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
+        if (folder && folder !== unclassifiedFolder && !~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
           folder = undefined
         }
         clExplorerLayoutSvc.currentFolder = folder
@@ -743,39 +785,6 @@ angular.module('classeur.core.explorerLayout', [])
         }
         setCurrentFolder(folder)
         clExplorerLayoutSvc.refreshFolders()
-      }
-
-      var clExplorerLayoutSvc = {
-        scrollbarWidth: 0,
-        folders: [],
-        files: [],
-        extraFiles: [],
-        selectedFiles: [],
-        unclassifiedFolder: unclassifiedFolder,
-        createFolder: createFolder,
-        refreshFolders: refreshFolders,
-        refreshFiles: refreshFiles,
-        moreFiles: moreFiles,
-        setUserInputFilter: setUserInputFilter,
-        updateSelectedFiles: updateSelectedFiles,
-        setEffectiveSharing: setEffectiveSharing,
-        setCurrentClasseur: setCurrentClasseur,
-        setCurrentFolder: setCurrentFolder,
-        setCurrentFolderInClasseur: setCurrentFolderInClasseur,
-        init: function () {
-          setCurrentClasseur(clClasseurSvc.activeDaoMap[clLocalStorage[lastClasseurKey]])
-          setCurrentFolder(clFolderSvc.activeDaoMap[clLocalStorage[lastFolderKey]])
-          moreFiles(true)
-        },
-        reset: function () {
-          this.isExplorerOpen = true
-        },
-        clean: function () {
-          clExplorerLayoutSvc.sharingDialogFileDao = undefined
-        },
-        toggleExplorer: function (isOpen) {
-          this.isExplorerOpen = isOpen === undefined ? !this.isExplorerOpen : isOpen
-        }
       }
 
       return clExplorerLayoutSvc

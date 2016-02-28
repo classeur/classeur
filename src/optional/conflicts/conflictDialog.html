@@ -6,12 +6,12 @@
     <div class="conflict-highlighting markdown-highlighting markdown-highlighting--inline" ng-class="{'conflict-highlighting--selected': selectedPart === 2, 'conflict-highlighting--deleted': selectedPart === 1}" ng-click="selectedPart = 2" ng-bind-html="part2 | clHighlightMarkdown:editorSvc.prismGrammar">
     </div>
   </md-dialog-content>
-  <div class="md-actions">
+  <md-dialog-actions>
     <md-button class="md-primary" ng-click="cancel()">
       Cancel
     </md-button>
     <md-button class="md-primary" ng-click="fix()">
       Fix
     </md-button>
-  </div>
+  </md-dialog-actions>
 </md-dialog>

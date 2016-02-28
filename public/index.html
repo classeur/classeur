@@ -14,10 +14,13 @@
   <!-- end_head -->
 </head>
 
-<body ng-app="classeur.app">
+<body ng-app="classeur.app" ng-switch="::appReady">
   <!-- start_body -->
   <script src="app-min.js"></script>
-  <ng-view></ng-view>
+  <cl-centered-spinner ng-switch-default></cl-centered-spinner>
+  <div ng-switch-when="true">
+    <ng-view></ng-view>
+  </div>
   <!-- end_body -->
 </body>
 

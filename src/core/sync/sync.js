@@ -118,7 +118,8 @@ angular.module('classeur.core.sync', [])
       return clSyncDataSvc
     })
   .factory('clSyncSvc',
-    function ($window, $rootScope, $location, $http, $q, $templateCache, clVersion, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc) {
+    function ($rootScope, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc, clDebug) {
+      var debug = clDebug('classeur:clSyncSvc')
       var userNameMaxLength = 64
       var recoverFileTimeout = 30 * 1000 // 30 sec
       var lastSeqMargin = 1000 // 1 sec
@@ -131,16 +132,14 @@ angular.module('classeur.core.sync', [])
 
       var daoMap = {}
 
-      var storeWrapper = (function () {
-        var isInitialized
-
+      var objectStoreWrapper = (function () {
         var store = clLocalDbStore('objects', {
           value: 'object'
         })
 
         // Make object serializable in a predictable way
         function orderKeys (value) {
-          return Object.keys(value).sort().cl_reduce(function (result, key) {
+          return value && Object.keys(value).sort().cl_reduce(function (result, key) {
             result[key] = value[key]
             return result
           }, {})
@@ -184,17 +183,14 @@ angular.module('classeur.core.sync', [])
           clSyncDataSvc.fileRecoveryDates = getObject('fileRecoveryDates')
         }
 
-        function readAll (tx, cb) {
-          store.readAll(daoMap, tx, function (hasChanged) {
-            getObjects()
-            if (!isInitialized) {
-              clSettingSvc.init()
-              clLocalSettingSvc.init()
-              clSyncDataSvc.init()
-              hasChanged = true
-              isInitialized = true
-            }
-            cb(hasChanged)
+        function getPatch (tx, cb) {
+          store.getPatch(tx, function (patch) {
+            cb(function () {
+              putObjects()
+              var hasChanged = patch(daoMap)
+              getObjects()
+              return hasChanged
+            })
           })
         }
 
@@ -203,35 +199,58 @@ angular.module('classeur.core.sync', [])
           store.writeAll(daoMap, tx)
         }
 
+        function clearAll () {
+          daoMap = {}
+          getObjects()
+        }
+
         return {
-          readAll: readAll,
-          writeAll: writeAll
+          getPatch: getPatch,
+          writeAll: writeAll,
+          clearAll: clearAll
         }
       })()
 
-      var storeWrappers = [
-        clFileSvc,
-        clFolderSvc,
-        clClasseurSvc,
-        storeWrapper
-      ]
+      var storeWrappers = {
+        objects: objectStoreWrapper,
+        files: clFileSvc,
+        folders: clFolderSvc,
+        classeurs: clClasseurSvc
+      }
 
       function localDbWrapper (cb) {
         return function () {
           var args = arguments
           clLocalDb(function (tx) {
             var apply
-            var expectedCalls = storeWrappers.length
+            var patches = {}
             // Retrieve changes from DB
-            storeWrappers.cl_each(function (storeWrapper) {
-              storeWrapper.readAll(tx, function (hasChanged) {
-                apply |= hasChanged
-                // Wait for all readAll to finish
-                if (--expectedCalls) {
+            storeWrappers.cl_each(function (storeWrapper, storeName) {
+              storeWrapper.getPatch(tx, function (patch) {
+                patches[storeName] = patch
+                // Wait for all patches
+                if (Object.keys(patches).length < Object.keys(storeWrappers).length) {
                   return
                 }
+
+                // Apply patches in a specific order
+                apply |= patches.objects()
+                if (!$rootScope.appReady) {
+                  // Need to initialize settings before classeurs
+                  clSettingSvc.init()
+                  clLocalSettingSvc.init()
+                }
+                apply |= patches.files()
+                apply |= patches.folders()
+                apply |= patches.classeurs() // Call classeur.init at the end since it depends on other
+                if (!$rootScope.appReady) {
+                  clSyncDataSvc.init()
+                  $rootScope.appReady = true
+                  apply = true
+                }
+                // All changes have been applied
+
                 var userChanged = clSyncDataSvc.checkUserChanged(clSocketSvc.ctx)
-                // All changes have been read from DB
                 if (!userChanged && cb) {
                   apply |= cb.apply(null, args)
                 }
@@ -248,6 +267,17 @@ angular.module('classeur.core.sync', [])
           })
         }
       }
+
+      clSyncSvc.clearAll = localDbWrapper(function (cb) {
+        storeWrappers.cl_each(function (storeWrapper) {
+          storeWrapper.clearAll()
+        })
+        var dbversion = clLocalStorage.localDbVersion
+        clLocalStorage.clear()
+        clLocalStorage.localDbVersion = dbversion // Prevent localDb from refreshing the browser
+        cb && cb()
+        return true
+      })
 
       $rootScope.$watch('socketSvc.ctx.userId', function (userId) {
         // Make some cleaning when user changes
@@ -405,25 +435,19 @@ angular.module('classeur.core.sync', [])
           })
 
           // Retrieve from the server folder and file changes that happened before syncing
-          ;[{
-            group: 'folders',
-            lastSeqAttr: 'lastFolderSeq'
-          }, {
-            group: 'files',
-            lastSeqAttr: 'lastFileSeq'
-          }]
-            .cl_each(function (params) {
+          ;['folders', 'files']
+            .cl_each(function (group) {
               syncQueue(function () {
                 return clRestSvc.listFromSeq(
-                  '/api/v2/users/' + clSyncDataSvc.user.id + '/' + params.group,
-                  clSyncDataSvc[params.lastSeqAttr] - lastSeqMargin
+                  '/api/v2/users/' + clSyncDataSvc.user.id + '/' + group,
+                  (clSyncDataSvc.lastSeqs[group] || 0) - lastSeqMargin
                 )
               })
               syncQueue(function (items) {
                 items.cl_each(function (item) {
-                  pendingChangeGroups[params.group].$add(item)
+                  pendingChangeGroups[group].$add(item)
                 })
-                syncQueue[params.group] = {} // Start syncing and record sent data
+                syncQueue[group] = {} // Start syncing and record sent data
               })
             })
 
@@ -447,13 +471,14 @@ angular.module('classeur.core.sync', [])
         if (syncQueue.users) {
           var user = pendingChangeGroups.users[clSyncDataSvc.user.id]
           if (user) {
-            if (
-              user.updated !== daoMap.user.updated &&
+            if (!clUserSvc.user ||
+              (user.updated !== daoMap.user.updated &&
               user.updated !== clSyncDataSvc.user.updated &&
-              user.updated !== syncQueue.users[clSyncDataSvc.user.id]
+              user.updated !== syncQueue.users[clSyncDataSvc.user.id])
             ) {
               clUserSvc.user = user
               daoMap.user.updated = user.updated
+              debug('Processed user change')
               hasChanged = true
             }
             clSyncDataSvc.user.updated = user.updated
@@ -471,6 +496,7 @@ angular.module('classeur.core.sync', [])
                 clUserSvc.user.name = clUserSvc.user.name.slice(0, userNameMaxLength)
                 return
               }
+              debug('Patch user')
               syncQueue.users[clSyncDataSvc.user.id] = daoMap.user.updated
               return clRestSvc.request({
                 method: 'PATCH',
@@ -519,8 +545,12 @@ angular.module('classeur.core.sync', [])
             }
             delete syncQueue.classeurs[item.id] // Assume we received the change we sent
           })
-          clClasseurSvc.applyServerChanges(changesToApply)
-          hasChanged |= changesToApply.length
+
+          if (changesToApply.length) {
+            clClasseurSvc.applyServerChanges(changesToApply)
+            debug('Processed ' + changesToApply.length + ' classeur changes')
+            hasChanged = true
+          }
           pendingChangeGroups.classeurs = new PendingChangeGroup()
 
           // Send classeur changes, after settings are merged
@@ -536,6 +566,7 @@ angular.module('classeur.core.sync', [])
             // Send a new/modified classeur
             clClasseurSvc.activeDaos.cl_some(function (classeur) {
               if (isToBeUpdated(classeur)) {
+                debug('Put classeur')
                 syncQueue.classeurs[classeur.id] = classeur.updated
                 result = clRestSvc.request({
                   method: 'PUT',
@@ -554,6 +585,7 @@ angular.module('classeur.core.sync', [])
             clClasseurSvc.deletedDaos.cl_some(function (classeur) {
               // If classeur was synced
               if (clSyncDataSvc.classeurs[classeur.id] && isToBeUpdated(classeur)) {
+                debug('Delete classeur')
                 syncQueue.classeurs[classeur.id] = classeur.updated
                 result = clRestSvc.request({
                   method: 'DELETE',
@@ -604,8 +636,12 @@ angular.module('classeur.core.sync', [])
             }
             delete syncQueue.folders[item.id] // Assume we received the change we sent
           })
-          clFolderSvc.applyServerChanges(changesToApply)
-          hasChanged |= changesToApply.length
+
+          if (changesToApply.length) {
+            clFolderSvc.applyServerChanges(changesToApply)
+            debug('Processed ' + changesToApply.length + ' folder changes')
+            hasChanged = true
+          }
           clSyncDataSvc.lastSeqs.folders = lastFolderSeq
           pendingChangeGroups.folders = new PendingChangeGroup()
 
@@ -623,6 +659,7 @@ angular.module('classeur.core.sync', [])
             // Send a new/modified folder
             clFolderSvc.activeDaos.cl_some(function (folder) {
               if (isToBeUpdated(folder)) {
+                debug('Put folder')
                 syncQueue.folders[folder.id] = folder.updated
                 result = clRestSvc.request({
                   method: 'PUT',
@@ -642,6 +679,7 @@ angular.module('classeur.core.sync', [])
             clFolderSvc.deletedDaos.cl_some(function (folder) {
               // If folder was synced
               if (clSyncDataSvc.folders[folder.id] && isToBeUpdated(folder)) {
+                debug('Delete folder')
                 syncQueue.folders[folder.id] = folder.updated
                 result = clRestSvc.request({
                   method: 'DELETE',
@@ -697,8 +735,12 @@ angular.module('classeur.core.sync', [])
             }
             delete syncQueue.files[item.id] // Assume we received the change we sent
           })
-          clFileSvc.applyServerChanges(changesToApply)
-          hasChanged |= changesToApply.length
+
+          if (changesToApply.length) {
+            clFileSvc.applyServerChanges(changesToApply)
+            debug('Processed ' + changesToApply.length + ' file changes')
+            hasChanged = true
+          }
           clSyncDataSvc.lastSeqs.files = lastFileSeq
           pendingChangeGroups.files = new PendingChangeGroup()
 
@@ -740,6 +782,7 @@ angular.module('classeur.core.sync', [])
             // Send a new/modified file
             clFileSvc.activeDaos.cl_some(function (file) {
               if (isToBeUpdated(file)) {
+                debug('Put file')
                 syncQueue.files[file.id] = file.updated
                 // Remove from folder only if file belongs to user
                 var folderId = file.folderId || (file.userId ? undefined : 'null')
@@ -763,6 +806,7 @@ angular.module('classeur.core.sync', [])
             clFileSvc.deletedDaos.cl_some(function (file) {
               // If file was synced
               if (clSyncDataSvc.files[file.id] && isToBeUpdated(file) && !clSyncDataSvc.fileRecoveryDates.hasOwnProperty(file.id)) {
+                debug('Put deleted file')
                 syncQueue.files[file.id] = file.updated
                 // Remove from folder only if file belongs to user
                 var folderId = file.folderId || (file.userId ? undefined : 'null')
@@ -814,6 +858,7 @@ angular.module('classeur.core.sync', [])
 
               clSettingSvc.updateSettings(settings)
               daoMap.settings.updated = settings.updated
+              debug('Processed setting change')
               hasChanged = true
 
               if (newDefaultClasseur) {
@@ -833,6 +878,7 @@ angular.module('classeur.core.sync', [])
               daoMap.settings.updated !== clSyncDataSvc.user.settings &&
               daoMap.settings.updated !== syncQueue.settings[0]
             ) {
+              debug('Put settings')
               syncQueue.settings[0] = daoMap.settings.updated
               return clRestSvc.request({
                 method: 'PUT',
@@ -974,7 +1020,7 @@ angular.module('classeur.core.sync', [])
       return clSyncSvc
     })
   .factory('clContentSyncSvc',
-    function ($window, $rootScope, $timeout, $http, $q, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
+    function ($rootScope, $timeout, $http, $q, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
       var textMaxSize = 200000
       var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
       var clContentSyncSvc = {}
@@ -987,13 +1033,13 @@ angular.module('classeur.core.sync', [])
       clSocketSvc.addMsgHandler('userToken', setWatchCtx.cl_bind(null, null))
 
       function setLoadedContent (file, serverContent) {
+        file.setLoaded()
         file.content.text = serverContent.text
         file.content.properties = ({}).cl_extend(serverContent.properties)
         file.content.discussions = ({}).cl_extend(serverContent.discussions)
         file.content.comments = ({}).cl_extend(serverContent.comments)
         file.content.conflicts = ({}).cl_extend(serverContent.conflicts)
         file.content.state = {}
-        file.state = 'loaded'
         clFileSvc.init()
       }
 
@@ -1052,7 +1098,7 @@ angular.module('classeur.core.sync', [])
         clSocketSvc.sendMsg('startWatchContent', {
           id: watchCtx.id,
           fileId: file.id,
-          previousRev: file.content.syncedRev
+          previousRev: file.content && file.content.syncedRev
         })
         $timeout.cancel(file.loadingTimeoutId)
         file.loadingTimeoutId = $timeout(function () {

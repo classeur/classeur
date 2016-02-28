@@ -15,6 +15,12 @@ angular.module('classeur.core.utils', [])
     function ($window) {
       return $window.localStorage
     })
+  .factory('clDebug',
+    function ($window) {
+      return $window.debug || function () {
+        return function () {} // In case debug is not available as we rely on engine.io to provide it
+      }
+    })
   .factory('clSetInterval',
     function () {
       return function (cb, interval) {

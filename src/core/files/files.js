@@ -50,8 +50,9 @@ angular.module('classeur.core.files', [])
     function ($timeout, $templateCache, clLocalStorage, clUid, clLocalDbStore, clSocketSvc, clIsNavigatorOnline, clDiffUtils, clHash) {
       var clFileSvc = {
         init: init,
-        readAll: readAll,
+        getPatch: getPatch,
         writeAll: writeAll,
+        clearAll: clearAll,
         createFile: createFile,
         createPublicFile: createPublicFile,
         removeDaos: removeDaos,
@@ -63,7 +64,7 @@ angular.module('classeur.core.files', [])
       }
 
       var maxLocalFiles = 25
-      var store = clLocalDbStore('classeurs', {
+      var store = clLocalDbStore('files', {
         name: 'string128',
         folderId: 'string',
         sharing: 'string',
@@ -181,13 +182,17 @@ angular.module('classeur.core.files', [])
         }
       }
 
+      function removeContent (id) {
+        readLocalFileChanges()
+        delete contentMap[id]
+        writeLocalFileChanges()
+        clLocalStorage.removeItem('fileContent.' + id)
+      }
+
       store.Dao.prototype.removeContent = function () {
         this.freeContent()
         this.state = undefined
-        readLocalFileChanges()
-        delete contentMap[this.id]
-        writeLocalFileChanges()
-        clLocalStorage.removeItem('fileContent.' + this.id)
+        removeContent(this.id)
       }
 
       store.Dao.prototype.load = function () {
@@ -214,6 +219,16 @@ angular.module('classeur.core.files', [])
       store.Dao.prototype.unload = function () {
         this.freeContent()
         this.state = undefined
+      }
+
+      store.Dao.prototype.setLoaded = function () {
+        if (!contentMap[this.id]) {
+          contentMap[this.id] = defaultContent()
+          this.writeContent()
+        } else {
+          this.readContent()
+        }
+        this.state = 'loaded'
       }
 
       store.Dao.prototype.loadDoUnload = function (todo) {
@@ -321,7 +336,7 @@ angular.module('classeur.core.files', [])
         if (localFileIds.length !== filteredLocalFileIds.length) {
           localFileIds.cl_each(function (id) {
             if (!~filteredLocalFileIds.indexOf(id)) {
-              daoMap[id].removeContent()
+              daoMap[id] ? daoMap[id].removeContent() : removeContent(id)
             }
           })
           return init()
@@ -340,17 +355,25 @@ angular.module('classeur.core.files', [])
         isInitialized = true
       }
 
-      function readAll (tx, cb) {
-        store.readAll(daoMap, tx, function (hasChanged) {
-          hasChanged |= readLocalFileChanges()
-          writeLocalFileChanges()
-          hasChanged && init()
-          cb(hasChanged)
+      function getPatch (tx, cb) {
+        store.getPatch(tx, function (patch) {
+          cb(function () {
+            var hasChanged = patch(daoMap)
+            hasChanged |= readLocalFileChanges()
+            writeLocalFileChanges()
+            hasChanged && init()
+            return hasChanged
+          })
         })
       }
 
       function writeAll (tx) {
         store.writeAll(daoMap, tx)
+      }
+
+      function clearAll () {
+        daoMap = {}
+        init()
       }
 
       function createFile (id) {

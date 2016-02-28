@@ -15,8 +15,8 @@ angular.module('classeur.core', [])
 
       $routeProvider
         .when('/files/:fileId', {
-          template: '<cl-centered-spinner ng-if="!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
-          controller: function ($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clContentRevSvc) {
+          template: '<div ng-switch="::fileLoaded"><cl-centered-spinner ng-switch-default></cl-centered-spinner><cl-editor-layout ng-switch-when="true"></cl-editor-layout></div>',
+          controller: function ($scope, $routeParams, $location, clAnalytics, clToast, clFileSvc, clEditorLayoutSvc, clExplorerLayoutSvc, clSyncSvc) {
             clAnalytics.trackPage('/files')
             var publicFileDao = clFileSvc.createPublicFile($routeParams.fileId, true)
             var file = clFileSvc.activeDaoMap[$routeParams.fileId] || publicFileDao
@@ -30,17 +30,14 @@ angular.module('classeur.core', [])
                 return $location.url('')
               } else if (state === 'loaded') {
                 file.addToDaos && file.addToDaos()
-                clEditorLayoutSvc.init(
-                  file.userId &&
-                  clContentRevSvc.isServerContent(file.id, file.content)
-                )
+                clEditorLayoutSvc.init(file.userId && file.isContentSynced())
                 $scope.fileLoaded = true
               }
             })
           }
         })
         .when('/folders/:folderId', {
-          template: '',
+          template: '<cl-centered-spinner></cl-centered-spinner>',
           controller: function ($location, $routeParams, clAnalytics, clClasseurSvc, clFolderSvc, clExplorerLayoutSvc) {
             clAnalytics.trackPage('/folders')
             clExplorerLayoutSvc.refreshFolders()
@@ -73,12 +70,11 @@ angular.module('classeur.core', [])
           }
         })
         .when('/', {
-          template: '<cl-explorer-layout ng-if="hasFiles"></cl-explorer-layout>',
+          template: '<cl-explorer-layout></cl-explorer-layout>',
           controller: function ($scope, clAnalytics, clFileSvc) {
             if (clFileSvc.activeDaos.length === 0) {
               return $scope.createDefaultFile()
             }
-            $scope.hasFiles = true
             clAnalytics.trackPage('/')
           }
         })
@@ -178,14 +174,11 @@ angular.module('classeur.core', [])
             .ok('Yes please')
             .cancel('No thanks')
           clDialog.show(clearDataDialog).then(function () {
-            clLocalStorage.clear()
-
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            clSyncSvc.saveAll()
-            clLocalSettingSvc.values.explorerTourStep = -1
-            clLocalSettingSvc.values.editorTourStep = -1
-            createDefaultFile()
+            clSyncSvc.clearAll(function () {
+              clLocalSettingSvc.values.explorerTourStep = -1
+              clLocalSettingSvc.values.editorTourStep = -1
+              createDefaultFile()
+            })
           })
         }
         hasToken = value

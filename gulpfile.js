@@ -50,6 +50,7 @@ var appVendorJs = [
   'angular-material/angular-material',
   'bezier-easing/build',
   'clanim/clanim',
+  'debug/dist/debug',
   'googlediff/javascript/diff_match_patch_uncompressed', // Needs to come before cldiffutils and cledit
   'clunderscore/clunderscore', // Needs to come before cledit
   'cldiffutils/cldiffutils',

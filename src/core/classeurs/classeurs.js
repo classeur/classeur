@@ -58,8 +58,9 @@ angular.module('classeur.core.classeurs', [])
         classeurAddedFolders: {},
         classeurRemovedFolders: {},
         init: init,
-        readAll: readAll,
+        getPatch: getPatch,
         writeAll: writeAll,
+        clearAll: clearAll,
         createClasseur: createClasseur,
         removeDaos: removeDaos,
         setDeletedClasseurs: setDeletedClasseurs,
@@ -213,9 +214,10 @@ angular.module('classeur.core.classeurs', [])
 
         // Create default classeur if not existing
         if (!clClasseurSvc.defaultClasseur) {
-          clClasseurSvc.defaultClasseur = store.createDao()
-          clClasseurSvc.defaultClasseur.name = 'Classeur'
-          clSettingSvc.values.defaultClasseurId = clClasseurSvc.defaultClasseur.id
+          var classeur = store.createDao()
+          classeur.name = 'Classeur'
+          daoMap[classeur.id] = classeur
+          clSettingSvc.values.defaultClasseurId = classeur.id
           return init()
         }
 
@@ -230,15 +232,23 @@ angular.module('classeur.core.classeurs', [])
         isInitialized = true
       }
 
-      function readAll (tx, cb) {
-        store.readAll(daoMap, tx, function (hasChanged) {
-          hasChanged && init()
-          cb(hasChanged)
+      function getPatch (tx, cb) {
+        store.getPatch(tx, function (patch) {
+          cb(function () {
+            var hasChanged = patch(daoMap)
+            hasChanged && init()
+            return hasChanged
+          })
         })
       }
 
       function writeAll (tx) {
         store.writeAll(daoMap, tx)
+      }
+
+      function clearAll () {
+        daoMap = {}
+        init()
       }
 
       function createClasseur (id) {
