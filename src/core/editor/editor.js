@@ -1,9 +1,9 @@
 angular.module('classeur.core.editor', [])
   .directive('clEditor',
-    function ($window, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
+    function ($window, $templateCache, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc) {
       return {
         restrict: 'E',
-        templateUrl: 'core/editor/editor.html',
+        template: $templateCache.get('core/editor/editor.html'), // Prevent from template loading to be async
         link: link
       }
 
@@ -209,12 +209,12 @@ angular.module('classeur.core.editor', [])
       }
     })
   .directive('clPreview',
-    function ($window, clEditorSvc, clConfig) {
+    function ($window, $templateCache, clEditorSvc, clConfig) {
       var appUri = clConfig.appUri || ''
 
       return {
         restrict: 'E',
-        templateUrl: 'core/editor/preview.html',
+        template: $templateCache.get('core/editor/preview.html'), // Prevent from template loading to be async
         link: link
       }
 

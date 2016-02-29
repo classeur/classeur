@@ -44,7 +44,8 @@ angular.module('classeur.core.folders', [])
       }
     })
   .factory('clFolderSvc',
-    function (clLocalStorage, clLocalDbStore) {
+    function (clLocalStorage, clLocalDbStore, clDebug) {
+      var debug = clDebug('classeur:clFolderSvc')
       var clFolderSvc = {
         init: init,
         getPatch: getPatch,
@@ -111,6 +112,7 @@ angular.module('classeur.core.folders', [])
           return daoMap[id]
         })
 
+        debug('Init')
         isInitialized = true
       }
 

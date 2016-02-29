@@ -90,8 +90,8 @@ angular.module('classeur.core.socket', [])
       }
 
       function closeSocket () {
-        debug('Socket was closed')
         if (clSocketSvc.ctx) {
+          debug('Socket was closed')
           try {
             clSocketSvc.ctx.socket.close()
           } catch (e) {}
@@ -292,7 +292,7 @@ angular.module('classeur.core.socket', [])
             result = result.concat(res.body)
             var last = parseInt(parsedRange[2], 10)
             var count = parseInt(parsedRange[3], 10)
-            if (result.length > rangeEnd - rangeStart || last + 1 === count) {
+            if (res.body.length > rangeEnd - rangeStart || last + 1 === count) {
               return result
             }
             return list(url, params, last + 1, rangeEnd, result)

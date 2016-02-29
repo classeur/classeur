@@ -1,6 +1,6 @@
 angular.module('classeur.optional.fileHistory', [])
   .directive('clFileHistoryTab',
-    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils, clDialog, clEditorSvc) {
+    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils, clDialog, clEditorSvc, clIsNavigatorOnline, clRestSvc) {
       return {
         restrict: 'E',
         scope: true,
@@ -39,6 +39,21 @@ angular.module('classeur.optional.fileHistory', [])
           })
         }
 
+        var changeGroupLoaded
+        scope.$watch('localSettingSvc.values.sideBarTab === "history"', function (isSelected) {
+          var file = scope.currentFile
+          if (file && isSelected && !changeGroupLoaded && clIsNavigatorOnline()) {
+            changeGroupLoaded = true
+            clRestSvc.list('/api/v2/files/' + file.id + '/contentChangeGroups')
+            .then(function (changeGroups) {
+              clFileHistorySvc.setChangeGroups(changeGroups)
+              scope.$evalAsync()
+            }, function () {
+              changeGroupLoaded = false
+            })
+          }
+        })
+
         clFileHistorySvc.selectedChangeGroup = undefined
         scope.$watchGroup(['fileHistorySvc.selectedChangeGroup', 'fileHistorySvc.changeGroups'], function () {
           scope.isLoading = true
@@ -62,6 +77,7 @@ angular.module('classeur.optional.fileHistory', [])
                           })
                           scope.noChange &= !scope.commentChanges.length
                         }
+                        scope.$evalAsync()
                       }
                     })
                 })
@@ -87,18 +103,17 @@ angular.module('classeur.optional.fileHistory', [])
       var clFileHistorySvc = {}
 
       var changeGroups = []
-      clSocketSvc.addMsgHandler('watchedFile', function (msg) {
-        if (msg.content) {
-          changeGroups = msg.content.changeGroups.slice().sort(function (group1, group2) {
-            return group2.toRev - group1.toRev
-          })
-          refreshChangeGroups()
-        }
-      })
 
       function refreshChangeGroups () {
         clFileHistorySvc.changeGroups = changeGroups.slice(0, clFileHistorySvc.maxShow)
         clFileHistorySvc.hasMore = clFileHistorySvc.maxShow < changeGroups.length
+      }
+
+      clFileHistorySvc.setChangeGroups = function (newChangeGroups) {
+        changeGroups = newChangeGroups.slice().sort(function (group1, group2) {
+          return group2.toRev - group1.toRev
+        })
+        refreshChangeGroups()
       }
 
       clFileHistorySvc.init = function () {

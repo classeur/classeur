@@ -21,11 +21,17 @@ angular.module('classeur.core.utils', [])
         return function () {} // In case debug is not available as we rely on engine.io to provide it
       }
     })
+  .factory('clDiffUtils',
+    function ($window) {
+      return $window.clDiffUtils
+    })
   .factory('clSetInterval',
-    function () {
+    function ($rootScope) {
       return function (cb, interval) {
         interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0
-        setInterval(cb, interval)
+        setInterval(function () {
+          $rootScope.appReady && cb()
+        }, interval)
       }
     })
   .factory('clUid',
@@ -441,10 +447,6 @@ angular.module('classeur.core.utils', [])
           })
         }
       }
-    })
-  .factory('clDiffUtils',
-    function ($window) {
-      return $window.clDiffUtils
     })
   .directive('clInfiniteScroll',
     function ($timeout) {

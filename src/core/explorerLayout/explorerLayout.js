@@ -308,7 +308,6 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         function importFile () {
-          var classeur = clExplorerLayoutSvc.currentClasseur
           var folder = clExplorerLayoutSvc.currentFolder
           clDialog.show({
             templateUrl: 'core/explorerLayout/importFileDialog.html',
@@ -332,15 +331,12 @@ angular.module('classeur.core.explorerLayout', [])
                 if (folder.userId) {
                   newFileDao.sharing = folder.sharing
                 }
-              } else {
-                newFileDao.classeurId = classeur.id
               }
               scope.setCurrentFile(newFileDao)
             })
         }
 
         scope.createFile = function () {
-          var classeur = clExplorerLayoutSvc.currentClasseur
           var folder = clExplorerLayoutSvc.currentFolder
           makeInputDialog('core/explorerLayout/newFileDialog.html', function (scope) {
             scope.import = function () {
@@ -361,8 +357,6 @@ angular.module('classeur.core.explorerLayout', [])
                 if (folder.userId) {
                   newFileDao.sharing = folder.sharing
                 }
-              } else {
-                newFileDao.classeurId = classeur.id
               }
               scope.setCurrentFile(newFileDao)
             })
@@ -668,10 +662,7 @@ angular.module('classeur.core.explorerLayout', [])
 
         function currentClasseurFilter (file) {
           var result = clExplorerLayoutSvc.currentClasseur.isDefault
-          var classeur = clClasseurSvc.activeDaoMap[file.classeurId]
-          if (classeur) {
-            result = classeur === clExplorerLayoutSvc.currentClasseur
-          } else if (clFolderSvc.activeDaoMap[file.folderId]) {
+          if (clFolderSvc.activeDaoMap[file.folderId]) {
             result = clExplorerLayoutSvc.currentClasseur.folders.cl_some(function (folder) {
               return folder.id === file.folderId
             })

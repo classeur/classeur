@@ -95,15 +95,12 @@ angular.module('classeur.optional.fileDragging', [])
 
       function doMoveFiles (targetFolder, files) {
         var targetFolderId = targetFolder.id
-        var targetClasseurId = ''
         if (targetFolder === clExplorerLayoutSvc.unclassifiedFolder) {
           targetFolderId = ''
-          targetClasseurId = clExplorerLayoutSvc.currentClasseur.id
         }
         files = files.cl_filter(function (file) {
-          if (file.folderId !== targetFolderId || file.classeurId !== targetClasseurId) {
+          if (file.folderId !== targetFolderId) {
             file.folderId = targetFolderId
-            file.classeurId = targetClasseurId
             file.userId = targetFolder.userId
             return true
           }

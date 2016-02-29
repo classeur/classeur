@@ -52,7 +52,8 @@ angular.module('classeur.core.classeurs', [])
       }
     })
   .factory('clClasseurSvc',
-    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc) {
+    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc, clDebug) {
+      var debug = clDebug('classeur:clClasseurSvc')
       var clClasseurSvc = {
         classeurFolders: {},
         classeurAddedFolders: {},
@@ -229,6 +230,7 @@ angular.module('classeur.core.classeurs', [])
           }
         })
 
+        debug('Init')
         isInitialized = true
       }
 

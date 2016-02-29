@@ -47,12 +47,15 @@ angular.module('classeur.core.files', [])
       }
     })
   .factory('clFileSvc',
-    function ($timeout, $templateCache, clLocalStorage, clUid, clLocalDbStore, clSocketSvc, clIsNavigatorOnline, clDiffUtils, clHash) {
+    function ($rootScope, $timeout, $templateCache, clLocalStorage, clUid, clLocalDbStore, clSocketSvc, clIsNavigatorOnline, clDiffUtils, clHash, clDebug) {
+      var debug = clDebug('classeur:clFileSvc')
       var clFileSvc = {
         init: init,
         getPatch: getPatch,
         writeAll: writeAll,
         clearAll: clearAll,
+        readLocalFileChanges: readLocalFileChanges,
+        writeLocalFileChanges: writeLocalFileChanges,
         createFile: createFile,
         createPublicFile: createPublicFile,
         removeDaos: removeDaos,
@@ -74,34 +77,60 @@ angular.module('classeur.core.files', [])
 
       var contentMap = Object.create(null) // Faster when checking for a missing key
 
+      var currentLocalFileOrder
+      function checkLocalFileOrder () {
+        var localFileOrder = Object.keys(contentMap)
+          .sort(function (id1, id2) {
+            return contentMap[id1].lastChange - contentMap[id2].lastChange
+          })
+        localFileOrder = JSON.stringify(localFileOrder)
+        if (currentLocalFileOrder !== localFileOrder) {
+          if (currentLocalFileOrder) {
+            // Refresh local file list
+            init()
+            $rootScope.$evalAsync() // We're outside the angular context when called by clContentSyncSvc
+          }
+          currentLocalFileOrder = localFileOrder
+        }
+      }
+
+      var storedLocalFileChanges
       function readLocalFileChanges () {
-        try {
-          var result
-          var localFileChanges = JSON.parse(clLocalStorage.getItem('localFileChanges'))
-          localFileChanges.cl_each(function (lastChange, id) {
+        var localFileChanges = clLocalStorage.getItem('localFileChanges')
+        if (localFileChanges && storedLocalFileChanges !== localFileChanges) {
+          storedLocalFileChanges = localFileChanges
+          JSON.parse(localFileChanges).cl_each(function (lastChange, id) {
             var content = contentMap[id] || {}
             contentMap[id] = content
             // If content was modified by another tab
-            if (lastChange > content.lastChange || 0) {
+            if (lastChange > (content.lastChange || 0)) {
               content.lastChange = lastChange
               // Unload the file if loaded
-              daoMap[id] && daoMap[id].unload()
-              result = true
+              if (daoMap[id] && daoMap[id].state) {
+                daoMap[id].unload()
+                $rootScope.$evalAsync() // We're outside the angular context when called by clContentSyncSvc
+              }
             }
           })
-          return result
-        } catch (e) {
-          contentMap = {}
-          return true
+          checkLocalFileOrder()
         }
       }
 
       function writeLocalFileChanges () {
-        var localFileChanges = Object.keys(contentMap).cl_reduce(function (localFileChanges, id) {
-          localFileChanges[id] = contentMap[id].lastChange
-          return localFileChanges
-        }, {})
-        clLocalStorage.setItem('localFileChanges', JSON.stringify(localFileChanges))
+        var localFileChanges = Object.keys(contentMap)
+          .sort(function (id1, id2) {
+            return contentMap[id1].lastChange - contentMap[id2].lastChange
+          })
+          .cl_reduce(function (localFileChanges, id) {
+            localFileChanges[id] = contentMap[id].lastChange
+            return localFileChanges
+          }, {})
+        localFileChanges = JSON.stringify(localFileChanges)
+        if (storedLocalFileChanges !== localFileChanges) {
+          storedLocalFileChanges = localFileChanges
+          clLocalStorage.setItem('localFileChanges', localFileChanges)
+          checkLocalFileOrder()
+        }
       }
 
       function defaultContent () {
@@ -133,7 +162,9 @@ angular.module('classeur.core.files', [])
       }
 
       Object.defineProperty(store.Dao.prototype, 'content', {
-        set: function (value) {}, // Not supposed to be set
+        set: function (value) {
+          throw new Error('Content cannot be set.') // Not supposed to be called
+        },
         get: function () {
           return contentMap[this.id]
         }
@@ -162,6 +193,7 @@ angular.module('classeur.core.files', [])
           var storedContent = JSON.stringify(strippedContent)
           // If content has changed
           if (contentMap[this.id].$storedContent !== storedContent) {
+            contentMap[this.id].$storedContent = storedContent
             // Store the stripped content + state + syncedRev + syncedHash
             strippedContent.state = contentMap[this.id].state
             strippedContent.syncedRev = contentMap[this.id].syncedRev
@@ -222,13 +254,13 @@ angular.module('classeur.core.files', [])
       }
 
       store.Dao.prototype.setLoaded = function () {
+        this.state = 'loaded'
         if (!contentMap[this.id]) {
           contentMap[this.id] = defaultContent()
           this.writeContent()
         } else {
           this.readContent()
         }
-        this.state = 'loaded'
       }
 
       store.Dao.prototype.loadDoUnload = function (todo) {
@@ -352,6 +384,7 @@ angular.module('classeur.core.files', [])
           return daoMap[id]
         })
 
+        debug('Init')
         isInitialized = true
       }
 
@@ -359,8 +392,6 @@ angular.module('classeur.core.files', [])
         store.getPatch(tx, function (patch) {
           cb(function () {
             var hasChanged = patch(daoMap)
-            hasChanged |= readLocalFileChanges()
-            writeLocalFileChanges()
             hasChanged && init()
             return hasChanged
           })

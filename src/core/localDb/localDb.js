@@ -130,11 +130,10 @@ angular.module('classeur.core.localDb', [])
           }
         })
 
-        var lastSeq = 0
+        var lastTx = 0
         var storedSeqs = Object.create(null)
 
         function readDbItem (item, daoMap) {
-          lastSeq = Math.max(lastSeq, item.seq || 0)
           var dao = daoMap[item.id] || new Dao(item.id, true)
           if (!item.updated) {
             delete storedSeqs[item.id]
@@ -169,14 +168,14 @@ angular.module('classeur.core.localDb', [])
             // Delete all dirty daos, user was asleep anyway...
             resetMap = true
             // And retrieve everything from DB
-            lastSeq = 0
+            lastTx = 0
             hasChanged = true
           }
           lastReadAll = currentDate
 
           var store = tx.objectStore(storeName)
           var index = store.index('seq')
-          var range = $window.IDBKeyRange.lowerBound(lastSeq, true)
+          var range = $window.IDBKeyRange.lowerBound(lastTx, true)
           var items = []
           var itemsToDelete = []
           index.openCursor(range).onsuccess = function (event) {
@@ -211,7 +210,7 @@ angular.module('classeur.core.localDb', [])
         }
 
         function writeAll (daoMap, tx) {
-          var currentDate = Date.now()
+          lastTx = tx.txCounter
           var store = tx.objectStore(storeName)
 
           // Remove deleted daos
@@ -223,7 +222,7 @@ angular.module('classeur.core.localDb', [])
               // Put a deleted marker to notify other tabs
               store.put({
                 id: id,
-                seq: currentDate
+                seq: lastTx
               })
               delete storedSeqs[id]
             }
@@ -243,11 +242,11 @@ angular.module('classeur.core.localDb', [])
             if (dirty) {
               if (!dao.$dirtyUpdated) {
                 // Force update the `updated` attribute
-                dao.updated = currentDate
+                dao.updated = Date.now()
               }
               var item = {
                 id: daoIds[i],
-                seq: currentDate
+                seq: lastTx
               }
               for (j = 0; j < schemaKeysLen; j++) {
                 attributeWriters[schemaKeys[j]](item, dao)
@@ -281,10 +280,11 @@ angular.module('classeur.core.localDb', [])
         'files',
         'folders',
         'classeurs',
-        'objects'
+        'objects',
+        'app'
       ]
 
-      function createTx () {
+      function createTx (cb) {
         // If DB version has changed (Safari support)
         if (parseInt(clLocalStorage.localDbVersion, 10) !== db.version) {
           return $window.location.reload()
@@ -293,12 +293,21 @@ angular.module('classeur.core.localDb', [])
         tx.onerror = function (evt) {
           debug('Rollback transaction', evt)
         }
-        return tx
+        var store = tx.objectStore('app')
+        var request = store.get('txCounter')
+        request.onsuccess = function (event) {
+          tx.txCounter = request.result ? request.result.value : 0
+          store.put({
+            id: 'txCounter',
+            value: ++tx.txCounter
+          })
+          cb(tx)
+        }
       }
 
       ;(function () {
         // Init connexion
-        var request = $window.indexedDB.open('classeur-db', 1)
+        var request = $window.indexedDB.open('classeur-db', 2)
 
         request.onerror = function (event) {
           $window.alert("Can't connect to IndexedDB.")
@@ -313,7 +322,7 @@ angular.module('classeur.core.localDb', [])
           }
 
           getTxCbs.cl_each(function (cb) {
-            cb(createTx())
+            createTx(cb)
           })
         }
 
@@ -325,8 +334,9 @@ angular.module('classeur.core.localDb', [])
             store.createIndex('seq', 'seq', { unique: false })
           }
 
-          // Note: we don't use 'break' in this switch statement,
+          // We don't use 'break' in this switch statement,
           // the fall-through behaviour is what we want.
+          /* eslint-disable no-fallthrough */
           switch (oldVersion) {
             case 0:
               ;[
@@ -335,13 +345,16 @@ angular.module('classeur.core.localDb', [])
                 'classeurs',
                 'objects'
               ].cl_each(createStore)
+            case 1:
+              createStore('app')
           }
+        /* eslint-enable no-fallthrough */
         }
       })()
 
       return function (cb) {
         if (db) {
-          cb(createTx())
+          createTx(cb)
         } else {
           getTxCbs.push(cb)
         }

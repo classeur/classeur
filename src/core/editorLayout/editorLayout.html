@@ -59,7 +59,7 @@
               <md-button class="navbar__btn navbar__btn--edit icon-mode-edit" md-no-ink ng-click="openEditor()" aria-label="Edit" title="Edit">
               </md-button>
               <div class="navbar__animated-btn">
-                <md-button class="navbar__btn navbar__btn--close icon-clear" md-no-ink ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close file" title="Close file">
+                <md-button class="navbar__btn navbar__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close file" title="Close file">
                 </md-button>
                 <md-button class="navbar__btn navbar__btn--scroll icon-arrow-back" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
                 </md-button>
@@ -123,7 +123,7 @@
         </div>
         <div class="right-margin panel">
           <div class="right-margin__btns" layout="column">
-            <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="syncSvc.saveAll(); setCurrentFile()" aria-label="Close editor" title="Close editor">
+            <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close editor" title="Close editor">
             </md-button>
             <md-button class="right-margin__btn right-margin__btn--minimize icon-remove" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
             </md-button>

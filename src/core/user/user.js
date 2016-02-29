@@ -121,7 +121,7 @@ angular.module('classeur.core.user', [])
       return clUserSvc
     })
   .factory('clUserInfoSvc',
-    function ($window, $rootScope, $http, clUserSvc, clSocketSvc, clSetInterval, clIsNavigatorOnline, clHash) {
+    function ($window, $rootScope, clRestSvc, clUserSvc, clSocketSvc, clSetInterval, clIsNavigatorOnline, clHash) {
       var colors = [
         'ff5757',
         'e35d9c',
@@ -138,61 +138,70 @@ angular.module('classeur.core.user', [])
         'ff8f57',
         'ff7457'
       ]
-      var requestedUserInfo = {}
-      var userInfoTimeout = 30 * 1000 // 30 sec
-      var lastUserInfoAttempt = 0
+      var requestedUsers = []
 
       var clUserInfoSvc = {
         users: Object.create(null),
         request: function (id) {
           if (id && !clUserInfoSvc.users[id]) {
-            clUserInfoSvc.users[id] = {
-              displayName: id === clUserSvc.user.id ? 'You' : 'Someone',
+            var user = {
+              id: id,
               color: colors[clHash(id) % colors.length],
               gravatarHash: '00000000000000000000000000000000'
             }
-            requestedUserInfo[id] = true
-            getUserInfos()
+            clUserInfoSvc.users[id] = user
+            if (clUserSvc.user && id === clUserSvc.user.id) {
+              if (clUserSvc.user.gravatarHash) {
+                user.gravatarHash = clUserSvc.user.gravatarHash
+              }
+            } else {
+              user.requested = true
+              requestedUsers.push(user)
+              getRequestedUser()
+            }
+            buildNames()
           }
         }
       }
 
-      var getUserInfos = $window.cledit.Utils.debounce(function () {
-        if (!clIsNavigatorOnline()) {
-          return
-        }
-        var currentDate = Date.now()
-        var ids = Object.keys(requestedUserInfo)
-        if (!ids.length || currentDate - lastUserInfoAttempt < userInfoTimeout) {
-          return
-        }
-        lastUserInfoAttempt = currentDate
-        $http.get('/api/v1/metadata/users', {
-          headers: clSocketSvc.makeAuthorizationHeader(),
-          timeout: userInfoTimeout,
-          params: {
-            id: ids.join(',')
+      var requestedUserQueue = Promise.resolve()
+      function getRequestedUser () {
+        requestedUserQueue = requestedUserQueue.then(function () {
+          if (!clIsNavigatorOnline()) {
+            return
+          }
+          var user = requestedUsers.pop()
+          if (user && user.requested) {
+            user.requested = false
+            return clRestSvc.request({
+              method: 'GET',
+              url: '/api/v2/users/' + user.id
+            })
+              .catch(function () {})
+              .then(function (item) {
+                if (item) {
+                  user.cl_extend(item)
+                  buildNames()
+                  $rootScope.$evalAsync()
+                }
+                return getRequestedUser()
+              })
           }
         })
-          .success(function (res) {
-            lastUserInfoAttempt = 0
-            res.cl_each(function (user) {
-              clUserInfoSvc.users[user.id].cl_extend(user)
-              delete requestedUserInfo[user.id]
-            })
-            buildNames()
-          })
-      })
+      }
 
       function buildNames () {
         Object.keys(clUserInfoSvc.users).cl_each(function (id) {
           var user = clUserInfoSvc.users[id]
-          user.displayName = id === clUserSvc.user.id ? 'You' : user.name || 'Someone'
+          user.displayName = user.name || 'Someone'
+          if (clUserSvc.user && clUserSvc.user.id === id) {
+            user.displayName = 'You'
+          }
         })
         clUserInfoSvc.lastUserInfo = Date.now()
       }
 
-      clSetInterval(getUserInfos, 1200)
+      clSetInterval(getRequestedUser, 1200)
       $rootScope.$watch('userSvc.user', buildNames)
 
       return clUserInfoSvc
@@ -253,7 +262,7 @@ angular.module('classeur.core.user', [])
               return clToast('User name is too long.')
             }
             scope.isLoading = true
-            $http.post('/api/v1/users', {
+            $http.post('/api/v2/users', {
               name: scope.newUser.name,
               token: newUserToken
             })
@@ -290,7 +299,7 @@ angular.module('classeur.core.user', [])
               return clToast('Please enter your password.')
             }
             scope.isLoading = true
-            $http.post('/api/v1/users', scope.user)
+            $http.post('/api/v2/users', scope.user)
               .success(function (userToken) {
                 clUserSvc.signin(userToken)
                 $location.url('')
