@@ -231,10 +231,14 @@ angular.module('classeur.core.explorerLayout', [])
 
         function importExistingFolder (folder, move) {
           move && clClasseurSvc.activeDaos.cl_each(function (classeur) {
-            var index = classeur.folders.indexOf(folder)
-            ~index && classeur.folders.splice(index, 1)
+            if (clExplorerLayoutSvc.currentClasseur !== classeur) {
+              var index = classeur.folders.indexOf(folder)
+              if (~index) {
+                clClasseurSvc.removeFolderFromClasseur(classeur, folder)
+              }
+            }
           })
-          clExplorerLayoutSvc.currentClasseur.folders.push(folder)
+          clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()
           clExplorerLayoutSvc.setCurrentFolder(folder)
@@ -242,9 +246,9 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         function importPublicFolder (folderId) {
-          var folder = clFolderSvc.createPublicFolder(folderId)
           // Classeurs are updated when evaluating folderSvc.activeDaos
-          clExplorerLayoutSvc.currentClasseur.folders.push(folder)
+          var folder = clFolderSvc.createPublicFolder(folderId)
+          clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
           $timeout(function () {
             clExplorerLayoutSvc.setCurrentFolder(folder)
           })
@@ -297,10 +301,13 @@ angular.module('classeur.core.explorerLayout', [])
               importFolder()
             }
           }).then(function (name) {
+            // Classeurs are automatically updated when evaluating folderSvc.activeDaos
             var folder = clFolderSvc.createFolder()
             folder.name = name
-            // Classeurs are updated when evaluating folderSvc.activeDaos
-            clExplorerLayoutSvc.currentClasseur.folders.push(folder)
+            // We only attach the folder to the Classeur if the classeur is not the default one
+            if (clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
+              clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
+            }
             $timeout(function () {
               clExplorerLayoutSvc.setCurrentFolder(folder)
             })
@@ -372,7 +379,7 @@ angular.module('classeur.core.explorerLayout', [])
         // setInterval(function() {
         // 	var folder = clFolderSvc.createFolder()
         // 	folder.name = 'Folder ' + folder.id
-        // 	clExplorerLayoutSvc.currentClasseur.folders.push(folder)
+        //  clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
         // 	scope.$apply()
         // }, 15000)
 
@@ -464,9 +471,7 @@ angular.module('classeur.core.explorerLayout', [])
           if (clExplorerLayoutSvc.currentFolder.userId && !scope.isFolderInOtherClasseur()) {
             clFolderSvc.removeDaos([clExplorerLayoutSvc.currentFolder])
           } else {
-            clExplorerLayoutSvc.currentClasseur.folders = clExplorerLayoutSvc.currentClasseur.folders.cl_filter(function (folderInClasseur) {
-              return folderInClasseur.id !== clExplorerLayoutSvc.currentFolder.id
-            })
+            clClasseurSvc.removeFolderFromClasseur(clExplorerLayoutSvc.currentClasseur, clExplorerLayoutSvc.currentFolder)
           }
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()

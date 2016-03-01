@@ -45,13 +45,13 @@ angular.module('classeur.core', [])
             var classeur = clClasseurSvc.defaultClasseur
             if (!folder) {
               folder = clFolderSvc.createPublicFolder($routeParams.folderId)
-              classeur.folders.push(folder)
+              clClasseurSvc.addFolderToClasseur(classeur, folder)
             } else {
-              if (clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder) !== -1) {
+              if (~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
                 classeur = clExplorerLayoutSvc.currentClasseur
               } else {
                 clClasseurSvc.activeDaos.cl_some(function (classeurToScan) {
-                  if (classeurToScan.folders.indexOf(folder) !== -1) {
+                  if (~classeurToScan.folders.indexOf(folder)) {
                     classeur = classeurToScan
                     return true
                   }

@@ -1,7 +1,7 @@
 angular.module('classeur.core.sync', [])
   .factory('clSyncDataSvc',
     function (clFileSvc, clFolderSvc, clClasseurSvc, clLocalStorage) {
-      var cleanPublicObjectAfter = 15 * 24 * 60 * 60 * 1000 // 15 days
+      var cleanPublicObjectAfter = 30 * 24 * 60 * 60 * 1000 // 30 days
       var clSyncDataSvc = {
         init: init,
         checkUserChanged: checkUserChanged,
@@ -123,6 +123,8 @@ angular.module('classeur.core.sync', [])
       var userNameMaxLength = 64
       var recoverFileTimeout = 30 * 1000 // 30 sec
       var lastSeqMargin = 1000 // 1 sec
+      var ADDED = 1
+      var REMOVED = -1
       var clSyncSvc = {
         userNameMaxLength: userNameMaxLength,
         getFolder: getFolder,
@@ -151,19 +153,21 @@ angular.module('classeur.core.sync', [])
         }
 
         function getObject (id, defaultValue) {
-          return daoMap[id].value || JSON.parse(defaultValue || '{}')
+          return (daoMap[id] && daoMap[id].value) || JSON.parse(defaultValue || '{}')
         }
 
         function putObjects () {
           putObject('user', orderKeys(clUserSvc.user || null)) // Order keys to ensure `updated` field is updated only if value changed
           putObject('settings', orderKeys(clSettingSvc.values)) // Order keys to ensure `updated` field is updated only if value changed
           putObject('localSettings', clLocalSettingSvc.values)
+          putObject('classeurFolderMap', clClasseurSvc.classeurFolderMap)
+          putObject('classeurAddedFolderMap', clClasseurSvc.classeurAddedFolderMap)
+          putObject('classeurRemovedFolderMap', clClasseurSvc.classeurRemovedFolderMap)
           putObject('classeurSyncData', clSyncDataSvc.classeurs)
           putObject('folderSyncData', clSyncDataSvc.folders)
           putObject('fileSyncData', clSyncDataSvc.files)
           putObject('userSyncData', clSyncDataSvc.user)
           putObject('lastSyncSeqs', clSyncDataSvc.lastSeqs)
-          putObject('fileCreationDates', clSyncDataSvc.fileCreationDates)
           putObject('folderRefreshDates', clSyncDataSvc.folderRefreshDates)
           putObject('fileRecoveryDates', clSyncDataSvc.fileRecoveryDates)
         }
@@ -172,12 +176,14 @@ angular.module('classeur.core.sync', [])
           clUserSvc.user = getObject('user', 'null')
           clSettingSvc.values = getObject('settings', clSettingSvc.defaultSettings)
           clLocalSettingSvc.values = getObject('localSettings', clLocalSettingSvc.defaultLocalSettings)
+          clClasseurSvc.classeurFolderMap = getObject('classeurFolderMap')
+          clClasseurSvc.classeurAddedFolderMap = getObject('classeurAddedFolderMap')
+          clClasseurSvc.classeurRemovedFolderMap = getObject('classeurRemovedFolderMap')
           clSyncDataSvc.classeurs = getObject('classeurSyncData')
           clSyncDataSvc.folders = getObject('folderSyncData')
           clSyncDataSvc.files = getObject('fileSyncData')
           clSyncDataSvc.user = getObject('userSyncData')
           clSyncDataSvc.lastSeqs = getObject('lastSyncSeqs')
-          clSyncDataSvc.fileCreationDates = getObject('fileCreationDates')
           clSyncDataSvc.folderRefreshDates = getObject('folderRefreshDates')
           clSyncDataSvc.fileRecoveryDates = getObject('fileRecoveryDates')
         }
@@ -469,9 +475,9 @@ angular.module('classeur.core.sync', [])
           var user = pendingChangeGroups.users[clSyncDataSvc.user.id]
           if (user) {
             if (!clUserSvc.user ||
-              (user.updated !== daoMap.user.updated &&
-              user.updated !== clSyncDataSvc.user.updated &&
-              user.updated !== syncQueue.users[clSyncDataSvc.user.id])
+              (user.updated !== daoMap.user.updated && // Is out of sync
+              user.updated !== clSyncDataSvc.user.updated && // Is different from last received
+              user.updated !== syncQueue.users[clSyncDataSvc.user.id]) // Is different from last sent
             ) {
               clUserSvc.user = user
               daoMap.user.updated = user.updated
@@ -513,6 +519,12 @@ angular.module('classeur.core.sync', [])
 
         // Process received classeur changes
         if (syncQueue.classeurs) {
+          // If folders are ready, start attaching them to classeurs
+          if (syncQueue.folders) {
+            syncQueue.foldersAddedToClasseurs = {}
+            syncQueue.foldersRemovedFromClasseurs = {}
+          }
+
           changesToApply = []
           pendingChangeGroups.classeurs.cl_each(function (item) {
             var classeur = clClasseurSvc.activeDaoMap[item.id]
@@ -523,9 +535,9 @@ angular.module('classeur.core.sync', [])
               (!item.deleted && !classeur && !clClasseurSvc.deletedDaoMap[item.id]) ||
               // Was updated on the server and is different from local
               (!item.deleted && classeur &&
-              item.updated !== classeur.updated &&
-              item.updated !== clSyncDataSvc.classeurs[item.id] &&
-              item.updated !== syncQueue.classeurs[item.id])
+              item.updated !== classeur.updated && // Is out of sync
+              item.updated !== clSyncDataSvc.classeurs[item.id] && // Is different from last received
+              item.updated !== syncQueue.classeurs[item.id]) // Is different from last sent
             ) {
               changesToApply.push(item)
               // Sanitize userId according to current user
@@ -554,46 +566,46 @@ angular.module('classeur.core.sync', [])
           syncQueue.settingsMerged && syncQueue(function updateClasseur () {
             var result
 
-            function isToBeUpdated (classeur) {
-              return classeur.name && classeur.updated &&
-              classeur.updated !== clSyncDataSvc.classeurs[classeur.id] &&
-              classeur.updated !== syncQueue.classeurs[classeur.id]
+            function findOne (classeurs, cb, checkExists) {
+              return classeurs.cl_some(function (classeur) {
+                if ((!checkExists || clSyncDataSvc.classeurs[classeur.id]) && // Exists on the server
+                  classeur.name && classeur.updated && // Is ready for sync
+                  classeur.updated !== clSyncDataSvc.classeurs[classeur.id] && // Is out of sync
+                  classeur.updated !== syncQueue.classeurs[classeur.id] // Is not currently syncing
+                ) {
+                  result = cb(classeur)
+                  return true
+                }
+              })
             }
 
             // Send a new/modified classeur
-            clClasseurSvc.activeDaos.cl_some(function (classeur) {
-              if (isToBeUpdated(classeur)) {
-                debug('Put classeur')
-                syncQueue.classeurs[classeur.id] = classeur.updated
-                result = clRestSvc.request({
-                  method: 'PUT',
-                  url: '/api/v2/classeurs/' + classeur.id,
-                  body: {
-                    id: classeur.id,
-                    userId: classeur.userId === 'null' ? undefined : classeur.userId || clSyncDataSvc.user.id,
-                    name: classeur.name,
-                    updated: classeur.updated
-                  }
-                })
-                return true // Send one at a time
-              }
+            findOne(clClasseurSvc.activeDaos, function (classeur) {
+              debug('Put classeur')
+              syncQueue.classeurs[classeur.id] = classeur.updated
+              return clRestSvc.request({
+                method: 'PUT',
+                url: '/api/v2/classeurs/' + classeur.id,
+                body: {
+                  id: classeur.id,
+                  userId: classeur.userId === 'null' ? undefined : classeur.userId || clSyncDataSvc.user.id,
+                  name: classeur.name,
+                  updated: classeur.updated
+                }
+              })
             }) ||
             // Or send a deleted classeur
-            clClasseurSvc.deletedDaos.cl_some(function (classeur) {
-              // If classeur was synced
-              if (clSyncDataSvc.classeurs[classeur.id] && isToBeUpdated(classeur)) {
-                debug('Delete classeur')
-                syncQueue.classeurs[classeur.id] = classeur.updated
-                result = clRestSvc.request({
-                  method: 'DELETE',
-                  url: '/api/v2/classeurs/' + classeur.id
-                })
-                return true // Send one at a time
-              }
-            })
+            findOne(clClasseurSvc.deletedDaos, function (classeur) {
+              debug('Delete classeur')
+              syncQueue.classeurs[classeur.id] = classeur.updated
+              return clRestSvc.request({
+                method: 'DELETE',
+                url: '/api/v2/classeurs/' + classeur.id
+              })
+            }, true)
 
             if (result) {
-              syncQueue(updateClasseur) // Enqueue other potential updates
+              syncQueue(updateClasseur) // Enqueue other potential changes
               return result
             }
           })
@@ -603,7 +615,8 @@ angular.module('classeur.core.sync', [])
         // FOLDERS
 
         // Process received folder changes
-        if (syncQueue.folders) {
+        var classeurMappingChanged
+        if (syncQueue.folders && syncQueue.foldersAddedToClasseurs) {
           changesToApply = []
           var lastFolderSeq = clSyncDataSvc.lastSeqs.folders
           pendingChangeGroups.folders.cl_each(function (item) {
@@ -616,9 +629,9 @@ angular.module('classeur.core.sync', [])
               (!item.deleted && !folder && !clFolderSvc.deletedDaoMap[item.id]) ||
               // Was updated on the server and is different from local
               (!item.deleted && folder &&
-              item.updated !== folder.updated &&
-              item.updated !== clSyncDataSvc.folders[item.id] &&
-              item.updated !== syncQueue.folders[item.id])
+              item.updated !== folder.updated && // Is out of sync
+              item.updated !== clSyncDataSvc.folders[item.id] && // Is different from last received
+              item.updated !== syncQueue.folders[item.id]) // Is different from last sent
             ) {
               changesToApply.push(item)
               // Sanitize userId according to current user
@@ -632,9 +645,40 @@ angular.module('classeur.core.sync', [])
               clSyncDataSvc.folders[item.id] = item.updated
             }
             delete syncQueue.folders[item.id] // Assume we received the change we sent
+
+            // Apply classeur mapping
+            if (item.classeurIds) {
+              var mappingChanges = {}
+              clClasseurSvc.classeurFolderMap.cl_each(function (folderIds, classeurId) {
+                if (~folderIds.indexOf(item.id)) {
+                  mappingChanges[classeurId] = REMOVED
+                }
+              })
+              item.classeurIds.cl_each(function (classeurId) {
+                if (mappingChanges[classeurId] === REMOVED) {
+                  delete mappingChanges[classeurId]
+                } else {
+                  mappingChanges[classeurId] = ADDED
+                }
+              })
+              mappingChanges.cl_each(function (value, classeurId) {
+                if (value === ADDED) {
+                  clClasseurSvc.setClasseurFolder(classeurId, item.id)
+                  if (syncQueue.foldersAddedToClasseurs[item.id] === classeurId) {
+                    delete syncQueue.foldersAddedToClasseurs[item.id]
+                  }
+                } else {
+                  clClasseurSvc.unsetClasseurFolder(classeurId, item.id)
+                  if (syncQueue.foldersRemovedFromClasseurs[item.id] === classeurId) {
+                    delete syncQueue.foldersRemovedFromClasseurs[item.id]
+                  }
+                }
+                classeurMappingChanged = true
+              })
+            }
           })
 
-          if (changesToApply.length) {
+          if (changesToApply.length || classeurMappingChanged) {
             clFolderSvc.applyServerChanges(changesToApply)
             debug('Processed ' + changesToApply.length + ' folder changes')
             hasChanged = true
@@ -646,48 +690,93 @@ angular.module('classeur.core.sync', [])
           syncQueue(function updateFolder () {
             var result
 
-            function isToBeUpdated (folder) {
-              return folder.name && folder.updated &&
-              folder.updated !== clSyncDataSvc.folders[folder.id] &&
-              folder.updated !== syncQueue.folders[folder.id] &&
-              (!folder.userId || folder.sharing === 'rw')
+            function findOne (folders, cb, checkExists) {
+              return folders.cl_some(function (folder) {
+                if ((!checkExists || clSyncDataSvc.folders[folder.id]) && // Exists on the server
+                  folder.name && folder.updated && // Is ready for sync
+                  folder.updated !== clSyncDataSvc.folders[folder.id] && // Is out of sync
+                  folder.updated !== syncQueue.folders[folder.id] && // Is not currently syncing
+                  (!folder.userId || folder.sharing === 'rw') // Is writable
+                ) {
+                  result = cb(folder)
+                  return true
+                }
+              })
             }
 
             // Send a new/modified folder
-            clFolderSvc.activeDaos.cl_some(function (folder) {
-              if (isToBeUpdated(folder)) {
-                debug('Put folder')
-                syncQueue.folders[folder.id] = folder.updated
-                result = clRestSvc.request({
-                  method: 'PUT',
-                  url: '/api/v2/folders/' + folder.id,
-                  body: {
-                    id: folder.id,
-                    userId: folder.userId || clSyncDataSvc.user.id,
-                    name: folder.name,
-                    sharing: folder.sharing || undefined,
-                    updated: folder.updated
-                  }
-                })
-                return true // Send one at a time
-              }
+            findOne(clFolderSvc.activeDaos, function (folder) {
+              debug('Put folder')
+              syncQueue.folders[folder.id] = folder.updated
+              return clRestSvc.request({
+                method: 'PUT',
+                url: '/api/v2/folders/' + folder.id,
+                body: {
+                  id: folder.id,
+                  userId: folder.userId || clSyncDataSvc.user.id,
+                  name: folder.name,
+                  sharing: folder.sharing || undefined,
+                  updated: folder.updated
+                }
+              })
             }) ||
             // Or send a deleted folder
-            clFolderSvc.deletedDaos.cl_some(function (folder) {
-              // If folder was synced
-              if (clSyncDataSvc.folders[folder.id] && isToBeUpdated(folder)) {
-                debug('Delete folder')
-                syncQueue.folders[folder.id] = folder.updated
-                result = clRestSvc.request({
-                  method: 'DELETE',
-                  url: '/api/v2/folders/' + folder.id
-                })
-                return true // Send one at a time
-              }
-            })
+            findOne(clFolderSvc.deletedDaos, function (folder) {
+              debug('Delete folder')
+              syncQueue.folders[folder.id] = folder.updated
+              return clRestSvc.request({
+                method: 'DELETE',
+                url: '/api/v2/folders/' + folder.id
+              })
+            }, true)
 
             if (result) {
               syncQueue(updateFolder) // Enqueue other potential updates
+              return result
+            }
+          })
+
+          // Send classeur mapping changes
+          syncQueue(function updateMapping () {
+            var result
+
+            function findOne (map, cb) {
+              return map.cl_some(function (folderIds, classeurId) {
+                return clSyncDataSvc.classeurs[classeurId] && // Classeur exists on the server
+                folderIds.cl_some(function (folderId) {
+                  if (
+                    clSyncDataSvc.folders[folderId] && // Folder exists on the server
+                    !syncQueue.foldersAddedToClasseurs[folderId] && // Is not currently syncing
+                    !syncQueue.foldersRemovedFromClasseurs[folderId] // Is not currently syncing
+                  ) {
+                    result = cb(classeurId, folderId)
+                    return true
+                  }
+                })
+              })
+            }
+
+            // Add a folder to a classeur
+            findOne(clClasseurSvc.classeurAddedFolderMap, function (classeurId, folderId) {
+              debug('Add folder to classeur')
+              syncQueue.foldersAddedToClasseurs[folderId] = classeurId
+              return clRestSvc.request({
+                method: 'PUT',
+                url: '/api/v2/classeurs/' + classeurId + '/folders/' + folderId
+              })
+            }) ||
+            // Or remove a folder from a classeur
+            findOne(clClasseurSvc.classeurRemovedFolderMap, function (classeurId, folderId) {
+              debug('Remove folder from classeur')
+              syncQueue.foldersRemovedFromClasseurs[folderId] = classeurId
+              return clRestSvc.request({
+                method: 'DELETE',
+                url: '/api/v2/classeurs/' + classeurId + '/folders/' + folderId
+              })
+            })
+
+            if (result) {
+              syncQueue(updateMapping) // Enqueue other potential changes
               return result
             }
           })
@@ -715,9 +804,9 @@ angular.module('classeur.core.sync', [])
               (!item.deleted && !file && !clFileSvc.deletedDaoMap[item.id]) ||
               // Was updated on the server and is different from local
               (!item.deleted && file &&
-              item.updated !== file.updated &&
-              item.updated !== clSyncDataSvc.files[item.id] &&
-              item.updated !== syncQueue.files[item.id])
+              item.updated !== file.updated && // Is out of sync
+              item.updated !== clSyncDataSvc.files[item.id] && // Is different from last received
+              item.updated !== syncQueue.files[item.id]) // Is different from last sent
             ) {
               changesToApply.push(item)
               // Sanitize userId according to current user
@@ -746,91 +835,83 @@ angular.module('classeur.core.sync', [])
             var filesToRemove = []
             var result
 
-            function isToBeUpdated (file) {
-              var folder = clFolderSvc.activeDaoMap[file.folderId]
-              if (file.name && file.updated &&
-                file.updated !== clSyncDataSvc.files[file.id] &&
-                file.updated !== syncQueue.files[file.id] &&
-                // File can be saved into folder only if folder was synced
-                (!file.folderId || clSyncDataSvc.folders[file.folderId]) &&
-                // Folder sharing preference overrides file preference
-                (!file.userId || (file.sharing === 'rw' || (folder && folder.sharing === 'rw')))
-              ) {
-                if (clSyncDataSvc.files[file.id]) {
-                  return true
-                }
-                try {
-                  return file.loadDoUnload(function () {
-                    // Remove first file in case existing user signs in (see #13)
-                    if (clFileSvc.activeDaos.length > 1 && file.name === clFileSvc.firstFileName && file.content.text === clFileSvc.firstFileContent) {
-                      filesToRemove.push(file)
-                      return
+            function findOne (files, cb, checkExists) {
+              return files.cl_some(function (file) {
+                var folder = clFolderSvc.activeDaoMap[file.folderId]
+                if ((!checkExists || clSyncDataSvc.files[file.id]) && // Exists on the server
+                  file.name && file.updated && // Is ready for sync
+                  file.updated !== clSyncDataSvc.files[file.id] && // Is out of sync
+                  file.updated !== syncQueue.files[file.id] && // Is not currently syncing
+                  (!file.folderId || clSyncDataSvc.folders[file.folderId]) && // Folder exists on the server
+                  (!folder.userId || (file.sharing === 'rw' || (folder && folder.sharing === 'rw'))) // Is writable
+                ) {
+                  try {
+                    if (clSyncDataSvc.files[file.id] || file
+                        .loadDoUnload(function () {
+                          // Remove first file in case existing user signs in (#13)
+                          if (!clFileSvc.activeDaos.length || file.name !== clFileSvc.firstFileName || file.content.text !== clFileSvc.firstFileContent) {
+                            return true
+                          }
+                          filesToRemove.push(file)
+                        })
+                    ) {
+                      result = cb(file)
+                      return true
                     }
-                    return true
-                  })
-                } catch (e) {
-                  // File is not local and was never created
-                  filesToRemove.push(file)
-                  return
+                  } catch (e) {
+                    // File is not local and was never created
+                    filesToRemove.push(file)
+                  }
                 }
-              }
+              })
             }
 
             // Send a new/modified file
-            clFileSvc.activeDaos.cl_some(function (file) {
-              if (isToBeUpdated(file)) {
-                debug('Put file')
-                syncQueue.files[file.id] = file.updated
-                // Remove from folder only if file belongs to user
-                var folderId = file.folderId || (file.userId ? undefined : 'null')
-                result = clRestSvc.request({
-                  method: 'PUT',
-                  url: folderId
-                    ? '/api/v2/folders/' + folderId + '/files/' + file.id
-                    : '/api/v2/files/' + file.id,
-                  body: {
-                    id: file.id,
-                    userId: file.userId || clSyncDataSvc.user.id,
-                    name: file.name,
-                    sharing: file.sharing || undefined,
-                    updated: file.updated
-                  }
-                })
-                return true // Send one at a time
-              }
+            findOne(clFileSvc.activeDaos, function (file) {
+              debug('Put file')
+              syncQueue.files[file.id] = file.updated
+              var folderId = file.folderId || (file.userId ? undefined : 'null') // Remove from folder only if file belongs to user
+              return clRestSvc.request({
+                method: 'PUT',
+                url: folderId
+                  ? '/api/v2/folders/' + folderId + '/files/' + file.id
+                  : '/api/v2/files/' + file.id,
+                body: {
+                  id: file.id,
+                  userId: file.userId || clSyncDataSvc.user.id,
+                  name: file.name,
+                  sharing: file.sharing || undefined,
+                  updated: file.updated
+                }
+              })
             }) ||
             // Or send a deleted file
-            clFileSvc.deletedDaos.cl_some(function (file) {
-              // If file was synced
-              if (clSyncDataSvc.files[file.id] && isToBeUpdated(file) && !clSyncDataSvc.fileRecoveryDates.hasOwnProperty(file.id)) {
-                debug('Put deleted file')
-                syncQueue.files[file.id] = file.updated
-                // Remove from folder only if file belongs to user
-                var folderId = file.folderId || (file.userId ? undefined : 'null')
-                result = clRestSvc.request({
-                  method: 'PUT',
-                  url: folderId
-                    ? '/api/v2/folders/' + folderId + '/files/' + file.id
-                    : '/api/v2/files/' + file.id,
-                  body: {
-                    id: file.id,
-                    userId: file.userId || clSyncDataSvc.user.id,
-                    name: file.name,
-                    sharing: file.sharing || undefined,
-                    updated: file.updated,
-                    deleted: file.deleted
-                  }
-                })
-                return true // Send one at a time
-              }
-            })
+            findOne(clFileSvc.deletedDaos, function (file) {
+              debug('Put deleted file')
+              syncQueue.files[file.id] = file.updated
+              var folderId = file.folderId || (file.userId ? undefined : 'null') // Remove from folder only if file belongs to user
+              return clRestSvc.request({
+                method: 'PUT',
+                url: folderId
+                  ? '/api/v2/folders/' + folderId + '/files/' + file.id
+                  : '/api/v2/files/' + file.id,
+                body: {
+                  id: file.id,
+                  userId: file.userId || clSyncDataSvc.user.id,
+                  name: file.name,
+                  sharing: file.sharing || undefined,
+                  updated: file.updated,
+                  deleted: file.deleted
+                }
+              })
+            }, true)
 
             if (filesToRemove.length) {
               clFileSvc.removeDaos(filesToRemove)
               $rootScope.$evalAsync()
             }
             if (result) {
-              syncQueue(updateFile) // Enqueue other potential updates
+              syncQueue(updateFile) // Enqueue other potential changes
               return result
             }
           })
@@ -844,9 +925,9 @@ angular.module('classeur.core.sync', [])
           var settings = pendingChangeGroups.settings[0]
           if (settings) {
             if (
-              settings.updated !== daoMap.settings.updated &&
-              settings.updated !== clSyncDataSvc.user.settings &&
-              settings.updated !== syncQueue.settings[0]
+              settings.updated !== daoMap.settings.updated && // Is out of sync
+              settings.updated !== clSyncDataSvc.user.settings && // Is different from last received
+              settings.updated !== syncQueue.settings[0] // Is different from last sent
             ) {
               var newDefaultClasseur
               if (settings.defaultClasseurId !== clSettingSvc.values.defaultClasseurId) {

@@ -2,13 +2,20 @@ angular.module('classeur.core.localDb', [])
   .factory('clLocalDbStore',
     function ($window, clUid, clLocalDb, clDebug) {
       var debug = clDebug('classeur:clLocalDbStore')
-      var deletedMarkerMaxAge = 60 * 60 * 1000 // 1h
+      var deletedMarkerMaxAge = 1000
 
       function identity (value) {
         return value
       }
 
       return function (storeName, schema) {
+        var store = {
+          getPatch: getPatch,
+          writeAll: writeAll,
+          createDao: createDao,
+          Dao: Dao
+        }
+
         schema = angular.extend({}, schema, {
           updated: 'int'
         })
@@ -156,23 +163,18 @@ angular.module('classeur.core.localDb', [])
           return true
         }
 
-        var lastReadAll
-
         function getPatch (tx, cb) {
-          var currentDate = Date.now()
-          var hasChanged = !lastReadAll
           var resetMap
 
           // We may have missed some deleted markers
-          if (lastReadAll && currentDate - lastReadAll > deletedMarkerMaxAge) {
+          if (lastTx && tx.txCounter - lastTx > deletedMarkerMaxAge) {
             // Delete all dirty daos, user was asleep anyway...
             resetMap = true
             // And retrieve everything from DB
             lastTx = 0
-            hasChanged = true
           }
-          lastReadAll = currentDate
 
+          var hasChanged = !lastTx
           var store = tx.objectStore(storeName)
           var index = store.index('seq')
           var range = $window.IDBKeyRange.lowerBound(lastTx, true)
@@ -202,7 +204,7 @@ angular.module('classeur.core.localDb', [])
             var item = cursor.value
             items.push(item)
             // Remove old deleted markers
-            if (!item.updated && currentDate - item.seq > deletedMarkerMaxAge) {
+            if (!item.updated && tx.txCounter - item.seq > deletedMarkerMaxAge) {
               itemsToDelete.push(item)
             }
             cursor.continue()
@@ -234,10 +236,8 @@ angular.module('classeur.core.localDb', [])
           for (i = 0; i < daoIdsLen; i++) {
             var dao = daoMap[daoIds[i]]
             var dirty = dao.$dirty
-            if (!dirty) {
-              for (var j = 0; j < complexKeysLen; j++) {
-                dirty |= attributeCheckers[complexKeys[j]](dao)
-              }
+            for (var j = 0; !dirty && j < complexKeysLen; j++) {
+              dirty |= attributeCheckers[complexKeys[j]](dao)
             }
             if (dirty) {
               if (!dao.$dirtyUpdated) {
@@ -258,13 +258,6 @@ angular.module('classeur.core.localDb', [])
               dao.$dirtyUpdated = false
             }
           }
-        }
-
-        var store = {
-          getPatch: getPatch,
-          writeAll: writeAll,
-          createDao: createDao,
-          Dao: Dao
         }
 
         return store
@@ -295,7 +288,7 @@ angular.module('classeur.core.localDb', [])
         }
         var store = tx.objectStore('app')
         var request = store.get('txCounter')
-        request.onsuccess = function (event) {
+        request.onsuccess = function () {
           tx.txCounter = request.result ? request.result.value : 0
           store.put({
             id: 'txCounter',
@@ -309,7 +302,7 @@ angular.module('classeur.core.localDb', [])
         // Init connexion
         var request = $window.indexedDB.open('classeur-db', 2)
 
-        request.onerror = function (event) {
+        request.onerror = function () {
           $window.alert("Can't connect to IndexedDB.")
         }
 
@@ -317,7 +310,7 @@ angular.module('classeur.core.localDb', [])
           db = event.target.result
 
           clLocalStorage.localDbVersion = db.version // Safari does not support onversionchange
-          db.onversionchange = function (event) {
+          db.onversionchange = function () {
             return $window.location.reload()
           }
 

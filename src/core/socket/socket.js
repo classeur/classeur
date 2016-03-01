@@ -50,13 +50,13 @@ angular.module('classeur.core.socket', [])
         ;(function () {
           var ctx = {
             socket: $window.eio(),
-            extendSocketTimeout: $window.cledit.Utils.debounce(function () {
+            extendSocketLifetime: $window.cledit.Utils.debounce(function () {
               if (clSocketSvc.ctx === ctx) {
                 closeSocket()
               }
             }, socketTimeout)
           }
-          ctx.extendSocketTimeout()
+          ctx.extendSocketLifetime()
           clSocketSvc.ctx = ctx
           ctx.socket.on('message', function (msg) {
             var type = JSON.parse(msg)[0]
@@ -76,11 +76,21 @@ angular.module('classeur.core.socket', [])
       }
 
       function shouldAttempt () {
-        return !clSocketSvc.ctx && checkToken() && clUserActivity.checkActivity() && clIsNavigatorOnline()
+        if (!clUserActivity.checkActivity()) {
+          // User is not active
+          return
+        }
+        if (clSocketSvc.ctx) {
+          // Socket is already open, extend its lifetime if user is active
+          clSocketSvc.ctx.extendSocketLifetime()
+          return
+        }
+        // Attempt if token is present and navigator is online
+        return checkToken() && clIsNavigatorOnline()
       }
 
       function openSocket () {
-        if (shouldAttempt() && Date.now() > lastConnectionAttempt + nextConnectionAttempt) {
+        if (shouldAttempt() && Date.now() - lastConnectionAttempt > nextConnectionAttempt) {
           attemptOpenSocket()
           if (nextConnectionAttempt < maxNextConnectionAttempt) {
             // Exponential backoff
@@ -114,7 +124,7 @@ angular.module('classeur.core.socket', [])
       function sendMsg (type, msg) {
         if (clSocketSvc.isReady) {
           clSocketSvc.ctx.socket.send(JSON.stringify([type, msg]))
-          clSocketSvc.ctx.extendSocketTimeout()
+          clSocketSvc.ctx.extendSocketLifetime()
         }
       }
 
@@ -180,7 +190,7 @@ angular.module('classeur.core.socket', [])
 
       function request (config) {
         // Assume user is active, so keep socket alive
-        clSocketSvc.ctx && clSocketSvc.ctx.extendSocketTimeout()
+        clSocketSvc.ctx && clSocketSvc.ctx.extendSocketLifetime()
 
         var retryAfter = 500 // 500 ms
         var maxRetryAfter = 30 * 1000 // 30 sec

@@ -188,7 +188,7 @@ angular.module('classeur.core.folders', [])
           dao.sharing = item.sharing
           dao.updated = item.updated
         })
-        items.length && init()
+        init() // Do it even if not item, as there could be some classeur mapping changes
       }
 
       return clFolderSvc

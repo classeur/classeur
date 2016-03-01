@@ -332,7 +332,7 @@ angular.module('classeur.core.files', [])
                 }
                 file.writeContent()
                 file.freeContent()
-                contentMap[this.id].lastChange = parseInt(clLocalStorage.getItem('c.' + id + '.lastChange') || contentMap[this.id].lastChange, 10)
+                contentMap[id].lastChange = parseInt(clLocalStorage.getItem('c.' + id + '.lastChange') || contentMap[id].lastChange, 10)
               }
             })
 
@@ -472,7 +472,7 @@ angular.module('classeur.core.files', [])
           dao.sharing = item.sharing
           dao.updated = item.updated
         })
-        items.length && init()
+        init()
       }
 
       return clFileSvc
