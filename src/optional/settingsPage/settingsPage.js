@@ -11,7 +11,9 @@ angular.module('classeur.optional.settingsPage', [])
       })
     })
   .directive('clSettingsPage',
-    function ($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc) {
+    function ($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc, clRestSvc) {
+      var trashPageSize = 25
+
       clSocketSvc.addMsgHandler('linkedUser', function (msg) {
         clToast(msg.error ? 'An error occurred.' : 'Account successfully linked.')
       })
@@ -35,6 +37,23 @@ angular.module('classeur.optional.settingsPage', [])
 
       function link (scope) {
         var tabs = ['app', 'user', 'blogs', 'trash']
+
+        var waitForSocketReady = (function () {
+          var watcher
+          var watchCb
+          return function (cb) {
+            watchCb = cb
+            if (!watcher) {
+              watcher = scope.$watch('socketSvc.isReady', function (isReady) {
+                if (isReady) {
+                  watcher()
+                  watcher = undefined
+                  watchCb()
+                }
+              })
+            }
+          }
+        })()
 
         scope.loadDefault = function () {
           clDialog.show(clDialog.confirm()
@@ -252,62 +271,60 @@ angular.module('classeur.optional.settingsPage', [])
 
         ;(function () {
           scope.getTrashFiles = function (reset) {
-            if (!scope.getTrashFilesPending) {
-              if (reset) {
-                scope.trashFiles = ({}).cl_extend(clFileSvc.deletedDoaMap)
-                scope.trashEmpty = clFileSvc.deletedDaos.length === 0
-                scope.lastDeleted = undefined
-              }
-              scope.getTrashFilesPending = scope.$watch('socketSvc.isReady', function () {
-                clSocketSvc.sendMsg('getTrashFiles', {
-                  lastDeleted: scope.lastDeleted
-                });
-              })
+            if (reset) {
+              scope.trashFiles = {}
+              scope.trashRangeStart = 0
             }
+            waitForSocketReady(function () {
+              scope.trashRetrievePending = true
+              clRestSvc.list('/api/v2/users/' + clSocketSvc.ctx.userId + '/files', {
+                deleted: true,
+                direction: 'desc'
+              }, scope.trashRangeStart, scope.trashRangeStart + trashPageSize - 1)
+                .then(function (items) {
+                  scope.trashRetrievePending = false
+                  scope.trashHasMore = items.length === trashPageSize
+                  scope.trashRangeStart += items.length
+                  items.cl_each(function (item) {
+                    scope.trashFiles[item.id] = item
+                    scope.trashEmpty = false
+                  })
+                  scope.$evalAsync()
+                }, function (err) {
+                  console.log(err.message, err.stack)
+                })
+            })
           }
 
-          scope.recoverFile = function (file) {
-            clSyncSvc.recoverFile(file)
-            clToast('File recovery is pending...')
+          scope.recoverFile = function (item) {
+            delete scope.trashFiles[item.id]
+            clRestSvc.request({
+              method: 'PUT',
+              url: '/api/v2/files/' + item.id,
+              body: {
+                id: item.id,
+                userId: item.userId,
+                name: item.name,
+                sharing: item.sharing,
+                updated: item.updated
+              }
+            })
           }
 
-          scope.removeFile = function (file) {
+          scope.removeFile = function (item) {
             clDialog.show(clDialog.confirm()
               .title('Remove from trash')
               .content('The file will be removed permanently. Are you sure?')
               .ok('Yes')
               .cancel('No'))
               .then(function () {
-                clSocketSvc.sendMsg('deleteFile', {
-                  id: file.id
+                delete scope.trashFiles[item.id]
+                clRestSvc.request({
+                  method: 'DELETE',
+                  url: '/api/v2/files/' + item.id
                 })
-                scope.trashFiles = scope.trashFiles.cl_reduce(function (trashFiles, trashFile, id) {
-                  if (id !== file.id) {
-                    trashFiles[id] = trashFile
-                  }
-                  return trashFiles
-                }, {})
               })
           }
-
-          function trashFilesHandler (msg) {
-            if (scope.getTrashFilesPending) {
-              msg.files.cl_each(function (item) {
-                scope.trashFiles[item.id] = item
-                scope.lastDeleted = item.deleted
-                scope.trashEmpty = false
-              })
-              scope.lastDeleted = msg.hasMore && scope.lastDeleted
-              scope.getTrashFilesPending()
-              scope.getTrashFilesPending = undefined
-              scope.$evalAsync()
-            }
-          }
-
-          clSocketSvc.addMsgHandler('trashFiles', trashFilesHandler)
-          scope.$on('$destroy', function () {
-            clSocketSvc.removeMsgHandler('trashFiles', trashFilesHandler)
-          })
         })()
 
         scope.$watch('selectedTabIndex', function (newIndex) {

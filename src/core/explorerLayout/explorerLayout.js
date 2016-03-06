@@ -230,14 +230,22 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         function importExistingFolder (folder, move) {
-          move && clClasseurSvc.activeDaos.cl_each(function (classeur) {
-            if (clExplorerLayoutSvc.currentClasseur !== classeur) {
-              var index = classeur.folders.indexOf(folder)
-              if (~index) {
-                clClasseurSvc.removeFolderFromClasseur(classeur, folder)
+          if (move) {
+            // Remove folder from any other classeur
+            clClasseurSvc.activeDaos.cl_each(function (classeur) {
+              if (clExplorerLayoutSvc.currentClasseur !== classeur) {
+                var index = classeur.folders.indexOf(folder)
+                if (~index) {
+                  clClasseurSvc.removeFolderFromClasseur(classeur, folder)
+                }
               }
+            })
+          } else {
+            // If folder was in default classeur, make sure it's attached properly otherwise it won't appear anymore
+            if (~clClasseurSvc.defaultClasseur.folders.indexOf(folder)) {
+              clClasseurSvc.addFolderToClasseur(clClasseurSvc.defaultClasseur, folder)
             }
-          })
+          }
           clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()
@@ -304,7 +312,7 @@ angular.module('classeur.core.explorerLayout', [])
             // Classeurs are automatically updated when evaluating folderSvc.activeDaos
             var folder = clFolderSvc.createFolder()
             folder.name = name
-            // We only attach the folder to the Classeur if the classeur is not the default one
+            // It's not necessary to attach folder to the defaultClasseur as it's done by default
             if (clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
               clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
             }
@@ -555,12 +563,14 @@ angular.module('classeur.core.explorerLayout', [])
         scope.$watchGroup(['classeurSvc.activeDaos', 'classeurSvc.activeDaos.length'], function () {
           clExplorerLayoutSvc.refreshFolders()
           scope.classeurIndex = clClasseurSvc.activeDaos.indexOf(clExplorerLayoutSvc.currentClasseur)
+          setPlasticClass()
         })
         scope.$watchGroup(['explorerLayoutSvc.currentClasseur', 'explorerLayoutSvc.currentFolder'], function () {
           scope.userInputFilter = undefined
           refreshFiles()
           scope.classeurIndex = clClasseurSvc.activeDaos.indexOf(clExplorerLayoutSvc.currentClasseur)
           setPlasticClass()
+          clSyncSvc.getClasseur(clExplorerLayoutSvc.currentClasseur)
           clSyncSvc.getFolder(clExplorerLayoutSvc.currentFolder)
         })
         scope.$watch('userInputFilter', function (value) {

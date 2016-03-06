@@ -136,8 +136,8 @@
                       <div class="file-list__extra">From other classeurs</div>
                       <cl-file-entry ng-repeat="file in explorerLayoutSvc.pagedExtraFiles track by file.id"></cl-file-entry>
                     </div>
-                    <cl-spinner ng-if="explorerLayoutSvc.currentFolder.userId && !explorerLayoutSvc.currentFolder.refreshed"></cl-spinner>
                   </div>
+                  <cl-spinner ng-if="explorerLayoutSvc.currentFolder.userId && !syncDataSvc.folderRefreshDates[explorerLayoutSvc.currentFolder.id]"></cl-spinner>
                   <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length"></cl-recent-alert>
                 </div>
               </div>

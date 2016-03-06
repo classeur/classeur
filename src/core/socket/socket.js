@@ -1,7 +1,7 @@
 angular.module('classeur.core.socket', [])
 
   .factory('clSocketSvc',
-    function ($window, $rootScope, $location, clConfig, clLocalStorage, clUserActivity, clIsNavigatorOnline, clDebug) {
+    function ($window, $rootScope, $location, clConfig, clLocalStorage, clSetInterval, clUserActivity, clIsNavigatorOnline, clDebug) {
       var debug = clDebug('classeur:clSocketSvc')
       var socketTimeout = clUserActivity.inactiveAfter + 60 * 1000 // 2 + 1 min
       var socketTokenKey = 'socketToken'
@@ -11,32 +11,34 @@ angular.module('classeur.core.socket', [])
       var clSocketSvc = {
         hasToken: false,
         setToken: setToken,
-        makeAuthorizationHeader: makeAuthorizationHeader,
         clearToken: clearToken,
-        openSocket: openSocket,
-        closeSocket: closeSocket,
-        isOnline: isOnline,
+        toggleSocket: toggleSocket,
+        makeAuthorizationHeader: makeAuthorizationHeader,
         sendMsg: sendMsg,
         addMsgHandler: addMsgHandler,
         removeMsgHandler: removeMsgHandler
       }
 
       function setToken (token) {
-        clLocalStorage[socketTokenKey] = token
+        clLocalStorage.setItem(socketTokenKey, token)
+        toggleSocket()
       }
 
       function clearToken () {
         clLocalStorage.removeItem(socketTokenKey)
-        clSocketSvc.hasToken = false
+        toggleSocket()
       }
 
-      function checkToken () {
-        socketToken = clLocalStorage[socketTokenKey]
+      function toggleSocket () {
+        socketToken = clLocalStorage.getItem(socketTokenKey)
         var hasToken = !!socketToken
         if (clSocketSvc.hasToken !== hasToken) {
           clSocketSvc.hasToken = hasToken
           $rootScope.$evalAsync()
         }
+        hasToken
+          ? openSocket()
+          : closeSocket()
         return hasToken
       }
 
@@ -86,7 +88,7 @@ angular.module('classeur.core.socket', [])
           return
         }
         // Attempt if token is present and navigator is online
-        return checkToken() && clIsNavigatorOnline()
+        return clSocketSvc.hasToken && clIsNavigatorOnline()
       }
 
       function openSocket () {
@@ -111,14 +113,6 @@ angular.module('classeur.core.socket', [])
             $rootScope.$evalAsync()
           }
         }
-      }
-
-      function isOnline () {
-        if (checkToken()) {
-          openSocket()
-          return clSocketSvc.isReady
-        }
-        closeSocket()
       }
 
       function sendMsg (type, msg) {
@@ -171,7 +165,7 @@ angular.module('classeur.core.socket', [])
         return headers
       }
 
-      openSocket()
+      toggleSocket()
       return clSocketSvc
     })
 

@@ -46,6 +46,7 @@ angular.module('classeur.core', [])
             if (!folder) {
               folder = clFolderSvc.createPublicFolder($routeParams.folderId)
               clClasseurSvc.addFolderToClasseur(classeur, folder)
+              clClasseurSvc.init()
             } else {
               if (~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
                 classeur = clExplorerLayoutSvc.currentClasseur

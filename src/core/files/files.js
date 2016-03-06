@@ -255,11 +255,11 @@ angular.module('classeur.core.files', [])
 
       store.Dao.prototype.setLoaded = function () {
         this.state = 'loaded'
-        if (!contentMap[this.id]) {
+        try {
+          this.readContent()
+        } catch (e) {
           contentMap[this.id] = defaultContent()
           this.writeContent()
-        } else {
-          this.readContent()
         }
       }
 

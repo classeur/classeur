@@ -241,14 +241,21 @@ angular.module('classeur.core.classeurs', [])
 
         // Add orphan folders to the default classeur
         clClasseurSvc.defaultClasseur.isDefault = true
+        var foldersToRemove = []
         clFolderSvc.activeDaos.cl_each(function (folder) {
           if (!foldersInClasseurs[folder.id]) {
-            clClasseurSvc.defaultClasseur.folders.push(folder)
+            // Public folders can't be orphan
+            if (folder.userId) {
+              foldersToRemove.push(foldersToRemove)
+            } else {
+              clClasseurSvc.defaultClasseur.folders.push(folder)
+            }
           }
         })
 
         debug('Init')
         isInitialized = true
+        removeDaos(foldersToRemove)
       }
 
       function getPatch (tx, cb) {

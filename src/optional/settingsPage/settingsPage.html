@@ -189,7 +189,7 @@
           </div>
         </md-tab>
         <md-tab label="Trash">
-          <div class="settings-page__tab" ng-switch="socketSvc.hasToken">
+          <div class="settings-page__tab" ng-switch="socketSvc.isReady">
             <p ng-switch-default>
               <span class="settings-page__entry-label">
                 Sign in to manage the file trash
@@ -202,17 +202,17 @@
               </md-button>
             </p>
             <div ng-switch-when="true">
-              <div class="file-entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true" ng-show="!fileSvc.activeDaoMap[file.id]">
+              <div class="file-entry" layout="row" ng-repeat="file in trashFiles track by file.id | orderBy:deleted:true">
                 <md-input-container class="file-entry__name">
                   <input class="file-entry__name-input" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                 </md-input-container>
-                <md-button class="file-entry__button icon-settings-backup-restore" ng-if="!syncDataSvc.fileRecoveryDates[file.id]" md-no-ink ng-click="recoverFile(file)" aria-label="Recover"></md-button>
+                <md-button class="file-entry__button icon-settings-backup-restore" md-no-ink ng-click="recoverFile(file)" aria-label="Recover"></md-button>
                 <md-button class="file-entry__button icon-delete" md-no-ink ng-click="removeFile(file)" aria-label="Remove"></md-button>
               </div>
-              <div class="warning" ng-if="!getTrashFilesPending && trashEmpty">Trash is empty.</div>
-              <cl-block-spinner ng-if="getTrashFilesPending"></cl-block-spinner>
+              <div class="warning" ng-if="!trashRetrievePending && !trashRangeStart">Trash is empty.</div>
+              <cl-block-spinner ng-if="trashRetrievePending"></cl-block-spinner>
               <br>
-              <md-button ng-if="!getTrashFilesPending && lastDeleted" class="md-primary" ng-click="getTrashFiles()">More deleted files</md-button>
+              <md-button ng-if="!trashRetrievePending && trashHasMore" class="md-primary" ng-click="getTrashFiles()">Show more</md-button>
             </div>
           </div>
         </md-tab>

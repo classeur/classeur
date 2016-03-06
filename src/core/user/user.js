@@ -81,12 +81,10 @@ angular.module('classeur.core.user', [])
 
       function signin (token) {
         clSocketSvc.setToken(token)
-        clSocketSvc.openSocket()
       }
 
       function signout () {
         clSocketSvc.clearToken()
-        clSocketSvc.closeSocket()
         clUserSvc.user = null
       }
 
@@ -178,9 +176,9 @@ angular.module('classeur.core.user', [])
               url: '/api/v2/users/' + user.id
             })
               .catch(function () {})
-              .then(function (item) {
-                if (item) {
-                  user.cl_extend(item)
+              .then(function (res) {
+                if (res) {
+                  user.cl_extend(res.body)
                   buildNames()
                   $rootScope.$evalAsync()
                 }

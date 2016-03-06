@@ -18,12 +18,14 @@ angular.module('classeur.core.folders', [])
           }
         })
         scope.name = function (name) {
-          if (name) {
-            clExplorerLayoutSvc.currentFolder.name = name
-          } else if (!clExplorerLayoutSvc.currentFolder.name) {
-            clExplorerLayoutSvc.currentFolder.name = 'Untitled'
+          if (clExplorerLayoutSvc.currentFolder) {
+            if (name) {
+              clExplorerLayoutSvc.currentFolder.name = name
+            } else if (!clExplorerLayoutSvc.currentFolder.name) {
+              clExplorerLayoutSvc.currentFolder.name = 'Untitled'
+            }
+            return clExplorerLayoutSvc.currentFolder.name
           }
-          return clExplorerLayoutSvc.currentFolder.name
         }
         scope.name()
         var unsetTimeout

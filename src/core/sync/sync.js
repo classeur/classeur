@@ -37,9 +37,9 @@ angular.module('classeur.core.sync', [])
           svc: clClasseurSvc
         }]
           .cl_each(function (params) {
-            // Eject old syncData for deleted public daos
             clSyncDataSvc[params.group].cl_each(function (updated, id) {
               var dao = params.svc.activeDaoMap[id] || params.svc.deletedDaoMap[id]
+              // Eject old syncData for daos that don't exists anymore or that are deleted and public
               if (!dao || (dao.userId && dao.deleted && currentDate - dao.deleted > cleanPublicObjectAfter)) {
                 delete clSyncDataSvc[params.group][id]
               }
@@ -55,12 +55,18 @@ angular.module('classeur.core.sync', [])
             )
           })
 
-        // Eject old folderRefreshDates
-        clSyncDataSvc.folderRefreshDates.cl_each(function (date, folderId) {
-          if (currentDate - date > cleanPublicObjectAfter) {
-            delete clSyncDataSvc.folderRefreshDates[folderId]
-          }
-        })
+        // Eject old refreshDates
+        ;[
+          'folderRefreshDates',
+          'classeurRefreshDates'
+        ]
+          .cl_each(function (dateMap) {
+            clSyncDataSvc[dateMap].cl_each(function (date, folderId) {
+              if (currentDate - date > cleanPublicObjectAfter) {
+                delete clSyncDataSvc[dateMap][folderId]
+              }
+            })
+          })
 
         // Remove public files that are not local and not refreshed recently
         clFileSvc.removeDaos(
@@ -118,21 +124,22 @@ angular.module('classeur.core.sync', [])
       return clSyncDataSvc
     })
   .factory('clSyncSvc',
-    function ($rootScope, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc, clDebug) {
+    function ($rootScope, $timeout, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc, clDebug) {
       var debug = clDebug('classeur:clSyncSvc')
       var userNameMaxLength = 64
-      var recoverFileTimeout = 30 * 1000 // 30 sec
+      var refreshAfter = 30 * 1000 // 30 sec
       var lastSeqMargin = 1000 // 1 sec
       var ADDED = 1
       var REMOVED = -1
       var clSyncSvc = {
         userNameMaxLength: userNameMaxLength,
         getFolder: getFolder,
-        recoverFile: recoverFile
+        getClasseur: getClasseur
       }
 
       var daoMap = {}
 
+      // To store small objects in JSON format
       var objectStoreWrapper = (function () {
         var store = clLocalDbStore('objects', {
           value: 'object'
@@ -168,8 +175,8 @@ angular.module('classeur.core.sync', [])
           putObject('fileSyncData', clSyncDataSvc.files)
           putObject('userSyncData', clSyncDataSvc.user)
           putObject('lastSyncSeqs', clSyncDataSvc.lastSeqs)
+          putObject('classeurRefreshDates', clSyncDataSvc.classeurRefreshDates)
           putObject('folderRefreshDates', clSyncDataSvc.folderRefreshDates)
-          putObject('fileRecoveryDates', clSyncDataSvc.fileRecoveryDates)
         }
 
         function getObjects () {
@@ -184,8 +191,8 @@ angular.module('classeur.core.sync', [])
           clSyncDataSvc.files = getObject('fileSyncData')
           clSyncDataSvc.user = getObject('userSyncData')
           clSyncDataSvc.lastSeqs = getObject('lastSyncSeqs')
+          clSyncDataSvc.classeurRefreshDates = getObject('classeurRefreshDates')
           clSyncDataSvc.folderRefreshDates = getObject('folderRefreshDates')
-          clSyncDataSvc.fileRecoveryDates = getObject('fileRecoveryDates')
         }
 
         function getPatch (tx, cb) {
@@ -247,14 +254,15 @@ angular.module('classeur.core.sync', [])
                 }
                 apply |= patches.files()
                 apply |= patches.folders()
-                apply |= patches.classeurs() // Call classeur.init at the end since it depends on other
+                apply |= patches.classeurs() // To be called after settings and folders since it depends on them
                 if (!$rootScope.appReady) {
-                  clSyncDataSvc.init()
+                  clSyncDataSvc.init() // To be called at the end since it checks consistency with others
                   $rootScope.appReady = true
                   apply = true
                 }
                 // All changes have been applied
 
+                clSocketSvc.toggleSocket()
                 var userChanged = clSyncDataSvc.checkUserChanged(clSocketSvc.ctx)
                 if (!userChanged && cb) {
                   apply |= cb.apply(null, args)
@@ -277,9 +285,15 @@ angular.module('classeur.core.sync', [])
         storeWrappers.cl_each(function (storeWrapper) {
           storeWrapper.clearAll()
         })
-        var dbversion = clLocalStorage.localDbVersion
-        clLocalStorage.clear()
-        clLocalStorage.localDbVersion = dbversion // Prevent localDb from refreshing the browser
+        Object.keys(clLocalStorage).cl_each(function (key) {
+          switch (key) {
+            // Clear local storage except these keys
+            case 'localDbVersion':
+            case 'lastWindowFocus':
+              return
+          }
+          clLocalStorage.removeItem(key)
+        })
         cb && cb()
         return true // apply
       })
@@ -287,37 +301,18 @@ angular.module('classeur.core.sync', [])
       // Initialize and clean up when user changes
       $rootScope.$watch('socketSvc.ctx.userId', localDbWrapper())
 
-      function recoverFile (file) {
-        var currentDate = Date.now()
-        clSyncDataSvc.fileRecoveryDates[file.id] = currentDate
-        if (!clFileSvc.activeDaoMap[file.id]) {
-          clSocketSvc.sendMsg('putFile', {
-            id: file.id,
-            userId: file.userId || clSyncDataSvc.user.id,
-            name: file.name,
-            folderId: file.folderId || 'null',
-            sharing: file.sharing || undefined,
-            updated: currentDate
-          })
-        }
-      }
-
-      var isSyncActive = (function () {
+      var isSyncWindow = (function () {
         var lastSyncActivityKey = 'lastSyncActivity'
         var lastSyncActivity
         var inactivityThreshold = 3000 // 3 sec
 
-        return function (currentDate) {
-          if (!clSocketSvc.isOnline()) {
-            return
-          }
+        return function () {
+          var currentDate = Date.now()
           var storedLastSyncActivity = parseInt(clLocalStorage[lastSyncActivityKey], 10) || 0
-          if (lastSyncActivity === storedLastSyncActivity || storedLastSyncActivity < currentDate - inactivityThreshold) {
+          if (lastSyncActivity === storedLastSyncActivity || currentDate - storedLastSyncActivity > inactivityThreshold) {
             clLocalStorage[lastSyncActivityKey] = currentDate
             lastSyncActivity = currentDate
             return true
-          } else {
-            clSocketSvc.ctx.syncQueue = undefined
           }
         }
       })()
@@ -358,20 +353,19 @@ angular.module('classeur.core.sync', [])
       clSetInterval(localDbWrapper(function () {
         var hasChanged
         var changesToApply
-        var currentDate = Date.now()
 
-        if (!isSyncActive(currentDate)) {
+        if (!clSocketSvc.isReady) {
           return
         }
 
-        clSyncDataSvc.fileRecoveryDates.cl_each(function (date, fileId) {
-          if (currentDate - date > recoverFileTimeout) {
-            delete clSyncDataSvc.fileRecoveryDates[fileId]
-          }
-        })
+        if (!isSyncWindow()) {
+          clSocketSvc.ctx.syncQueue = undefined
+          return
+        }
 
         var syncQueue = clSocketSvc.ctx.syncQueue
         if (!syncQueue) {
+          // Create sync queue
           syncQueue = clSocketSvc.ctx.syncQueue = (function () {
             var promise = Promise.resolve()
             return function (cb) {
@@ -383,10 +377,13 @@ angular.module('classeur.core.sync', [])
                 return cb(res)
               })
                 .catch(function (err) {
-                  err.message && clToast(err.message)
+                  console.log(err.message, err.stack)
                 })
             }
           })()
+
+          syncQueue.watchedFiles = {}
+          syncQueue.watchedFolders = {}
 
           // ---------------------------
           // Init sync
@@ -519,8 +516,8 @@ angular.module('classeur.core.sync', [])
 
         // Process received classeur changes
         if (syncQueue.classeurs) {
-          // If folders are ready, start attaching them to classeurs
-          if (syncQueue.folders) {
+          // If folders and classeurs are ready, start attaching them together
+          if (syncQueue.folders && !syncQueue.foldersAddedToClasseurs) {
             syncQueue.foldersAddedToClasseurs = {}
             syncQueue.foldersRemovedFromClasseurs = {}
           }
@@ -543,7 +540,7 @@ angular.module('classeur.core.sync', [])
               // Sanitize userId according to current user
               if (item.userId === clSyncDataSvc.user.id) {
                 item.userId = undefined
-              } else if (!item.userId) {
+              } else {
                 item.userId = 'null'
               }
             }
@@ -843,7 +840,7 @@ angular.module('classeur.core.sync', [])
                   file.updated !== clSyncDataSvc.files[file.id] && // Is out of sync
                   file.updated !== syncQueue.files[file.id] && // Is not currently syncing
                   (!file.folderId || clSyncDataSvc.folders[file.folderId]) && // Folder exists on the server
-                  (!folder.userId || (file.sharing === 'rw' || (folder && folder.sharing === 'rw'))) // Is writable
+                  (!file.userId || (file.sharing === 'rw' || (folder && folder.sharing === 'rw'))) // Is writable
                 ) {
                   try {
                     if (clSyncDataSvc.files[file.id] || file
@@ -969,11 +966,42 @@ angular.module('classeur.core.sync', [])
           })
         }
 
+        // Watch public files (later)
+        setTimeout(function () {
+          // Check that the same socket is still open
+          if (clSocketSvc.isReady && syncQueue === clSocketSvc.ctx.syncQueue) {
+            watchPublicFiles(syncQueue)
+          }
+        }, 10)
+
         return hasChanged
       }), 1200)
 
-      function updatePublicFile (file, item) {
-        file.refreshed = Date.now()
+      function watchPublicFiles (syncQueue) {
+        var currentDate = Date.now()
+
+        // Watch local files
+        var fileIds = clFileSvc.localFiles
+          .cl_filter(function (file) {
+            return file.userId && !syncQueue.watchedFiles[file.id]
+          })
+          .cl_map(function (file) {
+            syncQueue.watchedFiles[file.id] = true
+            return file.id
+          })
+        fileIds.length && clSocketSvc.sendMsg('watchFiles', fileIds)
+
+        // Watch files from recent folders
+        clSyncDataSvc.folderRefreshDates.cl_each(function (refreshDate, folderId) {
+          var folder = clFolderSvc.activeDaoMap[folderId]
+          if (folder && folder.userId && !syncQueue.watchedFolders[folderId] && currentDate - refreshDate < refreshAfter) {
+            syncQueue.watchedFolders[folderId] = true
+            clSocketSvc.sendMsg('watchFolderFiles', folderId)
+          }
+        })
+      }
+
+      function updateFileFromServer (file, item) {
         file.name = item.name
         file.sharing = item.sharing
         file.updated = item.updated
@@ -981,8 +1009,7 @@ angular.module('classeur.core.sync', [])
         clSyncDataSvc.files[file.id] = item.updated
       }
 
-      function updatePublicFolder (folder, item) {
-        folder.refreshed = Date.now()
+      function updateFolderFromServer (folder, item) {
         folder.name = item.name
         folder.sharing = item.sharing
         folder.updated = item.updated
@@ -990,16 +1017,12 @@ angular.module('classeur.core.sync', [])
         clSyncDataSvc.folders[folder.id] = item.updated
       }
 
-      // function updatePublicClasseurMetadata (classeur, metadata) {
-      //   var syncData = clSyncDataSvc.classeur[classeur.id] || {}
-      //   if (metadata.updated && metadata.updated !== syncData.r && metadata.updated !== syncData.s) {
-      //     classeur.name = metadata.name
-      //     classeur.updated = metadata.updated
-      //     classeur.userId = clSyncDataSvc.user.id !== classeur.userId ? 'null' : ''
-      //   }
-      //   syncData.r = metadata.updated
-      //   clSyncDataSvc.classeur[classeur.id] = syncData
-      // }
+      function updateClasseurFromServer (classeur, item) {
+        classeur.name = item.name
+        classeur.updated = item.updated
+        classeur.userId = clSyncDataSvc.user.id !== item.userId ? 'null' : ''
+        clSyncDataSvc.classeurs[classeur.id] = item.updated
+      }
 
       $rootScope.$watch('currentFile', function (file) {
         if (file && !file.name && clIsNavigatorOnline()) {
@@ -1007,58 +1030,61 @@ angular.module('classeur.core.sync', [])
             method: 'GET',
             url: '/api/v2/files/' + file.id
           })
-            .then(localDbWrapper(function (item) {
-              updatePublicFile(file, item)
+            .then(localDbWrapper(function (res) {
+              updateFileFromServer(file, res.body)
               return true // apply
             }))
         }
       })
 
-      var publicFileRefreshAfter = 30 * 1000 // 30 sec
-      var lastGetExtFile = 0
+      function isFresh (refreshDates, id) {
+        return Date.now() - (refreshDates[id] || 0) < refreshAfter
+      }
 
       function getPublicLocalFiles () {
-        var currentDate = Date.now()
-        var files = clFileSvc.localFiles
-          .cl_filter(function (file) {
-            return file.userId && (!file.refreshed || currentDate - file.refreshed > publicFileRefreshAfter)
+        if (!isFresh(clSyncDataSvc.folderRefreshDates, 'local')) {
+          var files = clFileSvc.localFiles.cl_filter(function (file) {
+            return file.userId
           })
-        if (!files.length ||
-          currentDate - lastGetExtFile < publicFileRefreshAfter
-        ) {
-          return
-        }
-
-        lastGetExtFile = currentDate
-        ;(function getFile () {
-          var file = files.pop()
-          if (file) {
-            return clRestSvc.request({
-              method: 'GET',
-              url: '/api/v2/files/' + file.id
-            })
-              .then(localDbWrapper(function (item) {
-                updatePublicFile(file, item)
-                return true // apply
-              }), function () {
-                clToast('File not accessible: ' + (file.name || file.id))
+          if (files.length) {
+            Promise.all(files.cl_map(function (file) {
+              return clRestSvc.request({
+                method: 'GET',
+                url: '/api/v2/files/' + file.id
               })
-              .then(getFile)
+                .then(function (res) {
+                  return res.body
+                }, function () {
+                  clToast('File not accessible: ' + (file.name || file.id))
+                })
+            }))
+              .then(localDbWrapper(function (items) {
+                var apply
+                clSyncDataSvc.folderRefreshDates.local = Date.now()
+                items.cl_each(function (item, i) {
+                  if (item) {
+                    updateFileFromServer(files[i], item)
+                    apply = true
+                  }
+                })
+                return apply
+              }))
           }
-        })()
+        }
       }
 
       function getPublicFolder (folder) {
-        if (folder.userId && (!folder.refreshed || Date.now() - folder.refreshed > publicFileRefreshAfter)) {
+        if (folder.userId && !isFresh(clSyncDataSvc.folderRefreshDates, folder.id)) {
           return clRestSvc.request({
             method: 'GET',
             url: '/api/v2/folders/' + folder.id
           })
-            .then(function (folderItem) {
+            .then(function (res) {
+              var folderItem = res.body
               return clRestSvc.list('/api/v2/folders/' + folder.id + '/files')
                 .then(localDbWrapper(function (fileItems) {
                   clSyncDataSvc.folderRefreshDates[folder.id] = Date.now()
-                  updatePublicFolder(folder, folderItem)
+                  updateFolderFromServer(folder, folderItem)
                   var filesToMove = {}
                   clFileSvc.activeDaos.cl_each(function (file) {
                     if (file.folderId === folder.id) {
@@ -1069,7 +1095,7 @@ angular.module('classeur.core.sync', [])
                     delete filesToMove[item.id]
                     var file = clFileSvc.activeDaoMap[item.id] || clFileSvc.createPublicFile(item.id)
                     file.folderId = folder.id
-                    updatePublicFile(file, item)
+                    updateFileFromServer(file, item)
                   })
                   filesToMove.cl_each(function (file) {
                     file.folderId = ''
@@ -1080,9 +1106,11 @@ angular.module('classeur.core.sync', [])
                 }))
             })
             .catch(function () {
-              folder.refreshed = 1 // Get rid of the spinner
               clToast('Folder not accessible: ' + (folder.name || folder.id))
-              !folder.name && clFolderSvc.removeDaos([folder])
+              if (!folder.name) {
+                // User was attempting to import the folder
+                clFolderSvc.removeDaos([folder])
+              }
             })
         }
       }
@@ -1090,6 +1118,64 @@ angular.module('classeur.core.sync', [])
       function getFolder (folder) {
         if (clIsNavigatorOnline()) {
           folder ? getPublicFolder(folder) : getPublicLocalFiles()
+        }
+      }
+
+      function getClasseur (classeur) {
+        if (classeur &&
+          (classeur.userId || clSocketSvc.hasToken) && // Classeur is accessible
+          (!classeur.name || clSyncDataSvc.classeurs[classeur.id]) && // Trying to import the classeur, or was previously synced
+          !isFresh(clSyncDataSvc.classeurRefreshDates, classeur.id)
+        ) {
+          return clRestSvc.request({
+            method: 'GET',
+            url: '/api/v2/classeurs/' + classeur.id
+          })
+            .then(function (res) {
+              var classeurItem = res.body
+              return clRestSvc.list('/api/v2/classeurs/' + classeur.id + '/folders')
+                .then(localDbWrapper(function (folderItems) {
+                  clSyncDataSvc.classeurRefreshDates[classeur.id] = Date.now()
+                  updateClasseurFromServer(classeur, classeurItem)
+
+                  var mappingChanges = {}
+                  var classeurFolderIds = clClasseurSvc.classeurFolderMap[classeur.id] || []
+                  classeurFolderIds.cl_reduce(function (folderId) {
+                    mappingChanges[folderId] = REMOVED
+                  })
+                  folderItems.cl_each(function (item) {
+                    if (mappingChanges[item.id] === REMOVED) {
+                      delete mappingChanges[item.id]
+                    } else {
+                      mappingChanges[item.id] = ADDED
+                    }
+                    var folder = clFolderSvc.activeDaoMap[item.id]
+                    if (!folder) {
+                      folder = clFolderSvc.createPublicFolder(item.id)
+                    }
+                    updateFolderFromServer(folder, item)
+                  })
+
+                  mappingChanges.cl_each(function (value, folderId) {
+                    if (value === ADDED) {
+                      clClasseurSvc.setClasseurFolder(classeur, folderId)
+                    } else {
+                      clClasseurSvc.unsetClasseurFolder(classeur, folderId)
+                    }
+                  })
+
+                  // Classeurs are updated when evaluating folderSvc.activeDaos
+                  clFolderSvc.init()
+                  return true // apply
+                }))
+            })
+            .catch(function () {
+              clToast('Classeur not accessible: ' + (classeur.name || classeur.id))
+              if (!classeur.name) {
+                // User was attempting to import the classeur
+                clClasseurSvc.removeDaos([classeur])
+              }
+            })
         }
       }
 
@@ -1116,7 +1202,10 @@ angular.module('classeur.core.sync', [])
         file.content.comments = ({}).cl_extend(serverContent.comments)
         file.content.conflicts = ({}).cl_extend(serverContent.conflicts)
         file.content.state = {}
-        clFileSvc.init()
+        // addToDaos calls init
+        if (!file.addToDaos) {
+          clFileSvc.init() // Will delete the content if called while file is not in the daos
+        }
       }
 
       function setLoadingError (file, error) {
@@ -1216,31 +1305,34 @@ angular.module('classeur.core.sync', [])
         if (!file || !file.state || !file.loadPending || !file.userId || !clIsNavigatorOnline()) {
           return
         }
+        var lastContent
+        var syncedContent
         file.loadPending = false
         clRestSvc.request({
           method: 'GET',
           url: '/api/v2/files/' + file.id + '/contentRevs/last'
         })
-          .then(function (lastContent) {
-            Promise.resolve()
-              .then(function () {
-                if (file.content && file.content.syncedRev < lastContent.rev) {
-                  return clRestSvc.request({
-                    method: 'GET',
-                    url: '/api/v2/files/' + file.id + '/contentRevs/' + file.content.syncedRev
-                  })
-                }
+          .then(function (res) {
+            lastContent = res.body
+            if (file.content && file.content.syncedRev < lastContent.rev) {
+              return clRestSvc.request({
+                method: 'GET',
+                url: '/api/v2/files/' + file.id + '/contentRevs/' + file.content.syncedRev
               })
-              .then(function (syncedContent) {
-                if (!file.content) {
-                  setLoadedContent(file, lastContent)
-                } else {
-                  applyServerContent(file, syncedContent || lastContent, lastContent)
-                }
-                file.setContentSynced(lastContent.rev)
-                // Evaluate scope synchronously to have cledit instantiated
-                $rootScope.$apply()
-              })
+                .then(function (res) {
+                  syncedContent = res.body
+                })
+            }
+          })
+          .then(function () {
+            if (!file.content) {
+              setLoadedContent(file, lastContent)
+            } else {
+              applyServerContent(file, syncedContent || lastContent, lastContent)
+            }
+            file.setContentSynced(lastContent.rev)
+            // Evaluate scope synchronously to have cledit instantiated
+            $rootScope.$apply()
           })
           .catch(function () {
             setLoadingError(file)
@@ -1402,7 +1494,7 @@ angular.module('classeur.core.sync', [])
 
       clSetInterval(function () {
         // Check that window has focus and socket is online
-        if (!clUserActivity.checkActivity() || !clSocketSvc.isOnline()) {
+        if (!clUserActivity.checkActivity() || !clSocketSvc.isReady) {
           return
         }
         clFileSvc.localFiles.cl_each(function (file) {
@@ -1474,7 +1566,7 @@ angular.module('classeur.core.sync', [])
         if (currentFile) {
           currentFile.loadPending = true
         }
-        if (clSocketSvc.isOnline()) {
+        if (clSocketSvc.isReady) {
           watchContent(currentFile)
         } else if (!clSocketSvc.hasToken) {
           getPublicContent(currentFile)
@@ -1490,7 +1582,7 @@ angular.module('classeur.core.sync', [])
           $rootScope.currentFile.writeContent()
         }
         clFileSvc.writeLocalFileChanges()
-        if (clSocketSvc.isOnline()) {
+        if (clSocketSvc.isReady) {
           watchContent($rootScope.currentFile)
           sendContentChange()
         } else if (!clSocketSvc.hasToken) {
