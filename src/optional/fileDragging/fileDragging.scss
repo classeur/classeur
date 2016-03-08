@@ -1,6 +1,10 @@
+@import 'bourbon';
+
 .body--file-dragging * {
   // scss-lint:disable ImportantRule
   cursor: move !important;
+
+  @include user-select(none); // Safari needs this
 }
 
 .file-dragging {

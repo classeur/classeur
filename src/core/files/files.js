@@ -20,8 +20,6 @@ angular.module('classeur.core.files', [])
         scope.name = function (name) {
           if (name) {
             scope.file.name = name
-          } else if (!scope.file.name) {
-            scope.file.name = 'Untitled'
           }
           return scope.file.name
         }

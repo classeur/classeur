@@ -1,4 +1,4 @@
-if (!window.Worker || !window.indexedDB || !window.MutationObserver || !window.crypto) {
+if (!window.Worker || !window.MutationObserver || !window.crypto) {
   window.alert('Unsupported browser version. Please upgrade your browser.')
 } else {
   window.ES6Promise.polyfill()
@@ -28,6 +28,7 @@ if (!window.Worker || !window.indexedDB || !window.MutationObserver || !window.c
     'classeur.core.pagedown',
     'classeur.core.settings',
     'classeur.core.sync',
+    'classeur.core.sync.contentSync',
     'classeur.core.socket',
     'classeur.core.templateManagerDialog',
     'classeur.core.user',

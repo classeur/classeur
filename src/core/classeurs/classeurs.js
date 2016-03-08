@@ -20,8 +20,6 @@ angular.module('classeur.core.classeurs', [])
         scope.name = function (name) {
           if (name) {
             scope.classeur.name = name
-          } else if (!scope.classeur.name) {
-            scope.classeur.name = 'Untitled'
           }
           return scope.classeur.name
         }
@@ -60,6 +58,7 @@ angular.module('classeur.core.classeurs', [])
         writeAll: writeAll,
         clearAll: clearAll,
         createClasseur: createClasseur,
+        createPublicClasseur: createPublicClasseur,
         removeDaos: removeDaos,
         setDeletedClasseurs: setDeletedClasseurs,
         addFolderToClasseur: addFolderToClasseur,
@@ -133,7 +132,7 @@ angular.module('classeur.core.classeurs', [])
       }
 
       function unsetClasseurFolder (classeur, folder) {
-        return removeFolderInClasseurFolderMap(classeur, folder) ||
+        removeFolderInClasseurFolderMap(classeur, folder)
         removeFolderInClasseurRemovedFolderMap(classeur, folder)
       }
 
@@ -202,7 +201,7 @@ angular.module('classeur.core.classeurs', [])
         clClasseurSvc.activeDaos = Object.keys(activeDaoMap).cl_map(function (id) {
           var classeur = daoMap[id]
 
-          if (id === clSettingSvc.values.defaultClasseurId) {
+          if (id === clSettingSvc.values.defaultClasseurId && !classeur.userId) { // Default classeur can't be public
             clClasseurSvc.defaultClasseur = classeur
           }
           classeur.isDefault = undefined
@@ -223,6 +222,9 @@ angular.module('classeur.core.classeurs', [])
 
           return classeur
         })
+          .sort(function (classeur1, classeur2) {
+            return classeur1.name.localeCompare(classeur2.name)
+          })
 
         clClasseurSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
           var classeur = daoMap[id]
@@ -246,7 +248,7 @@ angular.module('classeur.core.classeurs', [])
           if (!foldersInClasseurs[folder.id]) {
             // Public folders can't be orphan
             if (folder.userId) {
-              foldersToRemove.push(foldersToRemove)
+              foldersToRemove.push(folder)
             } else {
               clClasseurSvc.defaultClasseur.folders.push(folder)
             }
@@ -255,7 +257,7 @@ angular.module('classeur.core.classeurs', [])
 
         debug('Init')
         isInitialized = true
-        removeDaos(foldersToRemove)
+        clFolderSvc.removeDaos(foldersToRemove)
       }
 
       function getPatch (tx, cb) {
@@ -282,6 +284,12 @@ angular.module('classeur.core.classeurs', [])
         classeur.deleted = 0
         daoMap[classeur.id] = classeur
         init()
+        return classeur
+      }
+
+      function createPublicClasseur (id) {
+        var classeur = createClasseur(id)
+        classeur.userId = 'null'
         return classeur
       }
 

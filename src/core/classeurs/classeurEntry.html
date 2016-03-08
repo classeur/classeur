@@ -29,8 +29,17 @@
               Delete
             </md-button>
           </md-menu-item>
+          <md-menu-item ng-if="classeur.userId === 'null'">
+            <md-button ng-click="explorerLayoutSvc.sharingDialogClasseurDao = classeur">
+              <md-icon md-font-icon="icon-share"></md-icon>
+              Sharing
+            </md-button>
+          </md-menu-item>
         </md-menu-content>
       </md-menu>
+    </div>
+    <div class="cl-public-corner" ng-if="classeur.userId">
+      <div class="icon-publ"></div>
     </div>
   </div>
 </div>

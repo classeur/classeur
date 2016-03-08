@@ -185,6 +185,8 @@
 $public-corner-size: 64px;
 $public-file-corner-size: 34px;
 $public-folder-corner-size: 32px;
+$public-classeur-corner-size: 54px;
+$public-navbar-corner-size: 46px;
 
 .cl-public-corner {
   border-right: $public-corner-size solid transparent;
@@ -230,6 +232,36 @@ $public-folder-corner-size: 32px;
       top: -$public-folder-corner-size;
     }
   }
+
+  .classeur-entry & {
+    border-right-width: $public-classeur-corner-size;
+    border-top-width: $public-classeur-corner-size;
+    font-size: 30px;
+    height: $public-classeur-corner-size;
+    width: $public-classeur-corner-size;
+
+    .icon-publ {
+      padding: 1px;
+      top: -$public-classeur-corner-size;
+    }
+  }
+
+  .navbar__item & {
+    border-right-width: $public-navbar-corner-size;
+    border-top-width: $public-navbar-corner-size;
+    font-size: 25px;
+    height: $public-navbar-corner-size;
+    width: $public-navbar-corner-size;
+
+    .icon-publ {
+      padding: 1px;
+      top: -$public-navbar-corner-size;
+    }
+  }
+}
+
+.navbar__item--title-public {
+  padding-left: 25px;
 }
 
 .cl-sharing-indicator {

@@ -5,9 +5,9 @@
       <span class="sharing-dialog__label sharing-dialog__label--indicator sharing-dialog__label--read-write" ng-show="objectDao.effectiveSharing === 'rw'">read/write</span>
     </h2>
     <p ng-if="folder.sharing.length > 0 && !objectDao.userId" class="warning">Sharing preference is restrained by folder preference.</p>
-    <p ng-if="objectDao.userId" class="warning">This {{::isFile ? 'file' : 'folder'}} belongs to
+    <p ng-if="type !== 'classeur' && objectDao.userId" class="warning">This {{::type}} belongs to
       <cl-user-name user-id="objectDao.userId"></cl-user-name>.</p>
-    <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="isFile && !objectDao.userId">
+    <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="type === 'file' && !objectDao.userId">
       <md-radio-button value="" ng-disabled="folder.sharing.length > 0">private</md-radio-button>
       <div class="sharing-dialog__info">Only you can access the file.</div>
       <md-radio-button value="r" ng-disabled="folder.sharing.length > 1">public
@@ -20,7 +20,7 @@
       <div class="sharing-dialog__info">Premium users with the link can modify the file.</div>
       <br>
     </md-radio-group>
-    <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="!isFile && !objectDao.userId">
+    <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="type === 'folder' && !objectDao.userId">
       <md-radio-button value="">private</md-radio-button>
       <div class="sharing-dialog__info">Only you can access the folder.</div>
       <md-radio-button value="r">public

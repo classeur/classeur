@@ -64,6 +64,19 @@ angular.module('classeur.core', [])
             $location.url('')
           }
         })
+        .when('/classeurs/:classeurId', {
+          template: '<cl-centered-spinner></cl-centered-spinner>',
+          controller: function ($location, $routeParams, clAnalytics, clClasseurSvc, clExplorerLayoutSvc) {
+            clAnalytics.trackPage('/classeurs')
+            clExplorerLayoutSvc.refreshFolders()
+            var classeur = clClasseurSvc.activeDaoMap[$routeParams.classeurId]
+            if (!classeur) {
+              classeur = clClasseurSvc.createPublicClasseur($routeParams.classeurId)
+            }
+            clExplorerLayoutSvc.setCurrentClasseur(classeur)
+            $location.url('')
+          }
+        })
         .when('/states/:stateId', {
           template: '',
           controller: function ($location, clStateMgr) {
@@ -161,7 +174,7 @@ angular.module('classeur.core', [])
 
       $rootScope.$on('$routeChangeSuccess', function (event, current) {
         setTimeout(function () {
-          document.title = $rootScope.currentFile ? $rootScope.currentFile.name : current.$$route.title || 'Classeur'
+          document.title = $rootScope.currentFile ? $rootScope.currentFile.name : (current.$$route && current.$$route.title) || 'Classeur'
         }, 1)
       })
 

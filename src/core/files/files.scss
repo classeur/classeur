@@ -5,6 +5,11 @@ $file-entry-height: 40px;
   line-height: $file-entry-height;
   position: relative;
   z-index: 1;
+
+  md-menu {
+    // Fix button width on Safari
+    min-width: 36px;
+  }
 }
 
 .file-entry__drag-space {

@@ -21,8 +21,6 @@ angular.module('classeur.core.folders', [])
           if (clExplorerLayoutSvc.currentFolder) {
             if (name) {
               clExplorerLayoutSvc.currentFolder.name = name
-            } else if (!clExplorerLayoutSvc.currentFolder.name) {
-              clExplorerLayoutSvc.currentFolder.name = 'Untitled'
             }
             return clExplorerLayoutSvc.currentFolder.name
           }

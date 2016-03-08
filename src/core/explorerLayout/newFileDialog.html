@@ -5,6 +5,7 @@
       <label>Name</label>
       <input autocomplete="off" ng-model="value" cl-focus cl-enter-ok>
     </md-input-container>
+    <p class="warning" ng-if="::orphanWarning"><b>Note:</b> Orphan files are placed in your default Classeur.</p>
   </md-dialog-content>
   <md-dialog-actions>
     <md-button ng-click="import()">

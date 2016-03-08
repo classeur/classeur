@@ -68,6 +68,7 @@ var appVendorJs = [
   'es6-promise/dist/es6-promise',
   'filesaver.js/FileSaver',
   'hammerjs/hammer',
+  'indexeddbshim/dist/indexeddbshim',
   'markdown-it/dist/markdown-it',
   'markdown-it-abbr/dist/markdown-it-abbr',
   'markdown-it-deflist/dist/markdown-it-deflist',

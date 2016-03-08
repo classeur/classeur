@@ -6,7 +6,10 @@
           <div layout="row">
             <div class="navbar__logo no-overflow">
             </div>
-            <div class="navbar__item navbar__item--title">
+            <div class="navbar__item navbar__item--title" ng-class="{'navbar__item--title-public': explorerLayoutSvc.currentClasseur.userId}">
+              <div class="cl-public-corner" ng-if="explorerLayoutSvc.currentClasseur.userId">
+                <div class="icon-publ"></div>
+              </div>
               {{explorerLayoutSvc.currentClasseur.name}}
             </div>
             <md-button class="navbar__item navbar__item--icon classeur-toggler" ng-click="explorerLayoutSvc.toggleExplorer()" cl-explorer-tour-next="2">
@@ -244,7 +247,7 @@
               </div>
               <div class="folder-entry folder-entry--unclassified" cl-folder-button folder="explorerLayoutSvc.unclassifiedFolder">
                 <div class="folder-entry__inner-1 panel" cl-file-dragging-target ng-class="'plastic-' + ((classeurIndex + 1) % 6)">
-                  <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="My files">
+                  <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="All files">
                     <span class="folder-entry__icon icon-search"></span>
                   </md-button>
                 </div>

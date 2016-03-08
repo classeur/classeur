@@ -363,14 +363,16 @@ angular.module('classeur.core.utils', [])
             return ''
           }
         },
-        docFile: function (fileName) {
-          return this.file({
-            fileName: fileName
-          })
-        },
         folder: function (folder) {
           if (folder.id) {
             return '/folders/' + folder.id
+          } else {
+            return ''
+          }
+        },
+        classeur: function (classeur) {
+          if (classeur.id) {
+            return '/classeurs/' + classeur.id
           } else {
             return ''
           }

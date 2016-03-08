@@ -5,6 +5,9 @@ angular.module('classeur.core.sync', [])
       var clSyncDataSvc = {
         init: init,
         checkUserChanged: checkUserChanged,
+        setImportedClasseur: setImportedClasseur,
+        unsetImportedClasseur: unsetImportedClasseur,
+        isImportedClasseur: isImportedClasseur,
         loadingTimeout: 30 * 1000 // 30 sec
       }
 
@@ -22,102 +25,146 @@ angular.module('classeur.core.sync', [])
             clLocalStorage.removeItem('syncData.files')
             clLocalStorage.removeItem('syncData.folders')
           }
-        }
 
-        var currentDate = Date.now()
+          var currentDate = Date.now()
 
-        ;[{
-          group: 'files',
-          svc: clFileSvc
-        }, {
-          group: 'folders',
-          svc: clFolderSvc
-        }, {
-          group: 'classeurs',
-          svc: clClasseurSvc
-        }]
-          .cl_each(function (params) {
-            clSyncDataSvc[params.group].cl_each(function (updated, id) {
-              var dao = params.svc.activeDaoMap[id] || params.svc.deletedDaoMap[id]
-              // Eject old syncData for daos that don't exists anymore or that are deleted and public
-              if (!dao || (dao.userId && dao.deleted && currentDate - dao.deleted > cleanPublicObjectAfter)) {
-                delete clSyncDataSvc[params.group][id]
-              }
-            })
-
-            // Remove deletedDaos that are not synced anymore
-            params.svc.removeDaos(
-              params.svc.deletedDaos.cl_filter(function (dao) {
-                if (!clSyncDataSvc[params.group][dao.id]) {
-                  return true
+          ;[{
+            group: 'files',
+            svc: clFileSvc
+          }, {
+            group: 'folders',
+            svc: clFolderSvc
+          }, {
+            group: 'classeurs',
+            svc: clClasseurSvc
+          }]
+            .cl_each(function (params) {
+              clSyncDataSvc[params.group].cl_each(function (updated, id) {
+                var dao = params.svc.activeDaoMap[id] || params.svc.deletedDaoMap[id]
+                // Eject old syncData for daos that don't exists anymore or that are deleted and public
+                if (!dao || (dao.userId && dao.deleted && currentDate - dao.deleted > cleanPublicObjectAfter)) {
+                  delete clSyncDataSvc[params.group][id]
                 }
               })
-            )
-          })
 
-        // Eject old refreshDates
-        ;[
-          'folderRefreshDates',
-          'classeurRefreshDates'
-        ]
-          .cl_each(function (dateMap) {
-            clSyncDataSvc[dateMap].cl_each(function (date, folderId) {
-              if (currentDate - date > cleanPublicObjectAfter) {
-                delete clSyncDataSvc[dateMap][folderId]
+              // Remove deletedDaos that are not synced anymore
+              params.svc.removeDaos(
+                params.svc.deletedDaos.cl_filter(function (dao) {
+                  if (!clSyncDataSvc[params.group][dao.id]) {
+                    return true
+                  }
+                })
+              )
+            })
+
+          // Eject old refreshDates
+          ;[
+            'folderRefreshDates',
+            'classeurRefreshDates'
+          ]
+            .cl_each(function (dateMap) {
+              clSyncDataSvc[dateMap].cl_each(function (date, folderId) {
+                if (currentDate - date > cleanPublicObjectAfter) {
+                  delete clSyncDataSvc[dateMap][folderId]
+                }
+              })
+            })
+
+          // Remove public files that are not local and not refreshed recently
+          clFileSvc.removeDaos(
+            clFileSvc.activeDaos.cl_filter(function (file) {
+              if (file.userId &&
+                !file.content &&
+                (!file.folderId || !clSyncDataSvc.folderRefreshDates[file.folderId])
+              ) {
+                return true
               }
             })
-          })
+          )
 
-        // Remove public files that are not local and not refreshed recently
-        clFileSvc.removeDaos(
-          clFileSvc.activeDaos.cl_filter(function (file) {
-            if (file.userId &&
-              !file.content &&
-              (!file.folderId || !clSyncDataSvc.folderRefreshDates[file.folderId])
-            ) {
-              return true
-            }
+          if (!clSyncDataSvc.user.importedClasseurs) {
+            clSyncDataSvc.user.importedClasseurs = []
+          }
+
+          // Eject imported classeurs not here anymore
+          clSyncDataSvc.user.importedClasseurs = clSyncDataSvc.user.importedClasseurs.cl_filter(function (classeurId) {
+            return clClasseurSvc.activeDaoMap[classeurId]
           })
-        )
+        }
 
         isInitialized = true
       }
 
       function checkUserChanged (ctx) {
         if (ctx && ctx.userId && ctx.userId !== clSyncDataSvc.user.id) {
-          // Add userId to synced files owned by previous user
-          var filesToRemove = clFileSvc.activeDaos.cl_filter(function (file) {
-            if (!file.userId && clSyncDataSvc.files[file.id]) {
-              file.userId = clSyncDataSvc.user.id
-              return !file.content
-            }
-          })
-          // Remove files that are public and not local
-          clFileSvc.removeDaos(filesToRemove)
+          // Remove files that are not local and belong to previous user
+          clFileSvc.removeDaos(
+            clFileSvc.activeDaos.cl_filter(function (file) {
+              if (!file.userId && clSyncDataSvc.files[file.id]) {
+                if (!file.content) {
+                  delete clSyncDataSvc.files[file.id]
+                  return true
+                }
+                file.userId = clSyncDataSvc.user.id // Restore userId of previous user
+              }
+            })
+          )
           // Remove files that are pending for deletion
           clFileSvc.removeDaos(clFileSvc.deletedDaos)
 
-          // Add userId to synced folders owned by previous user
-          clFolderSvc.activeDaos.cl_each(function (folder) {
-            if (!folder.userId && clSyncDataSvc.folders[folder.id]) {
-              folder.userId = clSyncDataSvc.user.id
-            }
-          })
+          // Remove private folders that belong to previous user
+          clFolderSvc.removeDaos(
+            clFolderSvc.activeDaos.cl_filter(function (folder) {
+              if (!folder.userId && clSyncDataSvc.folders[folder.id]) {
+                if (!folder.sharing) {
+                  delete clSyncDataSvc.folders[folder.id]
+                  return true
+                }
+                folder.userId = clSyncDataSvc.user.id // Restore userId of previous user
+              }
+            })
+          )
           // Remove folders that are pending for deletion
           clFolderSvc.removeDaos(clFolderSvc.deletedDaos)
 
           // Remove classeurs that belong to previous user
           clClasseurSvc.removeDaos(
             clClasseurSvc.activeDaos.cl_filter(function (classeur) {
-              return !classeur.userId && clSyncDataSvc.classeurs[classeur.id]
+              if (!classeur.userId && clSyncDataSvc.classeurs[classeur.id]) {
+                delete clSyncDataSvc.classeurs[classeur.id]
+                return true
+              }
             })
           )
           // Remove classeurs that are pending for deletion
           clClasseurSvc.removeDaos(clClasseurSvc.deletedDaos)
 
-          clSyncDataSvc.user = {id: ctx.userId}
+          clSyncDataSvc.user = {
+            id: ctx.userId,
+            importedClasseurs: clSyncDataSvc.user.importedClasseurs
+          }
           clSyncDataSvc.lastSeqs = {}
           return true
+        }
+      }
+
+      function setImportedClasseur (classeur) {
+        var classeurId = classeur.id || classeur
+        if (!~clSyncDataSvc.user.importedClasseurs.indexOf(classeurId)) {
+          clSyncDataSvc.user.importedClasseurs.push(classeurId)
+        }
+      }
+
+      function isImportedClasseur (classeur) {
+        var classeurId = classeur.id || classeur
+        return ~clSyncDataSvc.user.importedClasseurs.indexOf(classeurId)
+      }
+
+      function unsetImportedClasseur (classeur) {
+        if (isImportedClasseur(classeur)) {
+          var classeurId = classeur.id || classeur
+          var index = clSyncDataSvc.user.importedClasseurs.indexOf(classeurId)
+          clSyncDataSvc.user.importedClasseurs.splice(index, 1)
         }
       }
 
@@ -424,7 +471,7 @@ angular.module('classeur.core.sync', [])
             })
             // Detect classeurs removed on the server
             Object.keys(clSyncDataSvc.classeurs).cl_each(function (classeurId) {
-              if (!pendingChangeGroups.classeurs[classeurId]) {
+              if (!pendingChangeGroups.classeurs[classeurId] && !clSyncDataSvc.isImportedClasseur(classeurId)) {
                 pendingChangeGroups.classeurs.$add({
                   id: classeurId,
                   deleted: true
@@ -549,6 +596,7 @@ angular.module('classeur.core.sync', [])
             } else {
               clSyncDataSvc.classeurs[item.id] = item.updated
             }
+            clSyncDataSvc.unsetImportedClasseur(item.id)
             delete syncQueue.classeurs[item.id] // Assume we received the change we sent
           })
 
@@ -567,7 +615,8 @@ angular.module('classeur.core.sync', [])
               return classeurs.cl_some(function (classeur) {
                 if ((!checkExists || clSyncDataSvc.classeurs[classeur.id]) && // Exists on the server
                   classeur.name && classeur.updated && // Is ready for sync
-                  classeur.updated !== clSyncDataSvc.classeurs[classeur.id] && // Is out of sync
+                  (classeur.updated !== clSyncDataSvc.classeurs[classeur.id] || // Is out of sync
+                  clSyncDataSvc.isImportedClasseur(classeur)) && // Needs to be added to user's classeurs
                   classeur.updated !== syncQueue.classeurs[classeur.id] // Is not currently syncing
                 ) {
                   result = cb(classeur)
@@ -582,13 +631,15 @@ angular.module('classeur.core.sync', [])
               syncQueue.classeurs[classeur.id] = classeur.updated
               return clRestSvc.request({
                 method: 'PUT',
-                url: '/api/v2/classeurs/' + classeur.id,
-                body: {
-                  id: classeur.id,
-                  userId: classeur.userId === 'null' ? undefined : classeur.userId || clSyncDataSvc.user.id,
-                  name: classeur.name,
-                  updated: classeur.updated
-                }
+                url: '/api/v2/users/' + clSyncDataSvc.user.id + '/classeurs/' + classeur.id,
+                body: clSyncDataSvc.isImportedClasseur(classeur) && classeur.updated === clSyncDataSvc.classeurs[classeur.id]
+                  ? {} // No need to update the classeur, just attach to user
+                  : {
+                    id: classeur.id,
+                    userId: classeur.userId === 'null' ? undefined : classeur.userId || clSyncDataSvc.user.id,
+                    name: classeur.name,
+                    updated: classeur.updated
+                  }
               })
             }) ||
             // Or send a deleted classeur
@@ -597,7 +648,9 @@ angular.module('classeur.core.sync', [])
               syncQueue.classeurs[classeur.id] = classeur.updated
               return clRestSvc.request({
                 method: 'DELETE',
-                url: '/api/v2/classeurs/' + classeur.id
+                url: classeur.userId === 'null'
+                  ? '/api/v2/users/' + clSyncDataSvc.user.id + '/classeurs/' + classeur.id // Detach if classeur is public
+                  : '/api/v2/classeurs/' + classeur.id
               })
             }, true)
 
@@ -1135,12 +1188,16 @@ angular.module('classeur.core.sync', [])
               var classeurItem = res.body
               return clRestSvc.list('/api/v2/classeurs/' + classeur.id + '/folders')
                 .then(localDbWrapper(function (folderItems) {
+                  if (!classeur.name) {
+                    // Need to remember imported classeurs, otherwise it will be removed at first sync
+                    clSyncDataSvc.setImportedClasseur(classeur)
+                  }
                   clSyncDataSvc.classeurRefreshDates[classeur.id] = Date.now()
                   updateClasseurFromServer(classeur, classeurItem)
 
                   var mappingChanges = {}
                   var classeurFolderIds = clClasseurSvc.classeurFolderMap[classeur.id] || []
-                  classeurFolderIds.cl_reduce(function (folderId) {
+                  classeurFolderIds.cl_each(function (folderId) {
                     mappingChanges[folderId] = REMOVED
                   })
                   folderItems.cl_each(function (item) {
@@ -1160,7 +1217,10 @@ angular.module('classeur.core.sync', [])
                     if (value === ADDED) {
                       clClasseurSvc.setClasseurFolder(classeur, folderId)
                     } else {
-                      clClasseurSvc.unsetClasseurFolder(classeur, folderId)
+                      var folder = clFolderSvc.activeDaoMap[folderId] || clFolderSvc.deletedDaoMap[folderId]
+                      if (!folder || folder.sharing) { // Ignore private folders, as they're not returned by the REST API
+                        clClasseurSvc.unsetClasseurFolder(classeur, folderId)
+                      }
                     }
                   })
 
@@ -1180,415 +1240,4 @@ angular.module('classeur.core.sync', [])
       }
 
       return clSyncSvc
-    })
-  .factory('clContentSyncSvc',
-    function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
-      var textMaxSize = 200000
-      var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
-      var clContentSyncSvc = {}
-      var watchCtx
-
-      function setWatchCtx (ctx) {
-        watchCtx = ctx
-        clContentSyncSvc.watchCtx = ctx
-      }
-      clSocketSvc.addMsgHandler('userToken', setWatchCtx.cl_bind(null, null))
-
-      function setLoadedContent (file, serverContent) {
-        file.setLoaded()
-        file.content.text = serverContent.text
-        file.content.properties = ({}).cl_extend(serverContent.properties)
-        file.content.discussions = ({}).cl_extend(serverContent.discussions)
-        file.content.comments = ({}).cl_extend(serverContent.comments)
-        file.content.conflicts = ({}).cl_extend(serverContent.conflicts)
-        file.content.state = {}
-        // addToDaos calls init
-        if (!file.addToDaos) {
-          clFileSvc.init() // Will delete the content if called while file is not in the daos
-        }
-      }
-
-      function setLoadingError (file, error) {
-        if (file.state === 'loading') {
-          file.state = undefined
-        }
-        $rootScope.$evalAsync()
-        clToast(error || 'File not accessible: ' + (file.name || file.id))
-      }
-
-      function applyServerContent (file, oldContent, serverContent) {
-        var newContent = {
-          text: clEditorSvc.cledit.getContent(),
-          properties: file.content.properties,
-          discussions: file.content.discussions,
-          comments: file.content.comments,
-          conflicts: file.content.conflicts
-        }
-        var conflicts = clDiffUtils.mergeContent(oldContent, newContent, serverContent)
-        file.content.properties = newContent.properties
-        file.content.discussions = newContent.discussions
-        file.content.comments = newContent.comments
-        file.content.conflicts = newContent.conflicts
-        clEditorSvc.setContent(newContent.text, true)
-        if (conflicts.length) {
-          conflicts.cl_each(function (conflict) {
-            file.content.conflicts[clUid()] = conflict
-          })
-          clEditorLayoutSvc.currentControl = 'conflictAlert'
-        }
-      }
-
-      function watchContent (file) {
-        if (watchCtx) {
-          if (file === watchCtx.file) {
-            // File already being watched
-            return
-          } else {
-            // Stop previous file watching
-            clSocketSvc.sendMsg('stopWatchContent', {
-              id: watchCtx.id
-            })
-            setWatchCtx()
-          }
-        }
-        if (!file || !file.state || file.isLocalFile || !clSyncDataSvc.files[file.id]) {
-          return
-        }
-        file.loadPending = false
-        setWatchCtx({
-          id: clUid(),
-          file: file,
-          userCursors: {},
-          contentChanges: []
-        })
-        clSocketSvc.sendMsg('startWatchContent', {
-          id: watchCtx.id,
-          fileId: file.id,
-          previousRev: file.content && file.content.syncedRev
-        })
-        $timeout.cancel(file.loadingTimeoutId)
-        file.loadingTimeoutId = $timeout(function () {
-          setLoadingError(file, 'Loading timeout.')
-        }, clSyncDataSvc.loadingTimeout)
-      }
-
-      clSocketSvc.addMsgHandler('watchedContent', function (msg) {
-        if (!watchCtx || !watchCtx.file.state || watchCtx.id !== msg.id) {
-          return
-        }
-        var file = watchCtx.file
-        $timeout.cancel(file.loadingTimeoutId)
-        if (msg.error) {
-          return setLoadingError(file)
-        }
-        var oldContent = clDiffUtils.flattenContent(msg.previousContent || msg.lastContent, true)
-        var serverContent = clDiffUtils.flattenContent(msg.lastContent, true)
-        if (file.state === 'loading') {
-          setLoadedContent(file, serverContent)
-        } else {
-          applyServerContent(file, oldContent, serverContent)
-        }
-        watchCtx.chars = serverContent.chars
-        watchCtx.text = serverContent.text
-        watchCtx.properties = serverContent.properties
-        watchCtx.discussions = serverContent.discussions
-        watchCtx.comments = serverContent.comments
-        watchCtx.conflicts = serverContent.conflicts
-        watchCtx.rev = serverContent.rev
-        // Evaluate scope synchronously to have cledit instantiated
-        $rootScope.$apply()
-        // Changes can be received before the watchedFile
-        applyContentChangeMsgs()
-      })
-
-      function getPublicContent (file) {
-        if (!file || !file.state || !file.loadPending || !file.userId || !clIsNavigatorOnline()) {
-          return
-        }
-        var lastContent
-        var syncedContent
-        file.loadPending = false
-        clRestSvc.request({
-          method: 'GET',
-          url: '/api/v2/files/' + file.id + '/contentRevs/last'
-        })
-          .then(function (res) {
-            lastContent = res.body
-            if (file.content && file.content.syncedRev < lastContent.rev) {
-              return clRestSvc.request({
-                method: 'GET',
-                url: '/api/v2/files/' + file.id + '/contentRevs/' + file.content.syncedRev
-              })
-                .then(function (res) {
-                  syncedContent = res.body
-                })
-            }
-          })
-          .then(function () {
-            if (!file.content) {
-              setLoadedContent(file, lastContent)
-            } else {
-              applyServerContent(file, syncedContent || lastContent, lastContent)
-            }
-            file.setContentSynced(lastContent.rev)
-            // Evaluate scope synchronously to have cledit instantiated
-            $rootScope.$apply()
-          })
-          .catch(function () {
-            setLoadingError(file)
-          })
-      }
-
-      var lastTooBigWarning = 0
-
-      function tooBigWarning () {
-        var currentDate = Date.now()
-        if (currentDate - lastTooBigWarning > 30000) {
-          clToast('File is too big!')
-          lastTooBigWarning = currentDate
-        }
-      }
-
-      function sendContentChange () {
-        if (!watchCtx || watchCtx.rev === undefined || watchCtx.sentMsg) {
-          return
-        }
-        if (watchCtx.file.userId && (watchCtx.file.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
-          return
-        }
-        var newText = clEditorSvc.cledit.getContent()
-        if (newText.length > textMaxSize) {
-          return tooBigWarning()
-        }
-        var textChanges = clDiffUtils.getTextPatches(watchCtx.text, newText)
-        var propertiesPatches = clDiffUtils.getObjectPatches(watchCtx.properties, watchCtx.file.content.properties)
-        var discussionsPatches = clDiffUtils.getObjectPatches(watchCtx.discussions, watchCtx.file.content.discussions)
-        var commentsPatches = clDiffUtils.getObjectPatches(watchCtx.comments, watchCtx.file.content.comments)
-        var conflictsPatches = clDiffUtils.getObjectPatches(watchCtx.conflicts, watchCtx.file.content.conflicts)
-        if (!textChanges && !propertiesPatches && !discussionsPatches && !commentsPatches && !conflictsPatches) {
-          return
-        }
-        var newRev = watchCtx.rev + 1
-        watchCtx.sentMsg = {
-          id: watchCtx.id,
-          rev: newRev,
-          text: textChanges,
-          properties: propertiesPatches,
-          discussions: discussionsPatches,
-          comments: commentsPatches,
-          conflicts: conflictsPatches
-        }
-        clSocketSvc.sendMsg('setContentChange', watchCtx.sentMsg)
-      }
-
-      function applyContentChangeMsgs () {
-        if (watchCtx.rev === undefined) {
-          return
-        }
-        var msg
-        var apply
-        var serverText = watchCtx.text
-        var localText = clEditorSvc.cledit.getContent()
-        var serverProperties = ({}).cl_extend(watchCtx.properties)
-        var serverDiscussions = ({}).cl_extend(watchCtx.discussions)
-        var serverComments = ({}).cl_extend(watchCtx.comments)
-        var serverConflicts = ({}).cl_extend(watchCtx.conflicts)
-        while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
-          watchCtx.rev = msg.rev
-          if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
-            // Has to be the previously sent message
-            msg = watchCtx.sentMsg
-            watchCtx.contentChanges[msg.rev] = watchCtx.sentMsg
-          }
-          var oldText = serverText
-          watchCtx.chars = clDiffUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.user.id)
-          serverText = watchCtx.chars.cl_map(function (item) {
-            return item[1]
-          }).join('')
-          apply |= !!(msg.properties || msg.discussions || msg.comments || msg.conflicts)
-          clDiffUtils.applyFlattenedObjectPatches(serverProperties, msg.properties || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverDiscussions, msg.discussions || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverComments, msg.comments || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverConflicts, msg.conflicts || [])
-          if (msg !== watchCtx.sentMsg) {
-            var isServerTextChanges = oldText !== serverText
-            var isLocalTextChanges = oldText !== localText
-            var isTextSynchronized = serverText === localText
-            if (!isTextSynchronized && isServerTextChanges) {
-              if (isLocalTextChanges) {
-                localText = clDiffUtils.quickPatch(oldText, serverText, localText)
-              } else {
-                localText = serverText
-              }
-              var offset = clEditorSvc.setContent(localText, true)
-              var userCursor = watchCtx.userCursors[msg.userId] || {}
-              userCursor.offset = offset
-              watchCtx.userCursors[msg.userId] = userCursor
-            }
-            clUserInfoSvc.request(msg.userId)
-          }
-          watchCtx.sentMsg = undefined
-        }
-        watchCtx.file.content.properties = clDiffUtils.mergeObjects(watchCtx.properties, watchCtx.file.content.properties, serverProperties)
-        watchCtx.file.content.discussions = clDiffUtils.mergeObjects(watchCtx.discussions, watchCtx.file.content.discussions, serverDiscussions)
-        watchCtx.file.content.comments = clDiffUtils.mergeObjects(watchCtx.comments, watchCtx.file.content.comments, serverComments)
-        watchCtx.file.content.conflicts = clDiffUtils.mergeObjects(watchCtx.conflicts, watchCtx.file.content.conflicts, serverConflicts)
-        watchCtx.text = serverText
-        watchCtx.properties = serverProperties
-        watchCtx.discussions = serverDiscussions
-        watchCtx.comments = serverComments
-        watchCtx.conflicts = serverConflicts
-        watchCtx.file.setContentSynced(watchCtx.rev)
-        apply && $rootScope.$evalAsync()
-      }
-
-      clSocketSvc.addMsgHandler('contentChange', function (msg) {
-        if (!watchCtx || watchCtx.id !== msg.id || watchCtx.rev >= msg.rev) {
-          return
-        }
-        watchCtx.contentChanges[msg.rev] = msg
-        applyContentChangeMsgs()
-      })
-
-      clContentSyncSvc.retrieveRevision = function (rev) {
-        if (!watchCtx) {
-          return
-        }
-        var toRev = watchCtx.rev
-        while (watchCtx.contentChanges[toRev] && toRev > rev) {
-          toRev--
-        }
-        var fileId = watchCtx.file.id
-        return Promise.resolve()
-          .then(function () {
-            if (toRev !== rev) {
-              return clRestSvc.list('/api/v2/files/' + fileId + '/contentChanges', null, rev, toRev - 1)
-                .then(function (items) {
-                  if (watchCtx && watchCtx.file.id === fileId) {
-                    items.cl_each(function (item) {
-                      watchCtx.contentChanges[item.rev] = item
-                    })
-                  }
-                })
-            }
-          })
-          .then(function () {
-            var result = {
-              text: watchCtx.text,
-              properties: ({}).cl_extend(watchCtx.properties),
-              discussions: ({}).cl_extend(watchCtx.discussions),
-              comments: ({}).cl_extend(watchCtx.comments),
-              conflicts: ({}).cl_extend(watchCtx.conflicts)
-            }
-            watchCtx.contentChanges.slice(rev + 1, watchCtx.rev + 1).reverse().cl_each(function (contentChange) {
-              result.text = clDiffUtils.applyFlattenedTextPatchesReverse(result.text, contentChange.text || [])
-              console.log(result.text, contentChange.text)
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.properties, contentChange.properties || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.discussions, contentChange.discussions || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.comments, contentChange.comments || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.conflicts, contentChange.conflicts || [])
-            })
-            return result
-          })
-      }
-
-      clSetInterval(function () {
-        // Check that window has focus and socket is online
-        if (!clUserActivity.checkActivity() || !clSocketSvc.isReady) {
-          return
-        }
-        clFileSvc.localFiles.cl_each(function (file) {
-          // Check that content is not being edited
-          if (!clSyncDataSvc.files[file.id] || (watchCtx && file === watchCtx.file)) {
-            return
-          }
-          if (file.userId && (file.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
-            return
-          }
-          var currentDate = Date.now()
-          try {
-            file.loadDoUnload(function () {
-              var fromRev = file.content.syncedRev
-              // Check that content is not being modified in another instance
-              if (fromRev === undefined || currentDate - file.content.lastModified < backgroundUpdateContentEvery) {
-                return
-              }
-              if (!file.isContentSynced()) {
-                clSocketSvc.sendMsg('updateContent', {
-                  id: file.id,
-                  fromRev: fromRev,
-                  text: file.content.text,
-                  properties: file.content.properties,
-                  discussions: file.content.discussions,
-                  comments: file.content.comments,
-                  conflicts: file.content.conflicts
-                })
-              }
-            })
-          } catch (e) {
-            // File is not local
-          }
-        })
-      }, backgroundUpdateContentEvery)
-
-      clSocketSvc.addMsgHandler('updatedContent', function (msg) {
-        var file = clFileSvc.activeDaoMap[msg.id]
-        // Check that file still exists and content is still local
-        if (!file || !file.content.isLocal) {
-          return
-        }
-        // Check that content is not being edited
-        if (watchCtx && watchCtx.file.id === file.id) {
-          return
-        }
-        var currentDate = Date.now()
-        try {
-          file.loadDoUnload(function () {
-            // Check that content is not being modified in another instance
-            if (currentDate - file.content.lastModified < backgroundUpdateContentEvery) {
-              return
-            }
-            // Update content
-            file.content.text = msg.text
-            file.content.properties = msg.properties
-            file.content.discussions = msg.discussions
-            file.content.comments = msg.comments
-            file.content.conflicts = msg.conflicts
-            file.setContentSynced(msg.rev)
-            file.writeContent()
-          })
-        } catch (e) {
-          // File is not local
-        }
-      })
-
-      $rootScope.$watch('currentFile', function (currentFile) {
-        if (currentFile) {
-          currentFile.loadPending = true
-        }
-        if (clSocketSvc.isReady) {
-          watchContent(currentFile)
-        } else if (!clSocketSvc.hasToken) {
-          getPublicContent(currentFile)
-        }
-      })
-
-      clSetInterval(function () {
-        if (!clUserActivity.checkActivity()) {
-          return
-        }
-        clFileSvc.readLocalFileChanges()
-        if ($rootScope.currentFile && $rootScope.currentFile.state === 'loaded') {
-          $rootScope.currentFile.writeContent()
-        }
-        clFileSvc.writeLocalFileChanges()
-        if (clSocketSvc.isReady) {
-          watchContent($rootScope.currentFile)
-          sendContentChange()
-        } else if (!clSocketSvc.hasToken) {
-          getPublicContent($rootScope.currentFile)
-        }
-      }, 200)
-
-      return clContentSyncSvc
     })

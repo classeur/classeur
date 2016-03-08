@@ -205,7 +205,6 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         scope.folderNameModified = function () {
-          clExplorerLayoutSvc.currentFolder.name = clExplorerLayoutSvc.currentFolder.name || 'Untitled'
           clExplorerLayoutSvc.refreshFolders()
           setPlasticClass()
         }
@@ -267,10 +266,11 @@ angular.module('classeur.core.explorerLayout', [])
           makeInputDialog('core/explorerLayout/importFolderDialog.html', function (scope) {
             scope.importType = 'otherUser'
             var classeurFolders = clExplorerLayoutSvc.currentClasseur.folders.cl_reduce(function (classeurFolders, folder) {
-              return (classeurFolders[folder.id] = folder, classeurFolders)
+              classeurFolders[folder.id] = folder
+              return classeurFolders
             }, {})
-            scope.folders = clFolderSvc.activeDaos.cl_filter(function (filterDao) {
-              return !filterDao.userId && !classeurFolders.hasOwnProperty(filterDao.id)
+            scope.folders = clFolderSvc.activeDaos.cl_filter(function (folder) {
+              return !classeurFolders[folder.id]
             })
             scope.move = true
             var ok = scope.ok
@@ -327,6 +327,9 @@ angular.module('classeur.core.explorerLayout', [])
           clDialog.show({
             templateUrl: 'core/explorerLayout/importFileDialog.html',
             controller: ['$scope', function (scope) {
+              if (!folder && clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
+                scope.orphanWarning = true
+              }
               scope.cancel = function () {
                 clDialog.cancel()
               }
@@ -354,6 +357,9 @@ angular.module('classeur.core.explorerLayout', [])
         scope.createFile = function () {
           var folder = clExplorerLayoutSvc.currentFolder
           makeInputDialog('core/explorerLayout/newFileDialog.html', function (scope) {
+            if (!folder && clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
+              scope.orphanWarning = true
+            }
             scope.import = function () {
               clDialog.cancel()
               importFile()
@@ -476,22 +482,26 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         scope.removeFolderFromClasseur = function () {
-          if (clExplorerLayoutSvc.currentFolder.userId && !scope.isFolderInOtherClasseur()) {
-            clFolderSvc.removeDaos([clExplorerLayoutSvc.currentFolder])
-          } else {
-            clClasseurSvc.removeFolderFromClasseur(clExplorerLayoutSvc.currentClasseur, clExplorerLayoutSvc.currentFolder)
-          }
+          clClasseurSvc.removeFolderFromClasseur(clExplorerLayoutSvc.currentClasseur, clExplorerLayoutSvc.currentFolder)
           clClasseurSvc.init()
           clExplorerLayoutSvc.refreshFolders()
         }
 
         scope.createClasseur = function () {
-          makeInputDialog('core/explorerLayout/newClasseurDialog.html')
-            .then(function (name) {
+          makeInputDialog('core/explorerLayout/newClasseurDialog.html', function (scope) {
+            scope.ok = function () {
+              if (!scope.value) {
+                return scope.focus()
+              }
               var classeur = clClasseurSvc.createClasseur()
-              classeur.name = name
-              scope.setClasseur(classeur)
-            })
+              classeur.name = scope.value
+              classeur.userId = scope.isPublic ? 'null' : ''
+              clDialog.hide(classeur)
+            }
+          })
+          .then(function (classeur) {
+            scope.setClasseur(classeur)
+          })
         }
 
         scope.deleteClasseur = function (classeur) {
@@ -597,7 +607,7 @@ angular.module('classeur.core.explorerLayout', [])
       var lastFolderKey = 'lastFolderId'
       var unclassifiedFolder = {
         id: 'unclassified',
-        name: 'My files'
+        name: 'All files'
       }
       var createFolder = {
         id: 'create',
@@ -605,6 +615,7 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       var clExplorerLayoutSvc = {
+        isSortedByDate: true,
         scrollbarWidth: 0,
         folders: [],
         files: [],
@@ -662,10 +673,6 @@ angular.module('classeur.core.explorerLayout', [])
         return !userInputFilter || ~file.name.toLowerCase().indexOf(userInputFilter)
       }
 
-      function currentUserFilter (file) {
-        return !file.userId
-      }
-
       function currentFolderFilter (file) {
         return file.folderId === clExplorerLayoutSvc.currentFolder.id
       }
@@ -687,7 +694,6 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         if (clExplorerLayoutSvc.currentFolder === unclassifiedFolder) {
-          filters.push(currentUserFilter)
           filters.push(inputFilter)
           filters.push(currentClasseurFilter)
         } else if (clExplorerLayoutSvc.currentFolder) {

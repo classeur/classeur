@@ -266,23 +266,17 @@ angular.module('classeur.core.localDb', [])
 )
   .factory('clLocalDb',
     function ($window, clLocalStorage, clDebug) {
+      var indexedDB = $window.indexedDB || $window.mozIndexedDB || $window.webkitIndexedDB || $window.msIndexedDB || $window.shimIndexedDB
       var debug = clDebug('classeur:clLocalDb')
       var db
       var getTxCbs = []
-      var storeNames = [
-        'files',
-        'folders',
-        'classeurs',
-        'objects',
-        'app'
-      ]
 
       function createTx (cb) {
         // If DB version has changed (Safari support)
         if (parseInt(clLocalStorage.localDbVersion, 10) !== db.version) {
           return $window.location.reload()
         }
-        var tx = db.transaction(storeNames, 'readwrite')
+        var tx = db.transaction(db.objectStoreNames, 'readwrite')
         tx.onerror = function (evt) {
           debug('Rollback transaction', evt)
         }
@@ -298,9 +292,9 @@ angular.module('classeur.core.localDb', [])
         }
       }
 
-      ;(function () {
+      ;(function init () {
         // Init connexion
-        var request = $window.indexedDB.open('classeur-db', 2)
+        var request = indexedDB.open('classeur-db', 2)
 
         request.onerror = function () {
           $window.alert("Can't connect to IndexedDB.")
@@ -308,15 +302,30 @@ angular.module('classeur.core.localDb', [])
 
         request.onsuccess = function (event) {
           db = event.target.result
-
+          var oldDbVersion = clLocalStorage.localDbVersion
           clLocalStorage.localDbVersion = db.version // Safari does not support onversionchange
-          db.onversionchange = function () {
-            return $window.location.reload()
-          }
 
-          getTxCbs.cl_each(function (cb) {
-            createTx(cb)
-          })
+          try {
+            getTxCbs.cl_each(function (cb) {
+              createTx(cb)
+            })
+
+            db.onversionchange = function () {
+              return $window.location.reload()
+            }
+          } catch (e) {
+            // Creating a built-in IndexedDB transaction may fail as Safari does not support opening multiple stores
+            if (indexedDB !== $window.shimIndexedDB) {
+              // Restore previous values
+              db = undefined
+              clLocalStorage.localDbVersion = oldDbVersion
+              // Use the shim instead
+              $window.shimIndexedDB.__useShim()
+              indexedDB = $window.shimIndexedDB
+              // And try again
+              init()
+            }
+          }
         }
 
         request.onupgradeneeded = function (event) {
