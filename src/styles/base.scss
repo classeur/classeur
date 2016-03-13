@@ -150,7 +150,7 @@ abbr {
   margin-left: auto;
   margin-right: auto;
 
-  > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+  > :not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not([align]) {
     text-align: justify;
   }
 }
