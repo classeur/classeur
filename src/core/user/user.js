@@ -193,6 +193,7 @@ angular.module('classeur.core.user', [])
           var user = clUserInfoSvc.users[id]
           user.displayName = user.name || 'Someone'
           if (clUserSvc.user && clUserSvc.user.id === id) {
+            user.name = clUserSvc.user.name
             user.displayName = 'You'
           }
         })
@@ -200,7 +201,7 @@ angular.module('classeur.core.user', [])
       }
 
       clSetInterval(getRequestedUser, 1200)
-      $rootScope.$watch('userSvc.user', buildNames)
+      $rootScope.$watch('userSvc.user.id', buildNames)
 
       return clUserInfoSvc
     })

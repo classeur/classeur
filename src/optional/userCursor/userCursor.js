@@ -10,7 +10,7 @@ angular.module('classeur.optional.userCursor', [])
         var styleContent = ''
         Object.keys(userClasses).cl_each(function (userId) {
           var userInfo = clUserInfoSvc.users[userId] || {}
-          var name = userInfo.name || '?'
+          var name = userInfo.displayName || '?'
           var color = userInfo.color || '888'
           styleContent += '.user-cursor-' + userId + ' {'
           styleContent += '-webkit-box-shadow: inset -2px 0 #' + color + ';'
