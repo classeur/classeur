@@ -629,12 +629,22 @@ angular.module('classeur.core.sync', [])
             findOne(clClasseurSvc.deletedDaos, function (classeur) {
               debug('Delete classeur')
               syncQueue.classeurs[classeur.id] = classeur.updated
-              return clRestSvc.request({
-                method: 'DELETE',
-                url: classeur.userId === 'null'
-                  ? '/api/v2/users/' + clSyncDataSvc.user.id + '/classeurs/' + classeur.id // Detach if classeur is public
-                  : '/api/v2/classeurs/' + classeur.id
-              })
+              return classeur.userId === 'null'
+                ? clRestSvc.request({
+                  method: 'DELETE',
+                  url: '/api/v2/users/' + clSyncDataSvc.user.id + '/classeurs/' + classeur.id // Detach if classeur is public
+                })
+                  .then(function () {
+                    // We won't receive this event through websocket
+                    pendingChangeGroups.classeurs.$add({
+                      id: classeur.id,
+                      deleted: true
+                    })
+                  })
+                : clRestSvc.request({
+                  method: 'DELETE',
+                  url: '/api/v2/classeurs/' + classeur.id
+                })
             }, true)
 
             if (result) {
@@ -723,13 +733,13 @@ angular.module('classeur.core.sync', [])
           syncQueue(function updateFolder () {
             var result
 
-            function findOne (folders, cb, checkExists) {
+            function findOne (folders, cb, forDelete) {
               return folders.cl_some(function (folder) {
-                if ((!checkExists || clSyncDataSvc.folders[folder.id]) && // Exists on the server
+                if ((!forDelete || clSyncDataSvc.folders[folder.id]) && // Exists on the server
                   folder.name && folder.updated && // Is ready for sync
                   folder.updated !== clSyncDataSvc.folders[folder.id] && // Is out of sync
                   folder.updated !== syncQueue.folders[folder.id] && // Is not currently syncing
-                  (!folder.userId || folder.sharing === 'rw') // Is writable
+                  (!folder.userId || (!forDelete && folder.sharing === 'rw')) // Is writable
                 ) {
                   result = cb(folder)
                   return true

@@ -548,6 +548,14 @@ angular.module('classeur.core.explorerLayout', [])
           })
 
           function remove () {
+            if (classeur.userId === 'null') {
+              classeur.folders.cl_each(function (folder) {
+                if (!folder.userId) {
+                  // Prevent private folders from remaining in the public classeur, in case user re-import it later
+                  clClasseurSvc.removeFolderFromClasseur(classeur, folder)
+                }
+              })
+            }
             clClasseurSvc.setDeletedClasseurs([classeur])
           }
 
