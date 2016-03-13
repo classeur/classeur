@@ -232,12 +232,10 @@ angular.module('classeur.core.editor', [])
         previewElt.addEventListener('click', function (evt) {
           var elt = evt.target
           while (elt !== previewElt) {
-            if (elt.href) {
-              if (elt.href.match(/^https?:\/\//) && elt.href.slice(0, appUri.length) !== appUri) {
-                evt.preventDefault()
-                var wnd = window.open(elt.href, '_blank')
-                return wnd.focus()
-              }
+            if (elt.href && elt.href.match(/^https?:\/\//) && (!elt.hash || elt.href.slice(0, appUri.length) !== appUri)) {
+              evt.preventDefault()
+              var wnd = window.open(elt.href, '_blank')
+              return wnd.focus()
             }
             elt = elt.parentNode
           }
