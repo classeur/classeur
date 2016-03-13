@@ -246,7 +246,7 @@ function buildJs (srcStream, dest) {
       .pipe(concat(dest, {
         newLine: ';'
       }))
-      .pipe(sourcemaps.write('.'))
+      .pipe(sourcemaps.write())
   } else {
     srcStream = srcStream
       .pipe(size({
@@ -270,7 +270,7 @@ function buildCss (srcStream, dest) {
         includePaths: bourbon.includePaths.concat('src/styles')
       }).on('error', sass.logError))
       .pipe(concat(dest))
-      .pipe(sourcemaps.write('.'))
+      .pipe(sourcemaps.write())
   } else {
     srcStream = srcStream
       .pipe(sass({
