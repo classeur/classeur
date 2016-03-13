@@ -17,9 +17,7 @@ angular.module('classeur.core.utils', [])
     })
   .factory('clDebug',
     function ($window) {
-      return $window.debug || function () {
-        return function () {} // In case debug is not available as we rely on engine.io to provide it
-      }
+      return $window.debug
     })
   .factory('clDiffUtils',
     function ($window) {
