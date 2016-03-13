@@ -123,6 +123,14 @@ angular.module('classeur.extensions.markdown', [])
           })
         })
 
+        // Wrap tables into a div for scrolling
+        markdown.renderer.rules.table_open = function (tokens, idx, options) {
+          return '<div class="table-wrapper">' + markdown.renderer.renderToken(tokens, idx, options)
+        }
+        markdown.renderer.rules.table_close = function (tokens, idx, options) {
+          return markdown.renderer.renderToken(tokens, idx, options) + '</div>'
+        }
+
         // Transform style into align attribute to pass the HTML sanitizer
         var textAlignLength = 'text-align:'.length
         markdown.renderer.rules.th_open = markdown.renderer.rules.td_open = function (tokens, idx, options) {

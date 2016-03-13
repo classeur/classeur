@@ -787,7 +787,15 @@ angular.module('classeur.core.editor', [])
           var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function (html, elt) {
             if (!elt.portableHtml) {
               var clonedElt = elt.cloneNode(true)
+              // Removed rendered Math, keep only original tex
               clonedElt.querySelectorAll('.MathJax, .MathJax_SVG, .MathJax_Display, .MathJax_SVG_Display, .MathJax_Preview').cl_each(function (elt) {
+                elt.parentNode.removeChild(elt)
+              })
+              // Unwrap tables
+              clonedElt.querySelectorAll('.table-wrapper').cl_each(function (elt) {
+                while (elt.firstChild) {
+                  elt.parentNode.appendChild(elt.firstChild)
+                }
                 elt.parentNode.removeChild(elt)
               })
               elt.portableHtml = clonedElt.innerHTML

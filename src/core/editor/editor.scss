@@ -61,9 +61,13 @@
     line-height: 1.5;
   }
 
-  img,
-  table {
+  img {
     max-width: 100%;
+  }
+
+  .table-wrapper {
+    max-width: 100%;
+    overflow: auto;
   }
 }
 

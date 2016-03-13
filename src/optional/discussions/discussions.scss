@@ -145,6 +145,10 @@ $highlighting-color: #ffdf60;
   }
 }
 
+.comment-entry__inner {
+  padding-left: 30px;
+}
+
 .comment-entry--new::before {
   display: none;
 }
@@ -156,7 +160,7 @@ $highlighting-color: #ffdf60;
 .comment-entry__delete-btn {
   color: rgba(0, 0, 0, .4);
   height: 26px;
-  margin-right: 4px;
+  margin-left: -30px;
   margin-top: 4px;
   max-width: 26px;
   min-width: 26px;
@@ -252,8 +256,12 @@ $highlighting-color: #ffdf60;
     word-wrap: break-word;
   }
 
-  img,
-  table {
+  img {
     max-width: 100%;
+  }
+
+  .table-wrapper {
+    max-width: 100%;
+    overflow: auto;
   }
 }
