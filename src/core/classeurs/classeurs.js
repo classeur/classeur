@@ -297,6 +297,7 @@ angular.module('classeur.core.classeurs', [])
         if (classeurList.length) {
           var currentDate = Date.now()
           classeurList.cl_each(function (classeur) {
+            classeur.updated = currentDate // Ensure we don't keep the server date when called by synchronizer
             classeur.deleted = currentDate
           })
           init()

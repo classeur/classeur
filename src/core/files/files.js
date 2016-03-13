@@ -438,6 +438,7 @@ angular.module('classeur.core.files', [])
         if (fileList.length) {
           var currentDate = Date.now()
           fileList.cl_each(function (file) {
+            file.updated = currentDate // Ensure we don't keep the server date when called by synchronizer
             file.deleted = currentDate
           })
           init()

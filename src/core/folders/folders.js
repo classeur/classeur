@@ -153,6 +153,7 @@ angular.module('classeur.core.folders', [])
         if (folderList.length) {
           var currentDate = Date.now()
           folderList.cl_each(function (folder) {
+            folder.updated = currentDate // Ensure we don't keep the server date when called by synchronizer
             folder.deleted = currentDate
           })
           init()
