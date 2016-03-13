@@ -14,53 +14,14 @@
 .user-mgt-page__inner {
   margin: auto;
   max-width: 580px;
-  padding: 40px 5px 100px;
+  padding: 40px 0 100px;
+
+  md-card label {
+    margin: 0 5px;
+  }
 }
 
 .user-mgt-page__filter {
+  margin-left: 10px;
   max-width: 200px;
-}
-
-.user-entry {
-  background-color: #fff;
-  border-radius: 3px;
-  margin-bottom: 15px;
-  padding: 5px 5px 0;
-}
-
-.user-entry__row {
-  padding-bottom: 10px;
-}
-
-.user-entry__button {
-  color: rgba(0, 0, 0, .67);
-  font-size: 22px;
-  margin-right: 5px;
-}
-
-.user-entry__text {
-  margin: 0 5px;
-}
-
-.user-entry__text--name {
-  font-size: 1.1em;
-  font-weight: 500;
-}
-
-.user-entry__text--id {
-  color: rgba(0, 0, 0, .4);
-}
-
-.user-entry__button--delete {
-  font-size: 28px;
-}
-
-.user-entry__img {
-  height: 48px;
-  width: 48px;
-}
-
-.user-entry__checkbox {
-  margin: 0 5px;
-  text-align: center;
 }

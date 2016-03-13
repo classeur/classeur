@@ -189,17 +189,16 @@ angular.module('classeur.core.files', [])
           // Pick only relevant content keys
           var strippedContent = stripContent(contentMap[this.id])
           var storedContent = JSON.stringify(strippedContent)
-          // If content has changed
+          // If content has changed, update lastChange date
           if (contentMap[this.id].$storedContent !== storedContent) {
-            contentMap[this.id].$storedContent = storedContent
-            // Store the stripped content + state + syncedRev + syncedHash
-            strippedContent.state = contentMap[this.id].state
-            strippedContent.syncedRev = contentMap[this.id].syncedRev
-            strippedContent.syncedHash = contentMap[this.id].syncedHash
-            clLocalStorage.setItem('fileContent.' + this.id, JSON.stringify(strippedContent))
-            // Update lastChange
             contentMap[this.id].lastChange = Date.now()
+            contentMap[this.id].$storedContent = storedContent
           }
+          // Store the stripped content + state + syncedRev + syncedHash
+          strippedContent.state = contentMap[this.id].state
+          strippedContent.syncedRev = contentMap[this.id].syncedRev
+          strippedContent.syncedHash = contentMap[this.id].syncedHash
+          clLocalStorage.setItem('fileContent.' + this.id, JSON.stringify(strippedContent))
         }
       }
 

@@ -93,10 +93,9 @@
 .blog-post-entry__button {
   color: rgba(0, 0, 0, .7);
   font-size: 28px;
-  height: 38px;
   max-width: 36px;
   min-width: 36px;
-  padding: 0;
+  padding: 5px 0;
 
   &[disabled] {
     opacity: .5;

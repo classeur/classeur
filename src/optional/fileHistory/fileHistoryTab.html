@@ -1,4 +1,6 @@
 <div class="file-history-tab" ng-class="{'file-history-tab--selected': fileHistorySvc.selectedChangeGroup}">
-  <cl-file-history-entry ng-repeat="changeGroup in fileHistorySvc.changeGroups track by changeGroup.toRev"></cl-file-history-entry>
+  <div>
+    <cl-file-history-entry ng-repeat="changeGroup in fileHistorySvc.changeGroups track by changeGroup.toRev"></cl-file-history-entry>
+  </div>
   <md-button class="file-history-tab__show-more" ng-if="fileHistorySvc.hasMore" ng-click="fileHistorySvc.showMore()">Show more...</md-button>
 </div>

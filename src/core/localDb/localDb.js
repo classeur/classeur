@@ -266,7 +266,13 @@ angular.module('classeur.core.localDb', [])
 )
   .factory('clLocalDb',
     function ($window, clLocalStorage, clDebug) {
-      var indexedDB = $window.indexedDB || $window.mozIndexedDB || $window.webkitIndexedDB || $window.msIndexedDB || $window.shimIndexedDB
+      var indexedDB = $window.indexedDB
+      // Use the shim on Safari or if indexedDB is not available
+      if ($window.shimIndexedDB && (!indexedDB || (!~navigator.userAgent.indexOf('Chrome') && ~navigator.userAgent.indexOf('Safari')))) {
+        $window.shimIndexedDB.__useShim()
+        indexedDB = $window.shimIndexedDB
+      }
+
       var debug = clDebug('classeur:clLocalDb')
       var db
       var getTxCbs = []
@@ -302,30 +308,15 @@ angular.module('classeur.core.localDb', [])
 
         request.onsuccess = function (event) {
           db = event.target.result
-          var oldDbVersion = clLocalStorage.localDbVersion
           clLocalStorage.localDbVersion = db.version // Safari does not support onversionchange
 
-          try {
-            getTxCbs.cl_each(function (cb) {
-              createTx(cb)
-            })
-
-            db.onversionchange = function () {
-              return $window.location.reload()
-            }
-          } catch (e) {
-            // Creating a built-in IndexedDB transaction may fail as Safari does not support opening multiple stores
-            if (indexedDB !== $window.shimIndexedDB) {
-              // Restore previous values
-              db = undefined
-              clLocalStorage.localDbVersion = oldDbVersion
-              // Use the shim instead
-              $window.shimIndexedDB.__useShim()
-              indexedDB = $window.shimIndexedDB
-              // And try again
-              init()
-            }
+          db.onversionchange = function () {
+            return $window.location.reload()
           }
+
+          getTxCbs.cl_each(function (cb) {
+            createTx(cb)
+          })
         }
 
         request.onupgradeneeded = function (event) {

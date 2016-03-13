@@ -1,6 +1,7 @@
 angular.module('classeur.core.sync.contentSync', [])
   .factory('clContentSyncSvc',
-    function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clEditorLayoutSvc) {
+    function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clIsSyncWindow, clEditorLayoutSvc) {
+      var loadingTimeout = 30 * 1000 // 30 sec
       var textMaxSize = 200000
       var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
       var clContentSyncSvc = {}
@@ -87,7 +88,7 @@ angular.module('classeur.core.sync.contentSync', [])
         $timeout.cancel(file.loadingTimeoutId)
         file.loadingTimeoutId = $timeout(function () {
           setLoadingError(file, 'Loading timeout.')
-        }, clSyncDataSvc.loadingTimeout)
+        }, loadingTimeout)
       }
 
       clSocketSvc.addMsgHandler('watchedContent', function (msg) {
@@ -300,7 +301,6 @@ angular.module('classeur.core.sync.contentSync', [])
             }
             watchCtx.contentChanges.slice(rev + 1, watchCtx.rev + 1).reverse().cl_each(function (contentChange) {
               result.text = clDiffUtils.applyFlattenedTextPatchesReverse(result.text, contentChange.text || [])
-              console.log(result.text, contentChange.text)
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.properties, contentChange.properties || [])
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.discussions, contentChange.discussions || [])
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.comments, contentChange.comments || [])
@@ -311,67 +311,63 @@ angular.module('classeur.core.sync.contentSync', [])
       }
 
       clSetInterval(function () {
-        // Check that window has focus and socket is online
-        if (!clUserActivity.checkActivity() || !clSocketSvc.isReady) {
+        if (!clSocketSvc.isReady || !clIsSyncWindow()) {
           return
         }
+
+        // Send modified local files
+        clFileSvc.readLocalFileChanges()
         clFileSvc.localFiles.cl_each(function (file) {
-          // Check that content is not being edited
-          if (!clSyncDataSvc.files[file.id] || (watchCtx && file === watchCtx.file)) {
-            return
-          }
-          if (file.userId && (file.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
-            return
-          }
-          try {
-            file.loadDoUnload(function () {
-              // Check that file was created and content is not being modified in another instance
-              if (Date.now() - file.content.lastChange < backgroundUpdateContentEvery) {
-                return
-              }
-              if (!file.isContentSynced()) {
-                clSocketSvc.sendMsg('updateContent', {
-                  id: file.id,
-                  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                  fromRev: file.content.syncedRev,
-                  text: file.content.text,
-                  properties: file.content.properties,
-                  discussions: file.content.discussions,
-                  comments: file.content.comments,
-                  conflicts: file.content.conflicts
-                })
-              }
-            })
-          } catch (e) {
-            // File is not local
+          if (
+            clSyncDataSvc.files[file.id] && // exists on the server
+            (!watchCtx || file !== watchCtx.file) && // is not being edited in the current tab
+            Date.now() - file.content.lastChange > backgroundUpdateContentEvery // is not being edited in another tab
+          ) {
+            try {
+              file.loadDoUnload(function () {
+                if (!file.isContentSynced()) {
+                  clRestSvc.request({
+                    method: 'PATCH',
+                    url: '/api/v2/files/' + file.id + '/contentRevs/' + (file.content.syncedRev === undefined ? 'last' : file.content.syncedRev),
+                    body: {
+                      text: file.content.text,
+                      properties: file.content.properties,
+                      discussions: file.content.discussions,
+                      comments: file.content.comments,
+                      conflicts: file.content.conflicts
+                    }
+                  })
+                  .then(function (res) {
+                    clFileSvc.readLocalFileChanges()
+                    if (
+                      file.content && // still local
+                      (!watchCtx || file.id !== watchCtx.file.id) && // is not being edited in the current tab
+                      Date.now() - file.content.lastChange > backgroundUpdateContentEvery // is not being edited in another tab
+                    ) {
+                      try {
+                        file.loadDoUnload(function () {
+                          file.content.text = res.body.text
+                          file.content.properties = res.body.properties
+                          file.content.discussions = res.body.discussions
+                          file.content.comments = res.body.comments
+                          file.content.conflicts = res.body.conflicts
+                          file.setContentSynced(res.body.rev)
+                          file.writeContent()
+                        })
+                        clFileSvc.writeLocalFileChanges()
+                      } catch (e) {
+                        // File is not local
+                      }
+                    }
+                  })
+                }
+              })
+            } catch (e) {
+              // File is not local
+            }
           }
         })
       }, backgroundUpdateContentEvery)
-
-      clSocketSvc.addMsgHandler('updatedContent', function (msg) {
-        var file = clFileSvc.activeDaoMap[msg.id]
-        // If file doesn't exists or is not local or content is being modified
-        if (!file || !file.content || Date.now() - file.content.lastChange < backgroundUpdateContentEvery) {
-          return
-        }
-        // Check that content is not being edited
-        if (watchCtx && watchCtx.file.id === file.id) {
-          return
-        }
-        try {
-          file.loadDoUnload(function () {
-            file.content.text = msg.text
-            file.content.properties = msg.properties
-            file.content.discussions = msg.discussions
-            file.content.comments = msg.comments
-            file.content.conflicts = msg.conflicts
-            file.setContentSynced(msg.rev)
-            file.writeContent()
-          })
-        } catch (e) {
-          // File is not local
-        }
-      })
 
       $rootScope.$watch('currentFile', function (currentFile) {
         if (currentFile) {

@@ -1,7 +1,7 @@
 @import 'bourbon';
 
 .file-history-tab {
-  padding: 20px 25px;
+  padding: 20px 15px;
 }
 
 .file-history-tab--selected {
@@ -26,10 +26,28 @@
 }
 
 .file-history-entry {
+  margin-bottom: 10px;
+  position: relative;
+
   @include transition(.12s ease-out opacity);
 
   .md-chips {
     padding-bottom: 0;
+  }
+
+  &::before {
+    background-color: rgba(0, 0, 0, .067);
+    content: '';
+    height: 100%;
+    left: 12px;
+    position: absolute;
+    top: 20px;
+    width: 2px;
+    z-index: -1;
+  }
+
+  &:last-child::before {
+    display: none;
   }
 }
 
@@ -42,7 +60,6 @@
 }
 
 .file-history-entry__user-name {
-  font-size: 15px;
   padding-right: 10px;
 }
 
@@ -77,13 +94,9 @@
   }
 }
 
-.file-history-entry__separator {
-  margin: 15px auto;
-  width: 120px;
-}
-
 .file-change-list {
   margin-bottom: 20px;
+  margin-left: 25px;
 }
 
 .file-change {

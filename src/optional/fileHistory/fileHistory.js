@@ -91,6 +91,7 @@ angular.module('classeur.optional.fileHistory', [])
       return {
         restrict: 'E',
         templateUrl: 'optional/fileHistory/fileHistoryEntry.html',
+        replace: true, // for .file-history-entry:last-child selector to work properly
         link: link
       }
 

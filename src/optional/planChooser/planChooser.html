@@ -3,14 +3,12 @@
     <div class="navbar__inner">
       <div layout="row" layout-align="space-between">
         <div layout="row">
-          <div class="navbar__logo no-overflow">
-          </div>
+          <div class="navbar__logo no-overflow"></div>
           <div class="navbar__item navbar__item--title">
             Pricing
           </div>
         </div>
-        <md-button class="navbar__item navbar__item--icon icon-close" ng-href="#!/" aria-label="Close">
-        </md-button>
+        <md-button class="navbar__item navbar__item--icon icon-close" ng-href="#!/" aria-label="Close"></md-button>
       </div>
     </div>
   </div>
@@ -27,12 +25,14 @@
         </div>
         <div class="plan-entry__body" flex layout="column">
           <ul class="plan-entry__items" flex>
-            <li>Unlimited files and folders</li>
-            <li>Share publicly</li>
-            <li>1 blog</li>
-            <li>Unlimited blog posts</li>
-            <li>Export to PDF, Word, EPUB (5KB content limit)</li>
-            <li><a target="_blank" href="http://classeur.io/help/rest-api/">REST API</a> (read only)</li>
+            <li>Unlimited files/folders/classeurs</li>
+            <li>File/folder/classeur sharing</li>
+            <li>Real-time collaboration</li>
+            <li>Unlimited blogs and posts</li>
+            <li>Export to PDF, Word, EPUB</li>
+            <li>
+              <a target="_blank" href="http://classeur.io/help/rest-api/">REST API</a>
+            </li>
           </ul>
           <md-button class="plan-entry__button" md-no-ink ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
             <div>Sign in</div>
@@ -56,13 +56,17 @@
           </div>
         </div>
         <div class="plan-entry__body" flex layout="column">
+          <h3>Increased quota</h3>
           <ul class="plan-entry__items" flex>
-            <li>Unlimited files and folders</li>
-            <li>Share publicly</li>
-            <li><b>Real-time collaboration</b></li>
-            <li><b>Unlimited blogs and posts</b></li>
-            <li>Export to PDF, Word, EPUB <b>(no content limit)</b></li>
-            <li><a target="_blank" href="http://classeur.io/help/rest-api/">REST API</a> (read/write coming soon)</li>
+            <li>500MB bandwidth per month<br/>
+              <small>instead of 25MB per month</small>
+            </li>
+            <li>300 blog post publications per hour<br/>
+              <small>instead of 6 per hour</small>
+            </li>
+            <li>150 PDF, Word, EPUB exports per hour<br/>
+              <small>instead of 3 per hour</small>
+            </li>
           </ul>
           <md-button class="plan-entry__button" ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
             <div>Sign in</div>
@@ -82,24 +86,15 @@
           <div class="plan-entry__name">
             Enterprise
           </div>
-          <div>
-            starting at
-          </div>
-          <div class="plan-entry__price">
-            $1,800
-          </div>
-          <div>
-            per year
-          </div>
         </div>
         <div class="plan-entry__body" flex layout="column">
           <ul class="plan-entry__items" flex>
-            <li><b>On-premises or Cloud deployment</b></li>
-            <li><b>Google Apps or LDAP/AD login</b></li>
-            <li><b>Internal or external DB</b></li>
-            <li><b>Automatic backup</b></li>
-            <li><b>Admin console</b></li>
-            <li><b>Support</b></li>
+            <li>On-premises or Cloud deployment</li>
+            <li>Google Apps or LDAP/AD login</li>
+            <li>Internal or external DB</li>
+            <li>Automatic backup</li>
+            <li>Admin console</li>
+            <li>Support</li>
           </ul>
           <md-button class="plan-entry__button" md-no-ink target="_blank" ng-href="http://classeur.io/help/enterprise/">
             Get started
@@ -115,6 +110,21 @@
         <div class="plan-info__button-icon icon-email"></div>
         contact us
       </md-button>
+    </div>
+    <div class="footer" layout="row" layout-align="space-between">
+      <div layout="row">
+        <md-button class="footer__button" target="_blank" ng-href="http://classeur.io/privacy/">
+          Privacy
+        </md-button>
+        <md-button class="footer__button" target="_blank" ng-href="http://classeur.io/terms/">
+          Terms
+        </md-button>
+      </div>
+      <div layout="row">
+        <md-button class="footer__icon icon-twitter" target="_blank" ng-href="https://twitter.com/classeurapp" aria-label="Twitter"></md-button>
+        <md-button class="footer__icon icon-facebook" target="_blank" ng-href="https://www.facebook.com/classeurapp" aria-label="Facebook"></md-button>
+        <md-button class="footer__icon icon-github" target="_blank" ng-href="https://github.com/classeur/classeur" aria-label="GitHub"></md-button>
+      </div>
     </div>
   </div>
 </div>

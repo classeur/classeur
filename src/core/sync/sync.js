@@ -7,8 +7,7 @@ angular.module('classeur.core.sync', [])
         checkUserChanged: checkUserChanged,
         setImportedClasseur: setImportedClasseur,
         unsetImportedClasseur: unsetImportedClasseur,
-        isImportedClasseur: isImportedClasseur,
-        loadingTimeout: 30 * 1000 // 30 sec
+        isImportedClasseur: isImportedClasseur
       }
 
       var isInitialized
@@ -171,7 +170,7 @@ angular.module('classeur.core.sync', [])
       return clSyncDataSvc
     })
   .factory('clSyncSvc',
-    function ($rootScope, $timeout, clIsNavigatorOnline, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc, clDebug) {
+    function ($rootScope, $timeout, clIsNavigatorOnline, clIsSyncWindow, clLocalStorage, clToast, clUserSvc, clFileSvc, clFolderSvc, clClasseurSvc, clSettingSvc, clLocalSettingSvc, clSocketSvc, clRestSvc, clUserActivity, clSetInterval, clLocalDb, clLocalDbStore, clSyncDataSvc, clDebug) {
       var debug = clDebug('classeur:clSyncSvc')
       var userNameMaxLength = 64
       var refreshAfter = 30 * 1000 // 30 sec
@@ -348,22 +347,6 @@ angular.module('classeur.core.sync', [])
       // Initialize and clean up when user changes
       $rootScope.$watch('socketSvc.ctx.userId', localDbWrapper())
 
-      var isSyncWindow = (function () {
-        var lastSyncActivityKey = 'lastSyncActivity'
-        var lastSyncActivity
-        var inactivityThreshold = 3000 // 3 sec
-
-        return function () {
-          var currentDate = Date.now()
-          var storedLastSyncActivity = parseInt(clLocalStorage[lastSyncActivityKey], 10) || 0
-          if (lastSyncActivity === storedLastSyncActivity || currentDate - storedLastSyncActivity > inactivityThreshold) {
-            clLocalStorage[lastSyncActivityKey] = currentDate
-            lastSyncActivity = currentDate
-            return true
-          }
-        }
-      })()
-
       function PendingChangeGroup () {}
       PendingChangeGroup.prototype.$add = function (item) {
         // Only store change if syncing
@@ -405,7 +388,7 @@ angular.module('classeur.core.sync', [])
           return
         }
 
-        if (!isSyncWindow()) {
+        if (!clIsSyncWindow()) {
           clSocketSvc.ctx.syncQueue = undefined
           return
         }
@@ -899,7 +882,7 @@ angular.module('classeur.core.sync', [])
                     if (clSyncDataSvc.files[file.id] || file
                         .loadDoUnload(function () {
                           // Remove first file in case existing user signs in (#13)
-                          if (!clFileSvc.activeDaos.length || file.name !== clFileSvc.firstFileName || file.content.text !== clFileSvc.firstFileContent) {
+                          if (clFileSvc.activeDaos.length === 1 || file.name !== clFileSvc.firstFileName || file.content.text !== clFileSvc.firstFileContent) {
                             return true
                           }
                           filesToRemove.push(file)

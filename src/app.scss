@@ -194,6 +194,24 @@ textarea:not([disabled]) {
   padding: 0 4px;
 }
 
+
+.footer {
+  padding: 0 5px;
+}
+
+.footer__button {
+  padding: .6em;
+}
+
+.footer__icon {
+  color: rgba(0, 0, 0, .75);
+  font-size: 1.55em;
+  line-height: .65;
+  padding: .4em 0;
+  text-align: center;
+  width: 1.45em;
+}
+
 .drop-zone {
   border: 3px dashed #bbb;
   border-radius: 8px;

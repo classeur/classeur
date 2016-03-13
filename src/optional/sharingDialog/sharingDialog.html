@@ -17,7 +17,7 @@
       <md-radio-button value="rw">public
         <span class="sharing-dialog__label sharing-dialog__label--read-write">read/write</span>
       </md-radio-button>
-      <div class="sharing-dialog__info">Premium users with the link can modify the file.</div>
+      <div class="sharing-dialog__info">Signed in users with the link can modify the file.</div>
       <br>
     </md-radio-group>
     <md-radio-group ng-model="objectDao.effectiveSharing" ng-if="type === 'folder' && !objectDao.userId">
@@ -30,7 +30,7 @@
       <md-radio-button value="rw">public
         <span class="sharing-dialog__label sharing-dialog__label--read-write">read/write</span>
       </md-radio-button>
-      <div class="sharing-dialog__info">Premium users with the link can modify the folder and all its files.</div>
+      <div class="sharing-dialog__info">Signed in users with the link can modify the folder and all its files.</div>
       <br>
     </md-radio-group>
     <md-input-container>

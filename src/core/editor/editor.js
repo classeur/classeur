@@ -787,14 +787,14 @@ angular.module('classeur.core.editor', [])
 
         function resolve () {
           var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function (html, elt) {
-            if (!elt.exportableHtml) {
+            if (!elt.portableHtml) {
               var clonedElt = elt.cloneNode(true)
-              clonedElt.querySelectorAll('.MathJax, .MathJax_Display, .MathJax_Preview').cl_each(function (elt) {
+              clonedElt.querySelectorAll('.MathJax, .MathJax_SVG, .MathJax_Display, .MathJax_SVG_Display, .MathJax_Preview').cl_each(function (elt) {
                 elt.parentNode.removeChild(elt)
               })
-              elt.exportableHtml = clonedElt.innerHTML
+              elt.portableHtml = clonedElt.innerHTML
             }
-            return html + elt.exportableHtml
+            return html + elt.portableHtml
           }, '')
           clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '')
           clEditorSvc.previewText = previewElt.textContent

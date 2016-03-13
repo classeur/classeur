@@ -3,7 +3,7 @@
   <md-input-container>
     <input class="blog-entry__name" ng-model="blogPost.blog.name" disabled="disabled" aria-label="Blog name">
   </md-input-container>
-  <div class="blog-entry__status" ng-class="{blog-entry__status--error: blogPost.blog.status !== 'linked'}">
+  <div class="blog-entry__status" ng-class="{'blog-entry__status--error': blogPost.blog.status !== 'linked'}">
     <span class="blog-entry__status-text">{{blogPost.blog.status | clBlogStatus}}</span>
   </div>
 </div>

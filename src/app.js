@@ -1,4 +1,8 @@
-if (!window.Worker || !window.MutationObserver || !window.crypto) {
+if (
+  !window.Worker ||
+  !window.MutationObserver ||
+  !window.crypto // IE-11 not supported
+) {
   window.alert('Unsupported browser version. Please upgrade your browser.')
 } else {
   window.ES6Promise.polyfill()
@@ -49,6 +53,7 @@ if (!window.Worker || !window.MutationObserver || !window.crypto) {
     'classeur.optional.offlineAlert',
     'classeur.optional.planChooser',
     'classeur.optional.postToBlog',
+    'classeur.optional.quotaDialog',
     'classeur.optional.readOnlyAlert',
     'classeur.optional.recentAlert',
     'classeur.optional.urlDialog',

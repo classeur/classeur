@@ -49,7 +49,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-tab {
-  padding: 0 25px;
+  padding: 0 15px;
 }
 
 .discussion-tab--selected {
@@ -83,11 +83,6 @@ $highlighting-color: #ffdf60;
   cursor: pointer;
 }
 
-.discussion-entry__separator {
-  margin: 20px auto;
-  width: 120px;
-}
-
 .discussion-entry__text {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -113,6 +108,13 @@ $highlighting-color: #ffdf60;
   }
 }
 
+.discussion-entry__text-quote {
+  color: rgba(0, 0, 0, .1);
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+}
+
 .discussion-entry__chip {
   .discussion-entry & {
     cursor: pointer;
@@ -129,6 +131,22 @@ $highlighting-color: #ffdf60;
 
 .comment-entry {
   margin: 6px 0;
+  position: relative;
+
+  &::before {
+    background-color: rgba(0, 0, 0, .067);
+    content: '';
+    height: 100%;
+    left: 12px;
+    position: absolute;
+    top: 20px;
+    width: 2px;
+    z-index: -1;
+  }
+}
+
+.comment-entry--new::before {
+  display: none;
 }
 
 .comment-entry__text {
@@ -156,7 +174,7 @@ $highlighting-color: #ffdf60;
   background-color: #fff;
   font-size: .9em;
   font-variant-ligatures: no-common-ligatures;
-  margin: 5px 0 5px 20px;
+  margin: 5px 0 5px 30px;
   min-height: 60px;
   overflow: auto;
   padding: 4px 8px;
@@ -166,12 +184,7 @@ $highlighting-color: #ffdf60;
 }
 
 .comment-info {
-  margin: 10px 0 5px -10px;
-  overflow: hidden;
-}
-
-.comment-info__user-name {
-  font-size: 15px;
+  margin: 10px 0 5px;
 }
 
 .comment-info__created {

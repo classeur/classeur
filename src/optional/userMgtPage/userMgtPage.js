@@ -10,7 +10,7 @@ angular.module('classeur.optional.userMgtPage', [])
         })
     })
   .directive('clUserMgtPage',
-    function ($http, $location, clToast, clDialog, clSocketSvc) {
+    function (clRestSvc, $location, clToast, clDialog) {
       return {
         restrict: 'E',
         templateUrl: 'optional/userMgtPage/userMgtPage.html',
@@ -22,21 +22,24 @@ angular.module('classeur.optional.userMgtPage', [])
         scope.deleteRow = function (userToDelete) {
           var confirmDialog = clDialog.confirm()
             .title('Delete user')
-            .content("Your about to delete a user and all her files. This can't be undone. Are you sure?")
+            .content("Your about to delete a user and all his files. This can't be undone. Are you sure?")
             .ariaLabel('Delete user')
             .ok('Yes, delete all')
             .cancel('No')
           clDialog.show(confirmDialog).then(function () {
-            $http
-              .delete('/api/v1/users/' + userToDelete.id, {
-                headers: clSocketSvc.makeAuthorizationHeader()
-              })
-              .success(function () {
+            userToDelete.isDeleting = true
+            clRestSvc.request({
+              method: 'DELETE',
+              url: '/api/v2/users/' + userToDelete.id
+            })
+              .then(function () {
                 scope.users = scope.users.cl_filter(function (user) {
                   return user.id !== userToDelete.id
                 })
+                scope.$evalAsync()
               })
-              .error(function (err) {
+              .catch(function (err) {
+                userToDelete.isDeleting = false
                 clToast('Error: ' + (err && err.reason) || 'unknown')
               })
           })
@@ -53,11 +56,13 @@ angular.module('classeur.optional.userMgtPage', [])
           scope.users && scope.users.cl_each(function (user) {
             if (user.isAdmin !== (user.roles.indexOf('admin') !== -1) || user.newForcePremium !== user.forcePremium) {
               var newRoles = user.isAdmin ? ['admin'] : []
-              $http.patch('/api/v1/users/' + user.id, {
-                roles: user.isAdmin ? ['admin'] : [],
-                forcePremium: user.newForcePremium
-              }, {
-                headers: clSocketSvc.makeAuthorizationHeader()
+              clRestSvc.request({
+                method: 'PATCH',
+                url: '/api/v1/users/' + user.id,
+                body: {
+                  roles: user.isAdmin ? ['admin'] : [],
+                  forcePremium: user.newForcePremium
+                }
               })
               user.roles = newRoles
             }
@@ -66,10 +71,8 @@ angular.module('classeur.optional.userMgtPage', [])
 
         var countShow = 0
         function retrieveUsers () {
-          $http.get('/api/v1/users', {
-            headers: clSocketSvc.makeAuthorizationHeader()
-          })
-            .success(function (res) {
+          return clRestSvc.list('/api/v2/users', { view: 'private' })
+            .then(function (res) {
               res.sort(function (user1, user2) {
                 return user1.name - user2.name
               }).cl_each(function (user) {
@@ -96,8 +99,9 @@ angular.module('classeur.optional.userMgtPage', [])
                 }
               }
               scope.showMore()
+              scope.$evalAsync()
             })
-            .error(function (err) {
+            .catch(function (err) {
               clToast('Error: ' + (err && err.reason) || 'unknown')
             })
         }

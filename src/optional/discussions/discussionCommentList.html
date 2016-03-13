@@ -9,12 +9,12 @@
     <div class="comment-entry__text comment-text" ng-bind-html="comment.text | clConvertMarkdown"></div>
   </div>
 </div>
-<div class="comment-entry">
+<div class="comment-entry comment-entry--new">
   <div ng-show="userSvc.user">
     <div class="comment-info">
       <cl-user-name class="comment-info__user-name" user-id="userSvc.user.id"></cl-user-name>
     </div>
-    <pre class="comment-entry__input markdown-highlighting md-whiteframe-z2"></pre>
+    <pre class="comment-entry__input markdown-highlighting md-whiteframe-z1"></pre>
     <div layout="row" layout-align="end">
       <md-button class="md-primary" ng-click="deleteDiscussion()" aria-label="Delete discussion">Delete</md-button>
       <md-button class="md-primary" ng-click="addComment()">Add</md-button>

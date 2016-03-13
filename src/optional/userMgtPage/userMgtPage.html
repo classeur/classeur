@@ -19,27 +19,36 @@
       <label>Filter</label>
       <input autocomplete="off" ng-model="filter">
     </md-input-container>
-    <div class="user-entry md-whiteframe-z1" ng-repeat="user in users">
-      <div class="user-entry__row" layout="row" layout-align="start center">
-        <div class="user-entry__text user-entry__text--name" flex>{{user.name}}</div>
-        <div class="user-entry__text user-entry__text--id">{{user.id}}</div>
-        <md-button class="user-entry__button user-entry__button--delete icon-delete" ng-click="deleteRow(user)" aria-label="Delete user"></md-button>
-        <img class="user-entry__img" ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm" />
-      </div>
-      <div class="user-entry__row" layout="row" layout-align="end center">
-        <label class="user-entry__checkbox" ng-if="::config.usePaypal">
-          premium
-          <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
-        </label>
-        <label class="user-entry__checkbox" ng-if="::config.usePaypal">
-          force premium
-          <input type="checkbox" ng-model="user.newForcePremium">
-        </label>
-        <label class="user-entry__checkbox">
-          admin
-          <input type="checkbox" ng-model="user.isAdmin">
-        </label>
-      </div>
-    </div>
+    <md-card ng-repeat="user in users">
+      <md-card-title>
+        <md-card-title-text>
+          <span class="md-headline">{{user.name}}</span>
+          <span class="md-subhead">{{user.id}}</span>
+        </md-card-title-text>
+        <md-card-title-media>
+          <img class="md-media-sm card-media" ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm" />
+        </md-card-title-media>
+      </md-card-title>
+      <md-card-actions layout="row" layout-align="space-between center">
+        <div layout="row">
+          <label ng-if="::config.usePaypal">
+            premium
+            <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
+          </label>
+          <label ng-if="::config.usePaypal">
+            force premium
+            <input type="checkbox" ng-model="user.newForcePremium">
+          </label>
+          <label>
+            admin
+            <input type="checkbox" ng-model="user.isAdmin">
+          </label>
+        </div>
+        <div>
+          <md-button ng-click="deleteRow(user)" ng-if="!user.isDeleting">Delete user</md-button>
+          <cl-spinner ng-if="user.isDeleting"></cl-spinner>
+        </div>
+      </md-card-actions>
+    </md-card>
   </div>
 </div>

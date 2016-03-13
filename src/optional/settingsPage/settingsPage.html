@@ -180,7 +180,6 @@
                   <span class="icon-add"></span>
                 </md-button>
                 <br>
-                <p class="warning" ng-if="anyDisabled">Some of your links are disabled because your free account doesn't support more than 1 blog. Click <a href="/#!/choosePlan">here</a> to go premium!</p>
                 <br>
                 <cl-blog-entry ng-repeat="blog in blogs track by blog.id"></cl-blog-entry>
                 <p class="warning" ng-if="!blogs.length">You don't have any linked blog yet.</p>

@@ -324,6 +324,14 @@ $public-navbar-corner-size: 46px;
   }
 }
 
+.creation-dialog__info {
+  color: rgba(0, 0, 0, .67);
+  font-size: 12px;
+  line-height: 1;
+  margin-top: -10px;
+  padding-left: 30px;
+}
+
 md-tooltip .icon-arrow-back {
   display: inline-block;
 }

@@ -66,6 +66,22 @@ angular.module('classeur.core.utils', [])
         return $window.navigator.onLine !== false
       }
     })
+  .factory('clIsSyncWindow',
+    function (clLocalStorage) {
+      var lastSyncActivityKey = 'lastSyncActivity'
+      var lastSyncActivity
+      var inactivityThreshold = 3000 // 3 sec
+
+      return function () {
+        var currentDate = Date.now()
+        var storedLastSyncActivity = parseInt(clLocalStorage[lastSyncActivityKey], 10) || 0
+        if (lastSyncActivity === storedLastSyncActivity || currentDate - storedLastSyncActivity > inactivityThreshold) {
+          clLocalStorage[lastSyncActivityKey] = currentDate
+          lastSyncActivity = currentDate
+          return true
+        }
+      }
+    })
   .filter('clTimeSince',
     function () {
       // Credit: https://github.com/github/time-elements/
@@ -357,22 +373,25 @@ angular.module('classeur.core.utils', [])
     function () {
       return {
         file: function (file) {
-          if (file.id) {
-            return '/files/' + file.id
+          var fileId = file.id || file
+          if (fileId) {
+            return '/files/' + fileId
           } else {
             return ''
           }
         },
         folder: function (folder) {
-          if (folder.id) {
-            return '/folders/' + folder.id
+          var folderId = folder.id || folder
+          if (folderId) {
+            return '/folders/' + folderId
           } else {
             return ''
           }
         },
         classeur: function (classeur) {
-          if (classeur.id) {
-            return '/classeurs/' + classeur.id
+          var classeurId = classeur.id || classeur
+          if (classeurId) {
+            return '/classeurs/' + classeurId
           } else {
             return ''
           }

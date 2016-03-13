@@ -250,9 +250,6 @@ angular.module('classeur.optional.settingsPage', [])
           function blogsHandler (msg) {
             if (scope.getBlogsPending) {
               scope.blogs = msg.blogs
-              scope.anyDisabled = scope.blogs.cl_some(function (blog) {
-                return blog.status === 'disabled'
-              })
               scope.getBlogsPending()
               scope.getBlogsPending = undefined
               scope.$evalAsync()

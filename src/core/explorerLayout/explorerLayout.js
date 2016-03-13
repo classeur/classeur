@@ -113,7 +113,7 @@ angular.module('classeur.core.explorerLayout', [])
       }
     })
   .directive('clExplorerLayout',
-    function ($window, $timeout, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clSyncSvc, clSettingSvc) {
+    function ($window, $timeout, $location, clUrl, clDialog, clUserSvc, clExplorerLayoutSvc, clFileSvc, clFolderSvc, clClasseurSvc, clToast, clConfig, clSyncSvc, clSettingSvc) {
       var explorerMaxWidth = 760
       var noPaddingWidth = 580
       var hideOffsetY = 2000
@@ -285,21 +285,22 @@ angular.module('classeur.core.explorerLayout', [])
               }
               ok()
             }
-          }).then(function (link) {
-            var components = link.split('/')
-            var folderId = components[components.length - 1]
-            if (!folderId || link.indexOf(clConfig.appUri) !== 0) {
-              clToast('Invalid folder link.')
-            }
-            if (clExplorerLayoutSvc.currentClasseur.folders
-                .cl_some(function (folder) {
-                  return folder.id === folderId
-                })) {
-              clToast('Folder is already in the classeur.')
-            }
-            var folder = clFolderSvc.activeDaoMap[folderId]
-            folder ? importExistingFolder(folder) : importPublicFolder(folderId)
           })
+            .then(function (link) {
+              var components = link.split('/')
+              var folderId = components[components.length - 1]
+              if (!folderId || link.indexOf(clConfig.appUri) !== 0) {
+                clToast('Invalid folder link.')
+              }
+              if (clExplorerLayoutSvc.currentClasseur.folders
+                  .cl_some(function (folder) {
+                    return folder.id === folderId
+                  })) {
+                clToast('Folder is already in the classeur.')
+              }
+              var folder = clFolderSvc.activeDaoMap[folderId]
+              folder ? importExistingFolder(folder) : importPublicFolder(folderId)
+            })
         }
 
         function createFolder () {
@@ -308,32 +309,44 @@ angular.module('classeur.core.explorerLayout', [])
               clDialog.cancel()
               importFolder()
             }
-          }).then(function (name) {
-            // Classeurs are automatically updated when evaluating folderSvc.activeDaos
-            var folder = clFolderSvc.createFolder()
-            folder.name = name
-            // It's not necessary to attach folder to the defaultClasseur as it's done by default
-            if (clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
-              clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
-            }
-            $timeout(function () {
-              clExplorerLayoutSvc.setCurrentFolder(folder)
-            })
           })
+            .then(function (name) {
+              // Classeurs are automatically updated when evaluating folderSvc.activeDaos
+              var folder = clFolderSvc.createFolder()
+              folder.name = name
+              // It's not necessary to attach folder to the defaultClasseur as it's done by default
+              if (clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
+                clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
+              }
+              $timeout(function () {
+                clExplorerLayoutSvc.setCurrentFolder(folder)
+              })
+            })
         }
 
         function importFile () {
           var folder = clExplorerLayoutSvc.currentFolder
-          clDialog.show({
-            templateUrl: 'core/explorerLayout/importFileDialog.html',
-            controller: ['$scope', function (scope) {
-              if (!folder && clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
-                scope.orphanWarning = true
+          makeInputDialog('core/explorerLayout/importFileDialog.html', function (scope) {
+            scope.importType = 'otherUser'
+            if (!folder && clExplorerLayoutSvc.currentClasseur !== clClasseurSvc.defaultClasseur) {
+              scope.orphanWarning = true
+            }
+            scope.cancel = function () {
+              clDialog.cancel()
+            }
+            scope.ok = function () {
+              if (!scope.value) {
+                return scope.focus()
               }
-              scope.cancel = function () {
-                clDialog.cancel()
+              var link = scope.value
+              var components = link.split('/')
+              var fileId = components[components.length - 1]
+              if (!fileId || link.indexOf(clConfig.appUri) !== 0) {
+                clToast('Invalid file link.')
               }
-            }]
+              $location.url(clUrl.file(fileId))
+              clDialog.cancel()
+            }
           })
             .then(function (file) {
               var newFileDao = clFileSvc.createFile()
@@ -487,6 +500,18 @@ angular.module('classeur.core.explorerLayout', [])
           clExplorerLayoutSvc.refreshFolders()
         }
 
+        function importClasseur () {
+          makeInputDialog('core/explorerLayout/importClasseurDialog.html')
+            .then(function (link) {
+              var components = link.split('/')
+              var classeurId = components[components.length - 1]
+              if (!classeurId || link.indexOf(clConfig.appUri) !== 0) {
+                clToast('Invalid classeur link.')
+              }
+              $location.url(clUrl.classeur(classeurId))
+            })
+        }
+
         scope.createClasseur = function () {
           makeInputDialog('core/explorerLayout/newClasseurDialog.html', function (scope) {
             scope.ok = function () {
@@ -498,10 +523,14 @@ angular.module('classeur.core.explorerLayout', [])
               classeur.userId = scope.isPublic ? 'null' : ''
               clDialog.hide(classeur)
             }
+            scope.import = function () {
+              clDialog.cancel()
+              importClasseur()
+            }
           })
-          .then(function (classeur) {
-            scope.setClasseur(classeur)
-          })
+            .then(function (classeur) {
+              scope.setClasseur(classeur)
+            })
         }
 
         scope.deleteClasseur = function (classeur) {
