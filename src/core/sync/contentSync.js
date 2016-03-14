@@ -172,7 +172,7 @@ angular.module('classeur.core.sync.contentSync', [])
         if (!watchCtx || watchCtx.rev === undefined || watchCtx.sentMsg) {
           return
         }
-        if (watchCtx.file.userId && (watchCtx.file.sharing !== 'rw' || !clUserSvc.isUserPremium())) {
+        if (watchCtx.file.userId && watchCtx.file.sharing !== 'rw') {
           return
         }
         var newText = clEditorSvc.cledit.getContent()

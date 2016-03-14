@@ -117,17 +117,9 @@ angular.module('classeur.optional.exportToDisk', [])
                 })
             } else if (exportConfig.format === 'document') {
               var ast = clEditorSvc.getPandocAst()
-              var charCount = 0
-              JSON.stringify(ast, function (key, value) {
-                if (value.t === 'Str' && typeof value.c === 'string') {
-                  charCount += value.c.length
-                } else if (value.t === 'Space') {
-                  charCount += 1
-                }
-                return value
-              })
+              JSON.stringify(ast)
               var content = scope.currentFile.content
-              if (!clUserSvc.user || (!clUserSvc.isUserPremium() && charCount > 5000)) {
+              if (!clUserSvc.user) {
                 return clDialog.show({
                   templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
                   controller: ['$scope', function (scope) {
