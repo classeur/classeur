@@ -359,7 +359,7 @@ angular.module('classeur.core.files', [])
         var filteredLocalFileIds = localFileIds.cl_filter(function (id) {
           return activeDaoMap[id]
         }).sort(function (id1, id2) {
-          return contentMap[id1].lastChange - contentMap[id2].lastChange
+          return contentMap[id2].lastChange - contentMap[id1].lastChange
         })
         filteredLocalFileIds.splice(maxLocalFiles)
         if (localFileIds.length !== filteredLocalFileIds.length) {
