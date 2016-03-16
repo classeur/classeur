@@ -62,7 +62,7 @@ angular.module('classeur.optional.sysPage', [])
           ) {
             return
           }
-          $http.post('/api/v1/config/app', {
+          $http.post('/api/v1/config/app', properties, {
             headers: clSocketSvc.makeAuthorizationHeader()
           })
             .success(function () {
