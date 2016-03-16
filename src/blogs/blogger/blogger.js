@@ -25,6 +25,7 @@ angular.module('classeur.blogs.blogger', [])
       var clBloggerBlogPlatform = clBlogPlatform({
         id: 'blogger',
         name: 'Blogger',
+        enabled: !!clConfig.googleClientId,
         authorizeUrl: 'https://accounts.google.com/o/oauth2/auth'
       })
 

@@ -33,7 +33,9 @@ angular.module('classeur.blogs', [])
       }
 
       function link (scope) {
-        scope.platforms = clBlogSvc.platformMap
+        scope.platforms = clBlogSvc.platforms.cl_filter(function (platform) {
+          return platform.enabled
+        })
         scope.$watch('form.platformId', function (platformId) {
           scope.form.subForm = scope.blog
             ? ({}).cl_extend(scope.blog)
@@ -112,14 +114,16 @@ angular.module('classeur.blogs', [])
     })
   .factory('clBlogSvc',
     function (clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, $window, clToast, clBlogPlatform) {
-      var platformMap = Array.prototype.cl_reduce.call(arguments, function (platformMap, arg) {
+      var platformMap = Object.create(null)
+      var platforms = Array.prototype.cl_filter.call(arguments, function (arg) {
         if (arg instanceof clBlogPlatform.BlogPlatform) {
           platformMap[arg.id] = arg
+          return true
         }
-        return platformMap
-      }, Object.create(null))
+      })
 
       return {
+        platforms: platforms,
         platformMap: platformMap,
         createBlogSubForm: function (platformId) {
           return ({}).cl_extend(platformId && platformMap[platformId].defaultBlogSubForm)

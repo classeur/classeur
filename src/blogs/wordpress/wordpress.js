@@ -25,6 +25,7 @@ angular.module('classeur.blogs.wordpress', [])
       var clWordpressBlogPlatform = clBlogPlatform({
         id: 'wordpress',
         name: 'WordPress',
+        enabled: !!clConfig.wordpressClientId,
         authorizeUrl: 'https://public-api.wordpress.com/oauth2/authorize'
       })
 
