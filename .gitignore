@@ -2,3 +2,4 @@ node_modules
 Thumbs.db
 .DS_Store
 public/*-min.*
+Gemfile.lock
