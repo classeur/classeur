@@ -625,6 +625,7 @@ angular.module('classeur.core.explorerLayout', [])
         })
         scope.$watch('explorerLayoutSvc.files', function () {
           clExplorerLayoutSvc.moreFiles(true)
+          scope.doInfiniteScroll() // In case page size is smaller than scroller size
         })
         scope.$watch('explorerLayoutSvc.currentFolder.sharing', clExplorerLayoutSvc.setEffectiveSharing)
 

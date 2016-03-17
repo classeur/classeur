@@ -475,15 +475,18 @@ angular.module('classeur.core.utils', [])
           var elt = element[0]
           var destroyed
 
-          function check () {
+          function doInfiniteScroll () {
             if (!destroyed && elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300 && scope.$eval(attrs.clInfiniteScroll)) {
               scope.$apply()
-              setTimeout(check, 1)
+              setTimeout(doInfiniteScroll, 1)
             }
           }
 
-          elt.addEventListener('scroll', check)
+          elt.addEventListener('scroll', doInfiniteScroll)
 
+          scope.doInfiniteScroll = function () {
+            setTimeout(doInfiniteScroll, 1)
+          }
           scope.$on('$destroy', function () {
             destroyed = true
           })
