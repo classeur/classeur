@@ -87,10 +87,7 @@ angular.module('classeur.optional.userMgtPage', [])
               scope.showMore = function () {
                 var filter = scope.filter && scope.filter.toLowerCase()
                 var filteredUsers = res.filter(function (user) {
-                  if (!filter) {
-                    return true
-                  }
-                  return user.id.toLowerCase().indexOf(filter) !== -1 || user.name.toLowerCase().indexOf(filter) !== -1
+                  return !filter || ~user.id.toLowerCase().indexOf(filter) || ~user.name.toLowerCase().indexOf(filter)
                 })
                 if (countShow < filteredUsers.length) {
                   countShow += 20

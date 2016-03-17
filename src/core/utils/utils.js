@@ -473,16 +473,20 @@ angular.module('classeur.core.utils', [])
         restrict: 'A',
         link: function (scope, element, attrs) {
           var elt = element[0]
+          var destroyed
 
-          function trigger () {
-            if (elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300) {
-              scope.$eval(attrs.clInfiniteScroll) && $timeout(trigger)
+          function check () {
+            if (!destroyed && elt.scrollTop + elt.offsetHeight > elt.scrollHeight - 300 && scope.$eval(attrs.clInfiniteScroll)) {
+              scope.$apply()
+              setTimeout(check, 1)
             }
           }
-          elt.addEventListener('scroll', trigger)
-          scope.triggerInfiniteScroll = function () {
-            $timeout(trigger)
-          }
+
+          elt.addEventListener('scroll', check)
+
+          scope.$on('$destroy', function () {
+            destroyed = true
+          })
         }
       }
     })

@@ -596,7 +596,6 @@ angular.module('classeur.core.explorerLayout', [])
 
         function refreshFiles () {
           folderElt.scrollTop = 0
-          clExplorerLayoutSvc.moreFiles(true)
           clExplorerLayoutSvc.refreshFiles()
           scope.selectNone()
         }
@@ -624,7 +623,9 @@ angular.module('classeur.core.explorerLayout', [])
           clExplorerLayoutSvc.setUserInputFilter(value)
           refreshFiles()
         })
-        scope.$watch('explorerLayoutSvc.files', scope.triggerInfiniteScroll)
+        scope.$watch('explorerLayoutSvc.files', function () {
+          clExplorerLayoutSvc.moreFiles(true)
+        })
         scope.$watch('explorerLayoutSvc.currentFolder.sharing', clExplorerLayoutSvc.setEffectiveSharing)
 
         // Refresh selectedFiles on every digest and add 1 cycle when length changes
