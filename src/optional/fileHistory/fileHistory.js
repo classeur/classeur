@@ -40,7 +40,7 @@ angular.module('classeur.optional.fileHistory', [])
         }
 
         var changeGroupLoaded
-        scope.$watch('localSettingSvc.values.sideBarTab === "history"', function (isSelected) {
+        scope.$watch('localSettingSvc.values.sideBar && localSettingSvc.values.sideBarTab === "history"', function (isSelected) {
           var file = scope.currentFile
           if (file && isSelected && !changeGroupLoaded && clIsNavigatorOnline()) {
             changeGroupLoaded = true

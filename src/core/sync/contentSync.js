@@ -31,7 +31,6 @@ angular.module('classeur.core.sync.contentSync', [])
         if (file.state === 'loading') {
           file.state = undefined
         }
-        $rootScope.$evalAsync()
         clToast(error || 'File not accessible: ' + (file.name || file.id))
       }
 

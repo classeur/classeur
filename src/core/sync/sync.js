@@ -1079,7 +1079,12 @@ angular.module('classeur.core.sync', [])
             .then(localDbWrapper(function (res) {
               updateFileFromServer(file, res.body)
               return true // apply
-            }))
+            }), function () {
+              if (file.state === 'loading') {
+                file.state = undefined
+              }
+              clToast('File not accessible: ' + (file.name || file.id))
+            })
         }
       })
 
