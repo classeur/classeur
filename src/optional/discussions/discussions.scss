@@ -109,7 +109,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-entry__text-quote {
-  color: rgba(0, 0, 0, .1);
+  color: rgba(0, 0, 0, .125);
   display: inline-block;
   font-size: 18px;
   line-height: 1;
@@ -178,8 +178,8 @@ $highlighting-color: #ffdf60;
   background-color: #fff;
   font-size: .9em;
   font-variant-ligatures: no-common-ligatures;
-  margin: 5px 0 5px 30px;
-  min-height: 60px;
+  margin: 5px 0 5px 15px;
+  min-height: 80px;
   overflow: auto;
   padding: 4px 8px;
   white-space: pre-wrap;
@@ -214,12 +214,6 @@ $highlighting-color: #ffdf60;
 .discussion-postit__user-name {
   display: block;
   font-size: 14px;
-}
-
-.discussion-postit__created {
-  color: rgba(0, 0, 0, .4);
-  font-size: .8em;
-  padding-left: 30px;
 }
 
 .comment-text {
