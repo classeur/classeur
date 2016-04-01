@@ -9,8 +9,6 @@
     position: absolute !important;
   }
 
-  body > *,
-  ng-view > *,
   cl-editor-layout > *,
   .editor-layout > *,
   .editor-layout__inner-1 > *,
@@ -18,8 +16,6 @@
     display: none !important;
   }
 
-  body > ng-view,
-  ng-view > cl-editor-layout,
   cl-editor-layout > .editor-layout,
   .editor-layout > .editor-layout__inner-1,
   .editor-layout__inner-1 > .editor-layout__preview,
