@@ -19,7 +19,6 @@ angular.module('classeur.core.sync.contentSync', [])
         file.content.properties = ({}).cl_extend(serverContent.properties)
         file.content.discussions = ({}).cl_extend(serverContent.discussions)
         file.content.comments = ({}).cl_extend(serverContent.comments)
-        file.content.conflicts = ({}).cl_extend(serverContent.conflicts)
         file.content.state = {}
         // addToDaos calls init
         if (!file.addToDaos) {
@@ -39,21 +38,13 @@ angular.module('classeur.core.sync.contentSync', [])
           text: clEditorSvc.cledit.getContent(),
           properties: file.content.properties,
           discussions: file.content.discussions,
-          comments: file.content.comments,
-          conflicts: file.content.conflicts
+          comments: file.content.comments
         }
-        var conflicts = clDiffUtils.mergeContent(oldContent, newContent, serverContent)
+        clDiffUtils.mergeContent(oldContent, newContent, serverContent)
         file.content.properties = newContent.properties
         file.content.discussions = newContent.discussions
         file.content.comments = newContent.comments
-        file.content.conflicts = newContent.conflicts
         clEditorSvc.setContent(newContent.text, true)
-        if (conflicts.length) {
-          conflicts.cl_each(function (conflict) {
-            file.content.conflicts[clUid()] = conflict
-          })
-          clEditorLayoutSvc.currentControl = 'conflictAlert'
-        }
       }
 
       function watchContent (file) {
@@ -111,7 +102,6 @@ angular.module('classeur.core.sync.contentSync', [])
         watchCtx.properties = serverContent.properties
         watchCtx.discussions = serverContent.discussions
         watchCtx.comments = serverContent.comments
-        watchCtx.conflicts = serverContent.conflicts
         watchCtx.rev = serverContent.rev
         // Evaluate scope synchronously to have cledit instantiated
         $rootScope.$apply()
@@ -182,8 +172,7 @@ angular.module('classeur.core.sync.contentSync', [])
         var propertiesPatches = clDiffUtils.getObjectPatches(watchCtx.properties, watchCtx.file.content.properties)
         var discussionsPatches = clDiffUtils.getObjectPatches(watchCtx.discussions, watchCtx.file.content.discussions)
         var commentsPatches = clDiffUtils.getObjectPatches(watchCtx.comments, watchCtx.file.content.comments)
-        var conflictsPatches = clDiffUtils.getObjectPatches(watchCtx.conflicts, watchCtx.file.content.conflicts)
-        if (!textChanges && !propertiesPatches && !discussionsPatches && !commentsPatches && !conflictsPatches) {
+        if (!textChanges && !propertiesPatches && !discussionsPatches && !commentsPatches) {
           return
         }
         var newRev = watchCtx.rev + 1
@@ -193,8 +182,7 @@ angular.module('classeur.core.sync.contentSync', [])
           text: textChanges,
           properties: propertiesPatches,
           discussions: discussionsPatches,
-          comments: commentsPatches,
-          conflicts: conflictsPatches
+          comments: commentsPatches
         }
         clSocketSvc.sendMsg('setContentChange', watchCtx.sentMsg)
       }
@@ -210,7 +198,6 @@ angular.module('classeur.core.sync.contentSync', [])
         var serverProperties = ({}).cl_extend(watchCtx.properties)
         var serverDiscussions = ({}).cl_extend(watchCtx.discussions)
         var serverComments = ({}).cl_extend(watchCtx.comments)
-        var serverConflicts = ({}).cl_extend(watchCtx.conflicts)
         while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
           watchCtx.rev = msg.rev
           if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
@@ -223,11 +210,10 @@ angular.module('classeur.core.sync.contentSync', [])
           serverText = watchCtx.chars.cl_map(function (item) {
             return item[1]
           }).join('')
-          apply |= !!(msg.properties || msg.discussions || msg.comments || msg.conflicts)
+          apply |= !!(msg.properties || msg.discussions || msg.comments)
           clDiffUtils.applyFlattenedObjectPatches(serverProperties, msg.properties || [])
           clDiffUtils.applyFlattenedObjectPatches(serverDiscussions, msg.discussions || [])
           clDiffUtils.applyFlattenedObjectPatches(serverComments, msg.comments || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverConflicts, msg.conflicts || [])
           if (msg !== watchCtx.sentMsg) {
             var isServerTextChanges = oldText !== serverText
             var isLocalTextChanges = oldText !== localText
@@ -250,12 +236,10 @@ angular.module('classeur.core.sync.contentSync', [])
         watchCtx.file.content.properties = clDiffUtils.mergeObjects(watchCtx.properties, watchCtx.file.content.properties, serverProperties)
         watchCtx.file.content.discussions = clDiffUtils.mergeObjects(watchCtx.discussions, watchCtx.file.content.discussions, serverDiscussions)
         watchCtx.file.content.comments = clDiffUtils.mergeObjects(watchCtx.comments, watchCtx.file.content.comments, serverComments)
-        watchCtx.file.content.conflicts = clDiffUtils.mergeObjects(watchCtx.conflicts, watchCtx.file.content.conflicts, serverConflicts)
         watchCtx.text = serverText
         watchCtx.properties = serverProperties
         watchCtx.discussions = serverDiscussions
         watchCtx.comments = serverComments
-        watchCtx.conflicts = serverConflicts
         watchCtx.file.setContentSynced(watchCtx.rev)
         apply && $rootScope.$evalAsync()
       }
@@ -295,15 +279,13 @@ angular.module('classeur.core.sync.contentSync', [])
               text: watchCtx.text,
               properties: ({}).cl_extend(watchCtx.properties),
               discussions: ({}).cl_extend(watchCtx.discussions),
-              comments: ({}).cl_extend(watchCtx.comments),
-              conflicts: ({}).cl_extend(watchCtx.conflicts)
+              comments: ({}).cl_extend(watchCtx.comments)
             }
             watchCtx.contentChanges.slice(rev + 1, watchCtx.rev + 1).reverse().cl_each(function (contentChange) {
               result.text = clDiffUtils.applyFlattenedTextPatchesReverse(result.text, contentChange.text || [])
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.properties, contentChange.properties || [])
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.discussions, contentChange.discussions || [])
               clDiffUtils.applyFlattenedObjectPatchesReverse(result.comments, contentChange.comments || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.conflicts, contentChange.conflicts || [])
             })
             return result
           })
@@ -332,8 +314,7 @@ angular.module('classeur.core.sync.contentSync', [])
                       text: file.content.text,
                       properties: file.content.properties,
                       discussions: file.content.discussions,
-                      comments: file.content.comments,
-                      conflicts: file.content.conflicts
+                      comments: file.content.comments
                     }
                   })
                   .then(function (res) {
@@ -349,7 +330,6 @@ angular.module('classeur.core.sync.contentSync', [])
                           file.content.properties = res.body.properties
                           file.content.discussions = res.body.discussions
                           file.content.comments = res.body.comments
-                          file.content.conflicts = res.body.conflicts
                           file.setContentSynced(res.body.rev)
                           file.writeContent()
                         })

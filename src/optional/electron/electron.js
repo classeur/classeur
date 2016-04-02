@@ -65,7 +65,6 @@ angular.module('classeur.optional.electron', [])
               $timeout(function () {
                 if (file.state === 'loading') {
                   clElectronSvc.loadWatchedFile(file)
-                  file.content.conflicts = {}
                   file.content.state = {}
                   file.state = 'loaded'
                 }

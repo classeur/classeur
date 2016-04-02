@@ -137,8 +137,7 @@ angular.module('classeur.core.files', [])
           text: '\n',
           properties: {},
           discussions: {},
-          comments: {},
-          conflicts: {}
+          comments: {}
         }
       }
 
@@ -318,8 +317,7 @@ angular.module('classeur.core.files', [])
                   text: clLocalStorage.getItem('c.' + id + '.text') || '\n',
                   properties: JSON.parse(clLocalStorage.getItem('c.' + id + '.properties') || '{}'),
                   discussions: JSON.parse(clLocalStorage.getItem('c.' + id + '.discussions') || '{}'),
-                  comments: JSON.parse(clLocalStorage.getItem('c.' + id + '.comments') || '{}'),
-                  conflicts: JSON.parse(clLocalStorage.getItem('c.' + id + '.conflicts') || '{}')
+                  comments: JSON.parse(clLocalStorage.getItem('c.' + id + '.comments') || '{}')
                 }
                 var syncedRev = parseInt(clLocalStorage.getItem('cr.' + id), 10)
                 var syncedHash = parseInt(clLocalStorage.getItem('ch.' + id), 10)
