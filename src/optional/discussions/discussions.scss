@@ -89,15 +89,6 @@ $highlighting-color: #ffdf60;
   white-space: nowrap;
   width: 100%;
 
-  span {
-    background-color: transparent;
-    display: inline;
-  }
-
-  .discussion-entry__text-span {
-    padding: .2em 0;
-  }
-
   .discussion-entry--selected & {
     text-overflow: clip;
     white-space: normal;
@@ -105,6 +96,16 @@ $highlighting-color: #ffdf60;
     .discussion-entry__text-span {
       background-color: mix($body-color, $highlighting-color, 20%);
     }
+  }
+}
+
+.discussion-entry__text-span {
+  padding: .2em 0;
+
+  &,
+  & span {
+    background-color: transparent;
+    display: inline;
   }
 }
 
@@ -195,7 +196,7 @@ $highlighting-color: #ffdf60;
   color: rgba(0, 0, 0, .4);
   font-size: .7em;
   padding-left: 12px;
-  text-shadow: 1px 1px rgba(255, 255, 255, .5);
+  text-shadow: 1px 1px rgba(255, 255, 255, .33);
 }
 
 .discussion-postit {

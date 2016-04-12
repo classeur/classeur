@@ -23,6 +23,7 @@ if (
     'classeur.core.classeurs',
     'classeur.core.explorerLayout',
     'classeur.core.editor',
+    'classeur.core.editor.editorContent',
     'classeur.core.editorLayout',
     'classeur.core.filePropertiesDialog',
     'classeur.core.files',

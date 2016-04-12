@@ -11,7 +11,7 @@
 .button-bar__light-1,
 .button-bar__light-2 {
   border: 0 solid rgba(0, 0, 0, .08);
-  width: 80px;
+  width: 90px;
 }
 
 .button-bar__light-1 {
@@ -46,11 +46,8 @@
   }
 
   .icon-hr::before {
-    content: '\25A0\25A0\25A0\25A0';
+    content: '\2014';
     font-family: sans-serif;
-    font-size: 9px;
-    letter-spacing: -.06em;
-    vertical-align: middle;
   }
 
   &[disabled] {

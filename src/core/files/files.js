@@ -171,6 +171,14 @@ angular.module('classeur.core.files', [])
         try {
           if (contentMap[this.id]) {
             var content = JSON.parse(clLocalStorage.getItem('fileContent.' + this.id))
+            // Upgrade discussions to new format
+            content.discussions && content.discussions.cl_each(function (discussion) {
+              if (discussion.patches) {
+                discussion.offset0 = clDiffUtils.patchToOffset(content.text, discussion.patches[0])
+                discussion.offset1 = clDiffUtils.patchToOffset(content.text, discussion.patches[1])
+                delete discussion.patches
+              }
+            })
             angular.extend(contentMap[this.id], defaultContent(), content)
             var strippedContent = stripContent(content)
             contentMap[this.id].$storedContent = JSON.stringify(strippedContent)

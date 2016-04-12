@@ -1,6 +1,6 @@
 angular.module('classeur.core.sync.contentSync', [])
   .factory('clContentSyncSvc',
-    function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clIsSyncWindow, clEditorLayoutSvc) {
+    function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clEditorContentSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clIsSyncWindow, clEditorLayoutSvc) {
       var loadingTimeout = 30 * 1000 // 30 sec
       var textMaxSize = 200000
       var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
@@ -34,17 +34,12 @@ angular.module('classeur.core.sync.contentSync', [])
       }
 
       function applyServerContent (file, oldContent, serverContent) {
-        var newContent = {
-          text: clEditorSvc.cledit.getContent(),
-          properties: file.content.properties,
-          discussions: file.content.discussions,
-          comments: file.content.comments
-        }
-        clDiffUtils.mergeContent(oldContent, newContent, serverContent)
+        var newContent = clDiffUtils.mergeFlattenContent(oldContent, file.content, serverContent)
+        file.content.text = newContent.text
         file.content.properties = newContent.properties
         file.content.discussions = newContent.discussions
         file.content.comments = newContent.comments
-        clEditorSvc.setContent(newContent.text, true)
+        clEditorContentSvc.applyContent(true)
       }
 
       function watchContent (file) {
@@ -90,14 +85,13 @@ angular.module('classeur.core.sync.contentSync', [])
         if (msg.error) {
           return setLoadingError(file)
         }
-        var oldContent = clDiffUtils.flattenContent(msg.previousContent || msg.lastContent, true)
-        var serverContent = clDiffUtils.flattenContent(msg.lastContent, true)
+        var oldContent = clDiffUtils.flattenContent(msg.previousContent || msg.lastContent)
+        var serverContent = clDiffUtils.flattenContent(msg.lastContent)
         if (file.state === 'loading') {
           setLoadedContent(file, serverContent)
         } else {
           applyServerContent(file, oldContent, serverContent)
         }
-        watchCtx.chars = serverContent.chars
         watchCtx.text = serverContent.text
         watchCtx.properties = serverContent.properties
         watchCtx.discussions = serverContent.discussions
@@ -106,7 +100,7 @@ angular.module('classeur.core.sync.contentSync', [])
         // Evaluate scope synchronously to have cledit instantiated
         $rootScope.$apply()
         // Changes can be received before the watchedFile
-        applyContentChangeMsgs()
+        applyContentChanges()
       })
 
       function getPublicContent (file) {
@@ -164,82 +158,70 @@ angular.module('classeur.core.sync.contentSync', [])
         if (watchCtx.file.userId && watchCtx.file.sharing !== 'rw') {
           return
         }
-        var newText = clEditorSvc.cledit.getContent()
-        if (newText.length > textMaxSize) {
+        if (watchCtx.file.content.text.length > textMaxSize) {
           return tooBigWarning()
         }
-        var textChanges = clDiffUtils.getTextPatches(watchCtx.text, newText)
-        var propertiesPatches = clDiffUtils.getObjectPatches(watchCtx.properties, watchCtx.file.content.properties)
-        var discussionsPatches = clDiffUtils.getObjectPatches(watchCtx.discussions, watchCtx.file.content.discussions)
-        var commentsPatches = clDiffUtils.getObjectPatches(watchCtx.comments, watchCtx.file.content.comments)
-        if (!textChanges && !propertiesPatches && !discussionsPatches && !commentsPatches) {
-          return
+        var msg = clDiffUtils.makeContentChange(watchCtx, watchCtx.file.content)
+        if (msg) {
+          msg.id = watchCtx.id
+          msg.rev = watchCtx.rev + 1
+          watchCtx.sentMsg = msg
+          clSocketSvc.sendMsg('setContentChange', msg)
         }
-        var newRev = watchCtx.rev + 1
-        watchCtx.sentMsg = {
-          id: watchCtx.id,
-          rev: newRev,
-          text: textChanges,
-          properties: propertiesPatches,
-          discussions: discussionsPatches,
-          comments: commentsPatches
-        }
-        clSocketSvc.sendMsg('setContentChange', watchCtx.sentMsg)
       }
 
-      function applyContentChangeMsgs () {
+      function applyContentChanges () {
         if (watchCtx.rev === undefined) {
           return
         }
-        var msg
+        var contentChange
         var apply
-        var serverText = watchCtx.text
-        var localText = clEditorSvc.cledit.getContent()
-        var serverProperties = ({}).cl_extend(watchCtx.properties)
-        var serverDiscussions = ({}).cl_extend(watchCtx.discussions)
-        var serverComments = ({}).cl_extend(watchCtx.comments)
-        while ((msg = watchCtx.contentChanges[watchCtx.rev + 1])) {
-          watchCtx.rev = msg.rev
-          if (!msg.userId && watchCtx.sentMsg && msg.rev === watchCtx.sentMsg.rev) {
+        while ((contentChange = watchCtx.contentChanges[watchCtx.rev + 1])) {
+          watchCtx.rev = contentChange.rev
+          if (!contentChange.userId && watchCtx.sentMsg && contentChange.rev === watchCtx.sentMsg.rev) {
             // Has to be the previously sent message
-            msg = watchCtx.sentMsg
-            watchCtx.contentChanges[msg.rev] = watchCtx.sentMsg
+            contentChange = watchCtx.sentMsg
+            watchCtx.contentChanges[contentChange.rev] = watchCtx.sentMsg
           }
-          var oldText = serverText
-          watchCtx.chars = clDiffUtils.applyCharPatches(watchCtx.chars, msg.text || [], msg.userId || clSyncDataSvc.user.id)
-          serverText = watchCtx.chars.cl_map(function (item) {
-            return item[1]
-          }).join('')
-          apply |= !!(msg.properties || msg.discussions || msg.comments)
-          clDiffUtils.applyFlattenedObjectPatches(serverProperties, msg.properties || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverDiscussions, msg.discussions || [])
-          clDiffUtils.applyFlattenedObjectPatches(serverComments, msg.comments || [])
-          if (msg !== watchCtx.sentMsg) {
-            var isServerTextChanges = oldText !== serverText
-            var isLocalTextChanges = oldText !== localText
-            var isTextSynchronized = serverText === localText
-            if (!isTextSynchronized && isServerTextChanges) {
-              if (isLocalTextChanges) {
-                localText = clDiffUtils.quickPatch(oldText, serverText, localText)
-              } else {
-                localText = serverText
-              }
-              var offset = clEditorSvc.setContent(localText, true)
-              var userCursor = watchCtx.userCursors[msg.userId] || {}
+          var newServerContent = clDiffUtils.applyContentChanges(watchCtx, [contentChange], false)
+          apply |= !!(contentChange.properties || contentChange.discussions || contentChange.comments)
+          if (contentChange !== watchCtx.sentMsg) {
+            var serverTextChanged = watchCtx.text !== newServerContent.text
+            var textSynchronized = newServerContent.text === watchCtx.file.content.text
+            if (!textSynchronized && serverTextChanged) {
+              watchCtx.file.content.text = clDiffUtils.quickPatch(
+                watchCtx.text,
+                newServerContent.text,
+                watchCtx.file.content.text
+              )
+              watchCtx.file.content.properties = clDiffUtils.mergeObjects(
+                watchCtx.properties,
+                watchCtx.file.content.properties,
+                newServerContent.properties
+              )
+              watchCtx.file.content.discussions = clDiffUtils.mergeObjects(
+                watchCtx.discussions,
+                watchCtx.file.content.discussions,
+                newServerContent.discussions
+              )
+              watchCtx.file.content.comments = clDiffUtils.mergeObjects(
+                watchCtx.comments,
+                watchCtx.file.content.comments,
+                newServerContent.comments
+              )
+              var offset = clEditorContentSvc.applyContent(true)
+              var userCursor = watchCtx.userCursors[contentChange.userId] || {}
               userCursor.offset = offset
-              watchCtx.userCursors[msg.userId] = userCursor
+              watchCtx.userCursors[contentChange.userId] = userCursor
             }
-            clUserInfoSvc.request(msg.userId)
+            clUserInfoSvc.request(contentChange.userId)
           }
           watchCtx.sentMsg = undefined
+          watchCtx.text = newServerContent.text
+          watchCtx.properties = newServerContent.properties
+          watchCtx.discussions = newServerContent.discussions
+          watchCtx.comments = newServerContent.comments
         }
-        watchCtx.file.content.properties = clDiffUtils.mergeObjects(watchCtx.properties, watchCtx.file.content.properties, serverProperties)
-        watchCtx.file.content.discussions = clDiffUtils.mergeObjects(watchCtx.discussions, watchCtx.file.content.discussions, serverDiscussions)
-        watchCtx.file.content.comments = clDiffUtils.mergeObjects(watchCtx.comments, watchCtx.file.content.comments, serverComments)
-        watchCtx.text = serverText
-        watchCtx.properties = serverProperties
-        watchCtx.discussions = serverDiscussions
-        watchCtx.comments = serverComments
         watchCtx.file.setContentSynced(watchCtx.rev)
         apply && $rootScope.$evalAsync()
       }
@@ -249,7 +231,7 @@ angular.module('classeur.core.sync.contentSync', [])
           return
         }
         watchCtx.contentChanges[msg.rev] = msg
-        applyContentChangeMsgs()
+        applyContentChanges()
       })
 
       clContentSyncSvc.retrieveRevision = function (rev) {
@@ -275,19 +257,8 @@ angular.module('classeur.core.sync.contentSync', [])
             }
           })
           .then(function () {
-            var result = {
-              text: watchCtx.text,
-              properties: ({}).cl_extend(watchCtx.properties),
-              discussions: ({}).cl_extend(watchCtx.discussions),
-              comments: ({}).cl_extend(watchCtx.comments)
-            }
-            watchCtx.contentChanges.slice(rev + 1, watchCtx.rev + 1).reverse().cl_each(function (contentChange) {
-              result.text = clDiffUtils.applyFlattenedTextPatchesReverse(result.text, contentChange.text || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.properties, contentChange.properties || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.discussions, contentChange.discussions || [])
-              clDiffUtils.applyFlattenedObjectPatchesReverse(result.comments, contentChange.comments || [])
-            })
-            return result
+            var contentChanges = watchCtx.contentChanges.slice(rev + 1, watchCtx.rev + 1).reverse()
+            return clDiffUtils.applyContentChanges(watchCtx, contentChanges, true)
           })
       }
 
@@ -317,28 +288,28 @@ angular.module('classeur.core.sync.contentSync', [])
                       comments: file.content.comments
                     }
                   })
-                  .then(function (res) {
-                    clFileSvc.readLocalFileChanges()
-                    if (
-                      file.content && // still local
-                      (!watchCtx || file.id !== watchCtx.file.id) && // is not being edited in the current tab
-                      Date.now() - file.content.lastChange > backgroundUpdateContentEvery // is not being edited in another tab
-                    ) {
-                      try {
-                        file.loadDoUnload(function () {
-                          file.content.text = res.body.text
-                          file.content.properties = res.body.properties
-                          file.content.discussions = res.body.discussions
-                          file.content.comments = res.body.comments
-                          file.setContentSynced(res.body.rev)
-                          file.writeContent()
-                        })
-                        clFileSvc.writeLocalFileChanges()
-                      } catch (e) {
-                        // File is not local
+                    .then(function (res) {
+                      clFileSvc.readLocalFileChanges()
+                      if (
+                        file.content && // still local
+                        (!watchCtx || file.id !== watchCtx.file.id) && // is not being edited in the current tab
+                        Date.now() - file.content.lastChange > backgroundUpdateContentEvery // is not being edited in another tab
+                      ) {
+                        try {
+                          file.loadDoUnload(function () {
+                            file.content.text = res.body.text
+                            file.content.properties = res.body.properties
+                            file.content.discussions = res.body.discussions
+                            file.content.comments = res.body.comments
+                            file.setContentSynced(res.body.rev)
+                            file.writeContent()
+                          })
+                          clFileSvc.writeLocalFileChanges()
+                        } catch (e) {
+                          // File is not local
+                        }
                       }
-                    }
-                  })
+                    })
                 }
               })
             } catch (e) {

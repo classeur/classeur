@@ -40,7 +40,7 @@ angular.module('classeur.optional.electron', [])
       $routeProvider
         .when('/localFile', {
           template: '<cl-centered-spinner ng-if="::!fileLoaded"></cl-centered-spinner><cl-editor-layout ng-if="::fileLoaded"></cl-editor-layout>',
-          controller: function ($scope, $timeout, $location, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc, clDialog, clEditorSvc) {
+          controller: function ($scope, $timeout, $location, clFileSvc, clUid, clEditorLayoutSvc, clElectronSvc, clDialog, clEditorSvc, clEditorContentSvc) {
             if (!clElectronSvc.watchedFile) {
               return $location.url('')
             }
@@ -96,7 +96,7 @@ angular.module('classeur.optional.electron', [])
                       .cancel('Discard')
                     clDialog.show(reloadDialog).then(function () {
                       clElectronSvc.loadWatchedFile(file)
-                      clEditorSvc.setContent(file.content.text)
+                      clEditorContentSvc.applyContent(true)
                     })
                   }
                 })

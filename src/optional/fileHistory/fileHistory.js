@@ -1,6 +1,6 @@
 angular.module('classeur.optional.fileHistory', [])
   .directive('clFileHistoryTab',
-    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils, clDialog, clEditorSvc, clIsNavigatorOnline, clRestSvc) {
+    function (clFileHistorySvc, clContentSyncSvc, clDiffUtils, clDialog, clEditorSvc, clEditorContentSvc, clIsNavigatorOnline, clRestSvc) {
       return {
         restrict: 'E',
         scope: true,
@@ -34,7 +34,8 @@ angular.module('classeur.optional.fileHistory', [])
                 if (file !== scope.currentFile || file.state !== 'loaded') {
                   return
                 }
-                clEditorSvc.setContent(result.text)
+                file.content.text = result.text
+                clEditorContentSvc.applyContent()
               })
           })
         }

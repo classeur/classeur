@@ -30,7 +30,7 @@ angular.module('classeur.core', [])
                 return $location.url('')
               } else if (state === 'loaded') {
                 file.addToDaos && file.addToDaos()
-                clEditorLayoutSvc.init(file.userId && file.isContentSynced())
+                clEditorLayoutSvc.init(file.userId)
                 $scope.fileLoaded = true
               }
             })

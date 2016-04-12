@@ -123,7 +123,7 @@ angular.module('classeur.optional.buttonBar', [])
       var offset = props.margin
       btns.cl_each(function (btn) {
         if (btn.separator) {
-          offset += 20
+          offset += 15
         }
         btn.offset = offset
         var click = btn.click

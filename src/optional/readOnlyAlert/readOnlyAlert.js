@@ -1,6 +1,6 @@
 angular.module('classeur.optional.readOnlyAlert', [])
   .directive('clReadOnlyAlert',
-    function (clEditorLayoutSvc, clUserSvc, clSocketSvc, clEditorSvc) {
+    function (clEditorLayoutSvc, clUserSvc, clSocketSvc, clEditorContentSvc) {
       return {
         restrict: 'E',
         scope: true,
@@ -26,7 +26,7 @@ angular.module('classeur.optional.readOnlyAlert', [])
             if (wasDismissed) {
               return
             }
-            if (clEditorSvc.lastContentChange - clEditorSvc.lastExternalChange < 1500) {
+            if (clEditorContentSvc.lastChange - clEditorContentSvc.lastExternalChange < 1500) {
               return
             }
             if (scope.currentFile.sharing !== 'rw') {
