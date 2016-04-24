@@ -131,26 +131,25 @@ angular.module('classeur.optional.discussions', [])
         }
 
         scope.discussionSvc = clDiscussionSvc
-        scope.discussion = clEditorContentSvc.newDiscussion
-        scope.discussionId = clEditorContentSvc.newDiscussionId
+        scope.discussion = clDiscussionSvc.newDiscussion
+        scope.discussionId = clDiscussionSvc.newDiscussionId
         scope.createDiscussion = function () {
           var text = clEditorSvc.cledit.getContent()
           if (!selection) {
             return
           }
-          clEditorContentSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 500)
+          clDiscussionSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 500)
           if (!text) {
             return
           }
-          clEditorContentSvc.newDiscussion.offset0 = selection.start
-          clEditorContentSvc.newDiscussion.offset1 = selection.end
-          clEditorContentSvc.syncDiscussionMarkers()
+          clEditorContentSvc.newDiscussionMarker0.offset = selection.start
+          clEditorContentSvc.newDiscussionMarker1.offset = selection.end
           // Force recreate the highlighter
           clDiscussionSvc.currentDiscussionId = undefined
           $timeout(function () {
             clLocalSettingSvc.values.sideBar = true
             clLocalSettingSvc.values.sideBarTab = 'discussions'
-            clDiscussionSvc.currentDiscussionId = clEditorContentSvc.newDiscussionId
+            clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId
           })
         }
 
@@ -317,25 +316,25 @@ angular.module('classeur.optional.discussions', [])
         }
 
         scope.discussionSvc = clDiscussionSvc
-        scope.discussion = clEditorContentSvc.newDiscussion
-        scope.discussionId = clEditorContentSvc.newDiscussionId
+        scope.discussion = clDiscussionSvc.newDiscussion
+        scope.discussionId = clDiscussionSvc.newDiscussionId
         scope.createDiscussion = function () {
           var text = clEditorSvc.cledit.getContent()
           if (!selection) {
             return
           }
-          clEditorContentSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 500)
+          clDiscussionSvc.newDiscussion.text = text.slice(selection.start, selection.end).slice(0, 500)
           if (!text) {
             return
           }
-          clEditorContentSvc.newDiscussion.offset0 = selection.start
-          clEditorContentSvc.newDiscussion.offset1 = selection.end
+          clEditorContentSvc.newDiscussionMarker0.offset = selection.start
+          clEditorContentSvc.newDiscussionMarker1.offset = selection.end
           // Force recreate the highlighter
           clDiscussionSvc.currentDiscussionId = undefined
           $timeout(function () {
             clLocalSettingSvc.values.sideBar = true
             clLocalSettingSvc.values.sideBarTab = 'discussions'
-            clDiscussionSvc.currentDiscussionId = clEditorContentSvc.newDiscussionId
+            clDiscussionSvc.currentDiscussionId = clDiscussionSvc.newDiscussionId
           })
         }
 
@@ -359,7 +358,7 @@ angular.module('classeur.optional.discussions', [])
       }
     })
   .directive('clDiscussionHighlighter',
-    function ($window, clEditorSvc, clEditorClassApplier, clPreviewClassApplier, clDiffUtils, clDiscussionSvc) {
+    function ($window, clEditorSvc, clEditorContentSvc, clEditorClassApplier, clPreviewClassApplier, clDiffUtils, clDiscussionSvc) {
       return {
         restrict: 'E',
         link: link
@@ -373,9 +372,16 @@ angular.module('classeur.optional.discussions', [])
           clDiscussionSvc.currentDiscussionId === scope.discussionId && result.push('discussion-editor-highlighting--selected')
           return result
         }, function () {
-          offset = {
-            start: scope.discussion.offset0,
-            end: scope.discussion.offset1
+          if (scope.discussion === clDiscussionSvc.newDiscussion) {
+            offset = {
+              start: clEditorContentSvc.newDiscussionMarker0.offset,
+              end: clEditorContentSvc.newDiscussionMarker1.offset
+            }
+          } else {
+            offset = {
+              start: scope.discussion.offset0,
+              end: scope.discussion.offset1
+            }
           }
           if (offset.start < offset.end) {
             clDiscussionSvc.discussionOffsets[scope.discussionId] = offset.start
@@ -597,20 +603,22 @@ angular.module('classeur.optional.discussions', [])
 
       function link (scope) {
         scope.discussionSvc = clDiscussionSvc
-        clDiscussionSvc.currentDiscussionId = undefined
         scope.$watch('discussionSvc.currentDiscussionId === discussionSvc.newDiscussionId', function (isNew) {
-          scope.discussion = isNew && clEditorContentSvc.newDiscussion
-          scope.discussionId = isNew && clEditorContentSvc.newDiscussionId
+          scope.discussion = isNew && clDiscussionSvc.newDiscussion
+          scope.discussionId = isNew && clDiscussionSvc.newDiscussionId
         })
         scope.$watch('localSettingSvc.values.sideBar && localSettingSvc.values.sideBarTab === "discussions"', function (isOpen) {
           if (!isOpen) {
             clDiscussionSvc.currentDiscussionId = undefined
           }
         })
+        scope.$on('$destroy', function () {
+          clDiscussionSvc.currentDiscussionId = undefined
+        })
       }
     })
   .directive('clDiscussionEntry',
-    function ($window, clDiscussionSvc, clDialog, clToast, clEditorSvc, clEditorContentSvc, clEditorLayoutSvc) {
+    function ($window, clDiscussionSvc, clDialog, clToast, clEditorSvc, clEditorLayoutSvc) {
       return {
         restrict: 'E',
         templateUrl: 'optional/discussions/discussionEntry.html',
@@ -642,7 +650,7 @@ angular.module('classeur.optional.discussions', [])
               }
               scrollerElt.clanim.scrollTop(scrollTop).duration(400).easing('materialOut').start()
             }, 10)
-          } else if (clDiscussionSvc.currentDiscussionId !== clEditorContentSvc.newDiscussionId) {
+          } else if (clDiscussionSvc.currentDiscussionId !== clDiscussionSvc.newDiscussionId) {
             clDiscussionSvc.currentDiscussionId = undefined
           }
         }
@@ -794,7 +802,7 @@ angular.module('classeur.optional.discussions', [])
             return clToast('Too many comments in the file.')
           }
           var discussionId = scope.discussionId
-          if (discussionId === clEditorContentSvc.newDiscussionId) {
+          if (discussionId === clDiscussionSvc.newDiscussionId) {
             if (Object.keys(content.discussions).length > 99) {
               return clToast('Too many discussions in the file.')
             }
@@ -802,9 +810,11 @@ angular.module('classeur.optional.discussions', [])
             discussionId = clUid()
             var discussion = {
               text: scope.discussion.text,
-              patches: scope.discussion.patches
+              offset0: clEditorContentSvc.newDiscussionMarker0.offset,
+              offset1: clEditorContentSvc.newDiscussionMarker1.offset
             }
             content.discussions[discussionId] = discussion
+            clEditorContentSvc.applyContent() // Create discussion markers
             clDiscussionSvc.currentDiscussionId = discussionId
             clDiscussionSvc.updateEditorPostitPosition()
           }
@@ -852,7 +862,9 @@ angular.module('classeur.optional.discussions', [])
   .factory('clDiscussionSvc',
     function ($window, $rootScope, clUid, clEditorSvc, clEditorLayoutSvc, clLocalSettingSvc) {
       var clDiscussionSvc = {
-        discussionOffsets: {}
+        discussionOffsets: {},
+        newDiscussion: {},
+        newDiscussionId: clUid()
       }
 
       function onCommentUpdated () {

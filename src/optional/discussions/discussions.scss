@@ -126,8 +126,12 @@ $highlighting-color: #ffdf60;
   }
 }
 
-.discussion-entry__show-more {
-  font-size: 14px;
+.discussion-entry__btn {
+  color: rgba(0, 0, 0, .54);
+  font-size: 20px;
+  line-height: 28px;
+  padding: 0;
+  width: 28px;
 }
 
 .comment-entry {
@@ -159,9 +163,9 @@ $highlighting-color: #ffdf60;
 }
 
 .comment-entry__delete-btn {
-  color: rgba(0, 0, 0, .4);
+  color: rgba(0, 0, 0, .54);
   height: 26px;
-  margin-left: -30px;
+  margin-left: -44px;
   margin-top: 4px;
   max-width: 26px;
   min-width: 26px;
@@ -179,7 +183,7 @@ $highlighting-color: #ffdf60;
   background-color: #fff;
   font-size: .9em;
   font-variant-ligatures: no-common-ligatures;
-  margin: 5px 0 5px 15px;
+  margin: 5px 0 5px 25px;
   min-height: 80px;
   overflow: auto;
   padding: 4px 8px;

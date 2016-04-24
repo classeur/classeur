@@ -1,13 +1,14 @@
 angular.module('classeur.core.editor.editorContent', [])
   .factory('clEditorContentSvc',
     function ($window, clUid, clDiffUtils) {
+      var Marker = $window.cledit.Marker
+
       var clEditorContentSvc = {
         createCledit: createCledit,
         initCledit: initCledit,
         applyContent: applyContent,
-        syncDiscussionMarkers: syncDiscussionMarkers,
-        newDiscussion: {},
-        newDiscussionId: clUid()
+        newDiscussionMarker0: new Marker(0),
+        newDiscussionMarker1: new Marker(0, true)
       }
 
       var cledit
@@ -20,10 +21,10 @@ angular.module('classeur.core.editor.editorContent', [])
         cledit = $window.cledit(elt, scrollerElt)
         markerKeys = []
         markerIdxMap = Object.create(null)
-        previousPatchableText = ''
-        currentPatchableText = ''
         discussionMarkers = {}
         cledit.on('contentChanged', onContentChanged)
+        cledit.addMarker(clEditorContentSvc.newDiscussionMarker0)
+        cledit.addMarker(clEditorContentSvc.newDiscussionMarker1)
         return cledit
       }
 
@@ -34,6 +35,7 @@ angular.module('classeur.core.editor.editorContent', [])
 
           if (content !== newContent) {
             content = newContent
+            previousPatchableText = currentPatchableText = clDiffUtils.makePatchableText(content, markerKeys, markerIdxMap)
             syncDiscussionMarkers()
           }
 
@@ -56,60 +58,59 @@ angular.module('classeur.core.editor.editorContent', [])
       var isChangePatch
       function onContentChanged (text) {
         content.text = text
+        syncDiscussionMarkers()
         if (!isChangePatch) {
-          syncDiscussionMarkers()
           previousPatchableText = currentPatchableText
           currentPatchableText = clDiffUtils.makePatchableText(content, markerKeys, markerIdxMap)
         } else {
-          syncDiscussionMarkers(true)
+          // Take a chance to restore discussion offsets on undo/redo
+          content.text = currentPatchableText
+          clDiffUtils.restoreDiscussionOffsets(content, markerKeys)
+          content.discussions.cl_each(function (discussion, discussionId) {
+            getDiscussionMarkers(discussion, discussionId, function (marker) {
+              marker.offset = discussion[marker.offsetName]
+            })
+          })
         }
         isChangePatch = false
         clEditorContentSvc.lastChange = Date.now()
       }
 
-      function syncDiscussionMarkers (isPatch) {
+      function syncDiscussionMarkers () {
         discussionMarkers.cl_each(function (marker, markerKey) {
-          if (marker.discussionId !== clEditorContentSvc.newDiscussionId) {
-            // Remove marker if discussion was removed
-            var discussion = content.discussions[marker.discussionId]
-            if (!discussion || !discussion[marker.offsetName]) {
-              cledit.removeMarker(marker)
-              delete discussionMarkers[markerKey]
-            }
+          // Remove marker if discussion was removed
+          var discussion = content.discussions[marker.discussionId]
+          if (!discussion || discussion[marker.offsetName] === undefined) {
+            cledit.removeMarker(marker)
+            delete discussionMarkers[markerKey]
           }
         })
 
-        function checkDiscussion (discussion, discussionId) {
-          function checkMarker (offsetName) {
-            var markerOffset = discussion[offsetName]
-            var markerKey = discussionId + offsetName
-            var marker = discussionMarkers[markerKey]
-            var idx = markerIdxMap[markerKey]
-            var textMarkerOffset = -1
-            if (isPatch && idx !== undefined) {
-              var textMarker = String.fromCharCode(0xe000 + marker.idx)
-              textMarkerOffset = currentPatchableText.indexOf(textMarker)
-            }
-            if (markerOffset !== undefined || ~textMarkerOffset) {
-              if (!marker) {
-                marker = new $window.cledit.Marker(markerOffset)
-                marker.discussionId = discussionId
-                marker.offsetName = offsetName
-                cledit.addMarker(marker)
-                discussionMarkers[markerKey] = marker
-              }
-              if (~textMarkerOffset) {
-                marker.offset = textMarkerOffset
-              }
-              discussion[offsetName] = marker.offset
-            }
-          }
-          checkMarker('offset0')
-          checkMarker('offset1')
-        }
+        content.discussions.cl_each(function (discussion, discussionId) {
+          getDiscussionMarkers(discussion, discussionId, function (marker) {
+            discussion[marker.offsetName] = marker.offset
+          })
+        })
+      }
 
-        content.discussions.cl_each(checkDiscussion)
-        checkDiscussion(clEditorContentSvc.newDiscussion, clEditorContentSvc.newDiscussionId)
+      function getDiscussionMarkers (discussion, discussionId, onMarker) {
+        function getMarker (offsetName) {
+          var markerOffset = discussion[offsetName]
+          var markerKey = discussionId + offsetName
+          var marker = discussionMarkers[markerKey]
+          if (markerOffset !== undefined) {
+            if (!marker) {
+              marker = new Marker(markerOffset, offsetName === 'offset1')
+              marker.discussionId = discussionId
+              marker.offsetName = offsetName
+              cledit.addMarker(marker)
+              discussionMarkers[markerKey] = marker
+            }
+            onMarker(marker)
+          }
+        }
+        getMarker('offset0')
+        getMarker('offset1')
       }
 
       function applyContent (isExternal) {

@@ -1,4 +1,7 @@
-<md-button class="discussion-entry__show-more" ng-if="hasMore" ng-click="showMore()">Show more...</md-button>
+<div layout="row" layout-align="end end">
+  <md-button class="discussion-entry__btn icon-unfold-more" ng-if="hasMore" ng-click="showMore()" aria-label="Show more" title="Show more"></md-button>
+  <md-button class="discussion-entry__btn icon-delete" ng-click="deleteDiscussion()" aria-label="Delete discussion" title="Delete discussion"></md-button>
+</div>
 <div ng-repeat="comment in comments track by comment.id" class="comment-entry">
   <div class="comment-info">
     <cl-user-name class="comment-info__user-name" user-id="comment.userId"></cl-user-name>
@@ -16,7 +19,6 @@
     </div>
     <pre class="comment-entry__input markdown-highlighting md-whiteframe-z1"></pre>
     <div layout="row" layout-align="end">
-      <md-button class="md-primary" ng-click="deleteDiscussion()" aria-label="Delete discussion">Delete</md-button>
       <md-button class="md-primary" ng-click="addComment()">Add</md-button>
     </div>
   </div>

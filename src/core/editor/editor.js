@@ -289,9 +289,9 @@ angular.module('classeur.core.editor', [])
     function ($window, clEditorSvc, clRangeWrapper) {
       var savedSelection
       var nextTickCbs = []
-      var execNextTickCbs = $window.cledit.Utils.debounce(function () {
+      var nextTickExecCbs = $window.cledit.Utils.debounce(function () {
         while (nextTickCbs.length) {
-          nextTickCbs.pop()()
+          nextTickCbs.shift()()
         }
         savedSelection && clEditorSvc.cledit.selectionMgr.setSelectionStartEnd(savedSelection.start, savedSelection.end)
         savedSelection = undefined
@@ -299,7 +299,7 @@ angular.module('classeur.core.editor', [])
 
       function nextTick (cb) {
         nextTickCbs.push(cb)
-        execNextTickCbs()
+        nextTickExecCbs()
       }
 
       function nextTickRestoreSelection () {
@@ -307,7 +307,7 @@ angular.module('classeur.core.editor', [])
           start: clEditorSvc.cledit.selectionMgr.selectionStart,
           end: clEditorSvc.cledit.selectionMgr.selectionEnd
         }
-        execNextTickCbs()
+        nextTickExecCbs()
       }
 
       function EditorClassApplier (classes, offsetGetter, properties) {
@@ -349,7 +349,7 @@ angular.module('classeur.core.editor', [])
         }
 
         function restoreClass () {
-          if (elts.length !== lastEltCount) {
+          if (!elts.length || elts.length !== lastEltCount) {
             removeClass()
             applyClass()
           }
