@@ -212,20 +212,19 @@ $menu-height: 105px;
     font-size: 20px;
     height: 100%;
     line-height: 34px;
+    padding: 0;
     position: absolute;
     text-shadow: 1px 1px rgba(0, 0, 0, .067);
     width: 100%;
   }
 
   .menu-btn__inner {
-    height: 30px;
-    left: 30px;
-    position: absolute;
-    top: 0;
-    width: $menu-height;
+    display: inline-block;
+    height: $menu-height;
+    line-height: 30px;
+    width: 34px;
 
-    @include transform-origin(0 0);
-    @include transform(rotate(90deg));
+    @include prefixer(writing-mode, vertical-lr, webkit spec);
   }
 
   .page {

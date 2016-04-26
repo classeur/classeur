@@ -167,13 +167,19 @@
     display: block;
   }
 
-  .folder-entry--selected .folder-entry__button {
-    display: none;
+  .folder-entry--selected {
+    left: -9999px;
   }
 }
 
 .folder-list__scroller {
   overflow: auto;
+}
+
+.folder-list__scroller-margin {
+  height: 220px;
+  position: absolute;
+  width: 1px;
 }
 
 .folder-list__shadow {
@@ -220,15 +226,20 @@ $public-navbar-corner-size: 46px;
     }
   }
 
-  .folder-entry__inner-1 & {
-    border-right-width: $public-folder-corner-size;
+  .folder-entry & {
+    border-left: $public-folder-corner-size solid transparent;
+    border-right-width: 0;
     border-top-width: $public-folder-corner-size;
     font-size: 17px;
     height: $public-folder-corner-size;
+    left: auto;
+    right: 0;
     width: $public-folder-corner-size;
 
     .icon-publ {
+      left: auto;
       padding: 1px;
+      right: 0;
       top: -$public-folder-corner-size;
     }
   }
@@ -286,9 +297,10 @@ $public-navbar-corner-size: 46px;
     right: 1px;
     top: 1px;
 
-    .folder-entry__inner-1 & {
+    .folder-entry & {
       font-size: 8px;
-      padding: 0 3px;
+      line-height: normal;
+      padding: 3px 0;
       right: 2px;
       top: 2px;
     }
@@ -298,6 +310,10 @@ $public-navbar-corner-size: 46px;
     background-color: #2164d3;
     content: 'r';
     right: 7px;
+
+    .folder-entry & {
+      right: 2px;
+    }
   }
 
   &.rw::after {

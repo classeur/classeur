@@ -27,15 +27,14 @@
 }
 
 .folder-entry {
-  position: absolute;
-}
-
-.folder-entry__inner-1 {
   border-bottom-right-radius: $border-radius-binder;
   border-top-right-radius: $border-radius-binder;
   box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, .22);
-  height: 110px;
-  margin-bottom: 100px;
+  height: auto;
+  position: absolute;
+  top: 129px;
+  // scss-lint:disable ImportantRule
+  transition-property: transform !important; // prevent animation on hiding
   width: 32px;
 }
 
@@ -44,12 +43,11 @@
   border-top-right-radius: $border-radius-binder;
   color: #fff;
   font-size: 12.5px;
-  height: 100%;
-  line-height: 1;
-  padding: 0;
-  position: absolute;
+  letter-spacing: 0;
+  padding: 12px 0;
   text-shadow: 1px 1px rgba(0, 0, 0, .067);
   text-transform: none;
+  vertical-align: middle;
   width: 100%;
 
   [class^='icon-'],
@@ -58,39 +56,28 @@
   }
 }
 
-.folder-entry__inner-2 {
-  height: 32px;
-  left: 32px;
-  letter-spacing: 0;
-  max-width: 110px;
-  padding: 0 6px;
-  position: absolute;
-  text-align: right;
-  text-shadow: 1px -1px rgba(0, 0, 0, .067);
-  top: 0;
-  white-space: normal;
-  width: 110px;
+.folder-entry__inner {
+  display: inline-block;
+  line-height: 30px;
+  min-height: 40px;
+  width: 30px;
 
-  @include transform-origin(0 0);
-  @include transform(rotate(90deg));
+  @include prefixer(writing-mode, vertical-lr, webkit spec);
 
   .cl-public-corner {
     display: none;
   }
-
-  .cl-sharing-indicator::after {
-    left: 2px;
-    right: auto;
-  }
 }
 
-.folder-entry__inner-2--public {
+.folder-entry__inner--public {
+  padding-top: 10px;
+
   .cl-public-corner {
     display: block;
   }
 
   .cl-sharing-indicator::after {
-    left: 18px;
+    top: 18px;
   }
 }
 
@@ -104,13 +91,12 @@
 .folder-entry--recent,
 .folder-entry--unclassified,
 .folder-entry--create {
-  .folder-entry__inner-1 {
-    border-bottom-right-radius: $border-radius-binder;
-    border-top-right-radius: $border-radius-binder;
-    height: 44px;
-    width: 42px;
-    z-index: 9998;
-  }
+  border-bottom-right-radius: $border-radius-binder;
+  border-top-right-radius: $border-radius-binder;
+  height: 44px;
+  top: 0;
+  width: 42px;
+  z-index: 9998;
 
   .folder-entry__button {
     font-size: 22px;
@@ -119,10 +105,8 @@
 }
 
 .folder-entry--unclassified {
-  .folder-entry__inner-1 {
-    top: 43px;
-    width: 40px;
-  }
+  top: 43px;
+  width: 40px;
 
   .icon-search {
     display: inline-block;
@@ -133,10 +117,8 @@
 }
 
 .folder-entry--create {
-  .folder-entry__inner-1 {
-    top: 86px;
-    width: 38px;
-  }
+  top: 86px;
+  width: 38px;
 
   .folder-entry__button {
     font-size: 19px;

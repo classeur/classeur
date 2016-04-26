@@ -287,7 +287,7 @@ angular.module('classeur.optional.electron', [])
       // Tells the app is ready
       clElectron.getVersion()
     })
-  .factory('clElectronSvc', function () {
+  .factory('clElectronSvc', function (clDiffUtils) {
     return {
       loadWatchedFile: function (file) {
         file.content.savedContent = this.watchedFile.content
@@ -298,6 +298,14 @@ angular.module('classeur.optional.electron', [])
           file.content.properties = parsedAttributes.properties || {}
           file.content.discussions = parsedAttributes.discussions || {}
           file.content.comments = parsedAttributes.comments || {}
+          // Upgrade discussions to new format
+          file.content.discussions && file.content.discussions.cl_each(function (discussion) {
+            if (discussion.patches) {
+              discussion.offset0 = clDiffUtils.patchToOffset(file.content.text, discussion.patches[0])
+              discussion.offset1 = clDiffUtils.patchToOffset(file.content.text, discussion.patches[1])
+              delete discussion.patches
+            }
+          })
         } catch (e) {
           file.content.properties = {}
           file.content.discussions = {}

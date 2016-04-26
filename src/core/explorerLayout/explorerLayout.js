@@ -1,25 +1,30 @@
 angular.module('classeur.core.explorerLayout', [])
   .directive('clFolderButton',
-    function ($window, clExplorerLayoutSvc) {
+    function ($window, $timeout, clExplorerLayoutSvc, clFolderSvc) {
       return {
         restrict: 'A',
         scope: true,
         link: link
       }
 
+      var adjustScrollTop
       function link (scope, element, attr) {
         var folderEntryElt = element[0]
-        var parentElt = folderEntryElt.parentNode
+        var scrollerElt = folderEntryElt.parentNode
+        var scrollerMarginElt = scrollerElt.querySelector('.folder-list__scroller-margin')
         var duration
         if (attr.folder) {
           scope.folder = scope.$eval(attr.folder)
         }
+        if (scope.folder && clFolderSvc.activeDaoMap[scope.folder.id]) {
+          scope.folder.entryElt = folderEntryElt
+        }
         var isHover
+        var y = 0
 
-        function animate (adjustScrollTop) {
+        function animate () {
           var isSelected = clExplorerLayoutSvc.currentFolder === scope.folder
           folderEntryElt.classList.toggle('folder-entry--selected', isSelected)
-          var y = scope.$index !== undefined ? 129 + scope.$index * 109 : 0
           var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997)
           folderEntryElt.clanim
             .zIndex(z)
@@ -34,15 +39,17 @@ angular.module('classeur.core.explorerLayout', [])
           duration = 400
           if (adjustScrollTop && isSelected) {
             // Adjust scrolling position
-            var minY = parentElt.scrollTop + 160
-            var maxY = parentElt.scrollTop + parentElt.clientHeight - 180
+            var minY = scrollerElt.scrollTop + 30
+            var maxY = scrollerElt.scrollTop + scrollerElt.clientHeight - folderEntryElt.offsetHeight - 190
             if (y > maxY) {
-              parentElt.scrollTop += y - maxY
+              scrollerElt.scrollTop += y - maxY
             }
             if (y < minY) {
-              parentElt.scrollTop += y - minY
+              scrollerElt.scrollTop += y - minY
             }
+            adjustScrollTop = false
           }
+          clExplorerLayoutSvc.toggleCurrentFolderEntry()
         }
         var debounceAnimate = $window.cledit.Utils.debounce(animate, 100)
 
@@ -55,13 +62,35 @@ angular.module('classeur.core.explorerLayout', [])
           debounceAnimate()
         })
 
-        scope.$watch('$index', animate)
-        scope.$watch('explorerLayoutSvc.currentFolder === folder', function (isSelected) {
-          if (isSelected) {
-            clExplorerLayoutSvc.currentFolderEntryElt = scope.$index !== undefined && folderEntryElt
-            clExplorerLayoutSvc.toggleCurrentFolderEntry()
+        scope.$watch('explorerLayoutSvc.currentFolder === folder', function () {
+          adjustScrollTop = true
+          debounceAnimate()
+        })
+
+        scope.$watch(function () {
+          y = 0
+          if (!clExplorerLayoutSvc.folders.cl_some(
+              function (folder, i) {
+                if (folder === scope.folder) {
+                  if (i === clExplorerLayoutSvc.folders.length - 1) {
+                    scrollerMarginElt.style.top = y + folder.entryElt.offsetHeight + 'px'
+                  }
+                  return true
+                }
+                if (folder.entryElt) {
+                  y += folder.entryElt.offsetHeight - 1
+                }
+              })
+          ) {
+            y = 0
           }
-          animate(true)
+          return y
+        }, debounceAnimate)
+
+        scope.$on('$destroy', function () {
+          if (scope.folder) {
+            scope.folder.entryElt = undefined
+          }
         })
       }
     })
@@ -133,11 +162,14 @@ angular.module('classeur.core.explorerLayout', [])
         var fileActionsElt = folderElt.querySelector('.file-actions')
         var folderListElt = element[0].querySelector('.folder-list')
         var folderListScrollerElt = folderListElt.querySelector('.folder-list__scroller')
-        var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create .folder-entry__inner-1')
+        var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create')
 
         clExplorerLayoutSvc.toggleCurrentFolderEntry = function () {
-          folderListElt.classList.toggle('folder-list__show-current', !!clExplorerLayoutSvc.currentFolderEntryElt &&
-            clExplorerLayoutSvc.currentFolderEntryElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1)
+          folderListElt.classList.toggle('folder-list__show-current',
+            !!clExplorerLayoutSvc.currentFolder &&
+            !!clExplorerLayoutSvc.currentFolder.entryElt &&
+            clExplorerLayoutSvc.currentFolder.entryElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - 1
+          )
         }
 
         function toggleFolderCloneElt () {
