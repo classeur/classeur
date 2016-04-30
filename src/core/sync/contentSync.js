@@ -273,6 +273,7 @@ angular.module('classeur.core.sync.contentSync', [])
         clFileSvc.readLocalFileChanges()
         clFileSvc.localFiles.cl_each(function (file) {
           if (
+            (!file.userId || file.sharing === 'rw') && // is writable
             clSyncDataSvc.files[file.id] && // exists on the server
             (!watchCtx || file !== watchCtx.file) && // is not being edited in the current tab
             Date.now() - file.content.lastChange > backgroundUpdateContentEvery // is not being edited in another tab
