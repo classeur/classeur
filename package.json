@@ -1,6 +1,6 @@
 {
   "name": "classeur",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Classeur frontend editor",
   "main": "index.js",
   "scripts": {
@@ -23,8 +23,8 @@
     "bourbon": "~4.2.6",
     "clanim": "~0.1.0",
     "classets": "~1.0.0",
-    "cldiffutils": "~1.0.0",
-    "cledit": "~1.0.0",
+    "cldiffutils": "~2.0.0",
+    "cledit": "~1.1.0",
     "clgulp": "~1.1.0",
     "clunderscore": "~1.0.0",
     "debug": "visionmedia/debug#233fe2b4a6127b005038f2c8d3f3ca0250aa992e",
@@ -49,7 +49,7 @@
     "markdown-it-emoji": "~1.1.0",
     "markdown-it-footnote": "~2.0.0",
     "markdown-it-mathjax": "~1.0.2",
-    "markdown-it-pandoc-renderer": "~1.0.1",
+    "markdown-it-pandoc-renderer": "~1.1.0",
     "markdown-it-sub": "~1.0.0",
     "markdown-it-sup": "~1.0.0",
     "prismjs": "0.0.1",

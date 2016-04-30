@@ -36,7 +36,9 @@ angular.module('classeur.optional.exportToDisk', [])
 
       clSocketSvc.addMsgHandler('document', function (msg) {
         if (msg.error) {
-          return clToast(msg.error.slice(0, 100))
+          return setTimeout(function () {
+            clToast(msg.error.slice(0, 100))
+          }, 500) // Make toast is not overlapping previous one
         }
         saveAs($window.atob(msg.content), msg.name, msg.format)
       })
@@ -129,6 +131,9 @@ angular.module('classeur.optional.exportToDisk', [])
                     }
                   }]
                 })
+              }
+              if (!clSocketSvc.isReady) {
+                return clToast('You appear to be offline.')
               }
               clToast('Your document is being prepared...')
               clSocketSvc.sendMsg('toDocument', {
