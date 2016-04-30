@@ -267,6 +267,8 @@ angular.module('classeur.core.localDb', [])
   .factory('clLocalDb',
     function ($window, clLocalStorage, clDebug) {
       var indexedDB = $window.indexedDB
+      var dbVersion = 3
+
       // Use the shim on Safari or if indexedDB is not available
       if ($window.shimIndexedDB && (!indexedDB || (!~navigator.userAgent.indexOf('Chrome') && ~navigator.userAgent.indexOf('Safari')))) {
         $window.shimIndexedDB.__useShim()
@@ -300,7 +302,7 @@ angular.module('classeur.core.localDb', [])
 
       ;(function init () {
         // Init connexion
-        var request = indexedDB.open('classeur-db', 2)
+        var request = indexedDB.open('classeur-db', dbVersion)
 
         request.onerror = function () {
           $window.alert("Can't connect to IndexedDB.")
