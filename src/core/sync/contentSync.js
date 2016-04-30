@@ -30,7 +30,9 @@ angular.module('classeur.core.sync.contentSync', [])
         if (file.state === 'loading') {
           file.state = undefined
         }
-        clToast(error || 'File not accessible: ' + (file.name || file.id))
+        error
+          ? clToast(error)
+          : clToast.notAccessible(file)
       }
 
       function applyServerContent (file, oldContent, serverContent) {

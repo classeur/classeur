@@ -319,6 +319,14 @@ angular.module('classeur.core.utils', [])
         return $mdToast.show(toast)
       }
       result.hideDelay = hideDelay
+      var lastNotAccessible = 0
+      result.notAccessible = function (name) {
+        var currentDate = Date.now()
+        if (currentDate - lastNotAccessible > 30000) {
+          lastNotAccessible = currentDate
+          result((name.name || name.id || name) + ' is not accessible.')
+        }
+      }
       return result
     })
   .factory('clStateMgr',

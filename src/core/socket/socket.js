@@ -70,7 +70,7 @@ angular.module('classeur.core.socket', [])
           ctx.socket.on('open', function () {
             debug('Socket is open')
             nextConnectionAttempt = 1000
-            ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken, protocolVersion: 1}]))
+            ctx.socket.send(JSON.stringify(['authenticate', {token: socketToken, protocolVersion: 2}]))
           })
           ctx.socket.on('error', closeSocket)
           ctx.socket.on('close', closeSocket)

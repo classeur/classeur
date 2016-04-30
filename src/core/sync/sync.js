@@ -1083,7 +1083,7 @@ angular.module('classeur.core.sync', [])
               if (file.state === 'loading') {
                 file.state = undefined
               }
-              clToast('File not accessible: ' + (file.name || file.id))
+              clToast.notAccessible(file)
             })
         }
       })
@@ -1106,7 +1106,7 @@ angular.module('classeur.core.sync', [])
                 .then(function (res) {
                   return res.body
                 }, function () {
-                  clToast('File not accessible: ' + (file.name || file.id))
+                  clToast.notAccessible(file)
                 })
             }))
               .then(localDbWrapper(function (items) {
@@ -1157,7 +1157,7 @@ angular.module('classeur.core.sync', [])
                 }))
             })
             .catch(function () {
-              clToast('Folder not accessible: ' + (folder.name || folder.id))
+              clToast.notAccessible(folder)
               if (!folder.name) {
                 // User was attempting to import the folder
                 clFolderSvc.removeDaos([folder])
@@ -1228,7 +1228,7 @@ angular.module('classeur.core.sync', [])
                 }))
             })
             .catch(function () {
-              clToast('Classeur not accessible: ' + (classeur.name || classeur.id))
+              clToast.notAccessible(classeur)
               if (!classeur.name) {
                 // User was attempting to import the classeur
                 clClasseurSvc.removeDaos([classeur])

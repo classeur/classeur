@@ -868,7 +868,7 @@ angular.module('classeur.optional.discussions', [])
       }
 
       function onCommentUpdated () {
-        if (!$rootScope.currentFile || $rootScope.currentFile.state !== 'loaded') {
+        if (!$rootScope.currentFile || !$rootScope.currentFile.content) {
           return
         }
         var content = $rootScope.currentFile.content
