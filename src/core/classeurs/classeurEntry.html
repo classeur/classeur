@@ -1,7 +1,8 @@
 <div class="classeur-entry">
-  <div class="classeur-entry__inner panel md-whiteframe-z1" ng-class="'plastic-' + (($index) % 6)" ng-click="open()">
-    <div class="classeur-entry__tab-1" ng-class="'plastic-' + (($index + 1) % 6)"></div>
-    <div class="classeur-entry__tab-2" ng-class="'plastic-' + (($index + 2) % 6)"></div>
+  <div class="classeur-entry__inner panel md-whiteframe-z1" ng-click="open()">
+    <div class="classeur-entry__tab classeur-entry__tab--0 plastic--background" ng-class="classeur.colorClass0"></div>
+    <div class="classeur-entry__tab classeur-entry__tab--1 plastic--background" ng-class="classeur.colorClass1"></div>
+    <div class="classeur-entry__tab classeur-entry__tab--2 plastic--background" ng-class="classeur.colorClass2"></div>
     <div class="classeur-entry__name">
       <md-input-container>
         <textarea class="classeur-entry__name-input" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Classeur name"></textarea>

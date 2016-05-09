@@ -4,8 +4,27 @@ angular.module('classeur.core', [])
       $locationProvider.hashPrefix('!')
       $animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop|md-bottom md-right/)
       $anchorScrollProvider.disableAutoScrolling()
+      $mdThemingProvider.definePalette('classeur-grey', {
+        '50': '#c0c0c0',
+        '100': '#b0b0b0',
+        '200': '#a0a0a0',
+        '300': '#909090',
+        '400': '#808080',
+        '500': '#737373',
+        '600': '#656565',
+        '700': '#545454',
+        '800': '#404040',
+        '900': '#212121',
+        '1000': '#000000',
+        'A100': '#ffffff',
+        'A200': '#eeeeee',
+        'A400': '#bdbdbd',
+        'A700': '#616161',
+        'contrastDefaultColor': 'light',
+        'contrastDarkColors': '50 100'
+      })
       $mdThemingProvider.theme('default')
-        .primaryPalette('blue')
+        .primaryPalette('classeur-grey')
         .accentPalette('blue')
       var menuTheme = $mdThemingProvider.theme('classeur', 'default')
       menuTheme.dark()

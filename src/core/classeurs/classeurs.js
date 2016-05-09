@@ -50,7 +50,7 @@ angular.module('classeur.core.classeurs', [])
       }
     })
   .factory('clClasseurSvc',
-    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc, clDebug) {
+    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc, clDebug, clHash) {
       var debug = clDebug('classeur:clClasseurSvc')
       var clClasseurSvc = {
         init: init,
@@ -192,6 +192,12 @@ angular.module('classeur.core.classeurs', [])
           if (dao.deleted) {
             deletedDaoMap[id] = dao
           } else {
+            if (!dao.colorClass0) {
+              var index = Math.abs(clHash(id)) % 19
+              dao.colorClass0 = 'plastic--' + (index % 19 + 1)
+              dao.colorClass1 = 'plastic--' + ((index + 2) % 19 + 1)
+              dao.colorClass2 = 'plastic--' + ((index + 4) % 19 + 1)
+            }
             activeDaoMap[id] = dao
           }
         })

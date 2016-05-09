@@ -7,7 +7,7 @@
 
 .folder-name__input-container {
   letter-spacing: -.01em;
-  margin: 0 0 10px;
+  margin: 0;
   width: 100%;
 }
 
@@ -22,33 +22,38 @@
   font-size: 30px;
   height: 42px;
   padding: 0;
-  text-shadow: 1px 1px rgba(0, 0, 0, .06);
   width: 38px;
 }
 
+$folder-border-width: 1px;
+$folder-entry-icon-height: 48px - $folder-border-width;
+
 .folder-entry {
+  background-color: #fff;
   border-bottom-right-radius: $border-radius-binder;
+  border-style: solid;
   border-top-right-radius: $border-radius-binder;
-  box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, .22);
   height: auto;
   position: absolute;
-  top: 129px;
+  top: 3 * $folder-entry-icon-height;
   // scss-lint:disable ImportantRule
-  transition-property: transform !important; // prevent animation on hiding
+  transition-property: transform, box-shadow !important; // prevent animation on hiding
   width: 32px;
+
+  @include border-width($folder-border-width $folder-border-width $folder-border-width 0);
 }
 
 .folder-entry__button {
-  border-bottom-right-radius: $border-radius-binder;
-  border-top-right-radius: $border-radius-binder;
-  color: #fff;
+  color: rgba(0, 0, 0, .67);
   font-size: 12.5px;
   letter-spacing: 0;
   padding: 12px 0;
-  text-shadow: 1px 1px rgba(0, 0, 0, .067);
   text-transform: none;
   vertical-align: middle;
   width: 100%;
+
+  @include border-right-radius($border-radius-binder - 2);
+  @include border-left-radius(0);
 
   [class^='icon-'],
   [class*=' icon-'] {
@@ -81,10 +86,12 @@
   }
 }
 
-.folder-entry--selected .folder-entry__button {
-  &.md-focused,
-  &:hover {
-    background-color: transparent;
+.folder-entry--selected {
+  &.folder-entry .folder-entry__button {
+    &.md-focused,
+    &:hover {
+      background-color: transparent;
+    }
   }
 }
 
@@ -93,7 +100,7 @@
 .folder-entry--create {
   border-bottom-right-radius: $border-radius-binder;
   border-top-right-radius: $border-radius-binder;
-  height: 44px;
+  height: $folder-entry-icon-height + $folder-border-width;
   top: 0;
   width: 42px;
   z-index: 9998;
@@ -105,19 +112,18 @@
 }
 
 .folder-entry--unclassified {
-  top: 43px;
+  top: $folder-entry-icon-height;
   width: 40px;
 
   .icon-search {
     display: inline-block;
-    text-shadow: -1px 1px rgba(0, 0, 0, .067);
 
     @include transform(scale(-1, 1));
   }
 }
 
 .folder-entry--create {
-  top: 86px;
+  top: 2 * $folder-entry-icon-height;
   width: 38px;
 
   .folder-entry__button {
@@ -126,11 +132,12 @@
 }
 
 .folder-entry__icon {
-  line-height: 44px;
+  line-height: $folder-entry-icon-height - $folder-border-width;
 }
 
 .folder-entry--current {
+  background-color: #fff;
   display: none;
-  top: 129px;
+  top: 3 * $folder-entry-icon-height;
   z-index: 10000;
 }

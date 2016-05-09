@@ -3,19 +3,42 @@ $font-family-editor: Roboto, sans-serif;
 $font-family-monospace: 'Office Code Pro', monospace;
 $font-size-monospace: .85em;
 $body-color: #dedede;
-$background-color: #fafafa;
+$background-color: #f4f4f4;
 $text-color: rgba(0, 0, 0, .87);
 $link-color: #316ed3;
 $code-bg: #eee;
 $border-radius-base: 3px;
 $border-radius-binder: 6px;
 $border-radius-buttonbar: 10px;
-$plastic-color-0: #3a94da; // blue
-$plastic-color-1: lighten(desaturate(#f2b50d, 17.5%), 2.5%); // yellow
-$plastic-color-2: desaturate(#20bc9c, 30%); // green
-$plastic-color-3: desaturate(#ea6a3c, 10%); // red
-$plastic-color-4: darken(#95a5a6, 5%); // light gray
-$plastic-color-5: lighten(desaturate(#34495e, 5%), 15%); // dark gray
+$blue: #2196f3;
+$teal: #009688;
+$green: #4caf50;
+$light-green: #8bc34a;
+$lime: #cddc39;
+$yellow: #ffeb3b;
+$amber: #ffc107;
+$red: #f44336;
+$pink: #e91e63;
+$deep-purple: #673ab7;
+$plastic-colors: $blue,
+  mix($blue, $teal, 50%),
+  $teal,
+  mix($teal, $green, 50%),
+  $green,
+  mix($green, $lime, 50%),
+  $lime,
+  mix($lime, $amber, 50%),
+  $amber,
+  mix($amber, $red, 75%),
+  mix($amber, $red, 50%),
+  mix($amber, $red, 25%),
+  $red,
+  $pink,
+  mix($pink, $deep-purple, 67%),
+  mix($pink, $deep-purple, 33%),
+  $deep-purple,
+  mix($deep-purple, $blue, 67%),
+  mix($deep-purple, $blue, 33%);
 $editor-margin-width: 110px;
 $ced-color: rgba(0, 0, 0, .92);
 $ced-color-light: rgba(0, 0, 0, .6);

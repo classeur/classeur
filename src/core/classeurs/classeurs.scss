@@ -27,66 +27,56 @@
   }
 
   .classeur-entry__inner,
-  .classeur-entry__tab-1,
-  .classeur-entry__tab-2 {
+  .classeur-entry__tab {
     background-color: #e8e8e8;
   }
 }
 
 .classeur-entry__inner {
-  border-radius: 2px;
+  background-color: #fff;
   cursor: pointer;
   left: 8%;
   top: 0;
   width: 84%;
-
-  &::before {
-    background-color: inherit;
-    right: -12px;
-    width: 12px;
-  }
 }
 
-.classeur-entry__inner::before,
-.classeur-entry__tab-1,
-.classeur-entry__tab-2 {
+.classeur-entry__tab {
   border-bottom-right-radius: 3px;
   border-top-right-radius: 3px;
   content: '';
   height: 40px;
   position: absolute;
   right: -10px;
-  top: 6px;
+  top: 0;
   width: 10px;
-}
-
-.classeur-entry__tab-1 {
-  top: 45px;
   z-index: -1;
 }
 
-.classeur-entry__tab-2 {
-  top: 84px;
+.classeur-entry__tab--1 {
+  top: 40px;
   z-index: -2;
 }
 
+.classeur-entry__tab--2 {
+  top: 80px;
+  z-index: -3;
+}
+
 .classeur-entry__name {
-  background-color: rgba(255, 255, 255, .2);
-  border-radius: 3px;
-  margin: 20px 5px 15px;
-  padding: 2px;
+  margin: 15px 10px;
 
   md-input-container {
     margin: 0;
   }
 }
 
-.classeur-entry__name-input {
-  font-size: 20px;
+body .classeur-entry__name-input.md-input {
+  font-size: 22px;
   font-weight: 300;
+  padding: 10px;
   text-align: center;
 
-  body &:disabled {
+  &:disabled {
     color: rgba(0, 0, 0, .75);
     cursor: pointer;
     pointer-events: none;
@@ -110,7 +100,6 @@
 }
 
 .classeur-entry__menu {
-  background-color: rgba(255, 255, 255, .2);
   bottom: 0;
   cursor: auto;
   font-size: 26px;

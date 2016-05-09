@@ -56,18 +56,6 @@ $menu-height: 105px;
 .editor-layout {
   z-index: 3;
 
-  .frame {
-    padding-left: 911px;
-    padding-right: 951px;
-  }
-
-  .frame-inner {
-    background-color: rgba(0, 0, 0, .02);
-    border-left: 1px solid rgba(0, 0, 0, .05);
-    border-right: 1px solid rgba(0, 0, 0, .05);
-    position: relative;
-  }
-
   .navbar {
     background-color: #fff;
     height: auto;
@@ -133,7 +121,6 @@ $menu-height: 105px;
     font-size: 16px;
     height: auto;
     padding: 40px 40px 60px;
-    text-shadow: 1px 1px rgba(0, 0, 0, .067);
 
     md-switch {
       margin: 7px 4px 0;
@@ -174,7 +161,7 @@ $menu-height: 105px;
 
   .right-margin__btns {
     color: rgba(0, 0, 0, .38);
-    margin: 6px 7px;
+    margin: 6px;
   }
 
   .right-margin__btn {
@@ -199,7 +186,7 @@ $menu-height: 105px;
   .menu-btn {
     border-bottom-right-radius: $border-radius-binder;
     border-top-right-radius: $border-radius-binder;
-    box-shadow: 3px 4px 9px -5px rgba(0, 0, 0, .2);
+    box-shadow: 3px 4px 8px -5px rgba(0, 0, 0, .2);
     height: $menu-height;
     top: 105px;
     width: 34px;
@@ -214,7 +201,6 @@ $menu-height: 105px;
     line-height: 34px;
     padding: 0;
     position: absolute;
-    text-shadow: 1px 1px rgba(0, 0, 0, .067);
     width: 100%;
   }
 

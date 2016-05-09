@@ -8,36 +8,15 @@
   z-index: 3; // Over the page
 }
 
-.button-bar__light-1,
-.button-bar__light-2 {
-  border: 0 solid rgba(0, 0, 0, .08);
-  width: 90px;
-}
-
-.button-bar__light-1 {
-  border-bottom-left-radius: $border-radius-buttonbar;
-  border-right: 5px solid transparent;
-  border-top-width: 60px;
-  left: 0;
-}
-
-.button-bar__light-2 {
-  border-bottom-right-radius: $border-radius-buttonbar;
-  border-left: 5px solid transparent;
-  border-top-width: 60px;
-  right: 0;
-}
-
 .button-bar__button {
   color: #fff;
-  font-size: 28px;
-  height: 30px;
-  line-height: 30px;
+  font-size: 30px;
+  height: 28px;
+  line-height: 28px;
   padding: 0;
   position: absolute;
-  text-shadow: 1px 1px rgba(0, 0, 0, .33);
-  top: 23px;
-  width: 28px;
+  top: 26px;
+  width: 26px;
 
   .icon-code::before {
     content: '\e8a7\e8a8';
@@ -52,7 +31,7 @@
 
   &[disabled] {
     // scss-lint:disable ImportantRule
-    color: #606060 !important;
+    color: #777 !important;
     text-shadow: none;
   }
 }

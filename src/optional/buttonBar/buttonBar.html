@@ -1,6 +1,4 @@
-<div class="button-bar panel md-whiteframe-2dp">
-  <div class="button-bar__light-1 panel"></div>
-  <div class="button-bar__light-2 panel"></div>
+<div class="button-bar panel md-whiteframe-1dp">
   <md-button class="button-bar__button" ng-repeat="btn in btns" ng-disabled="btn.disabled" style="left: {{::btn.offset}}px" ng-click="btn.click()" title="{{::btn.label}} {{::btn.keystroke}}" aria-label="{{::btn.label}}">
     <span ng-class="btn.icon"></span>
   </md-button>

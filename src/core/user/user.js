@@ -144,7 +144,7 @@ angular.module('classeur.core.user', [])
           if (id && !clUserInfoSvc.users[id]) {
             var user = {
               id: id,
-              color: colors[clHash(id) % colors.length],
+              color: colors[Math.abs(clHash(id)) % colors.length],
               gravatarHash: '00000000000000000000000000000000'
             }
             clUserInfoSvc.users[id] = user

@@ -1,37 +1,39 @@
-<div class="folder-name" layout="row" layout-align="center center">
-  <md-input-container class="folder-name__input-container" md-theme="classeur">
-    <input class="folder-name__input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
-  </md-input-container>
-  <md-menu ng-if="explorerLayoutSvc.currentFolder !== explorerLayoutSvc.unclassifiedFolder">
-    <md-button class="folder-name__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing" ng-click="$mdOpenMenu()">
-    </md-button>
-    <md-menu-content width="3">
-      <md-menu-item ng-if="socketSvc.hasToken || file.userId">
-        <md-button ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolder">
-          <md-icon md-font-icon="icon-share">
-            <span class="cl-sharing-indicator" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing"></span>
-          </md-icon>
-          Sharing
-        </md-button>
-      </md-menu-item>
-      <md-menu-item ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'">
-        <md-button ng-click="setEditing(true)">
-          <md-icon md-font-icon="icon-mode-edit"></md-icon>
-          Rename
-        </md-button>
-      </md-menu-item>
-      <md-menu-item ng-if="explorerLayoutSvc.currentFolder.userId || isFolderInOtherClasseur()">
-        <md-button ng-click="removeFolderFromClasseur()">
-          <md-icon md-font-icon="icon-delete"></md-icon>
-          Remove from classeur
-        </md-button>
-      </md-menu-item>
-      <md-menu-item ng-if="!explorerLayoutSvc.currentFolder.userId">
-        <md-button ng-click="deleteConfirm(true)">
-          <md-icon md-font-icon="icon-delete"></md-icon>
-          Delete
-        </md-button>
-      </md-menu-item>
-    </md-menu-content>
-  </md-menu>
-</div>
+<md-toolbar>
+  <div class="md-toolbar-tools">
+    <md-input-container class="folder-name__input-container" md-theme="classeur" flex>
+      <input class="folder-name__input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
+    </md-input-container>
+    <md-menu ng-if="explorerLayoutSvc.currentFolder !== explorerLayoutSvc.unclassifiedFolder">
+      <md-button class="folder-name__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing" ng-click="$mdOpenMenu()">
+      </md-button>
+      <md-menu-content width="3">
+        <md-menu-item ng-if="socketSvc.hasToken || file.userId">
+          <md-button ng-click="explorerLayoutSvc.sharingDialogFolderDao = explorerLayoutSvc.currentFolder">
+            <md-icon md-font-icon="icon-share">
+              <span class="cl-sharing-indicator" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing"></span>
+            </md-icon>
+            Sharing
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'">
+          <md-button ng-click="setEditing(true)">
+            <md-icon md-font-icon="icon-mode-edit"></md-icon>
+            Rename
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-if="explorerLayoutSvc.currentFolder.userId || isFolderInOtherClasseur()">
+          <md-button ng-click="removeFolderFromClasseur()">
+            <md-icon md-font-icon="icon-delete"></md-icon>
+            Remove from classeur
+          </md-button>
+        </md-menu-item>
+        <md-menu-item ng-if="!explorerLayoutSvc.currentFolder.userId">
+          <md-button ng-click="deleteConfirm(true)">
+            <md-icon md-font-icon="icon-delete"></md-icon>
+            Delete
+          </md-button>
+        </md-menu-item>
+      </md-menu-content>
+    </md-menu>
+  </div>
+</md-toolbar>

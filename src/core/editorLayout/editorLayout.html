@@ -44,12 +44,8 @@
 <div class="editor-layout background panel md-whiteframe-z4">
   <div class="editor-layout__inner-1 panel no-overflow">
     <div class="editor-layout__preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
-      <div class="frame panel">
-        <div class="frame-inner panel">
-        </div>
-      </div>
       <cl-preview></cl-preview>
-      <div class="navbar panel md-whiteframe-1dp">
+      <div class="navbar panel md-whiteframe-2dp">
         <div class="navbar__inner">
           {{currentFile.name}}
           <div class="navbar__btns">
@@ -70,9 +66,9 @@
       </div>
     </div>
   </div>
-  <div class="binder panel">
-    <div class="binder__inner-1 panel">
-      <div class="binder__inner-2 panel md-whiteframe-z2" ng-class="plasticClass">
+  <div class="editor-binder panel">
+    <div class="editor-binder__inner-1 panel">
+      <div class="editor-binder__inner-2 panel plastic--soft-background md-whiteframe-1dp" ng-class="plasticClass">
         <div class="menu panel no-overflow">
           <div class="menu__scroller panel">
             <div class="menu__inner panel">
@@ -107,7 +103,7 @@
               <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
               </md-slider>
               <div class="menu__entry">Binder color</div>
-              <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="6" aria-label="Binder color">
+              <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="19" aria-label="Binder color">
               </md-slider>
               <cl-button-bar-settings></cl-button-bar-settings>
               <cl-zen-mode-settings></cl-zen-mode-settings>
@@ -139,7 +135,7 @@
               </md-tooltip>
             </md-button>
           </div>
-          <div class="menu-btn panel" ng-class="plasticClass">
+          <div class="menu-btn panel plastic--soft-background" ng-class="plasticClass">
             <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
               <div class="menu-btn__inner">
                 Menu
@@ -151,8 +147,8 @@
           <cl-update-blog-posts-button></cl-update-blog-posts-button>
           <cl-offline-indicator></cl-offline-indicator>
           <div class="page__inner panel md-whiteframe-z1">
-            <div class="page__hole page__hole--top panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
-            <div class="page__hole page__hole--bottom panel" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+            <div class="page__hole page__hole--top panel plastic--soft-background" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
+            <div class="page__hole page__hole--bottom panel plastic--soft-background" ng-class="editorLayoutSvc.isMenuOpen ? 'background' : plasticClass"></div>
             <cl-zen-mode></cl-zen-mode>
             <div class="page__margin panel"></div>
             <cl-editor></cl-editor>

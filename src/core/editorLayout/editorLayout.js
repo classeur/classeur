@@ -44,9 +44,9 @@ angular.module('classeur.core.editorLayout', [])
         var editorLayoutElt = elt.querySelector('.editor-layout')
         var previewElt = elt.querySelector('.editor-layout__preview')
         var previewInnerElt = elt.querySelector('.preview')
-        var binderElt = elt.querySelector('.binder').clanim.top(-hideOffsetY).start()
-        var binderInner1Elt = elt.querySelector('.binder__inner-1').clanim.top(hideOffsetY).start()
-        var binderInner2Elt = elt.querySelector('.binder__inner-2')
+        var binderElt = elt.querySelector('.editor-binder').clanim.top(-hideOffsetY).start()
+        var binderInner1Elt = elt.querySelector('.editor-binder__inner-1').clanim.top(hideOffsetY).start()
+        var binderInner2Elt = elt.querySelector('.editor-binder__inner-2')
         var pageElt = elt.querySelector('.page').clanim.left(clEditorLayoutSvc.pageMarginLeft).start()
         var editorElt = elt.querySelector('.editor')
         var editorInnerElt = elt.querySelector('.editor__inner')
@@ -347,7 +347,7 @@ angular.module('classeur.core.editorLayout', [])
 
         scope.$watch('localSettingSvc.values.editorZoom', animateLayout)
         scope.$watch('localSettingSvc.values.editorColor', function (value) {
-          scope.plasticClass = 'plastic-' + (value - 1)
+          scope.plasticClass = 'plastic--' + (value - 1)
         })
         scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout)
         scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor)
@@ -369,8 +369,8 @@ angular.module('classeur.core.editorLayout', [])
   .factory('clEditorLayoutSvc',
     function ($window, $rootScope, clLocalSettingSvc) {
       var clEditorLayoutSvc = {
-        pageMarginLeft: 4,
-        pageMarginRight: 6,
+        pageMarginLeft: 3,
+        pageMarginRight: 3,
         editorBtnGrpWidth: 36,
         menuWidth: 320,
         sideBarWidth: 280,

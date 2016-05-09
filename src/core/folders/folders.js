@@ -44,7 +44,7 @@ angular.module('classeur.core.folders', [])
       }
     })
   .factory('clFolderSvc',
-    function (clLocalStorage, clLocalDbStore, clDebug) {
+    function (clLocalStorage, clLocalDbStore, clDebug, clHash) {
       var debug = clDebug('classeur:clFolderSvc')
       var clFolderSvc = {
         init: init,
@@ -101,6 +101,9 @@ angular.module('classeur.core.folders', [])
           if (dao.deleted) {
             deletedDaoMap[id] = dao
           } else {
+            if (!dao.colorClass) {
+              dao.colorClass = 'plastic--' + (Math.abs(clHash(id)) % 19 + 1)
+            }
             activeDaoMap[id] = dao
           }
         })

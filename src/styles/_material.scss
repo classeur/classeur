@@ -32,7 +32,7 @@ input {
 
   [class^='icon-'],
   [class*=' icon-'] {
-    font-size: .85em;
+    font-size: .8em;
   }
 }
 
@@ -109,12 +109,15 @@ md-input-container {
 
   &.md-classeur-theme .md-input[disabled],
   [disabled] &.md-classeur-theme .md-input {
+    background: none;
+    border-bottom-width: 2px;
     color: #fff;
-    text-shadow: 1px 1px rgba(0, 0, 0, .067);
   }
 
-  &.md-classeur-theme.md-input-focused label {
-    text-shadow: none;
+  &.md-classeur-theme.md-input-focused .md-input {
+    // scss-lint:disable ImportantRule
+    border-color: rgba(255, 255, 255, .5) !important;
+    // scss-lint:enable ImportantRule
   }
 }
 
@@ -241,4 +244,11 @@ md-chips .md-chips {
 .md-tab,
 .md-subhead {
   font-weight: 300;
+}
+
+md-toolbar {
+  height: 48px;
+  // scss-lint:disable ImportantRule
+  min-height: 48px !important;
+  // scss-lint:enable ImportantRule
 }
