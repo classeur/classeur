@@ -55,7 +55,7 @@
   background-color: #fff;
   border-style: solid;
 
-  @include border-width(2px 2px 2px 0);
+  @include border-width(2px 1px 0 0);
 }
 
 .classeur-list__scroller {
@@ -72,7 +72,7 @@
 .folder-view {
   overflow-x: hidden;
   overflow-y: scroll;
-  padding-right: 52px;
+  padding-right: 51px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -189,7 +189,6 @@
 }
 
 .folder-list__shadow {
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .3), 0 8px 10px 1px rgba(0, 0, 0, .21), 0 3px 14px 2px rgba(0, 0, 0, .18);
   left: -2050px;
   z-index: 9999;
 }

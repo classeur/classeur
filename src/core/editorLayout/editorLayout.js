@@ -347,7 +347,7 @@ angular.module('classeur.core.editorLayout', [])
 
         scope.$watch('localSettingSvc.values.editorZoom', animateLayout)
         scope.$watch('localSettingSvc.values.editorColor', function (value) {
-          scope.plasticClass = 'plastic--' + (value - 1)
+          scope.plasticClass = 'plastic--' + value
         })
         scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout)
         scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor)

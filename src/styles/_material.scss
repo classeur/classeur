@@ -30,6 +30,10 @@ input {
     line-height: 1;
   }
 
+  > span {
+    vertical-align: middle;
+  }
+
   [class^='icon-'],
   [class*=' icon-'] {
     font-size: .8em;

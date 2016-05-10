@@ -25,7 +25,8 @@ angular.module('classeur.core.explorerLayout', [])
         function animate () {
           var isSelected = clExplorerLayoutSvc.currentFolder === scope.folder
           folderEntryElt.classList.toggle('folder-entry--selected', isSelected)
-          folderEntryElt.classList.toggle('md-whiteframe-6dp', isSelected)
+          folderEntryElt.classList.toggle('md-whiteframe-4dp', isSelected)
+          folderEntryElt.classList.toggle('md-whiteframe-1dp', !isSelected)
           var z = isSelected ? 10000 : (scope.$index !== undefined ? scope.explorerLayoutSvc.folders.length - scope.$index : 9997)
           folderEntryElt.clanim
             .zIndex(z)
@@ -65,6 +66,7 @@ angular.module('classeur.core.explorerLayout', [])
 
         scope.$watch('explorerLayoutSvc.currentFolder === folder', function () {
           adjustScrollTop = true
+          animate() // toggleCurrentFolderEntry can't wait for debounce
           debounceAnimate()
         })
 
@@ -79,7 +81,7 @@ angular.module('classeur.core.explorerLayout', [])
                   return true
                 }
                 if (folder.entryElt) {
-                  y += folder.entryElt.offsetHeight - clExplorerLayoutSvc.folderBorderWidth
+                  y += folder.entryElt.offsetHeight
                 }
               })
           ) {
@@ -155,7 +157,7 @@ angular.module('classeur.core.explorerLayout', [])
 
       function link (scope, element) {
         var explorerInnerElt = element[0].querySelector('.explorer__inner-2')
-        var binderElt = element[0].querySelector('.explorer-binder').clanim.translateY(20).start()
+        var binderElt = element[0].querySelector('.explorer-binder')
         var navbarInnerElt = element[0].querySelector('.navbar__inner')
         var binderScrollerElt = element[0].querySelector('.explorer-binder__scroller')
         var folderElt = element[0].querySelector('.folder-view--main')
@@ -169,7 +171,7 @@ angular.module('classeur.core.explorerLayout', [])
           folderListElt.classList.toggle('folder-list__show-current',
             !!clExplorerLayoutSvc.currentFolder &&
             !!clExplorerLayoutSvc.currentFolder.entryElt &&
-            clExplorerLayoutSvc.currentFolder.entryElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom - clExplorerLayoutSvc.folderBorderWidth
+            clExplorerLayoutSvc.currentFolder.entryElt.getBoundingClientRect().top < createFolderButtonElt.getBoundingClientRect().bottom
           )
         }
 
@@ -685,7 +687,6 @@ angular.module('classeur.core.explorerLayout', [])
       var clExplorerLayoutSvc = {
         isSortedByDate: true,
         scrollbarWidth: 0,
-        folderBorderWidth: 1,
         folders: [],
         files: [],
         extraFiles: [],

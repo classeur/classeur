@@ -155,6 +155,10 @@ textarea:not([disabled]) {
   padding: 0 10px;
   position: relative;
   white-space: nowrap;
+
+  > span {
+    vertical-align: middle;
+  }
 }
 
 .navbar__item--title {
@@ -232,13 +236,13 @@ textarea:not([disabled]) {
     $dark-c: darken($c, 30%);
 
     &.plastic--color {
-      color: desaturate($c, 30%);
+      color: desaturate($c, 20%);
 
       &.md-button.md-focused,
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: transparentize($dark-c, .94);
+        background-color: transparentize($dark-c, .95);
       }
     }
 
@@ -247,34 +251,34 @@ textarea:not([disabled]) {
     }
 
     &.plastic--soft-background {
-      background-color: desaturate(lighten($c, 10%), 25%);
+      background-color: desaturate(lighten($c, 12.5%), 25%);
     }
 
     &.plastic--border {
-      border-color: mix($c, $background-color, 75%);
+      border-color: mix($c, $background-color, 70%);
 
       &.md-button.md-focused,
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: transparentize($dark-c, .94);
+        background-color: transparentize($dark-c, .95);
       }
 
       &.md-whiteframe-1dp {
-        box-shadow: 0 1px 3px 0 transparentize($dark-c, .8), 0 1px 1px 0 transparentize($dark-c, .86), 0 2px 1px -1px transparentize($dark-c, .88);
+        box-shadow: 0 0 3px 0 transparentize($dark-c, .8), 0 0 1px 0 transparentize($dark-c, .86), 0 1px 1px -1px transparentize($dark-c, .88);
       }
 
-      &.md-whiteframe-6dp {
-        box-shadow: 0 3px 5px -1px transparentize($dark-c, .8), 0 6px 10px 0 transparentize($dark-c, .86), 0 1px 18px 0 transparentize($dark-c, .88);
+      &.md-whiteframe-4dp {
+        box-shadow: 0 1px 4px -1px transparentize($dark-c, .8), 0 3px 5px 0 transparentize($dark-c, .86), 0 0 10px 0 transparentize($dark-c, .88);
       }
     }
   }
 }
-
-@include plastic-color(#737373, 0);
 
 @for $i from 1 through length($plastic-colors) {
   $c: nth($plastic-colors, $i);
 
   @include plastic-color($c, $i);
 }
+
+@include plastic-color(#737373, length($plastic-colors) + 1);

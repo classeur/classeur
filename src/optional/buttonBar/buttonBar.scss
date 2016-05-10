@@ -1,22 +1,30 @@
 @import 'variables';
+@import 'bourbon';
 
 .button-bar {
   background-color: #4a4a4a;
-  border-bottom-left-radius: $border-radius-buttonbar;
-  border-bottom-right-radius: $border-radius-buttonbar;
   left: 50%;
   z-index: 3; // Over the page
+
+  @include border-bottom-radius(8px);
 }
+
+$button-height: 28px;
 
 .button-bar__button {
   color: #fff;
   font-size: 30px;
-  height: 28px;
-  line-height: 28px;
+  height: $button-height;
+  line-height: $button-height;
   padding: 0;
   position: absolute;
-  top: 26px;
+  top: 28px;
   width: 26px;
+
+  [class^='icon-'],
+  [class*=' icon-'] {
+    display: block;
+  }
 
   .icon-code::before {
     content: '\e8a7\e8a8';
@@ -31,7 +39,7 @@
 
   &[disabled] {
     // scss-lint:disable ImportantRule
-    color: #777 !important;
+    color: #707070 !important;
     text-shadow: none;
   }
 }

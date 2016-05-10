@@ -113,11 +113,11 @@ angular.module('classeur.optional.buttonBar', [])
       btns.push(redoButton)
 
       var props = {
-        margin: 20,
+        margin: 15,
         btnWidth: 26,
         btnHeight: 28,
         height: 60,
-        visibleHeight: 38
+        visibleHeight: 35
       }
 
       var offset = props.margin

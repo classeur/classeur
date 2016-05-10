@@ -25,14 +25,12 @@
   width: 38px;
 }
 
-$folder-border-width: 1px;
-$folder-entry-icon-height: 48px - $folder-border-width;
+$folder-border-width: 3px;
+$folder-entry-icon-height: 48px;
 
 .folder-entry {
   background-color: #fff;
-  border-bottom-right-radius: $border-radius-binder;
   border-style: solid;
-  border-top-right-radius: $border-radius-binder;
   height: auto;
   position: absolute;
   top: 3 * $folder-entry-icon-height;
@@ -40,7 +38,8 @@ $folder-entry-icon-height: 48px - $folder-border-width;
   transition-property: transform, box-shadow !important; // prevent animation on hiding
   width: 32px;
 
-  @include border-width($folder-border-width $folder-border-width $folder-border-width 0);
+  @include border-right-radius($folder-border-width);
+  @include border-width(0 $folder-border-width 0 0);
 }
 
 .folder-entry__button {
@@ -52,7 +51,7 @@ $folder-entry-icon-height: 48px - $folder-border-width;
   vertical-align: middle;
   width: 100%;
 
-  @include border-right-radius($border-radius-binder - 2);
+  @include border-right-radius($folder-border-width);
   @include border-left-radius(0);
 
   [class^='icon-'],
@@ -98,12 +97,12 @@ $folder-entry-icon-height: 48px - $folder-border-width;
 .folder-entry--recent,
 .folder-entry--unclassified,
 .folder-entry--create {
-  border-bottom-right-radius: $border-radius-binder;
-  border-top-right-radius: $border-radius-binder;
-  height: $folder-entry-icon-height + $folder-border-width;
+  height: $folder-entry-icon-height;
   top: 0;
   width: 42px;
   z-index: 9998;
+
+  @include border-right-radius($folder-border-width);
 
   .folder-entry__button {
     font-size: 22px;
@@ -132,7 +131,7 @@ $folder-entry-icon-height: 48px - $folder-border-width;
 }
 
 .folder-entry__icon {
-  line-height: $folder-entry-icon-height - $folder-border-width;
+  line-height: $folder-entry-icon-height;
 }
 
 .folder-entry--current {

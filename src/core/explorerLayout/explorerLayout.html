@@ -27,7 +27,7 @@
           </div>
           <div layout="row">
             <div class="navbar__item navbar__item--user-name" ng-if="userSvc.user">
-              Hi <b>{{userSvc.user.name}}</b>
+              <span>Hi <b>{{userSvc.user.name}}</b></span>
             </div>
             <md-button class="navbar__item" ng-click="userSvc.startOAuth()" ng-if="!socketSvc.hasToken && !config.loginForm">
               Sign in with Google
@@ -67,7 +67,7 @@
           </div>
         </div>
         <div class="explorer-binder panel" ng-class="{'explorer-binder--public': explorerLayoutSvc.currentFolder.userId}">
-          <div class="explorer-binder__inner-1 panel plastic--border md-whiteframe-3dp" ng-class="plasticClass">
+          <div class="explorer-binder__inner-1 panel plastic--border md-whiteframe-2dp" ng-class="plasticClass">
             <div class="explorer-binder__inner-2 panel no-overflow">
               <div class="explorer-binder__scroller panel">
                 <div class="folder-view folder-view--main panel" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
@@ -193,7 +193,7 @@
                 <div class="folder-list__scroller-margin">
                 </div>
               </div>
-              <div class="folder-entry folder-entry--current panel plastic--border md-whiteframe-6dp" ng-class="plasticClass">
+              <div class="folder-entry folder-entry--current panel plastic--border md-whiteframe-4dp" ng-class="plasticClass">
                 <md-button class="folder-entry__button" md-no-ink aria-label="{{explorerLayoutSvc.currentFolder.name || '...'}}">
                   <div class="folder-entry__inner" ng-class="{public: explorerLayoutSvc.currentFolder.userId}">
                     {{explorerLayoutSvc.currentFolder.name}}
@@ -228,7 +228,7 @@
                   <span class="folder-entry__icon icon-schedule"></span>
                 </md-button>
               </div>
-              <div class="folder-list__shadow panel"></div>
+              <div class="folder-list__shadow panel md-whiteframe-4dp"></div>
             </div>
           </div>
         </div>
