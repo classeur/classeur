@@ -43,6 +43,7 @@ $folder-entry-icon-height: 48px;
 }
 
 .folder-entry__button {
+  border-radius: 0;
   color: rgba(0, 0, 0, .67);
   font-size: 12.5px;
   letter-spacing: 0;
@@ -50,9 +51,6 @@ $folder-entry-icon-height: 48px;
   text-transform: none;
   vertical-align: middle;
   width: 100%;
-
-  @include border-right-radius($folder-border-width);
-  @include border-left-radius(0);
 
   [class^='icon-'],
   [class*=' icon-'] {
