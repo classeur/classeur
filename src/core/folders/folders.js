@@ -8,7 +8,7 @@ angular.module('classeur.core.folders', [])
       }
 
       function link (scope, element) {
-        var nameInputElt = element[0].querySelector('.folder-name__input')
+        var nameInputElt = element[0].querySelector('.tab-title__input')
         nameInputElt.addEventListener('keydown', function (e) {
           if (e.which === 27) {
             scope.form.$rollbackViewValue()

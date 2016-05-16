@@ -5,13 +5,13 @@
   height: 120px;
 }
 
-.folder-name__input-container {
+.tab-title__input-container {
   letter-spacing: -.01em;
   margin: 0;
   width: 100%;
 }
 
-.folder-name__input {
+.tab-title__input {
   font-size: 32px;
   font-weight: 300;
 }
@@ -45,7 +45,7 @@ $folder-entry-icon-height: 48px;
 .folder-entry__button {
   border-radius: 0;
   color: rgba(0, 0, 0, .67);
-  font-size: 12.5px;
+  font-size: 13px;
   letter-spacing: 0;
   padding: 12px 0;
   text-transform: none;

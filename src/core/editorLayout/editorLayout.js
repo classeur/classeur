@@ -235,13 +235,12 @@ angular.module('classeur.core.editorLayout', [])
             .translateY(clEditorLayoutSvc.binderInnerY)
             .duration(isInited && 300)
             .easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
-            .start(true)
-          setTimeout(function () {
-            hidePreview()
-            clEditorLayoutSvc.toggleSidePreview(false)
-            clEditorLayoutSvc.currentControl = undefined
-            isInited && scope.$apply()
-          }, 500)
+            .start(true, function () {
+              hidePreview()
+              clEditorLayoutSvc.toggleSidePreview(false)
+              clEditorLayoutSvc.currentControl = undefined
+              isInited && scope.$apply()
+            })
         }
 
         function animateMenu () {
@@ -267,7 +266,7 @@ angular.module('classeur.core.editorLayout', [])
           cornerFoldElt.clanim
             .duration(isInited && 200)
             .scale(clEditorLayoutSvc.isCornerFoldingOpen ? 2.5 : 1)
-            .start(function () {
+            .start(true, function () {
               if (clEditorLayoutSvc.isCornerFoldingOpen) {
                 clEditorLayoutSvc.isCornerFoldingVisible = true
                 isInited && scope.$apply()

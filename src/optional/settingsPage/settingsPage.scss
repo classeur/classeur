@@ -1,3 +1,4 @@
+@import 'bourbon';
 @import 'variables';
 
 .settings-page {
@@ -29,8 +30,62 @@
 }
 
 .settings-page__inner-2 {
-  border-radius: 3px;
-  padding: 20px 15px;
+  min-height: 100%;
+
+  @include border-bottom-radius(3px);
+}
+
+.tab-content {
+  background-color: #fff;
+}
+
+.tab-list {
+  position: relative;
+  top: 5px;
+  width: 50px;
+}
+
+$tab-entry-height: 75px;
+$tab-border-width: 3px;
+
+.tab-list__entry {
+  background-color: #fff;
+  border-style: solid;
+  font-size: 14px;
+  height: $tab-entry-height;
+  letter-spacing: 0;
+  padding: 12px 0;
+  // scss-lint:disable ImportantRule
+  text-transform: none;
+  top: 0;
+  transition-property: transform, box-shadow !important; // prevent animation on hiding
+  vertical-align: middle;
+  width: 32px;
+  z-index: 99;
+
+  @include border-right-radius($tab-border-width);
+  @include border-left-radius(0);
+  @include border-width(0 $tab-border-width 0 0);
+
+  > span {
+    @include prefixer(writing-mode, vertical-lr, webkit spec);
+    color: rgba(0, 0, 0, .67);
+  }
+}
+
+.tab-list__entry--2 {
+  top: $tab-entry-height;
+  z-index: 98;
+}
+
+.tab-list__entry--3 {
+  top: 2 * $tab-entry-height;
+  z-index: 97;
+}
+
+.tab-list__entry--4 {
+  top: 3 * $tab-entry-height;
+  z-index: 96;
 }
 
 .settings-page__tab {

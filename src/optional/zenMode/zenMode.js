@@ -42,7 +42,7 @@ angular.module('classeur.optional.zenMode', [])
             .opacity(1)
             .duration(1500)
             .easing('ease-out')
-            .start()
+            .start(true)
           isHidden = false
         }, 3000)
 
@@ -80,7 +80,7 @@ angular.module('classeur.optional.zenMode', [])
             .opacity(0)
             .duration(100)
             .easing('ease-out')
-            .start(function () {
+            .start(true, function () {
               isHidden = true
               isTyping = false
               zenPanelElt.classList.add('zen-panel--hidden')

@@ -7,7 +7,7 @@ angular.module('classeur.core.explorerLayout', [])
         link: link
       }
 
-      var adjustScrollTop
+      var nextTickAdjustScrollTop
       function link (scope, element, attr) {
         var folderEntryElt = element[0]
         var scrollerElt = folderEntryElt.parentNode
@@ -22,6 +22,18 @@ angular.module('classeur.core.explorerLayout', [])
         var isHover
         var y = 0
 
+        function adjustScrollTop () {
+          var minY = scrollerElt.scrollTop + 30
+          var maxY = scrollerElt.scrollTop + scrollerElt.clientHeight - folderEntryElt.offsetHeight - 190
+          if (y > maxY) {
+            scrollerElt.scrollTop += y - maxY
+          }
+          if (y < minY) {
+            scrollerElt.scrollTop += y - minY
+          }
+          clExplorerLayoutSvc.toggleCurrentFolderEntry()
+        }
+
         function animate () {
           var isSelected = clExplorerLayoutSvc.currentFolder === scope.folder
           folderEntryElt.classList.toggle('folder-entry--selected', isSelected)
@@ -34,24 +46,19 @@ angular.module('classeur.core.explorerLayout', [])
             .offsetWidth // Force z-offset to refresh before the animation
           folderEntryElt.clanim
             .duration(duration)
-            .translateX(isSelected ? 0 : isHover ? -2 : -5)
+            .translateX(isSelected ? 0 : isHover ? -1 : -5)
             .translateY(y)
             .easing('materialOut')
-            .start(true)
+            .start(true, nextTickAdjustScrollTop && isSelected
+              ? adjustScrollTop
+              : clExplorerLayoutSvc.toggleCurrentFolderEntry)
           duration = 400
-          if (adjustScrollTop && isSelected) {
-            // Adjust scrolling position
-            var minY = scrollerElt.scrollTop + 30
-            var maxY = scrollerElt.scrollTop + scrollerElt.clientHeight - folderEntryElt.offsetHeight - 190
-            if (y > maxY) {
-              scrollerElt.scrollTop += y - maxY
-            }
-            if (y < minY) {
-              scrollerElt.scrollTop += y - minY
-            }
-            adjustScrollTop = false
+          if (nextTickAdjustScrollTop && isSelected) {
+            adjustScrollTop()
+            nextTickAdjustScrollTop = false
+          } else {
+            clExplorerLayoutSvc.toggleCurrentFolderEntry()
           }
-          clExplorerLayoutSvc.toggleCurrentFolderEntry()
         }
         var debounceAnimate = $window.cledit.Utils.debounce(animate, 100)
 
@@ -65,9 +72,10 @@ angular.module('classeur.core.explorerLayout', [])
         })
 
         scope.$watch('explorerLayoutSvc.currentFolder === folder', function () {
-          adjustScrollTop = true
-          animate() // toggleCurrentFolderEntry can't wait for debounce
-          debounceAnimate()
+          nextTickAdjustScrollTop = true
+          duration
+            ? animate() // toggleCurrentFolderEntry can't wait for debounce
+            : debounceAnimate()
         })
 
         scope.$watch(function () {

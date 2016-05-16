@@ -134,7 +134,7 @@ textarea:not([disabled]) {
   background-color: #fff;
   color: rgba(0, 0, 0, .6);
   height: auto;
-  z-index: 2;
+  z-index: 3;
 }
 
 .navbar__logo {
@@ -251,7 +251,7 @@ textarea:not([disabled]) {
     }
 
     &.plastic--soft-background {
-      background-color: desaturate(lighten($c, 12.5%), 25%);
+      background-color: desaturate(lighten($c, 12.5%), 30%);
     }
 
     &.plastic--border {

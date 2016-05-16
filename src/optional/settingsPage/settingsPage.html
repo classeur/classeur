@@ -15,8 +15,31 @@
     </div>
   </div>
   <div class="settings-page__inner-1" layout="column" layout-align="center">
-    <div class="settings-page__inner-2 no-overflow md-whiteframe-1dp plastic--4" layout="column" flex>
-      <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
+    <div class="settings-page__inner-2 no-overflow" layout="row">
+      <div class="tab-content md-whiteframe-2dp" flex>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <md-input-container class="tab-title__input-container" md-theme="classeur">
+              <input class="tab-title__input" value="App" disabled="disabled">
+            </md-input-container>
+          </div>
+        </md-toolbar>
+      </div>
+      <div class="tab-list">
+        <md-button md-no-ink class="tab-list__entry tab-list__entry--1 panel plastic--12 plastic--border md-whiteframe-1dp">
+          App
+        </md-button>
+        <md-button md-no-ink class="tab-list__entry tab-list__entry--2 panel plastic--14 plastic--border md-whiteframe-1dp">
+          User
+        </md-button>
+        <md-button md-no-ink class="tab-list__entry tab-list__entry--3 panel plastic--16 plastic--border md-whiteframe-1dp">
+          Blogs
+        </md-button>
+        <md-button md-no-ink class="tab-list__entry tab-list__entry--4 panel plastic--18 plastic--border md-whiteframe-1dp">
+          Trash
+        </md-button>
+      </div>
+      <!-- <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
         <md-tab label="App">
           <div class="settings-page__tab">
             <h2>Editor</h2> Font size
@@ -215,7 +238,7 @@
             </div>
           </div>
         </md-tab>
-      </md-tabs>
+      </md-tabs> -->
     </div>
     <div class="footer" layout="row" layout-align="space-between">
       <div layout="row">

@@ -113,7 +113,7 @@ angular.module('classeur.optional.buttonBar', [])
       btns.push(redoButton)
 
       var props = {
-        margin: 15,
+        margin: 20,
         btnWidth: 26,
         btnHeight: 28,
         height: 60,

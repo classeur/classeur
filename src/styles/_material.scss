@@ -97,6 +97,11 @@ md-switch {
   &.md-checked.md-primary .md-bar {
     background-color: rgb(33, 150, 243);
   }
+
+  &.md-default-theme.md-checked.md-primary .md-thumb,
+  &.md-checked.md-primary .md-thumb {
+    background-color: rgb(68, 138, 255);
+  }
 }
 
 md-input-container {
@@ -255,4 +260,8 @@ md-toolbar {
   // scss-lint:disable ImportantRule
   min-height: 48px !important;
   // scss-lint:enable ImportantRule
+}
+
+.md-toolbar-tools {
+  font-weight: inherit;
 }
