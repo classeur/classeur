@@ -51,19 +51,18 @@ angular.module('classeur.optional.fileDragging', [])
       }
 
       function link (scope, element) {
-        if (scope.folder === clExplorerLayoutSvc.createFolder) {
-          return
+        if (scope.folder !== clExplorerLayoutSvc.createFolder) {
+          element[0].addEventListener('mouseenter', function () {
+            if (clFileDraggingSvc.files.length) {
+              clFileDraggingSvc.setTargetFolder(scope.folder)
+            }
+          })
+          element[0].addEventListener('mouseleave', function () {
+            if (clFileDraggingSvc.targetFolder === scope.folder) {
+              clFileDraggingSvc.setTargetFolder()
+            }
+          })
         }
-        element[0].addEventListener('mouseenter', function () {
-          if (clFileDraggingSvc.files.length) {
-            clFileDraggingSvc.setTargetFolder(scope.folder)
-          }
-        })
-        element[0].addEventListener('mouseleave', function () {
-          if (clFileDraggingSvc.targetFolder === scope.folder) {
-            clFileDraggingSvc.setTargetFolder()
-          }
-        })
       }
     })
   .directive('clFileDragging',

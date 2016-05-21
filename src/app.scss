@@ -54,7 +54,7 @@ body {
 
 input:not([disabled]),
 textarea:not([disabled]) {
-  font-variant-ligatures: common-ligatures;
+  font-variant-ligatures: no-common-ligatures;
 }
 
 .panel {
@@ -97,7 +97,7 @@ textarea:not([disabled]) {
 }
 
 .postit__close-btn {
-  color: rgba(0, 0, 0, .38);
+  color: rgba(0, 0, 0, .5);
   font-size: 22px;
   height: 32px;
   padding: 0;
@@ -242,26 +242,31 @@ textarea:not([disabled]) {
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: transparentize($dark-c, .95);
+        background-color: mix(#fff, $dark-c, 96%);
       }
     }
 
     &.plastic--background {
-      background-color: mix($c, $background-color, 85%);
+      background-color: lighten($c, 10%);
     }
 
     &.plastic--soft-background {
-      background-color: desaturate(lighten($c, 12.5%), 30%);
+      background-color: mix($background-color, $dark-c, 94%);
     }
 
-    &.plastic--border {
-      border-color: mix($c, $background-color, 70%);
+    &.plastic--border,
+    &.folder-entry {
+      border-color: lighten($c, 5%);
+    }
+
+    &.folder-entry {
+      background-color: mix(#fcfcfc, $dark-c, 96%);
 
       &.md-button.md-focused,
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: transparentize($dark-c, .95);
+        background-color: mix(#fcfcfc, $dark-c, 92%);
       }
 
       &.md-whiteframe-1dp {
@@ -282,3 +287,4 @@ textarea:not([disabled]) {
 }
 
 @include plastic-color(#737373, length($plastic-colors) + 1);
+@include plastic-color(#aaa, length($plastic-colors) + 2);

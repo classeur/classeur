@@ -198,6 +198,7 @@ $public-file-corner-size: 32px;
 $public-folder-corner-size: 30px;
 $public-classeur-corner-size: 54px;
 $public-navbar-corner-size: 46px;
+$public-dialog-corner-size: 66px;
 
 .cl-public-corner {
   border-right: $public-corner-size solid transparent;
@@ -276,6 +277,19 @@ $public-navbar-corner-size: 46px;
       top: -$public-navbar-corner-size;
     }
   }
+
+  md-dialog-content & {
+    border-right-width: $public-dialog-corner-size;
+    border-top-width: $public-dialog-corner-size;
+    font-size: 34px;
+    height: $public-dialog-corner-size;
+    width: $public-dialog-corner-size;
+
+    .icon-publ {
+      padding: 1px;
+      top: -$public-dialog-corner-size;
+    }
+  }
 }
 
 .navbar__item--title-public {
@@ -308,7 +322,7 @@ $public-navbar-corner-size: 46px;
       font-size: 8px;
       line-height: normal;
       padding: 3px 0;
-      right: 2px;
+      right: 0;
       top: 2px;
     }
   }

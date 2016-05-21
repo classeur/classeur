@@ -68,7 +68,7 @@
   </div>
   <div class="editor-binder panel">
     <div class="editor-binder__inner-1 panel">
-      <div class="editor-binder__inner-2 panel plastic--soft-background md-whiteframe-1dp" ng-class="plasticClass">
+      <div class="editor-binder__inner-2 panel plastic--soft-background md-whiteframe-2dp" ng-class="plasticClass">
         <div class="menu panel no-overflow">
           <div class="menu__scroller panel">
             <div class="menu__inner panel">
@@ -103,7 +103,7 @@
               <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
               </md-slider>
               <div class="menu__entry">Binder color</div>
-              <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="20" aria-label="Binder color">
+              <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="14" aria-label="Binder color">
               </md-slider>
               <cl-button-bar-settings></cl-button-bar-settings>
               <cl-zen-mode-settings></cl-zen-mode-settings>
@@ -135,7 +135,7 @@
               </md-tooltip>
             </md-button>
           </div>
-          <div class="menu-btn panel plastic--soft-background" ng-class="plasticClass">
+          <div class="menu-btn panel plastic--soft-background plastic--border" ng-class="plasticClass">
             <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
               <div class="menu-btn__inner">
                 Menu

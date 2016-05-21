@@ -238,7 +238,8 @@ angular.module('classeur.core.explorerLayout', [])
             if (clExplorerLayoutSvc.currentFolder === clExplorerLayoutSvc.unclassifiedFolder) {
               scope.plasticClass = clExplorerLayoutSvc.currentClasseur.colorClass1
             } else {
-              scope.plasticClass = clExplorerLayoutSvc.currentFolder.colorClass
+              var index = clExplorerLayoutSvc.currentClasseur.folderColorIndex + clExplorerLayoutSvc.folders.indexOf(clExplorerLayoutSvc.currentFolder)
+              scope.plasticClass = 'plastic--' + (index % 12 + 1)
             }
           } else {
             scope.plasticClass = clExplorerLayoutSvc.currentClasseur.colorClass0

@@ -9,35 +9,26 @@ $link-color: #316ed3;
 $code-bg: #eee;
 $border-radius-base: 3px;
 $border-radius-binder: 6px;
-$blue: #2196f3;
-$teal: #009688;
-$green: #4caf50;
-$light-green: #8bc34a;
-$lime: #cddc39;
-$yellow: #ffeb3b;
-$amber: #ffc107;
-$red: #f44336;
-$pink: #e91e63;
-$deep-purple: #673ab7;
+$tab-entry-height: 75px;
+$tab-border-width: 3px;
+$blue: #36a9e0;
+$green: #6fbf4d;
+$yellow: #ffcc2d;
+$orange: #f78f28;
+$red: #ef4447;
+$purple: #9c449a;
 $plastic-colors: $blue,
-  mix($blue, $teal, 50%),
-  $teal,
-  mix($teal, $green, 50%),
+  mix($blue, $green, 50%),
   $green,
-  mix($green, $lime, 50%),
-  $lime,
-  mix($lime, $amber, 50%),
-  $amber,
-  mix($amber, $red, 75%),
-  mix($amber, $red, 50%),
-  mix($amber, $red, 25%),
+  mix($green, $yellow, 50%),
+  $yellow,
+  mix($yellow, $orange, 50%),
+  $orange,
+  mix($orange, $red, 50%),
   $red,
-  $pink,
-  mix($pink, $deep-purple, 67%),
-  mix($pink, $deep-purple, 33%),
-  $deep-purple,
-  mix($deep-purple, $blue, 67%),
-  mix($deep-purple, $blue, 33%);
+  mix($red, $purple, 50%),
+  $purple,
+  mix($purple, $blue, 50%);
 $editor-margin-width: 110px;
 $ced-color: rgba(0, 0, 0, .92);
 $ced-color-light: rgba(0, 0, 0, .6);

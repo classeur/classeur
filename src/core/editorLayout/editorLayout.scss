@@ -51,7 +51,8 @@
   width: 34px;
 }
 
-$menu-height: 105px;
+$menu-height: 94px;
+$menu-width: 34px;
 
 .editor-layout {
   z-index: 3;
@@ -117,7 +118,7 @@ $menu-height: 105px;
   }
 
   .menu__inner {
-    color: #fff;
+    color: rgba(0, 0, 0, .54);
     font-size: 16px;
     height: auto;
     padding: 40px 40px 60px;
@@ -137,8 +138,8 @@ $menu-height: 105px;
   }
 
   .menu__link {
-    border-bottom: 1px solid rgba(255, 255, 255, .12);
-    color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
+    color: rgba(0, 0, 0, .67);
     cursor: pointer;
     line-height: 1;
     margin-bottom: 6px;
@@ -147,7 +148,8 @@ $menu-height: 105px;
   }
 
   .menu__link-icon {
-    font-size: 26px;
+    color: rgba(0, 0, 0, .54);
+    font-size: 24px;
   }
 
   .menu__link-text {
@@ -159,8 +161,12 @@ $menu-height: 105px;
     font-size: 21px;
   }
 
+  .file-name__input {
+    color: rgba(0, 0, 0, .67);
+  }
+
   .right-margin__btns {
-    color: rgba(0, 0, 0, .38);
+    color: rgba(0, 0, 0, .5);
     margin: 6px;
   }
 
@@ -184,23 +190,28 @@ $menu-height: 105px;
   }
 
   .menu-btn {
-    border-bottom-right-radius: $border-radius-binder;
-    border-top-right-radius: $border-radius-binder;
-    box-shadow: 3px 4px 8px -5px rgba(0, 0, 0, .2);
+    border-style: solid;
+    box-shadow: 2px 4px 5px -3px rgba(0, 0, 0, .1), 1px 3px 2px -1px rgba(0, 0, 0, .07), 0 3px 1px -2px rgba(0, 0, 0, .06);
     height: $menu-height;
     top: 105px;
-    width: 34px;
+    width: $menu-width;
+
+    @include border-right-radius($tab-border-width);
+    @include border-left-radius(0);
+    @include border-width(0 $tab-border-width 0 0);
   }
 
   .menu-btn__button {
-    border-bottom-right-radius: $border-radius-binder;
-    border-top-right-radius: $border-radius-binder;
-    color: #fff;
-    font-size: 20px;
+    border-radius: 0;
+    color: rgba(0, 0, 0, .6);
+    font-size: 19px;
     height: 100%;
-    line-height: 34px;
+    letter-spacing: 0;
+    line-height: $menu-width - $tab-border-width;
     padding: 0;
     position: absolute;
+    text-transform: none;
+    vertical-align: middle;
     width: 100%;
   }
 
@@ -208,7 +219,7 @@ $menu-height: 105px;
     display: inline-block;
     height: $menu-height;
     line-height: 30px;
-    width: 34px;
+    width: $menu-width - $tab-border-width;
 
     @include prefixer(writing-mode, vertical-lr, webkit spec);
   }
@@ -240,7 +251,7 @@ $menu-height: 105px;
   }
 
   .page__margin {
-    background-color: #ffe0e0;
+    background-color: #ffe5da;
     left: $editor-margin-width;
     width: 1px;
   }
@@ -265,7 +276,7 @@ $menu-height: 105px;
 }
 
 .corner-fold__btn {
-  color: rgba(0, 0, 0, .38);
+  color: rgba(0, 0, 0, .54);
   font-size: 28px;
   padding: 2px;
   position: absolute;

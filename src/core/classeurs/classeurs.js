@@ -193,10 +193,11 @@ angular.module('classeur.core.classeurs', [])
             deletedDaoMap[id] = dao
           } else {
             if (!dao.colorClass0) {
-              var index = Math.abs(clHash(id)) % 19
-              dao.colorClass0 = 'plastic--' + (index % 19 + 1)
-              dao.colorClass1 = 'plastic--' + ((index + 2) % 19 + 1)
-              dao.colorClass2 = 'plastic--' + ((index + 4) % 19 + 1)
+              var index = Math.abs(clHash(id)) % 12
+              dao.colorClass0 = 'plastic--' + (index % 12 + 1)
+              dao.colorClass1 = 'plastic--' + ((index + 1) % 12 + 1)
+              dao.colorClass2 = 'plastic--' + ((index + 2) % 12 + 1)
+              dao.folderColorIndex = (index + 3) % 12 + 1
             }
             activeDaoMap[id] = dao
           }

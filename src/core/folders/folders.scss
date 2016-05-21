@@ -29,17 +29,31 @@ $folder-border-width: 3px;
 $folder-entry-icon-height: 48px;
 
 .folder-entry {
-  background-color: #fff;
   border-style: solid;
   height: auto;
   position: absolute;
   top: 3 * $folder-entry-icon-height;
   // scss-lint:disable ImportantRule
-  transition-property: transform, box-shadow !important; // prevent animation on hiding
+  transition-property: transform, box-shadow, background-color !important; // prevent animation on hiding
   width: 32px;
 
   @include border-right-radius($folder-border-width);
   @include border-width(0 $folder-border-width 0 0);
+
+  &.folder-entry--current,
+  &.folder-entry--selected {
+    &,
+    .folder-entry__button.md-focused,
+    .folder-entry__button:hover {
+      background-color: #fff;
+    }
+  }
+}
+
+.folder-entry--current {
+  display: none;
+  top: 3 * $folder-entry-icon-height;
+  z-index: 10000;
 }
 
 .folder-entry__button {
@@ -83,15 +97,6 @@ $folder-entry-icon-height: 48px;
   }
 }
 
-.folder-entry--selected {
-  &.folder-entry .folder-entry__button {
-    &.md-focused,
-    &:hover {
-      background-color: transparent;
-    }
-  }
-}
-
 .folder-entry--recent,
 .folder-entry--unclassified,
 .folder-entry--create {
@@ -130,11 +135,4 @@ $folder-entry-icon-height: 48px;
 
 .folder-entry__icon {
   line-height: $folder-entry-icon-height;
-}
-
-.folder-entry--current {
-  background-color: #fff;
-  display: none;
-  top: 3 * $folder-entry-icon-height;
-  z-index: 10000;
 }

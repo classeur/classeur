@@ -368,8 +368,8 @@ angular.module('classeur.core.editorLayout', [])
   .factory('clEditorLayoutSvc',
     function ($window, $rootScope, clLocalSettingSvc) {
       var clEditorLayoutSvc = {
-        pageMarginLeft: 3,
-        pageMarginRight: 3,
+        pageMarginLeft: 4,
+        pageMarginRight: 4,
         editorBtnGrpWidth: 36,
         menuWidth: 320,
         sideBarWidth: 280,

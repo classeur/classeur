@@ -132,7 +132,7 @@
                     </div>
                   </div>
                   <cl-spinner ng-if="explorerLayoutSvc.currentFolder.userId && !syncDataSvc.folderRefreshDates[explorerLayoutSvc.currentFolder.id]"></cl-spinner>
-                  <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length"></cl-recent-alert>
+                  <cl-recent-alert ng-if="explorerLayoutSvc.pagedFiles.length || explorerLayoutSvc.pagedExtraFiles.length"></cl-recent-alert>
                 </div>
               </div>
               <div class="folder-view folder-view--clone folder-view--hidden">
@@ -179,7 +179,7 @@
             </div>
             <div class="folder-list panel background no-overflow">
               <div class="folder-list__scroller panel">
-                <div class="folder-entry panel plastic--border md-whiteframe-1dp" cl-folder-button cl-file-dragging-target ng-class="folder.colorClass" ng-repeat="folder in explorerLayoutSvc.folders track by folder.id">
+                <div class="folder-entry panel md-whiteframe-1dp" cl-folder-button cl-file-dragging-target ng-class="'plastic--' + ((explorerLayoutSvc.currentClasseur.folderColorIndex + $index) % 12 + 1)" ng-repeat="folder in explorerLayoutSvc.folders track by folder.id">
                   <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(folder)" aria-label="{{folder.name || '...'}}">
                     <div class="folder-entry__inner" ng-class="{'folder-entry__inner--public': folder.userId}">
                       {{folder.name}}
@@ -193,7 +193,7 @@
                 <div class="folder-list__scroller-margin">
                 </div>
               </div>
-              <div class="folder-entry folder-entry--current panel plastic--border md-whiteframe-4dp" ng-class="plasticClass">
+              <div class="folder-entry folder-entry--current panel md-whiteframe-4dp" ng-class="plasticClass">
                 <md-button class="folder-entry__button" md-no-ink aria-label="{{explorerLayoutSvc.currentFolder.name || '...'}}">
                   <div class="folder-entry__inner" ng-class="{public: explorerLayoutSvc.currentFolder.userId}">
                     {{explorerLayoutSvc.currentFolder.name}}
@@ -204,7 +204,7 @@
                   </div>
                 </md-button>
               </div>
-              <div class="folder-entry folder-entry--create panel plastic--border md-whiteframe-1dp" cl-folder-button ng-class="explorerLayoutSvc.currentClasseur.colorClass2" folder="explorerLayoutSvc.createFolder">
+              <div class="folder-entry folder-entry--create panel md-whiteframe-1dp" cl-folder-button ng-class="explorerLayoutSvc.currentClasseur.colorClass2" folder="explorerLayoutSvc.createFolder">
                 <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(explorerLayoutSvc.createFolder)" aria-label="Create folder" cl-explorer-tour-next="3">
                   <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 2">
                     <p>A classeur is a set of folders.</p>
@@ -218,12 +218,12 @@
                   <span class="folder-entry__icon icon-add"></span>
                 </md-button>
               </div>
-              <div class="folder-entry folder-entry--unclassified panel plastic--border md-whiteframe-1dp" cl-folder-button cl-file-dragging-target folder="explorerLayoutSvc.unclassifiedFolder" ng-class="explorerLayoutSvc.currentClasseur.colorClass1">
+              <div class="folder-entry folder-entry--unclassified panel md-whiteframe-1dp" cl-folder-button cl-file-dragging-target folder="explorerLayoutSvc.unclassifiedFolder" ng-class="explorerLayoutSvc.currentClasseur.colorClass1">
                 <md-button class="folder-entry__button" md-no-ink ng-click="setFolder(explorerLayoutSvc.unclassifiedFolder)" aria-label="All files">
                   <span class="folder-entry__icon icon-search"></span>
                 </md-button>
               </div>
-              <div class="folder-entry folder-entry--recent panel plastic--border md-whiteframe-1dp" cl-folder-button ng-class="explorerLayoutSvc.currentClasseur.colorClass0">
+              <div class="folder-entry folder-entry--recent panel md-whiteframe-1dp" cl-folder-button ng-class="explorerLayoutSvc.currentClasseur.colorClass0">
                 <md-button class="folder-entry__button" md-no-ink ng-click="setFolder()" aria-label="Recent files">
                   <span class="folder-entry__icon icon-schedule"></span>
                 </md-button>
