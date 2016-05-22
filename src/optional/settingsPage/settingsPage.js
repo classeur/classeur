@@ -37,6 +37,7 @@ angular.module('classeur.optional.settingsPage', [])
 
       function link (scope) {
         var tabs = ['app', 'user', 'blogs', 'trash']
+        scope.tabTitles = ['App', 'User', 'Blogs', 'Trash']
 
         var waitForSocketReady = (function () {
           var watcher

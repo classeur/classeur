@@ -9,29 +9,6 @@ angular.module('classeur.optional.offlineAlert', [])
       }
 
       function link (scope, element) {
-        var isHover
-        var elt = element[0].querySelector('.offline-indicator')
-        var duration
-
-        function toggle () {
-          elt.clanim
-            .duration(duration)
-            .translateX(isHover ? 0 : -2)
-            .start(true)
-          duration = 200
-        }
-
-        elt.addEventListener('mouseenter', function () {
-          isHover = true
-          toggle()
-        })
-        elt.addEventListener('mouseleave', function () {
-          isHover = false
-          toggle()
-        })
-        toggle()
-
-        scope.show = undefined
         function setFlag () {
           var show = !clSocketSvc.hasToken || (!clSocketSvc.isReady && clUserActivity.isActive)
           if (scope.currentFile && scope.currentFile.isLocalFile) {
@@ -42,6 +19,7 @@ angular.module('classeur.optional.offlineAlert', [])
             return true
           }
         }
+
         var debouncedSetFlag = $window.cledit.Utils.debounce(function () {
           setFlag() && scope.$apply()
         }, 5000)

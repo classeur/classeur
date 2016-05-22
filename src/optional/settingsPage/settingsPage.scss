@@ -20,6 +20,10 @@
   md-select {
     margin-top: 0;
   }
+
+  .footer {
+    padding-right: $tab-width;
+  }
 }
 
 .settings-page__inner-1 {
@@ -37,12 +41,32 @@
 
 .tab-content {
   background-color: #fff;
+  border-top-style: solid;
+  border-top-width: $tab-top-offset;
+  position: relative;
+}
+
+.tab-content__inner {
+  overflow: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tab-list {
+  background-color: $background-color;
+  margin-right: -25px;
   position: relative;
-  top: 5px;
+  width: $tab-width + 25px;
+  z-index: 1;
+}
+
+.tab-list__shadow {
+  left: -50px;
   width: 50px;
+  z-index: 9999;
 }
 
 .tab-list__entry {
@@ -51,42 +75,59 @@
   font-size: 14px;
   height: $tab-entry-height;
   letter-spacing: 0;
-  padding: 12px 0;
+  padding: 0 0 0 2px;
   // scss-lint:disable ImportantRule
   text-transform: none;
-  top: 0;
-  transition-property: transform, box-shadow !important; // prevent animation on hiding
+  top: $tab-top-offset;
   vertical-align: middle;
   width: 32px;
   z-index: 99;
 
+  @include transition(all .4s cubic-bezier(.25, .8, .25, 1));
+  @include transform(translateX(-5px));
   @include border-right-radius($tab-border-width);
   @include border-left-radius(0);
   @include border-width(0 $tab-border-width 0 0);
 
+  &:hover {
+    @include transform(translateX(-1px));
+  }
+
+  &.tab-list__entry--selected.panel {
+    &,
+    &.md-focused,
+    &:hover {
+      background-color: #fff;
+      z-index: 10000;
+
+      @include transform(translateX(0));
+    }
+  }
+
   > span {
-    @include prefixer(writing-mode, vertical-lr, webkit spec);
     color: rgba(0, 0, 0, .67);
+
+    @include prefixer(writing-mode, vertical-lr, webkit spec);
   }
 }
 
 .tab-list__entry--2 {
-  top: $tab-entry-height;
+  top: $tab-top-offset + $tab-entry-height;
   z-index: 98;
 }
 
 .tab-list__entry--3 {
-  top: 2 * $tab-entry-height;
+  top: $tab-top-offset + 2 * $tab-entry-height;
   z-index: 97;
 }
 
 .tab-list__entry--4 {
-  top: 3 * $tab-entry-height;
+  top: $tab-top-offset + 3 * $tab-entry-height;
   z-index: 96;
 }
 
 .settings-page__tab {
-  margin: 40px 20px 80px;
+  margin: 40px 30px 80px;
 }
 
 .settings-page__entry {

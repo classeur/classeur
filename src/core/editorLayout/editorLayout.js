@@ -266,7 +266,7 @@ angular.module('classeur.core.editorLayout', [])
           cornerFoldElt.clanim
             .duration(isInited && 200)
             .scale(clEditorLayoutSvc.isCornerFoldingOpen ? 2.5 : 1)
-            .start(true, function () {
+            .start(function () { // No transition, buggy on MS Edge
               if (clEditorLayoutSvc.isCornerFoldingOpen) {
                 clEditorLayoutSvc.isCornerFoldingVisible = true
                 isInited && scope.$apply()
@@ -368,8 +368,8 @@ angular.module('classeur.core.editorLayout', [])
   .factory('clEditorLayoutSvc',
     function ($window, $rootScope, clLocalSettingSvc) {
       var clEditorLayoutSvc = {
-        pageMarginLeft: 4,
-        pageMarginRight: 4,
+        pageMarginLeft: 3,
+        pageMarginRight: 3,
         editorBtnGrpWidth: 36,
         menuWidth: 320,
         sideBarWidth: 280,

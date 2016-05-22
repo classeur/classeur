@@ -137,13 +137,17 @@ textarea:not([disabled]) {
   z-index: 3;
 }
 
+.navbar__inner {
+  position: relative;
+}
+
 .navbar__logo {
   background-image: url('assets/images/logo.png');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 24px 24px;
   height: 34px;
-  width: 50px;
+  width: 40px;
 }
 
 .navbar__item {
@@ -177,9 +181,9 @@ textarea:not([disabled]) {
   padding: 0 4px;
 }
 
-
 .footer {
-  padding: 0 5px;
+  height: 35px;
+  min-height: 35px;
 }
 
 .footer__button {
@@ -196,9 +200,9 @@ textarea:not([disabled]) {
 }
 
 .drop-zone {
-  border: 3px dashed #bbb;
+  border: 3px dashed #aaa;
   border-radius: 8px;
-  color: #bbb;
+  color: #aaa;
   padding: 32px;
   position: relative;
   text-align: center;
@@ -255,18 +259,23 @@ textarea:not([disabled]) {
     }
 
     &.plastic--border,
-    &.folder-entry {
+    &.folder-entry,
+    &.tab-list__entry {
       border-color: lighten($c, 5%);
     }
 
-    &.folder-entry {
-      background-color: mix(#fcfcfc, $dark-c, 96%);
+    &.folder-entry,
+    &.tab-list__entry {
+      background-color: mix($background-color, $dark-c, 96%);
+    }
 
+    &.folder-entry,
+    &.tab-list__entry {
       &.md-button.md-focused,
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: mix(#fcfcfc, $dark-c, 92%);
+        background-color: mix(#fff, $dark-c, 90%);
       }
 
       &.md-whiteframe-1dp {

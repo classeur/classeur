@@ -15,33 +15,17 @@
     </div>
   </div>
   <div class="settings-page__inner-1" layout="column" layout-align="center">
-    <div class="settings-page__inner-2 no-overflow" layout="row">
-      <div class="tab-content md-whiteframe-2dp" flex>
-        <md-toolbar>
-          <div class="md-toolbar-tools">
-            <md-input-container class="tab-title__input-container" md-theme="classeur">
-              <input class="tab-title__input" value="App" disabled="disabled">
-            </md-input-container>
-          </div>
-        </md-toolbar>
-      </div>
-      <div class="tab-list">
-        <md-button md-no-ink class="tab-list__entry tab-list__entry--1 panel plastic--12 plastic--border md-whiteframe-1dp">
-          App
-        </md-button>
-        <md-button md-no-ink class="tab-list__entry tab-list__entry--2 panel plastic--14 plastic--border md-whiteframe-1dp">
-          User
-        </md-button>
-        <md-button md-no-ink class="tab-list__entry tab-list__entry--3 panel plastic--16 plastic--border md-whiteframe-1dp">
-          Blogs
-        </md-button>
-        <md-button md-no-ink class="tab-list__entry tab-list__entry--4 panel plastic--18 plastic--border md-whiteframe-1dp">
-          Trash
-        </md-button>
-      </div>
-      <!-- <md-tabs md-selected="selectedTabIndex" md-border-bottom md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
-        <md-tab label="App">
-          <div class="settings-page__tab">
+    <div class="settings-page__inner-2" layout="row" flex>
+      <div class="tab-content md-whiteframe-2dp plastic--border" ng-class="'plastic--' + (6 + selectedTabIndex)" flex>
+        <div class="tab-content__inner panel" ng-switch="selectedTabIndex">
+          <md-toolbar>
+            <div class="md-toolbar-tools">
+              <md-input-container class="tab-title__input-container" md-theme="classeur">
+                <input class="tab-title__input" ng-value="tabTitles[selectedTabIndex]" disabled="disabled">
+              </md-input-container>
+            </div>
+          </md-toolbar>
+          <div class="settings-page__tab" ng-switch-default>
             <h2>Editor</h2> Font size
             <md-slider md-discrete ng-model="settingSvc.values.editorFontSizeFactor" step="1" min="1" max="9" aria-label="Font size factor">
             </md-slider>
@@ -101,9 +85,7 @@
               <md-button class="md-primary" ng-click="loadDefault()">Reset settings</md-button>
             </p>
           </div>
-        </md-tab>
-        <md-tab label="User">
-          <div class="settings-page__tab" ng-switch="socketSvc.hasToken">
+          <div class="settings-page__tab" ng-switch-when="1" ng-switch="socketSvc.hasToken">
             <p ng-switch-default>
               <span class="settings-page__entry-label">
                 Sign in to manage your user account
@@ -181,9 +163,7 @@
               </p>
             </div>
           </div>
-        </md-tab>
-        <md-tab label="Blogs">
-          <div class="settings-page__tab" ng-switch="socketSvc.hasToken">
+          <div class="settings-page__tab" ng-switch-when="2" ng-switch="socketSvc.hasToken">
             <p ng-switch-default>
               <span class="settings-page__entry-label">
                 Sign in to manage your blogs
@@ -209,9 +189,7 @@
               </div>
             </div>
           </div>
-        </md-tab>
-        <md-tab label="Trash">
-          <div class="settings-page__tab" ng-switch="socketSvc.isReady">
+          <div class="settings-page__tab" ng-switch-when="3" ng-switch="socketSvc.isReady">
             <p ng-switch-default>
               <span class="settings-page__entry-label">
                 Sign in to manage the file trash
@@ -237,8 +215,25 @@
               <md-button ng-if="!trashRetrievePending && trashHasMore" class="md-primary" ng-click="getTrashFiles()">Show more</md-button>
             </div>
           </div>
-        </md-tab>
-      </md-tabs> -->
+        </div>
+      </div>
+      <div class="tab-list">
+        <div class="tab-list__inner panel no-overflow">
+          <md-button md-no-ink class="tab-list__entry tab-list__entry--1 panel plastic--6 md-whiteframe-1dp" ng-class="{'tab-list__entry--selected md-whiteframe-4dp': selectedTabIndex === 0}" ng-click="selectedTabIndex = 0">
+            App
+          </md-button>
+          <md-button md-no-ink class="tab-list__entry tab-list__entry--2 panel plastic--7 md-whiteframe-1dp" ng-class="{'tab-list__entry--selected md-whiteframe-4dp': selectedTabIndex === 1}" ng-click="selectedTabIndex = 1">
+            User
+          </md-button>
+          <md-button md-no-ink class="tab-list__entry tab-list__entry--3 panel plastic--8 md-whiteframe-1dp" ng-class="{'tab-list__entry--selected md-whiteframe-4dp': selectedTabIndex === 2}" ng-click="selectedTabIndex = 2">
+            Blogs
+          </md-button>
+          <md-button md-no-ink class="tab-list__entry tab-list__entry--4 panel plastic--9 md-whiteframe-1dp" ng-class="{'tab-list__entry--selected md-whiteframe-4dp': selectedTabIndex === 3}" ng-click="selectedTabIndex = 3">
+            Trash
+          </md-button>
+          <div class="tab-list__shadow panel md-whiteframe-4dp"></div>
+        </div>
+      </div>
     </div>
     <div class="footer" layout="row" layout-align="space-between">
       <div layout="row">

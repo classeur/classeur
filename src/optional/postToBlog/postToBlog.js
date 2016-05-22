@@ -3,33 +3,13 @@ angular.module('classeur.optional.postToBlog', [])
     function (clPostToBlogSvc) {
       return {
         restrict: 'E',
+        scope: true,
         templateUrl: 'optional/postToBlog/updateBlogPostsButton.html',
         link: link
       }
 
       function link (scope, element) {
         scope.postToBlogSvc = clPostToBlogSvc
-        var isHover
-        var elt = element[0].querySelector('.update-posts-btn')
-        var duration
-
-        function toggle () {
-          elt.clanim
-            .duration(duration)
-            .translateX(isHover && !clPostToBlogSvc.isUpdating ? 0 : -5)
-            .start(true)
-          duration = 200
-        }
-
-        elt.addEventListener('mouseenter', function () {
-          isHover = true
-          toggle()
-        })
-        elt.addEventListener('mouseleave', function () {
-          isHover = false
-          toggle()
-        })
-        scope.$watch('postToBlogSvc.isUpdating', toggle)
       }
     })
   .directive('clPostToBlog',

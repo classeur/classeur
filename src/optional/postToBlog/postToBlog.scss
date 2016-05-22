@@ -10,36 +10,49 @@
 }
 
 .update-posts-btn {
-  background-color: #c8c8c8;
-  border-radius: $border-radius-binder;
+  border-style: solid;
+  box-shadow: 2px 4px 5px -3px rgba(0, 0, 0, .1), 1px 3px 2px -1px rgba(0, 0, 0, .07), 0 3px 1px -2px rgba(0, 0, 0, .06);
   height: 48px;
   right: -30px;
-  top: 230px;
-  width: 50px;
+  top: 220px;
+  width: 30px;
+
+  @include transition(all .4s cubic-bezier(.25, .8, .25, 1));
+  @include transform(translateX(-4px));
+  @include border-right-radius($tab-border-width);
+  @include border-left-radius(0);
+  @include border-width(0 $tab-border-width 0 0);
+
+  &:hover {
+    @include transform(translateX(0));
+
+    &.update-posts-btn--updating {
+      @include transform(translateX(-4px));
+    }
+  }
 }
 
 .update-posts-btn__button {
-  border-radius: $border-radius-binder;
-  color: #fff;
+  border-radius: 0;
+  color: rgba(0, 0, 0, .5);
   height: 100%;
-  line-height: 50px;
+  padding: 0;
   position: absolute;
-  text-shadow: 1px 1px rgba(0, 0, 0, .067);
   text-transform: none;
   width: 100%;
 }
 
 .update-posts-btn__icon {
-  height: 50px;
-  left: 49px;
+  line-height: 48px;
   position: absolute;
+  right: 0;
   top: 0;
-  width: 48px;
-
-  @include transform(rotate(90deg));
-  @include transform-origin(0 0);
+  width: 24px;
 
   &::before {
+    display: inline-block;
     font-size: 20px;
+
+    @include transform(rotate(90deg));
   }
 }

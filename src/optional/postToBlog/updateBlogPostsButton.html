@@ -1,5 +1,5 @@
-<div class="update-posts-btn panel md-whiteframe-z1" ng-show="socketSvc.isReady && postToBlogSvc.blogPosts.length">
-  <md-button class="update-posts-btn__button" ng-click="postToBlogSvc.updateAll()" ng-disabled="postToBlogSvc.isUpdating" aria-label="Update all blog posts">
+<div class="update-posts-btn panel plastic--soft-background plastic--border plastic--13 md-whiteframe-z1" ng-class="{'update-posts-btn--updating': postToBlogSvc.isUpdating}" ng-show="socketSvc.isReady && postToBlogSvc.blogPosts.length">
+  <md-button class="update-posts-btn__button" md-no-ink ng-click="postToBlogSvc.updateAll()" ng-disabled="postToBlogSvc.isUpdating" aria-label="Update all blog posts">
     <div class="update-posts-btn__icon icon-cloud-upload">
     </div>
   </md-button>

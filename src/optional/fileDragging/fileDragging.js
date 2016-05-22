@@ -25,7 +25,7 @@ angular.module('classeur.optional.fileDragging', [])
           clFileDraggingSvc.setTargetFolder()
           clFileDraggingSvc.setFileSrc(scope.file)
           clFileDraggingSvc.panelElt.clanim
-            .width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 90 : 210))
+            .width(clExplorerLayoutSvc.explorerWidth - clExplorerLayoutSvc.scrollbarWidth - (clExplorerLayoutSvc.noPadding ? 70 : 150))
             .start()
           movePanel(evt)
           bodyElt.addClass('body--file-dragging')

@@ -5,6 +5,10 @@
     .perspective {
       perspective: 1000px;
     }
+
+    .plan-entry {
+      width: auto;
+    }
   }
 
   .navbar {
@@ -15,10 +19,6 @@
     max-width: 900px;
     width: 100%;
   }
-
-  .footer {
-    font-size: 1.15em;
-  }
 }
 
 .plan-chooser__inner {
@@ -27,26 +27,23 @@
   padding: 100px 5px 0;
 }
 
+$plan-entry-border-radius: 3px;
+
 .plan-entry {
-  background-color: #fbfbfb;
+  background-color: #fff;
   border-radius: 3px;
-  height: 530px;
+  height: 510px;
   margin: 0 -8px 60px;
-  padding: 0 10px 10px;
   position: relative;
   text-align: center;
+  width: 90%;
 }
 
 .plan-entry__header {
-  color: #fff;
-  height: 175px;
-  text-shadow: 1px 1px rgba(0, 0, 0, .067);
-}
-
-.plan-entry__body {
-  background-color: rgba(255, 255, 255, .25);
-  border-radius: 4px;
-  padding-top: 20px;
+  border-radius: $plan-entry-border-radius;
+  border-top-style: solid;
+  border-top-width: $plan-entry-border-radius;
+  height: 170px;
 }
 
 .plan-entry__name {
@@ -74,7 +71,7 @@
 .plan-entry__button {
   display: block;
   font-size: 22px;
-  margin: 15px;
+  margin: 20px;
   padding: 10px 15px;
 }
 
@@ -99,13 +96,9 @@
 }
 
 .plan-entry--premium {
-  height: 560px;
+  height: 530px;
   margin-top: -15px;
   z-index: 1;
-
-  .plan-entry__header {
-    height: 190px;
-  }
 }
 
 .plan-info {
@@ -113,7 +106,7 @@
   margin: 30px auto 120px;
   padding: 30px;
   text-align: center;
-  width: 400px;
+  max-width: 400px;
 }
 
 .plan-info__button {

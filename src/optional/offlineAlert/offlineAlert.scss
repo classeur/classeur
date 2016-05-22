@@ -1,20 +1,31 @@
 @import 'variables';
+@import 'bourbon';
 
 .offline-indicator {
-  background-color: #f3a1a1;
-  border-radius: $border-radius-binder;
+  border-style: solid;
+  box-shadow: 2px 4px 5px -3px rgba(0, 0, 0, .1), 1px 3px 2px -1px rgba(0, 0, 0, .07), 0 3px 1px -2px rgba(0, 0, 0, .06);
   height: 48px;
-  right: -27px;
-  top: 230px;
-  width: 50px;
+  right: -30px;
+  top: 220px;
+  width: 30px;
+
+  @include transition(all .4s cubic-bezier(.25, .8, .25, 1));
+  @include transform(translateX(-4px));
+  @include border-right-radius($tab-border-width);
+  @include border-left-radius(0);
+  @include border-width(0 $tab-border-width 0 0);
+
+  &:hover {
+    @include transform(translateX(0));
+  }
 }
 
 .offline-indicator__button {
-  border-radius: $border-radius-binder;
-  color: #fff;
+  border-radius: 0;
+  color: rgba(0, 0, 0, .5);
   height: 100%;
+  padding: 0;
   position: absolute;
-  text-shadow: 1px 1px rgba(0, 0, 0, .067);
   text-transform: none;
   width: 100%;
 }

@@ -189,7 +189,8 @@
 }
 
 .folder-list__shadow {
-  left: -2050px;
+  left: -50px;
+  width: 50px;
   z-index: 9999;
 }
 
@@ -216,7 +217,6 @@ $public-dialog-corner-size: 66px;
     left: 0;
     padding: 1px;
     position: absolute;
-    text-shadow: none;
     top: -$public-corner-size;
   }
 
