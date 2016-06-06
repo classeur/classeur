@@ -444,7 +444,6 @@ angular.module('classeur.core.editor', [])
       var clEditorSvc = {
         lastExternalChange: 0,
         scrollOffset: 80,
-        insideFences: insideFences,
         options: {},
         setCurrentFileDao: setCurrentFileDao,
         onMarkdownInit: onMarkdownInit,
@@ -482,7 +481,7 @@ angular.module('classeur.core.editor', [])
         Prism.languages[alias] = Prism.languages[name]
       })
 
-      var insideFences = {}
+      var insideFences = clEditorSvc.insideFences = {}
       Prism.languages.cl_each(function (language, name) {
         if (Prism.util.type(language) === 'Object') {
           insideFences['language-' + name] = {

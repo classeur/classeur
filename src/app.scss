@@ -266,16 +266,13 @@ textarea:not([disabled]) {
 
     &.folder-entry,
     &.tab-list__entry {
-      background-color: mix($background-color, $dark-c, 96%);
-    }
+      background-color: mix(#fafafa, $dark-c, 96%);
 
-    &.folder-entry,
-    &.tab-list__entry {
       &.md-button.md-focused,
       &.md-button:hover,
       > .md-button.md-focused,
       > .md-button:hover {
-        background-color: mix(#fff, $dark-c, 90%);
+        background-color: mix(#fff, $dark-c, 92%);
       }
 
       &.md-whiteframe-1dp {

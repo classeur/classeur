@@ -79,11 +79,14 @@
   // scss-lint:disable ImportantRule
   text-transform: none;
   top: $tab-top-offset;
+  transition-property: transform, box-shadow, background-color;
   vertical-align: middle;
   width: 32px;
   z-index: 99;
 
-  @include transition(all .4s cubic-bezier(.25, .8, .25, 1));
+  @include animation-name(transform, box-shadow, background-color);
+  @include animation-duration(.4s);
+  @include animation-timing-function(cubic-bezier(.25, .8, .25, 1));
   @include transform(translateX(-5px));
   @include border-right-radius($tab-border-width);
   @include border-left-radius(0);

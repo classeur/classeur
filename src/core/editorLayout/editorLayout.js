@@ -53,8 +53,6 @@ angular.module('classeur.core.editorLayout', [])
         elt.querySelector('.menu__scroller').clanim.width(clEditorLayoutSvc.menuWidth + 50).right(-50).start()
         elt.querySelector('.menu__inner').clanim.width(clEditorLayoutSvc.menuWidth).start()
         elt.querySelector('.right-margin').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
-        var cornerFoldElt = elt.querySelector('.corner-fold__inner')
-        elt.querySelector('.corner-fold__shadow').clanim.rotate(-45).start()
         var navbarElt = clEditorLayoutSvc.navbarElt = elt.querySelector('.navbar')
         var animatedBtnElt = elt.querySelector('.navbar__animated-btn')
         var closeBtnElt = elt.querySelector('.navbar__btn--close')
@@ -237,7 +235,7 @@ angular.module('classeur.core.editorLayout', [])
             .easing(clEditorLayoutSvc.isEditorOpen ? 'materialOut' : 'materialIn')
             .start(true, function () {
               hidePreview()
-              clEditorLayoutSvc.toggleSidePreview(false)
+              clEditorLayoutSvc.syncSidePreview()
               clEditorLayoutSvc.currentControl = undefined
               isInited && scope.$apply()
             })
@@ -257,21 +255,6 @@ angular.module('classeur.core.editorLayout', [])
             .duration(isInited && 200)
             .easing('materialOut')
             .start(true)
-        }
-
-        function animateCornerFolding () {
-          if (!clEditorLayoutSvc.isCornerFoldingOpen) {
-            clEditorLayoutSvc.isCornerFoldingVisible = false
-          }
-          cornerFoldElt.clanim
-            .duration(isInited && 200)
-            .scale(clEditorLayoutSvc.isCornerFoldingOpen ? 2.5 : 1)
-            .start(function () { // No transition, buggy on MS Edge
-              if (clEditorLayoutSvc.isCornerFoldingOpen) {
-                clEditorLayoutSvc.isCornerFoldingVisible = true
-                isInited && scope.$apply()
-              }
-            })
         }
 
         function animatePreviewButtons (isPreviewTop) {
@@ -305,13 +288,6 @@ angular.module('classeur.core.editorLayout', [])
             }, function () {
               clEditorLayoutSvc.currentControl = undefined
             })
-        }
-
-        scope.toggleSidePreview = function () {
-          clEditorLayoutSvc.toggleSidePreview()
-          setTimeout(function () {
-            clEditorSvc.cledit && clEditorSvc.cledit.focus()
-          }, 100)
         }
 
         scope.openEditor = function () {
@@ -348,11 +324,11 @@ angular.module('classeur.core.editorLayout', [])
         scope.$watch('localSettingSvc.values.editorColor', function (value) {
           scope.plasticClass = 'plastic--' + value
         })
+        scope.$watch('localSettingSvc.values.sidePreview', clEditorLayoutSvc.syncSidePreview)
         scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout)
         scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor)
         scope.$watch('editorLayoutSvc.isMenuOpen', animateMenu)
         scope.$watch('localSettingSvc.values.sideBar', animateLayout)
-        scope.$watch('editorLayoutSvc.isCornerFoldingOpen', animateCornerFolding)
         scope.$watch('editorLayoutSvc.currentControl === "menu"', function (isMenuOpen) {
           clEditorLayoutSvc.isMenuOpen = isMenuOpen
         })
@@ -376,15 +352,18 @@ angular.module('classeur.core.editorLayout', [])
         editorLeftOverflow: 1000, // Allows scrolling on the left side of the editor
         init: function (hideEditor) {
           this.isEditorOpen = !hideEditor
-          this.isSidePreviewOpen = false
           this.isMenuOpen = false
-          this.isCornerFoldingOpen = false
+          this.syncSidePreview()
+        },
+        syncSidePreview: function () {
+          if (clEditorLayoutSvc.isEditorOpen) {
+            clEditorLayoutSvc.isSidePreviewOpen = clLocalSettingSvc.values.sidePreview
+          } else {
+            clEditorLayoutSvc.isSidePreviewOpen = false
+          }
         },
         toggleEditor: function (isOpen) {
           this.isEditorOpen = isOpen === undefined ? !this.isEditorOpen : isOpen
-        },
-        toggleSidePreview: function (isOpen) {
-          this.isSidePreviewOpen = isOpen === undefined ? !this.isSidePreviewOpen : isOpen
         },
         toggleMenu: function () {
           this.currentControl = this.currentControl === 'menu' ? undefined : 'menu'
@@ -394,9 +373,6 @@ angular.module('classeur.core.editorLayout', [])
         },
         toggleStat: function (isOpen) {
           clLocalSettingSvc.values.stat = isOpen === undefined ? !clLocalSettingSvc.values.stat : isOpen
-        },
-        toggleCornerFold: function (isOpen) {
-          this.isCornerFoldingOpen = isOpen === undefined ? !this.isCornerFoldingOpen : isOpen
         },
         clean: function () {
           this.currentControl = undefined

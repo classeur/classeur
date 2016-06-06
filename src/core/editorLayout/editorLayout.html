@@ -105,36 +105,37 @@
               <div class="menu__entry">Binder color</div>
               <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="14" aria-label="Binder color">
               </md-slider>
-              <cl-button-bar-settings></cl-button-bar-settings>
-              <cl-zen-mode-settings></cl-zen-mode-settings>
-              <cl-scroll-sync-settings></cl-scroll-sync-settings>
+              <md-switch ng-model="localSettingSvc.values.sidePreview" class="md-primary">
+                Side Preview
+              </md-switch>
               <md-switch ng-model="localSettingSvc.values.sideBar" class="md-primary">
                 Side Bar
               </md-switch>
               <md-switch ng-model="localSettingSvc.values.stat" class="md-primary">
                 Status Bar
               </md-switch>
+              <cl-button-bar-settings></cl-button-bar-settings>
+              <cl-zen-mode-settings></cl-zen-mode-settings>
+              <cl-scroll-sync-settings></cl-scroll-sync-settings>
             </div>
           </div>
         </div>
         <div class="right-margin panel">
-          <div class="right-margin__btns" layout="column">
-            <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close editor" title="Close editor">
-            </md-button>
-            <md-button class="right-margin__btn right-margin__btn--minimize icon-remove" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
-            </md-button>
-            <md-button class="right-margin__btn right-margin__btn--preview icon-filter-none" md-no-ink ng-click="toggleSidePreview()" cl-editor-tour-next="2" aria-label="Side preview" title="Side preview">
-              <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.editorTourStep === 1">
-                <p>Classeur supports Markdown syntax.</p>
-                <p>Click
-                  <span class="icon-filter-none"></span> to toggle the live preview.
-                </p>
-                <div layout="row" layout-align="end" class="tooltip-actions">
-                  <md-button md-no-ink cl-editor-tour-next>Ok</md-button>
-                </div>
-              </md-tooltip>
-            </md-button>
-          </div>
+          <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close editor" title="Close editor">
+          </md-button>
+          <md-button class="right-margin__btn right-margin__btn--minimize icon-visibility" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
+            <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.editorTourStep === 1">
+              <p>Classeur supports Markdown syntax.</p>
+              <p>Click
+                <span class="icon-filter-none"></span> to toggle the live preview.
+              </p>
+              <div layout="row" layout-align="end" class="tooltip-actions">
+                <md-button md-no-ink cl-editor-tour-next>Ok</md-button>
+              </div>
+            </md-tooltip>
+          </md-button>
+          <md-button class="right-margin__btn right-margin__btn--help icon-help" md-no-ink ng-click="localSettingSvc.values.sideBar = true; localSettingSvc.values.sideBarTab = 'sample'" aria-label="Help" title="Help">
+          </md-button>
           <div class="menu-btn panel plastic--soft-background plastic--border" ng-class="plasticClass">
             <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
               <div class="menu-btn__inner">
@@ -160,17 +161,6 @@
   </div>
   <cl-stat></cl-stat>
   <cl-find-replace></cl-find-replace>
-  <div class="corner-fold" ng-mouseenter="editorLayoutSvc.toggleCornerFold(true)" ng-mouseleave="editorLayoutSvc.toggleCornerFold(false)">
-    <div class="corner-fold__inner panel no-overflow md-whiteframe-z4">
-      <div class="corner-fold__shadow panel"></div>
-    </div>
-    <div ng-if="editorLayoutSvc.isCornerFoldingVisible">
-      <md-button class="corner-fold__btn corner-fold__btn--left icon-call-received" md-no-ink ng-click="editorLayoutSvc.toggleStat()" aria-label="Toggle stats" title="Toggle stats">
-      </md-button>
-      <md-button class="corner-fold__btn corner-fold__btn--right icon-call-made" md-no-ink ng-click="editorLayoutSvc.toggleSideBar()" aria-label="Toggle side bar" title="Toggle side bar">
-      </md-button>
-    </div>
-  </div>
 </div>
 <cl-discussion ng-if="editorLayoutSvc.currentControl === 'discussion'"></cl-discussion>
 <cl-read-only-alert></cl-read-only-alert>

@@ -8,6 +8,7 @@
 	"scrollSync": true,
 	"sideBar": false,
 	"sideBarTab": "sample",
+	"sidePreview": false,
 	"stat": false,
 	"zenMode": true
 }

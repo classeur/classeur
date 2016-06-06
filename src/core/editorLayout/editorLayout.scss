@@ -165,16 +165,14 @@ $menu-width: 34px;
     color: rgba(0, 0, 0, .67);
   }
 
-  .right-margin__btns {
-    color: rgba(0, 0, 0, .5);
-    margin: 6px;
-  }
-
   .right-margin__btn {
-    height: 28px;
-    line-height: 28px;
+    color: rgba(0, 0, 0, .5);
+    height: 30px;
+    line-height: 30px;
+    margin: 4px;
     padding: 0;
-    width: 28px;
+    position: absolute;
+    width: 30px;
   }
 
   .right-margin__btn--close {
@@ -183,17 +181,19 @@ $menu-width: 34px;
 
   .right-margin__btn--minimize {
     font-size: 24px;
+    top: 134px;
   }
 
-  .right-margin__btn--preview {
-    font-size: 21px;
+  .right-margin__btn--help {
+    font-size: 22px;
+    top: 165px;
   }
 
   .menu-btn {
     border-style: solid;
     box-shadow: 2px 4px 5px -3px rgba(0, 0, 0, .1), 1px 3px 2px -1px rgba(0, 0, 0, .07), 0 3px 1px -2px rgba(0, 0, 0, .06);
     height: $menu-height;
-    top: 105px;
+    top: 38px;
     width: $menu-width;
 
     @include border-right-radius($tab-border-width);
@@ -255,40 +255,4 @@ $menu-width: 34px;
     left: $editor-margin-width;
     width: 1px;
   }
-}
-
-.corner-fold__inner {
-  background-color: #eaeaea;
-  bottom: 0;
-  cursor: pointer;
-  height: 40px;
-  right: 0;
-  width: 40px;
-  z-index: 1;
-
-  @include transform-origin(100% 100%);
-}
-
-.corner-fold__shadow {
-  background-color: #e0e0e0;
-  box-shadow: inset 0 8px 17px rgba(0, 0, 0, .2);
-  width: 97px;
-}
-
-.corner-fold__btn {
-  color: rgba(0, 0, 0, .5);
-  font-size: 28px;
-  padding: 2px;
-  position: absolute;
-  z-index: 1;
-}
-
-.corner-fold__btn--left {
-  bottom: 2px;
-  right: 37px;
-}
-
-.corner-fold__btn--right {
-  bottom: 37px;
-  right: 2px;
 }
