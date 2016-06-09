@@ -16,19 +16,17 @@
   </div>
   <div class="new-user-form__inner-1" layout="column" layout-align="center">
     <div class="new-user-form__inner-2 md-whiteframe-1dp plastic--0" layout="column" flex>
-      <div class="new-user-form__inner-3">
-        <md-input-container>
-          <label>User name</label>
-          <input autocomplete="off" ng-model="newUser.name">
-        </md-input-container>
-        <div class="new-user-form__terms">
-          By clicking <b>Create account</b>, you agree to the <a target="_blank" href="http://classeur.io/terms/">Terms of Service</a> and confirm that you've read the <a target="_blank" href="http://classeur.io/privacy/">Privacy Policy</a>, including the "Cookies" section.
-        </div>
-        <div layout="row" layout-align="end">
-          <md-button ng-click="create()" class="md-primary">
-            Create account
-          </md-button>
-        </div>
+      <md-input-container>
+        <label>User name</label>
+        <input autocomplete="off" ng-model="newUser.name">
+      </md-input-container>
+      <div class="new-user-form__terms">
+        By clicking <b>Create account</b>, you agree to the <a target="_blank" href="http://classeur.io/terms/">Terms of Service</a> and confirm that you've read the <a target="_blank" href="http://classeur.io/privacy/">Privacy Policy</a>, including the "Cookies" section.
+      </div>
+      <div layout="row" layout-align="end">
+        <md-button ng-click="create()" class="md-primary">
+          Create account
+        </md-button>
       </div>
     </div>
   </div>

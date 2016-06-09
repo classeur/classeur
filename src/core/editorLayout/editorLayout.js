@@ -115,7 +115,7 @@ angular.module('classeur.core.editorLayout', [])
           clEditorLayoutSvc.binderWidth = clEditorLayoutSvc.pageWidth - clEditorLayoutSvc.editorBtnGrpWidth
           clEditorLayoutSvc.binderX = bgWidth - (clEditorLayoutSvc.pageWidth + clEditorLayoutSvc.editorBtnGrpWidth) / 2 - marginRight
           clEditorLayoutSvc.binderX += clLocalSettingSvc.values.sideBar ? clEditorLayoutSvc.sideBarWidth : 0
-          clEditorLayoutSvc.binderInnerX = clEditorLayoutSvc.isMenuOpen ? 8 : 0
+          clEditorLayoutSvc.binderInnerX = clEditorLayoutSvc.isMenuOpen ? 5 : 0
           clEditorLayoutSvc.binderInnerY = clEditorLayoutSvc.isEditorOpen ? 0 : hideOffsetY
           clEditorLayoutSvc.navbarY = clEditorLayoutSvc.isEditorOpen ? -hideOffsetY : 0
           clEditorLayoutSvc.binderMargin = marginRight
@@ -297,6 +297,23 @@ angular.module('classeur.core.editorLayout', [])
           }, 100)
         }
 
+        scope.help = function () {
+          if (
+            clLocalSettingSvc.values.sideBar &&
+            clLocalSettingSvc.values.sideBarTab === 'sample'
+          ) {
+            return scope.$emit('clHelpDialog')
+          }
+          clLocalSettingSvc.values.sideBar = true
+          clLocalSettingSvc.values.sideBarTab = 'sample'
+          setTimeout(function () {
+            if (!clLocalSettingSvc.values.sideBar) {
+              // Sidebar was not opened because window is too small
+              scope.$emit('clHelpDialog')
+            }
+          }, 1)
+        }
+
         var tabs = ['sample', 'toc', 'discussions', 'history']
         scope.tabTitles = ['Markdown Sample', 'Table Of Contents', 'Discussions', 'History']
         scope.$watch('localSettingSvc.values.sideBarTab', function (tab) {
@@ -346,7 +363,7 @@ angular.module('classeur.core.editorLayout', [])
       var clEditorLayoutSvc = {
         pageMarginLeft: 3,
         pageMarginRight: 3,
-        editorBtnGrpWidth: 36,
+        editorBtnGrpWidth: 37,
         menuWidth: 320,
         sideBarWidth: 280,
         editorLeftOverflow: 1000, // Allows scrolling on the left side of the editor

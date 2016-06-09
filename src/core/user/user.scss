@@ -21,19 +21,14 @@
 
 .new-user-form__inner-2,
 .signin-form__inner-2 {
+  background-color: #fff;
   border-radius: 3px;
-  padding: 20px 15px;
-}
-
-.new-user-form__inner-3,
-.signin-form__inner-3 {
-  background-color: rgba(255, 255, 255, .25);
-  border-radius: 4px;
-  padding: 30px;
+  padding: 30px 50px;
 }
 
 .new-user-form__terms {
   font-size: 12px;
+  margin-bottom: 25px;
 }
 
 .user-name {

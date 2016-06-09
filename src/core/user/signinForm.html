@@ -16,23 +16,21 @@
   </div>
   <div class="signin-form__inner-1" layout="column" layout-align="center">
     <div class="signin-form__inner-2 md-whiteframe-1dp plastic--0" layout="column" flex>
-      <div class="signin-form__inner-3">
-        <form ng-submit="signin()">
-          <md-input-container>
-            <label>Login</label>
-            <input autocomplete="off" ng-model="user.username" md-maxlength="64" cl-focus>
-          </md-input-container>
-          <md-input-container>
-            <label>Password</label>
-            <input autocomplete="off" type="password" ng-model="user.password" md-maxlength="64">
-          </md-input-container>
-          <div layout="row" layout-align="end">
-            <md-button type="submit" class="md-primary">
-              Sign in
-            </md-button>
-          </div>
-        </form>
-      </div>
+      <form ng-submit="signin()">
+        <md-input-container>
+          <label>Login</label>
+          <input autocomplete="off" ng-model="user.username" md-maxlength="64" cl-focus>
+        </md-input-container>
+        <md-input-container>
+          <label>Password</label>
+          <input autocomplete="off" type="password" ng-model="user.password" md-maxlength="64">
+        </md-input-container>
+        <div layout="row" layout-align="end">
+          <md-button type="submit" class="md-primary">
+            Sign in
+          </md-button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

@@ -138,8 +138,8 @@ $menu-width: 34px;
   }
 
   .menu__link {
-    border-bottom: 1px solid rgba(0, 0, 0, .05);
-    color: rgba(0, 0, 0, .67);
+    border-bottom: 1px solid rgba(0, 0, 0, .075);
+    color: rgba(0, 0, 0, .5);
     cursor: pointer;
     line-height: 1;
     margin-bottom: 6px;
@@ -148,7 +148,7 @@ $menu-width: 34px;
   }
 
   .menu__link-icon {
-    color: rgba(0, 0, 0, .54);
+    color: rgba(0, 0, 0, .5);
     font-size: 24px;
   }
 
@@ -185,8 +185,9 @@ $menu-width: 34px;
   }
 
   .right-margin__btn--help {
-    font-size: 22px;
-    top: 165px;
+    bottom: 0;
+    color: rgba(0, 0, 0, .3);
+    font-size: 24px;
   }
 
   .menu-btn {

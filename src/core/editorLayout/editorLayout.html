@@ -6,7 +6,7 @@
     <md-button class="sidebar__close-btn icon-clear" md-no-ink ng-click="editorLayoutSvc.toggleSideBar(false)" aria-label="Close side bar">
     </md-button>
   </div>
-  <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="true" flex>
+  <md-tabs md-selected="selectedTabIndex" md-align-tabs="bottom" md-dynamic-height="false" md-no-disconnect="false" md-center-tabs="false" flex>
     <md-tab>
       <md-tab-label>
         <span class="icon-help"></span>
@@ -134,7 +134,7 @@
               </div>
             </md-tooltip>
           </md-button>
-          <md-button class="right-margin__btn right-margin__btn--help icon-help" md-no-ink ng-click="localSettingSvc.values.sideBar = true; localSettingSvc.values.sideBarTab = 'sample'" aria-label="Help" title="Help">
+          <md-button class="right-margin__btn right-margin__btn--help icon-help" md-no-ink ng-click="help()" aria-label="Help" title="Help">
           </md-button>
           <div class="menu-btn panel plastic--soft-background plastic--border" ng-class="plasticClass">
             <md-button class="menu-btn__button" md-no-ink ng-click="editorLayoutSvc.toggleMenu()" aria-label="Menu">
