@@ -255,11 +255,13 @@ md-chips .md-chips {
   font-weight: 300;
 }
 
-md-toolbar.md-default-theme:not(.md-menu-toolbar),
-md-toolbar:not(.md-menu-toolbar) {
-  background-color: #555;
-  height: 48px;
-  min-height: 48px;
+md-toolbar {
+  &.md-default-theme:not(.md-menu-toolbar),
+  &:not(.md-menu-toolbar) {
+    background-color: #555;
+    height: 48px;
+    min-height: 48px;
+  }
 }
 
 .md-toolbar-tools {
