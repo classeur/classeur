@@ -261,6 +261,10 @@ md-toolbar {
     background-color: #555;
     height: 48px;
     min-height: 48px;
+
+    .md-button:not(.md-raised) {
+      color: #fff;
+    }
   }
 }
 
