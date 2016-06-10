@@ -12,9 +12,6 @@ angular.module('classeur.optional.tour', [])
             clDialog.show({
               templateUrl: 'optional/tour/tourDialog.html',
               onComplete: function (scope) {
-                scope.close = function () {
-                  clDialog.cancel()
-                }
                 scope.start = function () {
                   clDialog.hide()
                 }
@@ -22,9 +19,6 @@ angular.module('classeur.optional.tour', [])
             }).then(function () {
               clLocalSettingSvc.values.explorerTourStep = 1
               clLocalSettingSvc.values.editorTourStep = 1
-            }, function () {
-              clLocalSettingSvc.values.explorerTourStep = -1
-              clLocalSettingSvc.values.editorTourStep = -1
             })
           }, 100)
         }
