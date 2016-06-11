@@ -147,7 +147,8 @@ angular.module('classeur.core.socket', [])
 
       function makeAuthorizationHeader () {
         var headers = {}
-        var sysKey = $location.search().sysKey
+        var searchParams = $location.search()
+        var sysKey = searchParams.syskey || searchParams.sysKey
         var token = clLocalStorage[socketTokenKey]
         if (sysKey) {
           headers.Authorization = 'SysKey ' + sysKey
