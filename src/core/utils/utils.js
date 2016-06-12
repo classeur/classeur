@@ -7,7 +7,7 @@ angular.module('classeur.core.utils', [])
     function ($window) {
       var clVersion = angular.extend({}, $window.CL_VERSION || {})
       clVersion.getAssetPath = function (file) {
-        return clVersion.classeur ? clVersion.classeur + '/' + file : file
+        return clVersion.assetChecksum ? clVersion.assetChecksum + '/' + file : file
       }
       return clVersion
     })
