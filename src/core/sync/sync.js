@@ -533,6 +533,7 @@ angular.module('classeur.core.sync', [])
                 url: '/api/v2/users/' + clSyncDataSvc.user.id,
                 body: {
                   name: clUserSvc.user.name,
+                  newsletter: clUserSvc.user.newsletter,
                   gravatarEmail: clUserSvc.user.gravatarEmail,
                   updated: daoMap.user.updated
                 }

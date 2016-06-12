@@ -67,7 +67,7 @@ angular.module('classeur.core.user', [])
           client_id: clConfig.googleClientId,
           response_type: 'code',
           redirect_uri: clConfig.appUri + '/oauth/google/callback',
-          scope: 'profile',
+          scope: 'profile email',
           state: clStateMgr.saveState({
             url: redirectUrl || '/newUser'
           })
@@ -263,6 +263,7 @@ angular.module('classeur.core.user', [])
             scope.isLoading = true
             $http.post('/api/v2/users', {
               name: scope.newUser.name,
+              newsletter: scope.newUser.newsletter,
               token: newUserToken
             })
               .success(function (userToken) {
@@ -275,7 +276,8 @@ angular.module('classeur.core.user', [])
           }
 
           scope.newUser = {
-            name: name || ''
+            name: name || '',
+            newsletter: true
           }
         }
       }

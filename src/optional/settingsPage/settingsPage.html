@@ -102,6 +102,17 @@
                 <label>User name</label>
                 <input autocomplete="off" ng-model="userName" ng-model-options="{updateOn: 'blur', getterSetter: true}">
               </md-input-container>
+              <md-input-container class="settings-page__entry settings-page__entry--small" ng-if="config.usePaypal">
+                <label>Email</label>
+                <input ng-model="userSvc.user.email" disabled="disabled">
+              </md-input-container>
+              <p class="settings-page__entry-label">
+                Notifications
+              </p>
+              <md-checkbox ng-model="userSvc.user.newsletter" ng-if="config.usePaypal && userSvc.user.email">
+                Newsletter
+              </md-checkbox>
+              <br>
               <md-input-container class="settings-page__entry settings-page__entry--small">
                 <label>Gravatar email</label>
                 <input type="email" autocomplete="off" ng-model="userGravatarEmail" ng-model-options="{updateOn: 'blur', getterSetter: true}">
