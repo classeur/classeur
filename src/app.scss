@@ -225,14 +225,32 @@ textarea:not([disabled]) {
 
 .rotate-90 {
   @include transform(rotate(90deg));
+
+  &[class^='icon-'],
+  &[class*=' icon-'] {
+    display: inline-block;
+    line-height: inherit;
+  }
 }
 
 .rotate-180 {
   @include transform(rotate(180deg));
+
+  &[class^='icon-'],
+  &[class*=' icon-'] {
+    display: inline-block;
+    line-height: inherit;
+  }
 }
 
 .rotate-270 {
   @include transform(rotate(270deg));
+
+  &[class^='icon-'],
+  &[class*=' icon-'] {
+    display: inline-block;
+    line-height: inherit;
+  }
 }
 
 @mixin plastic-color($c, $i) {

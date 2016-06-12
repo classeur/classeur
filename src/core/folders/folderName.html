@@ -4,7 +4,7 @@
       <input class="tab-title__input" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-disabled="!isEditing" ng-blur="setEditing(false)" aria-label="Folder name">
     </md-input-container>
     <md-menu ng-if="explorerLayoutSvc.currentFolder !== explorerLayoutSvc.unclassifiedFolder">
-      <md-button class="folder-name__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing" ng-click="$mdOpenMenu()">
+      <md-button class="folder-name__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="explorerLayoutSvc.currentFolder.effectiveSharing" ng-click="$mdOpenMenu($event)">
       </md-button>
       <md-menu-content width="3">
         <md-menu-item ng-if="socketSvc.hasToken || file.userId">

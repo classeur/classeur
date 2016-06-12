@@ -144,10 +144,6 @@
 }
 
 .file-actions__sort-by {
-  .rotate-270 {
-    display: inline-block;
-  }
-
   @media screen and (max-width: 320px) {
     display: none;
   }
@@ -208,6 +204,7 @@ $public-dialog-corner-size: 66px;
   font-size: 28px;
   height: $public-corner-size;
   left: 0;
+  pointer-events: none;
   position: absolute;
   top: 0;
   width: $public-corner-size;
@@ -314,6 +311,7 @@ $public-dialog-corner-size: 66px;
     font-weight: 500;
     line-height: 1.1;
     padding: 0 4px;
+    pointer-events: none;
     position: absolute;
     right: 1px;
     top: 1px;
@@ -367,8 +365,4 @@ $public-dialog-corner-size: 66px;
   line-height: 1;
   margin-top: -10px;
   padding-left: 30px;
-}
-
-md-tooltip .icon-arrow-back {
-  display: inline-block;
 }

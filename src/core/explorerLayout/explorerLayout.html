@@ -79,41 +79,8 @@
                       </md-input-container>
                     </div>
                   </md-toolbar>
-                  <div class="file-actions">
-                    <div class="file-actions__grp-1" layout="row" layout-align="space-between start">
-                      <div class="file-actions__search">
-                        <md-input-container md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
-                          <md-icon md-font-icon="icon-search"></md-icon>
-                          <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
-                        </md-input-container>
-                      </div>
-                      <md-button class="file-actions__button plastic--color" ng-class="plasticClass" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'" cl-explorer-tour-next="4">
-                        New file
-                        <span class="icon-add"></span>
-                      </md-button>
-                    </div>
-                    <div class="file-actions__grp-2 no-overflow" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length" layout="row" layout-align="space-between">
-                      <div>
-                        <md-button class="md-primary" ng-click="selectAll()" ng-if="explorerLayoutSvc.selectedFiles.length !== explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
-                          <span class="icon-check"></span> Select all
-                        </md-button>
-                        <md-button class="md-primary" ng-click="selectNone()" ng-if="explorerLayoutSvc.selectedFiles.length === explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
-                          <span class="icon-check-box-outline-blank"></span> Select None
-                        </md-button>
-                        <md-button class="md-primary" ng-click="deleteConfirm()" ng-if="explorerLayoutSvc.selectedFiles.length">
-                          <span class="icon-delete"></span> Delete
-                          <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
-                        </md-button>
-                      </div>
-                      <div class="file-actions__sort-by" ng-if="explorerLayoutSvc.currentFolder">
-                        <md-button class="md-primary" ng-click="sortByDate(true)" ng-if="!explorerLayoutSvc.isSortedByDate">
-                          <span class="icon-keyboard-backspace rotate-270"></span> By date
-                        </md-button>
-                        <md-button class="md-primary" ng-click="sortByDate(false)" ng-if="explorerLayoutSvc.isSortedByDate">
-                          <span class="icon-keyboard-backspace rotate-270"></span> By name
-                        </md-button>
-                      </div>
-                    </div>
+                  <cl-file-actions></cl-file-actions>
+                  <div>
                     <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 3" style="top: 50px">
                       <p>This is your folder.</p>
                       <p>
@@ -136,42 +103,7 @@
                 </div>
               </div>
               <div class="folder-view folder-view--clone folder-view--hidden">
-                <div class="file-actions">
-                  <div class="file-actions__grp-1" layout="row" layout-align="space-between start">
-                    <div class="file-actions__search">
-                      <md-input-container md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
-                        <md-icon md-font-icon="icon-search"></md-icon>
-                        <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
-                      </md-input-container>
-                    </div>
-                    <md-button class="file-actions__button plastic--color" ng-class="plasticClass" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'" cl-explorer-tour-next="4">
-                      New file
-                      <span class="icon-add"></span>
-                    </md-button>
-                  </div>
-                  <div class="file-actions__grp-2 no-overflow" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length" layout="row" layout-align="space-between">
-                    <div>
-                      <md-button class="md-primary" ng-click="selectAll()" ng-if="explorerLayoutSvc.selectedFiles.length !== explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
-                        <span class="icon-check"></span> Select all
-                      </md-button>
-                      <md-button class="md-primary" ng-click="selectNone()" ng-if="explorerLayoutSvc.selectedFiles.length === explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
-                        <span class="icon-check-box-outline-blank"></span> Select None
-                      </md-button>
-                      <md-button class="md-primary" ng-click="deleteConfirm()" ng-if="explorerLayoutSvc.selectedFiles.length">
-                        <span class="icon-delete"></span> Delete
-                        <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
-                      </md-button>
-                    </div>
-                    <div class="file-actions__sort-by" layout="row" ng-if="explorerLayoutSvc.currentFolder">
-                      <md-button class="md-primary" ng-click="sortByDate(true)" ng-if="!explorerLayoutSvc.isSortedByDate">
-                        <span class="icon-keyboard-backspace rotate-270"></span> By date
-                      </md-button>
-                      <md-button class="md-primary" ng-click="sortByDate(false)" ng-if="explorerLayoutSvc.isSortedByDate">
-                        <span class="icon-keyboard-backspace rotate-270"></span> By name
-                      </md-button>
-                    </div>
-                  </div>
-                </div>
+                <cl-file-actions></cl-file-actions>
               </div>
               <div class="folder-view__corner cl-public-corner">
                 <div class="icon-publ"></div>

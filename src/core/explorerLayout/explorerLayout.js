@@ -1,4 +1,11 @@
 angular.module('classeur.core.explorerLayout', [])
+  .directive('clFileActions',
+    function (clEditorLayoutSvc) {
+      return {
+        restrict: 'E',
+        templateUrl: 'core/explorerLayout/fileActions.html'
+      }
+    })
   .directive('clFolderButton',
     function ($window, $timeout, clExplorerLayoutSvc, clFolderSvc) {
       return {
@@ -170,7 +177,6 @@ angular.module('classeur.core.explorerLayout', [])
         var binderScrollerElt = element[0].querySelector('.explorer-binder__scroller')
         var folderElt = element[0].querySelector('.folder-view--main')
         var folderCloneElt = element[0].querySelector('.folder-view--clone')
-        var fileActionsElt = folderElt.querySelector('.file-actions')
         var folderListElt = element[0].querySelector('.folder-list')
         var folderListScrollerElt = folderListElt.querySelector('.folder-list__scroller')
         var createFolderButtonElt = folderListElt.querySelector('.folder-entry--create')
@@ -183,7 +189,11 @@ angular.module('classeur.core.explorerLayout', [])
           )
         }
 
+        var fileActionsElt
         function toggleFolderCloneElt () {
+          if (!fileActionsElt) {
+            fileActionsElt = folderElt.querySelector('.file-actions')
+          }
           folderCloneElt.classList.toggle('folder-view--hidden', folderElt.scrollTop < fileActionsElt.offsetTop)
         }
 
@@ -478,13 +488,6 @@ angular.module('classeur.core.explorerLayout', [])
           })
         }
 
-        scope.sortByDate = function (value) {
-          clExplorerLayoutSvc.isSortedByDate = value
-          clExplorerLayoutSvc.moreFiles(true)
-          clExplorerLayoutSvc.refreshFiles()
-          folderElt.scrollTop = 0
-        }
-
         ;(function () {
           var filesToRemove, folderToRemove
 
@@ -672,6 +675,12 @@ angular.module('classeur.core.explorerLayout', [])
         // Refresh selectedFiles on every digest and add 1 cycle when length changes
         scope.$watch('explorerLayoutSvc.updateSelectedFiles().length', function () {})
 
+        scope.$watch('localSettingSvc.values.sortFilesBy', function (value) {
+          clExplorerLayoutSvc.moreFiles(true)
+          clExplorerLayoutSvc.refreshFiles()
+          folderElt.scrollTop = 0
+        })
+
         scope.$on('$destroy', function () {
           clExplorerLayoutSvc.clean()
         })
@@ -680,10 +689,8 @@ angular.module('classeur.core.explorerLayout', [])
       }
     })
   .factory('clExplorerLayoutSvc',
-    function ($rootScope, clLocalStorage, clFolderSvc, clFileSvc, clClasseurSvc) {
+    function ($rootScope, clLocalSettingSvc, clFolderSvc, clFileSvc, clClasseurSvc) {
       var pageSize = 20
-      var lastClasseurKey = 'lastClasseurId'
-      var lastFolderKey = 'lastFolderId'
       var unclassifiedFolder = {
         id: 'unclassified',
         name: 'All files'
@@ -694,7 +701,6 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       var clExplorerLayoutSvc = {
-        isSortedByDate: true,
         scrollbarWidth: 0,
         folders: [],
         files: [],
@@ -727,8 +733,8 @@ angular.module('classeur.core.explorerLayout', [])
 
       function init () {
         if (!isInitialized) {
-          setCurrentClasseur(clClasseurSvc.activeDaoMap[clLocalStorage[lastClasseurKey]])
-          setCurrentFolder(clFolderSvc.activeDaoMap[clLocalStorage[lastFolderKey]])
+          setCurrentClasseur(clLocalSettingSvc.values.lastClasseurId)
+          setCurrentFolder(clLocalSettingSvc.values.lastFolderId)
           moreFiles(true)
           isInitialized = true
         }
@@ -793,7 +799,7 @@ angular.module('classeur.core.explorerLayout', [])
           sort = function (file1, file2) {
             return file2.content.lastChange - file1.content.lastChange
           }
-        } else if (clExplorerLayoutSvc.isSortedByDate) {
+        } else if (clLocalSettingSvc.values.sortFilesBy === 'date') {
           // Sort by server change
           sort = function (file1, file2) {
             return file2.updated - file1.updated
@@ -849,19 +855,23 @@ angular.module('classeur.core.explorerLayout', [])
       }
 
       function setCurrentClasseur (classeur) {
-        classeur = (classeur && clClasseurSvc.activeDaoMap[classeur.id]) || clClasseurSvc.defaultClasseur
+        classeur = (classeur && clClasseurSvc.activeDaoMap[classeur.id || classeur]) || clClasseurSvc.defaultClasseur
         clExplorerLayoutSvc.currentClasseur = classeur
-        clLocalStorage.setItem(lastClasseurKey, classeur.id)
+        clLocalSettingSvc.values.lastClasseurId = classeur.id
       }
 
       function setCurrentFolder (folder) {
-        folder = folder === unclassifiedFolder ? folder : (folder && clFolderSvc.activeDaoMap[folder.id])
+        folder = folder === unclassifiedFolder
+          ? folder
+          : folder
+            ? clFolderSvc.activeDaoMap[folder.id || folder]
+            : undefined
         if (folder && folder !== unclassifiedFolder && !~clExplorerLayoutSvc.currentClasseur.folders.indexOf(folder)) {
           folder = undefined
         }
         clExplorerLayoutSvc.currentFolder = folder
         clExplorerLayoutSvc.currentClasseur.lastFolder = folder
-        folder && folder.id ? clLocalStorage.setItem(lastFolderKey, folder.id) : clLocalStorage.removeItem(lastFolderKey)
+        clLocalSettingSvc.values.lastFolderId = (folder && folder.id) || ''
       }
 
       function setCurrentFolderInClasseur (folder) {

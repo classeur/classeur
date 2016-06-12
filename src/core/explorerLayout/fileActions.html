@@ -1,0 +1,39 @@
+<div class="file-actions">
+  <div class="file-actions__grp-1" layout="row" layout-align="space-between start">
+    <div class="file-actions__search">
+      <md-input-container md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
+        <md-icon md-font-icon="icon-search"></md-icon>
+        <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
+      </md-input-container>
+    </div>
+    <md-button class="file-actions__button plastic--color" ng-class="plasticClass" ng-click="createFile()" ng-if="!explorerLayoutSvc.currentFolder.userId || explorerLayoutSvc.currentFolder.sharing === 'rw'" cl-explorer-tour-next="4">
+      New file
+      <span class="icon-add"></span>
+    </md-button>
+  </div>
+  <div class="file-actions__grp-2 no-overflow" ng-show="explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length" layout="row" layout-align="space-between">
+    <div>
+      <md-button class="md-primary" ng-click="selectAll()" ng-if="explorerLayoutSvc.selectedFiles.length !== explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
+        <span class="icon-check"></span> Select all
+      </md-button>
+      <md-button class="md-primary" ng-click="selectNone()" ng-if="explorerLayoutSvc.selectedFiles.length === explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length">
+        <span class="icon-check-box-outline-blank"></span> Select None
+      </md-button>
+      <md-button class="md-primary" ng-click="deleteConfirm()" ng-if="explorerLayoutSvc.selectedFiles.length">
+        <span class="icon-delete"></span> Delete
+        <span ng-if="explorerLayoutSvc.selectedFiles.length > 1">({{explorerLayoutSvc.selectedFiles.length}})</span>
+      </md-button>
+    </div>
+    <md-menu class="file-actions__sort-by" ng-if="explorerLayoutSvc.currentFolder">
+      <md-button class="md-primary" ng-click="$mdOpenMenu($event)">
+        <span class="icon-keyboard-backspace rotate-270"></span> Sort
+      </md-button>
+      <md-menu-content width="3">
+        <md-radio-group ng-model="localSettingSvc.values.sortFilesBy">
+          <md-radio-button value="date" ng-click>By date</md-radio-button>
+          <md-radio-button value="name" ng-click>By name</md-radio-button>
+        </md-radio-group>
+      </md-menu-content>
+    </md-menu>
+  </div>
+</div>

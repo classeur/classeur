@@ -13,7 +13,7 @@
     <input class="file-entry__name-input file-entry__name-input--clickable" autocomplete="off" ng-model="name" ng-model-options="{updateOn: 'blur', getterSetter: true}" ng-blur="setEditing(false)" ng-disabled="!isEditing" aria-label="Edit file">
   </md-input-container>
   <md-menu>
-    <md-button class="file-entry__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="file.effectiveSharing" ng-click="$mdOpenMenu()">
+    <md-button class="file-entry__menu-btn cl-sharing-indicator icon-more-vert" md-no-ink aria-label="Options" ng-class="file.effectiveSharing" ng-click="$mdOpenMenu($event)">
     </md-button>
     <md-menu-content width="3">
       <md-menu-item ng-if="socketSvc.hasToken || file.userId">
