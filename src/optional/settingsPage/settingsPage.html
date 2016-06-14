@@ -106,7 +106,7 @@
                 <label>Email</label>
                 <input ng-model="userSvc.user.email" disabled="disabled">
               </md-input-container>
-              <p class="settings-page__entry-label">
+              <p class="settings-page__entry-label" ng-if="config.usePaypal">
                 Notifications
               </p>
               <md-checkbox ng-model="userSvc.user.newsletter" ng-if="config.usePaypal && userSvc.user.email">

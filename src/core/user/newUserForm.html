@@ -20,10 +20,10 @@
         <label>User name</label>
         <input autocomplete="off" ng-model="newUser.name">
       </md-input-container>
-      <md-checkbox ng-model="newUser.newsletter">
+      <md-checkbox ng-model="newUser.newsletter" ng-if="config.usePaypal">
         Subscribe to the newsletter
       </md-checkbox>
-      <div class="new-user-form__terms">
+      <div class="new-user-form__terms" ng-if="config.usePaypal">
         By clicking <b>Create account</b>, you agree to the <a target="_blank" href="http://classeur.io/terms/">Terms of Service</a> and confirm that you've read the <a target="_blank" href="http://classeur.io/privacy/">Privacy Policy</a>, including the "Cookies" section.
       </div>
       <div layout="row" layout-align="end">
