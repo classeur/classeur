@@ -151,7 +151,7 @@ $highlighting-color: #ffdf60;
 }
 
 .comment-entry__inner {
-  padding-left: 30px;
+  padding-left: 34px;
 }
 
 .comment-entry--new::before {
@@ -162,13 +162,16 @@ $highlighting-color: #ffdf60;
   font-size: 14px;
 }
 
+$comment-btn-size: 20px;
+
 .comment-entry__delete-btn {
   color: rgba(0, 0, 0, .54);
-  height: 26px;
-  margin-left: -44px;
-  margin-top: 4px;
-  max-width: 26px;
-  min-width: 26px;
+  font-size: 17px;
+  height: $comment-btn-size;
+  margin-left: -$comment-btn-size;
+  margin-top: 6px;
+  max-width: $comment-btn-size;
+  min-width: $comment-btn-size;
   opacity: 0;
   padding: 0;
 

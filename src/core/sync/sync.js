@@ -664,7 +664,7 @@ angular.module('classeur.core.sync', [])
           changesToApply = []
           var lastFolderSeq = clSyncDataSvc.lastSeqs.folders
           pendingChangeGroups.folders.cl_each(function (item) {
-            lastFolderSeq = Math.max(lastFolderSeq, item.seq || 0)
+            lastFolderSeq = Math.max(lastFolderSeq || 0, item.seq || 0)
             var folder = clFolderSvc.activeDaoMap[item.id]
             if (
               // Was deleted on the server
@@ -834,7 +834,7 @@ angular.module('classeur.core.sync', [])
           changesToApply = []
           var lastFileSeq = clSyncDataSvc.lastSeqs.files
           pendingChangeGroups.files.cl_each(function (item) {
-            lastFileSeq = Math.max(lastFileSeq, item.seq || 0)
+            lastFileSeq = Math.max(lastFileSeq || 0, item.seq || 0)
             var file = clFileSvc.activeDaoMap[item.id]
             if (file && file.userId && item.deleted) {
               // We just lost ownership of the file

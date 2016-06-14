@@ -235,7 +235,7 @@ angular.module('classeur.core.classeurs', [])
 
         clClasseurSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
           var classeur = daoMap[id]
-          classeur.folders = undefined // Release folders for garbage collection
+          classeur.folders = [] // Release folders for garbage collection
           return classeur
         })
 

@@ -57,7 +57,7 @@ angular.module('classeur.blogs.blogger', [])
           response_type: 'code',
           redirect_uri: clConfig.appUri + '/oauth/blogger/callback',
           access_type: 'offline',
-          scope: 'https://www.googleapis.com/auth/blogger profile'
+          scope: 'https://www.googleapis.com/auth/blogger profile email'
         }
       }
 
