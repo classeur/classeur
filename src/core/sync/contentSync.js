@@ -16,9 +16,9 @@ angular.module('classeur.core.sync.contentSync', [])
       function setLoadedContent (file, serverContent) {
         file.setLoaded()
         file.content.text = serverContent.text
-        file.content.properties = ({}).cl_extend(serverContent.properties)
-        file.content.discussions = ({}).cl_extend(serverContent.discussions)
-        file.content.comments = ({}).cl_extend(serverContent.comments)
+        file.content.properties = clDiffUtils.cloneObject(serverContent.properties)
+        file.content.discussions = clDiffUtils.cloneObject(serverContent.discussions)
+        file.content.comments = clDiffUtils.cloneObject(serverContent.comments)
         file.content.state = {}
         // addToDaos calls init
         if (!file.addToDaos) {
