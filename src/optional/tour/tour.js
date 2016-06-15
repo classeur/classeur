@@ -1,31 +1,11 @@
 angular.module('classeur.optional.tour', [])
-  .directive('clTour',
-    function ($timeout, clDialog, clLocalSettingSvc) {
-      return {
-        restrict: 'E',
-        link: link
+  .directive('clTourStep',
+    function ($timeout, clLocalSettingSvc) {
+      if (!clLocalSettingSvc.values.explorerTourStep || !clLocalSettingSvc.values.editorTourStep) {
+        clLocalSettingSvc.values.explorerTourStep = 1
+        clLocalSettingSvc.values.editorTourStep = 1
       }
 
-      function link () {
-        if (!clLocalSettingSvc.values.explorerTourStep || !clLocalSettingSvc.values.editorTourStep) {
-          $timeout(function () {
-            clDialog.show({
-              templateUrl: 'optional/tour/tourDialog.html',
-              onComplete: function (scope) {
-                scope.start = function () {
-                  clDialog.hide()
-                }
-              }
-            }).then(function () {
-              clLocalSettingSvc.values.explorerTourStep = 1
-              clLocalSettingSvc.values.editorTourStep = 1
-            })
-          }, 100)
-        }
-      }
-    })
-  .directive('clTourStep',
-    function ($timeout) {
       return {
         restrict: 'A',
         link: link

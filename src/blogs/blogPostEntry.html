@@ -12,6 +12,7 @@
     <cl-blogger-blog-post-entry ng-if="blogPost.blog.platformId === 'blogger'"></cl-blogger-blog-post-entry>
     <cl-github-blog-post-entry ng-if="blogPost.blog.platformId === 'github'"></cl-github-blog-post-entry>
     <cl-wordpress-blog-post-entry ng-if="blogPost.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-entry>
+    <cl-zendesk-blog-post-entry ng-if="blogPost.blog.platformId === 'zendesk'"></cl-zendesk-blog-post-entry>
   </div>
   <md-button class="blog-post-entry__button icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post" title="Update blog post">
   </md-button>

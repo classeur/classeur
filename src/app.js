@@ -18,6 +18,7 @@ if (
     'classeur.blogs.blogger',
     'classeur.blogs.github',
     'classeur.blogs.wordpress',
+    'classeur.blogs.zendesk',
     'classeur.core',
     'classeur.core.analytics',
     'classeur.core.classeurs',

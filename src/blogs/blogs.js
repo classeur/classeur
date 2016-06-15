@@ -113,7 +113,7 @@ angular.module('classeur.blogs', [])
       return result
     })
   .factory('clBlogSvc',
-    function (clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, $window, clToast, clBlogPlatform) {
+    function (clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, clZendeskBlogPlatform, $window, clToast, clBlogPlatform) {
       var platformMap = Object.create(null)
       var platforms = Array.prototype.cl_filter.call(arguments, function (arg) {
         if (arg instanceof clBlogPlatform.BlogPlatform) {

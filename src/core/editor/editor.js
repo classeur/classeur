@@ -803,7 +803,7 @@ angular.module('classeur.core.editor', [])
             if (!elt.portableHtml) {
               var clonedElt = elt.cloneNode(true)
               // Removed rendered Math, keep only original tex
-              clonedElt.querySelectorAll('.MathJax, .MathJax_SVG, .MathJax_Display, .MathJax_SVG_Display, .MathJax_Preview').cl_each(function (elt) {
+              clonedElt.querySelectorAll('[class^=MathJax]').cl_each(function (elt) {
                 elt.parentNode.removeChild(elt)
               })
               // Unwrap tables

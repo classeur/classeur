@@ -5,9 +5,6 @@
       <div layout="row" layout-align="start center"><span class="blog-icon" ng-class="'blog-icon--' + blog.platform.id"></span> {{blog.name}}</div>
     </md-option>
   </md-select>
-  <md-button class="md-primary" ng-href="/#!/settings?tab=blogs">
-    Manage blogs...
-  </md-button>
   <div ng-show="form.blog">
     <br>
     <div class="tip">
@@ -16,6 +13,7 @@
     <cl-blogger-blog-post-form ng-if="form.blog.platformId === 'blogger'"></cl-blogger-blog-post-form>
     <cl-github-blog-post-form ng-if="form.blog.platformId === 'github'"></cl-github-blog-post-form>
     <cl-wordpress-blog-post-form ng-if="form.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-form>
+    <cl-zendesk-blog-post-form ng-if="form.blog.platformId === 'zendesk'"></cl-zendesk-blog-post-form>
     <div class="blog-post-form__options">
       <div class="blog-post-form__label">
         Template
@@ -28,4 +26,7 @@
       </md-button>
     </div>
   </div>
+  <md-button class="md-primary" ng-href="/#!/settings?tab=blogs">
+    Manage blogs...
+  </md-button>
 </div>
