@@ -6,13 +6,16 @@
 }
 
 .tab-title__input-container {
-  letter-spacing: -.01em;
   margin: 0;
   width: 100%;
+
+  input {
+    letter-spacing: -0.015em;
+  }
 }
 
 .tab-title__input {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 300;
 }
 
@@ -26,16 +29,15 @@
 }
 
 $folder-border-width: 3px;
-$folder-entry-icon-height: 48px;
+$folder-entry-icon-height: 52px;
 
 .folder-entry {
   border-style: solid;
   height: auto;
   position: absolute;
   top: 3 * $folder-entry-icon-height;
-  // scss-lint:disable ImportantRule
   transition-property: transform, box-shadow, background-color !important; // prevent animation on hiding
-  width: 32px;
+  width: 34px;
 
   @include border-right-radius($folder-border-width);
   @include border-width(0 $folder-border-width 0 0);
@@ -58,8 +60,8 @@ $folder-entry-icon-height: 48px;
 
 .folder-entry__button {
   border-radius: 0;
-  color: rgba(0, 0, 0, .67);
-  font-size: 13px;
+  color: rgba(0, 0, 0, 0.67);
+  font-size: 14px;
   letter-spacing: 0;
   padding: 12px 0;
   text-transform: none;
@@ -74,9 +76,9 @@ $folder-entry-icon-height: 48px;
 
 .folder-entry__inner {
   display: inline-block;
-  line-height: 30px;
-  min-height: 40px;
-  width: 30px;
+  line-height: 32px;
+  min-height: $folder-entry-icon-height;
+  width: 32px;
 
   @include prefixer(writing-mode, vertical-lr, webkit spec);
 
@@ -102,20 +104,20 @@ $folder-entry-icon-height: 48px;
 .folder-entry--create {
   height: $folder-entry-icon-height;
   top: 0;
-  width: 42px;
+  width: 44px;
   z-index: 9998;
 
   @include border-right-radius($folder-border-width);
 
   .folder-entry__button {
-    font-size: 22px;
+    font-size: 24px;
     padding: 0;
   }
 }
 
 .folder-entry--unclassified {
   top: $folder-entry-icon-height;
-  width: 40px;
+  width: 42px;
 
   .icon-search {
     display: inline-block;
@@ -126,10 +128,10 @@ $folder-entry-icon-height: 48px;
 
 .folder-entry--create {
   top: 2 * $folder-entry-icon-height;
-  width: 38px;
+  width: 40px;
 
   .folder-entry__button {
-    font-size: 19px;
+    font-size: 22px;
   }
 }
 

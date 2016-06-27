@@ -18,9 +18,9 @@
 }
 
 .classeur-entry--new {
-  opacity: .7;
+  opacity: 0.7;
 
-  @include transition(all 200ms cubic-bezier(.75, 0, .8, .25));
+  @include transition(all 200ms cubic-bezier(0.75, 0, 0.8, 0.25));
 
   &:hover {
     opacity: 1;
@@ -76,14 +76,14 @@ body .classeur-entry__name-input.md-input {
   text-align: center;
 
   &:disabled {
-    color: rgba(0, 0, 0, .75);
+    color: rgba(0, 0, 0, 0.75);
     cursor: pointer;
     pointer-events: none;
   }
 }
 
 .classeur-entry__info {
-  color: rgba(0, 0, 0, .35);
+  color: rgba(0, 0, 0, 0.35);
   font-size: 12px;
   line-height: 16px;
   text-align: center;
@@ -107,7 +107,7 @@ body .classeur-entry__name-input.md-input {
 }
 
 .classeur-entry__menu-btn {
-  color: rgba(0, 0, 0, .55);
+  color: rgba(0, 0, 0, 0.55);
   display: block;
   font-size: 26px;
   height: 38px;

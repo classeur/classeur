@@ -65,7 +65,6 @@ angular.module('classeur.optional.exportToDisk', [])
             return
           }
 
-          var textPreview
           clDialog.show({
             templateUrl: 'optional/exportToDisk/exportToDisk.html',
             controller: ['$scope', function (scope) {
@@ -84,29 +83,7 @@ angular.module('classeur.optional.exportToDisk', [])
                     openDialog()
                   }, openDialog)
               }
-              scope.$watch('exportConfig.textTemplateKey', function (templateKey) {
-                clEditorSvc.applyTemplate(scope.templates[templateKey])
-                  .then(function (preview) {
-                    textPreview = preview
-                    scope.textPreview = textPreview
-                  })
-              })
-              scope.$watch('textPreview', function () {
-                scope.textPreview = textPreview
-              })
-            }],
-            onComplete: function (scope, element) {
-              var textareaElt = element[0].querySelector('textarea')
-
-              function select () {
-                setTimeout(function () {
-                  textareaElt.select()
-                }, 100)
-              }
-              textareaElt.addEventListener('focus', select)
-              textareaElt.addEventListener('click', select)
-              textareaElt.addEventListener('keyup', select)
-            }
+            }]
           }).then(function () {
             closeDialog()
             if (exportConfig.format === 'text') {

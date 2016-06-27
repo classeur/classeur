@@ -1,7 +1,6 @@
 .token.pre.gfm,
 .prism {
   * {
-    // scss-lint:disable ImportantRule
     font-weight: inherit !important;
   }
 
@@ -17,7 +16,7 @@
   }
 
   .namespace {
-    opacity: .7;
+    opacity: 0.7;
   }
 
   .token.property,

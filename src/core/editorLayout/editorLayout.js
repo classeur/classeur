@@ -29,7 +29,7 @@ angular.module('classeur.core.editorLayout', [])
       }
     })
   .directive('clEditorLayout',
-    function ($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog) {
+    function ($window, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFilePropertiesDialog, clToast) {
       var hideOffsetY = 2000
 
       return {
@@ -54,9 +54,7 @@ angular.module('classeur.core.editorLayout', [])
         elt.querySelector('.menu__inner').clanim.width(clEditorLayoutSvc.menuWidth).start()
         elt.querySelector('.right-margin').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
         var navbarElt = clEditorLayoutSvc.navbarElt = elt.querySelector('.navbar')
-        var animatedBtnElt = elt.querySelector('.navbar__animated-btn')
-        var closeBtnElt = elt.querySelector('.navbar__btn--close')
-        var scrollBtnElt = elt.querySelector('.navbar__btn--scroll')
+        var scrollBtnElt = elt.querySelector('.navbar__side-btn--scroll')
 
         editorElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px'
         editorElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px'
@@ -144,25 +142,13 @@ angular.module('classeur.core.editorLayout', [])
           }
         }
 
-        var sectionDescList
+        var restoreScrollPosition = $window.cledit.Utils.debounce(function () {
+          clEditorSvc.measureSectionDimensions()
+          clEditorSvc.restoreScrollPosition()
+        }, 10)
 
         function updateLayoutSize () {
           editorInnerElt.style.paddingBottom = document.body.clientHeight / 2 + 'px'
-          var eltToScroll = clEditorSvc.editorElt.parentNode
-          var dimensionKey = 'editorDimension'
-          if (!clEditorLayoutSvc.isEditorOpen) {
-            eltToScroll = clEditorSvc.previewElt.parentNode
-            dimensionKey = 'previewDimension'
-          }
-          var scrollTop = eltToScroll.scrollTop
-          var scrollSectionDesc, posInSection
-          sectionDescList === clEditorSvc.sectionDescList && sectionDescList.cl_some(function (sectionDesc) {
-            if (scrollTop < sectionDesc[dimensionKey].endOffset) {
-              scrollSectionDesc = sectionDesc
-              posInSection = (scrollTop - sectionDesc[dimensionKey].startOffset) / (sectionDesc[dimensionKey].height || 1)
-              return true
-            }
-          })
 
           clEditorLayoutSvc.fontSizePx = clEditorLayoutSvc.fontSize + 'px'
           clEditorLayoutSvc.fontSizeEm = (7 + clLocalSettingSvc.values.editorZoom) / 10 + 'em'
@@ -184,13 +170,7 @@ angular.module('classeur.core.editorLayout', [])
           hidePreview()
           clEditorSvc.previewElt.style.paddingTop = navbarElt.offsetHeight + 'px'
 
-          if (scrollSectionDesc) {
-            setTimeout(function () {
-              clEditorSvc.measureSectionDimensions()
-              scrollTop = scrollSectionDesc[dimensionKey].startOffset + scrollSectionDesc[dimensionKey].height * posInSection
-              eltToScroll.scrollTop = scrollTop
-            }, 10)
-          }
+          restoreScrollPosition()
         }
 
         function animateLayout () {
@@ -258,18 +238,7 @@ angular.module('classeur.core.editorLayout', [])
         }
 
         function animatePreviewButtons (isPreviewTop) {
-          animatedBtnElt.clanim
-            .duration(isInited && 200)
-            .rotate(isPreviewTop ? 0 : 90)
-            .start(true)
-          closeBtnElt.clanim
-            .zIndex(isPreviewTop ? 0 : -1)
-            .opacity(isPreviewTop ? 1 : 0)
-            .duration(isInited && 200)
-            .easing('materialOut')
-            .start(true)
           scrollBtnElt.clanim
-            .zIndex(isPreviewTop ? -1 : 0)
             .opacity(isPreviewTop ? 0 : 1)
             .duration(isInited && 200)
             .easing('materialOut')
@@ -314,6 +283,22 @@ angular.module('classeur.core.editorLayout', [])
           }, 1)
         }
 
+        scope.toc = function () {
+          clLocalSettingSvc.values.sideBar = true
+          clLocalSettingSvc.values.sideBarTab = 'toc'
+          setTimeout(function () {
+            if (!clLocalSettingSvc.values.sideBar) {
+              clToast('No space for Table Of Contents')
+            }
+          }, 1)
+        }
+
+        scope.plasticClass = 'plastic--1'
+
+        scope.print = function () {
+          $window.print()
+        }
+
         var tabs = ['sample', 'toc', 'discussions', 'history']
         scope.tabTitles = ['Markdown Sample', 'Table Of Contents', 'Discussions', 'History']
         scope.$watch('localSettingSvc.values.sideBarTab', function (tab) {
@@ -338,9 +323,6 @@ angular.module('classeur.core.editorLayout', [])
         })
 
         scope.$watch('localSettingSvc.values.editorZoom', animateLayout)
-        scope.$watch('localSettingSvc.values.editorColor', function (value) {
-          scope.plasticClass = 'plastic--' + value
-        })
         scope.$watch('localSettingSvc.values.sidePreview', clEditorLayoutSvc.syncSidePreview)
         scope.$watch('editorLayoutSvc.isSidePreviewOpen', animateLayout)
         scope.$watch('editorLayoutSvc.isEditorOpen', animateEditor)
@@ -350,9 +332,6 @@ angular.module('classeur.core.editorLayout', [])
           clEditorLayoutSvc.isMenuOpen = isMenuOpen
         })
         scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons)
-        scope.$watch('editorSvc.lastSectionMeasured', function () {
-          sectionDescList = clEditorSvc.sectionDescList
-        })
         scope.$watch('editorLayoutSvc.fontSizePx', function (fontSize) {
           editorElt.style.fontSize = fontSize
         })

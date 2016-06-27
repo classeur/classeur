@@ -39,10 +39,10 @@ angular.module('classeur.core.editor', [])
           scope.currentFile.content.state = {
             selectionStart: clEditorSvc.cledit.selectionMgr.selectionStart,
             selectionEnd: clEditorSvc.cledit.selectionMgr.selectionEnd,
-            scrollTop: editorElt.scrollTop
+            scrollPosition: clEditorSvc.getScrollPosition() || scope.currentFile.content.state.scrollPosition
           }
         }
-        editorElt.addEventListener('scroll', saveState)
+        editorElt.addEventListener('scroll', $window.cledit.Utils.debounce(saveState, 100))
 
         var newSectionList, newSelectionRange
         var debouncedEditorChanged = $window.cledit.Utils.debounce(function () {
@@ -58,9 +58,15 @@ angular.module('classeur.core.editor', [])
         }, 10)
 
         function refreshPreview () {
-          state = 'ready'
           clEditorSvc.convert()
-          setTimeout(clEditorSvc.refreshPreview, 10)
+          if (!state) {
+            clEditorSvc.refreshPreview()
+            clEditorSvc.measureSectionDimensions()
+            clEditorSvc.restoreScrollPosition()
+          } else {
+            setTimeout(clEditorSvc.refreshPreview, 10)
+          }
+          state = 'ready'
         }
 
         var debouncedRefreshPreview = $window.cledit.Utils.debounce(function () {
@@ -167,7 +173,10 @@ angular.module('classeur.core.editor', [])
         scope.$watch('editorSvc.cleditOptions', function (options) {
           options = ({}).cl_extend(options)
           clEditorSvc.initCledit(options, isInited)
-          isInited = true
+          if (!isInited) {
+            isInited = true
+            clEditorSvc.restoreScrollPosition()
+          }
         })
         scope.$watch('editorLayoutSvc.isEditorOpen', function (isOpen) {
           clEditorSvc.cledit.toggleEditable(isOpen)
@@ -459,6 +468,8 @@ angular.module('classeur.core.editor', [])
         getEditorOffset: getEditorOffset,
         getPreviewOffset: getPreviewOffset,
         measureSectionDimensions: measureSectionDimensions,
+        getScrollPosition: getScrollPosition,
+        restoreScrollPosition: restoreScrollPosition,
         scrollToAnchor: scrollToAnchor,
         getPandocAst: getPandocAst,
         applyTemplate: applyTemplate,
@@ -995,6 +1006,50 @@ angular.module('classeur.core.editor', [])
         normalizeTocDimensions()
 
         clEditorSvc.lastSectionMeasured = Date.now()
+        clEditorSvc.lastSectionDescListMeasured = clEditorSvc.sectionDescList
+      }
+
+      function getObjectToScroll () {
+        var elt = clEditorSvc.editorElt.parentNode
+        var dimensionKey = 'editorDimension'
+        if (!clEditorLayoutSvc.isEditorOpen) {
+          elt = clEditorSvc.previewElt.parentNode
+          dimensionKey = 'previewDimension'
+        }
+        return {
+          elt: elt,
+          dimensionKey: dimensionKey
+        }
+      }
+
+      function getScrollPosition () {
+        var objToScroll = getObjectToScroll()
+        var scrollTop = objToScroll.elt.scrollTop
+        var result
+        if (clEditorSvc.lastSectionDescListMeasured) {
+          clEditorSvc.lastSectionDescListMeasured.cl_some(function (sectionDesc, idx) {
+            if (scrollTop < sectionDesc[objToScroll.dimensionKey].endOffset) {
+              result = {
+                sectionIdx: idx,
+                posInSection: (scrollTop - sectionDesc[objToScroll.dimensionKey].startOffset) / (sectionDesc[objToScroll.dimensionKey].height || 1)
+              }
+              return true
+            }
+          })
+        }
+        return result
+      }
+
+      function restoreScrollPosition () {
+        var scrollPosition = currentFile.content.state.scrollPosition
+        if (scrollPosition && clEditorSvc.lastSectionDescListMeasured) {
+          var objToScroll = getObjectToScroll()
+          var sectionDesc = clEditorSvc.lastSectionDescListMeasured[scrollPosition.sectionIdx]
+          if (sectionDesc) {
+            var scrollTop = sectionDesc[objToScroll.dimensionKey].startOffset + sectionDesc[objToScroll.dimensionKey].height * scrollPosition.posInSection
+            objToScroll.elt.scrollTop = scrollTop
+          }
+        }
       }
 
       function scrollToAnchor (anchor) {

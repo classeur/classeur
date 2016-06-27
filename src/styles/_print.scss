@@ -1,7 +1,6 @@
 @import 'bourbon';
 
 @media print {
-  // scss-lint:disable ImportantRule
   body {
     background-color: transparent !important;
     color: #000 !important; // Black prints faster

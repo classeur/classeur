@@ -8,7 +8,7 @@
   }
 
   md-tabs {
-    background-color: rgba(255, 255, 255, .25);
+    background-color: rgba(255, 255, 255, 0.25);
     border-radius: 4px;
   }
 
@@ -72,21 +72,19 @@
 .tab-list__entry {
   background-color: #fff;
   border-style: solid;
-  font-size: 14px;
   height: $tab-entry-height;
   letter-spacing: 0;
   padding: 0 0 0 2px;
-  // scss-lint:disable ImportantRule
   text-transform: none;
   top: $tab-top-offset;
   transition-property: transform, box-shadow, background-color;
   vertical-align: middle;
-  width: 32px;
+  width: 34px;
   z-index: 99;
 
   @include animation-name(transform, box-shadow, background-color);
-  @include animation-duration(.4s);
-  @include animation-timing-function(cubic-bezier(.25, .8, .25, 1));
+  @include animation-duration(0.4s);
+  @include animation-timing-function(cubic-bezier(0.25, 0.8, 0.25, 1));
   @include transform(translateX(-5px));
   @include border-right-radius($tab-border-width);
   @include border-left-radius(0);
@@ -108,7 +106,7 @@
   }
 
   > span {
-    color: rgba(0, 0, 0, .67);
+    color: rgba(0, 0, 0, 0.67);
 
     @include prefixer(writing-mode, vertical-lr, webkit spec);
   }
@@ -146,19 +144,18 @@
 }
 
 .settings-page__entry-label {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   display: block;
   font-size: 12.5px;
   padding: 2px;
 }
 
 .settings-page__entry-btn {
-  color: rgba(0, 0, 0, .67);
+  color: rgba(0, 0, 0, 0.67);
   font-size: 22px;
 }
 
 .file-entry__button {
-  color: rgba(0, 0, 0, .67);
   font-size: 28px;
   height: 38px;
   max-width: 32px;
@@ -179,7 +176,7 @@
 
   .prism--editor {
     background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, .1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 3px;
     min-height: 120px;
     overflow: auto;

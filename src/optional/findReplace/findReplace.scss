@@ -1,5 +1,5 @@
 .find-replace {
-  background-color: transparentize(#dadada, .05);
+  background-color: transparentize(#dadada, 0.05);
   bottom: 0;
   color: #404040;
   font-size: 14px;
@@ -13,7 +13,7 @@
 }
 
 .find-replace__close-btn {
-  color: rgba(0, 0, 0, .48);
+  color: rgba(0, 0, 0, 0.48);
   font-size: 22px;
   line-height: 14px;
 }

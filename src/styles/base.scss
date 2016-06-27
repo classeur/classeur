@@ -70,10 +70,9 @@ samp {
 }
 
 blockquote {
-  border-left: 5px solid #eee;
   color: $ced-color-light;
-  margin-left: 0;
-  padding-left: 2em;
+  margin-left: 2.5em;
+  margin-right: 2.5em;
 }
 
 code {
@@ -84,16 +83,15 @@ code {
 
 hr {
   border: 0;
-  border-top: 1px solid rgba(128, 128, 128, .15);
+  border-top: 1px solid rgba(128, 128, 128, 0.15);
   margin: 2em 0;
 }
 
 pre > code {
-  background-color: rgba(0, 0, 0, .02);
-  border: 1px solid rgba(0, 0, 0, .04);
+  background-color: rgba(0, 0, 0, 0.04);
   display: block;
   overflow-x: auto;
-  padding: .5em;
+  padding: 0.5em;
 
   @include prefixer(text-size-adjust, none, webkit);
 }
@@ -111,7 +109,7 @@ table {
 
 td,
 th {
-  border-right: 1px solid #888;
+  border-right: 1px solid #ddd;
   padding: 8px 12px;
 
   &:last-child {
@@ -120,19 +118,19 @@ th {
 }
 
 td {
-  border-top: 1px solid #888;
+  border-top: 1px solid #ddd;
 }
 
 kbd {
   background-color: #fff;
-  border: 1px solid rgba(63, 63, 63, .25);
+  border: 1px solid rgba(63, 63, 63, 0.25);
   border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(63, 63, 63, .25);
+  box-shadow: 0 1px 0 rgba(63, 63, 63, 0.25);
   color: #333;
   display: inline-block;
-  font-size: .7em;
-  margin: 0 .1em;
-  padding: .1em .6em;
+  font-size: 0.7em;
+  margin: 0 0.1em;
+  padding: 0.1em 0.6em;
   white-space: nowrap;
 }
 
@@ -144,9 +142,9 @@ abbr {
 }
 
 .footnote {
-  font-size: .8em;
+  font-size: 0.8em;
   position: relative;
-  top: -.25em;
+  top: -0.25em;
   vertical-align: top;
 }
 

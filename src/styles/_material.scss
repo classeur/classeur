@@ -36,7 +36,7 @@ input {
 
   [class^='icon-'],
   [class*=' icon-'] {
-    font-size: .8em;
+    font-size: 0.8em;
   }
 }
 
@@ -89,7 +89,7 @@ md-switch {
   }
 
   .md-bar {
-    background-color: rgba(0, 0, 0, .26);
+    background-color: rgba(0, 0, 0, 0.26);
     height: 2px;
     top: 12px;
     width: 54px;
@@ -130,9 +130,7 @@ md-input-container {
   }
 
   &.md-classeur-theme.md-input-focused .md-input {
-    // scss-lint:disable ImportantRule
-    border-color: rgba(255, 255, 255, .5) !important;
-    // scss-lint:enable ImportantRule
+    border-color: rgba(255, 255, 255, 0.5) !important;
   }
 }
 
@@ -163,7 +161,7 @@ md-checkbox {
   display: block;
 
   .md-icon {
-    border-color: rgba(0, 0, 0, .67);
+    border-color: rgba(0, 0, 0, 0.67);
     border-width: 1px;
   }
 }
@@ -240,7 +238,7 @@ md-tooltip {
 }
 
 .md-chips .md-chip {
-  background-color: rgba(160, 160, 160, .25);
+  background-color: rgba(160, 160, 160, 0.25);
   font-size: 13px;
   height: 25px;
   line-height: 25px;
@@ -260,12 +258,15 @@ md-chips .md-chips {
   font-weight: 300;
 }
 
+$toolbar-height: 52px;
+
 md-toolbar {
   &.md-default-theme:not(.md-menu-toolbar),
   &:not(.md-menu-toolbar) {
     background-color: #606060;
-    height: 48px;
-    min-height: 48px;
+    height: $toolbar-height;
+    letter-spacing: -0.02em;
+    min-height: $toolbar-height;
 
     .md-button:not(.md-raised) {
       color: #fff;
@@ -275,4 +276,6 @@ md-toolbar {
 
 .md-toolbar-tools {
   font-weight: inherit;
+  height: $toolbar-height;
+  max-height: $toolbar-height;
 }

@@ -59,7 +59,7 @@
     "connect": "~3.3.5",
     "csscomb": "~3.1.8",
     "gulp-htmlhint": "~0.3.0",
-    "gulp-scss-lint": "~0.3.8",
+    "gulp-stylelint": "~2.0.2",
     "gulp-watch": "~1.2.1",
     "js-beautify": "~1.5.10",
     "serve-static": "~1.8.1",

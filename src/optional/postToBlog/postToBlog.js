@@ -27,9 +27,9 @@ angular.module('classeur.optional.postToBlog', [])
         function open () {
           if (scope.currentFile.isLocalFile) {
             var createCopyDialog = clDialog.confirm()
-              .title('Post to blog')
+              .title('Publish')
               .content("Hard drive file can't be published. Please make a copy in your Classeur.")
-              .ariaLabel('Post to blog')
+              .ariaLabel('Publish')
               .ok('Make a copy')
               .cancel('Cancel')
             return clDialog.show(createCopyDialog).then(function () {

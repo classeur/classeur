@@ -29,7 +29,7 @@
 }
 
 .sharing-dialog__info {
-  color: rgba(0, 0, 0, .67);
+  color: rgba(0, 0, 0, 0.67);
   font-size: 12px;
   line-height: 1;
   margin-top: -10px;
@@ -42,7 +42,6 @@
   padding: 0;
 }
 
-// scss-lint:disable ImportantRule
 .sharing-dialog__share-button--facebook {
   background-color: #3b5998 !important;
 }

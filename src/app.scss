@@ -44,7 +44,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, .25);
+  background-color: rgba(0, 0, 0, 0.25);
   border-radius: 4px;
 }
 
@@ -97,7 +97,7 @@ textarea:not([disabled]) {
 }
 
 .postit__close-btn {
-  color: rgba(0, 0, 0, .5);
+  color: rgba(0, 0, 0, 0.5);
   font-size: 22px;
   height: 32px;
   padding: 0;
@@ -108,19 +108,19 @@ textarea:not([disabled]) {
 }
 
 .tip {
-  color: rgba(0, 0, 0, .45);
+  color: rgba(0, 0, 0, 0.45);
   display: block;
   font-size: 14px;
   margin-left: 10px;
   margin-right: 10px;
 
   ul {
-    margin: .5em 0;
+    margin: 0.5em 0;
   }
 }
 
 .warning {
-  color: rgba(0, 0, 0, .67);
+  color: rgba(0, 0, 0, 0.67);
   padding: 10px 5px;
 }
 
@@ -132,7 +132,7 @@ textarea:not([disabled]) {
 
 .navbar {
   background-color: #fff;
-  color: rgba(0, 0, 0, .6);
+  color: rgba(0, 0, 0, 0.6);
   height: auto;
   z-index: 3;
 }
@@ -142,12 +142,12 @@ textarea:not([disabled]) {
 }
 
 .navbar__logo {
-  background-image: url('assets/images/logo.png');
+  background-image: url('assets/images/icon.png');
   background-position: center center;
   background-repeat: no-repeat;
-  background-size: 24px 24px;
+  background-size: 28px 28px;
   height: 34px;
-  width: 40px;
+  width: 34px;
 }
 
 .navbar__item {
@@ -166,17 +166,17 @@ textarea:not([disabled]) {
 }
 
 .navbar__item--title {
-  color: rgba(0, 0, 0, .75);
+  color: rgba(0, 0, 0, 0.75);
   font-size: 30px;
   height: 34px;
-  letter-spacing: -.03em;
+  letter-spacing: -0.03em;
   line-height: 34px;
   margin: 0;
   padding: 0 5px;
 }
 
 .navbar__item--icon {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   font-size: 23px;
   padding: 0 4px;
 }
@@ -187,14 +187,14 @@ textarea:not([disabled]) {
 }
 
 .footer__button {
-  padding: .6em;
+  padding: 0.6em;
 }
 
 .footer__icon {
-  color: rgba(0, 0, 0, .75);
+  color: rgba(0, 0, 0, 0.75);
   font-size: 1.55em;
-  line-height: .65;
-  padding: .4em 0;
+  line-height: 0.65;
+  padding: 0.4em 0;
   text-align: center;
   width: 1.45em;
 }
@@ -294,11 +294,11 @@ textarea:not([disabled]) {
       }
 
       &.md-whiteframe-1dp {
-        box-shadow: 0 0 3px 0 transparentize($dark-c, .8), 0 0 1px 0 transparentize($dark-c, .86), 0 1px 1px -1px transparentize($dark-c, .88);
+        box-shadow: 0 0 3px 0 transparentize($dark-c, 0.8), 0 0 1px 0 transparentize($dark-c, 0.86), 0 1px 1px -1px transparentize($dark-c, 0.88);
       }
 
       &.md-whiteframe-4dp {
-        box-shadow: 0 1px 4px -1px transparentize($dark-c, .8), 0 3px 5px 0 transparentize($dark-c, .86), 0 0 10px 0 transparentize($dark-c, .88);
+        box-shadow: 0 1px 4px -1px transparentize($dark-c, 0.8), 0 3px 5px 0 transparentize($dark-c, 0.86), 0 0 10px 0 transparentize($dark-c, 0.88);
       }
     }
   }

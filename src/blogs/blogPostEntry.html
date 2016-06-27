@@ -14,10 +14,10 @@
     <cl-wordpress-blog-post-entry ng-if="blogPost.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-entry>
     <cl-zendesk-blog-post-entry ng-if="blogPost.blog.platformId === 'zendesk'"></cl-zendesk-blog-post-entry>
   </div>
-  <md-button class="blog-post-entry__button icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post" title="Update blog post">
+  <md-button class="blog-post-entry__button md-primary icon-cloud-upload" ng-click="updateBlogPost(blogPost)" ng-disabled="blogPost.updateCb" aria-label="Update blog post" title="Update blog post">
   </md-button>
-  <md-button class="blog-post-entry__button icon-open-in-new" ng-href="{{::blogPost.blog.platform.getBlogPostLocation(blogPost)}}" target="_blank" aria-label="Open blog post" title="Open blog post">
+  <md-button class="blog-post-entry__button md-primary icon-open-in-new" ng-href="{{::blogPost.blog.platform.getBlogPostLocation(blogPost)}}" target="_blank" aria-label="Open blog post" title="Open blog post">
   </md-button>
-  <md-button class="blog-post-entry__button icon-delete" ng-click="deleteBlogPost(blogPost)" aria-label="Delete blog post" title="Delete blog post">
+  <md-button class="blog-post-entry__button md-primary icon-delete" ng-click="deleteBlogPost(blogPost)" aria-label="Delete blog post" title="Delete blog post">
   </md-button>
 </div>

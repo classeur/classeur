@@ -25,7 +25,7 @@ $file-entry-height: 40px;
 }
 
 .file-entry__drag-icon {
-  color: rgba(0, 0, 0, .6);
+  color: rgba(0, 0, 0, 0.6);
   display: inline-block;
   font-size: 16px;
   line-height: $file-entry-height;
@@ -51,7 +51,7 @@ $file-entry-height: 40px;
 }
 
 .file-entry__name-input {
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1;
 
   body &[disabled] {
@@ -62,14 +62,14 @@ $file-entry-height: 40px;
 .file-entry__name-input--clickable {
   body &[disabled] {
     background-image: none;
-    border-bottom-color: rgba(0, 0, 0, .066);
+    border-bottom-color: rgba(0, 0, 0, 0.066);
     cursor: pointer;
     pointer-events: none;
   }
 }
 
 .file-entry__menu-btn {
-  color: rgba(0, 0, 0, .55);
+  color: rgba(0, 0, 0, 0.55);
   display: block;
   font-size: 26px;
   height: $file-entry-height - 2;

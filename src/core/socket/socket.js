@@ -50,8 +50,11 @@ angular.module('classeur.core.socket', [])
         lastConnectionAttempt = Date.now()
         closeSocket()
         ;(function () {
+          var hash = Math.random().toString(36).slice(2, 10) // https://gist.github.com/benweet/a74c87dc2ef0add10e7aeb83f986f013
           var ctx = {
-            socket: $window.eio(),
+            socket: $window.eio('/engine.io/?hash=' + hash, {
+              // transports: ['polling', 'websocket']
+            }),
             extendSocketLifetime: $window.cledit.Utils.debounce(function () {
               if (clSocketSvc.ctx === ctx) {
                 closeSocket()

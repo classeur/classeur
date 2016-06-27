@@ -69,7 +69,7 @@ angular.module('classeur.optional.zenMode', [])
               }
               zenPanelInnerElt.clanim
                 .duration(100)
-                .opacity(0.85)
+                .opacity(0.8)
                 .easing('ease-out')
                 .start(true)
             }

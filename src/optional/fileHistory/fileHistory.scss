@@ -6,10 +6,10 @@
 
 .file-history-tab--selected {
   .file-history-entry {
-    opacity: .15;
+    opacity: 0.15;
 
     &:hover {
-      opacity: .4;
+      opacity: 0.4;
     }
   }
 
@@ -29,14 +29,14 @@
   margin-bottom: 10px;
   position: relative;
 
-  @include transition(.12s ease-out opacity);
+  @include transition(0.12s ease-out opacity);
 
   .md-chips {
     padding-bottom: 0;
   }
 
   &::before {
-    background-color: rgba(0, 0, 0, .067);
+    background-color: rgba(0, 0, 0, 0.067);
     content: '';
     height: 100%;
     left: 12px;
@@ -66,15 +66,15 @@
 }
 
 .file-history-entry__created {
-  color: rgba(0, 0, 0, .4);
-  font-size: .7em;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 0.7em;
   padding-left: 4px;
-  text-shadow: 1px 1px rgba(255, 255, 255, .33);
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.33);
   white-space: nowrap;
 }
 
 .file-history-entry__button {
-  color: rgba(0, 0, 0, .67);
+  color: rgba(0, 0, 0, 0.67);
   font-size: 20px;
   height: 28px;
   padding: 0;
@@ -106,10 +106,10 @@
 }
 
 .file-change__type {
-  color: rgba(0, 0, 0, .4);
+  color: rgba(0, 0, 0, 0.4);
   font-size: 13px;
   margin: 3px 0;
-  text-shadow: 1px 1px rgba(255, 255, 255, .33);
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.33);
   white-space: nowrap;
 }
 

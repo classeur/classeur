@@ -45,7 +45,7 @@ angular.module('classeur.optional.discussions', [])
               ) {
                 lastCoordinates = coordinates
                 newDiscussionBtnElt.clanim
-                  .top(coordinates.top + coordinates.height)
+                  .top(coordinates.top)
                   .left(coordinates.left + clEditorLayoutSvc.editorLeftOverflow)
                   .start()
               }
@@ -231,7 +231,7 @@ angular.module('classeur.optional.discussions', [])
               ) {
                 lastCoordinates = coordinates
                 newDiscussionBtnElt.clanim
-                  .top(coordinates.top + coordinates.height)
+                  .top(coordinates.top)
                   .left(coordinates.left)
                   .start()
               }

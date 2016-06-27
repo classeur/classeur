@@ -5,9 +5,9 @@ $highlighting-color: #ffdf60;
 .discussion-editor-highlighting,
 .discussion-preview-highlighting {
   background-color: mix(#fff, $highlighting-color, 60%);
-  padding: .25em 0;
+  padding: 0.25em 0;
 
-  @include transition(.12s ease-out background-color);
+  @include transition(0.12s ease-out background-color);
 }
 
 .discussion-editor-highlighting--hover,
@@ -31,17 +31,17 @@ $highlighting-color: #ffdf60;
 
 .new-discussion-btn {
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 -3px 1px -2px rgba(0, 0, 0, .07), 0 -2px 2px 0 rgba(0, 0, 0, .049);
-  color: rgba(128, 128, 128, .7);
+  border-radius: 4px;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.07), 0 2px 2px 0 rgba(0, 0, 0, 0.049);
+  color: rgba(128, 128, 128, 0.7);
   cursor: pointer;
   font-size: 13px;
   line-height: 1.25;
-  padding: 2px 2px 1px;
+  margin-top: -14px;
+  padding: 1px 2px 0;
   position: absolute;
 
-  @include transform(scale(1, -1));
-  @include transition(.16s ease-out color);
+  @include transition(0.16s ease-out color);
 
   &:hover {
     color: rgba(128, 128, 128, 1);
@@ -54,10 +54,10 @@ $highlighting-color: #ffdf60;
 
 .discussion-tab--selected {
   .discussion-entry {
-    opacity: .15;
+    opacity: 0.15;
 
     &:hover {
-      opacity: .4;
+      opacity: 0.4;
     }
   }
 
@@ -72,7 +72,7 @@ $highlighting-color: #ffdf60;
 .discussion-entry {
   margin: 20px 0;
 
-  @include transition(.12s ease-out opacity);
+  @include transition(0.12s ease-out opacity);
 
   .md-chips {
     padding-bottom: 0;
@@ -100,7 +100,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-entry__text-span {
-  padding: .2em 0;
+  padding: 0.2em 0;
 
   &,
   & span {
@@ -110,7 +110,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-entry__text-quote {
-  color: rgba(0, 0, 0, .125);
+  color: rgba(0, 0, 0, 0.125);
   display: inline-block;
   font-size: 18px;
   line-height: 1;
@@ -127,7 +127,7 @@ $highlighting-color: #ffdf60;
 }
 
 .discussion-entry__btn {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   font-size: 20px;
   line-height: 28px;
   padding: 0;
@@ -139,7 +139,7 @@ $highlighting-color: #ffdf60;
   position: relative;
 
   &::before {
-    background-color: rgba(0, 0, 0, .067);
+    background-color: rgba(0, 0, 0, 0.067);
     content: '';
     height: 100%;
     left: 12px;
@@ -165,7 +165,7 @@ $highlighting-color: #ffdf60;
 $comment-btn-size: 20px;
 
 .comment-entry__delete-btn {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   font-size: 17px;
   height: $comment-btn-size;
   margin-left: -$comment-btn-size;
@@ -175,7 +175,7 @@ $comment-btn-size: 20px;
   opacity: 0;
   padding: 0;
 
-  @include transition(.16s ease-out all);
+  @include transition(0.16s ease-out all);
 
   .comment-entry__inner:hover & {
     opacity: 1;
@@ -184,7 +184,7 @@ $comment-btn-size: 20px;
 
 .comment-entry__input {
   background-color: #fff;
-  font-size: .9em;
+  font-size: 0.9em;
   font-variant-ligatures: no-common-ligatures;
   margin: 5px 0 5px 25px;
   min-height: 80px;
@@ -200,10 +200,10 @@ $comment-btn-size: 20px;
 }
 
 .comment-info__created {
-  color: rgba(0, 0, 0, .4);
-  font-size: .7em;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 0.7em;
   padding-left: 12px;
-  text-shadow: 1px 1px rgba(255, 255, 255, .33);
+  text-shadow: 1px 1px rgba(255, 255, 255, 0.33);
 }
 
 .discussion-postit {
@@ -248,7 +248,7 @@ $comment-btn-size: 20px;
   ul,
   ol,
   dl {
-    margin: .5em 0;
+    margin: 0.5em 0;
   }
 
   pre {

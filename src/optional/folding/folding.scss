@@ -1,7 +1,7 @@
 @import 'variables';
 
 .cledit-section::before {
-  color: transparentize(#000, .75);
+  color: transparentize(#000, 0.75);
   content: '\e715';
   cursor: pointer;
   display: none;
@@ -15,7 +15,6 @@
   position: absolute;
   text-transform: none;
 }
-
 
 .folding--hover::before {
   display: block;

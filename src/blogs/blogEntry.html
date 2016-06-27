@@ -6,8 +6,8 @@
   <div class="blog-entry__status" ng-class="{'blog-entry__status--error': blog.status !== 'linked'}">
     <span class="blog-entry__status-text">{{blog.status | clBlogStatus}}</span>
   </div>
-  <md-button class="blog-entry__button icon-settings" ng-click="editBlog(blog)" aria-label="Blog settings">
+  <md-button class="blog-entry__button md-primary icon-settings" ng-click="editBlog(blog)" aria-label="Blog settings">
   </md-button>
-  <md-button class="blog-entry__button icon-delete" ng-click="deleteBlog(blog)" aria-label="Delete blog">
+  <md-button class="blog-entry__button md-primary icon-delete" ng-click="deleteBlog(blog)" aria-label="Delete blog">
   </md-button>
 </div>

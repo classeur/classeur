@@ -5,7 +5,7 @@
   "block-indent": "  ",
   "element-case": "lower",
   "eof-newline": true,
-  "leading-zero": false,
+  "leading-zero": true,
   "quotes": "single",
   "sort-order": [
     ["..."],

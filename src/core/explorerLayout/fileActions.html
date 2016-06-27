@@ -1,7 +1,7 @@
 <div class="file-actions">
   <div class="file-actions__grp-1" layout="row" layout-align="space-between start">
     <div class="file-actions__search">
-      <md-input-container md-no-float ng-show="userInputFilter || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
+      <md-input-container md-no-float ng-show="userInputFilter || explorerLayoutSvc.currentFolder === explorerLayoutSvc.unclassifiedFolder || explorerLayoutSvc.files.length + explorerLayoutSvc.extraFiles.length > 3">
         <md-icon md-font-icon="icon-search"></md-icon>
         <input autocomplete="off" placeholder="Filter" ng-model="userInputFilter">
       </md-input-container>

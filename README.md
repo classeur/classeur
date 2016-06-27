@@ -41,7 +41,7 @@ We gladly accept new features if they are useful for others and don't degrade th
 Code format is checked via the command `npm run lint-all` ensuring JS, HTML and SCSS files are formatted according to the following rules:
 
 - JavaScript: [standard style](http://standardjs.com/)
-- SCSS linted with [scss-lint](https://github.com/brigade/scss-lint)
+- SCSS linted with [stylelint](http://stylelint.io/)
 - SCSS formatted with [CSScomb](http://csscomb.com/)
 - HTML linted with [HTMLHint](http://htmlhint.com/)
 - HTML formatted with [JS Beautifier](http://jsbeautifier.org/)

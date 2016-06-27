@@ -9,7 +9,7 @@
   h6 {
     .heading-anchor {
       border-radius: 3px;
-      color: rgba(0, 0, 0, .5);
+      color: rgba(0, 0, 0, 0.35);
       cursor: pointer;
       font-size: 1em;
       margin-left: -1.25em;
@@ -19,7 +19,7 @@
       text-decoration: none;
       width: 1.25em;
 
-      @include transition(opacity .4s cubic-bezier(.25, .8, .25, 1), background-color .4s cubic-bezier(.25, .8, .25, 1));
+      @include transition(opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1));
     }
 
     &:hover .heading-anchor {
@@ -27,7 +27,7 @@
     }
 
     &:hover .heading-anchor:hover {
-      background-color: rgba(158, 158, 158, .2);
+      background-color: rgba(158, 158, 158, 0.2);
     }
   }
 }

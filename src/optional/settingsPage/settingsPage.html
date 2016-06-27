@@ -39,7 +39,7 @@
               Use monospaced font only
             </md-checkbox>
             <br>
-            <h2>Document export</h2>
+            <h2>Export</h2>
             <md-checkbox ng-model="settingSvc.values.pandocToc">
               Pandoc TOC
             </md-checkbox>
@@ -98,6 +98,7 @@
               </md-button>
             </p>
             <div ng-switch-when="true">
+              <h2>Profile</h2>
               <md-input-container class="settings-page__entry settings-page__entry--small">
                 <label>User name</label>
                 <input autocomplete="off" ng-model="userName" ng-model-options="{updateOn: 'blur', getterSetter: true}">
@@ -121,25 +122,27 @@
                 <label>User ID</label>
                 <input ng-model="userSvc.user.id" disabled="disabled">
               </md-input-container>
+              <h2>API</h2>
               <div layout="row" class="md-inline-form">
                 <md-input-container class="settings-page__entry settings-page__entry--large">
                   <label>API key</label>
                   <input ng-model="apiKey" disabled="disabled">
                 </md-input-container>
                 <div class="settings-page__entry-btn">
-                  <md-button ng-if="!renewApiKeyPending" class="icon-refresh" ng-click="renewApiKey()" aria-label="Renew API key">
+                  <md-button ng-if="!renewApiKeyPending" class="icon-refresh md-primary" ng-click="renewApiKey()" aria-label="Renew API key">
                   </md-button>
                 </div>
               </div>
-              <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/rest-api/">
-                More about the REST API...
-              </md-button>
               <p>
                 <span class="settings-page__entry-label">
                   Roles
                 </span>
                 <md-chips ng-model="userSvc.user.roles" readonly="true"></md-chips>
               </p>
+              <md-button class="md-primary" target="_blank" ng-href="http://classeur.io/help/rest-api/">
+                More about the REST API...
+              </md-button>
+              <h2>Account</h2>
               <p ng-if="::config.usePaypal">
                 <span class="settings-page__entry-label">
                   Go premium or unsubscribe
@@ -217,8 +220,8 @@
                 <md-input-container class="file-entry__name">
                   <input class="file-entry__name-input" ng-model="file.name" disabled="disabled" aria-label="Deleted file">
                 </md-input-container>
-                <md-button class="file-entry__button icon-settings-backup-restore" md-no-ink ng-click="recoverFile(file)" aria-label="Recover"></md-button>
-                <md-button class="file-entry__button icon-delete" md-no-ink ng-click="removeFile(file)" aria-label="Remove"></md-button>
+                <md-button class="file-entry__button md-primary icon-settings-backup-restore" md-no-ink ng-click="recoverFile(file)" aria-label="Recover"></md-button>
+                <md-button class="file-entry__button md-primary icon-delete" md-no-ink ng-click="removeFile(file)" aria-label="Remove"></md-button>
               </div>
               <div class="warning" ng-if="!trashRetrievePending && !trashRangeStart">Trash is empty.</div>
               <cl-block-spinner ng-if="trashRetrievePending"></cl-block-spinner>

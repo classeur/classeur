@@ -9,12 +9,6 @@
           <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
         </md-select>
       </div>
-      <div class="export-dialog__options">
-        <md-input-container flex>
-          <label>Preview</label>
-          <textarea class="export-dialog__preview" ng-model="textPreview" row="3"></textarea>
-        </md-input-container>
-      </div>
       <div layout="row" layout-align="start center">
         <md-radio-button class="export-dialog__radio-btn" value="document">Document</md-radio-button>
         <md-select ng-model="exportConfig.documentFormatKey" ng-focus="exportConfig.format = 'document'" aria-label="Select document format">
@@ -27,23 +21,18 @@
           <md-option value="docx">Word</md-option>
         </md-select>
       </div>
-      <div class="export-dialog__options">
-        <p class="tip">
-          <b>Tip:</b> File properties are set as Pandoc metadata.
-        </p>
-      </div>
     </md-radio-group>
     <br>
-    <p>
+    <div>
       <md-button class="md-primary" ng-click="manageTemplates()">
         Manage templates...
       </md-button>
-    </p>
-    <p>
+    </div>
+    <div>
       <md-button class="md-primary" ng-href="#!/settings?tab=app">
         Pandoc options...
       </md-button>
-    </p>
+    </div>
   </md-dialog-content>
   <md-dialog-actions>
     <md-button ng-click="cancel()" class="md-primary">

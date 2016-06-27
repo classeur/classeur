@@ -28,8 +28,8 @@ $button-height: 28px;
 
   .icon-code::before {
     content: '\e8a7\e8a8';
-    letter-spacing: -.56em;
-    margin-left: -.6em;
+    letter-spacing: -0.56em;
+    margin-left: -0.6em;
   }
 
   .icon-hr::before {
@@ -38,7 +38,6 @@ $button-height: 28px;
   }
 
   &[disabled] {
-    // scss-lint:disable ImportantRule
     color: #707070 !important;
   }
 }

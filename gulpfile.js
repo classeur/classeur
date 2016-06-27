@@ -155,10 +155,14 @@ gulp.task('lint-all', [
 ])
 
 gulp.task('lint-scss', function () {
-  var scsslint = require('gulp-scss-lint')
+  var gulpStylelint = require('gulp-stylelint')
   return gulp.src(appCssSrc)
-    .pipe(scsslint())
-    .pipe(scsslint.failReporter())
+    .pipe(gulpStylelint({
+      syntax: 'scss',
+      reporters: [
+        {formatter: 'string', console: true}
+      ]
+    }))
 })
 
 function csscombFormatter () {

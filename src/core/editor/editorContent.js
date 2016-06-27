@@ -41,9 +41,8 @@ angular.module('classeur.core.editor.editorContent', [])
 
           if (!reinit) {
             options.content = content.text
-            ;['selectionStart', 'selectionEnd', 'scrollTop'].cl_each(function (key) {
-              options[key] = content.state[key]
-            })
+            options.selectionStart = content.state.selectionStart
+            options.selectionEnd = content.state.selectionEnd
           }
 
           options.patchHandler = {

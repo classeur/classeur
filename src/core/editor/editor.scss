@@ -28,7 +28,7 @@
 
   .discussion-highlight,
   .find-replace-highlight {
-    background-color: transparentize(#ffe400, .5);
+    background-color: transparentize(#ffe400, 0.5);
   }
 
   .hide {
@@ -36,7 +36,6 @@
   }
 
   &.monospaced {
-    // scss-lint:disable ImportantRule
     font-family: $font-family-monospace !important;
     font-size: $font-size-monospace !important;
 
@@ -86,7 +85,7 @@
 }
 
 .toc-tab {
-  color: rgba(0, 0, 0, .75);
+  color: rgba(0, 0, 0, 0.75);
   cursor: pointer;
   font-size: 10px;
   padding: 15px 30px;
@@ -100,7 +99,7 @@
   }
 
   .cl-toc-section * {
-    margin: .3em 0;
+    margin: 0.3em 0;
   }
 
   h2 {

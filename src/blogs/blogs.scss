@@ -64,7 +64,7 @@
 }
 
 .blog-entry__status-text {
-  background-color: #008e45;
+  background-color: #00b156;
   border-radius: 8px;
   color: #fff;
   font-size: 13px;
@@ -73,7 +73,7 @@
 }
 
 .blog-entry__status--error .blog-entry__status-text {
-  background-color: #d33800;
+  background-color: #ff6026;
 }
 
 .blog-post-entry {
@@ -81,7 +81,7 @@
 }
 
 .blog-post-entry__info {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   font-size: 12.5px;
   overflow: hidden;
   padding-right: 10px;
@@ -95,14 +95,13 @@
 
 .blog-entry__button,
 .blog-post-entry__button {
-  color: rgba(0, 0, 0, .7);
   font-size: 28px;
   max-width: 36px;
   min-width: 36px;
   padding: 5px 0;
 
   &[disabled] {
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
@@ -111,7 +110,7 @@
 }
 
 .blog-post-form__label {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
   display: block;
   font-size: 12.5px;
   margin-bottom: -20px;

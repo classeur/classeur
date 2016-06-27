@@ -126,10 +126,13 @@ angular.module('classeur.core', [])
 
       function setCurrentFile (file, anchor) {
         unloadCurrentFile()
-        file && $timeout(function () {
-          $location.url(clUrl.file(file))
-          $location.hash(anchor)
-        })
+        if (file) {
+          file.unload() // Make sure file is unloaded
+          $timeout(function () {
+            $location.url(clUrl.file(file))
+            $location.hash(anchor)
+          }, 10)
+        }
       }
 
       function makeCurrentFileCopy () {

@@ -41,7 +41,7 @@
     </md-tab>
   </md-tabs>
 </div>
-<div class="editor-layout background panel md-whiteframe-z4">
+<div class="editor-layout background panel md-whiteframe-z3">
   <div class="editor-layout__inner-1 panel no-overflow">
     <div class="editor-layout__preview panel" ng-click="editorLayoutSvc.currentControl = undefined">
       <cl-preview></cl-preview>
@@ -49,18 +49,24 @@
         <div class="navbar__inner">
           {{currentFile.name}}
           <div class="navbar__btns">
-            <div layout="row" layout-align="end">
-              <md-button class="navbar__btn navbar__btn--sharing icon-share" md-no-ink ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share">
-              </md-button>
+            <div layout-align="center end">
               <md-button class="navbar__btn navbar__btn--edit icon-mode-edit" md-no-ink ng-click="openEditor()" aria-label="Edit" title="Edit">
               </md-button>
-              <div class="navbar__animated-btn">
-                <md-button class="navbar__btn navbar__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close file" title="Close file">
-                </md-button>
-                <md-button class="navbar__btn navbar__btn--scroll icon-arrow-back" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
-                </md-button>
-              </div>
             </div>
+          </div>
+          <div layout="column" class="navbar__side-btns">
+            <md-button class="navbar__side-btn icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close file" title="Close file">
+            </md-button>
+            <md-button class="navbar__side-btn icon-toc" md-no-ink ng-click="toc()" aria-label="Table Of Contents" title="Table Of Contents">
+            </md-button>
+            <md-button class="navbar__side-btn icon-share" md-no-ink ng-click="editorLayoutSvc.currentControl = 'sharingDialog'" aria-label="Share" title="Share">
+            </md-button>
+            <md-button class="navbar__side-btn icon-file-download" md-no-ink ng-click="editorLayoutSvc.currentControl = 'exportToDisk'" aria-label="Export" title="Export">
+            </md-button>
+            <md-button class="navbar__side-btn icon-print" md-no-ink ng-click="print()" aria-label="Print" title="Print">
+            </md-button>
+            <md-button class="navbar__side-btn navbar__side-btn--scroll icon-arrow-back rotate-90" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
+            </md-button>
           </div>
         </div>
       </div>
@@ -82,13 +88,17 @@
                   <span class="menu__link-text">Sharing</span>
                   <span class="menu__link-icon icon-share"></span>
                 </a>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'">
+                  <span class="menu__link-text">Publish</span>
+                  <span class="menu__link-icon icon-cloud-upload"></span>
+                </a>
                 <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'exportToDisk'">
-                  <span class="menu__link-text">Export to disk</span>
+                  <span class="menu__link-text">Export</span>
                   <span class="menu__link-icon icon-file-download"></span>
                 </a>
-                <a class="menu__link" layout="row" layout-align="end end" ng-click="editorLayoutSvc.currentControl = 'postToBlog'">
-                  <span class="menu__link-text">Post to blog</span>
-                  <span class="menu__link-icon icon-cloud"></span>
+                <a class="menu__link" layout="row" layout-align="end end" ng-click="print()">
+                  <span class="menu__link-text">Print</span>
+                  <span class="menu__link-icon icon-print"></span>
                 </a>
                 <a class="menu__link" layout="row" layout-align="end end" ng-click="makeCurrentFileCopy()">
                   <span class="menu__link-text">Make a copy</span>
@@ -101,9 +111,6 @@
               </div>
               <div class="menu__entry">Zoom</div>
               <md-slider md-discrete ng-model="localSettingSvc.values.editorZoom" step="1" min="1" max="5" aria-label="Zoom">
-              </md-slider>
-              <div class="menu__entry">Binder color</div>
-              <md-slider md-discrete ng-model="localSettingSvc.values.editorColor" step="1" min="1" max="14" aria-label="Binder color">
               </md-slider>
               <md-switch ng-model="localSettingSvc.values.sidePreview" class="md-primary">
                 Side Preview
@@ -123,7 +130,7 @@
         <div class="right-margin panel">
           <md-button class="right-margin__btn right-margin__btn--close icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close editor" title="Close editor">
           </md-button>
-          <md-button class="right-margin__btn right-margin__btn--minimize icon-visibility" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode">
+          <md-button class="right-margin__btn right-margin__btn--minimize icon-visibility" md-no-ink ng-click="editorLayoutSvc.toggleEditor(false)" aria-label="Reader mode" title="Reader mode" cl-editor-tour-next="2">
             <md-tooltip md-delay="99999999" md-visible="show" md-direction="left" class="left" cl-tour-step="!isDialogOpen && editorLayoutSvc.isEditorOpen && localSettingSvc.values.editorTourStep === 1">
               <p>Classeur supports Markdown syntax.</p>
               <p>Click

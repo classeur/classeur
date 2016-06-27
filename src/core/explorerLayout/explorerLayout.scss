@@ -97,7 +97,7 @@
   z-index: 1;
 
   .file-actions__grp-2 {
-    border-bottom: 1px solid rgba(0, 0, 0, .05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -111,12 +111,13 @@
 
 .file-actions__grp-1 {
   min-height: 35px;
-  padding: 15px;
+  padding: 20px;
 }
 
 .file-actions__button {
   border-style: solid;
   border-width: 1px;
+  font-size: 18px;
 }
 
 .file-actions__search {
@@ -154,7 +155,7 @@
 }
 
 .file-list__extra {
-  color: rgba(0, 0, 0, .33);
+  color: rgba(0, 0, 0, 0.33);
   font-size: 15px;
   margin: 30px 0 10px;
 }
@@ -199,8 +200,8 @@ $public-dialog-corner-size: 66px;
 
 .cl-public-corner {
   border-right: $public-corner-size solid transparent;
-  border-top: $public-corner-size solid rgba(0, 0, 0, .1);
-  color: rgba(0, 0, 0, .15);
+  border-top: $public-corner-size solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.15);
   font-size: 28px;
   height: $public-corner-size;
   left: 0;
@@ -360,7 +361,7 @@ $public-dialog-corner-size: 66px;
 }
 
 .creation-dialog__info {
-  color: rgba(0, 0, 0, .67);
+  color: rgba(0, 0, 0, 0.67);
   font-size: 12px;
   line-height: 1;
   margin-top: -10px;
