@@ -154,11 +154,12 @@ angular.module('classeur.optional.keystrokes', [])
               return true
             }
           }
+
           lines.cl_some(function (line) {
             var match = line.replace(/^[ \t]*/, function (wholeMatch) {
               return wholeMatch.replace(/\t/g, '    ')
             }).match(indentRegex)
-            if (!match) {
+            if (!match || line.match(/^#+ /)) { // Line not empty, not indented, or title
               flush()
               return true
             }
