@@ -28,7 +28,7 @@ npm install
 npm start
 ```
 
-Classeur works with a back-end in order to provide connected features such as synchronization, sharing and collaboration. Please refer to the [enterprise documentation](http://classeur.io/help/enterprise/) for a full installation of Classeur.
+Classeur works with a back-end in order to provide connected features such as synchronization, sharing and collaboration. Please refer to the [enterprise documentation](https://classeur.zendesk.com/hc/en-us/articles/208399869-On-prem-installation) for a full installation of Classeur.
 
 
 ## Contributing
