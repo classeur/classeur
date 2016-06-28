@@ -428,13 +428,13 @@ angular.module('classeur.core.sync', [])
 
           // Retrieve user from the server
           syncQueue(function () {
-            return clRestSvc.requestIgnore304({
+            return clRestSvc.request({ // Don't force 304 as user can be null
               method: 'GET',
               url: '/api/v2/users/me',
               params: {
                 view: 'private'
               }
-            }, clSyncDataSvc.user.updated)
+            })
           })
           syncQueue(function (res) {
             res && pendingChangeGroups.users.$add(res.body)
