@@ -51,8 +51,11 @@ angular.module('classeur.core.socket', [])
         closeSocket()
         ;(function () {
           var hash = Math.random().toString(36).slice(2, 10) // https://gist.github.com/benweet/a74c87dc2ef0add10e7aeb83f986f013
+          // Get absolute uri
+          var uri = document.createElement('a')
+          uri.href = '/engine.io/?hash=' + hash
           var ctx = {
-            socket: $window.eio('/engine.io/?hash=' + hash, {
+            socket: $window.eio(uri.href, {
               // transports: ['polling', 'websocket']
             }),
             extendSocketLifetime: $window.cledit.Utils.debounce(function () {

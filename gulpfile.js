@@ -21,7 +21,7 @@ gulp.task('tag', ['lint-all'], function (cb) {
   util.log('Tagging as: ' + util.colors.cyan(tag))
   exec([
     'git add package.json',
-    'git commit -m "Prepare release"',
+    'git commit -m "Prepare release"; true', // Ignore "no changes added to commit" error
     'git tag -a ' + tag + ' -m "Version ' + version + '"',
     'git push origin master --tags',
     'npm publish'
