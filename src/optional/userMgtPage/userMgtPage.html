@@ -15,40 +15,47 @@
     </div>
   </div>
   <div class="user-mgt-page__inner">
+    <div class="user-mgt-page__info">
+      <span><b>{{count}}</b> users</span>
+      <span><b>{{enabledCount}}</b> enabled</span>
+      <span ng-if="config.usePaypal"><b>{{premiumCount}}</b> premium</span>
+      <span><b>{{adminCount}}</b> admins</span>
+    </div>
     <md-input-container class="user-mgt-page__filter">
       <label>Filter</label>
       <input autocomplete="off" ng-model="filter">
     </md-input-container>
-    <md-card ng-repeat="user in users">
+    <md-card class="user-card" ng-repeat="user in users" ng-class="{'user-card--disabled': user.disabled}">
       <md-card-title>
         <md-card-title-text>
           <span class="md-headline">{{user.name}}</span>
           <span class="md-subhead">{{user.id}}</span>
+          <div>
+            <span class="user-card__premium" ng-if="config.usePaypal && user.isPremium">premium</span>
+            <span class="user-card__admin" ng-if="user.isAdmin">admin</span>
+          </div>
         </md-card-title-text>
         <md-card-title-media>
           <img class="md-media-sm card-media" ng-src="https://www.gravatar.com/avatar/{{user.gravatarHash}}?d=mm" />
         </md-card-title-media>
       </md-card-title>
-      <md-card-actions layout="row" layout-align="space-between center">
-        <div layout="row">
+      <md-card-actions>
+        <div layout="column">
           <label ng-if="::config.usePaypal">
-            premium
-            <input type="checkbox" ng-model="user.isPremium" disabled="disabled">
-          </label>
-          <label ng-if="::config.usePaypal">
-            force premium
             <input type="checkbox" ng-model="user.newForcePremium">
+            force premium
           </label>
           <label>
-            admin
             <input type="checkbox" ng-model="user.isAdmin">
+            admin
           </label>
         </div>
-        <div>
-          <md-button ng-click="deleteRow(user)" ng-if="!user.isDeleting">Delete user</md-button>
-          <cl-spinner ng-if="user.isDeleting"></cl-spinner>
-        </div>
       </md-card-actions>
+      <div class="user-card__buttons" layout="row">
+        <md-button class="md-primary" ng-click="switchDisable(user)" ng-if="!user.isDeleting && !user.isDisabling">{{ user.disabled ? 'Enable' : 'Disable' }}</md-button>
+        <md-button class="md-primary" ng-click="deleteRow(user)" ng-if="!user.isDeleting">Delete</md-button>
+        <cl-spinner ng-if="user.isDeleting"></cl-spinner>
+      </div>
     </md-card>
   </div>
 </div>

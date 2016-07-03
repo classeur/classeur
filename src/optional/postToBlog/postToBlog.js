@@ -243,7 +243,7 @@ angular.module('classeur.optional.postToBlog', [])
                 return $rootScope.$emit('clTooManyRequests')
               }
               $timeout(function () {
-                clToast(err || 'Blog post has been updated.')
+                clToast(err || 'Blog post updated.')
               }, 800) // Timeout due to previous clToast overlap
             })
           checkIsUpdating()
@@ -263,7 +263,7 @@ angular.module('classeur.optional.postToBlog', [])
                   return true
                 }
               })) {
-            msg = results.length + (results.length > 1 ? ' blog posts have been updated.' : ' blog post has been updated.')
+            msg = results.length + (results.length > 1 ? ' blog posts updated.' : ' blog post updated.')
           }
           if (msg === 'too_many_requests') {
             return $rootScope.$emit('clTooManyRequests')

@@ -6,14 +6,14 @@
   }
 
   .navbar__inner {
-    max-width: 580px;
+    max-width: 540px;
     width: 100%;
   }
 }
 
 .user-mgt-page__inner {
   margin: auto;
-  max-width: 580px;
+  max-width: 540px;
   padding: 40px 0 100px;
 
   md-card label {
@@ -21,7 +21,54 @@
   }
 }
 
+.user-mgt-page__info {
+  color: rgba(0, 0, 0, 0.75);
+  font-size: 14px;
+  padding: 10px;
+  text-align: right;
+}
+
 .user-mgt-page__filter {
+  margin-bottom: 0;
   margin-left: 10px;
-  max-width: 200px;
+  max-width: 250px;
+}
+
+.user-card {
+  min-height: 180px;
+  position: relative;
+}
+
+.user-card__premium,
+.user-card__admin {
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 0 6px;
+}
+
+.user-card__premium {
+  background-color: #009448;
+}
+
+.user-card__admin {
+  background-color: #ea5621;
+}
+
+.user-card__buttons {
+  bottom: 8px;
+  position: absolute;
+  right: 8px;
+}
+
+$disabled-transparency: 0.25;
+
+.user-card--disabled {
+  background-color: rgba(255, 255, 255, $disabled-transparency);
+
+  md-card-title,
+  md-card-actions {
+    opacity: $disabled-transparency;
+  }
 }

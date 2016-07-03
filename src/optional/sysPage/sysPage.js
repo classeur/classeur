@@ -69,7 +69,7 @@ angular.module('classeur.optional.sysPage', [])
               clToast('App config updated.')
             })
             .error(function (err) {
-              clToast('Error: ' + (err && err.reason) || 'unknown')
+              clToast('Error: ' + (err && err.message) || 'unknown')
             })
         }
 
@@ -86,7 +86,7 @@ angular.module('classeur.optional.sysPage', [])
               })
             })
             .error(function (err) {
-              clToast('Error: ' + (err && err.reason) || 'unknown')
+              clToast('Error: ' + (err && err.message) || 'unknown')
             })
         }
         retrieveConfig()

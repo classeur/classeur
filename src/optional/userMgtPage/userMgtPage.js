@@ -36,13 +36,48 @@ angular.module('classeur.optional.userMgtPage', [])
                 scope.users = scope.users.cl_filter(function (user) {
                   return user.id !== userToDelete.id
                 })
+                refreshCount()
                 scope.$evalAsync()
               })
               .catch(function (err) {
                 userToDelete.isDeleting = false
-                clToast('Error: ' + (err && err.reason) || 'unknown')
+                clToast('Error: ' + (err && err.message) || 'unknown')
               })
           })
+        }
+
+        scope.switchDisable = function (user) {
+          var disabled = !user.disabled
+          function doSwitch () {
+            user.isDisabling = true
+            clRestSvc.request({
+              method: 'PATCH',
+              url: '/api/v1/users/' + user.id,
+              body: {
+                disabled: disabled
+              }
+            })
+              .then(function () {
+                user.isDisabling = false
+                user.disabled = disabled
+                refreshCount()
+                scope.$evalAsync()
+              })
+              .catch(function (err) {
+                user.isDisabling = false
+                clToast('Error: ' + (err && err.message) || 'unknown')
+              })
+          }
+          if (user.disabled) {
+            return doSwitch()
+          }
+          var confirmDialog = clDialog.confirm()
+            .title('Disable user')
+            .content("User won't be able to sign in but his files will still be accessible.")
+            .ariaLabel('Disable user')
+            .ok('Ok')
+            .cancel('Cancel')
+          clDialog.show(confirmDialog).then(doSwitch)
         }
 
         scope.$watch(function () {
@@ -53,6 +88,7 @@ angular.module('classeur.optional.userMgtPage', [])
             ]
           }))
         }, function () {
+          refreshCount()
           scope.users && scope.users.cl_each(function (user) {
             if (user.isAdmin !== (user.roles.indexOf('admin') !== -1) || user.newForcePremium !== user.forcePremium) {
               var newRoles = user.isAdmin ? ['admin'] : []
@@ -60,7 +96,7 @@ angular.module('classeur.optional.userMgtPage', [])
                 method: 'PATCH',
                 url: '/api/v1/users/' + user.id,
                 body: {
-                  roles: user.isAdmin ? ['admin'] : [],
+                  roles: newRoles,
                   forcePremium: user.newForcePremium
                 }
               })
@@ -69,11 +105,35 @@ angular.module('classeur.optional.userMgtPage', [])
           })
         })
 
+        var users
+        function refreshCount () {
+          if (users) {
+            scope.count = users.length
+            scope.enabledCount = 0
+            scope.premiumCount = 0
+            scope.adminCount = 0
+            users.cl_each(function (user) {
+              user.filterable = user.id.toLowerCase() + user.name.toLowerCase() + user.roles.join('')
+              if (!user.disabled) {
+                scope.enabledCount++
+              }
+              if (user.isPremium) {
+                scope.premiumCount++
+              }
+              if (user.isAdmin) {
+                scope.adminCount++
+              }
+            }, 0)
+          }
+        }
+
         var countShow = 0
         function retrieveUsers () {
           return clRestSvc.list('/api/v2/users', { view: 'private' })
             .then(function (res) {
-              res.sort(function (user1, user2) {
+              users = res
+              refreshCount()
+              users.sort(function (user1, user2) {
                 return user1.name - user2.name
               }).cl_each(function (user) {
                 user.isAdmin = user.roles.indexOf('admin') !== -1
@@ -86,8 +146,8 @@ angular.module('classeur.optional.userMgtPage', [])
               scope.users = []
               scope.showMore = function () {
                 var filter = scope.filter && scope.filter.toLowerCase()
-                var filteredUsers = res.filter(function (user) {
-                  return !filter || ~user.id.toLowerCase().indexOf(filter) || ~user.name.toLowerCase().indexOf(filter)
+                var filteredUsers = users.filter(function (user) {
+                  return !filter || ~user.filterable.indexOf(filter)
                 })
                 if (countShow < filteredUsers.length) {
                   countShow += 20
@@ -99,7 +159,7 @@ angular.module('classeur.optional.userMgtPage', [])
               scope.$evalAsync()
             })
             .catch(function (err) {
-              clToast('Error: ' + (err && err.reason) || 'unknown')
+              clToast('Error: ' + (err && err.message) || 'unknown')
             })
         }
 
