@@ -2,7 +2,6 @@ angular.module('classeur.core.sync.contentSync', [])
   .factory('clContentSyncSvc',
     function ($rootScope, $timeout, $q, clRestSvc, clSetInterval, clSocketSvc, clUserSvc, clUserActivity, clSyncDataSvc, clFileSvc, clToast, clDiffUtils, clEditorSvc, clEditorContentSvc, clUserInfoSvc, clUid, clIsNavigatorOnline, clIsSyncWindow, clEditorLayoutSvc) {
       var loadingTimeout = 30 * 1000 // 30 sec
-      var textMaxSize = 200000
       var backgroundUpdateContentEvery = 30 * 1000 // 30 sec
       var clContentSyncSvc = {}
       var watchCtx
@@ -160,7 +159,12 @@ angular.module('classeur.core.sync.contentSync', [])
         if (watchCtx.file.userId && watchCtx.file.sharing !== 'rw') {
           return
         }
-        if (watchCtx.file.content.text.length > textMaxSize) {
+        if (
+          watchCtx.file.content.text.length > 200000 ||
+          Object.keys(watchCtx.file.content.properties).length > 100 ||
+          Object.keys(watchCtx.file.content.discussions).length > 100 ||
+          Object.keys(watchCtx.file.content.comments).length > 1000
+        ) {
           return tooBigWarning()
         }
         var msg = clDiffUtils.makeContentChange(watchCtx, watchCtx.file.content)

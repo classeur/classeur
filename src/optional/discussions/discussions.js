@@ -798,7 +798,7 @@ angular.module('classeur.optional.discussions', [])
           if (commentText.length > 2000) {
             return clToast('Comment text is too long.')
           }
-          if (content.comments.length > 1999) {
+          if (content.comments.length > 999) {
             return clToast('Too many comments in the file.')
           }
           var discussionId = scope.discussionId
