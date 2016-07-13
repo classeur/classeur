@@ -21,6 +21,24 @@ angular.module('classeur.optional.planChooser', [])
           }
         })
     })
+  .run(function ($rootScope, $window, clDialog, clUserSvc) {
+    $rootScope.$on('clUpgradeToPremium', function () {
+      return clDialog.show({
+        templateUrl: 'optional/planChooser/paymentDialog.html',
+        controller: ['$scope', function (scope) {
+          scope.choose = function (option) {
+            var paymentLinks = clUserSvc.getPaymentLinks()
+            if (paymentLinks) {
+              $window.location.href = paymentLinks[option]
+            }
+          }
+          scope.cancel = function () {
+            clDialog.cancel()
+          }
+        }]
+      })
+    })
+  })
   .directive('clPlanChooser',
     function ($window, $location, $timeout, clDialog, clUserSvc) {
       return {
@@ -32,7 +50,9 @@ angular.module('classeur.optional.planChooser', [])
       function link (scope) {
         if (clUserSvc.user) {
           if (!clUserSvc.isUserPremium()) {
-            scope.subscribeLink = clUserSvc.getSubscribeLink()
+            scope.upgradeToPremium = function () {
+              scope.$emit('clUpgradeToPremium')
+            }
           } else {
             var unsubscribeLink = clUserSvc.getUnsubscribeLink()
             scope.unsubscribe = function () {

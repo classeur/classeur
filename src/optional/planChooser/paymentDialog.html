@@ -1,0 +1,25 @@
+<md-dialog class="payment-dialog">
+  <md-dialog-content>
+    <h2>Upgrade to premium</h2>
+    <md-button class="payment-dialog__option md-primary" ng-click="choose('subscribe')">
+      $5 <small>/month</small>
+      <div class="payment-dialog__info">PayPal subscription</div>
+    </md-button>
+    <md-button class="payment-dialog__option md-primary" ng-click="choose('quarterlyPayment')">
+      $12 <small>/3 months</small>
+      <div class="payment-dialog__info">PayPal one-off payment</div>
+    </md-button>
+    <md-button class="payment-dialog__option md-primary" ng-click="choose('yearlyPayment')">
+      $36 <small>/year</small>
+      <div class="payment-dialog__info">PayPal one-off payment</div>
+    </md-button>
+  </md-dialog-content>
+  <md-dialog-actions>
+    <md-button ng-href="#!/choosePlan" ng-click="cancel()" class="md-primary">
+      Compare plans
+    </md-button>
+    <md-button ng-click="cancel()" class="md-primary">
+      Cancel
+    </md-button>
+  </md-dialog-actions>
+</md-dialog>

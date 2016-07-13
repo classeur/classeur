@@ -3,7 +3,7 @@
 
   @media (min-width: 600px) {
     .perspective {
-      perspective: 1000px;
+      perspective: 1500px;
     }
 
     .plan-entry {
@@ -31,29 +31,41 @@ $plan-entry-border-radius: 3px;
 
 .plan-entry {
   background-color: #fff;
-  border-radius: 3px;
+  border-radius: $plan-entry-border-radius;
+  border-top-style: solid;
+  border-top-width: $plan-entry-border-radius;
   height: 510px;
   margin: 0 -8px 60px;
   position: relative;
   text-align: center;
   width: 90%;
+
+  small {
+    color: rgba(0, 0, 0, 0.33);
+    font-size: 12px;
+  }
 }
 
 .plan-entry__header {
-  border-radius: $plan-entry-border-radius;
-  border-top-style: solid;
-  border-top-width: $plan-entry-border-radius;
-  height: 170px;
+  height: 180px;
+  margin-top: 10px;
 }
 
 .plan-entry__name {
   font-size: 24px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .plan-entry__price {
   font-size: 46px;
-  line-height: 1;
+  line-height: 1.2;
+}
+
+.plan-entry__body {
+  h2 {
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
 }
 
 .plan-entry__items {
@@ -61,7 +73,7 @@ $plan-entry-border-radius: 3px;
   padding: 0;
 
   li {
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.3;
     list-style-type: none;
     padding: 8px 12px;
@@ -71,8 +83,8 @@ $plan-entry-border-radius: 3px;
 .plan-entry__button {
   display: block;
   font-size: 22px;
-  margin: 20px;
-  padding: 10px 15px;
+  margin: 15px;
+  padding: 15px;
 }
 
 .plan-entry__button-info {
@@ -86,13 +98,7 @@ $plan-entry-border-radius: 3px;
 }
 
 .plan-entry--enterprise {
-  font-size: 14px;
   transform: rotateY(-8deg);
-
-  .plan-entry__name {
-    font-size: 34px;
-    margin-bottom: 0;
-  }
 }
 
 .plan-entry--premium {
@@ -102,7 +108,6 @@ $plan-entry-border-radius: 3px;
 }
 
 .plan-info {
-  background-color: #fff;
   margin: 30px auto 120px;
   max-width: 400px;
   padding: 30px;
@@ -110,11 +115,38 @@ $plan-entry-border-radius: 3px;
 }
 
 .plan-info__button {
+  color: rgba(0, 0, 0, 0.35);
   display: block;
-  font-size: 18px;
+  font-size: 1.2em;
   line-height: 1.8;
+
+  .plan-info__button-icon {
+    font-size: 2.2em;
+    &::before {
+      line-height: 1;
+    }
+  }
 }
 
-.plan-info__button-icon::before {
-  font-size: 50px;
+.payment-dialog__option {
+  display: block;
+  font-size: 2em;
+  font-weight: 400;
+  line-height: 1.35;
+  margin: 10px;
+  text-align: left;
+  text-transform: none;
+  width: 260px;
+
+  small {
+    font-size: 0.5em;
+    font-weight: 300;
+  }
+}
+
+.payment-dialog__info {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.75;
+  text-transform: none;
 }

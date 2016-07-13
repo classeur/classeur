@@ -14,8 +14,8 @@
   </div>
   <div class="plan-chooser__inner" layout="column" layout-align="center">
     <div class="perspective" layout-gt-xs="row" layout="column" layout-align="center center">
-      <div class="plan-entry plan-entry--standard md-whiteframe-z1" layout="column" flex>
-        <div class="plan-entry__header plastic--border plastic--1" layout="column" layout-align="center center">
+      <div class="plan-entry plan-entry--standard plastic--border plastic--1 md-whiteframe-z1" layout="column" flex>
+        <div class="plan-entry__header" layout="column" layout-align="center center">
           <div class="plan-entry__name">
             Standard
           </div>
@@ -25,8 +25,8 @@
         </div>
         <div class="plan-entry__body" flex layout="column">
           <ul class="plan-entry__items" flex>
-            <li>Unlimited files/folders/classeurs</li>
-            <li>File/folder/classeur sharing</li>
+            <li>100 files</li>
+            <li>File sharing</li>
             <li>Real-time collaboration</li>
             <li>Unlimited blogs and posts</li>
             <li>Export to PDF, Word, EPUB</li>
@@ -43,51 +43,45 @@
           </md-button>
         </div>
       </div>
-      <div class="plan-entry plan-entry--premium md-whiteframe-z2" layout="column" flex>
-        <div class="plan-entry__header plastic--border plastic--7" layout="column" layout-align="center center">
+      <div class="plan-entry plan-entry--premium plastic--border plastic--7 md-whiteframe-z3" layout="column" flex>
+        <div class="plan-entry__header" layout="column" layout-align="center center">
           <div class="plan-entry__name">
             Premium
           </div>
           <div class="plan-entry__price">
-            $5
+            $3
           </div>
           <div>
-            per month
+            per month*
           </div>
+          <small>
+            *Billed annually
+          </small>
         </div>
-        <div class="plan-entry__body" flex layout="column">
-          <h3>Increased quota</h3>
-          <ul class="plan-entry__items" flex>
-            <li>500MB bandwidth per month
-              <br/>
-              <small>instead of 25MB per month</small>
-            </li>
-            <li>300 blog post publications per hour
-              <br/>
-              <small>instead of 6 per hour</small>
-            </li>
-            <li>150 PDF, Word, EPUB exports per hour
-              <br/>
-              <small>instead of 3 per hour</small>
-            </li>
-          </ul>
+        <div class="plan-entry__body" flex layout="column" layout-align="space-between">
+          <h2>Unlimited files</h2>
           <md-button class="plan-entry__button" ng-if="::!userSvc.user" ng-click="userSvc.startOAuth()">
             <div>Sign in</div>
             <div class="plan-entry__button-info">with Google</div>
           </md-button>
-          <md-button class="plan-entry__button" ng-if="::subscribeLink" ng-href="{{::subscribeLink}}">
-            <div>Subscribe</div>
-            <div class="plan-entry__button-info">with PayPal</div>
+          <md-button class="plan-entry__button" ng-if="::upgradeToPremium" ng-click="upgradeToPremium()">
+            <div>Upgrade</div>
           </md-button>
           <md-button class="plan-entry__button" ng-if="::unsubscribe" ng-click="unsubscribe()">
             Unsubscribe
           </md-button>
         </div>
       </div>
-      <div class="plan-entry plan-entry--enterprise md-whiteframe-z1" layout="column" flex>
-        <div class="plan-entry__header plastic--border plastic--2" layout="column" layout-align="center center">
+      <div class="plan-entry plan-entry--enterprise plastic--border plastic--2 md-whiteframe-z1" layout="column" flex>
+        <div class="plan-entry__header" layout="column" layout-align="center center">
           <div class="plan-entry__name">
             Enterprise
+          </div>
+          <div class="plan-entry__price">
+            $60
+          </div>
+          <div>
+            per user/year
           </div>
         </div>
         <div class="plan-entry__body" flex layout="column">
@@ -105,7 +99,7 @@
         </div>
       </div>
     </div>
-    <div class="plan-info plan-info--discount md-whiteframe-z1 warning">
+    <div class="plan-info plan-info--discount warning">
       <p>
         We offer discounts for large organizations, universities, non-profits...
       </p>

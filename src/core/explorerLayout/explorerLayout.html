@@ -38,7 +38,7 @@
             <div class="navbar__item" ng-if="socketSvc.hasToken && !userSvc.user">
               Signing in...
             </div>
-            <md-button class="navbar__item navbar__item--go-premium" ng-href="#!/choosePlan" ng-if="userSvc.user && !userSvc.isUserPremium()">
+            <md-button class="navbar__item navbar__item--go-premium" ng-click="$emit('clUpgradeToPremium')" ng-if="userSvc.user && !userSvc.isUserPremium()">
               Go premium
             </md-button>
             <md-button class="navbar__item navbar__item--icon icon-settings" ng-href="#!/settings" aria-label="Settings">

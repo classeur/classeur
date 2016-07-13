@@ -176,7 +176,7 @@ angular.module('classeur.core', [])
 
       $rootScope.$on('$routeChangeSuccess', function (event, current) {
         setTimeout(function () {
-          document.title = $rootScope.currentFile ? $rootScope.currentFile.name : (current.$$route && current.$$route.title) || 'Classeur'
+          document.title = $rootScope.currentFile ? $rootScope.currentFile.name : (current.$$route && current.$$route.title) || 'Classeur – The app'
         }, 1)
       })
 

@@ -1,18 +1,15 @@
 <md-dialog class="quota-dialog">
   <md-dialog-content>
-    <h2>Switch to premium</h2>
+    <h2>Upgrade to premium</h2>
     <p>
-      You reached your request limit. To increase your quota, please switch to a premium account.
-    </p>
-    <p>
-      Alternatively, you can try again in an hour.
+      You've reached your quota limit. To enable unlimited files, please upgrade to a premium account.
     </p>
   </md-dialog-content>
   <md-dialog-actions>
     <md-button ng-click="close()" class="md-primary">
       Close
     </md-button>
-    <md-button ng-href="#!/choosePlan" ng-click="close()" class="md-primary">
+    <md-button ng-click="$emit('clUpgradeToPremium')" class="md-primary">
       Go premium
     </md-button>
   </md-dialog-actions>

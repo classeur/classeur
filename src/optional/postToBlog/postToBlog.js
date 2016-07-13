@@ -120,9 +120,6 @@ angular.module('classeur.optional.postToBlog', [])
 
         function createdBlogPostHandler (msg) {
           if (msg.error) {
-            if (msg.error === 'too_many_requests') {
-              return scope.$emit('clTooManyRequests')
-            }
             return clToast(msg.error)
           }
           clToast('Blog post successfully created.')
@@ -239,9 +236,6 @@ angular.module('classeur.optional.postToBlog', [])
           clToast('Updating blog post...')
           updateBlogPost(blogPost)
             .then(function (err) {
-              if (err === 'too_many_requests') {
-                return $rootScope.$emit('clTooManyRequests')
-              }
               $timeout(function () {
                 clToast(err || 'Blog post updated.')
               }, 800) // Timeout due to previous clToast overlap
@@ -264,9 +258,6 @@ angular.module('classeur.optional.postToBlog', [])
                 }
               })) {
             msg = results.length + (results.length > 1 ? ' blog posts updated.' : ' blog post updated.')
-          }
-          if (msg === 'too_many_requests') {
-            return $rootScope.$emit('clTooManyRequests')
           }
           $timeout(function () {
             clToast(msg)

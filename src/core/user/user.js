@@ -48,7 +48,7 @@ angular.module('classeur.core.user', [])
       var clUserSvc = {
         signin: signin,
         signout: signout,
-        getSubscribeLink: getSubscribeLink,
+        getPaymentLinks: getPaymentLinks,
         getUnsubscribeLink: getUnsubscribeLink,
         isUserPremium: isUserPremium
       }
@@ -92,14 +92,22 @@ angular.module('classeur.core.user', [])
         return this.user && this.user.roles && ~this.user.roles.indexOf('premium_user')
       }
 
-      function getSubscribeLink () {
-        if (clUserSvc.user) {
-          var params = {
-            cmd: '_s-xclick',
-            hosted_button_id: clConfig.paypalSubscribeButtonId,
-            custom: clUserSvc.user.id
+      function getPaymentLinks () {
+        function makePaymentLink (buttonId) {
+          if (clUserSvc.user) {
+            var params = {
+              cmd: '_s-xclick',
+              hosted_button_id: buttonId,
+              custom: clUserSvc.user.id
+            }
+            return clConfig.paypalUri + '?' + makeQueryString(params)
           }
-          return clConfig.paypalUri + '?' + makeQueryString(params)
+        }
+
+        return {
+          subscribe: makePaymentLink(clConfig.paypalSubscribeButtonId),
+          quarterlyPayment: makePaymentLink(clConfig.paypalQuarterlyPaymentButtonId),
+          yearlyPayment: makePaymentLink(clConfig.paypalYearlyPaymentButtonId)
         }
       }
 
