@@ -258,7 +258,7 @@ textarea:not([disabled]) {
     $dark-c: darken($c, 30%);
 
     &.plastic--color {
-      color: desaturate($c, 20%);
+      color: desaturate($c, 15%);
 
       &.md-button.md-focused,
       &.md-button:hover,
@@ -271,6 +271,10 @@ textarea:not([disabled]) {
     &.plastic--background {
       background-color: lighten($c, 10%);
     }
+
+    // &.plastic--gradient {
+    //   @include linear-gradient(to right, #555, mix(#606060, $dark-c, 75%));
+    // }
 
     &.plastic--soft-background {
       background-color: mix($background-color, $dark-c, 94%);

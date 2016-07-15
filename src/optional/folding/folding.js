@@ -199,7 +199,7 @@ angular.module('classeur.optional.folding', [])
         var sectionGroup
         var newSectionGroups = []
         sectionList.cl_each(function (section) {
-          var firstChild = section.elt.firstChild
+          var firstChild = section.elt.children[0]
           if (!firstChild) {
             return
           }
