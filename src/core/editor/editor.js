@@ -265,7 +265,7 @@ angular.module('classeur.core.editor', [])
             return
           }
           e.preventDefault()
-          var y = e.clientY + scrollerElt.scrollTop - tocElt.getBoundingClientRect().top
+          var y = e.clientY - tocElt.getBoundingClientRect().top
 
           clEditorSvc.sectionDescList.cl_some(function (sectionDesc) {
             if (y < sectionDesc.tocDimension.endOffset) {
