@@ -910,6 +910,8 @@ angular.module('classeur.core.sync', [])
               })
             }
 
+            clFileSvc.readLocalFileChanges() // Not to remove local files created by other tabs (#144)
+
             // Send a new/modified file
             findOne(clFileSvc.activeDaos, function (file) {
               debug('Put file')

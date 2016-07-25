@@ -368,12 +368,20 @@ angular.module('classeur.core.files', [])
           return contentMap[id2].lastChange - contentMap[id1].lastChange
         })
         filteredLocalFileIds.splice(maxLocalFiles)
-        if (localFileIds.length !== filteredLocalFileIds.length) {
-          localFileIds.cl_each(function (id) {
+        if (
+          localFileIds.length !== filteredLocalFileIds.length &&
+          localFileIds.cl_some(function (id) {
             if (!~filteredLocalFileIds.indexOf(id)) {
-              daoMap[id] ? daoMap[id].removeContent() : removeContent(id)
+              if (daoMap[id]) {
+                daoMap[id].removeContent()
+                return true
+              } else if (!isInitialized) { // Keep files created by other tabs (#144)
+                removeContent(id)
+                return true
+              }
             }
           })
+        ) {
           return init()
         }
 
@@ -383,7 +391,7 @@ angular.module('classeur.core.files', [])
         clFileSvc.deletedDaos = Object.keys(deletedDaoMap).cl_map(function (id) {
           return daoMap[id]
         })
-        clFileSvc.localFiles = localFileIds.cl_map(function (id) {
+        clFileSvc.localFiles = filteredLocalFileIds.cl_map(function (id) {
           return daoMap[id]
         })
 
@@ -414,11 +422,13 @@ angular.module('classeur.core.files', [])
         var file = clFileSvc.deletedDaoMap[id] || store.createDao(id)
         file.deleted = 0
         file.isSelected = false
+        readLocalFileChanges()
         contentMap[file.id] = defaultContent()
         file.writeContent()
         file.freeContent()
         daoMap[file.id] = file
         init()
+        writeLocalFileChanges()
         return file
       }
 
