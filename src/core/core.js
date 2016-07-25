@@ -95,12 +95,13 @@ angular.module('classeur.core', [])
         .otherwise('/')
     })
   .run(
-    function ($window, $rootScope, $location, $timeout, $interval, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
+    function ($window, $rootScope, $location, $timeout, $interval, $route, clDialog, clExplorerLayoutSvc, clEditorLayoutSvc, clSettingSvc, clLocalSettingSvc, clEditorSvc, clEditorMarkdownSvc, clFileSvc, clFolderSvc, clClasseurSvc, clUserSvc, clSocketSvc, clUserInfoSvc, clSyncDataSvc, clSyncSvc, clContentSyncSvc, clToast, clUrl, clConfig, clLocalStorage) {
       // Globally accessible services
       $rootScope.config = clConfig
       $rootScope.explorerLayoutSvc = clExplorerLayoutSvc
       $rootScope.editorLayoutSvc = clEditorLayoutSvc
       $rootScope.editorSvc = clEditorSvc
+      $rootScope.editorMarkdownSvc = clEditorMarkdownSvc
       $rootScope.fileSvc = clFileSvc
       $rootScope.folderSvc = clFolderSvc
       $rootScope.classeurSvc = clClasseurSvc

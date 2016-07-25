@@ -15,7 +15,6 @@ angular.module('classeur.optional.scrollSync', [])
 
       function link (scope, element) {
         clScrollSyncSvc.setEditorElt(element[0])
-        scope.$watch('editorSvc.sectionList', clScrollSyncSvc.onContentChanged)
         scope.$watch('editorSvc.editorSize()', clScrollSyncSvc.onPanelResized)
       }
     })
@@ -28,8 +27,9 @@ angular.module('classeur.optional.scrollSync', [])
 
       function link (scope, element) {
         clScrollSyncSvc.setPreviewElt(element[0])
-        scope.$watch('editorSvc.lastConversion', clScrollSyncSvc.savePreviewHeight)
-        scope.$watch('editorSvc.lastPreviewRefreshed', clScrollSyncSvc.restorePreviewHeight)
+        scope.$watch('editorSvc.sectionList', clScrollSyncSvc.onContentChanged) // Has to come before restorePreviewHeight
+        scope.$watch('editorSvc.lastConvert', clScrollSyncSvc.savePreviewHeight)
+        scope.$watch('editorSvc.lastRefreshPreview', clScrollSyncSvc.restorePreviewHeight)
         scope.$watch('editorSvc.previewSize()', clScrollSyncSvc.onPanelResized)
         scope.$watch('editorLayoutSvc.isPreviewVisible', function (isVisible) {
           isVisible && clScrollSyncSvc.onPreviewOpen()

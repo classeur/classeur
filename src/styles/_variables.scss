@@ -6,7 +6,7 @@ $body-color: #dedede;
 $background-color: #f2f2f2;
 $text-color: rgba(0, 0, 0, 0.75);
 $link-color: #316ed3;
-$code-bg: #eee;
+$code-bg: rgba(0, 0, 0, 0.04);
 $border-radius-base: 3px;
 $border-radius-binder: 6px;
 $tab-entry-height: 80px;
@@ -33,6 +33,5 @@ $plastic-colors: $blue,
   mix($purple, $blue, 50%);
 $editor-margin-width: 110px;
 $ced-color: rgba(0, 0, 0, 0.92);
-$ced-color-light: rgba(0, 0, 0, 0.54);
-$ced-color-lighter: rgba(0, 0, 0, 0.28);
+$ced-color-light: rgba(0, 0, 0, 0.28);
 $ced-color-dark: #000;

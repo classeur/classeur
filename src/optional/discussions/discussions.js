@@ -751,7 +751,7 @@ angular.module('classeur.optional.discussions', [])
         }, 40))
 
         cledit.init({
-          highlighter: clEditorSvc.cleditOptions.highlighter,
+          sectionHighlighter: clEditorSvc.sectionHighlighter,
           content: lastContent
         })
 
@@ -851,12 +851,6 @@ angular.module('classeur.optional.discussions', [])
           lastSelectionStart = cledit.selectionMgr.selectionStart
           lastSelectionEnd = cledit.selectionMgr.selectionEnd
         })
-      }
-    })
-  .filter('clConvertMarkdown',
-    function ($sce, clEditorSvc, clHtmlSanitizer) {
-      return function (value) {
-        return $sce.trustAsHtml(clHtmlSanitizer(clEditorSvc.markdown.render(value || '')))
       }
     })
   .factory('clDiscussionSvc',

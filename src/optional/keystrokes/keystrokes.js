@@ -113,6 +113,7 @@ angular.module('classeur.optional.keystrokes', [])
         var previousLine = state.before.slice(lf) + state.selection + state.after
         var indentMatch = previousLine.match(indentRegexp)
         if (isInverse) {
+          var previousChar = state.before.slice(-1)
           if (/\s/.test(state.before.charAt(lf))) {
             state.before = strSplice(state.before, lf, 1)
             if (indentMatch) {
@@ -120,7 +121,11 @@ angular.module('classeur.optional.keystrokes', [])
               indentMatch[1] && fixNumberedList(state, indentMatch[1].slice(1))
             }
           }
-          state.selection = state.selection.replace(/^[ \t]/gm, '')
+          var selection = previousChar + state.selection
+          state.selection = selection.replace(/\n[ \t]/gm, '\n')
+          if (previousChar) {
+            state.selection = state.selection.slice(1)
+          }
         } else {
           if (state.selection || indentMatch) {
             state.before = strSplice(state.before, lf, 0, '\t')

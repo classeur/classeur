@@ -2,7 +2,7 @@
   <div class="discussion-entry__selector" ng-click="selectDiscussion()">
     <div layout="row" layout-align="space-between start">
       <div class="discussion-entry__text markdown-highlighting markdown-highlighting--inline" flex>
-        <span class="discussion-entry__text-quote icon-format-quote rotate-180"></span><span class="discussion-entry__text-span" ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.prismGrammar"></span><span class="discussion-entry__text-quote icon-format-quote"></span>
+        <span class="discussion-entry__text-quote icon-format-quote rotate-180"></span><span class="discussion-entry__text-span" ng-bind-html="discussion.text | clHighlightMarkdown:editorSvc.converter:editorSvc.prismGrammars"></span><span class="discussion-entry__text-quote icon-format-quote"></span>
       </div>
       <md-chips ng-switch-when="false">
         <md-chip class="discussion-entry__chip">{{commentsTotalCount}}</md-chip>

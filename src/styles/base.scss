@@ -70,7 +70,7 @@ samp {
 }
 
 blockquote {
-  color: $ced-color-light;
+  color: rgba(0, 0, 0, 0.4);
   margin-left: 2.5em;
   margin-right: 2.5em;
 }
@@ -109,7 +109,7 @@ table {
 
 td,
 th {
-  border-right: 1px solid #ddd;
+  border-right: 1px solid #e0e0e0;
   padding: 8px 12px;
 
   &:last-child {
@@ -118,7 +118,7 @@ th {
 }
 
 td {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #e0e0e0;
 }
 
 kbd {

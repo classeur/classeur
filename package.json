@@ -52,7 +52,7 @@
     "markdown-it-pandoc-renderer": "~1.1.0",
     "markdown-it-sub": "~1.0.0",
     "markdown-it-sup": "~1.0.0",
-    "prismjs": "0.0.1",
+    "prismjs": "1.5.1",
     "streamqueue": "~0.1.1"
   },
   "devDependencies": {

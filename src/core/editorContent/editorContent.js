@@ -1,4 +1,4 @@
-angular.module('classeur.core.editor.editorContent', [])
+angular.module('classeur.core.editorContent', [])
   .factory('clEditorContentSvc',
     function ($window, clUid, clDiffUtils) {
       var Marker = $window.cledit.Marker

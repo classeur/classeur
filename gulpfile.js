@@ -63,7 +63,6 @@ var appVendorJs = [
   'cledit/scripts/cleditUndoMgr',
   'cledit/scripts/cleditUtils',
   'cledit/scripts/cleditWatcher',
-  'cledit/demo/mdGrammar',
   'engine.io-client/engine.io',
   'es6-promise/dist/es6-promise',
   'filesaver.js/FileSaver',
@@ -81,8 +80,10 @@ var appVendorJs = [
   'prismjs/components/prism-core',
   'prismjs/components/prism-markup',
   'prismjs/components/prism-clike',
+  'prismjs/components/prism-c',
   'prismjs/components/prism-javascript',
-  'prismjs/components/prism-css'
+  'prismjs/components/prism-css',
+  'prismjs/components/prism-ruby'
 ].map(require.resolve)
 appVendorJs.push(path.join(path.dirname(require.resolve('prismjs/components/prism-core')), 'prism-!(*.min).js'))
 

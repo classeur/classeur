@@ -14,7 +14,7 @@ angular.module('classeur.optional.headingAnchor', [])
             scope.$apply()
           }
         })
-        scope.$watch('editorSvc.lastPreviewRefreshed', function () {
+        scope.$watch('editorSvc.lastRefreshPreview', function () {
           element[0].querySelectorAll('h1, h2, h3, h4, h5, h6').cl_each(function (elt) {
             if (!elt.id || elt.headingAnchor) {
               return

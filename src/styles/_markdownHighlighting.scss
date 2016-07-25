@@ -72,7 +72,7 @@
   }
 
   .comment {
-    color: $ced-color-lighter;
+    color: $ced-color-light;
   }
 
   .keyword {
@@ -110,7 +110,7 @@
   }
 
   .blockquote {
-    color: $ced-color-light;
+    color: rgba(0, 0, 0, 0.48);
   }
 
   .h1,
@@ -149,12 +149,12 @@
   }
 
   .cl-hash {
-    color: $ced-color-lighter;
+    color: $ced-color-light;
   }
 
   .cl,
   .hr {
-    color: $ced-color-lighter;
+    color: $ced-color-light;
     font-style: normal;
     font-weight: 300;
   }
@@ -181,7 +181,7 @@
   }
 
   .linkdef .url {
-    color: $ced-color-lighter;
+    color: $ced-color-light;
   }
 
   .fn,
@@ -202,7 +202,7 @@
   .imgref,
   .link,
   .linkref {
-    color: $ced-color-lighter;
+    color: $ced-color-light;
 
     .cl-underlined-text {
       color: $ced-color-dark;

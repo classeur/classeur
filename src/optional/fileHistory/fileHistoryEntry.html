@@ -25,7 +25,7 @@
         <div class="file-change__type">
           {{::textChange.d ? 'Removed text:' : 'Added text:'}}
         </div>
-        <div class="file-change__text markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__text--removed': textChange.d}" ng-bind-html="::textChange.a || textChange.d | clHighlightMarkdown:editorSvc.prismGrammar">
+        <div class="file-change__text markdown-highlighting markdown-highlighting--inline" ng-class="::{'file-change__text--removed': textChange.d}" ng-bind-html="::textChange.a || textChange.d | clHighlightMarkdown:editorSvc.converter:editorSvc.prismGrammars">
         </div>
       </div>
       <div class="file-change" ng-repeat="commentChange in commentChanges">

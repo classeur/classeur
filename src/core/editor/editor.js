@@ -1,6 +1,6 @@
 angular.module('classeur.core.editor', [])
   .directive('clEditor',
-    function ($window, $templateCache, $$sanitizeUri, clEditorSvc, clEditorLayoutSvc, clSettingSvc, clEditorContentSvc) {
+    function ($window, $templateCache, $$sanitizeUri, clEditorSvc, clExtensionSvc, clEditorLayoutSvc, clSettingSvc, clEditorContentSvc) {
       return {
         restrict: 'E',
         template: $templateCache.get('core/editor/editor.html'), // Prevent from template loading to be async
@@ -10,8 +10,6 @@ angular.module('classeur.core.editor', [])
       function link (scope, element) {
         var editorElt = element[0].querySelector('.editor')
         var editorInnerElt = element[0].querySelector('.editor__inner')
-        clEditorSvc.setCurrentFileDao(scope.currentFile)
-        clEditorSvc.initConverter()
         clEditorSvc.setEditorElt(editorInnerElt)
         clEditorSvc.pagedownEditor.hooks.set('insertLinkDialog', function (callback) {
           clEditorSvc.linkDialogCallback = callback
@@ -169,10 +167,18 @@ angular.module('classeur.core.editor', [])
           debouncedEditorChanged()
         })
 
+        scope.$watch('currentFile.content.properties', function (properties) {
+          var options = properties && clExtensionSvc.getOptions(properties, true)
+          if (JSON.stringify(options) !== JSON.stringify(clEditorSvc.options)) {
+            clEditorSvc.setOptions(options)
+            clEditorSvc.initPrism()
+            clEditorSvc.initConverter()
+          }
+        })
+
         var isInited
-        scope.$watch('editorSvc.cleditOptions', function (options) {
-          options = ({}).cl_extend(options)
-          clEditorSvc.initCledit(options, isInited)
+        scope.$watch('editorSvc.options', function () {
+          clEditorSvc.initCledit(isInited)
           if (!isInited) {
             isInited = true
             clEditorSvc.restoreScrollPosition()
@@ -196,7 +202,7 @@ angular.module('classeur.core.editor', [])
             scope.$apply()
           }
         }, 500)
-        scope.$watch('editorSvc.lastPreviewRefreshed', onPreviewRefreshed)
+        scope.$watch('editorSvc.lastRefreshPreview', onPreviewRefreshed)
         scope.$watchGroup(['editorSvc.editorElt.clientWidth', 'editorSvc.editorElt.clientHeight', 'editorSvc.previewElt.clientWidth', 'editorSvc.previewElt.clientHeight'], debouncedMeasureSectionDimension)
         scope.$watch('editorLayoutSvc.isPreviewVisible', function (isVisible) {
           isVisible && state && clEditorSvc.measureSectionDimensions()
@@ -429,38 +435,18 @@ angular.module('classeur.core.editor', [])
         return new PreviewClassApplier(classes, offsetGetter, properties)
       }
     })
-  .filter('clHighlightMarkdown',
-    function ($window, $sce, clEditorSvc) {
-      var defaultGrammar = window.mdGrammar({
-        fences: true,
-        tables: true,
-        footnotes: true,
-        abbrs: true,
-        deflists: true,
-        tocs: true,
-        dels: true,
-        subs: true,
-        sups: true,
-        maths: true,
-        insideFences: clEditorSvc.insideFences
-      })
-      return function (value, grammar) {
-        return $sce.trustAsHtml($window.Prism.highlight(value || '', grammar || defaultGrammar))
-      }
-    })
   .factory('clEditorSvc',
-    function ($window, $q, $rootScope, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown, clVersion, clEditorContentSvc) {
+    function ($window, $q, $rootScope, clExtensionSvc, clSettingSvc, clEditorLayoutSvc, clHtmlSanitizer, clPagedown, clVersion, clEditorContentSvc, clEditorMarkdownSvc, clMarkdownGrammarSvc) {
       var clEditorSvc = {
         lastExternalChange: 0,
         scrollOffset: 80,
         options: {},
-        setCurrentFileDao: setCurrentFileDao,
-        onMarkdownInit: onMarkdownInit,
+        setOptions: setOptions,
+        initPrism: initPrism,
+        sectionHighlighter: sectionHighlighter,
         initConverter: initConverter,
         convert: convert,
         refreshPreview: refreshPreview,
-        onAsyncPreview: onAsyncPreview,
-        setPrismOptions: setPrismOptions,
         setPreviewElt: setPreviewElt,
         setTocElt: setTocElt,
         setEditorElt: setEditorElt,
@@ -476,105 +462,9 @@ angular.module('classeur.core.editor', [])
         getContent: clEditorContentSvc.getContent
       }
 
-      // Create aliases for syntax highlighting
-      var Prism = $window.Prism
-      ;({
-        'js': 'javascript',
-        'json': 'javascript',
-        'html': 'markup',
-        'svg': 'markup',
-        'xml': 'markup',
-        'py': 'python',
-        'rb': 'ruby',
-        'ps1': 'powershell',
-        'psm1': 'powershell'
-      }).cl_each(function (name, alias) {
-        Prism.languages[alias] = Prism.languages[name]
-      })
-
-      var insideFences = clEditorSvc.insideFences = {}
-      Prism.languages.cl_each(function (language, name) {
-        if (Prism.util.type(language) === 'Object') {
-          insideFences['language-' + name] = {
-            pattern: new RegExp('(`{3}|~{3})' + name + '\\W[\\s\\S]*'),
-            inside: {
-              'cl cl-pre': /(`{3}|~{3}).*/,
-              rest: language
-            }
-          }
-        }
-      })
-
-      var noSpellcheckTokens = [
-        'code',
-        'pre',
-        'pre gfm',
-        'math block',
-        'math inline',
-        'math expr block',
-        'math expr inline',
-        'latex block'
-      ].cl_reduce(function (noSpellcheckTokens, key) {
-        noSpellcheckTokens[key] = true
-        return noSpellcheckTokens
-      }, Object.create(null))
-      Prism.hooks.add('wrap', function (env) {
-        if (noSpellcheckTokens[env.type]) {
-          env.attributes.spellcheck = 'false'
-        }
-      })
-
       var editorElt, previewElt, tocElt, previewTextStartOffset
-      var prismOptions = {
-        insideFences: insideFences
-      }
-      var markdownInitListeners = []
-      var asyncPreviewListeners = []
-      var currentFile
-      var startSectionBlockTypes = [
-        'paragraph_open',
-        'blockquote_open',
-        'heading_open',
-        'code',
-        'fence',
-        'table_open',
-        'html_block',
-        'bullet_list_open',
-        'ordered_list_open',
-        'hr',
-        'dl_open',
-        'toc'
-      ]
-      var startSectionBlockTypeMap = startSectionBlockTypes.cl_reduce(function (map, type) {
-        map[type] = true
-        return map
-      }, Object.create(null))
-      var htmlSectionMarker = '\uF111\uF222\uF333\uF444'
-      var diffMatchPatch = new $window.diff_match_patch() // eslint-disable-line new-cap
       var parsingCtx, conversionCtx,
         tokens
-
-      function onMarkdownInit (priority, listener) {
-        markdownInitListeners[priority] = listener
-      }
-
-      function onAsyncPreview (listener) {
-        asyncPreviewListeners.push(listener)
-      }
-
-      function setCurrentFileDao (file) {
-        currentFile = file
-      }
-
-      function setPrismOptions (options) {
-        prismOptions = prismOptions.cl_extend(options)
-        clEditorSvc.prismGrammar = $window.mdGrammar(prismOptions)
-        // Create new object to trigger watchers
-        clEditorSvc.cleditOptions = ({}).cl_extend(clEditorSvc.cleditOptions)
-        clEditorSvc.cleditOptions.highlighter = function (text) {
-          return Prism.highlight(text, clEditorSvc.prismGrammar)
-        }
-      }
 
       function setPreviewElt (elt) {
         previewElt = elt
@@ -608,110 +498,47 @@ angular.module('classeur.core.editor', [])
         })
       }
 
+      var Prism = $window.Prism
+      function sectionHighlighter (section) {
+        return Prism.highlight(section.text, clEditorSvc.prismGrammars[section.data])
+      }
+
+      function setOptions (options) {
+        clEditorSvc.options = options
+      }
+
+      function initPrism () {
+        if (clEditorSvc.options) {
+          var options = ({
+            insideFences: clEditorMarkdownSvc.defaultOptions.insideFences
+          }).cl_extend(clEditorSvc.options)
+          clEditorSvc.prismGrammars = clMarkdownGrammarSvc.makeGrammars(options)
+        }
+      }
+
       function initConverter () {
-        // Let the markdownInitListeners add the rules
-        clEditorSvc.markdown = new $window.markdownit('zero') // eslint-disable-line new-cap
-        clEditorSvc.markdown.core.ruler.enable([], true)
-        clEditorSvc.markdown.block.ruler.enable([], true)
-        clEditorSvc.markdown.inline.ruler.enable([], true)
+        if (clEditorSvc.options) {
+          clEditorSvc.converter = clEditorMarkdownSvc.createConverter(clEditorSvc.options, true)
+        }
+      }
 
-        asyncPreviewListeners = []
-        markdownInitListeners.cl_each(function (listener) {
-          listener(clEditorSvc.markdown)
-        })
-        startSectionBlockTypes.cl_each(function (type) {
-          var rule = clEditorSvc.markdown.renderer.rules[type] || clEditorSvc.markdown.renderer.renderToken
-          clEditorSvc.markdown.renderer.rules[type] = function (tokens, idx) {
-            if (tokens[idx].sectionDelimiter) {
-              return htmlSectionMarker + rule.apply(clEditorSvc.markdown.renderer, arguments)
+      function initCledit (reinit) {
+        if ($rootScope.currentFile) {
+          var options = {
+            sectionHighlighter: sectionHighlighter,
+            sectionParser: function (text) {
+              parsingCtx = clEditorMarkdownSvc.parseSections(clEditorSvc.converter, text)
+              return parsingCtx.sections
             }
-            return rule.apply(clEditorSvc.markdown.renderer, arguments)
           }
-        })
-      }
-
-      function initCledit (options, reinit) {
-        options.sectionParser = parseSection
-        clEditorContentSvc.initCledit(currentFile.content, options, reinit)
-      }
-
-      function parseSection (text) {
-        var markdownState = new clEditorSvc.markdown.core.State(text, clEditorSvc.markdown, {})
-        var markdownCoreRules = clEditorSvc.markdown.core.ruler.getRules('')
-        markdownCoreRules[0](markdownState) // Pass the normalize rule
-        markdownCoreRules[1](markdownState) // Pass the block rule
-        var lines = text.split('\n')
-        lines.pop() // Assume last char is a '\n'
-        var sections = []
-        var i = 0
-        parsingCtx = {
-          markdownState: markdownState,
-          markdownCoreRules: markdownCoreRules
+          clEditorContentSvc.initCledit($rootScope.currentFile.content, options, reinit)
         }
-
-        function addSection (maxLine) {
-          var section = ''
-          for (; i < maxLine; i++) {
-            section += lines[i] + '\n'
-          }
-          section && sections.push(section)
-        }
-        markdownState.tokens.cl_each(function (token, index) {
-          // index === 0 means there are empty lines at the begining of the file
-          if (token.level === 0 && index > 0 && startSectionBlockTypeMap[token.type]) {
-            token.sectionDelimiter = true
-            addSection(token.map[0])
-          }
-        })
-        addSection(lines.length)
-        return sections
-      }
-
-      function hashArray (arr, valueHash, valueArray) {
-        var hash = []
-        arr.cl_each(function (str) {
-          var strHash = valueHash[str]
-          if (strHash === undefined) {
-            strHash = valueArray.length
-            valueArray.push(str)
-            valueHash[str] = strHash
-          }
-          hash.push(strHash)
-        })
-        return String.fromCharCode.apply(null, hash)
       }
 
       function convert () {
-        if (!parsingCtx.markdownState.isConverted) { // Convert can be called twice without editor modification
-          parsingCtx.markdownCoreRules.slice(2).cl_each(function (rule) { // Skip previously passed rules
-            rule(parsingCtx.markdownState)
-          })
-          parsingCtx.markdownState.isConverted = true
-        }
+        conversionCtx = clEditorMarkdownSvc.convert(parsingCtx, conversionCtx)
         tokens = parsingCtx.markdownState.tokens
-        var html = clEditorSvc.markdown.renderer.render(
-          tokens,
-          clEditorSvc.markdown.options,
-          parsingCtx.markdownState.env
-        )
-        var htmlSectionList = html.split(htmlSectionMarker)
-        htmlSectionList[0] === '' && htmlSectionList.shift()
-        var valueHash = Object.create(null)
-        var valueArray = []
-        var newSectionHash = hashArray(htmlSectionList, valueHash, valueArray)
-        var htmlSectionDiff = [
-          [1, newSectionHash]
-        ]
-        if (conversionCtx) {
-          var oldSectionHash = hashArray(conversionCtx.htmlSectionList, valueHash, valueArray)
-          htmlSectionDiff = diffMatchPatch.diff_main(oldSectionHash, newSectionHash, false)
-        }
-        conversionCtx = {
-          sectionList: parsingCtx.sectionList,
-          htmlSectionList: htmlSectionList,
-          htmlSectionDiff: htmlSectionDiff
-        }
-        clEditorSvc.lastConversion = Date.now()
+        clEditorSvc.lastConvert = Date.now()
       }
 
       var anchorHash = {}
@@ -755,6 +582,7 @@ angular.module('classeur.core.editor', [])
               } else {
                 previewElt.appendChild(sectionPreviewElt)
               }
+              clExtensionSvc.sectionPreview(sectionPreviewElt, clEditorSvc.options)
 
               // Create TOC section element
               sectionTocElt = document.createElement('div')
@@ -786,56 +614,46 @@ angular.module('classeur.core.editor', [])
       }
 
       function runAsyncPreview () {
-        var imgLoadingListeners = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function (imgElt) {
-          return function (cb) {
+        var imgLoadingPromises = previewElt.querySelectorAll('.cl-preview-section.modified img').cl_map(function (imgElt) {
+          return new Promise(function (resolve) {
             if (!imgElt.src) {
-              return cb()
+              return resolve()
             }
             var img = new $window.Image()
-            img.onload = cb
-            img.onerror = cb
+            img.onload = resolve
+            img.onerror = resolve
             img.src = imgElt.src
-          }
+          })
         })
-        var listeners = asyncPreviewListeners.concat(imgLoadingListeners)
-        var resolved = 0
-
-        function attemptResolve () {
-          if (++resolved === listeners.length) {
-            resolve()
-          }
-        }
-        listeners.cl_each(function (listener) {
-          listener(attemptResolve)
-        })
-
-        function resolve () {
-          var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function (html, elt) {
-            if (!elt.portableHtml) {
-              var clonedElt = elt.cloneNode(true)
-              // Removed rendered Math, keep only original tex
-              clonedElt.querySelectorAll('[class^=MathJax]').cl_each(function (elt) {
-                elt.parentNode.removeChild(elt)
-              })
-              // Unwrap tables
-              clonedElt.querySelectorAll('.table-wrapper').cl_each(function (elt) {
-                while (elt.firstChild) {
-                  elt.parentNode.appendChild(elt.firstChild)
-                }
-                elt.parentNode.removeChild(elt)
-              })
-              elt.portableHtml = clonedElt.innerHTML
-            }
-            return html + elt.portableHtml
-          }, '')
-          clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '')
-          clEditorSvc.previewText = previewElt.textContent
-          clEditorSvc.lastPreviewRefreshed = Date.now()
-          debouncedTextToPreviewDiffs()
-          $rootScope.$apply()
-        }
+        Promise.all(imgLoadingPromises.concat(clExtensionSvc.asyncPreview(clEditorSvc.options)))
+          .then(function () {
+            var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function (html, elt) {
+              if (!elt.portableHtml) {
+                var clonedElt = elt.cloneNode(true)
+                // Removed rendered Math, keep only original tex
+                clonedElt.querySelectorAll('[class^=MathJax]').cl_each(function (elt) {
+                  elt.parentNode.removeChild(elt)
+                })
+                // Unwrap tables
+                clonedElt.querySelectorAll('.table-wrapper').cl_each(function (elt) {
+                  while (elt.firstChild) {
+                    elt.parentNode.appendChild(elt.firstChild)
+                  }
+                  elt.parentNode.removeChild(elt)
+                })
+                elt.portableHtml = clonedElt.innerHTML
+              }
+              return html + elt.portableHtml
+            }, '')
+            clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '')
+            clEditorSvc.previewText = previewElt.textContent
+            clEditorSvc.lastRefreshPreview = Date.now()
+            debouncedTextToPreviewDiffs()
+            $rootScope.$apply()
+          })
       }
 
+      var diffMatchPatch = new $window.diff_match_patch() // eslint-disable-line new-cap
       var debouncedTextToPreviewDiffs = $window.cledit.Utils.debounce(function () {
         previewTextStartOffset = 0
         clEditorSvc.sectionDescList.cl_each(function (sectionDesc) {
@@ -973,7 +791,7 @@ angular.module('classeur.core.editor', [])
           nextSectionDesc = clEditorSvc.sectionDescList[i]
 
           // Measure editor section
-          var newEditorSectionOffset = nextSectionDesc.editorElt && nextSectionDesc.editorElt.firstChild ? nextSectionDesc.editorElt.firstChild.offsetTop : editorSectionOffset
+          var newEditorSectionOffset = nextSectionDesc.editorElt ? nextSectionDesc.editorElt.offsetTop : editorSectionOffset
           newEditorSectionOffset = newEditorSectionOffset > editorSectionOffset ? newEditorSectionOffset : editorSectionOffset
           sectionDesc.editorDimension = new SectionDimension(editorSectionOffset, newEditorSectionOffset)
           editorSectionOffset = newEditorSectionOffset
@@ -1041,7 +859,7 @@ angular.module('classeur.core.editor', [])
       }
 
       function restoreScrollPosition () {
-        var scrollPosition = currentFile.content.state.scrollPosition
+        var scrollPosition = $rootScope.currentFile.content.state.scrollPosition
         if (scrollPosition && clEditorSvc.lastSectionDescListMeasured) {
           var objToScroll = getObjectToScroll()
           var sectionDesc = clEditorSvc.lastSectionDescListMeasured[scrollPosition.sectionIdx]
@@ -1079,16 +897,16 @@ angular.module('classeur.core.editor', [])
       }
 
       function getPandocAst () {
-        return tokens && $window.markdownitPandocRenderer(tokens, clEditorSvc.markdown.options)
+        return tokens && $window.markdownitPandocRenderer(tokens, clEditorSvc.converter.options)
       }
 
       function applyTemplate (template) {
         var view = {
           file: {
-            name: currentFile.name,
+            name: $rootScope.currentFile.name,
             content: {
-              properties: currentFile.content.properties,
-              text: currentFile.content.text,
+              properties: $rootScope.currentFile.content.properties,
+              text: $rootScope.currentFile.content.text,
               html: clEditorSvc.previewHtml
             }
           }

@@ -14,6 +14,10 @@ if (
     'ngMessages',
     'angular-google-analytics',
     'classeur.templates',
+    'classeur.extensions',
+    'classeur.extensions.emoji',
+    'classeur.extensions.markdown',
+    'classeur.extensions.mathJax',
     'classeur.blogs',
     'classeur.blogs.blogger',
     'classeur.blogs.github',
@@ -24,8 +28,9 @@ if (
     'classeur.core.classeurs',
     'classeur.core.explorerLayout',
     'classeur.core.editor',
-    'classeur.core.editor.editorContent',
+    'classeur.core.editorContent',
     'classeur.core.editorLayout',
+    'classeur.core.editorMarkdown',
     'classeur.core.filePropertiesDialog',
     'classeur.core.files',
     'classeur.core.folders',
@@ -67,9 +72,6 @@ if (
     'classeur.optional.tour',
     'classeur.optional.userCursor',
     'classeur.optional.userMgtPage',
-    'classeur.optional.zenMode',
-    'classeur.extensions.emoji',
-    'classeur.extensions.markdown',
-    'classeur.extensions.mathJax'
+    'classeur.optional.zenMode'
   ])
 }
