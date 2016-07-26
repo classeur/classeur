@@ -78,8 +78,8 @@ angular.module('classeur.optional.settingsPage', [])
               var preElt = element[0].querySelector('.prism--editor')
               var cledit = $window.cledit(preElt)
               cledit.init({
-                highlighter: function (text) {
-                  return $window.Prism.highlight(text, $window.Prism.languages.javascript)
+                sectionHighlighter: function (section) {
+                  return $window.Prism.highlight(section.text, $window.Prism.languages.javascript)
                 }
               })
               cledit.setContent(clSettingSvc.values.handlebarsHelpers)
@@ -273,8 +273,8 @@ angular.module('classeur.optional.settingsPage', [])
               scope.trashFiles = {}
               scope.trashRangeStart = 0
             }
+            scope.trashRetrievePending = true
             waitForSocketReady(function () {
-              scope.trashRetrievePending = true
               clRestSvc.list('/api/v2/users/' + clSocketSvc.ctx.userId + '/files', {
                 deleted: true,
                 direction: 'desc'

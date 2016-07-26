@@ -10,8 +10,8 @@ angular.module('classeur.core.templateManagerDialog', [])
             var preElt = element[0].querySelector('.prism--editor')
             var cledit = $window.cledit(preElt)
             cledit.init({
-              highlighter: function (text) {
-                return $window.Prism.highlight(text, $window.Prism.languages.markup)
+              sectionHighlighter: function (section) {
+                return $window.Prism.highlight(section.text, $window.Prism.languages.markup)
               }
             })
             var lastSelectedKey

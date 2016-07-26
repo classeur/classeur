@@ -25,11 +25,27 @@ angular.module('classeur.core.utils', [])
     })
   .factory('clSetInterval',
     function ($rootScope) {
-      return function (cb, interval) {
+      return function (func, interval) {
         interval = (1 + (Math.random() - 0.5) * 0.1) * interval | 0
         setInterval(function () {
-          $rootScope.appReady && cb()
+          $rootScope.appReady && func()
         }, interval)
+      }
+    })
+  .factory('clThrottle',
+    function () {
+      return function (func, wait) {
+        var timeoutId
+        var lastTime = 0
+        return function () {
+          clearTimeout(timeoutId)
+          var currentTime = Date.now()
+          var localWait = wait + lastTime - currentTime
+          timeoutId = setTimeout(function () {
+            lastTime = Date.now()
+            func()
+          }, localWait < 1 ? 1 : localWait)
+        }
       }
     })
   .factory('clUid',
