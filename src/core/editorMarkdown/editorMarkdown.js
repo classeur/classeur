@@ -2,6 +2,7 @@ angular.module('classeur.core.editorMarkdown', [])
   .filter('clHighlightMarkdown',
     function ($window, $sce, clEditorMarkdownSvc) {
       return function (value, converter, grammars) {
+        value = value || ''
         converter = converter || clEditorMarkdownSvc.defaultConverter
         grammars = grammars || clEditorMarkdownSvc.defaultPrismGrammars
         var parsingCtx = clEditorMarkdownSvc.parseSections(converter, value)
@@ -110,14 +111,18 @@ angular.module('classeur.core.editorMarkdown', [])
     ])
 
     clEditorMarkdownSvc.defaultOptions = {
-      fence: true,
-      table: true,
-      footnote: true,
       abbr: true,
+      breaks: true,
+      deflist: true,
       del: true,
+      fence: true,
+      footnote: true,
+      linkify: true,
+      math: true,
       sub: true,
       sup: true,
-      math: true,
+      table: true,
+      typographer: true,
       insideFences: insideFences
     }
     clEditorMarkdownSvc.defaultConverter = createConverter(clEditorMarkdownSvc.defaultOptions)
@@ -143,13 +148,15 @@ angular.module('classeur.core.editorMarkdown', [])
       return converter
     }
 
-    function parseSections (converter, text) {
+    function parseSections (converter, text, isCledit) {
       var markdownState = new converter.core.State(text, converter, {})
       var markdownCoreRules = converter.core.ruler.getRules('')
       markdownCoreRules[0](markdownState) // Pass the normalize rule
       markdownCoreRules[1](markdownState) // Pass the block rule
       var lines = text.split('\n')
-      lines.pop() // Assume last char is a '\n'
+      if (!lines[lines.length - 1]) {
+        lines.pop() // In cledit, last char is always '\n'. Remove it as one will be added by addSection
+      }
       var data = 'main'
       var i = 0
       var parsingCtx = {

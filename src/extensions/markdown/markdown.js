@@ -1,5 +1,5 @@
 angular.module('classeur.extensions.markdown', [])
-  .run(function ($window, clExtensionSvc) {
+  .config(function (clExtensionSvcProvider) {
     var coreBaseRules = [
       'normalize',
       'block',
@@ -41,7 +41,7 @@ angular.module('classeur.extensions.markdown', [])
       'text_collapse'
     ]
 
-    clExtensionSvc.onGetOptions(function (options, properties) {
+    clExtensionSvcProvider.onGetOptions(function (options, properties) {
       options.abbr = properties['ext:markdown:abbr'] !== 'false'
       options.breaks = properties['ext:markdown:breaks'] !== 'false'
       options.deflist = properties['ext:markdown:deflist'] !== 'false'
@@ -55,7 +55,7 @@ angular.module('classeur.extensions.markdown', [])
       options.typographer = properties['ext:markdown:typographer'] !== 'false'
     })
 
-    clExtensionSvc.onInitConverter(0, function (markdown, options) {
+    clExtensionSvcProvider.onInitConverter(0, function (markdown, options) {
       markdown.set({
         html: true,
         breaks: !!options.breaks,
@@ -80,11 +80,11 @@ angular.module('classeur.extensions.markdown', [])
       markdown.inline.ruler.enable(inlineRules)
       markdown.inline.ruler2.enable(inlineRules2)
 
-      options.abbr && markdown.use($window.markdownitAbbr)
-      options.deflist && markdown.use($window.markdownitDeflist)
-      options.footnote && markdown.use($window.markdownitFootnote)
-      options.sub && markdown.use($window.markdownitSub)
-      options.sup && markdown.use($window.markdownitSup)
+      options.abbr && markdown.use(window.markdownitAbbr)
+      options.deflist && markdown.use(window.markdownitDeflist)
+      options.footnote && markdown.use(window.markdownitFootnote)
+      options.sub && markdown.use(window.markdownitSub)
+      options.sup && markdown.use(window.markdownitSup)
 
       markdown.core.ruler.before('replacements', 'anchors', function (state) {
         var anchorHash = {}
@@ -165,9 +165,9 @@ angular.module('classeur.extensions.markdown', [])
       }
     })
 
-    clExtensionSvc.onSectionPreview(function (elt) {
+    clExtensionSvcProvider.onSectionPreview(function (elt) {
       elt.querySelectorAll('.prism').cl_each(function (elt) {
-        !elt.highlighted && $window.Prism.highlightElement(elt)
+        !elt.highlighted && window.Prism.highlightElement(elt)
         elt.highlighted = true
       })
     })

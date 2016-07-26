@@ -722,7 +722,7 @@ angular.module('classeur.optional.discussions', [])
       }
     })
   .directive('clDiscussionCommentList',
-    function ($window, $timeout, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc, clEditorContentSvc, clToast) {
+    function ($window, $timeout, clUid, clDiscussionSvc, clUserSvc, clDialog, clEditorSvc, clEditorContentSvc, clEditorMarkdownSvc, clToast) {
       var pageSize = 10
 
       var lastContent = ''
@@ -752,6 +752,9 @@ angular.module('classeur.optional.discussions', [])
 
         cledit.init({
           sectionHighlighter: clEditorSvc.sectionHighlighter,
+          sectionParser: function (text) {
+            return clEditorMarkdownSvc.parseSections(clEditorSvc.converter, text).sections
+          },
           content: lastContent
         })
 

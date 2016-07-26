@@ -1,8 +1,8 @@
 angular.module('classeur.extensions.mathJax', [])
-  .run(function ($window, clExtensionSvc) {
+  .config(function (clExtensionSvcProvider) {
     var config, mathJaxScript
 
-    clExtensionSvc.onGetOptions(function (options, properties, isCurrentFile) {
+    clExtensionSvcProvider.onGetOptions(function (options, properties, isCurrentFile) {
       options.math = properties['ext:mathjax'] !== 'false'
       if (!options.math || !isCurrentFile) {
         config = undefined
@@ -71,16 +71,16 @@ angular.module('classeur.extensions.mathJax', [])
       }
     })
 
-    clExtensionSvc.onInitConverter(2, function (markdown, options, isCurrentFile) {
+    clExtensionSvcProvider.onInitConverter(2, function (markdown, options, isCurrentFile) {
       if (options.math) {
-        markdown.use($window.markdownitMathjax)
+        markdown.use(window.markdownitMathjax)
         if (isCurrentFile) {
           initMathJax()
         }
       }
     })
 
-    clExtensionSvc.onAsyncPreview(function (options) {
+    clExtensionSvcProvider.onAsyncPreview(function (options) {
       if (options.math && updateMathJax) {
         return new Promise(function (resolve) {
           typesetCallback = resolve
@@ -106,16 +106,16 @@ angular.module('classeur.extensions.mathJax', [])
     var pending = false
 
     function applyConfig () {
-      if (!config || !$window.MathJax) {
+      if (!config || !window.MathJax) {
         return
       }
-      $window.MathJax.Hub.Config(JSON.parse(JSON.stringify(config)))
-      $window.MathJax.Hub.Configured()
+      window.MathJax.Hub.Config(JSON.parse(JSON.stringify(config)))
+      window.MathJax.Hub.Configured()
     }
 
     function onMathJaxLoaded () {
-      var MathJax = $window.MathJax
-      var HUB = $window.MathJax.Hub
+      var MathJax = window.MathJax
+      var HUB = window.MathJax.Hub
       applyConfig()
 
       //

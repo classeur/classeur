@@ -1,8 +1,8 @@
 angular.module('classeur.extensions.emoji', [])
-  .run(function ($window, clExtensionSvc, clEditorSvc) {
+  .config(function (clExtensionSvcProvider) {
     var twemojiScript, twemoji
 
-    clExtensionSvc.onGetOptions(function (options, properties, isCurrentFile) {
+    clExtensionSvcProvider.onGetOptions(function (options, properties, isCurrentFile) {
       options.emoji = properties['ext:emoji'] === 'true'
       options.emojiShortcuts = properties['ext:emoji:shortcuts'] !== 'false'
     })
@@ -12,8 +12,8 @@ angular.module('classeur.extensions.emoji', [])
         twemojiScript = document.createElement('script')
         twemojiScript.src = 'https://twemoji.maxcdn.com/twemoji.min.js'
         twemojiScript.onload = function () {
-          twemoji = $window.twemoji
-          clEditorSvc.previewElt.querySelectorAll('.cl-preview-section').cl_each(function (elt) {
+          twemoji = window.twemoji
+          document.querySelectorAll('.cl-preview-section').cl_each(function (elt) {
             twemoji.parse(elt)
           })
         }
@@ -24,20 +24,20 @@ angular.module('classeur.extensions.emoji', [])
       }
     }
 
-    clExtensionSvc.onInitConverter(1, function (markdown, options, isCurrentFile) {
+    clExtensionSvcProvider.onInitConverter(1, function (markdown, options, isCurrentFile) {
       if (options.emoji) {
         var emojiOptions = {}
         if (!options.emojiShortcuts) {
           emojiOptions.shortcuts = {}
         }
-        markdown.use($window.markdownitEmoji, emojiOptions)
+        markdown.use(window.markdownitEmoji, emojiOptions)
         if (isCurrentFile) {
           initTwemoji()
         }
       }
     })
 
-    clExtensionSvc.onSectionPreview(function (elt, options) {
+    clExtensionSvcProvider.onSectionPreview(function (elt, options) {
       if (options.emoji && twemoji) {
         twemoji.parse(elt)
       }
