@@ -7,7 +7,7 @@ angular.module('classeur.optional.zenMode', [])
       }
     })
   .directive('clZenMode',
-    function ($window, clEditorLayoutSvc, clLocalSettingSvc) {
+    function ($window, clEditorLayoutSvc, clLocalSettingSvc, clThrottle) {
       return {
         restrict: 'E',
         templateUrl: 'optional/zenMode/zenMode.html',
@@ -27,12 +27,10 @@ angular.module('classeur.optional.zenMode', [])
           return isTyping &&
           clLocalSettingSvc.values.zenMode &&
           clEditorLayoutSvc.isEditorOpen &&
-          !clLocalSettingSvc.values.sideBar &&
-          !clEditorLayoutSvc.isSidePreviewOpen &&
           !clEditorLayoutSvc.isMenuOpen
         }
 
-        var showLevel1 = $window.cledit.Utils.debounce(function () {
+        var showLevel1 = clThrottle(function () {
           if (!isEnabled()) {
             return
           }
@@ -44,9 +42,9 @@ angular.module('classeur.optional.zenMode', [])
             .easing('ease-out')
             .start(true)
           isHidden = false
-        }, 3000)
+        }, 800)
 
-        var showLevel2 = $window.cledit.Utils.debounce(function () {
+        var showLevel2 = clThrottle(function () {
           isEnabled() && zenPanelInnerElt.clanim
             .opacity(1)
             .duration(300)
@@ -76,7 +74,8 @@ angular.module('classeur.optional.zenMode', [])
             showLevel1()
             showLevel2()
           }
-          unhide && !isHidden && zenPanelElt.clanim
+          if (unhide && !isHidden) {
+            zenPanelElt.clanim
             .opacity(0)
             .duration(100)
             .easing('ease-out')
@@ -85,6 +84,7 @@ angular.module('classeur.optional.zenMode', [])
               isTyping = false
               zenPanelElt.classList.add('zen-panel--hidden')
             })
+          }
         }
 
         zenPanelElt.clanim.opacity(0).start()
@@ -98,13 +98,13 @@ angular.module('classeur.optional.zenMode', [])
           showLevel1()
           showLevel2()
         })
-        editorLayoutElt.addEventListener('mousemove', hidePanel)
-        editorLayoutElt.addEventListener('click', hidePanel)
+        $window.addEventListener('mousemove', hidePanel)
+        $window.addEventListener('click', hidePanel)
 
         scope.$watch('editorLayoutSvc.isEditorOpen', hidePanel.cl_bind(null, null))
         scope.$on('$destroy', function () {
-          editorLayoutElt.removeEventListener('mousemove', hidePanel)
-          editorLayoutElt.removeEventListener('click', hidePanel)
+          $window.removeEventListener('mousemove', hidePanel)
+          $window.removeEventListener('click', hidePanel)
         })
       }
     })
