@@ -550,6 +550,7 @@ angular.module('classeur.core.editor', [])
         var sectionDescIdx = 0
         var insertBeforePreviewElt = previewElt.firstChild
         var insertBeforeTocElt = tocElt.firstChild
+        var previewHtml = ''
         conversionCtx.htmlSectionDiff.cl_each(function (item) {
           for (var i = 0; i < item[1].length; i++) {
             var section = conversionCtx.sectionList[sectionIdx]
@@ -557,6 +558,7 @@ angular.module('classeur.core.editor', [])
               var sectionDesc = clEditorSvc.sectionDescList[sectionDescIdx++]
               sectionDesc.editorElt = section.elt
               newSectionDescList.push(sectionDesc)
+              previewHtml += sectionDesc.html
               sectionIdx++
               insertBeforePreviewElt.classList.remove('modified')
               insertBeforePreviewElt = insertBeforePreviewElt.nextSibling
@@ -599,16 +601,28 @@ angular.module('classeur.core.editor', [])
                 tocElt.appendChild(sectionTocElt)
               }
 
+              var clonedElt = sectionPreviewElt.cloneNode(true)
+              // Unwrap tables
+              clonedElt.querySelectorAll('.table-wrapper').cl_each(function (elt) {
+                while (elt.firstChild) {
+                  elt.parentNode.appendChild(elt.firstChild)
+                }
+                elt.parentNode.removeChild(elt)
+              })
+
+              previewHtml += clonedElt.innerHTML
               newSectionDescList.push({
                 section: section,
                 editorElt: section.elt,
                 previewElt: sectionPreviewElt,
-                tocElt: sectionTocElt
+                tocElt: sectionTocElt,
+                html: clonedElt.innerHTML
               })
             }
           }
         })
         clEditorSvc.sectionDescList = newSectionDescList
+        clEditorSvc.previewHtml = previewHtml.replace(/^\s+|\s+$/g, '')
         tocElt.classList[tocElt.querySelector('.cl-toc-section *') ? 'remove' : 'add']('toc-tab--empty')
         runAsyncPreview()
       }
@@ -627,25 +641,6 @@ angular.module('classeur.core.editor', [])
         })
         Promise.all(imgLoadingPromises.concat(clExtensionSvc.asyncPreview(clEditorSvc.options)))
           .then(function () {
-            var html = previewElt.querySelectorAll('.cl-preview-section').cl_reduce(function (html, elt) {
-              if (!elt.portableHtml) {
-                var clonedElt = elt.cloneNode(true)
-                // Removed rendered Math, keep only original tex
-                clonedElt.querySelectorAll('[class^=MathJax]').cl_each(function (elt) {
-                  elt.parentNode.removeChild(elt)
-                })
-                // Unwrap tables
-                clonedElt.querySelectorAll('.table-wrapper').cl_each(function (elt) {
-                  while (elt.firstChild) {
-                    elt.parentNode.appendChild(elt.firstChild)
-                  }
-                  elt.parentNode.removeChild(elt)
-                })
-                elt.portableHtml = clonedElt.innerHTML
-              }
-              return html + elt.portableHtml
-            }, '')
-            clEditorSvc.previewHtml = html.replace(/^\s+|\s+$/g, '')
             clEditorSvc.previewText = previewElt.textContent
             clEditorSvc.lastRefreshPreview = Date.now()
             debouncedTextToPreviewDiffs()
