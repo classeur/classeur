@@ -1,13 +1,37 @@
 angular.module('classeur.optional.zenMode', [])
   .directive('clZenModeSettings',
-    function () {
+    function (clZenModeSvc, clLocalSettingSvc, clToast) {
       return {
         restrict: 'E',
-        templateUrl: 'optional/zenMode/zenModeSettings.html'
+        scope: true,
+        templateUrl: 'optional/zenMode/zenModeSettings.html',
+        link: link
+      }
+
+      function link (scope) {
+        scope.zenModeSvc = clZenModeSvc
+        scope.$watch('localSettingSvc.values.zenMode', function (value) {
+          clZenModeSvc.enabled = value && !clLocalSettingSvc.values.sidePreview
+        })
+        scope.$watch('zenModeSvc.enabled', function (value) {
+          if (clLocalSettingSvc.values.sidePreview) {
+            if (value) {
+              clToast('Not possible with side preview.')
+              clZenModeSvc.enabled = false
+            }
+          } else {
+            clLocalSettingSvc.values.zenMode = value
+          }
+        })
+        scope.$watch('localSettingSvc.values.sidePreview', function (value) {
+          clZenModeSvc.enabled = value
+            ? false
+            : clLocalSettingSvc.values.zenMode
+        })
       }
     })
   .directive('clZenMode',
-    function ($window, clEditorLayoutSvc, clLocalSettingSvc, clThrottle) {
+    function ($window, clEditorLayoutSvc, clZenModeSvc, clThrottle) {
       return {
         restrict: 'E',
         templateUrl: 'optional/zenMode/zenMode.html',
@@ -25,7 +49,7 @@ angular.module('classeur.optional.zenMode', [])
 
         function isEnabled () {
           return isTyping &&
-          clLocalSettingSvc.values.zenMode &&
+          clZenModeSvc.enabled &&
           clEditorLayoutSvc.isEditorOpen &&
           !clEditorLayoutSvc.isMenuOpen
         }
@@ -76,14 +100,14 @@ angular.module('classeur.optional.zenMode', [])
           }
           if (unhide && !isHidden) {
             zenPanelElt.clanim
-            .opacity(0)
-            .duration(100)
-            .easing('ease-out')
-            .start(true, function () {
-              isHidden = true
-              isTyping = false
-              zenPanelElt.classList.add('zen-panel--hidden')
-            })
+              .opacity(0)
+              .duration(100)
+              .easing('ease-out')
+              .start(true, function () {
+                isHidden = true
+                isTyping = false
+                zenPanelElt.classList.add('zen-panel--hidden')
+              })
           }
         }
 
@@ -106,5 +130,11 @@ angular.module('classeur.optional.zenMode', [])
           $window.removeEventListener('mousemove', hidePanel)
           $window.removeEventListener('click', hidePanel)
         })
+      }
+    })
+  .factory('clZenModeSvc',
+    function (clLocalSettingSvc) {
+      return {
+        enabled: clLocalSettingSvc.values.zenMode
       }
     })
