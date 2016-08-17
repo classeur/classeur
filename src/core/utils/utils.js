@@ -391,6 +391,51 @@ angular.module('classeur.core.utils', [])
 
       return clStateMgr
     })
+  .factory('clHistory',
+    function ($location) {
+      var history = []
+      var clHistory = {
+        addUrl: addUrl,
+        getPrevious: getPrevious
+      }
+
+      var parser = document.createElement('a')
+      function addUrl (url) {
+        var location = '/'
+        parser.href = url
+        if (parser.hash) {
+          location = parser.hash.replace(/^#!?/, '')
+        }
+        parser.href = location
+        history.push({
+          ur: url,
+          location: location,
+          path: parser.pathname,
+          search: parser.search,
+          hash: parser.hash
+        })
+        while (history.length > 100) {
+          history.shift()
+        }
+      }
+
+      function getPrevious () {
+        var lastItem = history[history.length - 1]
+        for (var i = history.length - 2; i >= 0; i--) {
+          var item = history[i]
+          if (item.path !== lastItem.path) {
+            return item
+          }
+        }
+      }
+
+      return clHistory
+    })
+  .run(function (clHistory, $rootScope) {
+    $rootScope.$on('$locationChangeSuccess', function (evt, url) {
+      clHistory.addUrl(url)
+    })
+  })
   .factory('clUrl',
     function () {
       return {

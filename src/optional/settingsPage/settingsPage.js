@@ -11,7 +11,7 @@ angular.module('classeur.optional.settingsPage', [])
       })
     })
   .directive('clSettingsPage',
-    function ($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc, clRestSvc) {
+    function ($window, $rootScope, $timeout, $location, clDialog, clUserSvc, clToast, clStateMgr, clSocketSvc, clSyncSvc, clFileSvc, clSettingSvc, clFilePropertiesDialog, clTemplateManagerDialog, clBlogSvc, clRestSvc, clHistory) {
       var trashPageSize = 25
 
       clSocketSvc.addMsgHandler('linkedUser', function (msg) {
@@ -68,7 +68,8 @@ angular.module('classeur.optional.settingsPage', [])
         }
 
         scope.close = function () {
-          $location.url('/')
+          var previous = clHistory.getPrevious()
+          $location.url(previous ? previous.location : '/')
         }
 
         scope.handlerbarsDialog = function () {
