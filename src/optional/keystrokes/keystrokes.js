@@ -197,7 +197,9 @@ angular.module('classeur.optional.keystrokes', [])
             return hit.line
           })
         }
+
         var before = state.before.split('\n')
+        before.unshift('') // Add extra line (fixes #184)
         var after = state.after.split('\n')
         var currentLine = before.pop() || ''
         var currentPos = currentLine.length
@@ -214,7 +216,7 @@ angular.module('classeur.optional.keystrokes', [])
           }
         }
         currentLine = lines[before.length]
-        state.before = lines.slice(0, before.length)
+        state.before = lines.slice(1, before.length) // As we've added an extra line
         state.before.push(currentLine.slice(0, currentPos))
         state.before = state.before.join('\n')
         state.after = [currentLine.slice(currentPos)].concat(lines.slice(before.length + 1))
