@@ -2,16 +2,17 @@
   <md-dialog-content>
     <h2>Export
         </h2>
-    <md-radio-group ng-model="exportConfig.format">
+    <md-radio-group ng-model="localSettingSvc.values.exportFormat">
       <div layout="row" layout-align="start center">
-        <md-radio-button class="export-dialog__radio-btn" value="text">Text</md-radio-button>
-        <md-select ng-model="exportConfig.textTemplateKey" ng-focus="exportConfig.format = 'text'" aria-label="Select template">
+        <md-radio-button class="export-dialog__radio-btn" value="template">Template</md-radio-button>
+        <md-select ng-model="localSettingSvc.values.exportTemplateKey" ng-focus="localSettingSvc.values.exportFormat = 'template'" aria-label="Select template">
           <md-option ng-repeat="(key, value) in templates" value="{{key}}">{{key}}</md-option>
         </md-select>
+        <md-button class="export-dialog__clipboard icon-content-paste" cl-copy-to-clipboard="appliedTemplate" success="onCopySuccess()" error="onCopyError()" aria-label="Copy to clipboard" title="Copy to clipboard"></md-button>
       </div>
       <div layout="row" layout-align="start center">
         <md-radio-button class="export-dialog__radio-btn" value="document">Document</md-radio-button>
-        <md-select ng-model="exportConfig.documentFormatKey" ng-focus="exportConfig.format = 'document'" aria-label="Select document format">
+        <md-select ng-model="localSettingSvc.values.exportDocumentFormatKey" ng-focus="localSettingSvc.values.exportFormat = 'document'" aria-label="Select document format">
           <md-option value="epub">EPUB</md-option>
           <md-option value="epub3">EPUB v3</md-option>
           <md-option value="latex">LaTeX</md-option>

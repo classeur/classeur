@@ -536,6 +536,28 @@ angular.module('classeur.core.utils', [])
         }
       }
     })
+  .directive('clCopyToClipboard',
+    function ($timeout) {
+      return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+          var clipboard = new window.Clipboard(element[0], {
+            text: function () {
+              return scope.$eval(attrs.clCopyToClipboard)
+            }
+          })
+          clipboard.on('success', function () {
+            attrs.success && scope.$eval(attrs.success)
+          })
+          clipboard.on('error', function () {
+            attrs.error && scope.$eval(attrs.error)
+          })
+          scope.$on('$destroy', function () {
+            clipboard.destroy()
+          })
+        }
+      }
+    })
   .directive('clInfiniteScroll',
     function ($timeout) {
       return {

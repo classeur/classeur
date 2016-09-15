@@ -26,6 +26,7 @@
     "cldiffutils": "~2.0.0",
     "cledit": "~1.2.0",
     "clgulp": "~1.1.0",
+    "clipboard": "^1.5.12",
     "clunderscore": "~1.0.0",
     "debug": "visionmedia/debug#233fe2b4a6127b005038f2c8d3f3ca0250aa992e",
     "engine.io-client": "~1.6.4",

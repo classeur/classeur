@@ -63,6 +63,7 @@ var appVendorJs = [
   'cledit/scripts/cleditUndoMgr',
   'cledit/scripts/cleditUtils',
   'cledit/scripts/cleditWatcher',
+  'clipboard/dist/clipboard',
   'engine.io-client/engine.io',
   'es6-promise/dist/es6-promise',
   'filesaver.js/FileSaver',

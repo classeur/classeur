@@ -1,6 +1,6 @@
 angular.module('classeur.optional.exportToDisk', [])
   .directive('clExportToDisk',
-    function ($window, clDialog, clToast, clUserSvc, clEditorLayoutSvc, clSocketSvc, clEditorSvc, clSettingSvc, clTemplateManagerDialog) {
+    function ($window, clDialog, clToast, clUserSvc, clEditorLayoutSvc, clSocketSvc, clEditorSvc, clSettingSvc, clTemplateManagerDialog, clLocalSettingSvc) {
       var mimeTypes = {
         asciidoc: 'text/plain',
         epub: 'application/epub+zip',
@@ -43,12 +43,6 @@ angular.module('classeur.optional.exportToDisk', [])
         saveAs($window.atob(msg.content), msg.name, msg.format)
       })
 
-      var exportConfig = {
-        format: 'text',
-        textTemplateKey: 'Plain text',
-        documentFormatKey: 'pdf'
-      }
-
       return {
         restrict: 'E',
         link: link
@@ -68,10 +62,11 @@ angular.module('classeur.optional.exportToDisk', [])
           clDialog.show({
             templateUrl: 'optional/exportToDisk/exportToDisk.html',
             controller: ['$scope', function (scope) {
+              scope.appliedTemplate = ''
               scope.templates = clSettingSvc.values.exportTemplates
-              scope.exportConfig = exportConfig
+              scope.localSettingSvc = clLocalSettingSvc
               scope.export = function () {
-                clDialog.hide()
+                clDialog.hide(scope.appliedTemplate)
               }
               scope.cancel = function () {
                 clDialog.cancel()
@@ -83,49 +78,57 @@ angular.module('classeur.optional.exportToDisk', [])
                     openDialog()
                   }, openDialog)
               }
-            }]
-          }).then(function () {
-            closeDialog()
-            if (exportConfig.format === 'text') {
-              var template = clSettingSvc.values.exportTemplates[exportConfig.textTemplateKey]
-              var format = template.indexOf('file.content.html') === -1 ? 'txt' : 'html'
-              clEditorSvc.applyTemplate(template)
-                .then(function (text) {
-                  text = unescape(encodeURIComponent(text)) // UTF-8 to ByteString
-                  saveAs(text, scope.currentFile.name, format)
-                })
-            } else if (exportConfig.format === 'document') {
-              var ast = clEditorSvc.getPandocAst()
-              JSON.stringify(ast)
-              var content = scope.currentFile.content
-              if (!clUserSvc.user) {
-                return clDialog.show({
-                  templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
-                  controller: ['$scope', function (scope) {
-                    scope.userSvc = clUserSvc
-                    scope.cancel = function () {
-                      clDialog.cancel()
-                    }
-                  }]
-                })
-              }
-              if (!clSocketSvc.isReady) {
-                return clToast('You appear to be offline.')
-              }
-              clToast('Your document is being prepared...')
-              clSocketSvc.sendMsg('toDocument', {
-                name: scope.currentFile.name,
-                format: exportConfig.documentFormatKey,
-                options: {
-                  highlightStyle: clSettingSvc.values.pandocHighlightStyle,
-                  toc: clSettingSvc.values.pandocToc,
-                  tocDepth: clSettingSvc.values.pandocTocDepth
-                },
-                metadata: content.properties,
-                ast: ast
+              scope.$watch('localSettingSvc.values.exportTemplateKey', function (templateKey) {
+                var template = clSettingSvc.values.exportTemplates[templateKey]
+                clEditorSvc.applyTemplate(template || '')
+                  .then(function (text) {
+                    scope.appliedTemplate = text
+                  })
               })
-            }
-          }, closeDialog)
+              scope.onCopySuccess = function () {
+                clToast('Copied!')
+              }
+              scope.onCopyError = function () {
+                clToast('Unable to copy to clipboard.')
+              }
+            }]
+          })
+            .then(function (appliedTemplate) {
+              closeDialog()
+              if (clLocalSettingSvc.values.exportFormat === 'template') {
+                appliedTemplate = unescape(encodeURIComponent(appliedTemplate)) // UTF-8 to ByteString
+                saveAs(appliedTemplate, scope.currentFile.name, 'html')
+              } else if (clLocalSettingSvc.values.exportFormat === 'document') {
+                var ast = clEditorSvc.getPandocAst()
+                var content = scope.currentFile.content
+                if (!clUserSvc.user) {
+                  return clDialog.show({
+                    templateUrl: 'optional/exportToDisk/premiumPdfDialog.html',
+                    controller: ['$scope', function (scope) {
+                      scope.userSvc = clUserSvc
+                      scope.cancel = function () {
+                        clDialog.cancel()
+                      }
+                    }]
+                  })
+                }
+                if (!clSocketSvc.isReady) {
+                  return clToast('You appear to be offline.')
+                }
+                clToast('Your document is being prepared...')
+                clSocketSvc.sendMsg('toDocument', {
+                  name: scope.currentFile.name,
+                  format: clLocalSettingSvc.values.exportDocumentFormatKey,
+                  options: {
+                    highlightStyle: clSettingSvc.values.pandocHighlightStyle,
+                    toc: clSettingSvc.values.pandocToc,
+                    tocDepth: clSettingSvc.values.pandocTocDepth
+                  },
+                  metadata: content.properties,
+                  ast: ast
+                })
+              }
+            }, closeDialog)
         }
 
         scope.$watch('editorLayoutSvc.currentControl === "exportToDisk"', function (value) {
