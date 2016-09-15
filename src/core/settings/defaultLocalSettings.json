@@ -1,8 +1,12 @@
 {
+  "blogPostTemplateKey": "Plain HTML",
   "buttonBar": true,
   "editorTourStep": 0,
   "editorZoom": 3,
   "explorerTourStep": 0,
+  "exportFormat": "template",
+  "exportTemplateKey": "Plain text",
+  "exportDocumentFormatKey": "pdf",
 	"lastClasseurId": "",
 	"lastFolderId": "",
   "localFileAlertDismissed": false,

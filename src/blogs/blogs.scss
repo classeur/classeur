@@ -77,7 +77,9 @@
 }
 
 .blog-post-entry {
-  margin: 5px 0 35px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+  margin-bottom: 25px;
+  padding-bottom: 25px;
 }
 
 .blog-post-entry__info {
