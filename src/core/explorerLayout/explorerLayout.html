@@ -16,13 +16,13 @@
               <md-tooltip md-delay="99999999" md-visible="show" class="bottom" cl-tour-step="!isDialogOpen && explorerLayoutSvc.isExplorerOpen && localSettingSvc.values.explorerTourStep === 1">
                 <p>This is your default classeur.</p>
                 <p>Click
-                  <span class="icon-folder-open"></span> to organize your classeurs.
+                  <span class="icon-folder"></span> to organize your classeurs.
                 </p>
                 <div layout="row" layout-align="end" class="tooltip-actions">
                   <md-button md-no-ink cl-explorer-tour-next>Ok</md-button>
                 </div>
               </md-tooltip>
-              <div class="classeur-toggler__inner icon-folder-open"></div>
+              <div class="classeur-toggler__inner icon-folder"></div>
             </md-button>
           </div>
           <div layout="row">
@@ -72,7 +72,7 @@
               <div class="explorer-binder__scroller panel">
                 <div class="folder-view folder-view--main panel" cl-infinite-scroll="explorerLayoutSvc.moreFiles()">
                   <cl-folder-name ng-if="explorerLayoutSvc.currentFolder"></cl-folder-name>
-                  <md-toolbar ng-if="!explorerLayoutSvc.currentFolder" class="plastic--gradient" ng-class="plasticClass">
+                  <md-toolbar ng-if="!explorerLayoutSvc.currentFolder" class="plastic--toolbar" ng-class="plasticClass">
                     <div class="md-toolbar-tools">
                       <md-input-container class="tab-title__input-container" md-theme="classeur">
                         <input class="tab-title__input" value="Recent files" disabled="disabled" aria-label="Recent files">
