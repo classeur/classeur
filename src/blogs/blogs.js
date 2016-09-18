@@ -113,7 +113,7 @@ angular.module('classeur.blogs', [])
       return result
     })
   .factory('clBlogSvc',
-    function (clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, clZendeskBlogPlatform, $window, clToast, clBlogPlatform) {
+    function ($window, $rootScope, clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, clZendeskBlogPlatform, clToast, clBlogPlatform) {
       var platformMap = Object.create(null)
       var platforms = Array.prototype.cl_filter.call(arguments, function (arg) {
         if (arg instanceof clBlogPlatform.BlogPlatform) {
@@ -157,7 +157,7 @@ angular.module('classeur.blogs', [])
             : {}
         },
         fillPostSubForm: function (blog, subForm) {
-          blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm)
+          blog && platformMap[blog.platformId].fillPostSubForm && platformMap[blog.platformId].fillPostSubForm(blog, subForm, $rootScope.currentFile)
         },
         createPost: function (form) {
           var blog = form.blog
