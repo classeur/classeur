@@ -551,6 +551,7 @@ angular.module('classeur.core.editor', [])
         var insertBeforePreviewElt = previewElt.firstChild
         var insertBeforeTocElt = tocElt.firstChild
         var previewHtml = ''
+        var heading
         conversionCtx.htmlSectionDiff.cl_each(function (item) {
           for (var i = 0; i < item[1].length; i++) {
             var section = conversionCtx.sectionList[sectionIdx]
@@ -590,7 +591,13 @@ angular.module('classeur.core.editor', [])
               sectionTocElt = document.createElement('div')
               sectionTocElt.className = 'cl-toc-section modified'
               var headingElt = sectionPreviewElt.querySelector('h1, h2, h3, h4, h5, h6')
+              heading = undefined
               if (headingElt) {
+                heading = {
+                  title: headingElt.textContent,
+                  anchor: headingElt.id,
+                  level: parseInt(headingElt.tagName.slice(1), 10)
+                }
                 headingElt = headingElt.cloneNode(true)
                 headingElt.removeAttribute('id')
                 sectionTocElt.appendChild(headingElt)
@@ -616,7 +623,8 @@ angular.module('classeur.core.editor', [])
                 editorElt: section.elt,
                 previewElt: sectionPreviewElt,
                 tocElt: sectionTocElt,
-                html: clonedElt.innerHTML
+                html: clonedElt.innerHTML,
+                heading: heading
               })
             }
           }
@@ -895,14 +903,56 @@ angular.module('classeur.core.editor', [])
         return tokens && $window.markdownitPandocRenderer(tokens, clEditorSvc.converter.options)
       }
 
+      function groupToc (array, level) {
+        level = level || 1
+        var result = []
+        var currentItem
+
+        function pushCurrentItem () {
+          if (currentItem) {
+            if (currentItem.children.length > 0) {
+              currentItem.children = groupToc(currentItem.children, level + 1)
+            }
+            result.push(currentItem)
+          }
+        }
+        array.cl_each(function (item) {
+          if (item.level !== level) {
+            currentItem = currentItem || {
+              children: []
+            }
+            currentItem.children.push(item)
+          } else {
+            pushCurrentItem()
+            currentItem = item
+          }
+        })
+        pushCurrentItem()
+        return result
+      }
+
       function applyTemplate (template) {
+        var toc = []
+        clEditorSvc.sectionDescList.cl_each(function (sectionDesc) {
+          if (sectionDesc.heading) {
+            toc.push({
+              title: sectionDesc.heading.title,
+              level: sectionDesc.heading.level,
+              anchor: sectionDesc.heading.anchor,
+              children: []
+            })
+          }
+        })
+        toc = groupToc(toc)
+
         var view = {
           file: {
             name: $rootScope.currentFile.name,
             content: {
               properties: $rootScope.currentFile.content.properties,
               text: $rootScope.currentFile.content.text,
-              html: clEditorSvc.previewHtml
+              html: clEditorSvc.previewHtml,
+              toc: toc
             }
           }
         }

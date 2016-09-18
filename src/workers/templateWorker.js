@@ -21,6 +21,22 @@ Handlebars.registerHelper('toYaml', function (object) {
     }, ''))
   }
 })
+Handlebars.registerHelper('tocToHtml', function (toc, depth) {
+  function arrayToHtml (arr, depth) {
+    if (!arr || !arr.length || arr[0].level > depth) {
+      return ''
+    }
+    return '\n<ul>\n' + arr.map(function (item) {
+      var result = '<li>'
+      if (item.anchor && item.title) {
+        result += '<a href="#' + item.anchor + '">' + item.title + '</a>'
+      }
+      result += arrayToHtml(item.children, depth)
+      return result + '</li>'
+    }).join('\n') + '\n</ul>\n'
+  }
+  return new Handlebars.SafeString(arrayToHtml(toc, depth || 6))
+})
 
 var whiteList = {
   'self': 1,
