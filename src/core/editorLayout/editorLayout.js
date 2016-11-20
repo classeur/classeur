@@ -54,7 +54,6 @@ angular.module('classeur.core.editorLayout', [])
         elt.querySelector('.menu__inner').clanim.width(clEditorLayoutSvc.menuWidth).start()
         elt.querySelector('.right-margin').clanim.width(clEditorLayoutSvc.editorBtnGrpWidth).right(-clEditorLayoutSvc.editorBtnGrpWidth).start()
         var navbarElt = clEditorLayoutSvc.navbarElt = elt.querySelector('.navbar')
-        var scrollBtnElt = elt.querySelector('.navbar__side-btn--scroll')
 
         editorElt.style.paddingLeft = clEditorLayoutSvc.editorLeftOverflow + 'px'
         editorElt.style.left = -clEditorLayoutSvc.editorLeftOverflow + 'px'
@@ -237,14 +236,6 @@ angular.module('classeur.core.editorLayout', [])
             .start(true)
         }
 
-        function animatePreviewButtons (isPreviewTop) {
-          scrollBtnElt.clanim
-            .opacity(isPreviewTop ? 0 : 1)
-            .duration(isInited && 200)
-            .easing('materialOut')
-            .start(true)
-        }
-
         scope.editFileProperties = function () {
           clEditorLayoutSvc.currentControl = 'editProperties'
           var file = scope.currentFile
@@ -331,7 +322,6 @@ angular.module('classeur.core.editorLayout', [])
         scope.$watch('editorLayoutSvc.currentControl === "menu"', function (isMenuOpen) {
           clEditorLayoutSvc.isMenuOpen = isMenuOpen
         })
-        scope.$watch('editorSvc.isPreviewTop', animatePreviewButtons)
         scope.$watch('editorLayoutSvc.fontSizePx', function (fontSize) {
           editorElt.style.fontSize = fontSize
         })

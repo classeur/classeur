@@ -650,6 +650,12 @@ angular.module('classeur.core.editorMarkdown', [])
       rest.link.inside['cl cl-underlined-text'].inside = inside
       rest.linkref.inside['cl cl-underlined-text'].inside = inside
 
+      // Wrap any other characters to allow paragraph folding
+      grammars.cl_each(function (grammar) {
+        grammar.rest = grammar.rest || {}
+        grammar.rest.p = /.+/
+      })
+
       return grammars
     }
 

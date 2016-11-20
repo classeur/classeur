@@ -45,7 +45,7 @@ angular.module('classeur.blogs', [])
       }
     })
   .directive('clBlogPostForm',
-    function ($window, $q, clBlogSvc, clSocketSvc, clSettingSvc, clLocalSettingSvc) {
+    function ($window, $q, clBlogSvc, clSocketSvc, clSettingSvc, clLocalSettingSvc, clFilePropertiesSvc) {
       return {
         restrict: 'E',
         templateUrl: 'blogs/blogPostForm.html',
@@ -72,7 +72,8 @@ angular.module('classeur.blogs', [])
               clSocketSvc.removeMsgHandler('blogs', blogsHandler)
               blogMap = msg.blogs.cl_reduce(function (blogMap, blog) {
                 blog.platform = clBlogSvc.platformMap[blog.platformId]
-                return (blogMap[blog.id] = blog, blogMap)
+                blogMap[blog.id] = blog
+                return blogMap
               }, {})
               scope.blogs = msg.blogs
               unwatch()
@@ -91,6 +92,8 @@ angular.module('classeur.blogs', [])
           }
         }
 
+        var propertiesDesc = clFilePropertiesSvc.getCurrentFilePropertiesDesc()
+
         scope.$watch('form.blogId', function (blogId) {
           var blog = blogMap[blogId]
           scope.form.blog = blog
@@ -98,6 +101,14 @@ angular.module('classeur.blogs', [])
             ? ({}).cl_extend(scope.post)
             : clBlogSvc.createPostSubForm(blog)
           clBlogSvc.fillPostSubForm(blog, scope.form.subForm)
+
+          scope.form.subForm.propertiesDesc = {}
+          if (blog && clBlogSvc.platformMap[blog.platformId].properties) {
+            clBlogSvc.platformMap[blog.platformId].properties.cl_each(function (name) {
+              scope.form.subForm.propertiesDesc[name] = propertiesDesc[name]
+            })
+          }
+          scope.form.subForm.hasProperties = Object.keys(scope.form.subForm.propertiesDesc).length
         })
       }
     })
@@ -113,7 +124,7 @@ angular.module('classeur.blogs', [])
       return result
     })
   .factory('clBlogSvc',
-    function ($window, $rootScope, clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, clZendeskBlogPlatform, clToast, clBlogPlatform) {
+    function ($window, $rootScope, $templateCache, clBloggerBlogPlatform, clGithubBlogPlatform, clWordpressBlogPlatform, clZendeskBlogPlatform, clToast, clBlogPlatform, clFilePropertiesSvc) {
       var platformMap = Object.create(null)
       var platforms = Array.prototype.cl_filter.call(arguments, function (arg) {
         if (arg instanceof clBlogPlatform.BlogPlatform) {
@@ -168,6 +179,7 @@ angular.module('classeur.blogs', [])
             var post = blog.platform.createPostFromSubForm(form.subForm)
             post.blogId = blog.id
             post.template = form.template || ''
+            clFilePropertiesSvc.setCurrentFilePropertiesDesc(form.subForm.propertiesDesc)
             return post
           } catch (err) {
             clToast(err.message)
@@ -178,9 +190,9 @@ angular.module('classeur.blogs', [])
           var params = platform.getAuthorizeParams(blog)
           params.state = state
           $window.location.href = platform.authorizeUrl + '?' +
-            params.cl_map(function (value, key) {
-              return key + '=' + encodeURIComponent(value)
-            }).join('&')
+          params.cl_map(function (value, key) {
+            return key + '=' + encodeURIComponent(value)
+          }).join('&')
         }
       }
     })

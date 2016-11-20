@@ -4,8 +4,15 @@ angular.module('classeur.core', [])
       $locationProvider.hashPrefix('!')
       $animateProvider.classNameFilter(/angular-animate|md-dialog-backdrop|md-bottom md-right/)
       $anchorScrollProvider.disableAutoScrolling()
+      var customPalette = $mdThemingProvider.extendPalette('grey', {
+        '500': 'rgba(0, 0, 0, 0.4)'
+      })
+
+      // Register the new color palette map with the name <code>neonRed</code>
+      $mdThemingProvider.definePalette('custom', customPalette)
+
       $mdThemingProvider.theme('default')
-        .primaryPalette('grey')
+        .primaryPalette('custom')
         .accentPalette('blue')
       var menuTheme = $mdThemingProvider.theme('classeur', 'default')
       menuTheme.dark()

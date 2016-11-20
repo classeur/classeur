@@ -51,6 +51,13 @@ angular.module('classeur.blogs.blogger', [])
         }
       }
 
+      clBloggerBlogPlatform.properties = [
+        'title',
+        'tags',
+        'published',
+        'date'
+      ]
+
       clBloggerBlogPlatform.getAuthorizeParams = function () {
         return {
           client_id: clConfig.googleClientId,

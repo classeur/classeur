@@ -1,30 +1,67 @@
 <md-dialog class="properties-dialog">
   <md-dialog-content>
     <h2>File properties</h2>
-    <div ng-repeat="property in properties" layout="row" layout-align="center center">
-      <md-button class="properties-dialog__button properties-dialog__button--remove icon-remove" ng-click="deleteRow(property)" aria-label="Delete property"></md-button>
-      <md-input-container>
-        <label>Key</label>
-        <input autocomplete="off" ng-model="property.key">
-      </md-input-container>
-      <md-input-container>
-        <label>Value</label>
-        <input autocomplete="off" ng-model="property.value">
-      </md-input-container>
-    </div>
-    <div layout="row" layout-align="end">
-      <md-button ng-click="addRow()">
-        Add
-        <span class="icon-add"></span>
-      </md-button>
-    </div>
-    <div class="tip">
-      <b>Tip:</b> To activate Emoji:
-      <pre class="properties-dialog__example">ext:emoji      true</pre>
-    </div>
-    <md-button class="md-primary" target="_blank" ng-href="https://classeur.zendesk.com/hc/en-us/articles/209439105">
-      More about extensions...
-    </md-button>
+    <md-tabs md-dynamic-height md-border-bottom md-selected="tabIndex">
+      <md-tab label="Simple">
+        <md-content class="md-padding">
+          <div ng-repeat="(name, propertyDesc) in propertiesDesc" ng-switch="propertyDesc.type">
+            <md-input-container ng-switch-default>
+              <label>{{propertyDesc.placeholder}}</label>
+              <input autocomplete="off" ng-model="propertyDesc.value">
+            </md-input-container>
+            <div ng-switch-when="checkbox">
+              <md-checkbox ng-model="propertyDesc.value" aria-label="{{propertyDesc.placeholder}}">
+                {{propertyDesc.placeholder}}
+              </md-checkbox>
+            </div>
+          </div>
+        </md-content>
+      </md-tab>
+      <md-tab label="Advanced">
+        <md-content class="md-padding">
+          <br>
+          <div ng-repeat="property in properties" layout="row" layout-align="center center" class="properties-dialog__row">
+            <md-button class="properties-dialog__button properties-dialog__button--remove icon-remove" ng-click="deleteRow(property)" aria-label="Delete property"></md-button>
+            <md-input-container>
+              <label>Key</label>
+              <input autocomplete="off" ng-model="property.key">
+            </md-input-container>
+            <md-input-container>
+              <label>Value</label>
+              <input autocomplete="off" ng-model="property.value">
+            </md-input-container>
+          </div>
+          <div layout="row" layout-align="end">
+            <md-button ng-click="addRow()">
+              Add
+              <span class="icon-add"></span>
+            </md-button>
+          </div>
+          <div class="tip">
+            <b>Available extensions:</b>
+            <pre class="properties-dialog__example">ext:markdown:abbr
+ext:markdown:breaks
+ext:markdown:deflist
+ext:markdown:del
+ext:markdown:fence
+ext:markdown:footnote
+ext:markdown:linkify
+ext:markdown:sub
+ext:markdown:sup
+ext:markdown:table
+ext:markdown:typographer
+ext:mathjax
+ext:mathjax:tex
+ext:mathjax:tex2jax
+ext:emoji
+ext:emoji:shortcuts</pre>
+          </div>
+          <md-button class="md-primary" target="_blank" ng-href="https://classeur.zendesk.com/hc/en-us/articles/209439105">
+            More about extensions...
+          </md-button>
+        </md-content>
+      </md-tab>
+    </md-tabs>
   </md-dialog-content>
   <md-dialog-actions>
     <md-button ng-click="cancel()" class="md-primary">

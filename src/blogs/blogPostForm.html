@@ -14,6 +14,22 @@
     <cl-github-blog-post-form ng-if="form.blog.platformId === 'github'"></cl-github-blog-post-form>
     <cl-wordpress-blog-post-form ng-if="form.blog.platformId === 'wordpress'"></cl-wordpress-blog-post-form>
     <cl-zendesk-blog-post-form ng-if="form.blog.platformId === 'zendesk'"></cl-zendesk-blog-post-form>
+    <div ng-show="form.subForm.hasProperties">
+      <md-button ng-show="!showProperties" ng-click="showProperties = true">More properties...</md-button>
+      <div ng-if="showProperties">
+        <div ng-repeat="(name, propertyDesc) in form.subForm.propertiesDesc" ng-switch="propertyDesc.type">
+          <md-input-container ng-switch-default>
+            <label>{{propertyDesc.placeholder}}</label>
+            <input autocomplete="off" ng-model="propertyDesc.value">
+          </md-input-container>
+          <div ng-switch-when="checkbox">
+            <md-checkbox ng-model="propertyDesc.value" aria-label="{{propertyDesc.placeholder}}">
+              {{propertyDesc.placeholder}}
+            </md-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="blog-post-form__options">
       <div class="blog-post-form__label">
         Template

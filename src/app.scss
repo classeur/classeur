@@ -282,6 +282,15 @@ textarea:not([disabled]) {
       background-color: mix($background-color, $dark-c, 94%);
     }
 
+    &.plastic--toolbar {
+      background-color: mix(#fff, darken($c, 50%), 75%);
+
+      // md-input-container .md-input[disabled] {
+      //   color: desaturate($c, 50%);
+      // }
+      // @include linear-gradient(to left, $background-color, mix(#fff, $dark-c, 94%));
+    }
+
     &.plastic--border,
     &.folder-entry,
     &.tab-list__entry {

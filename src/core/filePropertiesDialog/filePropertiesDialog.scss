@@ -1,6 +1,17 @@
 .properties-dialog {
   min-width: 360px;
 
+  md-content {
+    background-color: transparent;
+  }
+
+  md-input-container {
+    margin-bottom: 40px;
+    margin-top: 40px;
+  }
+}
+
+.properties-dialog__row {
   md-input-container {
     margin-bottom: 10px;
     margin-top: 10px;

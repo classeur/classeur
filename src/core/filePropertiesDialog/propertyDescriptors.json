@@ -1,0 +1,31 @@
+{
+    "title": {
+        "placeholder": "Title"
+    },
+    "author": {
+        "placeholder": "Author"
+    },
+    "tags": {
+        "placeholder": "Tags (comma separated)"
+    },
+    "categories": {
+        "placeholder": "Categories (comma separated)"
+    },
+    "excerpt": {
+        "placeholder": "Excerpt"
+    },
+    "featuredImage": {
+        "placeholder": "Featured image"
+    },
+    "published": {
+        "placeholder": "Published",
+        "type": "checkbox",
+        "default": true
+    },
+    "status": {
+        "placeholder": "Status"
+    },
+    "date": {
+        "placeholder": "Publish date (YYYY-MM-DD HH:MM:SS)"
+    }
+}

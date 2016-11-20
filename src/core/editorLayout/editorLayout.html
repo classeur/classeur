@@ -50,12 +50,12 @@
           {{currentFile.name}}
           <div class="navbar__btns">
             <div layout-align="center end">
-              <md-button class="navbar__btn navbar__btn--edit icon-mode-edit" md-no-ink ng-click="openEditor()" aria-label="Edit" title="Edit">
+              <md-button class="navbar__btn icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close file" title="Close file">
               </md-button>
             </div>
           </div>
           <div layout="column" class="navbar__side-btns">
-            <md-button class="navbar__side-btn icon-clear" md-no-ink ng-click="setCurrentFile()" aria-label="Close file" title="Close file">
+            <md-button class="navbar__side-btn icon-mode-edit" md-no-ink ng-click="openEditor()" aria-label="Edit" title="Edit">
             </md-button>
             <md-button class="navbar__side-btn icon-toc" md-no-ink ng-click="toc()" aria-label="Table Of Contents" title="Table Of Contents">
             </md-button>
@@ -65,7 +65,7 @@
             </md-button>
             <md-button class="navbar__side-btn icon-print" md-no-ink ng-click="print()" aria-label="Print" title="Print">
             </md-button>
-            <md-button class="navbar__side-btn navbar__side-btn--scroll icon-arrow-back rotate-90" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
+            <md-button class="navbar__side-btn icon-arrow-back rotate-90" ng-class="{'navbar__side-btn--hidden': editorSvc.isPreviewTop}" md-no-ink ng-click="editorSvc.scrollToAnchor()" aria-label="Back to top" title="Back to top">
             </md-button>
           </div>
         </div>

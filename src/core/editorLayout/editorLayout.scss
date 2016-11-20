@@ -81,10 +81,12 @@ $menu-width: 34px;
   .navbar__side-btn {
     color: rgba(0, 0, 0, 0.54);
     display: inline-block;
-    font-size: 30px;
+    font-size: 28px;
     height: 36px;
     padding: 0;
     width: 36px;
+
+    @include transition(opacity 200ms cubic-bezier(0.75, 0, 0.8, 0.25));
 
     a {
       line-height: 36px;
@@ -93,11 +95,10 @@ $menu-width: 34px;
 
   .navbar__side-btn {
     color: rgba(0, 0, 0, 0.35);
-    font-size: 28px;
+  }
 
-    &.icon-clear {
-      font-size: 30px;
-    }
+  .navbar__side-btn--hidden {
+    opacity: 0;
   }
 
   .navbar__inner {
@@ -256,7 +257,7 @@ $menu-width: 34px;
   }
 
   .page__margin {
-    background-color: #ffedeb;
+    background-color: rgba(255, 216, 210, 0.33);
     left: $editor-margin-width;
     width: 1px;
   }

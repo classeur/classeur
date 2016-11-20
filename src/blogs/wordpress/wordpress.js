@@ -51,6 +51,17 @@ angular.module('classeur.blogs.wordpress', [])
         }
       }
 
+      clWordpressBlogPlatform.properties = [
+        'title',
+        'excerpt',
+        'tags',
+        'categories',
+        'author',
+        'featuredImage',
+        'status',
+        'date'
+      ]
+
       clWordpressBlogPlatform.getAuthorizeParams = function (blog) {
         return {
           client_id: clConfig.wordpressClientId,
