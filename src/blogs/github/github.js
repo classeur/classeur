@@ -69,7 +69,7 @@ angular.module('classeur.blogs.github', [])
       clGithubBlogPlatform.fillPostSubForm = function (blog, subForm, file) {
         subForm.repoUrl = serializeRepoUrl(blog)
         if (!subForm.filePath && file) {
-          subForm.filePath = file.name.replace(/[\/\\\:\*\?\"\<\>\|]/g, '')
+          subForm.filePath = file.name.replace(/[\/\\:\*\?"<>\|]/g, '')
         }
       }
 

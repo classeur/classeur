@@ -449,17 +449,17 @@ angular.module('classeur.core.explorerLayout', [])
         }
 
         // setInterval(function() {
-        // 	var file = clFileSvc.createFile()
-        // 	file.name = 'File ' + file.id
-        // 	file.folderId = clFolderSvc.activeDaos[Math.random() * clFolderSvc.activeDaos.length | 0].id
-        // 	scope.$apply()
+        //  var file = clFileSvc.createFile()
+        //  file.name = 'File ' + file.id
+        //  file.folderId = clFolderSvc.activeDaos[Math.random() * clFolderSvc.activeDaos.length | 0].id
+        //  scope.$apply()
         // }, 1000)
 
         // setInterval(function() {
-        // 	var folder = clFolderSvc.createFolder()
-        // 	folder.name = 'Folder ' + folder.id
+        //  var folder = clFolderSvc.createFolder()
+        //  folder.name = 'Folder ' + folder.id
         //  clClasseurSvc.addFolderToClasseur(clExplorerLayoutSvc.currentClasseur, folder)
-        // 	scope.$apply()
+        //  scope.$apply()
         // }, 15000)
 
         scope.setFolder = function (folder) {

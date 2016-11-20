@@ -256,7 +256,7 @@ angular.module('classeur.core.editorMarkdown', [])
     var charInsideUrl = '(&|[-A-Z0-9+@#/%?=~_|[\\]()!:,.;])'
     var charEndingUrl = '(&|[-A-Z0-9+@#/%=~_|[\\])])'
     var urlPattern = new RegExp('(https?|ftp)(://' + charInsideUrl + '*' + charEndingUrl + ')(?=$|\\W)', 'gi')
-    var emailPattern = /(?:mailto:)?([-.\w]+\@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)/gi
+    var emailPattern = /(?:mailto:)?([-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)/gi
 
     var markup = {
       'comment': /<!--[\w\W]*?-->/g,

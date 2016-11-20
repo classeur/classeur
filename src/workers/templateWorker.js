@@ -1,7 +1,7 @@
 // This WebWorker provides a safe environment to run user scripts
 // See http://stackoverflow.com/questions/10653809/making-webworkers-a-safe-environment/10796616
 
-/*global Handlebars, postMessage, close*/
+/* global Handlebars, postMessage, close */
 
 // Classeur own helpers
 Handlebars.registerHelper('toYaml', function (object) {
@@ -26,14 +26,15 @@ Handlebars.registerHelper('tocToHtml', function (toc, depth) {
     if (!arr || !arr.length || arr[0].level > depth) {
       return ''
     }
-    return '\n<ul>\n' + arr.map(function (item) {
-      var result = '<li>'
-      if (item.anchor && item.title) {
-        result += '<a href="#' + item.anchor + '">' + item.title + '</a>'
-      }
-      result += arrayToHtml(item.children, depth)
-      return result + '</li>'
-    }).join('\n') + '\n</ul>\n'
+    return '\n<ul>\n' +
+      arr.map(function (item) {
+        var result = '<li>'
+        if (item.anchor && item.title) {
+          result += '<a href="#' + item.anchor + '">' + item.title + '</a>'
+        }
+        result += arrayToHtml(item.children, depth)
+        return result + '</li>'
+      }).join('\n') + '\n</ul>\n'
   }
   return new Handlebars.SafeString(arrayToHtml(toc, depth || 6))
 })

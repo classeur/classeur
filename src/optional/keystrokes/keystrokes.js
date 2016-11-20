@@ -146,7 +146,7 @@ angular.module('classeur.optional.keystrokes', [])
           return
         }
         var spaceIndent = indent.replace(/\t/g, '    ')
-        var indentRegex = new RegExp('^[ \\s]*$|^' + spaceIndent + '(\\d+\.[ \\t])?(( )?.*)$')
+        var indentRegex = new RegExp('^[ \\s]*$|^' + spaceIndent + '(\\d+\\.[ \\t])?(( )?.*)$')
 
         function getHits (lines) {
           var hits = []

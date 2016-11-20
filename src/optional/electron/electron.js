@@ -180,17 +180,17 @@ angular.module('classeur.optional.electron', [])
       }, {
         type: 'separator'
       }, {
-        // 	label: 'Undo',
-        // 	keystroke: 'Ctrl/Cmd+Z',
-        // 	click: function() {
-        // 		clEditorSvc.cledit.undoMgr.undo()
-        // 	}
+        //  label: 'Undo',
+        //  keystroke: 'Ctrl/Cmd+Z',
+        //  click: function() {
+        //    clEditorSvc.cledit.undoMgr.undo()
+        //  }
         // }, {
-        // 	label: 'Redo',
-        // 	keystroke: 'Ctrl/Cmd+Y',
-        // 	click: function() {
-        // 		clEditorSvc.cledit.undoMgr.redo()
-        // 	}
+        //  label: 'Redo',
+        //  keystroke: 'Ctrl/Cmd+Y',
+        //  click: function() {
+        //    clEditorSvc.cledit.undoMgr.redo()
+        //  }
         // }, {
         type: 'separator'
       }, {
