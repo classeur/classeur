@@ -50,7 +50,7 @@ angular.module('classeur.core.classeurs', [])
       }
     })
   .factory('clClasseurSvc',
-    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc, clDebug, clHash) {
+    function (clLocalStorage, clLocalDbStore, clFolderSvc, clSettingSvc, clDebug, clHash, clFileSvc) {
       var debug = clDebug('classeur:clClasseurSvc')
       var clClasseurSvc = {
         init: init,
@@ -66,7 +66,8 @@ angular.module('classeur.core.classeurs', [])
         setClasseurFolder: setClasseurFolder,
         unsetClasseurFolder: unsetClasseurFolder,
         applyServerChanges: applyServerChanges,
-        mergeDefaultClasseur: mergeDefaultClasseur
+        mergeDefaultClasseur: mergeDefaultClasseur,
+        refreshFileStats: refreshFileStats
       }
 
       var store = clLocalDbStore('classeurs', {
@@ -332,6 +333,19 @@ angular.module('classeur.core.classeurs', [])
           dao.updated = item.updated
         })
         init()
+      }
+
+      function refreshFileStats () {
+        var files = clFileSvc.activeDaos
+        Object.keys(daoMap).cl_each(function (id) {
+          var classeur = daoMap[id]
+          var filesInClasseur = files.filter(function (file) {
+            return classeur.folders.find(function (folder) {
+              return folder.id === file._folderId
+            })
+          })
+          classeur.fileCount = filesInClasseur.length
+        })
       }
 
       function mergeDefaultClasseur (newDefaultClasseur) {
