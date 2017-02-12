@@ -159,6 +159,20 @@ angular.module('classeur.core', [])
         clToast('Copy created.')
       }
 
+      function deleteCurrentFile () {
+        var deleteDialog = clDialog.confirm()
+            .title('Delete document')
+            .content("You're about to delete the current document. Are you sure?")
+            .ariaLabel('Delete document')
+            .ok('Yes')
+            .cancel('No')
+        clDialog.show(deleteDialog).then(function () {
+          var currentFile = $rootScope.currentFile
+          clFileSvc.setDeletedFiles([currentFile])
+          clToast('Document deleted.')
+        })
+      }
+
       function createDefaultFile () {
         var newFileDao = clFileSvc.createFile()
         newFileDao.state = 'loaded'
@@ -175,6 +189,7 @@ angular.module('classeur.core', [])
       $rootScope.loadFile = loadFile
       $rootScope.makeCurrentFileCopy = makeCurrentFileCopy
       $rootScope.createDefaultFile = createDefaultFile
+      $rootScope.deleteCurrentFile = deleteCurrentFile
 
       // A counter to refresh times in the UI
       $rootScope.minuteCounter = 0
