@@ -261,4 +261,23 @@ $menu-width: 34px;
     left: $editor-margin-width;
     width: 1px;
   }
+
+  //  Scale down the navbar on narrow layouts
+  @media (max-width: 460px) {
+    .navbar__inner {
+      font-size: 16px;
+      min-height: 20px;
+      vertical-align: middle;
+      // 'snap' issue when close buttons is wrapping.  Add transition after only the text wraps
+      //transition: font-size 400ms ease;
+    }
+    .navbar__btn {
+      font-size: 20px;
+      height: 20px;
+      vertical-align: middle;
+      width: 20px;
+      // 'snap' issue when close buttons is wrapping.  Add transition after only the text wraps
+      //transition: font-size 400ms ease;
+    }
+  }
 }
