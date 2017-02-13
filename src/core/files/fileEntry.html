@@ -30,6 +30,18 @@
           Rename
         </md-button>
       </md-menu-item>
+      <md-menu-item ng-if="!file.userId || file.sharing === 'r'">
+        <md-button ng-click="openReader()">
+          <md-icon md-font-icon="icon-search"></md-icon>
+          Read
+        </md-button>
+      </md-menu-item>
+      <md-menu-item ng-if="!file.userId || file.sharing === 'rw'">
+        <md-button ng-click="open()">
+          <md-icon md-font-icon="icon-mode-edit"></md-icon>
+          Edit
+        </md-button>
+      </md-menu-item>
       <md-menu-item ng-if="file.folderId && folderSvc.activeDaoMap[file.folderId] && explorerLayoutSvc.currentFolder !== folderSvc.activeDaoMap[file.folderId]">
         <md-button ng-click="explorerLayoutSvc.setCurrentFolderInClasseur(folderSvc.activeDaoMap[file.folderId])">
           <md-icon md-font-icon="icon-folder-open"></md-icon>
