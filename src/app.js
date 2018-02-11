@@ -72,6 +72,7 @@ if (
     'classeur.optional.tour',
     'classeur.optional.userCursor',
     'classeur.optional.userMgtPage',
+    'classeur.optional.warningDialog',
     'classeur.optional.zenMode'
   ])
 }
