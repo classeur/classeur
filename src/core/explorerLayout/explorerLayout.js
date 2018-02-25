@@ -815,6 +815,7 @@ angular.module('classeur.core.explorerLayout', [])
         clExplorerLayoutSvc.pagedFiles = clExplorerLayoutSvc.files.slice(0, endFileIndex)
         clExplorerLayoutSvc.pagedExtraFiles = clExplorerLayoutSvc.extraFiles.slice(0, endFileIndex - clExplorerLayoutSvc.pagedFiles.length)
         setEffectiveSharing()
+        clClasseurSvc.refreshFileStats()
       }
 
       function setUserInputFilter (value) {

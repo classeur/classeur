@@ -12,6 +12,10 @@
       <div ng-show="classeur.isDefault"><b>default</b></div>
       <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
       <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
+      <div ng-switch="classeur.fileCount !== 1">
+        <div ng-switch-when="true">{{classeur.fileCount}} files</div>
+        <div ng-switch-when="false">{{classeur.fileCount }} file</div>
+      </div>
     </div>
     <div class="classeur-entry__menu panel" layout="row" layout-align="center">
       <md-menu>
