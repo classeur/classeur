@@ -132,13 +132,18 @@ angular.module('classeur.core', [])
         $rootScope.currentFile = undefined
       }
 
-      function setCurrentFile (file, anchor) {
+      function setCurrentFile (file, anchor, noEditor) {
         unloadCurrentFile()
         if (file) {
           file.unload() // Make sure file is unloaded
           $timeout(function () {
             $location.url(clUrl.file(file))
             $location.hash(anchor)
+            if (noEditor) {
+              setTimeout(function () {
+                clEditorLayoutSvc.toggleEditor(false)
+              }, 100)
+            }
           }, 10)
         }
       }

@@ -27,6 +27,9 @@ angular.module('classeur.core.files', [])
         scope.open = function () {
           !scope.isEditing && scope.setCurrentFile(scope.file)
         }
+        scope.openReader = function () {
+          !scope.isEditing && scope.setCurrentFile(scope.file, undefined, true)
+        }
         var unsetTimeout
         scope.setEditing = function (value) {
           $timeout.cancel(unsetTimeout)
