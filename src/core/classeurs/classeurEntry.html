@@ -10,8 +10,10 @@
     </div>
     <div class="classeur-entry__info" ng-switch="classeur.folders.length > 1">
       <div ng-show="classeur.isDefault"><b>default</b></div>
-      <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
-      <div ng-switch-when="false">{{classeur.folders.length}} folder</div>
+      <div ng-switch="classeur.folders.length !== 1">
+        <div ng-switch-when="true">{{classeur.folders.length}} folders</div>
+        <div ng-switch-when="false">{{classeur.folders.length }} folder</div>
+      </div>
     </div>
     <div class="classeur-entry__menu panel" layout="row" layout-align="center">
       <md-menu>
